@@ -1,0 +1,60 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{The typed Perfect Hash Filter}
+\label{sec:typed_phf}
+The \gls{gls-phf} described in \cref{sec:phf} is a Bernoulli set over the universe of bit strings $\BitSet^*$. However, injections from any countable set $\mathbb{X}$ to $\BitSet^*$ exist. Let us denote such an injection by
+\begin{equation}
+    \Encode \colon \mathbb{X} \mapsto \BitSet^*\,,
+\end{equation}
+which maps every element $x \in \mathbb{X}$ to a unique element $y \in \BitSet^*$. Note that in the \gls{gls-phf}, iterating over (or retrieving) elements is not supported and thus \Encode does not need to be decodable.
+
+For instance, if elements of type $\mathbb{X}$ are a data structure, then \Encode may be its serialization, a \emph{linear} sequence of bits.\footnote{The \emph{memory-resident} representation is machine and process-dependent and thus not a suitable representation if the \emph{typed} \gls{gls-phf} is supposed to work across multiple machines or processes.} Alternatively, if the data structure is intended to be efficiently inserted into a \gls{gls-phf}, then something like a simple \emph{hash code} may be used since it does not need to be \emph{decodable}.\footnote{If each element of $\mathbb{X}$ does not uniquely map to a hash code, then the false positive rate as given by $\fprate$ is only an approximation.}
+
+Consequently, we may map any set $\Set{S}_\mathbb{X} \subset \mathbb{X}$ to a set $\Set{S}_{\mathcal{B}} \subset \BitSet^*$ so that the \gls{gls-phf} may approximate it. We denote this the \gls{gls-phf} of type $\mathbb{X}$. The \gls{gls-phf} of type $\mathbb{X}$ may approximate any \emph{finite set} $\Set{S}_\mathbb{X}$ where the elements are members of the countable set $\mathbb{X}$. See \cref{alg:typedPHF} for the construction and \cref{alg:typed_PHF_contains} for the membership test.
+\begin{algorithm}[h]
+    \caption{Construction of the \emph{typed} Perfect Hash Filter}
+    \label{alg:typedPHF}
+    \SetKwProg{func}{function}{}{}
+    \KwIn
+    {
+        \begin{itemize}
+            \item[$S_{\mathbb{X}}$] The set to approximate where the universe of elements is $\mathbb{X}$.
+            \item[$\fprate$] The false positive rate.
+            \item[$r$] The load factor.
+        \end{itemize}
+    }
+    \KwOut
+    {
+        A \emph{typed} perfect hash filter $S^+_{\mathbb{X}}$ that approximates $S_{\mathbb{X}}$ with a false positive rate $\fprate$ and a load factor $r$.
+    }
+    \func{\MakeTypeApproxSet{$S_{\mathbb{X}}$, $\fprate$ $\Given$ $r$}}
+    {
+        $S_{\mathcal{B}} \gets \left\{ \Encode(x) \colon x \in S_{\mathbb{X}}\right\}$\;
+        $S^+_{\mathcal{B}} \gets$ \MakeApproxSet{$S_{\mathcal{B}}$, $\fprate$ $\Given$ $r$}\;
+        \Return $S^+_{\mathbb{X}}$\;
+    }
+\end{algorithm}
+\begin{algorithm}[h]
+    \caption{Membership test for the \emph{typed} Perfect Hash Filter}
+    \label{alg:typed_PHF_contains}
+    \SetKwProg{func}{function}{}{}
+    \KwIn
+    {
+        \begin{itemize}
+            \item[$S^+_{\mathbb{X}}$] The \emph{typed} perfect hash filter that approximates $S_{\mathbb{X}} \subset \mathbb{X}$ with a false positive rate $\fprate$ and a load factor $r$.
+            \item[$x$] The element in $\mathbb{X}$ to test membership in $S^+_{\mathbb{X}}$.
+        \end{itemize}
+    }
+    \KwOut
+    {
+        Returns \True if $x \in S_{\mathbb{X}}$. Otherwise, returns \True with probability $\fprate$ and \False with probability $1 - \fprate$.
+    }
+    \func{\Contains{$S^+_{\mathbb{X}}$, $x$}}
+    {
+        $b \gets \Encode(x)$\;
+        $q \gets$ \Contains{$S^+_{\mathcal{B}}$, $b$}\;
+        \Return $q$\;
+    }
+\end{algorithm}
+\end{document}

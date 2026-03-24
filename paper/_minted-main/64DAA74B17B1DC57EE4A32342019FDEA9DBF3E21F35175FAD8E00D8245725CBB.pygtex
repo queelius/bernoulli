@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{template}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{K}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{typename}\PYG{+w}{ }\PYG{n+nc}{PerfectHashFn}\PYG{o}{\PYGZgt{}}
+\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{fnr}\PYG{p}{(}\PYG{n}{perfect\PYGZus{}hash\PYGZus{}filter}\PYG{o}{\PYGZlt{}}\PYG{n}{K}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{PerfectHashFn}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nb}{false}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{A}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n}{rate\PYGZus{}distortion}\PYG{p}{(}\PYG{n}{A}\PYG{p}{.}\PYG{n}{hash\PYGZus{}fn}\PYG{p}{())}\PYG{o}{*}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{o}{\PYGZhy{}}\PYG{n}{fpr}\PYG{p}{(}\PYG{n}{A}\PYG{p}{));}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

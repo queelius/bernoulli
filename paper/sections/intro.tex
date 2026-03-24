@@ -1,0 +1,52 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Introduction}
+
+The \emph{Bernoulli set}~\cite{bsets} is a probabilistic model of a set with
+quantifiable false positive and false negative rates. A \emph{positive}
+Bernoulli set has a false negative rate of zero: every true member is
+recognized, but non-members may be incorrectly accepted at a specified false
+positive rate~$\varepsilon$. This model captures the semantics of data
+structures such as the Bloom filter~\cite{bf}, which implements the positive
+Bernoulli set abstract data type.
+
+In this paper, we derive the \emph{Perfect Hash Filter} (\gls{gls-phf}), a
+data structure that implements the static positive Bernoulli set over
+$\BitSet^*$. The \gls{gls-phf} achieves an expected space complexity
+approaching the information-theoretic lower bound of
+$-\log_2 \varepsilon$~bits per element, compared to the Bloom filter's
+$-1.44 \log_2 \varepsilon$~bits per element. For false positive rates
+$\varepsilon < 2^{-3}$, the \gls{gls-phf} is the more space-efficient
+structure.
+
+The Bernoulli set model~\cite{bsets} is characterized by two axioms:
+\emph{element-wise independence} (membership outcomes for distinct elements are
+independent) and \emph{conditional independence of rates} (the false positive
+rate is independent of the objective set, given its cardinality). The
+construction of the \gls{gls-phf} satisfies both axioms under standard
+cryptographic hash assumptions.
+
+We also describe two extensions. First, replacing the perfect hash function with
+a \emph{$k$-perfect hash function} introduces a non-zero false negative rate,
+yielding a general second-order Bernoulli set with two degrees of freedom
+($\varepsilon$, $\omega$). Second, generalizing from set membership to key-value
+lookup produces the \emph{Perfect Map Filter} (\gls{gls-pmf}), which implements
+the static \emph{Bernoulli map}~\cite{bmaps}---an approximate partial function
+with quantifiable error rates.
+
+The paper is organized as follows.
+\Cref{sec:phf} derives the \gls{gls-phf} construction, proves its false
+positive rate, and analyzes its space complexity relative to the Bloom filter.
+\Cref{sec:typed_phf} extends the construction to typed elements via injections
+into $\BitSet^*$.
+\Cref{sec:k_perfect} introduces $k$-perfect hashing and the resulting false
+negative rate.
+\Cref{sec:pmf} generalizes to the approximate hash map.
+\Cref{sec:apps} demonstrates applications to fuzzy set queries for
+rank-ordered search.
+\Cref{sec:impl} provides a C++ implementation.
+\Cref{sec:adt} discusses the abstract data type of the Bernoulli set, including
+space efficiency bounds and algebraic properties.
+
+\end{document}
