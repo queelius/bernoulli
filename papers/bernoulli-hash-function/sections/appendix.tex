@@ -1,0 +1,163 @@
+\appendix
+\appendixpage
+\addappheadtotoc
+
+\section{Bit length sampler and PMF derivation}
+\label{sec:appendix}
+
+\begin{algorithm}[ht]
+    \caption{Bit length sampler}
+    \label{alg:sampler}
+    \SetKwProg{func}{function}{$\colon$}{}
+    \KwIn{
+        $m$ is the cardinality of the set (or map) to approximate,
+        $\fprate$ is the false positive rate,
+        $\mu$ is the mean value encoding length.
+    }
+    \KwOut{
+        A random bit length $n$ of a BHF encoding.
+    }
+    \func{\sampler{$m$, $\fprate$, $\mu$}}{
+        Draw a random set $\Set{S}$ of $m$ elements from $\cisb$\;
+        \If{$\mu > 0$}{
+            Assign random values $v_i$ to each $x_i \in \Set{S}$ with mean
+            encoding length $\mu$\;
+        }
+        $(h_k, b) \gets \MakeBHF(\Set{S}, \fprate, 0)$\;
+        \Return $\BL(h_k) + \BL(b) + \mathcal{O}(1)$\;
+    }
+\end{algorithm}
+
+\begin{theorem}[PMF of the random bit length]
+\label{thm:pmf_detailed}
+The random bit length $\RV{L}$ of the salt $b$ has the probability mass
+function
+\begin{equation}
+    \PDF{n \Given m, \fprate, \mu}[\RV{L}]
+    = q^{2^n - 1}\!\left(1 - q^{2^n}\right)\,,
+\end{equation}
+where $q = 1 - p$ and $p$ is the per-trial success probability.
+\end{theorem}
+\begin{proof}
+Each candidate salt is an independent Bernoulli trial with success probability
+$p$.
+The algorithm tests candidates in order of increasing bit length, with $2^n$
+candidates of length $n$.
+
+For $\RV{L} = n$ to occur:
+\begin{enumerate}
+    \item All $2^n - 1$ candidates of length $< n$ must fail.
+    Each fails independently with probability $q = 1 - p$, so the joint
+    failure probability is $q^{2^n - 1}$.
+
+    \item At least one candidate of length $n$ must succeed.
+    All $2^n$ candidates of length $n$ fail with probability $q^{2^n}$, so
+    the complementary probability is $1 - q^{2^n}$.
+\end{enumerate}
+By independence, $\Prob{\RV{L} = n} = q^{2^n - 1}(1 - q^{2^n})$.
+
+\paragraph{Verification that this is a valid PMF.}
+The sum telescopes:
+\begin{align}
+    \sum_{n=0}^{\infty} q^{2^n - 1}(1 - q^{2^n})
+    &= \sum_{n=0}^{\infty} \left(q^{2^n - 1} - q^{2^{n+1} - 1}\right) \\
+    &= (1 - q) + (q - q^3) + (q^3 - q^7) + (q^7 - q^{15}) + \cdots \\
+    &= 1\,.
+\end{align}
+
+\paragraph{Alternative derivation.}
+Since $\RV{L} = \lfloor \log_2 \RV{Q} \rfloor$ where
+$\RV{Q} \sim \geodist(p)$:
+\begin{align}
+    \Prob{\RV{L} = n}
+    &= \Prob{2^n \leq \RV{Q} < 2^{n+1}} \\
+    &= \sum_{j=2^n}^{2^{n+1}-1} p(1-p)^{j-1} \\
+    &= p \cdot \frac{q^{2^n - 1} - q^{2^{n+1} - 1}}{1 - q}
+    = q^{2^n - 1}(1 - q^{2^n})\,.
+\end{align}
+\end{proof}
+
+\begin{theorem}[Expected encoding size]
+\label{thm:expected_size}
+The expected salt bit length is
+\begin{equation}
+    \Expect{\RV{L}} = \sum_{n=1}^{\infty} q^{2^n - 1}
+    = q + q^3 + q^7 + q^{15} + \cdots\,,
+\end{equation}
+where $q = 1 - p$.
+\end{theorem}
+\begin{proof}
+\begin{align}
+    \Expect{\RV{L}}
+    &= \sum_{n=0}^{\infty} n\, q^{2^n - 1}(1 - q^{2^n}) \\
+    &= \sum_{n=0}^{\infty} n\left(q^{2^n - 1} - q^{2^{n+1} - 1}\right)\,.
+\end{align}
+Expanding the first few terms:
+\begin{align}
+    \Expect{\RV{L}}
+    &= 0 \cdot (1 - q) + 1 \cdot (q - q^3)
+        + 2 \cdot (q^3 - q^7) + 3 \cdot (q^7 - q^{15}) + \cdots \\
+    &= q + q^3 + q^7 + q^{15} + \cdots
+    = \sum_{n=1}^{\infty} q^{2^n - 1}\,.
+\end{align}
+\end{proof}
+
+\section{Adaptive threshold PMF derivation}
+\label{sec:adaptive_pmf_derivation}
+
+We derive the PMF of the threshold $T = \OS{p}{m}$ stated in
+\cref{thm:fpr_distribution}.
+In the BHF setting, the modulus $N$ satisfies $N \gg m$, so the probability
+of ties among the $m$ residues is $\mathcal{O}(m^2/N)$ and is negligible.
+We derive the PMF under the assumption that all $m$ residues are distinct.
+
+\begin{theorem}[PMF of the $p$-th order statistic from discrete uniform draws]
+\label{thm:os_pmf_detailed}
+Let $R_1,\ldots,R_m$ be i.i.d.\ $\operatorname{Uniform}\{0,1,\ldots,N-1\}$.
+In the regime $N \gg m$ (so that ties are negligible), the $p$-th order
+statistic $\OS{p}{m}$ has the probability mass function
+\begin{equation}
+\label{eq:os_pmf_detailed}
+    \Prob{\OS{p}{m} = j}
+    \;=\; \frac{\binom{j}{p-1}\binom{N-1-j}{m-p}}{\binom{N-1}{m-1}}
+    \cdot \frac{m}{N}\,,
+    \quad j = p-1, p, \ldots, N-1-(m-p)\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+We count the event $\{\OS{p}{m} = j\}$ by a direct combinatorial argument.
+Since ties are negligible, we treat the $m$ residues as drawn without
+replacement from $\{0,\ldots,N-1\}$.
+
+The event requires:
+\begin{enumerate}
+    \item Exactly one residue equals $j$ (this is the $p$-th smallest).
+    \item Exactly $p - 1$ of the remaining $m - 1$ residues fall in
+    $\{0,\ldots,j-1\}$.
+    \item The remaining $m - p$ residues fall in $\{j+1,\ldots,N-1\}$.
+\end{enumerate}
+
+There are $m$ choices for which draw equals $j$, each with probability $1/N$.
+Among the remaining $m - 1$ residues, we choose $p - 1$ positions from the $j$
+values in $\{0,\ldots,j-1\}$ and $m - p$ positions from the $N - 1 - j$ values
+in $\{j+1,\ldots,N-1\}$.
+The number of such configurations, divided by the total number of ways to place
+$m - 1$ residues among the $N - 1$ remaining values, gives:
+\begin{equation}
+    \Prob{\OS{p}{m} = j}
+    \;=\; m \cdot \frac{1}{N} \cdot
+    \frac{\binom{j}{p-1}\binom{N-1-j}{m-p}}{\binom{N-1}{m-1}}\,.
+\end{equation}
+
+\paragraph{Continuous limit.}
+Setting $x = (j+1)/N$ and letting $N \to \infty$ with $m$ fixed, the
+binomial coefficients converge to Beta functions via Stirling's approximation.
+In particular, the CDF converges to the regularized incomplete Beta function:
+\begin{equation}
+    \Prob{\OS{p}{m} \leq xN}
+    \;\to\; I_x(p,\; m - p + 1)\,,
+\end{equation}
+where $I_x(\alpha, \beta)$ is the regularized incomplete Beta function.
+Differentiating with respect to $x$ yields the $\betadist(p, m - p + 1)$
+density, confirming \cref{eq:fpr_beta}.
+\end{proof}

@@ -1,0 +1,72 @@
+\section{Introduction}
+\label{sec:intro}
+
+The Bernoulli set~\cite{bernoulli_sets} and Bernoulli map~\cite{bernoulli_maps}
+are abstract data types that model sets and maps with quantifiable random errors.
+A Bernoulli set $\ASet{S}$ of a set $\Set{S}$ tests each element independently:
+negatives test positive with probability $\fprate$ (false positive rate) and
+positives test negative with probability $\fnrate$ (false negative rate), each as
+independent Bernoulli trials.
+A Bernoulli map $\ASet{M}$ extends this to key-value pairs: the key domain
+behaves as a Bernoulli set, and each positive key maps to its associated value.
+
+This paper addresses the \emph{implementation} question: given a finite set or
+map, how do we construct a space-optimal Bernoulli set or map with maximum
+entropy?
+We introduce the \emph{Bernoulli Hash Function} (BHF), a family of hash-based
+constructions parameterized by an \emph{acceptance predicate} over hash
+outputs.
+A \emph{salt} is a bit string discovered by search that, when concatenated
+with each key before hashing, yields the desired acceptance behavior.
+
+\subsection*{Contributions}
+
+We make three contributions:
+
+\begin{enumerate}
+    \item \textbf{Unified construction.}
+    We present a single construction that implements both Bernoulli sets and
+    Bernoulli maps.
+    The set is the special case where the mean value bit length $\mu = 0$.
+    One proof of space-optimality covers both.
+
+    \item \textbf{Generalized acceptance predicate.}
+    We generalize the membership predicate from an equality test
+    ($h(x \cat b) = h_0$, yielding $\fprate \in \{2^{-k}\}$) to a threshold
+    test ($h(x \cat b) \bmod N \leq t$, yielding
+    $\fprate \in \{j/N : j = 1,\ldots,N\}$).
+    The threshold test provides finer FPR granularity and, crucially,
+    eliminates the $\binom{m}{p}$ subset enumeration when $\fnrate > 0$.
+    We further introduce an \emph{adaptive} variant that sets $t$ to the
+    $p$-th order statistic of the hash residues, eliminating the salt search
+    entirely for sets (success probability 1) at the cost of a random FPR.
+
+    \item \textbf{Information-theoretic optimality.}
+    We prove that the BHF achieves the information-theoretic lower bound on
+    space complexity while maximizing the entropy of its binary representation,
+    under both predicate forms and for both sets and maps.
+\end{enumerate}
+
+\subsection*{Relation to companion papers}
+
+The algebraic properties of Bernoulli sets (union, intersection, complement,
+error propagation) are developed in~\cite{bernoulli_sets}.
+The Bernoulli map algebra (composition, domain/codomain error) is
+in~\cite{bernoulli_maps}.
+The type-theoretic generalization is in~\cite{bernoulli_data_type}.
+This paper focuses exclusively on \emph{constructing} optimal implementations
+and cites those companions for the abstract theory.
+
+\subsection*{Organization}
+
+\Cref{sec:prelim} establishes notation and recalls the Bernoulli set and map
+definitions.
+\Cref{sec:shf} introduces the Bernoulli Hash Function family and the
+generalized acceptance predicate.
+\Cref{sec:construction} gives the construction algorithms.
+\Cref{sec:space} proves space optimality.
+\Cref{sec:entropy} analyzes the entropy properties.
+\Cref{sec:prob_model} summarizes the probabilistic model.
+\Cref{sec:operations} describes set operations on BHF instances.
+\Cref{sec:discussion} discusses applications, obliviousness, and comparisons
+with existing data structures.

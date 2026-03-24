@@ -1,0 +1,64 @@
+% Paper-specific definitions for the Bernoulli Hash Function paper.
+% General notation is provided by alex.sty.
+
+%% Probability mass function (not in alex.sty)
+\NewDocumentCommand{\PDF}{mO{}}{%
+    \ifx\\#2\\%
+        \operatorname{f}\!\left(#1\right)%
+    \else%
+        \operatorname{f}_{#2}\!\left(#1\right)%
+    \fi%
+}
+
+%% Concatenation operator (alias for \cat from alex.sty, used in text)
+\newcommand{\catop}{\cat}
+
+%% Bit string notation
+\newcommand{\cisb}{\BitSet^{*}}
+\newcommand{\cisbn}[1]{\BitSet^{#1}}
+
+%% Indicator function
+\newcommand{\indicator}[1]{\mathbbm{1}_{#1}}
+
+%% Ordinal helpers
+\newcommand{\ith}{$i^{\text{th}}$}
+\newcommand{\jth}{$j^{\text{th}}$}
+\newcommand{\kth}{$k^{\text{th}}$}
+\newcommand{\nth}{$n^{\text{th}}$}
+
+%% Algorithm2e function keywords
+\SetKwFunction{MakeBHF}{MakeBHF}
+\SetKwFunction{Contains}{Contains}
+\SetKwFunction{HasKey}{HasKey}
+\SetKwFunction{Encode}{encode}
+\SetKwFunction{Decode}{decode}
+\SetKwFunction{ro}{$h^*$}
+\SetKwFunction{sampler}{BitLengthSampler}
+\SetKwFunction{Cardinality}{cardinality}
+\SetKwFunction{Count}{count}
+\SetKwFunction{FalsePositiveRate}{false\_positive\_rate}
+
+%% Algorithm2e data keywords
+\SetKwData{collisions}{collisions}
+
+%% Algorithm styling
+\definecolor{ltgray}{rgb}{0.6,0.6,0.6}
+\newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{ltgray}{#1}}
+\SetCommentSty{mycommfont}
+
+%% TikZ libraries
+\usetikzlibrary{arrows,shapes,positioning}
+\usetikzlibrary{calc,decorations.markings}
+
+%% Graphics path
+\graphicspath{{img/}}
+
+%% Null value for maps
+\newcommand{\nullvalue}{\bot}
+
+%% Adaptive threshold macros
+\newcommand{\betadist}{\operatorname{Beta}}
+\newcommand{\OS}[2]{R_{(#1:#2)}}   % p-th order statistic of m values
+
+%% Algorithm2e keyword for adaptive construction
+\SetKwFunction{MakeBHFAdaptive}{MakeBHF-Adaptive}

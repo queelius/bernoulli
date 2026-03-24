@@ -1,0 +1,54 @@
+\section{Set operations on BHF instances}
+\label{sec:operations}
+
+Multiple independent BHF instances of the same set can be combined to refine
+approximations.
+The algebraic theory of set operations on Bernoulli sets is developed
+in~\cite{bernoulli_sets}; here we state the convergence results specific to
+BHF instances.
+
+\subsection{Intersection of positive instances}
+
+\begin{theorem}[Intersection convergence]
+\label{thm:intersection}
+Let $\PASet{S}[1], \PASet{S}[2], \ldots$ be independent BHF instances of a
+positive Bernoulli set of $\Set{S}$ (each with $\fnrate = 0$ and some
+$\fprate > 0$).
+Then
+\begin{equation}
+    \bigcap_{j=1}^{\infty} \PASet{S}[j] = \Set{S}\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+Every true positive is in every instance (since $\fnrate = 0$).
+A false positive $x \notin \Set{S}$ survives $k$ intersections with
+probability $\fprate^k \to 0$ as $k \to \infty$.
+\end{proof}
+
+\subsection{Intersection with false negatives}
+
+When $\fnrate > 0$, intersecting independent instances converges to the empty
+set:
+\begin{equation}
+    \bigcap_{j=1}^{\infty} \ASet{S}[j] = \EmptySet\,,
+\end{equation}
+since each positive element survives $k$ intersections with probability
+$(1 - \fnrate)^k \to 0$.
+
+\subsection{Union of negative instances}
+
+\begin{theorem}[Union convergence]
+\label{thm:union}
+Let $\NASet{S}[1], \NASet{S}[2], \ldots$ be independent BHF instances of a
+negative Bernoulli set of $\Set{S}$ (each with $\fprate = 0$ and some
+$\fnrate > 0$).
+Then
+\begin{equation}
+    \bigcup_{j=1}^{\infty} \NASet{S}[j] = \Set{S}\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+No false positive exists in any instance (since $\fprate = 0$).
+A false negative $x \in \Set{S}$ is missed in all $k$ instances with
+probability $\fnrate^k \to 0$.
+\end{proof}

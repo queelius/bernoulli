@@ -1,0 +1,90 @@
+\documentclass[final,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage{appendix}
+\usepackage{caption}
+\usepackage{enumerate}
+\usepackage{amsthm}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[section]{placeins}
+\usepackage[square,numbers]{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage[fancy,section]{alex}
+
+\hypersetup{
+    pdftitle={The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps},
+    pdfauthor={Alexander Towell},
+    pdfsubject={computer science},
+    pdfkeywords={
+        approximate sets,
+        approximate maps,
+        hash function,
+        random oracle,
+        Bernoulli set,
+        Bernoulli map,
+        Bernoulli hash function},
+    colorlinks=false,
+    citecolor=green,
+    filecolor=magenta,
+    urlcolor=green
+}
+
+\input{defs}
+
+\title{The Bernoulli Hash Function:\\Optimal Bernoulli Sets and Bernoulli Maps}
+\author{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce the \emph{Bernoulli Hash Function} (BHF), a family of hash-based
+constructions that optimally implement the Bernoulli set and Bernoulli map
+abstract data types.
+The BHF is parameterized by an \emph{acceptance predicate} over hash outputs:
+the classical equality test $h(x \cat b) = h_0$ is a special case of a
+generalized threshold test $h(x \cat b) \bmod N \leq t$, which provides
+finer false positive rate granularity and eliminates the combinatorial subset
+enumeration required when the false negative rate $\fnrate > 0$.
+We also introduce an \emph{adaptive threshold} variant that determines the
+threshold from the data itself, eliminating the salt search entirely for sets
+and achieving vanishing per-element space---at the cost of a random false
+positive rate.
+We prove that the BHF achieves the information-theoretic lower bound on space
+complexity while maximizing entropy, for both sets (value length $\mu = 0$)
+and maps (arbitrary $\mu$), under both predicate forms.
+The construction is unified: the Bernoulli set is the special case of the
+Bernoulli map with zero-length values, so a single framework and a single
+space-optimality proof covers both.
+\end{abstract}
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+\microtypesetup{protrusion=true}
+
+\input{sections/intro}
+\input{sections/prelim}
+\input{sections/shf}
+\input{sections/construction}
+\input{sections/space}
+\input{sections/entropy}
+\input{sections/prob_model}
+\input{sections/operations}
+\input{sections/discussion}
+\input{sections/appendix}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

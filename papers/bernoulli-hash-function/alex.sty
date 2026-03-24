@@ -1,0 +1,761 @@
+%
+%
+%
+%
+%   \BitString      B^* denotes arbitrary length bit strings
+%   \BitString[n]   B^n denotes bit strings of size n
+%   \BitSet         set B denotes {0,1}
+%
+%
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{alex}[2024/03/15 unified alex package]
+
+\RequirePackage{xparse}
+\RequirePackage{bm}
+\RequirePackage{bbm}
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+\RequirePackage{listings}
+\RequirePackage{algorithm2e}
+\RequirePackage{siunitx}
+\RequirePackage{amsmath}
+\RequirePackage{etoolbox}
+\RequirePackage{cleveref}
+
+\newcommand{\envnumstyle}{chapter}
+\DeclareOption{chapter}
+{
+    \renewcommand{\envnumstyle}{chapter}
+}
+\DeclareOption{section}
+{
+    \renewcommand{\envnumstyle}{section}
+}
+\ExecuteOptions{envchapter}
+
+
+
+\providecommand{\Given}{\vert}
+
+\DeclarePairedDelimiterX\FuncArgs[1]{(}{)}{\renewcommand\Given{\nonscript\:\delimsize\vert\nonscript\:\mathopen{}}#1}
+
+\DeclarePairedDelimiterX\FuncArgsB[1]{[}{]}{\renewcommand\Given{\nonscript\:\delimsize\vert\nonscript\:\mathopen{}}#1}
+
+\NewDocumentCommand{\FunctionFamily}{mmo}{%
+    \IfNoValueTF{#3}
+        {\operatorname{#1}\FuncArgs*{#2}}
+        {\operatorname{#1}_{#3}\mkern-1mu\FuncArgs*{#2}}
+}
+
+\NewDocumentCommand{\Bracket}{mmo}{%
+    \IfNoValueTF{#3}
+        {\operatorname{#1}\FuncArgsB*{#2}}
+        {\operatorname{#1}_{#3}\FuncArgsB*{#2}}
+}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newcommand{\cat}{\mathbin{+\mkern-10mu+}}
+
+\lstdefinelanguage{lambdacalc}{%
+  morekeywords={%
+    if,then,else,fix % keywords go here
+  },%
+  morekeywords={[2]int},   % types go here
+  otherkeywords={:}, % operators go here
+  literate={% replace strings with symbols
+    {->}{{$\to$}}{2}
+    {lambda}{{$\lambda$}}{1}
+  },
+  basicstyle={\sffamily},
+  keywordstyle={\bfseries},
+  keywordstyle={[2]\itshape}, % style for types
+  keepspaces,
+  mathescape % optional
+}[keywords,comments,strings]%
+
+\RestyleAlgo{ruled}
+\LinesNumbered
+
+
+% values of types
+\SetKw{True}{true}
+\SetKw{False}{false}
+\SetKwData{Null}{null}
+
+% types
+\SetKwData{Bool}{Bool}
+\SetKwData{Void}{Void}
+\SetKwData{Unit}{Unit}
+\SetKwData{List}{List}
+
+% keywords
+\SetKw{Break}{break}
+
+
+
+\SetKwFunction{NotFn}{not}
+\SetKwFunction{TrueFn}{true}
+\SetKwFunction{FalseFn}{false}
+\SetKwFunction{NegateFn}{negate}
+\SetKwFunction{AndFn}{and}
+\SetKwFunction{OrFn}{or}
+\SetKwFunction{XorFn}{xor}
+\SetKwFunction{NorFn}{nor}
+
+\SetKwFunction{AbsoluteEfficiency}{E}
+\SetKwFunction{RE}{RE}
+\SetKwFunction{Find}{find}
+\SetKwFunction{Ref}{ref}
+\SetKwFunction{Left}{left}
+\SetKwFunction{Right}{right}
+\SetKwFunction{Head}{head}
+\SetKwFunction{Tail}{tail}
+\SetKwFunction{IdFun}{id}
+\newcommand{\hash}{\Fun{h}}
+%\SetKwFunction{hash}{h}
+\SetKwFunction{ph}{ph}
+\SetKwFunction{bf}{BF}
+%\SetKwFunction{ro}{$\hash^*$}
+\SetKwFunction{BL}{$\ell$}
+
+\SetKwInOut{Params}{params}
+\SetKwInOut{KwIn}{input}
+\SetKwInOut{KwOut}{output}
+
+
+\newcommand{\Maybe}[1]{\FuncSty{m}\!\left({#1}\right)}
+
+\SetKwData{found}{found}
+
+\newlength\alglen
+\newcommand\alginput[1]{%
+  \settowidth\alglen{\KwIn{}}%
+  \setlength\hangindent{\alglen}%
+  \hspace*{\alglen}#1\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set-Theoretic Notation - simplified and reorganized
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Basic set operators with consistent implementation
+\newcommand{\EmptySet}{\varnothing}
+\newcommand{\PowerSet}{\mathcal{P}}
+\newcommand{\PS}[1]{2^{#1}}
+\DeclarePairedDelimiter\Card{\lvert}{\rvert}
+
+% Set indicator function
+\newcommand{\SetIndicator}[1]{\mathbbm{1}_{#1}}
+
+% Set construction notation
+\DeclarePairedDelimiterX\SetBuilder[2]{\{}{\}}{\,#1 \;\delimsize\vert\; #2\,}
+\DeclarePairedDelimiterX\Pair[2]{\langle}{\rangle}{#1\,,#2}
+\DeclarePairedDelimiterX\Tuple[1]{\langle}{\rangle}{#1}
+
+% Common sets
+\newcommand{\BitSet}{\mathcal{B}}
+\newcommand{\BitStringSet}{\BitSet^{*}}
+\newcommand{\RealSet}{\mathbb{R}}
+\newcommand{\NatSet}{\mathbb{N}}
+\newcommand{\IntSet}{\mathbb{Z}}
+\newcommand{\RatSet}{\mathbb{Q}}
+\newcommand{\ComplexSet}{\mathbb{C}}
+
+% Set operations with consistent optional arguments
+\NewDocumentCommand{\SetContains}{oo}{%
+    \IfNoValueTF{#1}
+        {\IfNoValueTF{#2}{\in}{\in #2}}
+        {\IfNoValueTF{#2}{#1 \in}{#1 \in #2}}
+}
+
+\NewDocumentCommand{\SetNotContains}{oo}{%
+    \IfNoValueTF{#1}
+        {\IfNoValueTF{#2}{\notin}{\notin #2}}
+        {\IfNoValueTF{#2}{#1 \notin}{#1 \notin #2}}
+}
+
+\NewDocumentCommand{\SetUnion}{oo}{%
+    \IfNoValueTF{#1}
+        {\IfNoValueTF{#2}{\cup}{\cup #2}}
+        {\IfNoValueTF{#2}{#1 \cup}{#1 \cup #2}}
+}
+
+\NewDocumentCommand{\SetIntersection}{oo}{%
+    \IfNoValueTF{#1}
+        {\IfNoValueTF{#2}{\cap}{\cap #2}}
+        {\IfNoValueTF{#2}{#1 \cap}{#1 \cap #2}}
+}
+
+\NewDocumentCommand{\SetComplement}{o}{%
+    \IfNoValueTF{#1}
+        {\overline{\phantom{\Set{S}}}}
+        {\overline{#1}}
+}
+
+\NewDocumentCommand{\SetDiff}{oo}{%
+    \IfNoValueTF{#1}
+        {\IfNoValueTF{#2}{\smallsetminus}{\smallsetminus #2}}
+        {\IfNoValueTF{#2}{#1 \smallsetminus}{#1 \smallsetminus #2}}
+}
+
+% Interval notation
+\DeclarePairedDelimiterX\Interval[1]{[}{]}{#1}
+
+\NewDocumentCommand{\SetInterval}{mo}{%
+    \IfNoValueTF{#2}
+        {\Interval{#1}}
+        {\Interval{\underline{#1},\overline{#1}}}
+}
+
+% Set style macros - simplified options
+\newcommand{\setstyle}[1]{\plainsetstyle{#1}}
+\newcommand{\setsubstyle}[1]{\plainsetsubstyle{#1}}
+\newcommand{\setsupstyle}[1]{\plainsetsupstyle{#1}}
+
+% Plain set style (default)
+\newcommand{\plainsetstyle}[1]{\mathsf{#1}}
+\newcommand{\plainsetsubstyle}[1]{\mathsf{#1}}
+\newcommand{\plainsetsupstyle}[1]{\mathsf{#1}}
+
+% Blackboard set style
+\newcommand{\blackboardsetstyle}[1]{\mathbb{#1}}
+\newcommand{\blackboardsetsubstyle}[1]{\mathbb{#1}}
+\newcommand{\blackboardsetsupstyle}[1]{\mathbb{#1}}
+
+% Bold set style
+\newcommand{\boldsetstyle}[1]{\mathbf{#1}}
+\newcommand{\boldsetsubstyle}[1]{\mathbf{#1}}
+\newcommand{\boldsetsupstyle}[1]{\mathbf{#1}}
+
+% Fancy/calligraphic set style
+\newcommand{\fancysetstyle}[1]{\mathcal{#1}}
+\newcommand{\fancysetsubstyle}[1]{#1}
+\newcommand{\fancysetsupstyle}[1]{#1}
+
+% Generic set command with optional sub/superscripts
+\NewDocumentCommand{\Set}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\setstyle{#1}}
+            {\setstyle{#1}_{\setsubstyle{#2}}}
+    }
+    {\setstyle{#1}_{\setsubstyle{#2}}^{\setsupstyle{#3}}}
+}
+
+% Style-specific set commands
+\NewDocumentCommand{\FancySet}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\fancysetstyle{#1}}
+            {\fancysetstyle{#1}_{\fancysetsubstyle{#2}}}
+    }
+    {\fancysetstyle{#1}_{\fancysetsubstyle{#2}}^{\fancysetsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\BlackboardSet}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\blackboardsetstyle{#1}}
+            {\blackboardsetstyle{#1}_{\blackboardsetsubstyle{#2}}}
+    }
+    {\blackboardsetstyle{#1}_{\blackboardsetsubstyle{#2}}^{\blackboardsetsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\PlainSet}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\plainsetstyle{#1}}
+            {\plainsetstyle{#1}_{\plainsetsubstyle{#2}}}
+    }
+    {\plainsetstyle{#1}_{\plainsetsubstyle{#2}}^{\plainsetsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\BoldSet}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\boldsetstyle{#1}}
+            {\boldsetstyle{#1}_{\boldsetsubstyle{#2}}}
+    }
+    {\boldsetstyle{#1}_{\boldsetsubstyle{#2}}^{\boldsetsupstyle{#3}}}
+}
+
+\SetKwFunction{IntervalSpan}{span}
+
+\newcommand{\blackboardrelationstyle}[1]{\mathbbm{#1}}
+\newcommand{\blackboardrelationsubstyle}[1]{\pmb{#1}}
+\newcommand{\blackboardrelationsupstyle}[1]{\pmb{#1}}
+
+\newcommand{\boldrelationstyle}[1]{\pmb{\mathsf{#1}}}
+\newcommand{\boldrelationsubstyle}[1]{\pmb{#1}}
+\newcommand{\boldrelationsupstyle}[1]{\pmb{#1}}
+
+\newcommand{\fancyrelationstyle}[1]{\mathcal{#1}}
+\newcommand{\fancyrelationsubstyle}[1]{#1}
+\newcommand{\fancyrelationsupstyle}[1]{#1}
+
+\newcommand{\plainrelationstyle}[1]{\mathsf{#1}}
+\newcommand{\plainrelationsubstyle}[1]{\mathsf{#1}}
+\newcommand{\plainrelationsupstyle}[1]{\mathsf{#1}}
+
+\newcommand{\relationstyle}[1]{\plainrelationstyle{#1}}
+\newcommand{\relationsubstyle}[1]{\plainrelationsubstyle{#1}}
+\newcommand{\relationsupstyle}[1]{\plainrelationsupstyle{#1}}
+
+\DeclareOption{blackboard}
+{
+    \renewcommand{\relationstyle}[1]{\blackboardrelationstyle{#1}}
+    \renewcommand{\relationsubstyle}[1]{\blackboardrelationsubstyle{#1}}
+    \renewcommand{\relationsupstyle}[1]{\blackboardrelationsupstyle{#1}}
+}
+\DeclareOption{bold}
+{
+    \renewcommand{\relationstyle}[1]{\boldrelationstyle{#1}}
+    \renewcommand{\relationsubstyle}[1]{\boldrelationsubstyle{#1}}
+    \renewcommand{\relationsupstyle}[1]{\boldrelationsupstyle{#1}}
+}
+\DeclareOption{fancy}
+{
+    \renewcommand{\relationstyle}[1]{\fancyrelationstyle{#1}}
+    \renewcommand{\relationsubstyle}[1]{\fancyrelationsubstyle{#1}}
+    \renewcommand{\relationsupstyle}[1]{\fancyrelationsupstyle{#1}}
+}
+\DeclareOption{plain}
+{
+    \renewcommand{\relationstyle}[1]{\plainrelationstyle{#1}}
+    \renewcommand{\relationsubstyle}[1]{\plainrelationsubstyle{#1}}
+    \renewcommand{\relationsupstyle}[1]{\plainrelationsupstyle{#1}}
+}
+
+\ExecuteOptions{plain}
+\ProcessOptions\relax
+
+\NewDocumentCommand{\Relation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\relationstyle{#1}}
+            {\relationstyle{#1}_{\setsubstyle{#2}}}
+    }
+    {\relationstyle{#1}_{\setsubstyle{#2}}^{\setsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\FancyRelation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\fancyrelationstyle{#1}}
+            {\fancyrelationstyle{#1}_{\fancysetsubstyle{#2}}}
+    }
+    {\fancyrelationstyle{#1}_{\fancysetsubstyle{#2}}^{\fancysetsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\BlackboardRelation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\blackboardrelationstyle{#1}}
+            {\blackboardrelationstyle{#1}_{\blackboardrelationsubstyle{#2}}}
+    }
+    {\blackboardrelationstyle{#1}_{\blackboardrelationsubstyle{#2}}^{\blackboardrelationsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\PlainRelation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\plainrelationstyle{#1}}
+            {\plainrelationstyle{#1}_{\plainrelationsubstyle{#2}}}
+    }
+    {\plainrelationstyle{#1}_{\plainrelationsubstyle{#2}}^{\plainrelationsupstyle{#3}}}
+}
+
+\NewDocumentCommand{\BoldRelation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\boldrelationstyle{#1}}
+            {\boldrelationstyle{#1}_{\boldrelationsubstyle{#2}}}
+    }
+    {\boldrelationstyle{#1}_{\boldrelationsubstyle{#2}}^{\boldrelationsupstyle{#3}}}
+}
+
+
+\newcommand{\partialfunstyle}[1]{\operatorname{#1}}
+\newcommand{\partialfunsubstyle}[1]{#1}
+\newcommand{\partialfunsupstyle}[1]{#1}
+
+\newcommand{\funstyle}[1]{\operatorname{#1}}
+\newcommand{\funsubstyle}[1]{#1}
+\newcommand{\funsupstyle}[1]{#1}
+
+
+\NewDocumentCommand{\Fun}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\funstyle{#1}}
+            {\funstyle{#1}_{\funsubstyle{#2}}}
+    }
+    {\funstyle{#1}_{\funsubstyle{#2}}^{\funsupstyle{#3}}}
+}
+
+
+\NewDocumentCommand{\PFun}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\partialfunstyle{#1}}
+            {\partialfunstyle{#1}_{\partialfunsubstyle{#2}}}
+    }
+    {\partialfunstyle{#1}_{\partialfunsubstyle{#2}}^{\partialfunsupstyle{#3}}}
+}
+
+
+     %\newcommand{\Join}{\bowtie}
+\newcommand{\Proj}{\Pi}
+\newcommand{\Selection}{\sigma}
+
+%\SetKwFunction{Proj}{proj}
+\SetKwFunction{Dom}{dom}
+\SetKwFunction{Codom}{codom}
+\SetKwFunction{Dod}{def}
+\SetKwFunction{Image}{image}
+\SetKwFunction{Preimage}{preimage}
+\SetKwFunction{Range}{range}
+\SetKwFunction{Related}{related}
+
+\newcommand\pfun{\mathrel{\ooalign{\hfil$\mapstochar$\hfil\cr$\to$\cr}}}
+
+\newcommand{\Rho}{\mathrm{P}}
+
+\NewDocumentCommand{\AVec}{moo}{
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {{\vec{#1}}^{\pm}}
+            {{\vec{#1}}^{#2}}
+    }
+    {{\vec{#1}}_{#2}^{#3}}
+}
+
+\NewDocumentCommand{\AVecComp}{mo}{
+   \IfNoValueTF{#2}
+        {\RV{#1}^\pm}
+        {\RV{#1}_\RV{#2}^\pm}
+}
+
+\NewDocumentCommand{\ASet}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {{\setstyle{#1}}^{\pm}}
+            {{\setstyle{#1}}^{#2}}
+    }
+    {{\setstyle{#1}}_{#2}^{#3}}
+}
+
+\NewDocumentCommand{\PASet}{mo}{%
+    \IfNoValueTF{#2}
+        {{\setstyle{#1}}^{+}}
+        {{\setstyle{#1}}^{+}_{#2}}
+}
+
+\NewDocumentCommand{\NASet}{mo}{%
+    \IfNoValueTF{#2}
+        {{\setstyle{#1}}^{-}}
+        {{\setstyle{#1}}^{-}_{#2}}
+}
+
+\SetKwFunction{informed}{informed}
+\SetKwFunction{ppv}{ppv}
+\SetKwFunction{npv}{npv}
+\SetKwFunction{tpr}{tpr}
+\SetKwFunction{fpr}{fpr}
+\SetKwFunction{fnr}{fnr}
+\SetKwFunction{tnr}{tnr}
+\SetKwFunction{acc}{acc}
+\SetKwFunction{fdr}{fdr}
+\SetKwFunction{forFn}{for}
+
+%\DeclareMathOperator{\npv}{\mathsf{npv}}
+%\DeclareMathOperator{\ppv}{\mathsf{ppv}}
+%\DeclareMathOperator{\tpr}{\mathsf{tpr}}
+%\DeclareMathOperator{\fpr}{\mathsf{fpr}}
+%\DeclareMathOperator{\tnr}{\mathsf{tnr}}
+%\DeclareMathOperator{\fnr}{\mathsf{fnr}}
+%\DeclareMathOperator{\acc}{\mathsf{acc}}
+%\DeclareMathOperator{\fdr}{\mathsf{fdr}}
+%\DeclareMathOperator{\for}{\mathsf{for}}
+
+
+\NewDocumentCommand{\ARelation}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\Relation{#1}[][\sigma]}
+            {\Relation{#1}[#2][\sigma]}
+    }
+    {\Set{#1}[#2][#3]}
+}
+
+\NewDocumentCommand{\ARelationType}{m}{%
+    {#1}^{\sigma}
+}
+
+% Environment configurations for Alex Towell.
+%
+% Includes things like theorems, proofs with separate counters, and so on.
+% TODO: make another proof environment without the separate counter, because
+% sometimes the proof is not connected to a particular theorem.
+%
+% TODO: provide an option so that we can specify whether defs, postulates, theorems, or lemmas are numbered by chapter, section, etc. default: chapter
+
+
+\newcounter{proofeqcounter}
+\AtBeginEnvironment{proof}{\setcounter{proofeqcounter}{\value{equation}}
+\setcounter{equation}{0}\renewcommand{\theequation}{\alph{equation}}}
+\AtEndEnvironment{proof}{\setcounter{equation}{\value{proofeqcounter}}}
+
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}[\envnumstyle]
+\newtheorem{theorem}{Theorem}[\envnumstyle]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{definition}{Definition}[\envnumstyle]
+\newtheorem{postulate}{Postulate}[\envnumstyle]
+\newtheorem{proposition}{Proposition}[\envnumstyle]
+\newtheorem{conjecture}{Conjecture}[\envnumstyle]
+
+\newtheorem{assumption}{Assumption}
+\crefname{assumption}{ assumption }{ assumptions }
+\Crefname{assumption}{ Assumption }{ assumptions }
+
+\newtheorem{axiom}{Axiom}
+\crefname{axiom}{ axiom }{ axioms }
+\Crefname{axiom}{ Axiom }{ Axioms }
+
+
+
+
+\newcounter{examplecounter}
+\crefname{examplecounter}{ example }{ examples }
+
+\newenvironment{example}[1][]
+{
+    \refstepcounter{examplecounter}%
+    \par\vspace{\baselineskip}\noindent
+    \textbf{Example \theexamplecounter\ifx\\#1\\\else\ (#1)\fi}%
+    \begin{itshape}
+    \quad
+}
+{
+    \end{itshape}
+    \par\vspace{\baselineskip}% 
+    \noindent\ignorespacesafterend     
+}
+
+\newcounter{exampleeqcounter}
+\AtBeginEnvironment{example}{\setcounter{exampleeqcounter}{\value{equation}}
+\setcounter{equation}{0}\renewcommand{\theequation}{\alph{equation}}}
+\AtEndEnvironment{example}{\setcounter{equation}{\value{exampleeqcounter}}}
+
+\newtheorem*{remarkx}{Remark}
+\newenvironment{remark}
+  {\pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}\remarkx}
+  {\popQED\endremarkx}
+
+\newtheorem*{notation}{Notation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Probability and Random Variable Notation - consolidated section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Random variable notation
+\newcommand{\RV}[1]{\mathrm{#1}}
+
+% Basic probability operators with cleaner implementation
+\newcommand{\ProbFn}{\mathrm{P}}
+\newcommand{\Pdf}{\operatorname{f}}
+
+% Probability with optional conditioning
+\NewDocumentCommand{\Prob}{mo}{%
+    \IfNoValueTF{#2}
+        {\ProbFn\left(#1\right)}
+        {\ProbFn\left(#1 \,\middle|\, #2\right)}
+}
+
+% Expectation with optional conditioning
+\NewDocumentCommand{\Expect}{mo}{%
+    \IfNoValueTF{#2}
+        {\mathrm{E}\left[#1\right]}
+        {\mathrm{E}\left[#1 \,\middle|\, #2\right]}
+}
+
+% Variance with optional conditioning
+\NewDocumentCommand{\Var}{mo}{%
+    \IfNoValueTF{#2}
+        {\mathrm{Var}\left(#1\right)}
+        {\mathrm{Var}\left(#1 \,\middle|\, #2\right)}
+}
+
+\NewDocumentCommand{\RDF}{mo}{%
+    \FunctionFamily{R}{#1}[#2]
+}
+
+\NewDocumentCommand{\Entropy}{mo}{%
+    \FunctionFamily{\mathcal{H}}{#1}[#2]
+}
+
+\NewDocumentCommand{\Likelihood}{mo}{%
+    \FunctionFamily{\mathcal{L}}{#1}[#2]
+}
+
+\DeclareMathOperator{\bias}{bias}
+\DeclareMathOperator{\mse}{\mathrm{MSE}}
+
+% Distribution notation
+\newcommand{\mvn}{\mathrm{MVN}}
+\newcommand{\unifdist}{\mathrm{Unif}}
+\newcommand{\dudist}{\mathrm{DU}}
+\newcommand{\berdist}{\mathrm{Ber}}
+\newcommand{\expdist}{\mathrm{Exp}}
+\newcommand{\geodist}{\mathrm{Geo}}
+\newcommand{\normdist}{\mathcal{N}}
+\newcommand{\bindist}{\mathrm{Bin}}
+\newcommand{\poidist}{\mathrm{Pois}}
+\newcommand{\nbdist}{\mathrm{NB}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Approximate Set Type Notation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% approximate set notation
+
+\newcommand{\positive}{p}
+\newcommand{\negative}{n}
+\newcommand{\p}{p}
+\newcommand{\n}{n}
+
+\SetKwFunction{informed}{informed}
+\SetKwFunction{ppv}{ppv}
+\SetKwFunction{npv}{npv}
+\SetKwFunction{tpr}{tpr}
+\SetKwFunction{fpr}{fpr}
+\SetKwFunction{fnr}{fnr}
+\SetKwFunction{tnr}{tnr}
+\SetKwFunction{acc}{acc}
+\SetKwFunction{fdr}{fdr}
+\SetKwFunction{forFn}{for}
+
+\newcommand{\ERR}{\Delta}
+
+\newcommand{\POS}{\RV{P}}
+\newcommand{\NEG}{\RV{N}}
+\newcommand{\PPV}{\RV{PPV}}
+\newcommand{\NPV}{\RV{NPV}}
+\newcommand{\ACC}{\RV{ACC}}
+\newcommand{\FOR}{\RV{FOR}}
+\newcommand{\FDR}{\RV{FDR}}
+\newcommand{\FPR}{\mathcal{E}}
+\newcommand{\FNR}{\mathcal{W}}
+\newcommand{\TNR}{\mathcal{N}}
+\newcommand{\TPR}{\mathcal{T}}
+\newcommand{\TP}{\RV{TP}}
+\newcommand{\FP}{\RV{FP}}
+\newcommand{\FN}{\RV{FN}}
+\newcommand{\TN}{\RV{TN}}
+
+
+% bernoulli type with one argument
+\newcommand{\bernoulli}[1]{\mathrm{Ber}\left(#1\right)}
+
+
+% approx adt notation
+\newcommand{\tprate}{\tau}
+\newcommand{\fprate}{\varepsilon}
+\newcommand{\fnrate}{\omega}
+\newcommand{\tnrate}{\eta}
+\newcommand{\fprateob}{\hat{\fprate}}
+\newcommand{\fnrateob}{\hat{\fnrate}}
+\newcommand{\tprateob}{\hat{\tprate}}
+\newcommand{\tnrateob}{\hat{\tnrate}}
+
+% functor for random approximate data type
+\SetKwFunction{Approx}{a}
+
+
+\NewDocumentCommand{\ATOverUnder}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\underset{\mathsmaller{-}}{\overset{\mathsmaller{+}}{#1}}}
+            {\underset{\mathsmaller{-}}{\overset{\mathsmaller{\mathsmaller{#2}}}{#1}}}
+    }
+    {\underset{\mathsmaller{#3}}{\overset{\mathsmaller{#2}}{#1}}}
+}
+
+\NewDocumentCommand{\ATL}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {{}^{+}_{-}\!#1}
+            {{}^{#2}_{-}\!#1}
+    }
+    {{}_{#2}^{#3}\!#1}
+}
+
+
+\NewDocumentCommand{\AT}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {{#1}^{\pm}}
+            {{#1}^{#2}}
+    }
+    {{#1}_{#2}^{#3}}
+}
+
+\NewDocumentCommand{\LongAT}{moo}{%
+    \IfNoValueTF{#3}
+    {
+        \IfNoValueTF{#2}
+            {\Approx\!\left(#1\right)}
+            {\Approx^{#2}\!\left(#1\right)}
+    }
+    {\Approx_{#2}^{#3}\!\left(#1\right)}
+}
+
+
+\NewDocumentCommand{\PAT}{mo}{%
+    \IfNoValueTF{#2}
+        {{#1}^{+}}
+        {{#1}^{+}_{#2}}
+}
+
+\NewDocumentCommand{\NAT}{mo}{%
+    \IfNoValueTF{#2}
+        {{#1}^{-}}
+        {{#1}^{-}_{#2}}
+}
+
+% approximate partial functions (from approximate relations)
+\NewDocumentCommand{\APFun}{mo}{%
+    \IfNoValueTF{#2}
+        {\PFun{\AT{#1}}}
+        {\PFun{\AT{#1}_{#2}}}
+}
+
+% \PAPFun and \NAPFun removed
+
+\SetKwData{Integer}{integer}
+
+% custom
+% \ctor used to be \APFun{F}[#1][#2]
+% New \ctor takes two arguments and renders them as comma-separated subscripts to F.
+\newcommand{\ctor}[2]{\APFun{F}[{#1,#2}]}
+\endinput

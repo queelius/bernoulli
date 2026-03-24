@@ -1,0 +1,113 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+\subsection{Bit strings and encoding}
+
+The binary set is $\BitSet = \{0,1\}$.
+The set of all bit strings of length $n$ is $\cisbn{n}$, with
+$\Card{\cisbn{n}} = 2^n$.
+The countably infinite set of all finite bit strings is
+$\cisb = \bigcup_{n=0}^{\infty} \cisbn{n}$.
+The bit length of an object $x$ is denoted $\BL(x)$.
+
+\begin{definition}[Bit string--natural number bijection]
+\label{def:mapping}
+Let $\cisb$ and $\NatSet$ have the bijection
+\begin{equation}
+    (b_1 \, b_2 \, \cdots \, b_m) \longleftrightarrow 2^m + \sum_{j=1}^{m} 2^{m-j} b_j\,.
+\end{equation}
+We denote the image of a bit string (or natural number) $x$ under this
+bijection by $x'$.
+A natural number $n$ maps to a bit string of length $\lfloor \log_2 n \rfloor$.
+\end{definition}
+
+\subsection{Hash functions and the random oracle}
+
+\begin{definition}[Hash function]
+A \emph{hash function} $\hash \colon \cisb \to \cisbn{n}$ maps arbitrary-length
+bit strings to fixed-length bit strings of length $n$.
+\end{definition}
+
+\begin{definition}[Random oracle]
+\label{def:randomoracle}
+A \emph{random oracle} $\ro \colon \cisb \to \cisbn{\infty}$ is a theoretical
+hash function whose outputs are independent and uniformly distributed over its
+range for every distinct input.
+For any prefix length $k$, the first $k$ bits of $\ro(x)$ are uniformly
+distributed over $\cisbn{k}$.
+\end{definition}
+
+\begin{assumption}[Random oracle approximation]
+\label{asm:ro_approx}
+The hash function $\hash$ approximates a random oracle $\ro$ and has a space
+complexity of $\mathcal{O}(1)$.
+\end{assumption}
+
+\subsection{Bernoulli sets}
+\label{sec:prelim_bset}
+
+We recall the essential definitions from~\cite{bernoulli_sets}.
+
+\begin{definition}[Bernoulli set]
+\label{def:bernoulli_set}
+Let $\Set{S} \subseteq \Set{U}$ be a finite set drawn from a universe
+$\Set{U}$.
+A \emph{Bernoulli set} $\ASet{S}$ of $\Set{S}$ with false positive rate
+$\fprate$ and false negative rate $\fnrate$ satisfies:
+\begin{enumerate}[(i)]
+    \item For each $x \in \Set{S}$, independently,
+    $\Prob{x \notin \ASet{S}} = \fnrate$.
+    \item For each $x \in \Set{U} \setminus \Set{S}$, independently,
+    $\Prob{x \in \ASet{S}} = \fprate$.
+\end{enumerate}
+A Bernoulli set with $\fnrate = 0$ is a \emph{positive} Bernoulli set,
+denoted $\PASet{S}$.
+A Bernoulli set with $\fprate = 0$ is a \emph{negative} Bernoulli set,
+denoted $\NASet{S}$.
+\end{definition}
+
+\begin{theorem}[Space lower bound for sets {\cite{carter1978}}]
+\label{post:set_lb}
+The optimal space complexity for a Bernoulli set over a countably infinite
+universe is
+\begin{equation}
+    -(1 - \fnrate) \log_2 \fprate \;\; \si{bits \per element}\,.
+\end{equation}
+\end{theorem}
+
+\subsection{Bernoulli maps}
+\label{sec:prelim_bmap}
+
+We recall the essential definitions from~\cite{bernoulli_maps}.
+
+\begin{definition}[Bernoulli map]
+\label{def:bernoulli_map}
+Let $\Set{M} \subseteq \Set{X} \times \Set{Y}$ be a finite map (set of
+key-value pairs where each key appears at most once).
+A \emph{Bernoulli map} $\ASet{M}$ of $\Set{M}$ with false positive rate
+$\fprate$ and false negative rate $\fnrate$ satisfies:
+\begin{enumerate}[(i)]
+    \item The key domain of $\ASet{M}$ is a Bernoulli set of the key domain
+    of $\Set{M}$ with rates $\fprate$ and $\fnrate$.
+    \item For each positive key $x$, $\Find(\ASet{M}, x)$ returns the correct
+    value $\Set{M}[x]$.
+    \item For each false-positive key $x$, $\Find(\ASet{M}, x)$ returns a
+    value that is effectively random.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Space lower bound for maps {\cite{carter1978}}]
+\label{post:map_lb}
+The optimal space complexity for a Bernoulli map over a countably infinite key
+universe, with mean value encoding length $\mu$ bits, is
+\begin{equation}
+    -(1 - \fnrate) \log_2 \fprate + (1-\fnrate)\mu \;\; \si{bits \per element}\,.
+\end{equation}
+\end{theorem}
+
+\begin{remark}
+Setting $\mu = 0$ in \cref{post:map_lb} recovers the set lower bound
+(\cref{post:set_lb}).
+This duality---the set as a degenerate map---is the organizing principle of
+this paper.
+\end{remark}

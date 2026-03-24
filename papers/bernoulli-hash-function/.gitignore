@@ -1,0 +1,26 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.loa
+*.acn
+*.glo
+*.ist
+*.nlo
+*.slo
+
+# Compiled PDF (build with `make`)
+*.pdf
+# But keep figure PDFs
+!img/*.pdf
+
+# Working notes (not part of the paper)
+todo.txt
