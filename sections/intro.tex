@@ -1,0 +1,30 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+\label{sec:intro}
+
+Binary classification measures---precision, recall, accuracy, F-score---are fundamental to evaluating information retrieval systems and probabilistic data structures.
+When a data structure approximates a set, returning membership queries that may err, the standard measures become random variables whose distributions depend on the error model.
+This paper derives those distributions within the Bernoulli set model~\cite{bernoulliSets}, a compositionally closed probabilistic framework for random approximate sets with independent, element-wise errors parameterized by false positive and false negative rates.
+
+\paragraph{Motivation.}
+In many applications the question is not ``what is the false positive rate?'' but rather ``given a positive test result, what is the probability it is correct?''
+This is the positive predictive value (precision), and its answer depends critically on the prevalence (base rate) of positives.
+A Bloom filter~\cite{bf} with a $1\%$ false positive rate achieves near-perfect precision when queried against a large positive set, but its precision collapses when positives are rare---a phenomenon well known in medical testing but underappreciated in the data structures literature.
+
+\paragraph{Contribution.}
+We derive exact distributions, closed-form approximations, and variances for PPV, NPV, accuracy, the $\fone$-score, and Youden's $J$ within the Bernoulli set model~\cite{bernoulliSets}.
+The expected PPV and $\fone$-score are obtained via second-order delta method expansions (\cref{thm:approx_expected_precision,thm:f1_approx}), and their accuracy is validated by Monte Carlo simulation (\cref{fig:ppv_theory_vs_sim,fig:f1_theory_vs_sim}).
+We show that all measures are functions of four parameters: the false positive rate $\fprate$, the true positive rate $\tprate$, the number of positives $\p$, and the number of negatives $\n$.
+
+\paragraph{Related work.}
+Fawcett~\cite{fawcettROC} provides an introduction to ROC analysis; Powers~\cite{powersEval} gives a systematic comparison of evaluation measures.
+The underlying Bernoulli set model and its compositional algebra are developed in a companion paper~\cite{bernoulliSets}; here we focus exclusively on the classification measures that the model induces.
+
+\paragraph{Organization.}
+\Cref{sec:prelim} restates the Bernoulli axioms and the binomial distributions of error counts.
+\Cref{sec:measures} derives the distributions of PPV, NPV, accuracy, Youden's $J$, and the $\fone$-score.
+\Cref{sec:conclusion_cm} concludes.
+Appendix~\ref{sec:proof_approx_expected_precision} gives the full delta-method proof for expected PPV, Appendix~\ref{sec:proof_f1} gives the proof for the $\fone$-score, and Appendix~\ref{app:samp} develops the sampling distribution framework.

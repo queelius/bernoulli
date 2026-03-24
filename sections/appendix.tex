@@ -1,0 +1,193 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Proof of theorem~\ref{thm:approx_expected_precision}}
+\label{sec:proof_approx_expected_precision}
+Given $p$ positives and $n$ negatives, by \cref{thm:approx_expected_precision} an approximate set with a false positive rate $\fprate$ and a false negative rate $\fnrate$ has an \emph{expected} precision given \emph{approximately} by
+\begin{equation*}
+    \ppv(\fnrate, \fprate ; n, p) \approx \frac{\overline{t}}{\overline{t} + \overline{f}} +
+    \frac{\overline{t} \sigma_{\!f}^2 - \overline{f} \sigma_{\!t}^2}{\left(\overline{t} + \overline{f}\right)^3},
+    \tag{\ref{eq:approx_expected_precision} revisited}
+\end{equation*}
+where $\overline{t} = p \tprate$ is the \emph{expected} number of \emph{true positives}, $\overline{f} =  n \fprate$ is the \emph{expected} number of \emph{false positives}, $\sigma_{\!t}^2 = p \fnrate \tprate$ is the variance of the number of \emph{true positives}, and $\sigma_{\!f}^2 = n \fprate \tnrate$ is the variance of the number of \emph{false positives}.
+\begin{proof}
+The positive predictive value is a random variable given by
+\begin{equation}
+    \frac{\TP_p}{\TP_p + \FP_n}.
+\end{equation}
+We are interested in the \emph{expected} positive predictive value,
+\begin{equation}
+    \ppv(\fprate,\tprate) = \Expect{\frac{\TP_p}{\TP_p + \FP_n}}.
+\end{equation}
+This expectation is of a non-linear function of random variables, which is problematic so we choose to approximate the expectation.
+
+Let the \emph{positive predictive value} function be denoted by
+\begin{equation}
+    f(t, f) = \frac{t}{t + f},
+\end{equation}
+where $t$ is the number of true positives and $f$ is the number of false positives.
+We approximate this function with a second-order Taylor series.
+The gradient of $f$ is given by
+\begin{equation}
+    \nabla f(t,f) =
+    \frac{1}{(t + f)^2}
+    \begin{bmatrix}
+        f\\
+        -t\\
+    \end{bmatrix}
+\end{equation}
+and the Hessian of $f$ is given by
+\begin{equation}
+    \mathcal{H}(t,f) =
+    \frac{1}{(t + f)^3}
+    \begin{bmatrix}
+        -2 f & t-f\\
+        t-f & 2 t \\
+    \end{bmatrix}
+\end{equation}
+
+A second-order Taylor approximation $\Fun{g}$ of $f$ about the expected value of $\TP_p$, denoted by $\overline{t}$, and the expected value of $\FP_n$, denoted by $\overline{f}$, is given by
+\begin{equation}
+    \Fun{g}(t,f) =
+    f\left(\overline{t},\overline{f}\right) + \nabla f(\overline{t},\overline{f})^{\intercal}
+    \begin{bmatrix}
+        t - \overline{t}\\
+        f - \overline{f}\\
+    \end{bmatrix}
+    + \frac{1}{2}
+    \begin{bmatrix}
+        t - \overline{t}\\
+        f - \overline{f}\\
+    \end{bmatrix}^{\intercal}
+    \mathcal{H}(\overline{t},\overline{f})
+    \begin{bmatrix}
+        t - \overline{t}\\
+        f - \overline{f}\\
+    \end{bmatrix}
+\end{equation}
+As a function of random variables $\TP_p$ and $\FP_n$, $\Fun{g}\!\left(\TP_p,\FP_n\right)$ is a random variable.
+Since $\Expect{\TP_p - \overline{t}} = 0$ and $\Expect{\FP_n - \overline{f}} = 0$, we immediately simplify the expectation of $\Fun{g}$ to
+\begin{equation}
+\label{eq:proof_hess1}
+    \Expect{\Fun{g}(\TP_p,\FP_n)} = \frac{\overline{t}}{\overline{t}+\overline{f}} + \frac{\Expect{A}}{(\overline{t} + \overline{f})^3}
+\end{equation}
+where
+\begin{equation}
+    A = \frac{1}{2}
+    \begin{bmatrix}
+        \TP_p - \overline{t}\\
+        \FP_n - \overline{f}
+    \end{bmatrix}^{\intercal}
+    \begin{bmatrix}
+        -2 \overline{f} \left(\TP_p - \overline{t}\right) + \left(\overline{t}-\overline{f}\right)\left(\FP_n - \overline{f}\right)\\
+        \left(\overline{t}-\overline{f}\right)\left(\TP_p - \overline{t}\right) + 2 \overline{t}\left(\FP_n - \overline{f}\right)
+    \end{bmatrix}
+\end{equation}
+Expanding the quadratic form yields
+\begin{equation}
+    A = -\overline{f} \left(\TP_p - \overline{t}\right)^2 +
+    \left(\overline{t}-\overline{f}\right)\left(\TP_p -
+    \overline{t}\right)\left(\FP_n - \overline{f}\right) +
+    \overline{t}\left(\FP_n - \overline{f}\right)^2
+\end{equation}
+As a linear operator, the expectation of $A$ is equivalent to
+\begin{equation}
+    \Expect{A} = -\overline{f} \Expect{(\TP_p - \overline{t})^2} + \left(\overline{t}-\overline{f}\right)\Expect{\left(\FP_n - \overline{f}\right)\left(\TP_p - \overline{t}\right)} + \overline{t}\Expect{(\FP_n - \overline{f})^2}
+\end{equation}
+By definition, $\Expect{(\TP_p - \overline{t})^2}$ is the variance of $\TP_p$, $\Expect{(\FP_n - \overline{f})^2}$ is the variance of $\FP_n$, and $\Expect{\left(\FP_n - \overline{f}\right)\left(\TP_p - \overline{t}\right)}$ is the covariance of $\TP_p$ and $\FP_n$, which is $0$ since they are independent.
+Making these substitutions results in
+\begin{equation}
+    \Expect{A} = \overline{t} \Var{\FP_n} - \overline{f} \Var{\TP_p}
+\end{equation}
+Substituting this result into \cref{eq:proof_hess1} yields
+\begin{equation}
+    \Expect{\Fun{g}(\TP_p,\FP_n)} =
+    \frac{\overline{t}}{\overline{t}+\overline{f}} +
+    \frac{-\overline{f} \Var{\TP_p} +
+    \overline{t}\Var{\FP_n}}{(\overline{t} + \overline{f})^3}
+\end{equation}
+By \cref{thm:fpbinom}, $\FP_n$ is binomially distributed with a mean $n \fprate$ and a variance $n \fprate \tnrate$ and by \cref{cor:tpbinom}, $\TP_p$ is binomially distributed with a mean $p \tprate$ and a variance $p \fnrate \tprate$.
+Substituting $\Var{\FP_n} = n \fprate(1-\fprate) = \overline{f}(1-\fprate) = \sigma_f^2$ and $\Var{\TP_p} = p \tprate(1-\tprate) = \overline{t}(1-\tprate) = \sigma_t^2$ yields \cref{eq:approx_expected_precision}.
+
+For the variance, the first-order delta method gives $\Var{\PPV} \approx (\nabla f)^\intercal \Sigma\,(\nabla f)$ with $\Sigma = \operatorname{diag}(\sigma_t^2, \sigma_f^2)$:
+\begin{equation}
+    \Var{\PPV} \approx \frac{\overline{f}^{\,2}\,\sigma_t^2 + \overline{t}^{\,2}\,\sigma_f^2}{\left(\overline{t} + \overline{f}\right)^4},
+\end{equation}
+which yields \cref{eq:var_ppv}.
+\end{proof}
+
+\section{Proof of theorem~\ref{thm:f1_approx}}
+\label{sec:proof_f1}
+The proof follows the same structure as the PPV proof (\cref{sec:proof_approx_expected_precision}) with the substitution $h(t,f) = 2t/(t + f + \p)$ in place of $f(t,f) = t/(t+f)$.
+\begin{proof}
+The $\fone$-score is a random variable $\Fone = h(\TP_\p, \FP_\n)$ where
+\begin{equation}
+    h(t, f) = \frac{2t}{t + f + \p}.
+\end{equation}
+The gradient of $h$ is
+\begin{equation}
+    \nabla h(t,f) =
+    \frac{2}{(t + f + \p)^2}
+    \begin{bmatrix}
+        f + \p\\
+        -t\\
+    \end{bmatrix}
+\end{equation}
+and the Hessian is
+\begin{equation}
+    \mathcal{H}(t,f) =
+    \frac{2}{(t + f + \p)^3}
+    \begin{bmatrix}
+        -2(f+\p) & t - f - \p\\
+        t - f - \p & 2 t \\
+    \end{bmatrix}.
+\end{equation}
+The second-order Taylor expansion about the means $\overline{t} = \p\tprate$, $\overline{f} = \n\fprate$, letting $s = \overline{t} + \overline{f} + \p$, gives
+\begin{equation}
+    \Expect{h(\TP_\p, \FP_\n)} \approx h(\overline{t}, \overline{f}) + \frac{1}{2}\operatorname{tr}\!\bigl(\mathcal{H}(\overline{t},\overline{f})\,\Sigma\bigr)
+\end{equation}
+where $\Sigma = \operatorname{diag}(\sigma_t^2, \sigma_f^2)$ and the cross terms vanish by independence.
+Expanding:
+\begin{equation}
+    \frac{1}{2}\operatorname{tr}\!\bigl(\mathcal{H}\,\Sigma\bigr) =
+    \frac{1}{2}\Bigl(\frac{-4(\overline{f}+\p)}{s^3}\,\sigma_t^2 +
+    \frac{4\overline{t}}{s^3}\,\sigma_f^2\Bigr) =
+    \frac{2\overline{t}\,\sigma_f^2 - 2(\overline{f}+\p)\sigma_t^2}{s^3}.
+\end{equation}
+Adding $h(\overline{t},\overline{f}) = 2\overline{t}/s$ completes the expected-value formula.
+
+For the variance, the first-order delta method gives $\Var{\Fone} \approx (\nabla h)^\intercal \Sigma\,(\nabla h)$:
+\begin{equation}
+    \Var{\Fone} \approx \frac{4(\overline{f}+\p)^2 \sigma_t^2 + 4\overline{t}^{\,2}\,\sigma_f^2}{s^4}.
+\end{equation}
+Substituting $\sigma_t^2 = \p\tprate(1-\tprate)$ and $\sigma_f^2 = \n\fprate(1-\fprate)$ yields \cref{eq:f1_approx,eq:var_f1}.
+\end{proof}
+
+\section{Sampling distribution of arbitrary functions}
+\label{app:samp}
+Suppose we have a function $f : \PS{\Set{X}[1]} \times \cdots \times \PS{\Set{X}[q]} \to \Set{Y}$, and we are interested in evaluating the loss when we replace one or more of the objective input sets with particular corresponding random approximate sets.
+The result of this substitution, as previously described, is a probability distribution over $\Set{Y}$.
+
+The probability distribution of random approximate sets are precisely given; therefore, we may estimate the distribution of any function of random approximate sets by generating the random approximate sets and applying the function of interest.
+
+Consider the $m$-by-$q$ matrix where the $(i,j)$-th element is the random approximate set $\tilde{A}_{i\,j}$ such that each random element of the matrix is independently and each column is identically distributed.
+If we apply $\Fun{g}$ to each row of the matrix,
+\begin{equation}
+\RV{Y}_i = \Fun{g}\left(\tilde{A}_{i\,1},\ldots,\tilde{A}_{i\,q}\right)
+\end{equation}
+for $i=1,\ldots,m$, we generate $m$ i.i.d. random elements $\RV{Y_1},\ldots,\RV{Y_m}$.
+
+If $\Set{Y}$ is a measure space (discrete or continuous), consider the random variable
+\begin{equation}
+\RV{\overline{Y}_m} = \frac{1}{m} \sum_{i=1}^m \RV{Y_i}.
+\end{equation}
+If $\RV{Y_1}$ has a well-defined mean $\mu = \Expect{\RV{Y_1}}$ and variance $\sigma^2 = \Var{\RV{Y_1}}$, then by the central limit theorem
+\begin{equation}
+\sqrt{m}\left(\RV{\overline{Y}_m} - \mu\right) \xrightarrow{d} \normdist\!\left(0, \sigma^2\right)
+\end{equation}
+as $m \to \infty$.
+That is, for large $m$ the sample mean $\RV{\overline{Y}_m}$ is approximately normally distributed with mean $\mu$ and variance $\sigma^2 / m$.
+
+This framework underlies the Monte Carlo validation of the delta method approximations in \cref{fig:ppv_theory_vs_sim,fig:f1_theory_vs_sim}: for each parameter value, $m = 50\,000$ independent random approximate sets are generated, and the sample mean of the measure is compared to the theoretical prediction.
+The large sample size ensures that the Monte Carlo standard error is negligible relative to the quantities being estimated.

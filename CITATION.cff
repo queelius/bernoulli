@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Binary classification measures for random approximate sets"
+type: article
+authors:
+  - family-names: Towell
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0001-6443-9897"
+    affiliation: "Southern Illinois University Edwardsville"
+doi: "10.5281/zenodo.19104550"
+url: "https://zenodo.org/record/19104550"
+repository-code: "https://github.com/queelius/bernoulli_classification_measures"
+date-released: "2026-03-18"
+keywords:
+  - Bernoulli set
+  - approximate set
+  - binary classification
+  - positive predictive value
+  - F1-score
+  - delta method
+  - probabilistic data structure
