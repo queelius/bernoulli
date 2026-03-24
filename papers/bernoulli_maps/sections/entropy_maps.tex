@@ -1,0 +1,184 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Entropy maps: the information-theoretic limit}
+\label{sec:entropy-maps}
+
+The Bernoulli map model admits many implementations: any data structure whose per-element errors satisfy the independence axiom qualifies.
+Among all such implementations, the \emph{entropy map} is the canonical one: it achieves the maximum-entropy encoding subject to the rate constraint, using the minimum possible space.
+In the function-space viewpoint of \cref{sec:special}, the entropy map is the least-structured element of the function space $\Set{Y}^{\Set{X}}$ that still satisfies the Bernoulli axioms with specified rates.
+It is thus the information-theoretic \emph{limit} of the model, in the same sense that the binomial distribution is the maximum-entropy distribution over $\{0,\ldots,n\}$ for a given mean.
+
+Concretely, the entropy map has three defining properties:
+\begin{enumerate}
+\item It is a perfect model of the \emph{first-order} random approximate map.
+\item The bit-length of its in-place encoding is a random variable $\RV{L}$ whose expectation obtains the theoretical lower bound of $-\log_2 \fprate + \mu$ bits per element, where $\mu$ is the average value bit-length.
+\item The in-place encoding has maximum conditional entropy given the error rates, so no additional structure beyond the Bernoulli axioms is imposed.
+\end{enumerate}
+
+\subsection{Framework}
+\label{sec:entropy-framework}
+
+The basic theory behind an entropy map is to map values in the domain to
+values in the codomain by \emph{hashing} to a prefix-free code in the
+codomain. We do not store anything related to the domain, since we are
+simply hashing them, and a prefix of that hash will be used as a code
+for a value in the codomain.
+
+We consider sets in which the universe of elements is given by the \emph{countably infinite} set of all bit strings.
+\begin{definition}
+The countably infinite set of all bit strings is denoted by
+\begin{equation}
+    \BitSet^* = \left\{b \colon b \in \left\{0,1\right\}^*\right\}\,,
+\end{equation}
+where $*$ denotes all non-negative integers.
+\end{definition}
+A \emph{finite} subset of $\BitSet^*$ is given by the following definition.
+\begin{definition}
+The \emph{finite set} of all bit strings of length $n$ is denoted by
+\begin{equation}
+    \BitSet^n = \left\{b \colon b \in \left\{0,1\right\}^n\right\}
+\end{equation}
+with a cardinality given by
+\begin{equation}
+    \Card{\BitSet^n} = 2^n\,.
+\end{equation}
+\end{definition}
+
+A \emph{hash function} is related to countable sets $\BitSet^*$ and $\BitSet^n$ and is given by the following definition.
+\begin{definition}
+A \emph{hash function} of type $\BitSet^* \to \BitSet^n$ maps (hashes) bit strings of arbitrary-length to bit strings of fixed-length $n$.
+\end{definition}
+Universal classes of hash functions~\cite{carterWegman1979} provide families with strong uniformity guarantees suitable for this construction.
+
+The random oracle is given by the following definition.
+\begin{definition}
+\label{def:randomoracle}
+A random oracle $\hash \colon \BitSet^* \to \BitSet^{\infty}$ is a theoretical \emph{hash function} whose output is uniformly distributed over its codomain.
+\end{definition}
+
+\begin{definition}[Entropy Map]
+\label{def:entropy-map}
+An \emph{entropy map} for a function $\Fun{f} \colon \Set{X} \to \Set{Y}$
+consists of:
+\begin{itemize}
+\item A hash function $\hash \colon \Set{X} \times \BitSet^{*} \to \BitSet^{*}$.
+\item A prefix-free code $\Fun{c} \colon \Set{Y} \to \PS{\BitSet^{*}}$
+      assigning sets of codewords to codomain values.
+\item A decoding function $\Decode \colon \BitSet^{*} \to \Maybe{\Set{Y}}$.
+\end{itemize}
+For each $y \in \Set{Y}$, the codewords in $\Fun{c}(y)$ form a prefix-free set.
+\end{definition}
+
+We allow many different codes for each value in the codomain, so that, for
+instance, a code for the value $a$ may be $00$, $01$, $10$, and $11$.
+We can efficiently decode this as $a$ if the hash is less than~4.
+
+Suppose we have a prefix-free encoder-decoder for values of type $\Set{Y}$ denoted respectively by $\Encode_{\Set{Y}} \colon \Set{Y} \to \BitSet^*$ and $\Decode_{\Set{Y}} \colon \BitSet^* \to \Maybe{\Set{Y}}$.
+If we are given a (possibly infinite) sequence of bits $b_1 b_2 \ldots b_k b_{k+1} \ldots$ and $b_1 b_2 \ldots b_k$ is a (prefix-free) code for some $y$ in $\Set{Y}$, then $\Decode_{\Set{Y}}(b_1 b_2 \ldots b_k b_{k+1} \ldots)$ maps to $y$.
+Inversely, $\Encode_{\Set{Y}}(y)$ maps to $b_1 b_2 \ldots b_k$.
+
+\subsection{Optimal space efficiency}
+\label{sec:optimal-code}
+
+Suppose $\Prob{\Fun{f}(\RV{X}) = y} = p_y$, $\RV{X} \sim p_{\RV{X}}$, then the optimally space-efficient code, assuming a uniform hash function $\hash$, is to assign prefix-free codes for $y$ whose probability of being mapped to by $\hash$ sums to $p_y$.
+
+\begin{theorem}[Optimal Code Length]
+\label{thm:optimal-code}
+For a uniform hash function $\hash$ and optimal prefix-free code assignment,
+the expected bit length per element is
+\begin{equation}
+    \ell = H(\RV{Y}) = -\sum_{y \in \Set{Y}} p_y \log_2 p_y\,,
+\end{equation}
+where $H(\RV{Y})$ is the Shannon entropy~\cite{shannon1948} of the output distribution.
+\end{theorem}
+\begin{proof}
+By Shannon's source coding theorem, the expected length
+of an optimal prefix-free code for distribution $p_{\RV{Y}}$ equals the entropy
+$H(\RV{Y})$. Since we assign codewords with total probability $p_y$ to each
+$y \in \Set{Y}$, the result follows.
+\end{proof}
+
+If we imagine sampling $x$ from $\Set{X}$ with $p_{\RV{X}}$ and then mapping to
+$y = \Fun{f}(x)$ and observing the sequence of $y$'s, then the expected bit length
+is the entropy of the sequence of $y$'s. This is why we call it an
+\emph{entropy map}.
+
+For finite $\Set{X}$, we can imagine implicitly encoding the domain and
+then for each value in the domain, storing the prefix-free code that it maps
+to, which has an average bit length of $\ell$ and a total bit length of
+$\Card{\Set{X}} \cdot \ell$.
+
+\subsection{Rate-distortion}
+\label{sec:entropy-rate-distortion}
+
+The entropy map models a \emph{first-order} random approximate map where the approximation error is due to \emph{rate-distortion}~\cite{shannon1959,cover2006}.
+Rate-distortion is a result of several parameter choices:
+\begin{enumerate}
+	\item\label{itm:insufficient} Distortion due to \emph{insufficient} bits.
+	\item\label{itm:fnr} Distortion due to accepting a non-zero false negative rate.
+	\item Distortion due to specifying a false positive rate, which causes elements not in the domain of definition to be mapped to some uncertain value determined by the prefix-free encoder-decoder.
+\end{enumerate}
+
+\subsection{The Maybe monad}
+\label{sec:maybe-monad}
+
+Suppose the encoder-decoder has the pair $\Encode_{\Set{X}} \colon \Set{X} \to \PS{\BitSet^*}$ and $\Decode_{\Set{X}} \colon \BitSet^* \pfun \Set{X}$.
+
+We consider a specialization that, given a function $\Fun{f} \colon \Set{X} \to \Set{Y}$, generates rate-distorted maps $\APFun{f}[\fprate][\fnrate] \colon \Set{X} \to \Maybe{\Set{Y}}$.
+The encoder-decoder only applies to elements of $\Set{X}$ which test as positive, at which point the elements are mapped to values as previously described.
+
+Specifically, assuming no rate-distortion on the values themselves, the map:
+\begin{itemize}
+\item maps values in $\Dod(\Fun{f}\!\!\restriction_{\Set{A}})$ to \Nothing with probability $\fnrate$ and otherwise maps them correctly,
+\item maps values not in the domain of definition to \Nothing with probability $1-\fprate$ and to value $y$ with probability
+\begin{equation}
+\label{eq:fp-value-dist}
+	p_{\RV{Y}}(y) \coloneqq \!\!\!\!\! \sum_{z \in \Encode_{\Set{Y}}(y)} \!\!\!\!\! 2^{-\BL(z)}\,.
+\end{equation}
+\end{itemize}
+
+\subsection{Probability of success}
+\label{sec:prob-success}
+
+The set of rationals in $[0,1]$ is denoted by $\FancySet{P}$ and the set of power-of-two probabilities is denoted by
+\begin{equation}
+	\FancySet{R} \coloneqq \SetBuilder{2^{-k} \in \RatSet}{k \in \IntSet_{\geq 0}} \subset \FancySet{P}\,.
+\end{equation}
+
+The probability of success given a rate-distortion $\fnrate$ on positives and $\fprate$ on negatives is given by
+\begin{equation}
+	p(\fprate,\fnrate) = \binom{m}{(1-\fnrate)m} \fprate^{m(1-\fnrate)} (1-\fprate)^{m \fnrate}\,.
+\end{equation}
+
+Each trial is geometrically distributed, $\RV{T} \sim \geodist(p(\fprate,\fnrate))$.
+
+The expected number of trials is $\Expect{\RV{T}} = \frac{1}{p(\fprate,\fnrate)}$.
+The expected code size is $\Expect{\log_2 \RV{T}}$, which is non-linear and problematic but may be approximated with
+\begin{equation}
+	-\Fun{H}_b(\fnrate) - \fnrate \log_2 (1-\fprate) - (1-\fnrate) \log_2 \fprate
+\end{equation}
+bits per element where $\Fun{H}_b(p) \coloneqq (1-p)\log_2(1-p) + p \log_2 p$ is the binary entropy function.
+
+This result is not the result of computing $\Expect{\log_2 \RV{T}}$, nor the expectation of its Taylor approximation.
+It is simply $\log_2 \Expect{\RV{T}}$.
+
+If we let $\fnrate \coloneqq 0$, the above simplifies to $-\log_2 \fprate$, which is the lower-bound for \emph{first-order} random positive approximate sets over countably infinite universes with a false positive rate $\fprate$.
+
+\subsection{Trapdoor entropy maps}
+\label{sec:trapdoor}
+
+The smaller the bit lengths generated by the encoder, the smaller the entropy map.
+However, optimal encoders \emph{reveal} information about the values in the entropy map.
+For instance, if each input $x$ mapped to a list of numbers, then an optimal encoder will generate codes that minimize the length of the list, say a Huffman code.
+However, by analyzing the Huffman codes produced by the encoder, we may infer the distribution of the lists.
+Thus, for the sake of maintaining a \emph{trapdoor} state, the encoder should generate codes as though the values were \emph{uniformly} distributed.
+
+A \emph{trapdoor} entropy map is an entropy map where the hash function is
+applied to trapdoors (one-way transformations) of $\Set{X}$ and the
+prefix-free codes for $\Set{Y}$ have no pattern, e.g., a
+random selection of hash values for each value in $\Set{Y}$. This
+provides a foundation for private set intersection, encrypted search~\cite{songWagnerPerrig2000,curtmola2006}, and
+other secure computation primitives.
+
+\end{document}

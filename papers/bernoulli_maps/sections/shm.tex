@@ -1,0 +1,167 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{The singular hash map}
+\label{sec:shm}
+
+We present the \emph{singular hash map}, a concrete construction that realizes the entropy map framework from \cref{sec:entropy-maps} and achieves the information-theoretic space lower bound asymptotically.
+The construction uses universal hashing~\cite{carterWegman1979} and is related to perfect hashing techniques~\cite{fredmanKomlosSzemeredi1984} and succinct retrieval data structures~\cite{dietzfelbinger2008}.
+
+\subsection{Construction algorithm}
+\label{sec:shm-construction}
+
+\begin{algorithm}
+	\caption{Implementation of \protect\MakeSingularHashMap over a universal set $\Set{X}$}
+	\label{alg:makeset}
+	\DontPrintSemicolon
+	\SetKwProg{func}{function}{}{}
+	\KwIn
+	{
+		$\Set{A}$ is a subset of a universal set $\Set{X}$.
+		$\fprate$ is the false positive rate.
+		$t$ is the maximum number of trials.
+	}
+	\KwOut
+	{
+		$\ASet{A}[\fprate]$, a rate-distorted approximate set of $\Set{A}$.
+	}
+	\func{\MakeSingularHashMap{$\Set{A}$, $\fprate$, $t$}}
+	{
+		$k \coloneqq \lceil -\log_2 \fprate \rceil$\;
+		$\Set{A}_{\BitSet^*} \coloneqq \SetBuilder{\Encode_{\Set{X}}(a) \in \BitSet^*}{a \in \Set{A}}$\;
+		\For{$n \gets 0$ \KwTo $t$}
+		{
+			\For{$j \gets 1$ \KwTo $2^n$}
+			{
+				$\found \gets \True$\;
+				$b_n \gets $ a bit string randomly drawn from $\BitSet^n$ without replacement\;
+				$h_k \gets \Nothing$\;
+				\For{$x \in \Set{A}_{\BitSet^*}$}
+				{
+					\If{$h_k = \Nothing$}
+					{
+						$h_k \gets \trunc(\hash(x \cat b_n), k)$\;
+					}
+					\ElseIf{$h_k \neq \trunc(\hash(x \cat b_n), k)$}
+					{
+						$\found \gets \False$\;
+					}
+				}
+				\If{\found}
+				{
+					\Return $\Tuple{h_k, b_n}$\;
+				}
+			}
+		}
+	}
+\end{algorithm}
+
+The space required for the \emph{singular hash map} is of the order of the length $n$ of the bit string $b$. Therefore, for space efficiency, the algorithm exhaustively searches for a bit string in the order of increasing size $n$.
+
+\subsection{Probability of success}
+\label{sec:shm-prob}
+
+The \emph{singular hash set} proves that the keys in $\APFun{f}$ are an \emph{approximate set} of the keys in $\Fun{f}$.
+
+\begin{theorem}
+\label{thm:shm-success}
+Let $\fprate = 2^{-k}$ for some positive integer $k$.
+The probability that a particular bit string $b \in \BitSet^*$ successfully codes the \emph{singular hash map} is given by
+\begin{equation}
+    p(m,\fprate,\mu) = \frac{\fprate^{m-1}}{2^{m \mu}}\,.
+\end{equation}
+\end{theorem}
+\begin{remark}
+The restriction to $\fprate = 2^{-k}$ ensures that the hash truncation $\trunc(\cdot, k)$ yields an exact false positive rate.
+For arbitrary $\fprate \in (0,1)$, one chooses $k = \lceil -\log_2 \fprate \rceil$ and obtains $2^{-k} \leq \fprate$; the result then generalizes via standard approximation arguments.
+\end{remark}
+\begin{proof}
+For a particular bit string $b_n$, the joint probability that every key in $\Fun{f}$ collides and for each key $k$ in $\Fun{f}$, the concatenation of $1$ and $k$ has a hash in which the first $\BL(v)$ bits collide with mapped value $v$ is given by the following reasoning.
+
+Suppose we have a set $\Fun{f} \coloneqq \{(k_1,v_1),\ldots,(k_m,v_m)\}$ and $k_1$ hashes to $y = \hash(k_1) \mod t$, where $\hash \colon \BitSet^* \to \BitSet^N$ is a random hash function that uniformly distributes over its domain of $2^N$ possibilities and $N < \max{\BL(v_1),\ldots,\BL(v_m)}$.
+
+The probability that $\hash(1 \cat k_1) \mod \BL(v_1) = v_1$ is given by
+\begin{equation}
+    \frac{1}{2^{\BL(v_1)}}\,.
+\end{equation}
+Since $y$ is a particular element in $\BitSet^k$, the probability that $k_j, j \neq 1$, hashes to $y$ is given by
+\begin{equation}
+    \frac{1}{2^k}\,.
+\end{equation}
+The probability that $1 \cat k_j, j \neq 1$ hashes to $v_j$ is given by
+\begin{equation}
+    \frac{1}{2^{\BL(v_j)}}\,.
+\end{equation}
+Since $\hash$ is a random hash function, every one of these probabilities are independent, and thus the joint probability is just the product given by
+\begin{align}
+    p &= \frac{1}{2^{k(m-1)}} \prod_{j=1}^{m} \frac{1}{2^{\BL(v_j)}}\\
+      &= \fprate^{m-1} \frac{1}{2^{\sum_{j=1}^{m} \BL(v_j)}}\,.
+\end{align}
+The average bit length per key is given by
+\begin{equation}
+    \mu = \frac{1}{m} \sum_{j=1}^{m} \BL(v_j)
+\end{equation}
+and thus the probability $p$ may be parameterized as
+\begin{equation}
+    p = \frac{\fprate^{m-1}}{2^{m \mu}}\,.
+\end{equation}
+\end{proof}
+
+\subsection{Space complexity}
+\label{sec:shm-space}
+
+\begin{theorem}
+\label{thm:shm-space}
+Given \emph{false positive} and \emph{false negative} domain error rates given by $\fprate$ and $\fnrate$ respectively, and a mean bit length $\mu$ of encodings of elements in the image of $\APFun{f}$, the \emph{expected} bit length of the Singular Hash Map asymptotically obtains a space complexity with a lower-bound given by
+\begin{equation}
+    -(1 - \fnrate) \log_2 \fprate + (1 - \fnrate) \mu \; \si{bits \per element}\,,
+\end{equation}
+which occurs when the encodings have uniformly distributed bit lengths, and an upper-bound given by
+\begin{equation}
+    -(1 - \fnrate) \log_2 \fprate + \mu \; \si{bits \per element}\,,
+\end{equation}
+which occurs when the encodings have degenerate bit lengths. The greater the entropy of the bit lengths, the smaller the expected bit length given a mean of $\mu$.
+\end{theorem}
+\begin{proof}
+The space required for the singular hash set found by \Cref{alg:makeset} is of the order of the length $n$ of the bit string $b_n$.
+Therefore, for space efficiency, the algorithm exhaustively searches for a bit string in the order of increasing size $n$.
+
+We are interested in the first case when a success occurs, which is a geometric distribution with probability of success $p$ as given by
+\begin{equation}
+    \RV{Q} \sim \geodist\!\left(p = \frac{\fprate^{m-1}}{2^{m \mu}}\right)\,.
+\end{equation}
+The expected number of trials for the geometric distribution is given by
+\begin{equation}
+\label{eq:exp_trials}
+    \Expect{\RV{Q}} = \frac{2^{m \mu}}{\fprate^{m-1}}\,.
+\end{equation}
+The $n$-th trial uniquely maps to a bit string of length $\ell = \lfloor \log_2 n \rfloor$.
+By Jensen's inequality (since $\log_2$ is concave),
+$\Expect{\log_2 \RV{Q}} \leq \log_2 \Expect{\RV{Q}}$, so
+\begin{equation}
+    \Expect{\log_2 \RV{Q}} \leq \log_2 \frac{2^{m \mu}}{\fprate^{m-1}}\; \si{bits}\,.
+\end{equation}
+The approximation error is $O(1/m)$ per element and vanishes as
+$m \to \infty$, justifying the asymptotic claim below.
+Dividing by $m$ and simplifying results in
+\begin{equation}
+    -\frac{m-1}{m} \log_2 \fprate + \mu\; \si{bits \per element}\,.
+\end{equation}
+Asymptotically, as $m \to \infty$, the bits per element converges to
+\begin{equation}
+\label{eq:shm-zero-fnr}
+    -\log_2 \fprate + \mu\,.
+\end{equation}
+
+Now suppose a fraction $\fnrate$ of the $m$ keys are dropped (false negatives), so that only $(1-\fnrate)m$ keys are successfully stored.
+The key-discrimination cost applies only to the $(1-\fnrate)m$ stored elements, contributing $-(1-\fnrate)\log_2 \fprate$ bits per element of the original map.
+For the value-encoding cost, we consider two cases.
+In the lower-bound case (uniformly distributed bit lengths), the value bits scale proportionally with the number of stored elements, contributing $(1-\fnrate)\mu$ bits per element.
+In the upper-bound case (degenerate bit lengths), the encoding overhead for each stored value remains $\mu$ bits regardless of how many elements are stored, because the bit length is constant and cannot be amortized; this contributes $\mu$ bits per element.
+Combining these gives the bounds in the theorem statement.\end{proof}
+
+\begin{corollary}
+When $\fnrate = 0$ and $\mu = 0$ (the case of an approximate set with no values to store), the space complexity reduces to $-\log_2 \fprate$ bits per element, which is the information-theoretic lower-bound for first-order random positive approximate sets over countably infinite universes~\cite{cover2006}.
+\end{corollary}
+
+\end{document}

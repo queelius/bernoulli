@@ -1,0 +1,378 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{The Bernoulli map model}
+\label{sec:bernoulli-map}
+
+The set of total functions of type $\Set{X} \to \Set{Y}$ is denoted by the
+exponential $\Set{Y}^{\Set{X}}$ and has cardinality
+$\Card{\Set{Y}}^{\Card{\Set{X}}}$.
+Given a fixed function $\Fun{f} \colon \Set{X} \to \Set{Y}$, a function
+$\Fun{g} \colon \Set{X} \to \Set{Y}$ chosen uniformly at random from
+$\Set{Y}^{\Set{X}}$ agrees with $\Fun{f}$ at a given point $x \in \Set{X}$
+with probability $\Card{\Set{Y}}^{-1}$, and agrees everywhere---that is,
+$\Fun{g} = \Fun{f}$---with probability $\Card{\Set{Y}}^{-\Card{\Set{X}}}$.
+
+We seek a more refined model.
+Rather than selecting an approximation uniformly at random from the full
+function space, we model approximation errors that arise from rate distortion,
+noise, or incomplete knowledge as \emph{per-element Bernoulli trials}~\cite{feller1968} with
+structured error rates.
+This is the \emph{Bernoulli map model}, which we develop in this section.
+
+%% ------------------------------------------------------------------
+\subsection{The general model}
+\label{sec:general_model}
+
+Let $\Fun{f} \colon \Set{X} \to \Set{Y}$ be an objective (exact) function and
+let $\APFun{f} \colon \Set{X} \to \Set{Y}$ be a random function that
+approximates $\Fun{f}$.
+We measure pointwise correctness with the \emph{Iverson bracket}.
+
+\begin{definition}[Iverson bracket]
+\label{def:iverson}
+The Iverson bracket $\llbracket \cdot \rrbracket \colon \{\True, \False\} \to
+\BitSet$ maps a predicate to $1$ if the predicate is true and to $0$ otherwise.
+\end{definition}
+
+For each $x \in \Set{X}$, define the \emph{correctness indicator}
+\begin{equation}
+\label{eq:correctness}
+    \RV{Y}_x \;\coloneqq\; \llbracket \Fun{f}(x) = \APFun{f}(x) \rrbracket\,.
+\end{equation}
+Since $\APFun{f}$ is random, $\RV{Y}_x$ is a Bernoulli random variable taking
+values in $\BitSet$.
+The probability that the approximation is correct on the entire domain is
+\begin{equation}
+\label{eq:joint_correct}
+    \Prob{\bigcap_{x \in \Set{X}} \{\RV{Y}_x = 1\}}
+    \;=\; \prod_{x \in \Set{X}} \Prob{\RV{Y}_x = 1}\,,
+\end{equation}
+provided the family $\{\RV{Y}_x\}_{x \in \Set{X}}$ consists of mutually
+independent random variables.
+This independence assumption is fundamental to the model and we state it
+explicitly.
+
+\begin{assumption}[Element-wise independence]
+\label{asm:independence}
+The correctness indicators $\{\RV{Y}_x\}_{x \in \Set{X}}$ are mutually
+independent.
+\end{assumption}
+
+Under \cref{asm:independence}, each $\RV{Y}_x$ is an independent Bernoulli
+random variable with some parameter $p_x \coloneqq \Prob{\RV{Y}_x = 1}$.
+In general, $p_x$ may differ across elements of $\Set{X}$.
+The \emph{order} of the model captures the complexity of this heterogeneity.
+
+\begin{definition}[Model order]
+\label{def:model_order}
+Let $\APFun{f}$ be a random approximate map of $\Fun{f} \colon \Set{X} \to
+\Set{Y}$ satisfying \cref{asm:independence}.
+The \emph{order} of the random approximate map is the minimum integer $k \geq 0$
+such that there exists a partition of $\Set{X}$ into $k$ non-empty blocks
+$\Set{X}_1, \ldots, \Set{X}_k$ with the property that within each block
+$\Set{X}_i$, the correctness indicators $\{\RV{Y}_x : x \in \Set{X}_i\}$ are
+independent and identically distributed as $\berdist(p_i)$ for some
+$p_i \in [0,1]$.
+\end{definition}
+
+\begin{remark}
+A \emph{zeroth-order} model ($k=0$) corresponds to the degenerate case of an
+exact function: $\RV{Y}_x = 1$ with probability $1$ for all $x \in \Set{X}$,
+so $\APFun{f} = \Fun{f}$ almost surely.
+A \emph{first-order} model ($k=1$) posits a single partition block comprising
+all of $\Set{X}$, so that the indicators $\{\RV{Y}_x\}_{x \in \Set{X}}$ are
+i.i.d.\ $\berdist(p)$.
+A \emph{second-order} model ($k=2$) partitions the domain into two blocks with
+distinct Bernoulli parameters; this is the natural setting for false positive
+and false negative rates, which we develop in the next subsection.
+\end{remark}
+
+Since within each partition block $\Set{X}_i$ the indicators are i.i.d.\
+$\berdist(p_i)$, the number of correct outputs in block $\Set{X}_i$ is
+binomially distributed:
+\begin{equation}
+\label{eq:binom_block}
+    \sum_{x \in \Set{X}_i} \RV{Y}_x
+    \;\sim\; \bindist\!\left(\Card{\Set{X}_i},\, p_i\right)\,.
+\end{equation}
+
+%% ------------------------------------------------------------------
+\subsection{The second-order model}
+\label{sec:second_order}
+
+The most common instantiation of the Bernoulli map model is the second-order
+model, in which the domain $\Set{X}$ is partitioned into two blocks determined
+by the structure of the objective function $\Fun{f}$.
+
+Let $\Fun{f} \colon \Set{X} \to \Maybe{\Set{Y}}$ be a partial function with
+domain of definition $\PlainSet{P} \coloneqq \Dod(\Fun{f}) \subseteq \Set{X}$
+(the \emph{positives}) and let $\PlainSet{N} \coloneqq \Set{X} \smallsetminus
+\PlainSet{P}$ (the \emph{negatives}).
+The set-indicator function of the domain of definition partitions $\Set{X}$
+into these two blocks:
+\begin{equation}
+\label{eq:partition}
+    \Set{X} = \PlainSet{P} \;\dot{\cup}\; \PlainSet{N}\,,
+    \qquad
+    \PlainSet{P} \cap \PlainSet{N} = \EmptySet\,.
+\end{equation}
+
+Within each block, the correctness indicators are i.i.d., but with
+\emph{different} Bernoulli parameters.
+The error rates on these two blocks are the false positive rate and the false
+negative rate, defined as conditional losses with respect to the framework
+introduced in \cref{sec:error}.
+
+\begin{definition}[False positive rate]
+\label{def:fpr}
+Let $\Fun{f} \colon \Set{X} \to \Maybe{\Set{Y}}$ be a partial function with
+negatives $\PlainSet{N} = \Set{X} \smallsetminus \Dod(\Fun{f})$, and let
+$\APFun{f}$ be a random approximate map of $\Fun{f}$.
+The \emph{false positive rate} is the conditional expected loss over
+$\PlainSet{N}$:
+\begin{equation}
+\label{eq:fpr_def}
+    \fprate
+    \;\coloneqq\;
+    \Fun{\ell}_{\RV{X} \Given \PlainSet{N}}\!\left(\APFun{f} \Given \Fun{f}\right)
+    \;=\;
+    \Prob{\APFun{f}(\RV{X}) \neq \Nothing \Given \RV{X} \in \PlainSet{N}}\,.
+\end{equation}
+The complementary quantity $\tnrate \coloneqq 1 - \fprate$ is the \emph{true
+negative rate}.
+\end{definition}
+
+\begin{definition}[False negative rate]
+\label{def:fnr}
+Let $\Fun{f} \colon \Set{X} \to \Maybe{\Set{Y}}$ be a partial function with
+positives $\PlainSet{P} = \Dod(\Fun{f})$, and let $\APFun{f}$ be a random
+approximate map of $\Fun{f}$.
+The \emph{false negative rate} is the conditional expected loss over
+$\PlainSet{P}$:
+\begin{equation}
+\label{eq:fnr_def}
+    \fnrate
+    \;\coloneqq\;
+    \Fun{\ell}_{\RV{X} \Given \PlainSet{P}}\!\left(\APFun{f} \Given \Fun{f}\right)
+    \;=\;
+    \Prob{\APFun{f}(\RV{X}) \neq \Fun{f}(\RV{X}) \Given \RV{X} \in \PlainSet{P}}\,.
+\end{equation}
+The complementary quantity $\tprate \coloneqq 1 - \fnrate$ is the \emph{true
+positive rate}.
+\end{definition}
+
+The total expected loss over $\Set{X}$ decomposes as a weighted sum of these
+conditional losses.
+By the partition $\Set{X} = \PlainSet{P} \,\dot{\cup}\, \PlainSet{N}$ and
+the law of total expectation (cf.\ \cref{eq:disj_loss}), we obtain:
+
+\begin{lemma}[Loss decomposition]
+\label{prop:loss_decomp}
+Let $\RV{X}$ be uniformly distributed on $\Set{X}$.
+Then the total expected loss of $\APFun{f}$ with respect to $\Fun{f}$ is
+\begin{equation}
+\label{eq:loss_decomp}
+    \Fun{\ell}_{\RV{X}}\!\left(\APFun{f} \Given \Fun{f}\right)
+    \;=\;
+    \fprate \cdot \frac{\Card{\PlainSet{N}}}{\Card{\Set{X}}}
+    \;+\;
+    \fnrate \cdot \frac{\Card{\PlainSet{P}}}{\Card{\Set{X}}}\,.
+\end{equation}
+\end{lemma}
+\begin{proof}
+By the law of total probability applied to the partition
+$\Set{X} = \PlainSet{P} \,\dot{\cup}\, \PlainSet{N}$,
+\begin{align}
+    \Fun{\ell}_{\RV{X}}\!\left(\APFun{f} \Given \Fun{f}\right)
+    &= \Fun{\ell}_{\RV{X} \Given \PlainSet{N}}\!\left(\APFun{f} \Given \Fun{f}\right)
+       \cdot \Prob{\RV{X} \in \PlainSet{N}}
+     + \Fun{\ell}_{\RV{X} \Given \PlainSet{P}}\!\left(\APFun{f} \Given \Fun{f}\right)
+       \cdot \Prob{\RV{X} \in \PlainSet{P}} \notag \\
+    &= \fprate \cdot \frac{\Card{\PlainSet{N}}}{\Card{\Set{X}}}
+     + \fnrate \cdot \frac{\Card{\PlainSet{P}}}{\Card{\Set{X}}}\,,
+\end{align}
+where the second equality uses \cref{def:fpr,def:fnr} and the uniformity of
+$\RV{X}$.
+\end{proof}
+
+The Bernoulli trial structure of the second-order model yields binomial error
+counts.
+
+\begin{lemma}[Binomial error counts]
+\label{prop:binom_errors}
+Let $\APFun{f}[\fprate][\fnrate]$ be a second-order random approximate map of
+$\Fun{f}$.
+Then:
+\begin{enumerate}
+    \item Each element $x \in \PlainSet{N}$ independently generates a false
+          positive with probability $\fprate$, and the total number of false
+          positives is
+          $\FP \;\sim\; \bindist\!\left(\Card{\PlainSet{N}},\, \fprate\right)$.
+    \item Each element $x \in \PlainSet{P}$ independently generates a false
+          negative with probability $\fnrate$, and the total number of false
+          negatives is
+          $\FN \;\sim\; \bindist\!\left(\Card{\PlainSet{P}},\, \fnrate\right)$.
+    \item The random variables $\FP$ and $\FN$ are independent.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+By \cref{def:model_order}, within the block $\PlainSet{N}$ the correctness
+indicators are i.i.d.\ $\berdist(1-\fprate)$.
+The indicator for a false positive at $x \in \PlainSet{N}$ is
+$1 - \RV{Y}_x \sim \berdist(\fprate)$, and the count
+$\FP = \sum_{x \in \PlainSet{N}} (1 - \RV{Y}_x)$ is a sum of
+$\Card{\PlainSet{N}}$ i.i.d.\ $\berdist(\fprate)$ trials, hence
+$\FP \sim \bindist(\Card{\PlainSet{N}}, \fprate)$.
+The argument for $\FN$ on $\PlainSet{P}$ is identical with parameter $\fnrate$.
+Independence of $\FP$ and $\FN$ follows from the element-wise independence
+(\cref{asm:independence}) and the disjointness of $\PlainSet{P}$ and
+$\PlainSet{N}$.
+\end{proof}
+
+\begin{remark}
+If the set $\PlainSet{P}$ is known a priori to both the producer and the
+consumer of the approximate map, then queries may be restricted to
+$\PlainSet{P}$ and the false positive rate $\fprate$ becomes irrelevant.
+In many practical settings, however, $\PlainSet{P}$ is not known to the
+querier, and $\fprate$ governs the noise on out-of-domain queries.
+\end{remark}
+
+%% ------------------------------------------------------------------
+\subsection{First-order rate-distorted maps}
+\label{sec:first_order}
+
+We now describe a concrete generative model for the approximation errors.
+When the approximation arises from \emph{rate distortion}---that is, from
+encoding $\Fun{f}$ in a lossy compressed representation---the errors on
+negatives have a specific distributional structure determined by the encoding
+scheme.
+
+\begin{definition}[First-order random approximate map]
+\label{def:first_order_map}
+Let $\Fun{f} \colon \Set{X} \to \Set{Y}$ be a function and let
+$\Set{A} \subseteq \Set{X}$.
+A \emph{first-order random approximate map} of $\Fun{f}$ with respect to
+$\Set{A}$ is a random function
+$\APFun{f} \colon \Set{X} \to \Set{Y}$ defined by
+\begin{equation}
+\label{eq:first_order_def}
+    \APFun{f}(x) \;\coloneqq\;
+    \begin{cases}
+        \Fun{f}(x)     & \text{if } x \in \Set{A}\,,\\
+        \RV{Y}^{+}     & \text{if } x \notin \Set{A}\,,
+    \end{cases}
+\end{equation}
+where $\RV{Y}^{+}$ is a random variable with support contained in $\Set{Y}$,
+drawn independently for each $x \notin \Set{A}$.
+\end{definition}
+
+In a first-order model, the output is \emph{deterministically correct} on
+$\Set{A}$ (the false negative rate is zero) and \emph{random} on
+$\Set{X} \smallsetminus \Set{A}$.
+The distribution of the false positive value $\RV{Y}^{+}$ depends on the
+encoding scheme used to represent $\Fun{f}$.
+
+\begin{definition}[Rate-distorted false positive distribution]
+\label{def:fp_distribution}
+Let $\Encode_{\Set{Y}} \colon \Set{Y} \to \BitSet^{*}$ be a prefix-free
+encoder for values in $\Set{Y}$.
+The \emph{false positive value distribution} induced by $\Encode_{\Set{Y}}$ is
+the probability mass function
+\begin{equation}
+\label{eq:fp_pmf}
+    \Fun{p}_{\RV{Y}^{+}}(y)
+    \;=\;
+    \sum_{b \,\in\, \Encode_{\Set{Y}}(y)} 2^{-\BL(b)}\,,
+\end{equation}
+where $\BL(b)$ denotes the bit length of the code word $b$.
+\end{definition}
+
+The false positive value distribution arises because, for elements outside
+$\Set{A}$, the data structure stores no information about $\Fun{f}(x)$.
+A query on such an element produces a random bit string whose decoding under
+$\Encode_{\Set{Y}}$ determines the spurious output value.
+Shorter code words are decoded more frequently, so the distribution
+\eqref{eq:fp_pmf} is naturally biased toward values with shorter
+representations.
+
+\begin{remark}
+An optimal prefix-free encoder may be constructed by computing the frequency
+of each element $y \in \Set{Y}$ in the image $\Fun{f}(\Set{A})$ and generating
+a Huffman code.
+However, storing a Huffman code table may require substantial memory when
+$\Card{\Set{Y}}$ is large.
+Practical alternatives include:
+\begin{enumerate}
+    \item prefix codes for known distributional families (e.g., Golomb codes
+          for geometric distributions);
+    \item universal codes (e.g., Elias codes) when $\Card{\Set{Y}}$ is very
+          large or the distribution is unknown;
+    \item uniform codes of length $\lceil \log_2 \Card{\Set{Y}} \rceil$, which
+          yield $\Fun{p}_{\RV{Y}^{+}}(y) = \Card{\Set{Y}}^{-1}$ for all
+          $y \in \Set{Y}$.
+\end{enumerate}
+The uniform encoder maximizes the entropy of $\RV{Y}^{+}$ and is the simplest
+to implement, but is optimal only when $\Fun{f}$ is itself uniformly
+distributed over $\Set{Y}$.
+\end{remark}
+
+The following example shows that the Bernoulli set---the central object of
+study in the companion paper \cite{aset}---is a special case of the first-order
+random approximate map.
+
+\begin{example}
+\label{ex:aset_as_map}
+Let $\Set{A} \subseteq \Set{X}$ and consider the set-indicator function
+$\SetIndicator{\Set{A}} \colon \Set{X} \to \BitSet$ defined by
+$\SetIndicator{\Set{A}}(x) = \llbracket x \in \Set{A} \rrbracket$.
+The first-order positive random approximate set $\PASet{A}[\fprate]$ is the
+first-order random approximate map of $\SetIndicator{\Set{A}}$ with respect to
+$\Set{A}$, where the false positive value distribution on $\BitSet = \{0,1\}$
+satisfies
+\begin{equation}
+    \Fun{p}_{\RV{Y}^{+}}(1) = \fprate\,,
+    \qquad
+    \Fun{p}_{\RV{Y}^{+}}(0) = 1 - \fprate\,.
+\end{equation}
+Indeed, a false positive occurs when $x \notin \Set{A}$ yet the approximate map
+outputs $1$ (indicating membership), which happens with probability $\fprate$.
+Since $\Card{\BitSet} = 2$, a single bit suffices to encode the codomain, and
+the false positive rate is entirely determined by the bias of that bit.
+\end{example}
+
+%% ------------------------------------------------------------------
+\subsection{Notation}
+\label{sec:notation}
+
+We adopt the following notational conventions for random approximate maps
+throughout this paper.
+
+Let $\Fun{f} \colon \Set{X} \to \Maybe{\Set{Y}}$ be a partial function.
+\begin{enumerate}
+    \item The \emph{random approximate map} of $\Fun{f}$ with false positive
+          rate $\fprate$ and false negative rate $\fnrate$ is denoted
+          \begin{equation}
+          \label{eq:apfun_notation}
+              \APFun{f}[\fprate][\fnrate] \colon \Set{X} \to \Maybe{\Set{Y}}\,.
+          \end{equation}
+    \item When we wish to emphasize the \emph{type} of the approximate map
+          rather than the function name, we write
+          \begin{equation}
+          \label{eq:arrow_notation}
+              \Set{X} \amapsto{\fprate}{\fnrate} \Maybe{\Set{Y}}\,.
+          \end{equation}
+    \item When the error rates are unknown, irrelevant, or clear from context,
+          we write simply $\APFun{f}$.
+\end{enumerate}
+
+\begin{remark}
+The superscript/subscript convention on $\APFun{f}[\fprate][\fnrate]$ places
+the false positive rate $\fprate$ in the superscript position and the false negative rate $\fnrate$ in the subscript position,
+mirroring the notation $\ASet{A}[\fprate][\fnrate]$ for random approximate sets.
+The arrow notation $\Set{X} \amapsto{\fprate}{\fnrate} \Set{Y}$ similarly
+annotates the mapping arrow with the error rates, making the rates part of the
+\emph{type signature} of the approximate map.
+\end{remark}
+
+\end{document}

@@ -1,0 +1,50 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Introduction}
+\label{sec:intro}
+
+Every probabilistic approximation of a discrete structure can be viewed as the same phenomenon: a latent function $\Fun{f'} \colon \Set{X} \to \Set{Y}$ is approximated by an observed function $\Fun{f} \colon \Set{X} \to \Set{Y}$, where the errors at distinct inputs are independent.
+The function space $\Set{Y}^{\Set{X}}$ contains $|\Set{Y}|^{|\Set{X}|}$ possible functions; the full confusion matrix over this space is enormous, but per-input independence forces it to factor as a Kronecker product of $|\Set{X}|$ per-input channels, each of size $|\Set{Y}| \times |\Set{Y}|$.
+
+This observation unifies the entire landscape of probabilistic data structures.
+A Bernoulli Boolean is the atomic case: $\Set{X} = \{*\}$, $\Set{Y} = \Bool$, yielding a single $2 \times 2$ channel with at most two parameters.
+A Bernoulli set is an indicator function $\SetIndicator{\Set{A}} \colon \Set{U} \to \BitSet$, approximated per-element.
+A Bernoulli map is the general case: $\Fun{f} \colon \Set{X} \to \Set{Y}$ approximated with per-input independent errors.
+Bloom filters~\cite{bloom1970}, Bloomier filters~\cite{chazelle2004}, perfect hash filters, cuckoo filters~\cite{fan2014}, and related probabilistic data structures~\cite{broderMitzenmacher2004} are all implementations of Bernoulli maps restricted to specific codomains and error regimes.
+The Bloomier filter of Chazelle et al.~\cite{chazelle2004} is particularly relevant: it generalizes the Bloom filter from set membership to approximate function evaluation, which is exactly the generalization that the Bernoulli map model formalizes.
+
+The Bernoulli set model~\cite{aset} formalizes the special case $\Set{Y} = \BitSet$ (set membership), deriving binomial error-count distributions, asymptotic limits, and confidence intervals from two axioms.
+In this paper, we generalize to arbitrary codomains $\Set{Y}$.
+We define the \emph{Bernoulli map} $\APFun{f}[\fprate][\fnrate]$, a probabilistic partial function whose per-element errors are independent Bernoulli trials, and develop its compositional algebra, special cases, and space-optimal constructions.
+
+\paragraph{Contributions.}
+The main contributions are:
+\begin{enumerate}
+\item A \emph{function-space viewpoint} that unifies Bernoulli Booleans, sets, and maps as instances of a single per-input-independent error model, with parametric parsimony guaranteed by the Kronecker factorization of the joint confusion matrix (\cref{sec:special}).
+
+\item The \emph{Bernoulli map model}, with \emph{model order} defined as the minimum number of domain partitions yielding i.i.d.\ error indicators within each block (\cref{sec:bernoulli-map}).
+
+\item The \emph{composition theorem}: composing independent Bernoulli maps $\APFun{f}$ and $\APFun{g}$ yields a Bernoulli map with $\fnrate_{g \circ f} = 1 - (1-\fnrate_1)(1-\fnrate_2)$ and a false positive rate that depends on the overlap parameter $\rho$ between false-positive values and the second map's domain (\cref{sec:composition}).
+
+\item The \emph{entropy map}, the information-theoretically optimal Bernoulli map: the maximum-entropy construction subject to the rate constraint~\cite{shannon1959,cover2006}, achieving $-\log_2 \fprate + \mu$ bits per element. The \emph{singular hash map} is a concrete algorithm that realizes this bound (\cref{sec:entropy-maps,sec:shm}).
+\end{enumerate}
+
+\paragraph{Connections to companion papers.}
+The Bernoulli map occupies the \emph{function space} layer in a broader framework of random approximate algebraic structures.
+The set-level model (error-count distributions, compositional closure under set operations) is developed in companion papers on Bernoulli sets~\cite{aset} and their composition.
+A companion paper on random approximate algebraic types develops the constructive counterpart of the function-space viewpoint: building approximate types compositionally from Bool using sum, product, and exponential type constructors.
+The approximate relation model~\cite{arelation} extends maps to $n$-ary relations with approximate membership.
+The exponential type $\Set{A} \to \Set{B}$ in that framework is precisely the function space studied here; the two perspectives converge on the same Kronecker factorization theorem.
+
+The \emph{Boolean thread} connects these layers: the function space $\Bool \to \Bool$ contains exactly four maps (identity, negation, constant-true, constant-false), and approximating them provides a minimal worked example of the composition theorem.
+
+\paragraph{Organization.}
+\Cref{sec:prelim} establishes the mathematical framework of maps and loss functions.
+\Cref{sec:bernoulli-map} defines the Bernoulli map model and its order hierarchy.
+\Cref{sec:special} develops the special-case hierarchy (Booleans, sets, constants, relations) and the function-space viewpoint.
+\Cref{sec:composition} proves the composition theorem.
+\Cref{sec:entropy-maps} characterizes the entropy map as the information-theoretic limit of the model.
+\Cref{sec:shm} presents the singular hash map algorithm and proves it achieves the space lower bound.
+
+\end{document}
