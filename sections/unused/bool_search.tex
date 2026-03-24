@@ -1,0 +1,177 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Boolean search and encrypted search
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\SetKwFunction{Find}{find}
+\SetKwFunction{MakeIndex}{facts}
+\SetKwFunction{OrOp}{or}
+\SetKwFunction{NotOp}{not}
+\SetKwFunction{AndOp}{and}
+\SetKwFunction{EncryptedFind}{encrypted\_find}
+
+\section{Application: Boolean search and encrypted search}
+\label{sec:bool_search}
+An information retrieval process begins when a user submits a \emph{query} to an information system, where a query represents an \emph{information need}.
+In response, the information system returns a set of relevant documents that satisfy the query.
+Boolean search is an information retrieval model in which a document in the collection is either \emph{relevant} or \emph{non-relevant} to a Boolean query.
+
+\subsection{Boolean search model}
+\label{sec:bool_search_model}
+We consider queries over the Boolean algebra $Q = (\PS{\Set{K}}, \land, \lor, \neg, \epsilon, \Set{K})$, where $\Set{K}$ denotes a set of \emph{search keys}, e.g., units of information such as English words.
+
+We denote the set of documents by $\Set{D}$.
+\emph{Search indexes} may be used to determine which subset of $\Set{D}$ is relevant to a given query.
+We define the function $\MakeIndex \colon \Set{D} \to \PS{\Set{K}}$ that maps documents to search indexes by
+\begin{equation}
+\MakeIndex(d) \coloneqq
+\SetBuilder
+{
+	k \in \Set{K}
+}
+{
+	\text{$k$ is relevant to $d$}
+}\,.
+\end{equation}
+We assume a one-to-one correspondence between $\Set{D}$ and the set of search indexes $\SetBuilder{\MakeIndex(d) \in \PS{\Set{K}}}{d \in \Set{D}}$.
+
+\begin{definition}
+\label{def:find}
+Let $\Find \colon Q \to \PS{\Set{D}}$ be the unique Boolean algebra homomorphism determined by the following clauses:
+\begin{enumerate}
+	\item For an atomic key $x \in \Set{K}$,
+	\begin{equation}
+		\Find(x) = \SetBuilder{d \in \Set{D}}{x \in \MakeIndex(d)}\,.
+	\end{equation}
+	\item For negation,
+	\begin{equation}
+		\Find(\neg q) = \Set{D} \setminus \Find(q)\,.
+	\end{equation}
+	\item For disjunction,
+	\begin{equation}
+		\Find(q_1 \lor q_2) = \SetUnion[\Find(q_1)][\Find(q_2)]\,.
+	\end{equation}
+	\item For conjunction,
+	\begin{equation}
+		\Find(q_1 \land q_2) = \SetIntersection[\Find(q_1)][\Find(q_2)]\,.
+	\end{equation}
+\end{enumerate}
+We call $\Find(q)$ the \emph{result set} of query $q$.
+\end{definition}
+
+\begin{remark}
+For purely conjunctive queries (containing no disjunction or negation), $\Find$ reduces to $\SetBuilder{d \in \Set{D}}{\operatorname{f}(q) \subseteq \MakeIndex(d)}$, where $\operatorname{f}$ maps a conjunctive query to its set of atomic keys.
+\end{remark}
+
+An implementation of $\Find$ is given by \cref{alg:bool_search}.
+
+\begin{algorithm}[h]
+	\caption{Pseudo-code for \protect\Find}
+    \label{alg:bool_search}
+    \SetKwProg{func}{function}{}{}
+    \KwIn{$q$, a Boolean query.}
+    \KwOut{$\Set{R}_{q}$, the subset of documents in $\Set{D}$ relevant to query $q$.}
+    \func{\Find{$q$}}
+    {
+    	\tcp{\Head gets the outer most \emph{operation} or terminal \emph{key}.}
+        $h \gets \Head(q)$\;
+        \If{$h = \NotOp$}
+        {
+        	$t \gets \Tail(q)$\;
+        	$\Set{R}[t] \gets \Find(t)$\;
+            \Return $\SetComplement[\Set{R}[t]]$\;
+        }
+        \ElseIf{$h = \OrOp$}
+        {
+        	$t \gets \Tail(q)$\;
+            $\Set{R}[l] \gets \Find(\Left(t))$\;
+            $\Set{R}[r] \gets \Find(\Right(t))$\;
+            \Return $\SetUnion[\Set{R}[l]][\Set{R}[r]]$\;
+        }
+        \ElseIf{$h = \AndOp$}
+        {
+        	$t \gets \Tail(q)$\;
+            $\Set{R}[l] \gets \Find(\Left(t))$\;
+            $\Set{R}[r] \gets \Find(\Right(t))$\;
+            \Return $\Set{R}[l] \cap \Set{R}[r]$\;
+        }
+        \Else
+        {
+        	\tcp{$h$ must be a key.}
+        	$\Set{R}[h] \gets \EmptySet$\;
+        	\For{$d \in \Set{D}$}
+        	{
+        		\If{$h \in \MakeIndex(d)$}
+        		{
+	        		$\Set{R}[h] \gets \Set{R}[h] \cup \{ d \}$\;
+    	    	}
+        	}
+            \Return $\Set{R}[h]$\;
+        }
+    }
+\end{algorithm}
+
+\subsection{Secure indexes based on approximate sets}
+\label{sec:secure_indexes}
+We consider an \emph{approximation} of the Boolean search model in which the search indexes are replaced by \emph{random approximate sets}.
+In particular, each search index $\MakeIndex(d)$ is replaced by an approximate set $\widetilde{\MakeIndex}(d)$ with false positive rate $\fprate$ and false negative rate $\fnrate$.
+This is an appropriate abstract data type for settings such as \emph{Encrypted Search}~\cite{songWagnerPerrig,curtmola,cashDynamic}, where conventional search indexes reveal too much information to untrusted third parties.
+
+We denote the resulting find function that searches over approximate set indexes by $\Find^\sigma$ as opposed to the objective function $\Find$.
+This replacement \emph{induces} approximate result sets, i.e., $\Find^\sigma(q)$ maps to an approximate set of $\Find(q)$.
+Note that $\Find^\sigma$ is a deterministic algorithm that always generates the same output for the same input; it is a function rather than a distribution, but it is compatible with the Bernoulli set model described in \cref{sec:bernoulli_model}.
+
+\subsection{Encrypted search composition}
+\label{sec:encrypted_search}
+A simple implementation of encrypted search may be based on a substitution cipher from keys to \emph{trapdoors} using a one-way cryptographic hash function $\operatorname{h} \colon \BitSet^* \to \BitSet^k$.
+Suppose we have a function $\operatorname{H} \colon [q] \to [q']$ that maps Boolean queries on keys to equivalent Boolean queries on trapdoors using $\operatorname{h}$.
+Then the encrypted find function is given by the composition
+\begin{equation}
+\label{eq:encrypted_find}
+\EncryptedFind = \Find^\sigma \circ \operatorname{H} \colon [q] \to \PS{\Set{D}}\,.
+\end{equation}
+In practice, $\operatorname{H}$ is computed on a \emph{trusted machine} and the resulting query on trapdoors is sent to an untrusted machine that executes $\Find^\sigma$.
+
+\begin{remark}
+The simple substitution cipher does not provide a meaningful confidentiality gain.
+The Boolean queries on trapdoors have the same entropy as the Boolean queries on keys.
+Thus, using entropy as a measure of confidentiality, this approach does not increase confidentiality, especially against an adversary with a sufficiently large sample of queries.
+More sophisticated approaches to encrypted search exist that address this limitation.
+\end{remark}
+
+\subsection{Approximate result sets}
+\label{sec:approx_result_sets}
+
+\begin{theorem}
+\label{thm:approx_result_set}
+The result set $\ASet{R}[x]$ relevant to an atomic key $x$ is a random approximate set of the objective result $\Set{R}[x]$.
+\end{theorem}
+\begin{proof}
+A search index $\ASet{S}$ with false positive rate $\fprate$ and false negative rate $\fnrate$ is relevant to key $x$ if $x$ tests positive in $\ASet{S}$.
+A false positive occurs when $x \notin \Set{S}$ but $x \in \ASet{S}$, which occurs with probability $\fprate$.
+A false negative occurs when $x \in \Set{S}$ but $x \notin \ASet{S}$, which occurs with probability $\fnrate$.
+Thus, $\ASet{R}[x]$ is a random approximate set of $\Set{R}[x]$ with false positive rate $\fprate$ and false negative rate $\fnrate$.
+\end{proof}
+
+\begin{corollary}
+\label{cor:fprate_atomic_search}
+If the search indexes are positive approximate sets each with false positive rate $\fprate$, then the result set $\PASet{R}[x]$ relevant to an atomic key $x$ is a positive approximate set of $\Set{R}[x]$ with false positive rate $\fprate$.
+\end{corollary}
+
+We have established that the result sets of atomic keys are approximate result sets.
+The set-theoretic results in \cref{sec:set_theory} may now be applied to characterize the result sets of compound Boolean queries.
+
+\begin{example}
+Suppose the search indexes are positive approximate sets each with false
+positive rate $\fprate$. A common type of Boolean query is the
+\emph{conjunction} of $k$ atomic keys $x_1, \ldots, x_k$. By repeated
+application of the intersection result for positive approximate sets
+(\cref{sec:set_theory}), the result set
+\begin{equation}
+    \PASet{R}[\Set{X}] = \bigcap_{j=1}^{k} \PASet{R}[x_j]
+\end{equation}
+is a positive approximate set whose false positive rate depends on the
+partition weights induced by the objective result sets
+$\Set{R}[x_1], \ldots, \Set{R}[x_k]$.
+\end{example}
+
+To quantify the performance of the information retrieval system in terms of measures such as precision, recall, and accuracy, we may apply the binary classification results in \cref{sec:perf}.
