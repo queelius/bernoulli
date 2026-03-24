@@ -1,0 +1,90 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Algebra of sets
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Algebra of sets} 
+\label{sec:setalgebra}
+A \emph{set} is an unordered collection of distinct elements.
+If we know the elements in a set, we may denote the set by these elements, e.g., $\{a,c,b\}$ denotes a set whose members are exactly $a$, $b$, and $c$.
+
+Two sets of particular importance are the empty set, denoted by $\emptyset$, which has no members, and the \emph{universal set}, in which every element of interest is a member.
+
+The \emph{cardinality} of a finite set $A$ is the number of elements in $A$, denoted by $|A|$.
+A \emph{countably infinite set} is one that can be put into bijection with $\mathbb{N} = \{1,2,\ldots\}$.
+We assume familiarity with standard set-theoretic notation (ordered pairs, Cartesian products, relations, functions); see Feller~\cite{feller} for background.
+
+The \emph{power set} of $A$, denoted by $\mathcal{P}(A)$, is the set of all subsets of $A$.
+The \emph{indicator function} of $A$ with respect to a universal set $X$ is
+\begin{equation}
+	\mathbf{1}_A : X \to \{0,1\}, \quad
+	\mathbf{1}_A(x) =
+	\begin{cases}
+		1 & \text{if $x \in A$},\\
+		0 & \text{if $x \notin A$}.
+	\end{cases}
+\end{equation}
+The standard set operations---\emph{union} $A \cup B = \{x : x \in A \lor x \in B\}$, \emph{intersection} $A \cap B = \{x : x \in A \land x \in B\}$, and \emph{complement} $A^c = \{x \in X : x \notin A\}$---are used throughout.
+Sets $A$ and $B$ are \emph{disjoint} if $A \cap B = \emptyset$.
+
+\subsection{Approximate sets}
+\label{sec:asets}
+Given an objective set $A$, any element that is a member of $A$ is denoted a \emph{positive} (of $A$) and otherwise the element is denoted a \emph{negative}.
+We write $\hat{A}$ for an arbitrary approximation of $A$; in \cref{sec:bernoulli_model}, this will be refined to the Bernoulli set $\tilde{A}$, which satisfies additional axioms.
+Suppose $\hat{A}$ is used as an \emph{approximation} of $A$.
+If the \emph{only} information we have about $A$ is given by $\hat{A}$, then we may perform membership tests on $\hat{A}$ to make \emph{predictions} or \emph{estimations} about $A$.
+
+There are two ways a binary prediction can be false.
+\begin{enumerate}
+	\item A \emph{false positive} occurs if a negative of the objective set is predicted to be a positive. False positives are also known as \emph{type I errors}.
+	The complement of false positives are \emph{true negatives}.
+	\item A \emph{false negative} occurs if a positive of the objective set is predicted to be a negative. False negatives are also known as \emph{type II errors}.
+	The complement of false negatives are \emph{true positives}.
+\end{enumerate} 
+
+If we denote the set of false positives by $FP$, true positives by $TP$, false negatives by $FN$, and true negatives by $TN$, then the objective set $A = FN \cup TP$ and the approximate set $\hat{A} = TP \cup FP$.
+See \cref{fig:ex_approx_set} for an illustration.
+\begin{figure}[ht]
+	\centering
+	\def\svgwidth{\columnwidth/4}
+	\input{img/aset_fp_fn.tex}
+	\caption{An approximate set $\hat{A}$ of an objective set $A$}
+	\label{fig:ex_approx_set}
+\end{figure}
+
+If we only have access to the approximation $\hat{A}$, we do not have the ability to partition the universe into the disjoint sets $FP$, $TP$, $FN$, and $TN$ as demonstrated in \cref{fig:ex_approx_set}.
+However, we can quantify the degree of \emph{uncertainty} about the elements that it predicts to be positive or negative.
+The false positive and true negative rates are given by the following.
+\begin{definition}
+	\label{def:fprate}
+	The \emph{false positive rate} is the proportion of predictions that are \emph{false positives} as given by
+	\begin{equation}
+	\hat{\alpha} = \frac{|FP|}{|FP| + |TN|}
+	\end{equation}
+	and the \emph{true negative rate} is given by $\hat{\tnrate} = 1 - \hat{\alpha}$.
+\end{definition}
+The true positive and false negative rates are given by the following.
+\begin{definition}
+	The \emph{true positive rate} is the proportion of predictions that are \emph{true positives} as given by
+	\begin{equation}
+	\hat{\tprate} = \frac{|TP|}{|TP| + |FN|}
+	\end{equation}
+	and the \emph{false negative rate} is given by $\hat{\beta} = 1 - \hat{\tprate}$.
+\end{definition}
+
+The \emph{probabilities} of the four possible predictive outcomes are given by 
+\cref{tbl:contingency_table}.
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{@{} l l l @{}}
+		\toprule
+		& \textbf{positive} & \textbf{negative}\\
+		\midrule
+		\textbf{predict positive} & $\hat{\tprate}=1-\hat{\beta}$ & 
+		$\hat{\alpha}=1-\hat{\tnrate}$\\
+		\textbf{predict negative} & $\hat{\beta}=1-\hat{\tprate}$ & 
+		$\hat{\tnrate}=1-\hat{\alpha}$\\
+		\bottomrule
+	\end{tabular}
+	\caption{The $2 \times 2$ contingency table of outcomes for approximate sets.}
+	\label{tbl:contingency_table}        
+\end{table}

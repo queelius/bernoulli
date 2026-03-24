@@ -1,0 +1,40 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bayesian treatment of uncertain rates
+% Extracted from uncertain_rates.tex — joint density framework
+% for future extension.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Original context: This content appeared at the beginning of
+% sections/uncertain_rates.tex and develops a Bayesian marginal
+% integration approach to uncertain rates. It was removed because
+% the section's primary contribution is the interval arithmetic
+% approach, and the Bayesian framework was disconnected from the
+% rest of the exposition.
+
+We may not be certain about the \emph{expected} false positive and true positive rates, i.e., we may only have the joint distribution of $\tilde{A}$, $\alpha$, and $\beta$.
+
+A relatively easy case to analyze is the positive-negative (second-order) random approximate set model.
+Suppose we are interested in the distribution of $\tilde{A}$ given $R$ has $p$ positives and $n$ negatives.
+Since we are primarily interested in the distribution of false positives and true positives (or their corresponding rates), we consider the related random tuple $\Tuple{\FP_n, \TP_p, \TPR, \alpha}$ which, assuming $\alpha$ and $\TPR$ are independent, has a joint probability density function given by
+\begin{equation}
+	f_{\TP_p, \FP_n,\TPR,\alpha}(t,f,\tprate,\fprate) = f_{\TP_p,\TPR}(t, \tprate) f_{\FP_n,\alpha}(f,\fprate)
+\end{equation}
+where
+\begin{align}
+	f_{\TP_p,\TPR}(t,\tprate) &= f_{\TP_p | \TPR}(t | \tprate) f_{\TPR}(\tprate),\\
+	f_{\FP_n,\alpha}(f,\fprate) &= f_{\FP_n | \alpha}(f | \fprate) f_{\alpha}(\fprate).
+\end{align}
+
+When we \emph{marginalize} over the true positives, we get the result
+\begin{equation}
+\begin{split}
+	f_{\TP_p}(t) &= \int_{0}^{1} f_{\TP_p | \TPR}(t | \tprate) f_{\TPR}(\tprate) \dif \tprate\\
+	             &= \int_{0}^{1} \binom{p}{t} \tprate^{t}(1-\tprate)^{p-t} f_{\TPR}(\tprate) \dif \tprate.
+\end{split}
+\end{equation}
+
+If all the probability mass for $\TPR$ is assigned to a particular point $\tprate$, the probability mass function simplifies to
+\begin{equation}
+    f_{\TP_p}(t) = \binom{p}{t} \tprate^{t}(1-\tprate)^{p-t},
+\end{equation}
+which is probability mass function of a binomial distribution.

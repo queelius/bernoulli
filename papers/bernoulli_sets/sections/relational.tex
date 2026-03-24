@@ -1,0 +1,132 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Relational approximate sets
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Relational probabilities}
+\label{sec:relational}
+The relational \emph{member-of} predicate $\in : U \times 2^U$ is the set-indicator function, or the \emph{membership} predicate, which is true if $x$ is a member of the set $A$ and false otherwise.
+By \cref{prop:element_rates}, given $x \in A$, $x \in \tilde{A}^\fprate_\tprate$ with probability $\tprate$ and given $x \notin A$, $x \in \tilde{A}^\fprate_\tprate$ with probability $\fprate$.
+These probabilities are axiomatic in the second-order random approximate set model.
+
+Other kinds of relational predicates are functions of the \emph{member-of} predicate, in particular the subset $\subseteq : 2^U \times 2^U \to \{0,1\}$, equality $= : 2^U \times 2^U \to \{0,1\}$, and
+proper subset $\subset : 2^U \times 2^U \to \{0,1\}$ predicates respectively defined as (where $[\phi]$ denotes the Iverson bracket: $1$ if $\phi$ is true, $0$ otherwise)
+\begin{align}
+\label{def:subset_pred}
+A \subseteq B	&= \prod_{x \in A} [x \in B],\\
+\label{def:eq_pred}
+A = B			&= (A\subseteq B) \land (B\subseteq A) \text{, and}\\
+\label{def:proper_subset_pred}
+A \subset B		&= (A \neq B) \land (A \subseteq B)
+\end{align}
+where complementary relations are naturally given by complements, e.g., $A \neq B = 1-(A = B)$.
+
+\begin{theorem}
+Given $X \subseteq Y$, $\tilde{X} \subseteq \tilde{Y}$ with probability
+\begin{equation}
+	\left(1 - \tprate_1\fnrate_2\right)^{|X|}
+	\left(1 - \fprate_1\fnrate_2\right)^{|Y| - |X|}
+	\left(1 - \fprate_1\tnrate_2\right)^{|U| - |Y|},
+\end{equation}
+where $\tilde{X}$ has a false positive rate $\fprate_1$ and a true positive rate $\tprate_1$ and $\tilde{Y}$ has a false positive rate $\fprate_2$ and true positive rate $\tprate_2$.
+\end{theorem}
+\begin{proof}
+	$\tilde{X} \subseteq \tilde{Y}$ holds if and only if, for every element $j \in U$, $j \in \tilde{X}$ implies $j \in \tilde{Y}$.
+	Equivalently, the event $j \in \tilde{X} \land j \notin \tilde{Y}$ must not occur for any $j$.
+	By element-wise independence and cross-set independence (\cref{asm:cross_set_indep}), the probability is
+	\begin{equation}
+	\gamma = \prod_{j=1}^{u} \left(1 - \Prob{j \in \tilde{X}} \Prob{j \notin \tilde{Y}}\right),
+	\end{equation}
+	where the probabilities are conditioned on membership in $X$ and $Y$ respectively.
+	Since $X \subseteq Y$, the universal set partitions into three blocks:
+	\begin{enumerate}
+		\item $X$: elements in both $X$ and $Y$ ($|X|$ elements),
+		\item $Y \setminus X$: elements in $Y$ but not $X$ ($|Y| - |X|$ elements),
+		\item $U \setminus Y$: elements in neither ($|U| - |Y|$ elements).
+	\end{enumerate}
+	Substituting the error rates for each block:
+	\begin{itemize}
+		\item Block 1: $\Prob{j \in \tilde{X}} = \tprate_1$ and $\Prob{j \notin \tilde{Y}} = \fnrate_2$.
+		\item Block 2: $\Prob{j \in \tilde{X}} = \fprate_1$ and $\Prob{j \notin \tilde{Y}} = \fnrate_2$.
+		\item Block 3: $\Prob{j \in \tilde{X}} = \fprate_1$ and $\Prob{j \notin \tilde{Y}} = \tnrate_2$.
+	\end{itemize}
+	Since each block contributes a constant factor per element, the product reduces to
+	\begin{equation}
+	\gamma =
+	\left(1 - \tprate_1 \fnrate_2\right)^{|X|}
+	\left(1 - \fprate_1 \fnrate_2\right)^{|Y| - |X|}
+	\left(1 - \fprate_1 \tnrate_2\right)^{|U| - |Y|}.
+	\qedhere
+	\end{equation}
+\end{proof}
+
+\begin{corollary}
+\label{cor:equality_prob}
+Given $X = Y$, $\tilde{X}[\fprate_1][\tprate_1] = \tilde{Y}[\fprate_2][\tprate_2]$ with probability
+\begin{equation}
+\left(\tprate_1\tprate_2 + \fnrate_1\fnrate_2\right)^{|X|}
+\left(\fprate_1\fprate_2 + \tnrate_1\tnrate_2\right)^{|U| - |X|}.
+\end{equation}
+\end{corollary}
+\begin{proof}
+$\tilde{X} = \tilde{Y}$ holds if and only if $\mathbf{1}_{\tilde{X}}(j) = \mathbf{1}_{\tilde{Y}}(j)$ for every $j \in U$.
+By element-wise independence across elements, the probability is
+$\prod_{j \in U} P(\mathbf{1}_{\tilde{X}}(j) = \mathbf{1}_{\tilde{Y}}(j))$.
+Since $X = Y$, the universe partitions into two blocks:
+\begin{itemize}
+	\item $j \in X$: both indicators are independent Bernoulli trials with success probabilities $\tprate_1$ and $\tprate_2$ respectively, so they agree with probability $\tprate_1\tprate_2 + \fnrate_1\fnrate_2$.
+	\item $j \notin X$: both indicators have success probabilities $\fprate_1$ and $\fprate_2$, so they agree with probability $\fprate_1\fprate_2 + \tnrate_1\tnrate_2$.
+\end{itemize}
+Since each block contributes a constant factor per element, the product reduces to the stated formula.
+\end{proof}
+
+
+\begin{corollary}
+	Given $X = Y$, $\tilde{X}^\fprate_\tprate = \tilde{Y}^\fprate_\tprate$ with probability
+	\begin{equation}
+	\left(\tprate^2 + \fnrate^2\right)^{|X|}
+	\left(\fprate^2 + \tnrate^2\right)^{|U| - |X|}.
+	\end{equation}
+\end{corollary}
+\begin{proof}
+Set $\fprate_1 = \fprate_2 = \fprate$ and $\tprate_1 = \tprate_2 = \tprate$
+in the preceding corollary: the positive-block factor becomes
+$\tprate^2 + \fnrate^2$ and the negative-block factor becomes
+$\fprate^2 + \tnrate^2$.
+\end{proof}
+
+
+\begin{corollary}
+	Given $X \subseteq Y$, $\tilde{X}[+][\tprate_1] \subseteq \tilde{Y}[+][\tprate_2]$ with probability
+	\begin{equation}
+	\left(1 - \tprate_1\fnrate_2\right)^{|X|}
+	\end{equation}
+\end{corollary}
+\begin{proof}
+For positive approximate sets, $\fprate_1 = \fprate_2 = 0$, so the
+second and third factors of the subset theorem vanish (each equals $1^n$).
+Only the first factor remains.
+Since $\fnrate_2 = 1 - \tprate_2$, this gives $(1 - \tprate_1 \fnrate_2)^{|X|}$.
+\end{proof}
+
+
+
+
+\begin{corollary}
+	Over an infinite universal set, the probability that two second-order random approximate sets realize the same value is $0$.
+\end{corollary}
+\begin{proof}
+Each factor in the equality probability is strictly less than $1$
+when $\fprate, \tprate \in (0,1)$. As $|U| \to \infty$, the product
+of such factors raised to powers growing with $|U|$ tends to $0$.
+\end{proof}
+
+\begin{corollary}
+	Over an infinite universal set, the probability that a second-order random approximate set realizes a value that is a subset of another realization of a second-order random approximate set is $0$.
+\end{corollary}
+\begin{proof}
+The third factor of the subset probability,
+$(1 - \fprate_1 \tnrate_2)^{|U|-|Y|}$, tends to $0$ as $|U| \to \infty$
+whenever $\fprate_1 \tnrate_2 > 0$.
+\end{proof}
+
+
+

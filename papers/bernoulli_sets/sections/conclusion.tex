@@ -1,0 +1,32 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+A central finding of this work is that two axioms suffice for the full distributional theory of random approximate sets: element-wise independence and conditional independence of block error rates together imply binomial error counts, normal limits, and confidence intervals, with no additional assumptions required.
+The Kronecker factorization of the joint confusion matrix captures this parametric parsimony; the entire probabilistic structure follows from the false positive and false negative rates alone.
+By formulating the model as an abstract data type, we ensure that any conforming implementation (Bloom filters, perfect hash filters, or their compositions) inherits every result automatically, decoupling the theory from any particular construction.
+
+\paragraph{Practical implications.}
+The abstract data type formulation means that the results of this paper apply automatically to any implementation whose membership queries satisfy element-wise independence.
+This separation of the probabilistic guarantee from the implementation details is the key advantage of the axiomatic approach.
+
+\paragraph{Open problems.}
+The model assumes element-wise independence of errors.
+Extending the framework to \emph{correlated} error models---such as those arising in locality-sensitive hashing or cache-line-aligned filters---would broaden applicability, though the clean binomial structure would likely give way to more complex combinatorics.
+
+\paragraph{Companion papers.}
+The set-theoretic composition of Bernoulli sets---closed-form error rates for complement, union, intersection, and set difference, monoidal structure, relational predicates, and interval arithmetic---is developed in~\cite{bernoulliComposition}.
+The probability distributions of binary classification measures---positive predictive value, negative predictive value, accuracy, and Youden's $J$---induced by the Bernoulli model are derived in~\cite{bernoulliMeasures}.
+The joint entropy of error counts and the information-theoretic space complexity lower bound for approximate sets are developed in~\cite{bernoulliEntropy}.
+
+\paragraph{Historical context.}
+At the per-element level, the Bernoulli set model reduces to a collection of independent binary channels~\cite{shannonBSC} (symmetric when $\fprate = \fnrate$, asymmetric otherwise), and the randomized-response mechanism of Warner~\cite{warner1965} provides a social-science interpretation.
+The contribution of the present work is the probabilistic \emph{model}---the axioms, distributions, and composition theorem---that sits above these per-element channels and provides a foundation for the compositional algebra developed in~\cite{bernoulliComposition}.
+
+\paragraph{Further extensions.}
+The algebraic structure developed here extends to richer mathematical objects.
+The algebra of approximate maps (functions $X \to Y$ with Bernoulli errors) is treated in a companion paper~\cite{bernoulliMaps}, which derives composition rules for approximate Boolean functions and function spaces, and shows that the entropy map is the information-theoretically optimal construction.
+A type-theoretic generalization, treating approximate Booleans, maps, and relations as instances of a single algebraic framework over sum, product, and function types, is developed in companion work on approximate algebraic data types.

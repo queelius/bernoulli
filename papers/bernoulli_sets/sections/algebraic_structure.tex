@@ -1,0 +1,57 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Algebraic structure
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Algebraic structure}
+\label{sec:algebraic_structure}
+We consider the algebraic structure of approximate sets under set-theoretic operations.
+In particular, we examine whether the collection of approximate sets forms a semigroup or monoid under union and intersection.
+
+\begin{definition}
+A \emph{semigroup} is a set $S$ equipped with an associative binary operation $\cdot \colon S \times S \to S$.
+\end{definition}
+
+\begin{definition}
+A \emph{monoid} is a semigroup $(S, \cdot)$ with an identity element $e \in S$ satisfying $e \cdot x = x \cdot e = x$ for all $x \in S$.
+\end{definition}
+
+\subsection{Semigroup under union and intersection}
+The collection of approximate sets with arbitrary false positive and false negative rates forms a semigroup under both union and intersection.
+By the results of \cref{sec:set_theory}, the union or intersection of two approximate sets is also an approximate set, with derived error rates that depend on the structural properties of the operands.
+Since union and intersection are associative operations on $2^U$, they are also associative on the subcollection of approximate sets, and the semigroup axiom is satisfied.
+
+However, the collection of approximate sets with \emph{fixed} expected false positive and false negative rates $\fprate$ and $\fnrate$ is \emph{not} closed under set-theoretic operations.
+By \cref{sec:set_theory}, the output error rates of a union or intersection depend on the structural properties (e.g., the relative sizes $\alpha_1, \alpha_2$) of the input sets.
+Consequently, such a restricted collection does not form a semigroup.
+
+\subsection{Obstruction to monoid structure}
+As specified, the semigroup of approximate sets with arbitrary error rates is not a monoid.
+To form a monoid under union, the identity element $\EmptySet$ must be a member of the collection.
+The value constructor $\operatorname{f} \colon 2^U \to 2^U$ is, in general, non-surjective (see \cref{sec:adt}), so there may be no objective set $A$ such that $\operatorname{f}(A) = \EmptySet$.
+Furthermore, even if $\EmptySet \in \Image(\operatorname{f})$, different implementations of approximate set generators may produce different representations of the empty set.
+An analogous obstruction applies to the intersection identity $\Set{U}$.
+
+\subsection{Degenerate cases and the monoid fix}
+If a monoid is desired, we introduce the following degenerate cases as axioms of the value constructor:
+\begin{enumerate}
+    \item $\operatorname{f}(\EmptySet) = \EmptySet$, i.e., the probabilistic model is degenerate with respect to the empty set, so that $\ASet{\EmptySet} = \EmptySet$ with probability $1$.
+    \item $\operatorname{f}(\Set{U}) = \Set{U}$, i.e., the probabilistic model is degenerate with respect to the universal set, so that $\ASet{U} = \Set{U}$ with probability $1$.
+\end{enumerate}
+Since $\SetComplement[\EmptySet] \equiv \Set{U}$, specifying one degenerate case implies the other under complementation.
+
+With these degenerate cases, the collection of approximate sets over $2^U$ forms:
+\begin{itemize}
+    \item a \emph{commutative monoid} under union, with identity element $\EmptySet$, and
+    \item a \emph{commutative monoid} under intersection, with identity element $\Set{U}$.
+\end{itemize}
+
+\begin{remark}[Generic programming]
+As monoids, approximate sets may be used with generic programming algorithms that impose monoidal type constraints.
+A canonical example is the \emph{reduce} (fold) operator.
+Given a collection of approximate sets $\ASet{A}_1, \ldots, \ASet{A}_n$, the reduction
+\begin{equation}
+    \bigoplus_{i=1}^{n} \ASet{A}_i
+\end{equation}
+requires an identity element and an associative binary operation --- precisely the monoid structure established above.
+For instance, $\bigoplus = \cup$ with identity $\EmptySet$ computes the $n$-ary union of approximate sets.
+\end{remark}

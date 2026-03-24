@@ -1,0 +1,92 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\section{Additional proofs}
+%In what follows, we show additional or more rigorous proofs that are not necessarily central to the paper but warrant mention.
+
+\section{Proof of corollary~\ref{cor:fpr_as_vareps}}
+\label{app:cor_fpr_as_vareps}
+To say that the sequence $\alpha_1,\alpha_2,\ldots$ converges almost surely to $\fprate$ means that
+\begin{equation}
+\Prob{\lim _{n \to \infty} \alpha_n = \fprate} = 1.
+\end{equation}
+
+By \cref{cor:fpr_as_vareps}, given \emph{countably infinite} negatives, a random approximate set with a false positive rate $\fprate$ is \emph{certain} to obtain $\fprate$.
+\begin{proof}
+Hoeffding's inequality~\cite{hoeffding} provides that $\FP_n$ is concentrated around its mean $n \fprate$ as given by
+\begin{equation}
+\Prob{(\fprate -\epsilon) n \leq \FP_n \leq (\fprate + \epsilon )n}
+\geq 1 - 2 \exp\!\left(-2\epsilon ^2 n\right),
+\end{equation}
+where $\epsilon > 0$.
+For any $\epsilon > 0$, Hoeffding's inequality gives $\Prob{|\alpha_n - \fprate| > \epsilon} \leq 2\exp(-2\epsilon^2 n)$.
+Since $\sum_{n=1}^{\infty} 2\exp(-2\epsilon^2 n) < \infty$ (geometric series), the Borel--Cantelli lemma yields $\Prob{|\alpha_n - \fprate| > \epsilon \text{ i.o.}} = 0$.
+As this holds for every $\epsilon > 0$, $\alpha_n \to \fprate$ almost surely.
+\end{proof}
+
+\section{Notation Reference}
+
+\subsection{Basic Set Notation}
+\begin{itemize}
+  \item $\Set{S}$, $\Set{A}$, $\Set{B}$ --- Standard notation for sets
+  \item $\EmptySet$ --- The empty set
+  \item $|\Set{A}|$ --- The cardinality of set $\Set{A}$
+  \item $\Set{A} \times \Set{B}$ --- The Cartesian product of sets $\Set{A}$ and $\Set{B}$, defined as $\SetBuilder{\Pair{a}{b}}{a \in \Set{A} \land b \in \Set{B}}$
+  \item $\Set{B}^n$ --- The $n$-fold Cartesian product $\Set{B} \times \cdots \times \Set{B}$ ($n$ times)
+  \item $2^{\Set{A}}$ --- The power set of $\Set{A}$
+  \item $\SetIndicator{\Set{A}}$ --- The indicator function mapping elements to $\{0,1\}$, where $\SetIndicator{\Set{A}}(x) = 1$ if $x \in \Set{A}$ and $0$ otherwise
+  \item $\Set{A} \cup \Set{B}$ --- The union of sets $\Set{A}$ and $\Set{B}$
+  \item $\Set{A} \cap \Set{B}$ --- The intersection of sets $\Set{A}$ and $\Set{B}$
+  \item $\Set{A} \setminus \Set{B}$ --- The set difference of $\Set{A}$ and $\Set{B}$
+  \item $\Set{A}^C$ --- The complement of set $\Set{A}$
+\end{itemize}
+
+\subsection{Common Sets}
+\begin{itemize}
+  \item $\RealSet$ --- The set of real numbers $(-\infty,\infty)$
+  \item $\NatSet$ --- The set of natural numbers
+  \item $\BitSet$ --- The binary set $\{0,1\}$
+  \item $\IntSet$ --- The set of integers
+  \item $\RatSet$ --- The set of rational numbers
+\end{itemize}
+
+\subsection{Approximate Sets}
+\begin{itemize}
+  \item $\tilde{A}$ --- A random approximate set of $\Set{A}$ with unspecified parameters
+  \item $\tilde{A}^\fprate_\tprate$ --- A random approximate set of $\Set{A}$ with false positive rate $\fprate$ and true positive rate $\tprate$
+  \item $\tilde{A}[\fprate][-]$ --- A random approximate set of $\Set{A}$ with false positive rate $\fprate$ and unspecified true positive rate
+  \item $\tilde{A}[+][\tprate]$ --- A random approximate set of $\Set{A}$ with unspecified false positive rate and true positive rate $\tprate$
+  \item $\tilde{A}_+$ --- A positive random approximate set of $\Set{A}$ (no false negatives)
+  \item $\tilde{A}_+^\fprate$ --- A positive random approximate set of $\Set{A}$ with false positive rate $\fprate$
+  \item $\tilde{A}_-$ --- A negative random approximate set of $\Set{A}$ (no false positives)
+  \item $\tilde{A}_-^\fnrate$ --- A negative random approximate set of $\Set{A}$ with false negative rate $\fnrate$
+\end{itemize}
+
+\subsection{Error Rates}
+\begin{itemize}
+  \item $\fprate$ --- Expected false positive rate
+  \item $\fnrate$ --- Expected false negative rate
+  \item $\tprate$ --- Expected true positive rate, where $\tprate = 1 - \fnrate$
+  \item $\tnrate$ --- Expected true negative rate, where $\tnrate = 1 - \fprate$
+  \item $\fprateob$ --- Observed false positive rate
+  \item $\fnrateob$ --- Observed false negative rate
+  \item $\tprateob$ --- Observed true positive rate
+  \item $\tnrateob$ --- Observed true negative rate
+\end{itemize}
+
+\subsection{Random Variables and Probability}
+\begin{itemize}
+  \item $\RV{X}$ --- A random variable (denoted in mathrm font)
+  \item $p_{\RV{X}}$ --- The probability mass function of random variable $\RV{X}$
+  \item $F_{\RV{X}}$ --- The cumulative distribution function of random variable $\RV{X}$
+  \item $\Prob{\cdot}$ --- The probability measure
+  \item $\Expect{\cdot}$ --- The expectation operator
+  \item $\Var{\cdot}$ --- The variance operator
+\end{itemize}
+
+\subsection{Error Counts}
+\begin{itemize}
+  \item $\TP$, $\FP$, $\TN$, $\FN$ --- True positives, false positives, true negatives, and false negatives
+\end{itemize}
+
