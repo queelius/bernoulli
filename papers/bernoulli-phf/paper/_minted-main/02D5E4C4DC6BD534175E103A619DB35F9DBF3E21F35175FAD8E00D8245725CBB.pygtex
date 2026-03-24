@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{template}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{k}{typename}\PYG{+w}{ }\PYG{n+nc}{K}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{n}{Complement}\PYG{o}{\PYGZgt{}}
+\PYG{n}{perfect\PYGZus{}hash\PYGZus{}filter}\PYG{o}{\PYGZlt{}}\PYG{n}{K}\PYG{p}{,}\PYG{o}{!}\PYG{n}{Complement}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{k}{operator}\PYG{o}{\PYGZti{}}\PYG{p}{(}\PYG{n}{perfect\PYGZus{}hash\PYGZus{}filter}\PYG{o}{\PYGZlt{}}\PYG{n}{K}\PYG{p}{,}\PYG{n}{Complement}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n}{perfect\PYGZus{}hash\PYGZus{}filter}\PYG{o}{\PYGZlt{}}\PYG{n}{K}\PYG{p}{,}\PYG{o}{!}\PYG{n}{Complement}\PYG{o}{\PYGZgt{}}\PYG{p}{(}\PYG{n}{a}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

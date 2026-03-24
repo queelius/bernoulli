@@ -1,0 +1,166 @@
+\documentclass[11pt,final,hidelinks]{article}
+\makeatletter\def\input@path{{sty/}}\makeatother
+\usepackage[nohints]{minitoc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage{graphicx}
+\graphicspath{{img/}} 
+\usepackage{algorithm2e}
+\usepackage{caption}
+\usepackage{bbm}
+\usepackage{booktabs}
+\usepackage{mathtools}
+\usepackage{subfiles}
+\usepackage{commath}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{tabu}
+\usepackage{numprint}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[square,numbers]{natbib}
+\usepackage{cleveref}
+\usepackage{siunitx}
+\usepackage[section]{placeins}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{backnaur}
+\usepackage[symbols,toc,acronym]{glossaries}
+
+\newcommand{\COMMENT}[1]{}
+\makeglossaries
+\loadglsentries{gls-custom}
+\loadglsentries{gls-approxset}
+\loadglsentries{gls-set}
+\loadglsentries{gls-hashing}
+
+%\include{defs}
+
+\usepackage{functionnotation}
+\usepackage{probabilitynotation}
+\usepackage{algorithmnotation}
+\usepackage{matrixnotation}
+\usepackage[fancy]{setnotation}
+\usepackage[fancy]{relationnotation}
+\usepackage{approxsetnotation}
+\usepackage[section]{envnotation}
+\usepackage{obliviousnotation}
+
+% Paper-specific macros (PHF domain)
+\newcommand{\PHF}{\ensuremath{\operatorname{PHF}}}
+\newcommand{\PH}{\ensuremath{\operatorname{PH}}}
+\renewcommand{\ph}{\ensuremath{\operatorname{ph}}}
+\newcommand{\phf}{\ensuremath{\operatorname{phf}}}
+\newcommand{\ro}{\ensuremath{\operatorname{h^*}}}
+\newcommand{\trunc}{\ensuremath{\operatorname{trunc}}}
+\renewcommand{\BL}{\ensuremath{\operatorname{BL}}}
+\renewcommand{\RE}{\ensuremath{\operatorname{e}}}
+\renewcommand{\AE}{\ensuremath{\operatorname{e^*}}}
+\newcommand{\BitMatrix}{\ensuremath{\operatorname{BitMatrix}}}
+\newcommand{\pmapf}{\ensuremath{\operatorname{pmf}}}
+
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{naturalnames}{hyperref}
+
+\definecolor{ltgray}{rgb}{0.7,0.7,0.7}
+
+\SetKwFunction{Encode}{encode}
+\SetKwFunction{Rows}{nrows}
+\SetKwFunction{Columns}{ncols}
+\SetKwFunction{Contains}{contains}
+\SetKwFunction{MakeApproxSet}{make\_approximate\_set}
+\SetKwFunction{MakeObliviousSet}{make\_cipher\_set}
+\SetKwFunction{MakeApproxMap}{make\_approximate\_map}
+\SetKwFunction{MakeMinimalPerfectHash}{make\_perfect\_hash}
+\SetKwFunction{MakeKPerfectHashSet}{make\_k\_perfect\_hash\_filter}
+\SetKwFunction{MakeTypeApproxSet}{make\_typed\_approximate\_set}
+
+% Map and application macros
+\newcommand{\Mt}{\mathcal{M}}
+\newcommand{\notfn}{\operatorname{not}}
+\newcommand{\andfn}{\operatorname{and}}
+\newcommand{\orfn}{\operatorname{or}}
+\newcommand{\diffn}{\operatorname{diff}}
+\newcommand{\Has}{\operatorname{has}}
+\newcommand{\truefn}{\operatorname{true}}
+\newcommand{\very}{\operatorname{very}}
+
+
+\lstset
+{
+	basicstyle=\footnotesize,               % print whole listing small
+	keywordstyle=\bfseries,
+	identifierstyle=,               % nothing happens
+	commentstyle=\itshape\color{ltgray},    % gray comments
+	%stringstyle=\ttfamily,          % typewriter type for strings
+	showstringspaces=false,         % no special string spaces
+	numbers=left,
+	numberstyle=\tiny,
+	stepnumber=1,
+	numbersep=5pt
+}
+
+\hypersetup{
+	pdftitle={The \emph{Perfect Hash Filter}},  % title
+	pdfauthor={Alexander Towell},               % author
+	pdfsubject={computer science},              % subject of the %document
+	pdfkeywords={
+		probabilistic data structure,
+		abstract data type,
+		Bernoulli set,
+		Bernoulli map,
+		bloom filter,
+		perfect hash function,
+		perfect hash filter,
+		perfect map filter},                  % keywords
+	colorlinks=true,                           % false: boxed links;
+	linkcolor=blue,
+	citecolor=green,                            % color of links to 
+	filecolor=magenta,                          % color of file links
+	urlcolor=green                              % color of external
+}
+
+
+\title
+{
+    The \emph{\gls*{gls-phf}}\\
+    \large An efficient implementation of the positive Bernoulli set and Bernoulli map abstract data types
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We derive the \gls*{gls-phf}, an immutable data structure that implements the static \emph{positive Bernoulli set}---a set with a quantifiable false positive rate and zero false negatives. Under the Bernoulli set model~\cite{bsets}, the \gls*{gls-phf} satisfies element-wise independence and conditional independence of rates. We demonstrate that the \gls*{gls-phf} is a \emph{succinct} data structure that asymptotically achieves the information-theoretic lower bound of $-\log_2 \varepsilon$~bits per element. We extend the construction to the \gls*{gls-pmf}, which implements the static \emph{Bernoulli map}~\cite{bmaps}, and demonstrate applications including fuzzy set queries for rank-ordered search. Finally, we provide a C++ implementation and compare it to the theoretical analysis.
+\end{abstract}
+
+\tableofcontents
+%\listoffigures
+%\listofalgorithms
+
+\subfile{sections/intro}
+\subfile{sections/rd_ph_filter}
+\subfile{sections/typed_phf}
+\subfile{sections/k_perfect_hashing}
+\subfile{sections/pmf}
+\subfile{sections/apps_postings_list}
+\subfile{sections/cpp_imp}
+\subfile{sections/adt}
+\printglossary
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

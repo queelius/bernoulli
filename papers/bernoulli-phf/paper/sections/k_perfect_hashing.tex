@@ -1,0 +1,88 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{$k$-perfect hashing and false negatives}
+\label{sec:k_perfect}
+As noted in \cref{sec:phf}, replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function} generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible. A $k$-perfect hash function allows disjoint subsets of up to $k$ elements to collide, which means that when two members of $\Set{S}$ map to the same slot, the later one overwrites the earlier, producing a \emph{false negative} for the overwritten element.
+
+The advantage of $k$-perfect hashing is that it trades accuracy (introducing a non-zero false negative rate $\omega$) for reduced construction time and space in the perfect hash function itself.
+
+In the Bernoulli set model~\cite{bsets}, the positive Bernoulli set has a single degree of freedom (the false positive rate~$\varepsilon$). Introducing false negatives via $k$-perfect hashing yields a general second-order Bernoulli set with two degrees of freedom ($\varepsilon$, $\omega$). From the perspective of the entropy map framework~\cite{emaps}, this corresponds to a binary asymmetric channel with a confusion matrix parameterized by both rates.
+
+\subsection{Probability of successful placement}
+Consider the construction of a $k$-perfect hash filter for a set $\Set{S}$ with $\Card{\Set{S}} = m$ elements and $N = \lceil m/r \rceil$ slots. Each element is assigned to a slot by the hash function. We model this as a variant of the \emph{coupon collector problem}: for the $j$-th element, the number of hash evaluations needed to find an unoccupied slot follows a geometric distribution
+\begin{equation}
+    \RV{K}_j \sim \geodist\!\left(\frac{N - j + 1}{N}\right)\,.
+\end{equation}
+
+If each element is allowed at most $k$ hash evaluations, the probability that all $m$ elements are successfully placed is
+\begin{equation}
+\label{eq:k_success}
+    p(k) = \Pr\!\left[\RV{K}_1 \leq k \cap \cdots \cap \RV{K}_m \leq k\right] = \prod_{j=1}^{m-1}\left(1 - \left(\frac{j}{N}\right)^{k+1}\right)\,.
+\end{equation}
+Equivalently,
+\begin{equation}
+    p(k) = N^{-(m-1)(k+1)} \prod_{j=1}^{m-1}\left(N^{k+1} - j^{k+1}\right)\,.
+\end{equation}
+As $k \to \infty$, $p(k) \to 1$. A $1$-perfect hash function ($k = 1$) is the standard perfect hash function with $p(1) = 1$ by construction.
+
+\subsection{Construction and membership test}
+\Cref{alg:k_PHF,alg:k_PHF_has} describe the construction and membership test for the $k$-perfect hash filter.
+\begin{algorithm}[h]
+    \caption{Construction of the $k$-perfect hash filter}
+    \label{alg:k_PHF}
+    \SetKwProg{func}{function}{}{}
+    \KwIn
+    {
+        \begin{itemize}
+            \item[$S$] The set to approximate.
+            \item[$\fprate$] The false positive rate.
+            \item[$k$] The maximum number of hash evaluations per element.
+            \item[$r$] The load factor.
+        \end{itemize}
+    }
+    \KwOut
+    {
+        A $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$ and load factor $r$.
+    }
+    \func{\MakeKPerfectHashSet{$S, \fprate, r, k$}}
+    {
+        $\ph_{S} \gets$ \MakeMinimalPerfectHash{$S$, $r$}\;
+        $N \gets \left\lceil \Card{S} / r \right\rceil$\;
+        $M \gets \left\lceil -\log_2 \fprate \right\rceil$\;
+        $\matrx{V} \gets N$-by-$M$ bit matrix\;
+        \For{$x \in S$}
+        {
+            $i \gets \ph_{S}(x)$\;
+            $h \gets \operatorname{h}(x) \bmod M$\;
+            $\matrx{V}[i] \gets h$\;
+        }
+        \tcp{This tuple is sufficient to code the $k$-perfect hash filter.}
+        \Return $\Tuple{\matrx{V}, \ph_{S}}$\;
+    }
+\end{algorithm}
+\begin{algorithm}[h]
+    \caption{Membership test for the $k$-perfect hash filter}
+    \label{alg:k_PHF_has}
+    \SetKwProg{func}{function}{}{}
+    \KwIn
+    {
+        \begin{itemize}
+            \item[$S^+$] The $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$ and load factor $r$.
+            \item[$x$] The element to test membership in $S^+$.
+        \end{itemize}
+    }
+    \KwOut
+    {
+        \True if $x \in S$ and $x$ was not displaced by a collision during construction. Otherwise, \True with probability $\fprate$ and \False with probability $1 - \fprate$.
+    }
+    \func{\Contains{$S^+, x$}}
+    {
+        $M \gets$ \Columns{$\matrx{V}$}\;
+        $N \gets$ \Rows{$\matrx{V}$}\;
+        $i \gets \ph_{S}(x)$\;
+        $h \gets \operatorname{h}(x) \bmod M$\;
+        \Return{$\matrx{V}[i] = h$}\;
+    }
+\end{algorithm}
+\end{document}

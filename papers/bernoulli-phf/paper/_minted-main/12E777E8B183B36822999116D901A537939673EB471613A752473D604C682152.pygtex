@@ -1,0 +1,37 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k}{template}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}
+\PYG{+w}{	}\PYG{c+c1}{// Expected false positive rate $\fprate = 2^{-K}$.}
+\PYG{+w}{	}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{K}\PYG{p}{,}
+\PYG{+w}{	}\PYG{c+c1}{// Models a function of the type $string\_view \mapsto int$.}
+\PYG{+w}{	}\PYG{k}{template}\PYG{+w}{ }\PYG{n}{PerfectHashFn}\PYG{p}{,}
+\PYG{+w}{	}\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{n}{Complement}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nb}{false}
+\PYG{o}{\PYGZgt{}}
+\PYG{k}{class}\PYG{+w}{ }\PYG{n+nc}{perfect\PYGZus{}hash\PYGZus{}filter}
+\PYG{p}{\PYGZob{}}
+\PYG{k}{public}\PYG{o}{:}
+\PYG{+w}{	}\PYG{k}{template}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{k}{typename}\PYG{+w}{ }\PYG{n+nc}{Set}\PYG{o}{\PYGZgt{}}
+\PYG{+w}{	}\PYG{n}{perfect\PYGZus{}hash\PYGZus{}filter}\PYG{p}{(}
+\PYG{+w}{		}\PYG{n}{Set}\PYG{+w}{ }\PYG{n}{A}\PYG{p}{,}\PYG{+w}{   }\PYG{c+c1}{// A is objective set to approximate}
+\PYG{+w}{		}\PYG{k+kt}{float}\PYG{+w}{ }\PYG{n}{r}\PYG{p}{,}\PYG{+w}{ }\PYG{c+c1}{// r is load factor}
+\PYG{+w}{		}\PYG{k+kt}{uint32\PYGZus{}t}\PYG{+w}{ }\PYG{n}{seed}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{n}{h}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{make\PYGZus{}hash\PYGZus{}fn}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n}{ph\PYGZus{}}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{build\PYGZus{}perfect\PYGZus{}hash\PYGZus{}fn}\PYG{p}{(}\PYG{n}{h\PYGZus{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{A}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{r}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{+w}{	}\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{N}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{ceil}\PYG{p}{(}\PYG{n}{size}\PYG{p}{(}\PYG{n}{A}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{/}\PYG{+w}{ }\PYG{n}{r}\PYG{p}{)}\PYG{p}{;}\PYG{+w}{	}
+\PYG{+w}{	}\PYG{n}{hs\PYGZus{}}\PYG{p}{.}\PYG{n}{resize}\PYG{p}{(}\PYG{n}{N}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{	}\PYG{k}{for}\PYG{+w}{ }\PYG{p}{(}\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{x}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{n}{A}\PYG{p}{)}
+\PYG{+w}{	}\PYG{n}{hs\PYGZus{}}\PYG{p}{[}\PYG{n}{ph\PYGZus{}}\PYG{p}{(}\PYG{n}{seed}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{x}\PYG{p}{)}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{h\PYGZus{}}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZpc{}}\PYG{+w}{ }\PYG{n}{K}\PYG{p}{;}
+\PYG{p}{\PYGZob{}}
+
+\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{contains}\PYG{p}{(}\PYG{n}{X}\PYG{+w}{ }\PYG{n}{x}\PYG{p}{)}\PYG{+w}{ }\PYG{k}{const}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{	}\PYG{k}{return}\PYG{+w}{ }\PYG{n}{hs\PYGZus{}}\PYG{p}{[}\PYG{n}{ph\PYGZus{}}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{h\PYGZus{}}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZpc{}}\PYG{+w}{ }\PYG{n}{K}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{k}{private}\PYG{o}{:}
+\PYG{+w}{	}\PYG{n}{PerfectHashFn}\PYG{o}{\PYGZlt{}}\PYG{n}{hash\PYGZus{}fn}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{ph\PYGZus{}}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n}{hash\PYGZus{}fn}\PYG{+w}{ }\PYG{n}{h\PYGZus{}}\PYG{p}{;}
+\PYG{+w}{	}\PYG{n}{vector}\PYG{o}{\PYGZlt{}}\PYG{k+kt}{uint32\PYGZus{}t}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{hs\PYGZus{}}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}

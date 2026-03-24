@@ -1,0 +1,171 @@
+# Build directories
+build/
+build_test/
+build_bench/
+build_server/
+cmake-build-*/
+out/
+.build/
+*/_deps/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+Testing/
+*.cmake
+
+# Compiled binaries
+*.exe
+*.out
+*.app
+maph_cli
+maph_daemon
+maph_rest_server
+test_maph
+bench_maph
+speed_demo_optimized
+test_dual_mode
+
+# Libraries
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Precompiled headers
+*.gch
+*.pch
+*.pch.d
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+coverage/
+*.profraw
+*.profdata
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-*
+.clangd
+.cache/
+compile_commands.json
+
+# Documentation
+docs/html/
+docs/latex/
+*.doxygen
+
+# LaTeX intermediate files
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.synctex.gz(busy)
+*.nav
+*.snm
+*.vrb
+*.bcf
+*.run.xml
+*.idx
+*.ilg
+*.ind
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.latexml.log
+
+# Test artifacts
+*.maph
+test_*.maph
+*.log
+server.log
+*.tmp
+*.journal
+DartConfiguration.tcl
+
+# Data directories
+maph_stores/
+data/
+temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+*.whl
+.pytest_cache/
+
+# Dependencies
+deps/
+third_party/
+vendor/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Performance profiling
+perf.data
+perf.data.old
+*.perf
+callgrind.out.*
+
+# Package files
+*.tar.gz
+*.zip
+*.7z
+*.deb
+*.rpm
+
+# JSON test files
+*.jsonl
+test_import.jsonl
+test_export.jsonl
+
+# HTTP library (downloaded)
+httplib.h
+
+# Local configuration
+.env
+.env.local
+config.local.*
+integrations/rest_api/_deps/
