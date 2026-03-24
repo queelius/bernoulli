@@ -1,0 +1,491 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+
+\section{Composition of approximate maps}
+\label{sec:composition}
+
+If approximate maps are the morphisms of a category of approximate
+computations, then composition must be well-defined and its error
+behaviour must be predictable~\cite{cover2006}.  This section establishes that the
+composition of two independent approximate maps is itself an approximate
+map, derives closed-form expressions for the false positive and false
+negative rates of the composition, and examines the passage from
+first-order to higher-order models that composition induces.
+
+\subsection{Composition setup}
+\label{sec:comp-setup}
+
+Let $\Fun{f} \colon \Set{X} \pfun \Set{Y}$ be a partial function with
+domain of definition $\Dod(\Fun{f}) \subseteq \Set{X}$, and let
+$\Fun{g} \colon \Set{Y} \pfun \Set{Z}$ be a partial function with
+domain of definition $\Dod(\Fun{g}) \subseteq \Set{Y}$.
+Lifting to the $\Maybe{}$ type, we write
+$\Fun{f} \colon \Set{X} \to \Maybe{\Set{Y}}$ and
+$\Fun{g} \colon \Set{Y} \to \Maybe{\Set{Z}}$.
+
+\begin{assumption}[Composability]
+\label{asm:composability}
+For every $x \in \Dod(\Fun{f})$,
+$\Fun{f}(x) \in \Dod(\Fun{g})$.
+\end{assumption}
+
+Under \cref{asm:composability} the ordinary composition
+$\Fun{g} \circ \Fun{f} \colon \Set{X} \pfun \Set{Z}$ is well-defined
+with $\Dod(\Fun{g} \circ \Fun{f}) = \Dod(\Fun{f})$, and for every
+$x \in \Dod(\Fun{f})$,
+$(\Fun{g} \circ \Fun{f})(x) = \Fun{g}(\Fun{f}(x))$.
+
+Now let
+$\APFun{f}[\fprate_1][\fnrate_1] \colon \Set{X} \to \Maybe{\Set{Y}}$
+and
+$\APFun{g}[\fprate_2][\fnrate_2] \colon \Set{Y} \to \Maybe{\Set{Z}}$
+be independent approximate maps of $\Fun{f}$ and $\Fun{g}$
+respectively, each using the Maybe-type model: for every
+$x \in \Dod(\Fun{f})$, $\APFun{f}[\fprate_1][\fnrate_1](x)$ returns
+either the correct value $\Fun{f}(x)$ or $\Nothing$ (and likewise for
+$\APFun{g}[\fprate_2][\fnrate_2]$).
+Independence means that the random outcomes of
+$\APFun{f}[\fprate_1][\fnrate_1]$ and
+$\APFun{g}[\fprate_2][\fnrate_2]$ are determined by independent
+sources of randomness.
+
+\begin{definition}[Composition of approximate maps]
+\label{def:approx-comp}
+The \emph{composition}
+$\APFun{g}[\fprate_2][\fnrate_2] \circ
+ \APFun{f}[\fprate_1][\fnrate_1]
+ \colon \Set{X} \to \Maybe{\Set{Z}}$
+is the random function defined, for each $x \in \Set{X}$, by
+\begin{equation}
+\label{eq:comp-def}
+\left(\APFun{g}[\fprate_2][\fnrate_2] \circ
+      \APFun{f}[\fprate_1][\fnrate_1]\right)(x)
+\;\coloneqq\;
+\begin{cases}
+\APFun{g}[\fprate_2][\fnrate_2](y)
+  & \text{if } \APFun{f}[\fprate_1][\fnrate_1](x) = y \in \Set{Y},\\[4pt]
+\Nothing
+  & \text{if } \APFun{f}[\fprate_1][\fnrate_1](x) = \Nothing.
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{lemma}[Closure under composition]
+\label{prop:closure}
+Under \cref{asm:composability}, the composition
+$\APFun{g}[\fprate_2][\fnrate_2] \circ
+ \APFun{f}[\fprate_1][\fnrate_1]$
+is an approximate map of $\Fun{g} \circ \Fun{f}$.
+\end{lemma}
+\begin{proof}
+Let $x \in \Dod(\Fun{g} \circ \Fun{f}) = \Dod(\Fun{f})$.
+With probability $1 - \fnrate_1$,
+$\APFun{f}[\fprate_1][\fnrate_1](x) = \Fun{f}(x)$.
+By \cref{asm:composability},
+$\Fun{f}(x) \in \Dod(\Fun{g})$, so with probability
+$1 - \fnrate_2$,
+$\APFun{g}[\fprate_2][\fnrate_2](\Fun{f}(x)) = \Fun{g}(\Fun{f}(x))
+= (\Fun{g} \circ \Fun{f})(x)$.
+By independence, the probability that the composition returns the
+correct value is $(1 - \fnrate_1)(1 - \fnrate_2) > 0$.
+
+Conversely, let $x \notin \Dod(\Fun{f})$.
+With probability $1 - \fprate_1$,
+$\APFun{f}[\fprate_1][\fnrate_1](x) = \Nothing$, so the composition
+returns \Nothing.
+Hence $\Prob{(\APFun{g}[\fprate_2][\fnrate_2] \circ
+\APFun{f}[\fprate_1][\fnrate_1])(x) = \Nothing}
+\geq 1 - \fprate_1 > 0$.
+\end{proof}
+
+% -------------------------------------------------------------------
+\subsection{Error propagation}
+\label{sec:error-prop}
+
+We now derive the false negative and false positive rates of the
+composed map.  Throughout, we write
+$\APFun{h} \coloneqq
+\APFun{g}[\fprate_2][\fnrate_2] \circ
+\APFun{f}[\fprate_1][\fnrate_1]$
+for the composition, and
+$\Fun{h} \coloneqq \Fun{g} \circ \Fun{f}$ for the objective
+composition.  The domain of definition is
+$\Dod(\Fun{h}) = \Dod(\Fun{f})$.
+
+\subsubsection{False negative rate}
+A false negative in the composition occurs when
+$x \in \Dod(\Fun{h})$ but $\APFun{h}(x) = \Nothing$.
+
+\begin{theorem}[Composition false negative rate]
+\label{thm:comp-fnr}
+Let $\APFun{f}[\fprate_1][\fnrate_1]$ and
+$\APFun{g}[\fprate_2][\fnrate_2]$ be independent approximate maps
+under the Maybe-type model (i.e., for positive inputs, each map
+returns either the correct value or $\Nothing$), satisfying
+\cref{asm:composability}.
+Then for every $x \in \Dod(\Fun{h})$,
+\begin{equation}
+\label{eq:comp-fnr}
+\fnrate_{\Fun{g} \circ \Fun{f}}
+\;=\; 1 - (1 - \fnrate_1)(1 - \fnrate_2)
+\;=\; \fnrate_1 + (1 - \fnrate_1)\,\fnrate_2\,.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fix $x \in \Dod(\Fun{h}) = \Dod(\Fun{f})$.  The composition returns
+\Nothing if and only if one of the following mutually exclusive events
+occurs:
+\begin{enumerate}
+    \item[(i)] $\APFun{f}[\fprate_1][\fnrate_1](x) = \Nothing$ (false
+    negative from $\APFun{f}$), which has probability $\fnrate_1$; or
+    \item[(ii)] $\APFun{f}[\fprate_1][\fnrate_1](x) = \Fun{f}(x)$
+    (correct output from $\APFun{f}$) but
+    $\APFun{g}[\fprate_2][\fnrate_2](\Fun{f}(x)) = \Nothing$ (false
+    negative from $\APFun{g}$).
+\end{enumerate}
+Since $\APFun{f}[\fprate_1][\fnrate_1](x)$ is either $\Fun{f}(x)$ or
+$\Nothing$ for $x \in \Dod(\Fun{f})$ (by the Maybe-type model),
+these cases are exhaustive.
+By \cref{asm:composability}, $\Fun{f}(x) \in \Dod(\Fun{g})$, so
+in case~(ii) the probability of a false negative from $\APFun{g}$ is
+$\fnrate_2$.  By independence:
+\begin{align}
+\fnrate_{\Fun{g} \circ \Fun{f}}
+  &= \Prob{\APFun{h}(x) = \Nothing \Given x \in \Dod(\Fun{h})}
+    \notag \\
+  &= \Prob{\APFun{f}[\fprate_1][\fnrate_1](x) = \Nothing}
+   + \Prob{\APFun{f}[\fprate_1][\fnrate_1](x) = \Fun{f}(x)} \cdot
+     \Prob{\APFun{g}[\fprate_2][\fnrate_2](\Fun{f}(x)) = \Nothing}
+    \notag \\
+  &= \fnrate_1 + (1-\fnrate_1)\,\fnrate_2\,.
+    \label{eq:fnr-derivation}
+\end{align}
+Rearranging, $\fnrate_{\Fun{g} \circ \Fun{f}} =
+1 - (1-\fnrate_1)(1-\fnrate_2)$.
+\end{proof}
+
+\begin{remark}
+The true positive rate of the
+composition is the product of the individual true positive rates:
+$\tprate_{\Fun{g} \circ \Fun{f}} = \tprate_1 \, \tprate_2$.
+\end{remark}
+
+\subsubsection{False positive rate}
+The false positive analysis is more delicate because the false positive
+value produced by $\APFun{f}[\fprate_1][\fnrate_1]$ may or may not
+land in $\Dod(\Fun{g})$, and $\APFun{g}[\fprate_2][\fnrate_2]$ treats
+these two sub-cases differently.
+
+\begin{definition}[False-positive domain overlap]
+\label{def:rho}
+Let $\rho$ denote the probability that a false positive value
+produced by $\APFun{f}[\fprate_1][\fnrate_1]$ falls in
+$\Dod(\Fun{g})$:
+\begin{equation}
+\label{eq:rho-def}
+\rho
+\;\coloneqq\;
+\Prob{y \in \Dod(\Fun{g}) \Given
+      y \text{ is a false positive output of }
+      \APFun{f}[\fprate_1][\fnrate_1]}\,.
+\end{equation}
+\end{definition}
+
+The parameter $\rho$ captures the
+interaction between the false positive distribution of $\APFun{f}$ and
+the domain structure of $\Fun{g}$.
+If $\APFun{f}$ produces false positives uniformly on $\Set{Y}$, then
+$\rho = \Card{\Dod(\Fun{g})}/\Card{\Set{Y}}$, but in general $\rho$
+depends on the implementation.
+
+\begin{theorem}[Composition false positive rate]
+\label{thm:comp-fpr}
+Under the hypotheses of \cref{thm:comp-fnr}, for every
+$x \notin \Dod(\Fun{h})$,
+\begin{equation}
+\label{eq:comp-fpr}
+\fprate_{\Fun{g} \circ \Fun{f}}
+\;=\;
+\fprate_1
+\bigl[\rho\,(1-\fnrate_2) + (1-\rho)\,\fprate_2\bigr]\,.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fix $x \notin \Dod(\Fun{h}) = \Dod(\Fun{f})$.
+A false positive in the composition means
+$\APFun{h}(x) \neq \Nothing$ despite $x \notin \Dod(\Fun{h})$.
+By \cref{eq:comp-def}, this requires two events in
+succession.
+
+\emph{Step 1: $\APFun{f}$ must produce a false positive.}
+Since $x \notin \Dod(\Fun{f})$,
+$\APFun{f}[\fprate_1][\fnrate_1](x) = \Nothing$ with probability
+$1 - \fprate_1$ and produces some $y \in \Set{Y}$ with probability
+$\fprate_1$.  If \Nothing is returned, the composition returns
+\Nothing (a correct negative), so we require the false positive event
+from $\APFun{f}$, which occurs with probability $\fprate_1$.
+
+\emph{Step 2: The false positive value $y$ must survive
+$\APFun{g}$.}
+Suppose $\APFun{f}[\fprate_1][\fnrate_1](x) = y$ (a false positive).
+We condition on the location of $y$ relative to $\Dod(\Fun{g})$.
+
+\begin{itemize}
+\item \emph{Case $y \in \Dod(\Fun{g})$} (probability $\rho$).
+Since $y$ is a positive element for $\Fun{g}$,
+$\APFun{g}[\fprate_2][\fnrate_2](y)$ returns a value in $\Set{Z}$
+with probability $1 - \fnrate_2$ and returns \Nothing with probability
+$\fnrate_2$.  The composition produces a false positive with probability $1 - \fnrate_2$.
+
+\item \emph{Case $y \notin \Dod(\Fun{g})$} (probability $1-\rho$).
+Since $y$ is a negative element for $\Fun{g}$,
+$\APFun{g}[\fprate_2][\fnrate_2](y)$ returns a value in $\Set{Z}$
+with probability $\fprate_2$ and returns \Nothing with probability
+$1 - \fprate_2$.  The composition produces a false positive with
+probability $\fprate_2$.
+\end{itemize}
+
+\emph{Step 3: Combine by the law of total probability.}
+By independence:
+\begin{align}
+\fprate_{\Fun{g} \circ \Fun{f}}
+  &= \fprate_1
+     \bigl[\rho\,(1-\fnrate_2) + (1-\rho)\,\fprate_2\bigr]\,.
+     \label{eq:fpr-derivation}
+\end{align}
+\end{proof}
+
+\begin{remark}
+The false positive rate of the composition is always bounded above by
+$\fprate_1$, since the bracketed factor
+$\rho(1-\fnrate_2)+(1-\rho)\fprate_2 \leq 1$.  The second map acts
+as an additional filter: a false positive from $\APFun{f}$ must also
+survive $\APFun{g}$ to become a false positive in the composition.
+\end{remark}
+
+We now record two important special cases.
+
+\begin{corollary}[Disjoint false positives]
+\label{cor:disjoint-fp}
+If $\rho = 0$, i.e., false positives from
+$\APFun{f}[\fprate_1][\fnrate_1]$ always land outside
+$\Dod(\Fun{g})$, then
+\begin{equation}
+\label{eq:fpr-product}
+\fprate_{\Fun{g} \circ \Fun{f}} = \fprate_1 \cdot \fprate_2\,.
+\end{equation}
+\end{corollary}
+\begin{proof}
+Setting $\rho = 0$ in \cref{eq:comp-fpr}:
+$\fprate_{\Fun{g} \circ \Fun{f}}
+= \fprate_1 [0 \cdot (1-\fnrate_2) + 1 \cdot \fprate_2]
+= \fprate_1 \, \fprate_2$.
+\end{proof}
+
+This is the ``independent errors compound'' case: the two false positive
+mechanisms act in series and the overall rate is the product.
+
+\begin{corollary}[Complete false-positive overlap]
+\label{cor:full-overlap}
+If $\rho = 1$, i.e., false positives from
+$\APFun{f}[\fprate_1][\fnrate_1]$ always land inside
+$\Dod(\Fun{g})$, then
+\begin{equation}
+\label{eq:fpr-full-overlap}
+\fprate_{\Fun{g} \circ \Fun{f}} = \fprate_1 \,(1-\fnrate_2)\,.
+\end{equation}
+\end{corollary}
+\begin{proof}
+Setting $\rho = 1$ in \cref{eq:comp-fpr}:
+$\fprate_{\Fun{g} \circ \Fun{f}}
+= \fprate_1 [1 \cdot (1-\fnrate_2) + 0 \cdot \fprate_2]
+= \fprate_1 (1-\fnrate_2)$.
+\end{proof}
+
+\begin{corollary}[$k$-fold composition]
+\label{cor:k-fold}
+Let
+$\APFun{f}[\fprate][\fnrate]_1, \ldots,
+ \APFun{f}[\fprate][\fnrate]_k$
+be $k$ independent approximate maps, each with the same rates
+$(\fprate, \fnrate)$, and suppose $\rho = 0$ at every stage.
+Then the $k$-fold composition has rates
+\begin{equation}
+\label{eq:k-fold}
+\fprate^{(k)} = \fprate^k
+\qquad\text{and}\qquad
+\fnrate^{(k)} = 1 - (1-\fnrate)^k\,.
+\end{equation}
+\end{corollary}
+\begin{proof}
+By induction on $k$.  The base case $k=1$ is immediate.
+For the inductive step, applying \cref{cor:disjoint-fp}
+gives
+$\fprate^{(k)} = \fprate^{(k-1)} \cdot \fprate = \fprate^k$,
+and applying \cref{thm:comp-fnr} gives
+$1 - \fnrate^{(k)} = (1-\fnrate^{(k-1)})(1-\fnrate) = (1-\fnrate)^k$.
+\end{proof}
+
+\begin{remark}
+The $k$-fold false positive rate $\fprate^k \to 0$ exponentially as
+$k \to \infty$, while the false negative rate
+$1-(1-\fnrate)^k \to 1$.  A long composition chain is therefore
+increasingly specific (few false positives) but increasingly
+insensitive (many false negatives).  This is the fundamental
+precision--recall trade-off of iterated approximate computation.
+\end{remark}
+
+\begin{example}
+\label{ex:two-stage}
+Let $\Fun{f} \colon \Set{X} \pfun \Set{Y}$ and
+$\Fun{g} \colon \Set{Y} \pfun \Set{Z}$ with
+$\fprate_1 = 0.01$, $\fnrate_1 = 0$,
+$\fprate_2 = 0.02$, $\fnrate_2 = 0$,
+and suppose false positives from $\APFun{f}$ are uniform on $\Set{Y}$
+with $\Card{\Dod(\Fun{g})}/\Card{\Set{Y}} = 0.1$,
+so $\rho = 0.1$.
+
+By \cref{thm:comp-fnr},
+$\fnrate_{\Fun{g} \circ \Fun{f}} = 0$.
+
+By \cref{thm:comp-fpr},
+\begin{equation*}
+\fprate_{\Fun{g} \circ \Fun{f}}
+  = 0.01 \bigl[0.1 \cdot 1 + 0.9 \cdot 0.02\bigr]
+  = 0.01 \cdot 0.118
+  = 0.00118\,.
+\end{equation*}
+The composition has a false positive rate roughly one order of
+magnitude smaller than either stage alone.
+\end{example}
+
+% -------------------------------------------------------------------
+\subsection{Higher-order structure and special cases}
+\label{sec:higher-order-comp}
+
+\subsubsection{Composition raises the model order}
+
+The first-order approximate map model assumes that all negative
+elements are identically distributed.
+Composition breaks this symmetry.
+
+\begin{lemma}[Composition raises the model order]
+\label{prop:higher-order}
+Let $\APFun{f}[\fprate_1][\fnrate_1]$ and
+$\APFun{g}[\fprate_2][\fnrate_2]$ be first-order approximate maps.
+Then the composition
+$\APFun{g}[\fprate_2][\fnrate_2] \circ
+ \APFun{f}[\fprate_1][\fnrate_1]$
+is, in general, a second-order approximate map.
+\end{lemma}
+\begin{proof}
+Let $x \notin \Dod(\Fun{f})$ and suppose
+$\APFun{f}[\fprate_1][\fnrate_1](x) = y$ (a false positive).
+The probability that the composition returns a non-\Nothing value
+depends on whether $y \in \Dod(\Fun{g})$ or $y \notin \Dod(\Fun{g})$.
+
+For elements whose false positives land in $\Dod(\Fun{g})$, the effective
+false positive rate through the composition is
+$\fprate_1(1-\fnrate_2)$.
+For elements whose false positives land outside $\Dod(\Fun{g})$, it is
+$\fprate_1 \cdot \fprate_2$.
+Since $(1-\fnrate_2) \neq \fprate_2$ in general, these two subsets have
+distinct false positive probabilities, so the composition is not a
+first-order model.
+\end{proof}
+
+\begin{remark}
+If the false positive distribution of $\APFun{f}$ is uniform over
+$\Set{Y}$, then for any given $x \notin \Dod(\Fun{f})$, the value of
+$\rho$ is the same.  In this case, the negative set is still
+identically distributed \emph{marginally} (after integrating over the
+random false positive value), and the composition admits a
+first-order description with the aggregate rate given by
+\cref{eq:comp-fpr}.  The second-order structure is exposed only when
+the false positive distribution of $\APFun{f}$ depends on $x$.
+\end{remark}
+
+\subsubsection{Set operations as compositions of indicator functions}
+
+The classical set-algebraic operations can be expressed as compositions involving indicator functions.
+Let $\Set{A}, \Set{B} \subseteq \Set{X}$ be sets with indicator
+functions $\SetIndicator{\Set{A}}, \SetIndicator{\Set{B}} \colon
+\Set{X} \to \BitSet$.
+
+\begin{enumerate}
+\item \emph{Complement.}
+The indicator of $\SetComplement[\Set{A}]$ is
+$\SetIndicator{\SetComplement[\Set{A}]}(x) = 1 -
+\SetIndicator{\Set{A}}(x)$.
+Under the approximate model, negation swaps the roles of positive and
+negative, so for an approximate set $\ASet{A}[\fprate][\fnrate]$, the
+approximate complement has rates $\fprate' = \fnrate$ and
+$\fnrate' = \fprate$.
+
+\item \emph{Intersection.}
+The indicator of $\Set{A} \cap \Set{B}$ is
+$\SetIndicator{\Set{A} \cap \Set{B}}(x) =
+\SetIndicator{\Set{A}}(x) \cdot \SetIndicator{\Set{B}}(x)$.
+Under independence,
+$\tprate_{\Set{A} \cap \Set{B}} = \tprate_{\Set{A}} \cdot
+\tprate_{\Set{B}}$.
+
+\item \emph{Union.}
+By De Morgan's law,
+$\Set{A} \cup \Set{B} =
+\SetComplement[\SetComplement[\Set{A}] \cap
+\SetComplement[\Set{B}]]$,
+so the union error rates follow from the complement and intersection
+formulas.
+\end{enumerate}
+
+These results are developed systematically in the companion paper on
+composition of Bernoulli sets.  The key observation is that
+\cref{thm:comp-fnr} generalizes the intersection formula: the
+true-positive-rate product rule for set intersection is the special
+case where both maps are indicator functions and the composition is
+pointwise multiplication.
+
+\subsubsection{The Boolean function space}
+
+\begin{example}[Boolean maps and approximate NOT]
+\label{ex:bool}
+Consider the function space
+$\Bool \to \Bool = \{\True,\False\} \to \{\True,\False\}$.
+There are exactly $2^2 = 4$ total functions:
+\begin{center}
+\begin{tabular}{@{} l c c @{}}
+\toprule
+Function & $\True \mapsto$ & $\False \mapsto$ \\
+\midrule
+$\Fun{id}$          & $\True$  & $\False$ \\
+$\Fun{not}$         & $\False$ & $\True$  \\
+$\Fun{const\text{-}T}$ & $\True$  & $\True$  \\
+$\Fun{const\text{-}F}$ & $\False$ & $\False$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each of these is a \emph{total} function, so there are no domain-level false
+positives: $\fprate = 0$.
+Consider the approximate negation
+$\APFun{not}[\fprate][\fnrate]$ with $\fprate = 0$ and false negative rate $\fnrate$.
+We compute $\APFun{not}[\fprate][\fnrate] \circ
+\APFun{not}[\fprate][\fnrate]$, which approximates
+$\Fun{not} \circ \Fun{not} = \Fun{id}$.
+
+By \cref{thm:comp-fnr} with $\fnrate_1 = \fnrate_2 = \fnrate$:
+\begin{equation}
+\fnrate_{\Fun{id}} = 1 - (1-\fnrate)^2 = 2\fnrate - \fnrate^2\,.
+\end{equation}
+For small $\fnrate$, the composed false negative rate is approximately
+$2\fnrate$: each stage independently
+contributes an $\fnrate$ probability of failure.
+For instance, with $\fnrate = 0.05$, the two-fold composition has
+$\fnrate_{\Fun{id}} = 1 - 0.95^2 = 0.0975$.
+\end{example}
+
+\end{document}

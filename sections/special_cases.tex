@@ -1,0 +1,164 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Special cases and connections}
+\label{sec:special}
+
+The Bernoulli map model specializes to several important function classes.
+In this section, we show how the model recovers the Bernoulli set, connects to binary channels in information theory, and accommodates constant functions and $n$-ary predicates.
+
+\subsection{Indicator functions and Bernoulli sets}
+\label{sec:indicator}
+
+The indicator function of a set $\Set{A}$ over a universal set $\Set{U}$ is denoted by $\SetIndicator{\Set{A}} \colon \Set{U} \to \BitSet$.
+A \emph{first-order} random approximate set of $\Set{A}$ with a false positive rate $\fprate$ and false negative rate $\fnrate$ is denoted by $\ASet{A}[\fprate][\fnrate]$, which may be modeled by a \emph{first-order} random approximate map $\APFun{\SetIndicator{\Set{A}}}[\fprate][\fnrate] \colon \Set{U} \to \BitSet$.
+
+More generally, functions of type $\Set{U} \ATOverUnder{\mapsto}[\fprate][\text{\raisebox{3pt}{$\fnrate$}}] \BitSet$ model first-order random approximate subsets of the universal set $\Set{U}$.
+This may also be indicated by $\AT{\RV{R}}[\fprate][\fnrate]$ given that $\RV{R}$ may realize any element in $\PS{\Set{U}}$.
+
+\begin{remark}
+The Bernoulli set model developed in the companion paper~\cite{aset} is thus a special case of the Bernoulli map model restricted to the codomain $\BitSet$.
+All results for Bernoulli sets (error count distributions, confidence intervals, higher-order composition) apply to Bernoulli maps of indicator functions.
+\end{remark}
+
+\subsection{Bernoulli Booleans and binary channels}
+\label{sec:bernoulli-bool}
+
+We are not restricted to the set-indicator function. Consider the Bernoulli model applied to Boolean values.
+How many functions are there of type $() \to \Bool$? There are two: \True and \False.
+So, we can think of Boolean values as constant functions of type $() \to \Bool$.
+When we apply the Bernoulli model to a Boolean value, we get a random approximate Boolean: the confusion matrix is a $2 \times 2$ matrix.
+See \Cref{tab:confusion-bool}.
+
+\begin{table}[ht]
+\centering
+\caption{Confusion matrix for the Bernoulli model applied to Boolean values.}
+\label{tab:confusion-bool}
+\begin{tabular}{lcc}
+\toprule
+latent/observed & \True & \False \\
+\midrule
+\True  & $p_1$   & $1-p_1$ \\
+\False & $p_2$   & $1-p_2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The confusion matrix in \Cref{tab:confusion-bool} has the maximum of
+two degrees-of-freedom, since there are only two parameters.
+For a \emph{pair} of independent Bernoulli Booleans---e.g., the joint output of two independent approximate maps---the observed outcome lies in $\Bool \times \Bool$, and the joint confusion matrix is $4 \times 4$.
+A general $4 \times 4$ channel has $12$ free parameters, but element-wise independence forces the joint matrix to factor as a Kronecker product of two $2 \times 2$ matrices, reducing the count to $4$: one response probability per input class per Boolean component.
+More generally, a map $f \colon X \to Y$ has its graph as a subset of $X \times Y$, so each element's membership test is binary and the Bernoulli independence axiom constrains the joint behaviour of $|Y|$ indicator variables per element.
+Both cases can also be understood in information-theoretic terms.
+
+\paragraph{Binary symmetric channel.}
+In information theory~\cite{shannon1948,cover2006}, a binary channel transmits two
+symbols, e.g., $0$ and $1$. The binary symmetric channel (BSC) flips bits with probability $\epsilon$. Its confusion matrix is
+given in \Cref{tab:bsc}.
+
+\begin{table}[ht]
+\centering
+\caption{Confusion matrix for the binary symmetric channel.}
+\label{tab:bsc}
+\begin{tabular}{lcc}
+\toprule
+latent/observed & \True & \False \\
+\midrule
+\True  & $1-\epsilon$  & $\epsilon$ \\
+\False & $\epsilon$    & $1-\epsilon$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The BSC is the Bernoulli Boolean with $p_1 = 1 - \epsilon$ and $p_2 = \epsilon$.
+
+\paragraph{Binary asymmetric channel.}
+The binary asymmetric channel (BAC) flips 1's with a \emph{false negative}
+rate of $\fnrate$ and 0's with a \emph{false positive} rate of $\fprate$.
+See \Cref{tab:bac}.
+
+\begin{table}[ht]
+\centering
+\caption{Confusion matrix for the binary asymmetric channel.}
+\label{tab:bac}
+\begin{tabular}{lcc}
+\toprule
+latent/observed & \True & \False \\
+\midrule
+\True  & $1-\fnrate$ & $\fnrate$ \\
+\False & $\fprate$          & $1-\fprate$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The BAC is the Bernoulli Boolean with $p_1 = 1 - \fnrate$ and $p_2 = \fprate$.
+The Bloom filter~\cite{bloom1970} set-indicator is the special case $\fnrate = 0$.
+
+\subsection{Approximate constants}
+\label{sec:constants}
+
+The simplest non-trivial approximate map is the \emph{approximate constant}: a function $\Fun{f} \colon \Set{1} \to \Set{X}$ where $\Set{1}$ denotes a singleton set.
+Then $\Fun{f}(1) \coloneqq y$ for some $y \in \Set{X}$, and the approximate constant $\APFun{f}(1)$ equals $y$ with probability $1-\fnrate$ and some other value in $\Set{X}$ with probability $\fnrate$.
+
+\begin{remark}
+Approximate constants establish that \emph{approximate values} are approximate maps from the unit type.
+This observation is foundational for the algebraic data type treatment developed in the companion paper on random approximate algebraic types.
+\end{remark}
+
+\begin{theorem}[Kronecker factorization]
+\label{thm:kronecker}
+Let $\APFun{f} \colon \Set{X} \to \Set{Y}$ be a Bernoulli map with per-input independent errors and model order $n$ (so that $\Set{X}$ is partitioned into $n$ blocks within which all per-input channels are identical).
+The joint confusion matrix $M$ over the function space $\Set{Y}^{\Set{X}}$ factors as
+\begin{equation}
+M = \bigotimes_{x \in \Set{X}} M_x,
+\end{equation}
+where each $M_x$ is the $|\Set{Y}| \times |\Set{Y}|$ per-input channel matrix at input $x$.
+Since inputs within the same partition block share identical channel matrices, the number of free parameters is $n \cdot (|\Set{Y}| - 1)$, compared to $N(|\Set{Y}|^{|\Set{X}|} - 1)$ for a general $N$-th order channel on $\Set{Y}^{\Set{X}}$.
+In the maximum-order case $n = |\Set{X}|$ (each input in its own block), this becomes $|\Set{X}| \cdot (|\Set{Y}| - 1)$.
+\end{theorem}
+\begin{proof}
+By the element-wise independence assumption, the probability that $\APFun{f}$ maps the input vector $(x_1, \ldots, x_{|\Set{X}|})$ to the output vector $(y_1, \ldots, y_{|\Set{X}|})$ factors as
+$\prod_{i} \Prob{\APFun{f}(x_i) = y_i \mid f(x_i)}$.
+Each factor is an entry of the per-input channel matrix $M_{x_i}$.
+The joint matrix is therefore the Kronecker product of the per-input matrices.
+Since the i.i.d.\ constraint within each of the $n$ partition blocks forces all inputs in a block to share the same channel matrix, the free parameters are determined by $n$ distinct channel matrices, each with $|\Set{Y}| - 1$ free parameters (one row of a stochastic matrix), giving $n(|\Set{Y}| - 1)$ total.
+\end{proof}
+
+\begin{remark}[Function-space viewpoint]
+\label{rem:function_space}
+\Cref{thm:kronecker} shows that every Bernoulli approximation is an instance of the same phenomenon: a latent function $\Fun{f'} \colon \Set{X} \to \Set{Y}$ is approximated by an observed function $\Fun{f} \colon \Set{X} \to \Set{Y}$, where the per-input errors are independent and the joint confusion matrix factors as a Kronecker product.
+
+This gives a unified account of the approximation hierarchy:
+\begin{itemize}
+\item \textbf{Bernoulli Boolean}: $\Set{X} = \Set{1}$, $\Set{Y} = \Bool$.
+    The function space has $2^1 = 2$ elements (\True and \False), and the confusion matrix is $2 \times 2$ with at most $2$ partition blocks and $2$ free parameters.
+\item \textbf{Bernoulli set}: $\Set{X} = \Set{U}$, $\Set{Y} = \BitSet$.
+    The indicator function $\SetIndicator{\Set{A}} \colon \Set{U} \to \BitSet$ is approximated per-element, and each element's $2 \times 2$ channel contributes one parameter per partition block.
+\item \textbf{Bernoulli map}: general $\Set{X}$, $\Set{Y}$.
+    For each input $x \in \Set{X}$, the per-input channel is $|\Set{Y}| \times |\Set{Y}|$ with at most $|\Set{Y}| - 1$ free parameters per partition block.
+    The full confusion matrix factors as a Kronecker product of these per-input channels.
+\item \textbf{Bernoulli relation}: $\Set{X} = \Set{A} \times \Set{B}$, $\Set{Y} = \BitSet$.
+    A relation is a set of pairs, so it is a Bernoulli set on the product domain $\Set{A} \times \Set{B}$.
+\end{itemize}
+In every case, the Bernoulli independence axiom reduces the parameter count from exponential (in $|\Set{X}|$) to linear.
+The Boolean is the atomic case; all others are Kronecker products of Boolean-like channels across the input domain.
+\end{remark}
+
+\subsection{Relations as $n$-ary predicates}
+\label{sec:nary}
+
+A $k$-ary predicate function $\Fun{f} \colon \Set{T}_1 \times \cdots \times \Set{T}_k \to \Bool$ maps $k$-tuples to \True or \False.
+A $k$-ary predicate is equivalently a $k$-ary \emph{relation}: it determines which tuples are ``related.''
+For instance, an ordered set answers questions like $a \leq b$ by checking whether $(a,b)$ belongs to the binary relation ${\leq}$.
+
+When such predicates are approximated, we may chain the tests.
+For example, given two approximate binary predicates $\APFun{f}[\fprate_1][\fnrate_1] \colon \Set{X} \times \Set{Y} \to \BitSet$ and $\APFun{g}[\fprate_2][\fnrate_2] \colon \Set{Y} \times \Set{Z} \to \BitSet$, a $3$-ary predicate is approximated by
+\begin{equation}
+	\Fun{w}(x,y,z) \coloneqq \Fun{f}(x,y) \land \Fun{g}(y,z)\,.
+\end{equation}
+
+\begin{remark}
+The full treatment of approximate $n$-ary relations, including join, project, and select operations, is developed in the companion paper on approximate relations.
+\end{remark}
+
+\end{document}
