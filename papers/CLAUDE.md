@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-Collection of related research papers by Alexander Towell on **random approximate sets** (Bernoulli sets) — a probabilistic framework for modeling sets with quantifiable false positive/negative error rates. Applications include Bloom filters, perfect hash filters, encrypted search, and approximate relational algebra.
+Collection of related research papers by Alexander Towell on **random approximate sets** (Bernoulli sets): a probabilistic framework for modeling sets with quantifiable false positive/negative error rates. Applications include Bloom filters, perfect hash filters, encrypted search, and approximate relational algebra.
 
 ## Papers
 
@@ -68,20 +68,20 @@ Two notation approaches coexist:
 
 1. **`alex.sty`** (used by `bernoulli_sets/`, `bernoulli_composition/`, `bernoulli_classification_measures/`, `bernoulli_entropy/`, `bernoulli-hash-function/`): Single unified package loaded as `\usepackage[fancy,section]{alex}`. Provides all macros: `\ASet`, `\Set`, `\Card`, `\APFun`, `\fprate`, `\fnrate`, `\tprate`, `\tnrate`, theorem environments, paired delimiters.
 
-2. **Modular `sty/` packages** (used by `bernoulli_maps/`, `bernoulli_relations/`, `bernoulli-phf/`, `bernoulli_data_type/`): Separate files per domain — `setnotation.sty`, `approxsetnotation.sty`, `functionnotation.sty`, `relationnotation.sty`, `envnotation.sty`, etc. Each paper has its own copy in a local `sty/` subdirectory.
+2. **Modular `sty/` packages** (used by `bernoulli_maps/`, `bernoulli_relations/`, `bernoulli-phf/`, `bernoulli_data_type/`): Separate files per domain: `setnotation.sty`, `approxsetnotation.sty`, `functionnotation.sty`, `relationnotation.sty`, `envnotation.sty`, etc. Each paper has its own copy in a local `sty/` subdirectory.
 
 Core notation is consistent across both: `\Set{A}` for sets, `\ASet{A}` for approximate sets, `\fprate`/`\fnrate` for error rates, `\RV{X}` for random variables.
 
 ## Architecture Pattern
 
 Each paper follows the same structure:
-- `main.tex` — Document root with preamble, package loading, section includes
-- `sections/` — One `.tex` file per section (included via `\input{}` or `\subfile{}`)
-- `references.bib` — Bibliography
-- `img/` — Compiled figures (PDF/PDF_TEX from TikZ or SVG)
-- `data/` — CSV datasets for plots
-- `research/` — Computational artifacts (Mathematica `.nb`, Maxima `.mac`, R `.Rmd`)
-- `code/` — Monte Carlo simulations (C++)
+- `main.tex`: Document root with preamble, package loading, section includes
+- `sections/`: One `.tex` file per section (included via `\input{}` or `\subfile{}`)
+- `references.bib`: Bibliography
+- `img/`: Compiled figures (PDF/PDF_TEX from TikZ or SVG)
+- `data/`: CSV datasets for plots
+- `research/`: Computational artifacts (Mathematica `.nb`, Maxima `.mac`, R `.Rmd`)
+- `code/`: Monte Carlo simulations (C++)
 
 ## Conceptual Layering
 
@@ -96,6 +96,20 @@ Papers build on a shared foundation:
 8. **Entropy & space** → Joint entropy of errors, information-theoretic lower bounds (`bernoulli_entropy`)
 9. **Optimal constructions** → Threshold predicate, space-optimal Bernoulli sets/maps (`bernoulli-hash-function`), perfect hash filter implementation (`bernoulli-phf`)
 10. **Extensions** → Relations (`bernoulli_relations`), maps (`bernoulli_maps`), ADTs (`bernoulli_data_type`)
+
+## Core Principles
+
+Five principles underpin the entire paper family:
+
+1. **The Two Axioms.** Element-wise independence (Axiom 1) and conditional independence of block error rates (Axiom 2). Everything follows from these. The Kronecker factorization theorem makes this precise: the joint confusion matrix equals the tensor product of per-element channels.
+
+2. **Parametric Parsimony.** An n-th order model on m joint tests has n(2^m - 1) parameters in general, but the independence axiom forces Kronecker factorization, reducing to at most 2m. Product types preserve this; sum types break it.
+
+3. **Space-Accuracy Duality.** bits/element = -log2(alpha) + mu. Derived in `bernoulli_entropy/`, achieved by BHF in `bernoulli-hash-function/`.
+
+4. **Composition Closure.** Bernoulli sets are closed under union, intersection, complement, and difference. Error rates have closed-form propagation formulas. The composition theorem eta_total = 1 - prod(1 - eta_i) governs chains.
+
+5. **The Boolean Thread.** Membership queries return Bernoulli Booleans. AND/OR/NOT on Bernoulli Booleans have closed-form error rates. Bool is the atomic type from which all others are built.
 
 ## Cross-Paper Topic Placement
 
@@ -124,3 +138,11 @@ Each paper owns a specific domain. When deciding where new content belongs:
 - **k-fold composition** = iterated application of approximate identity $\sigma^k$ (distinct from model order)
 - **Parametric parsimony** = An $n$-th order model on a single Boolean test has $n$ parameters (one per block). For $m$ joint tests, a general $n$-th order channel has $n(2^m - 1)$ parameters, but element-wise independence (Axiom 1) forces a Kronecker product factorization, reducing the count to at most $2m$. Example: the union of two second-order Bernoulli sets yields a fourth-order model with 4 parameters (not 12). This distinction between model order (partition granularity) and parameter count (constrained by independence) is important across all papers. Confusion matrices and model order are orthogonal concepts: order constrains which rows are identical, independence constrains the internal structure of each row.
 - These terms were corrected in `bernoulli_sets/` and are already consistent in `bernoulli_data_type/bernoulli_model/sections/order_and_channels.tex`
+
+## Connection to Trapdoor Computing
+
+The Bernoulli framework provides the error model for the trapdoor computing paradigm (`~/github/trapdoor-computing/`). Bernoulli maps ARE cipher maps at the mathematical level: the BHF salt is the trapdoor key, the acceptance predicate implements the cipher map, and the space formula -log2(epsilon) + mu governs both. The composition theorem is Property 4 of cipher maps. The Bernoulli Boolean algebra is the trapdoor Boolean algebra.
+
+## Repository Structure
+
+The `papers/` directory contains git subtrees, each with its own GitHub remote. The parent `bernoulli` repo tracks shared infrastructure (notation packages, build patterns) plus all papers in a single working tree.
