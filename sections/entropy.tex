@@ -1,0 +1,112 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Entropy of approximate sets
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Entropy of approximate sets}
+\label{sec:entropy}
+The Bernoulli set model assigns binomial distributions to the number of false
+positives and false negatives.
+A natural question is how much \emph{uncertainty} these error counts carry,
+as measured by Shannon entropy~\cite{shannonBSC}.
+In this section, we derive the joint entropy of the false positive and false
+negative counts and extend the analysis to the case in which the number of
+positives is itself uncertain.
+
+\begin{theorem}[Joint entropy of false positives and false negatives]
+\label{thm:joint_entropy_fp_fn}
+Given $m$ positives in a universe of $u$ elements, the joint entropy of the
+uncertain number of false positives and false negatives in a Bernoulli set with
+expected false positive rate $\fprate$ and expected false negative rate $\fnrate$
+is
+\begin{equation}
+\label{eq:joint_entropy}
+    \Entropy{\FP_m, \FN_m}
+    = \log_2(2\pi e)
+    + \frac{1}{2}\log_2\!\bigl(
+        (u - m) \cdot m \cdot \fprate(1-\fprate) \cdot \fnrate(1-\fnrate)
+      \bigr)
+    + \mathcal{O}\!\left(\frac{u}{m(u-m)}\right),
+\end{equation}
+where the asymptotic term holds as $u \to \infty$ with $m/u$ bounded away
+from $0$ and $1$ (so that both $m$ and $u - m$ grow with $u$).
+\end{theorem}
+\begin{proof}
+By \cref{asm:element_indep}, the random error counts $\FP_m$ and $\FN_m$
+are conditionally independent given $m$ positives (they are functions of
+indicators on disjoint element sets: negatives and positives respectively).
+Therefore the joint entropy decomposes additively:
+\begin{equation}
+    \Entropy{\FP_m, \FN_m} = \Entropy{\FP_m} + \Entropy{\FN_m}.
+\end{equation}
+The random variable $\FP_m$ is binomially distributed,
+$\FP_m \sim \operatorname{Bin}(u - m,\, \fprate)$.
+The entropy of a binomial distribution $\operatorname{Bin}(n, p)$ admits the
+well-known asymptotic expansion~\cite{coverThomas}
+\begin{equation}
+\label{eq:binomial_entropy_asymp}
+    H = \frac{1}{2}\log_2\!\bigl(2\pi e \cdot n \cdot p(1-p)\bigr)
+      + \mathcal{O}(1/n).
+\end{equation}
+Applying \cref{eq:binomial_entropy_asymp} to $\FP_m$ and $\FN_m$ respectively
+yields
+\begin{align}
+    \Entropy{\FP_m}
+    &= \frac{1}{2}\log_2(2\pi e)
+     + \frac{1}{2}\log_2\!\bigl((u-m)\,\fprate(1-\fprate)\bigr)
+     + \mathcal{O}\!\left(\frac{1}{u-m}\right), \\
+    \Entropy{\FN_m}
+    &= \frac{1}{2}\log_2(2\pi e)
+     + \frac{1}{2}\log_2\!\bigl(m\,\fnrate(1-\fnrate)\bigr)
+     + \mathcal{O}\!\left(\frac{1}{m}\right).
+\end{align}
+Summing these expressions and combining the logarithms gives
+\begin{equation}
+    \Entropy{\FP_m, \FN_m}
+    = \log_2(2\pi e)
+    + \frac{1}{2}\log_2\!\bigl(
+        (u-m)\, m\, \fprate(1-\fprate)\, \fnrate(1-\fnrate)
+      \bigr)
+    + \mathcal{O}\!\left(\frac{u}{m(u-m)}\right),
+\end{equation}
+where the error term follows from
+$\mathcal{O}(1/(u-m)) + \mathcal{O}(1/m)
+ = \mathcal{O}\!\bigl(u / (m(u-m))\bigr)$.
+\end{proof}
+
+\subsection{Positives and negatives}
+\label{sec:entropy:pos_neg}
+When the number of positives is itself uncertain, modeled by the random
+variable $\POS$ with probability mass function $\Fun{p}_{\POS}(p \Given u)$,
+the joint distribution of positives, false positives, and false negatives
+factorizes as
+\begin{equation}
+\label{eq:joint_pos_fp_fn}
+    \Fun{p}(p, f_p, f_n \Given u, \fprate, \fnrate)
+    = \Fun{p}_{\POS}(p \Given u)
+      \;\Fun{p}_{\FP}(f_p \Given p, u, \fprate)
+      \;\Fun{p}_{\FN}(f_n \Given p, u, \fnrate).
+\end{equation}
+By \cref{asm:element_indep}, $\FP$ and $\FN$ are conditionally independent
+given $\POS$, so the joint entropy decomposes as
+\begin{equation}
+\label{eq:joint_entropy_pos}
+    \Entropy{\POS, \FP, \FN}
+    = \Entropy{\POS}
+    + \sum_{p=0}^{u} \Fun{p}_{\POS}(p \Given u)\, \Entropy{\FP \Given p}
+    + \sum_{p=0}^{u} \Fun{p}_{\POS}(p \Given u)\, \Entropy{\FN \Given p}.
+\end{equation}
+The last two sums are the conditional entropies $\Entropy{\FP \Given \POS}$
+and $\Entropy{\FN \Given \POS}$, each weighted by the distribution of
+positives.
+
+\begin{example}
+The \emph{expected} number of false positives, marginalizing over $\POS$, is
+\begin{align}
+    \Expect{\FP}
+    &= \sum_{p=0}^{u} \Fun{p}_{\POS}(p \Given u)\, \Expect{\FP_p}
+     = \sum_{p=0}^{u} \Fun{p}_{\POS}(p \Given u)\, (u - p)\,\fprate \notag \\
+    &= \fprate \bigl(u - \Expect{\POS}\bigr)
+     = \fprate \cdot \Expect{\NEG},
+\end{align}
+confirming that the marginal expected false positive count depends only on the
+expected number of negatives and the false positive rate $\fprate$.
+\end{example}

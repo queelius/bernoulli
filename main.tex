@@ -1,0 +1,89 @@
+\documentclass[11pt,final,hidelinks]{article}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,
+    spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{img/}}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{commath}
+\usepackage{appendix}
+\renewcommand\appendixtocname{Appendices}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[square,numbers]{natbib}
+\bibliographystyle{plain}
+\usepackage{siunitx}
+\numberwithin{equation}{section}
+\usepackage[hypertexnames=false]{hyperref}
+\usepackage{cleveref}
+
+\pgfplotsset{compat=newest}
+
+\usepackage[fancy,section]{alex}
+
+\hypersetup{
+    pdftitle={Entropy and space complexity of random approximate sets},
+    pdfauthor={Alexander Towell},
+    pdfsubject={computer science},
+    pdfkeywords={
+        Shannon entropy,
+        space complexity,
+        approximate set,
+        Bloom filter,
+        information-theoretic lower bound,
+        Bernoulli set},
+    colorlinks=true,
+    linkcolor=magenta,
+    citecolor=green,
+    filecolor=blue,
+    urlcolor=green
+}
+
+\title
+{
+    Entropy and space complexity of random approximate sets
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We derive the joint entropy of the false positive and false negative error counts in the Bernoulli set model---a compositionally closed framework for random approximate sets with independent, element-wise errors.
+The joint entropy decomposes additively via element independence and admits a closed-form asymptotic expansion based on the binomial entropy approximation.
+We then establish the information-theoretic space lower bound for positive approximate sets over countably infinite universes, restating and proving the classical result of Carter, Floyd, Gill, Markowsky, and Wegman in the notation of the Bernoulli framework.
+The Bloom filter achieves $\ln 2 \approx 69\%$ of the optimal density.
+The general case---approximate sets with both false positives and false negatives ($0 < \tprate < 1$)---remains an open problem.
+\end{abstract}
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+\microtypesetup{protrusion=true}
+
+\input{sections/intro}
+\input{sections/preliminaries}
+\input{sections/entropy}
+\input{sections/space_complexity}
+\input{sections/conclusion}
+
+\bibliography{references}
+
+\end{document}

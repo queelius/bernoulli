@@ -1,0 +1,46 @@
+\begin{thebibliography}{1}
+
+\bibitem{bf}
+Burton~H. Bloom.
+\newblock Space/time trade-offs in hash coding with allowable errors.
+\newblock {\em Communications of the ACM}, 13(7):422--426, 1970.
+
+\bibitem{carterExact}
+J.~Lawrence Carter, Robert~W. Floyd, John Gill, George Markowsky, and Mark~N.
+  Wegman.
+\newblock Exact and approximate membership testers.
+\newblock In {\em Proceedings of the 10th Annual ACM Symposium on Theory of
+  Computing (STOC)}, pages 59--65, 1978.
+
+\bibitem{coverThomas}
+Thomas~M. Cover and Joy~A. Thomas.
+\newblock {\em Elements of Information Theory}.
+\newblock Wiley-Interscience, 2 edition, 2006.
+
+\bibitem{shannonBSC}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock {\em The Bell System Technical Journal}, 27(3):379--423, 1948.
+
+\bibitem{phf}
+Alexander Towell.
+\newblock The perfect hash filter: an efficient, immutable implementation of
+  the positive random approximate set abstract data type.
+\newblock Working paper. Available from the author upon request.
+
+\bibitem{shs}
+Alexander Towell.
+\newblock The singular hash set.
+\newblock Working paper. Available from the author upon request.
+
+\bibitem{bernoulliSets}
+Alexander Towell.
+\newblock Bernoulli sets: a model for random approximate sets.
+\newblock Companion paper, 2026.
+
+\bibitem{bernoulliComposition}
+Alexander Towell.
+\newblock Composition of {Bernoulli} sets.
+\newblock Companion paper, 2026.
+
+\end{thebibliography}

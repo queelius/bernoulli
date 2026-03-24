@@ -1,0 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:intro_ent}
+
+The Bernoulli set model~\cite{bernoulliSets} provides a compositional framework
+for random approximate sets---data structures whose membership queries may err
+with known false positive and false negative rates.
+A natural information-theoretic question is: how much uncertainty do these
+errors carry?
+
+\paragraph{Motivation.}
+The joint entropy of error counts quantifies the inherent unpredictability of a
+Bernoulli set realization.
+This entropy has direct implications for coding: any lossless representation of
+the error pattern requires at least this many bits on average.
+The space complexity question---how many bits are needed to implement an
+approximate set---connects the abstract Bernoulli model to the concrete cost of
+probabilistic data structures.
+
+\paragraph{Contribution.}
+We make two contributions.
+First, we derive the joint entropy of the false positive and false negative
+counts (\cref{thm:joint_entropy_fp_fn}), showing that it decomposes additively
+by element independence and admits the closed-form asymptotic expansion
+\begin{equation}
+    \log_2(2\pi e)
+    + \frac{1}{2}\log_2\!\bigl(
+        (u-m) \cdot m \cdot \fprate(1-\fprate) \cdot \fnrate(1-\fnrate)
+      \bigr)
+    + \mathcal{O}\!\left(\frac{u}{m(u-m)}\right).
+\end{equation}
+We extend this to the case where the number of positives is itself uncertain
+(\cref{sec:entropy:pos_neg}).
+Second, we restate and prove the classical space lower bound of Carter et
+al.~\cite{carterExact} for positive approximate sets
+(\cref{pst:approx_l_b}): any implementation over a countably infinite universe
+requires at least $-\log_2 \fprate$ bits per element.
+We compare this to the Bloom filter's $-(1/\ln 2)\log_2\fprate$ bits per
+element and note that the general case $0 < \tprate < 1$ remains open
+(\cref{rem:general_lower_bound}).
+
+\paragraph{Related work.}
+Shannon~\cite{shannonBSC} introduced the entropy of binary channels; Cover and
+Thomas~\cite{coverThomas} provide the binomial entropy expansion we use.
+Carter et al.~\cite{carterExact} established the space lower bound.
+Bloom~\cite{bf} introduced the eponymous filter.
+The Bernoulli set model and its compositional algebra are developed in a
+companion paper~\cite{bernoulliSets}.
+
+\paragraph{Organization.}
+\Cref{sec:prelim_ent} restates the Bernoulli axioms.
+\Cref{sec:entropy} derives the joint entropy.
+\Cref{sec:space_comp} establishes the space complexity lower bound.
+\Cref{sec:conclusion_ent} concludes with open problems.

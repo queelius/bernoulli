@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Preliminaries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preliminaries}
+\label{sec:prelim_ent}
+
+We restate the elements of the Bernoulli set model~\cite{bernoulliSets} used in
+this paper.
+
+\begin{axiom}[Element-wise independence]
+\label{asm:element_indep}
+For all distinct $x, y \in U$, the error events at $x$ and $y$ are mutually independent:
+\begin{equation}
+P(\mathbf{1}_{\tilde{A}}(x) \neq \mathbf{1}_{A}(x) \mid \mathbf{1}_{\tilde{A}}(y) \neq \mathbf{1}_{A}(y)) =
+	P(\mathbf{1}_{\tilde{A}}(x) \neq \mathbf{1}_{A}(x)).
+\end{equation}
+More generally, the family $\{\mathbf{1}_{\tilde{A}}(x) : x \in U\}$ is mutually independent given the objective set $A$ and the error rates.
+Furthermore, within each partition block $B_i$, the error indicators $\{\mathbf{1}_{\tilde{A}}(x) : x \in B_i\}$ are identically distributed.
+\end{axiom}
+
+\begin{axiom}[Conditional independence of block error rates]
+\label{asm:fpr_fnr_r_indep}
+Given the objective set $R$, the random error rates $\alpha_1, \ldots, \alpha_n$ for the respective partition blocks $B_1, \ldots, B_n$ are mutually independent.
+\end{axiom}
+
+From these axioms, the false positive count
+$\FP_m \sim \bindist(u-m, \fprate)$ and the false negative count
+$\FN_m \sim \bindist(m, \fnrate)$ are conditionally independent given $m$
+positives in a universe of $u$ elements~\cite{bernoulliSets}.
