@@ -1,0 +1,44 @@
+\section{Probabilistic model}
+\label{sec:prob_model}
+
+The probabilistic model of Bernoulli sets and maps is developed fully
+in~\cite{bernoulli_sets,bernoulli_maps}.
+We summarize the key results needed for completeness.
+
+\subsection{False positive and false negative distributions}
+
+\begin{theorem}[False positive distribution]
+\label{thm:fp_dist}
+Given a set $\Set{S}$ with $m$ positives from a universe of $u$ elements, the
+number of false positives in $\ASet{S}$ with false positive rate $\fprate$ is
+\begin{equation}
+    \FP_m \sim \bindist(u - m,\; \fprate)\,.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[False negative distribution]
+\label{thm:fn_dist}
+The number of false negatives in $\ASet{S}$ with false negative rate $\fnrate$
+is
+\begin{equation}
+    \FN_m \sim \bindist(m,\; \fnrate)\,.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Expected cardinality]
+\label{thm:exp_card}
+A Bernoulli set $\ASet{S}$ of a set of cardinality $m$ from a universe of $u$
+elements has expected cardinality
+\begin{equation}
+    \Expect{\Card{\ASet{S}}} = u\fprate + m(1 - \fprate - \fnrate)\,.
+\end{equation}
+\end{theorem}
+
+\subsection{Cardinality estimation for finite universes}
+
+Given $\ASet{S}$ with known $\fprate$, $\fnrate$, and $u$, the method-of-moments
+estimator of $m$ is
+\begin{equation}
+    \hat{m} = \frac{\Card{\ASet{S}} - \fprate\, u}{1 - \fprate - \fnrate}\,.
+\end{equation}
+This is unbiased since $\Expect{\hat{m}} = m$.

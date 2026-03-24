@@ -1,0 +1,364 @@
+\section{Space complexity}
+\label{sec:space}
+
+We prove that the BHF achieves the information-theoretic lower bound on space
+complexity for both Bernoulli sets and Bernoulli maps, under both predicate
+forms.
+
+\subsection{General proof (maps)}
+
+The BHF representation is the tuple $(h_k, b)$ or $(N, t, b)$.
+The dominant term is the length of the salt $b$, which the algorithm discovers
+by exhaustive search in order of increasing length.
+
+\begin{theorem}[Success probability per trial]
+\label{thm:success_prob}
+The probability that a candidate salt $b$ yields a valid BHF for a map with
+$m$ keys, false positive rate $\fprate$, and mean value encoding length $\mu$
+is:
+\begin{enumerate}[(i)]
+    \item Equality predicate: $p_{\mathrm{eq}} = \fprate^{m-1} / 2^{m\mu}$.
+    \item Threshold predicate: $p_{\mathrm{th}} = \fprate^{m} / 2^{m\mu}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+See \cref{thm:success_eq,thm:success_thresh}.
+\end{proof}
+
+\begin{theorem}[Space complexity of the BHF]
+\label{thm:space}
+The expected bit length of the BHF asymptotically achieves
+\begin{equation}
+    -\log_2 \fprate + \mu \;\; \si{bits \per element}
+\end{equation}
+as $m \to \infty$, for both predicate forms.
+\end{theorem}
+\begin{proof}
+The algorithm searches through candidate salts in order of increasing bit
+length.
+By \cref{def:mapping}, the \nth candidate maps uniquely to a bit string.
+The search terminates at the first success, which follows a geometric
+distribution with parameter $p$ (where $p = p_{\mathrm{eq}}$ or
+$p = p_{\mathrm{th}}$).
+
+Let $\RV{Q} \sim \geodist(p)$ be the trial at which the first success occurs.
+The salt bit length is $\RV{L} = \lfloor \log_2 \RV{Q} \rfloor$.
+
+We bound $\Expect{\RV{L}}$ using the exact formula from
+\cref{thm:expected_size}:
+\begin{equation}
+    \Expect{\RV{L}} = \sum_{n=1}^{\infty} q^{2^n - 1}
+    = q + q^3 + q^7 + q^{15} + \cdots\,,
+\end{equation}
+where $q = 1 - p$.
+To extract the leading-order behavior, note that
+$\lfloor \log_2 x \rfloor \leq \log_2 x$ for all $x \geq 1$, so
+\begin{equation}
+    \Expect{\RV{L}} \leq \Expect{\log_2 \RV{Q}}
+    \leq \log_2 \Expect{\RV{Q}} = -\log_2 p\,,
+\end{equation}
+where the second inequality is Jensen's (since $\log_2$ is concave).
+For the lower bound, $\lfloor \log_2 x \rfloor \geq \log_2 x - 1$, so
+\begin{equation}
+    \Expect{\RV{L}} \geq \Expect{\log_2 \RV{Q}} - 1\,.
+\end{equation}
+Since $\RV{Q} \sim \geodist(p)$,
+$\Expect{\log_2 \RV{Q}} = -\log_2 p - (\log_2 e)(1 - p)\log(1 - p)/p
+\to -\log_2 p$ as $p \to 0$,
+so $\Expect{\RV{L}} = -\log_2 p + \mathcal{O}(1)$.
+
+\paragraph{Equality predicate.}
+With $p = \fprate^{m-1}/2^{m\mu}$:
+\begin{equation}
+    \Expect{\RV{L}}
+        = -(m-1)\log_2 \fprate + m\mu + \mathcal{O}(1)\,.
+\end{equation}
+Dividing by $m$ and taking $m \to \infty$:
+\begin{equation}
+    \frac{\Expect{\RV{L}}}{m} \to -\log_2 \fprate + \mu\,.
+\end{equation}
+
+\paragraph{Threshold predicate.}
+With $p = \fprate^{m}/2^{m\mu}$:
+\begin{equation}
+    \Expect{\RV{L}}
+        = -m\log_2 \fprate + m\mu + \mathcal{O}(1)\,.
+\end{equation}
+Dividing by $m$ and taking $m \to \infty$:
+\begin{equation}
+    \frac{\Expect{\RV{L}}}{m} \to -\log_2 \fprate + \mu\,.
+\end{equation}
+In both cases, the expected bits per element converges to the information-theoretic lower bound $-\log_2 \fprate + \mu$.
+\end{proof}
+
+\subsection{Set as corollary}
+
+\begin{corollary}[Space complexity for sets]
+\label{cor:set_space}
+For a Bernoulli set ($\mu = 0$), the BHF achieves $-\log_2 \fprate$ bits per
+element asymptotically.
+\end{corollary}
+\begin{proof}
+Set $\mu = 0$ in \cref{thm:space}.
+\end{proof}
+
+\subsection{Finite-sample correction}
+
+For finite $m$, the exact bits per element are:
+\begin{equation}
+    \frac{\Expect{\RV{L}}}{m} =
+    \begin{cases}
+        -\dfrac{m-1}{m}\log_2 \fprate + \mu + \mathcal{O}(1/m)
+            & \text{(equality)}\,,\\[8pt]
+        -\log_2 \fprate + \mu + \mathcal{O}(1/m)
+            & \text{(threshold)}\,.
+    \end{cases}
+\end{equation}
+The equality predicate is slightly more space-efficient for small $m$
+(by $\log_2 \fprate / m$ bits per element) due to the adaptive $h_0$.
+
+\subsection{Effect of false negatives}
+
+When $\fnrate > 0$, only $p = (1-\fnrate)m$ elements need to be accepted.
+The success probability becomes (for the equality predicate):
+\begin{equation}
+    p = \frac{\fprate^{p-1}}{2^{p\mu}}\,,
+\end{equation}
+and the space complexity per element of the \emph{original} set becomes:
+\begin{equation}
+    \frac{p}{m}\left(-\log_2 \fprate + \mu\right)
+    = (1 - \fnrate)\left(-\log_2 \fprate + \mu\right)\,,
+\end{equation}
+matching the lower bound in \cref{post:map_lb}.
+
+\subsection{Space complexity of the adaptive threshold}
+\label{sec:adaptive_space}
+
+The adaptive threshold stores the pair $(N, t)$ with no salt.
+This yields dramatically lower per-element cost, but the FPR is a random
+variable rather than a fixed parameter.
+
+\begin{theorem}[Space complexity---adaptive threshold]
+\label{thm:adaptive_space}
+For a Bernoulli set ($\mu = 0$) with $m$ keys and modulus $N$, the adaptive
+threshold BHF stores $(N, t)$ using
+\begin{equation}
+\label{eq:adaptive_bits}
+    \lceil \log_2 N \rceil + \lceil \log_2 N \rceil
+    \;=\; 2\lceil \log_2 N \rceil \;\;\si{bits}
+\end{equation}
+total (or $\lceil \log_2 N \rceil + \lceil \log_2(t+1) \rceil$ if $t$ is
+encoded in fewer bits).
+The per-element cost is
+\begin{equation}
+\label{eq:adaptive_per_element}
+    \frac{2\lceil \log_2 N \rceil}{m} \;=\; \mathcal{O}\!\left(\frac{\log N}{m}\right) \;\to\; 0
+    \quad\text{as } m \to \infty\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+The modulus $N$ requires $\lceil \log_2 N \rceil$ bits to encode, and the
+threshold $t \in \{0,\ldots,N-1\}$ requires at most $\lceil \log_2 N \rceil$
+bits.
+There is no salt to store (for sets, $b = \epsilon$).
+The per-element cost is the total divided by $m$, which vanishes as
+$m \to \infty$ for any fixed $N$.
+\end{proof}
+
+\begin{remark}[Why zero per-element cost does not violate the lower bound]
+\label{rem:lb_not_violated}
+The information-theoretic lower bound~\cite{carter1978} requires a
+\emph{worst-case guarantee}: for every non-member $x \notin \Set{S}$, the data
+structure must ensure $\Prob{x \in \ASet{S}} \leq \fprate$ for a
+\emph{predetermined} $\fprate$.
+The adaptive threshold does not satisfy this hypothesis: the FPR is a random
+variable $\fprate \sim \betadist(p, m - p + 1)$ that depends on the data and
+the hash function.
+No worst-case bound on $\fprate$ is guaranteed before construction.
+
+More precisely, the adaptive threshold provides a \emph{distributional}
+guarantee---$\Expect{\fprate} = p/(m+1)$---rather than a deterministic one.
+Since the hypothesis of the lower bound theorem is not satisfied, the theorem
+does not apply, and the $\mathcal{O}(\log N / m) \to 0$ per-element cost is
+not a contradiction.
+\Cref{thm:price_certainty} makes this precise: the ``missing'' bits equal
+exactly $m \log_2(1/\fprate)$, the cost of committing to a fixed FPR.
+\end{remark}
+
+\subsection{The price of FPR certainty}
+\label{sec:price_certainty}
+
+\Cref{rem:lb_not_violated} identifies FPR predictability as the source of
+the space gap between the fixed-threshold and adaptive-threshold BHF\@.
+We now make this precise.
+
+\begin{theorem}[Price of FPR certainty]
+\label{thm:price_certainty}
+Let $\Set{S}$ be a set of $m$ elements ($\mu = 0$), $\fprate^* > 0$ a target
+false positive rate, and $N$ a modulus with
+$\fprate^* = (t^*\!+1)/N$ for some integer $t^*$.
+\begin{enumerate}[(i)]
+    \item \textbf{Fixed-threshold BHF.}
+    The expected encoding length is
+    \begin{equation}
+    \label{eq:fixed_bits}
+        \Expect{\mathrm{BL}_{\mathrm{fixed}}}
+        = m \log_2(1/\fprate^*) + 2\lceil \log_2 N \rceil
+          + \mathcal{O}(1) \;\;\si{bits}\,,
+    \end{equation}
+    where the first term is the expected salt length
+    (\cref{thm:space}) and the second encodes $(N, t^*)$.
+
+    \item \textbf{Adaptive-threshold BHF.}
+    The encoding length is deterministic:
+    \begin{equation}
+    \label{eq:adaptive_bits_cert}
+        \mathrm{BL}_{\mathrm{adaptive}}
+        = 2\lceil \log_2 N \rceil \;\;\si{bits}\,.
+    \end{equation}
+
+    \item \textbf{The gap.}
+    \begin{equation}
+    \label{eq:gap}
+        \Delta(m, \fprate^*)
+        \;:=\; \Expect{\mathrm{BL}_{\mathrm{fixed}}}
+             - \mathrm{BL}_{\mathrm{adaptive}}
+        \;=\; m \log_2(1/\fprate^*) + \mathcal{O}(1)\,.
+    \end{equation}
+    Per element: $\Delta / m \;\to\; -\log_2 \fprate^*$ as $m \to \infty$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(i) follows from \cref{thm:space} with $\mu = 0$: the salt search is
+geometric with parameter $p_{\mathrm{th}} = (\fprate^*)^m$, giving expected
+salt length $\Expect{\RV{L}} = -\log_2 p_{\mathrm{th}} + \mathcal{O}(1)
+= m \log_2(1/\fprate^*) + \mathcal{O}(1)$.
+Adding $2\lceil \log_2 N \rceil$ bits for the parameters $(N, t^*)$ yields
+\cref{eq:fixed_bits}.
+
+Part~(ii) is \cref{thm:adaptive_space}: the adaptive BHF stores only
+$(N, t)$ with no salt, giving \cref{eq:adaptive_bits_cert}.
+
+Part~(iii): subtract \cref{eq:adaptive_bits_cert} from \cref{eq:fixed_bits}.
+The $2\lceil \log_2 N \rceil$ terms cancel, leaving
+$\Delta = m \log_2(1/\fprate^*) + \mathcal{O}(1)$.
+Dividing by $m$ gives $\Delta/m = \log_2(1/\fprate^*) + \mathcal{O}(1/m)
+\to -\log_2 \fprate^*$.
+\end{proof}
+
+\begin{remark}[Information-theoretic interpretation]
+\label{rem:info_interp}
+The salt is the index of the first success in a $\geodist(p)$ search over
+$\sim\!1/p$ candidate acceptance regions, each of density~$\fprate^*$.
+Its entropy is
+\begin{equation}
+    \Entropy(\RV{Q})
+    = \frac{-\log_2 p + (1-p)\log_2(1-p)/p}{\phantom{x}}
+    = -\log_2 p + \mathcal{O}(1)
+    = m \log_2(1/\fprate^*) + \mathcal{O}(1)\,,
+\end{equation}
+which matches the gap~$\Delta$.
+The salt answers the question: ``which of $\sim\!1/p$ possible
+$\fprate^*$-density regions contains all $m$ elements?''
+When the FPR is random (adaptive case), the data itself answers this
+question for free.
+Therefore $-\log_2 \fprate$ is the price of FPR \emph{certainty}, not of
+membership encoding.
+\end{remark}
+
+\Cref{fig:price_certainty} illustrates the gap $\Delta(m, \fprate^*)$
+growing linearly in $m$, with slope $\log_2(1/\fprate^*)$.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.85\textwidth,
+    height=0.5\textwidth,
+    xlabel={number of elements $m$},
+    ylabel={gap $\Delta$ (bits)},
+    xmin=0, xmax=200,
+    ymin=0, ymax=1400,
+    legend style={at={(0.03,0.97)}, anchor=north west, font=\small},
+    grid=major,
+    grid style={gray!30},
+    every axis plot/.append style={thick},
+    title={Price of FPR certainty:
+           $\Delta(m,\fprate^*) = m\log_2(1/\fprate^*)$}
+]
+
+% eps = 0.01: slope = log2(100) ≈ 6.644
+\addplot[blue, domain=0:200, samples=100] {x * 6.644};
+\addlegendentry{$\fprate^* = 0.01$ (slope $\approx 6.64$)}
+
+% eps = 0.1: slope = log2(10) ≈ 3.322
+\addplot[red, domain=0:200, samples=100] {x * 3.322};
+\addlegendentry{$\fprate^* = 0.1\phantom{0}$ (slope $\approx 3.32$)}
+
+\end{axis}
+\end{tikzpicture}
+\caption{The gap $\Delta(m, \fprate^*) =
+    \Expect{\mathrm{BL}_{\mathrm{fixed}}} - \mathrm{BL}_{\mathrm{adaptive}}$
+    grows linearly in~$m$ with slope $\log_2(1/\fprate^*)$.
+    This gap \emph{is} the classical $-\log_2\fprate$ lower bound: it
+    represents the cost of committing to a fixed FPR rather than allowing
+    it to be random.}
+\label{fig:price_certainty}
+\end{figure}
+
+\Cref{fig:space_comparison} compares the per-element space cost across the
+three predicates.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.85\textwidth,
+    height=0.5\textwidth,
+    xlabel={number of elements $m$},
+    ylabel={bits per element},
+    xmin=1, xmax=200,
+    ymin=0, ymax=12,
+    legend style={at={(0.97,0.97)}, anchor=north east, font=\small},
+    grid=major,
+    grid style={gray!30},
+    every axis plot/.append style={thick},
+    title={Per-element space cost ($\fprate = 0.01$, $\mu = 0$, $N = 100$)}
+]
+
+% Lower bound: -log2(0.01) = 6.644
+\addplot[black, dashed, domain=1:200, samples=100] {6.644};
+\addlegendentry{lower bound: $-\!\log_2 \fprate$}
+
+% Equality: -(m-1)/m * log2(eps) + O(1/m) ≈ (m-1)/m * 6.644 + log2(1/eps)/m
+% success prob = eps^(m-1), salt bits ≈ (m-1)*log2(1/eps), plus k = log2(1/eps)
+% total/m = (m-1)/m * 6.644 + 6.644/m = 6.644
+% But for small m, the k bits overhead matters: (k + salt)/m
+% k = ceil(log2(1/eps)) = 7 for eps=0.01
+% salt ≈ (m-1)*6.644 bits
+% total = 7 + (m-1)*6.644, per-element = 7/m + (m-1)/m*6.644
+\addplot[blue, domain=1:200, samples=100] {7/x + (x-1)/x * 6.644};
+\addlegendentry{equality}
+
+% Threshold: salt ≈ m*6.644, plus ceil(log2 N) + ceil(log2 N) overhead
+% total = 14 + m*6.644, per-element = 14/m + 6.644
+\addplot[red, domain=1:200, samples=100] {14/x + 6.644};
+\addlegendentry{threshold}
+
+% Adaptive: 2*ceil(log2 N) / m = 14/m
+\addplot[green!60!black, domain=1:200, samples=100] {14/x};
+\addlegendentry{adaptive}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Per-element space cost for the three BHF predicates with target
+    $\fprate = 0.01$ ($N = 100$).
+    The equality and threshold predicates converge to the
+    information-theoretic lower bound $-\log_2\fprate \approx 6.64$ bits per
+    element.
+    The adaptive threshold costs $\mathcal{O}(\log N / m) \to 0$ bits per
+    element because no salt is stored, but the FPR is a random variable
+    rather than a fixed parameter.}
+\label{fig:space_comparison}
+\end{figure}

@@ -1,0 +1,241 @@
+\section{Construction algorithms}
+\label{sec:construction}
+
+We present the unified construction that produces both Bernoulli sets ($\mu=0$)
+and Bernoulli maps ($\mu > 0$).
+We give versions for both the equality and threshold predicates, and the
+membership/lookup queries.
+
+\subsection{Map construction (general case)}
+
+\begin{algorithm}[ht]
+    \caption{Unified BHF construction (equality predicate)}
+    \label{alg:make_shf_eq}
+    \DontPrintSemicolon
+    \SetKwProg{func}{function}{}{}
+    \KwIn{
+        $\Set{M} = \{(x_1,v_1),\ldots,(x_m,v_m)\}$ is a finite map
+        (for a set, $v_i = \epsilon$ for all $i$),
+        $\fprate = 2^{-k}$ is the false positive rate,
+        $\fnrate$ is the maximum false negative rate.
+    }
+    \KwOut{
+        A Bernoulli map $\ASet{M}$ coded as a tuple $(h_k, b)$.
+    }
+    \func{\MakeBHF{$\Set{M}$, $\fprate$, $\fnrate$}}{
+        $p \gets \lceil (1 - \fnrate) \cdot m \rceil$
+        \tcp*{minimum true positives}
+        $k \gets -\log_2 \fprate$\;
+        \For{$n \gets 0$ \KwTo $\infty$}{
+            \For{$j \gets 1$ \KwTo $2^n$}{
+                $b \gets$ draw a bit string of length $n$ uniformly at random
+                    from $\cisbn{n}$ without replacement\;
+                \tcp{Test all $\binom{m}{p}$ subsets of size $p$}
+                \ForEach{subset $\Set{P} \subseteq \Set{M}$ with
+                    $\Card{\Set{P}} = p$}{
+                    Let $(x^{(1)},v^{(1)}),\ldots,(x^{(p)},v^{(p)})$
+                        be the elements of $\Set{P}$\;
+                    $h_k \gets \hash(x^{(1)} \cat b) \bmod 2^k$\;
+                    $\found \gets \True$\;
+                    \For{$i \gets 2$ \KwTo $p$}{
+                        \If{$\hash(x^{(i)} \cat b) \bmod 2^k \neq h_k$}{
+                            $\found \gets \False$\;
+                            \Break\;
+                        }
+                        \tcp{For maps: check value match}
+                        \If{$\mu > 0$ \textbf{and}
+                            $\hash(1 \cat x^{(i)} \cat b) \bmod 2^{\BL(v^{(i)})}
+                            \neq \Encode(v^{(i)})$}{
+                            $\found \gets \False$\;
+                            \Break\;
+                        }
+                    }
+                    \If{\found}{
+                        \Return $(h_k, b)$\;
+                    }
+                }
+            }
+        }
+    }
+\end{algorithm}
+
+\begin{algorithm}[ht]
+    \caption{Unified BHF construction (threshold predicate)}
+    \label{alg:make_shf_th}
+    \DontPrintSemicolon
+    \SetKwProg{func}{function}{}{}
+    \KwIn{
+        $\Set{M} = \{(x_1,v_1),\ldots,(x_m,v_m)\}$ is a finite map,
+        $N$ is the modulus,
+        $t$ is the threshold ($\fprate = (t+1)/N$),
+        $\fnrate$ is the maximum false negative rate.
+    }
+    \KwOut{
+        A Bernoulli map $\ASet{M}$ coded as a tuple $(N, t, b)$.
+    }
+    \func{\MakeBHF{$\Set{M}$, $N$, $t$, $\fnrate$}}{
+        $p \gets \lceil (1 - \fnrate) \cdot m \rceil$
+        \tcp*{minimum true positives}
+        \For{$n \gets 0$ \KwTo $\infty$}{
+            \For{$j \gets 1$ \KwTo $2^n$}{
+                $b \gets$ draw a bit string of length $n$ uniformly at random
+                    from $\cisbn{n}$ without replacement\;
+                $c \gets 0$
+                \tcp*{count of accepted elements}
+                \For{$i \gets 1$ \KwTo $m$}{
+                    \If{$\hash(x_i \cat b) \bmod N \leq t$}{
+                        \tcp{For maps: also check value match}
+                        \If{$\mu = 0$ \textbf{or}
+                            $\hash(1 \cat x_i \cat b) \bmod 2^{\BL(v_i)}
+                            = \Encode(v_i)$}{
+                            $c \gets c + 1$\;
+                        }
+                    }
+                }
+                \If{$c \geq p$}{
+                    \Return $(N, t, b)$\;
+                }
+            }
+        }
+    }
+\end{algorithm}
+
+\begin{remark}
+The threshold construction (\cref{alg:make_shf_th}) performs $\mathcal{O}(m)$
+work per candidate salt, regardless of $\fnrate$.
+The equality construction (\cref{alg:make_shf_eq}) requires
+$\mathcal{O}\!\left(\binom{m}{p} \cdot p\right)$ work per candidate salt when
+$\fnrate > 0$.
+When $\fnrate = 0$, both reduce to $\mathcal{O}(m)$ per candidate.
+\end{remark}
+
+\begin{algorithm}[ht]
+    \caption{Unified BHF construction (adaptive threshold predicate)}
+    \label{alg:make_shf_adaptive}
+    \DontPrintSemicolon
+    \SetKwProg{func}{function}{}{}
+    \KwIn{
+        $\Set{M} = \{(x_1,v_1),\ldots,(x_m,v_m)\}$ is a finite map
+        (for a set, $v_i = \epsilon$ for all $i$),
+        $N$ is the modulus,
+        $p$ is the number of elements to accept
+        ($\fnrate = 1 - p/m$).
+    }
+    \KwOut{
+        A Bernoulli map $\ASet{M}$ coded as a tuple $(N, t)$.
+    }
+    \func{\MakeBHFAdaptive{$\Set{M}$, $N$, $p$}}{
+        \tcp{For sets ($\mu = 0$): any salt works; pick $b = \epsilon$}
+        \uIf{$\mu = 0$}{
+            $b \gets \epsilon$
+            \tcp*{empty string---no search needed}
+            Compute $r_i \gets \hash(x_i \cat b) \bmod N$ for $i = 1,\ldots,m$\;
+            Sort $r_{(1)} \leq r_{(2)} \leq \cdots \leq r_{(m)}$\;
+            $t \gets r_{(p)}$\;
+            \Return $(N, t)$\;
+        }
+        \tcp{For maps ($\mu > 0$): search for a salt with $\geq p$
+            value-matching keys}
+        \For{$n \gets 0$ \KwTo $\infty$}{
+            \For{$j \gets 1$ \KwTo $2^n$}{
+                $b \gets$ draw a bit string of length $n$ uniformly at random
+                    from $\cisbn{n}$ without replacement\;
+                $\Set{V} \gets \emptyset$
+                \tcp*{value-matching keys}
+                \For{$i \gets 1$ \KwTo $m$}{
+                    \If{$\hash(1 \cat x_i \cat b) \bmod 2^{\BL(v_i)}
+                        = \Encode(v_i)$}{
+                        $\Set{V} \gets \Set{V} \cup \{i\}$\;
+                    }
+                }
+                \If{$\Card{\Set{V}} \geq p$}{
+                    Compute $r_i \gets \hash(x_i \cat b) \bmod N$ for
+                        $i \in \Set{V}$\;
+                    Sort the residues $\{r_i : i \in \Set{V}\}$\;
+                    $t \gets$ the $p$-th smallest residue\;
+                    \Return $(N, t)$\;
+                }
+            }
+        }
+    }
+\end{algorithm}
+
+\begin{remark}
+The adaptive construction (\cref{alg:make_shf_adaptive}) differs fundamentally
+from the equality and threshold constructions: for sets ($\mu = 0$), no salt
+search is required.
+The salt can be fixed to the empty string $\epsilon$, and the entire
+construction reduces to hashing, sorting, and reading off the $p$-th order
+statistic.
+The output $(N, t)$ does not include a salt, since it is not needed.
+For maps, the search loop finds a salt with enough value-matching keys, then
+the adaptive threshold is set on the matching subset.
+\end{remark}
+
+\subsection{Set construction as a special case}
+
+For a Bernoulli set, each value $v_i$ is the empty string ($\mu = 0$).
+The value-matching conditions in both algorithms are trivially satisfied,
+and the construction reduces to finding a salt $b$ such that at least $p$
+elements pass the acceptance predicate.
+
+\subsection{Membership test and value lookup}
+
+\begin{algorithm}[ht]
+    \caption{Membership test (\protect\Contains)}
+    \label{alg:contains}
+    \DontPrintSemicolon
+    \SetKwProg{func}{function}{}{}
+    \KwIn{
+        $\ASet{S}$ is a BHF-coded Bernoulli set with parameters
+        $(h_k, b)$ or $(N, t, b)$, and $x$ is the query element.
+    }
+    \KwOut{
+        \True if $x$ is accepted, \False otherwise.
+    }
+    \func{\Contains{$\ASet{S}$, $x$}}{
+        \tcp{Equality predicate version:}
+        \uIf{equality predicate}{
+            \Return $\hash(x \cat b) \bmod 2^k = h_k$\;
+        }
+        \tcp{Threshold predicate version:}
+        \uElse{
+            \Return $\hash(x \cat b) \bmod N \leq t$\;
+        }
+    }
+\end{algorithm}
+
+\begin{algorithm}[ht]
+    \caption{Value lookup (\protect\Find) for Bernoulli maps}
+    \label{alg:find}
+    \DontPrintSemicolon
+    \SetKwProg{func}{function}{}{}
+    \KwIn{
+        $\ASet{M}$ is a BHF-coded Bernoulli map and $x$ is the query key.
+    }
+    \KwOut{
+        If $x$ is a positive key, returns $\Set{M}[x]$.
+        If $x$ is a false positive, returns a random value.
+        Otherwise returns $\nullvalue$.
+    }
+    \func{\Find{$\ASet{M}$, $x$}}{
+        \If{$\lnot\;\Contains(\ASet{M}, x)$}{
+            \Return $\nullvalue$\;
+        }
+        $c \gets \hash(1 \cat x \cat b)$
+        \tcp*{extract value bits}
+        $({\rm success}, y) \gets \Decode(c)$\;
+        \If{${\rm success}$}{
+            \Return $y$\;
+        }
+        \Return $\nullvalue$\;
+    }
+\end{algorithm}
+
+The encoding function $\Encode \colon \Set{Y} \to \cisb$ must be
+\emph{self-delimiting} (prefix-free): the decoder can determine where the
+encoding ends without external length information.
+For a positive key, the hash of $1 \cat x \cat b$ was constrained during
+construction to begin with $\Encode(v)$, so decoding succeeds.
+For a false-positive key, the hash bits are effectively random, so decoding
+may or may not succeed; if it does, the returned value is random.

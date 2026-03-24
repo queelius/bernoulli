@@ -1,0 +1,165 @@
+\section{Entropy and information}
+\label{sec:entropy}
+
+The BHF is not only space-optimal but also achieves \emph{maximum entropy} in
+its binary representation.
+This is a desirable property for applications requiring confidentiality
+(e.g., encrypted search), as it minimizes the information leaked by the encoding.
+
+\subsection{Maximum entropy coding}
+
+\begin{theorem}[Maximum entropy]
+\label{thm:max_entropy}
+The BHF encoding is a maximum entropy coder for the Bernoulli set (and map)
+abstract data type.
+\end{theorem}
+\begin{proof}
+The BHF encoding consists of:
+\begin{enumerate}
+    \item The hash value $h_k$ (or the threshold $t$): uniformly distributed
+    over its domain by the random oracle assumption.
+    \item The salt $b$: conditioned on having length $n$, the particular
+    $b \in \cisbn{n}$ that is found is uniformly distributed (the search
+    order is randomized within each length level).
+\end{enumerate}
+Both components are \emph{incompressible}---their entropy equals their bit
+length.
+The only information in the representation is the \emph{length} of $b$,
+which depends on the cardinality $m$ and the rates $\fprate$, $\mu$.
+\end{proof}
+
+\subsection{The random bit length distribution}
+
+The bit length of the salt is a random variable whose distribution governs the
+information content of the BHF.
+
+\begin{theorem}[PMF of the salt bit length]
+\label{thm:L_pmf}
+The random bit length $\RV{L}$ of the salt $b$ has the probability mass
+function
+\begin{equation}
+\label{eq:L_pmf}
+    \PDF{n \Given m, \fprate, \mu}[\RV{L}]
+        = q^{2^n - 1}\!\left(1 - q^{2^n}\right)\,,
+\end{equation}
+where $q = 1 - p$ and $p$ is the per-trial success probability
+(\cref{thm:success_prob}).
+\end{theorem}
+\begin{proof}
+For $\RV{L} = n$, every bit string of length less than $n$ must fail
+(there are $2^n - 1$ such strings, each failing independently with
+probability $q$), and at least one bit string of length $n$ must succeed
+(the complementary probability of all $2^n$ failing):
+\begin{equation}
+    \Prob{\RV{L} = n} = q^{2^n - 1} \cdot (1 - q^{2^n})\,.
+\end{equation}
+That this is a valid PMF follows from the telescoping sum:
+\begin{equation}
+    \sum_{n=0}^{\infty} \left(q^{2^n - 1} - q^{2^{n+1} - 1}\right)
+    = 1 - \lim_{n \to \infty} q^{2^n - 1} = 1\,.
+\end{equation}
+Alternatively, $\RV{L} = \lfloor \log_2 \RV{Q} \rfloor$ where
+$\RV{Q} \sim \geodist(p)$.
+\end{proof}
+
+\subsection{Cardinality estimation}
+
+The bit length of the BHF is concentrated around its expectation, which
+depends on $m$.
+This enables cardinality estimation.
+
+Given a BHF with bit length $\BL(\ASet{S})$ and known $\fprate$, the
+method-of-moments estimator of the cardinality is
+\begin{equation}
+    \hat{m} = -\frac{\BL(\ASet{S})}{\log_2 \fprate}\,.
+\end{equation}
+For maps, replace $\log_2 \fprate$ with $\log_2 \fprate - \mu$ in the
+denominator (both terms are negative, so $\hat{m}$ remains positive).
+
+\subsection{Entropy--space tradeoff}
+
+To increase the entropy of the cardinality (making $m$ harder to estimate),
+one can search for a salt $b$ whose length exceeds the expected value.
+This is achieved by skipping all salts shorter than $\ell$ bits and searching
+only among salts of length exactly $\ell$.
+Setting a target bit length $\ell \gg -m\log_2 \fprate$, the cardinality is
+consistent with any $m' \leq -\ell / \log_2 \fprate$, uniformly distributed.
+The entropy of the cardinality estimate becomes
+\begin{equation}
+    \log_2\!\left(1 + \hat{m}_{\max}\right)\,,
+    \quad\text{where}\quad
+    \hat{m}_{\max} = -\frac{\ell}{\log_2 \fprate}\,,
+\end{equation}
+at the cost of a space efficiency ratio $m / \hat{m}_{\max}$.
+
+\subsection{Entropy of false positives and false negatives}
+
+The joint entropy of the number of false positives and false negatives
+(given a finite universe of $u$ elements and $m$ positives) is:
+\begin{equation}
+    \Entropy{\FP_m, \FN_m}
+    = \log_2(2\pi e)
+    + \frac{1}{2}\log_2\!\big((u-m)\,m\,\fprate(1-\fprate)\,\fnrate(1-\fnrate)\big)
+    + \mathcal{O}\!\left(\frac{u}{m(u-m)}\right)\,,
+\end{equation}
+using the binomial entropy approximation (see~\cite{bernoulli_sets} for the
+full derivation).
+
+\subsection{Entropy of the adaptive threshold}
+\label{sec:adaptive_entropy}
+
+The adaptive threshold BHF stores only $(N, t)$.
+The modulus $N$ is a public parameter, so the information content resides
+entirely in the threshold $t$.
+
+\begin{theorem}[Entropy of the adaptive threshold]
+\label{thm:adaptive_entropy}
+For a Bernoulli set ($\mu = 0$) with $m$ keys and modulus $N$, the entropy
+of the threshold $T = \OS{p}{m}$ is
+\begin{equation}
+\label{eq:adaptive_entropy}
+    \Entropy{T}
+    \;=\; -\sum_{j=p-1}^{N-1-(m-p)} \Prob{T = j}\,\log_2 \Prob{T = j}\,,
+\end{equation}
+where $\Prob{T = j}$ is given by \cref{eq:os_pmf}.
+In the continuous limit ($N \to \infty$), the entropy of
+$\fprate \sim \betadist(p, m - p + 1)$ is
+\begin{equation}
+\label{eq:adaptive_entropy_beta}
+    \Entropy{\fprate}
+    \;=\; \ln B(p, m\!-\!p\!+\!1)
+    - (p\!-\!1)\,\psi(p)
+    - (m\!-\!p)\,\psi(m\!-\!p\!+\!1)
+    + (m\!-\!1)\,\psi(m\!+\!1)\,,
+\end{equation}
+where $B(\cdot,\cdot)$ is the Beta function and $\psi$ is the digamma
+function, measured in nats ($\div \ln 2$ for bits).
+\end{theorem}
+\begin{proof}
+\Cref{eq:adaptive_entropy} is the definition of discrete entropy applied to
+the PMF in \cref{thm:fpr_distribution}.
+The continuous limit is the differential entropy of the
+$\betadist(p, m - p + 1)$ distribution, which is a standard
+result~\cite{order_statistics}.
+\end{proof}
+
+\begin{remark}[The adaptive threshold is not maximum entropy]
+\label{rem:adaptive_not_max_entropy}
+The adaptive threshold does \emph{not} produce a maximum entropy encoding.
+In the equality and threshold predicates, the salt $b$ is drawn from the
+maximum entropy distribution over salts consistent with the space constraint
+(\cref{thm:max_entropy}): conditioned on having length $n$, the successful
+salt is uniformly distributed.
+In the adaptive threshold, the threshold $t$ is \emph{data-dependent}---it is
+a deterministic function of the keys and the (fixed) salt.
+Given the same keys and $N$, the threshold is fully determined, so the
+encoding carries less entropy than an exhaustive-search encoding of the same
+size.
+
+However, conditioned on a particular threshold value $t$, the resulting
+fixed-threshold BHF \emph{is} maximum entropy in the sense of
+\cref{thm:max_entropy}: the adversary learns $(N, t)$ but nothing about
+which elements produced the threshold.
+The entropy loss relative to the fixed-threshold BHF is precisely
+$\Entropy{T}$---the information revealed by the data-dependent choice of $t$.
+\end{remark}
