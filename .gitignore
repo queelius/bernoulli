@@ -1,0 +1,37 @@
+# Build directories
+build/
+cmake-build-*/
+
+# Generated documentation
+docs/generated/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# LaTeX artifacts
+*.aux
+*.bbl
+*.blg
+*.fls
+*.idx
+*.ilg
+*.ind
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.synctex.gz

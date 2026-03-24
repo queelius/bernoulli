@@ -1,0 +1,23 @@
+# Doxyfile.in — configured by CMake
+
+PROJECT_NAME           = "Bernoulli Data Type"
+PROJECT_NUMBER         = @PROJECT_VERSION@
+PROJECT_BRIEF          = "A Probabilistic Framework for Approximate Data Types"
+
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/docs
+
+INPUT                  = @PROJECT_SOURCE_DIR@/include \
+                         @PROJECT_SOURCE_DIR@/docs/mainpage.md \
+                         @PROJECT_SOURCE_DIR@/docs/pages
+FILE_PATTERNS          = *.hpp *.md
+RECURSIVE              = YES
+
+USE_MDFILE_AS_MAINPAGE = @PROJECT_SOURCE_DIR@/docs/mainpage.md
+
+EXTRACT_ALL            = YES
+GENERATE_LATEX         = NO
+HAVE_DOT               = NO
+
+# Markdown support
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
