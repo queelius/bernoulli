@@ -1,0 +1,126 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+Collection of related research papers by Alexander Towell on **random approximate sets** (Bernoulli sets) — a probabilistic framework for modeling sets with quantifiable false positive/negative error rates. Applications include Bloom filters, perfect hash filters, encrypted search, and approximate relational algebra.
+
+## Papers
+
+| Directory | Title | Status | Notation | Build |
+|---|---|---|---|---|
+| `bernoulli_sets/` | Bernoulli sets: a model for random approximate sets | **Primary, actively maintained** | `alex.sty` (unified) | `pdflatex` manual |
+| `bernoulli_composition/` | Composition of Bernoulli sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
+| `bernoulli_classification_measures/` | Binary classification measures for random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
+| `bernoulli_entropy/` | Entropy and space complexity of random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
+| `bernoulli-hash-function/` | The Bernoulli Hash Function: Optimal Bernoulli Sets and Maps | Standalone (~95% complete) | `alex.sty` (unified) | `make` |
+| `bernoulli-phf/` | The Perfect Hash Filter | Standalone (early, ~25%) | Modular `sty/` packages | `pdflatex` manual (shell-escape) |
+| `bernoulli_maps/` | The algebra of the random approximate map model | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
+| `bernoulli_relations/` | The abstract data type of the approximate relation | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
+| `bernoulli_data_type/` | Random approximate values over algebraic types | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
+
+**Note:** `bernoulli_data_type/` contains two sub-papers with separate `main.tex` files: `bernoulli_model/` (foundational framework) and `algebraic_types/` (type-theoretic extension).
+
+### Consolidation History
+
+- `random_approximate_set_model/` was merged into `random_approximate_sets/` (content in `sections/unused/`)
+- `bernoulli_sets_higher_order/` was merged into `bernoulli_sets/` (archive.zip preserves originals)
+- `bernoulli_sets/` was split into 4 papers (2026): set-theoretic composition extracted to `bernoulli_composition/`, classification measures extracted to `bernoulli_classification_measures/`, entropy/space complexity extracted to `bernoulli_entropy/`. Original `entropy.tex`, `set_theory.tex`, `relational.tex`, `uncertain_rates.tex` remain in `bernoulli_sets/sections/` but are no longer `\input`'d.
+- `random_approximate_sets/` was fully superseded by the 4-paper family and deleted (2026-03). Its modular `sty/` packages were copied into each paper that needed them (`bernoulli_maps/sty/`, `bernoulli_relations/sty/`, `bernoulli-phf/paper/sty/`, `bernoulli_data_type/algebraic_types/sty/`). Two minor unique items were the epistemological discussion (~50 lines in `aset_adt.tex`) and a Boolean search application (archived in `bernoulli_sets/sections/unused/bool_search.tex`).
+
+### Deleted Directories
+
+| Directory | When | Reason |
+|---|---|---|
+| `random_approximate_set_model/` | 2025 | Merged into `random_approximate_sets/` |
+| `bernoulli_sets_higher_order/` | 2025 | Merged into `bernoulli_sets/` |
+| `random_approximate_sets/` | 2026-03 | Superseded by 4-paper family |
+
+## Build Commands
+
+```bash
+# bernoulli_sets (no Makefile)
+cd bernoulli_sets && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+
+# bernoulli_composition (companion to bernoulli_sets)
+cd bernoulli_composition && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+
+# bernoulli_classification_measures (companion to bernoulli_sets)
+cd bernoulli_classification_measures && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+
+# bernoulli_entropy (companion to bernoulli_sets)
+cd bernoulli_entropy && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+
+# bernoulli-hash-function (has Makefile)
+cd bernoulli-hash-function && make
+
+# bernoulli-phf (requires shell-escape, glossaries)
+cd bernoulli-phf/paper && pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && pdflatex -shell-escape main.tex && pdflatex -shell-escape main.tex
+
+# All others: same pattern as bernoulli_sets
+cd <paper_dir> && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+```
+
+## Notation Systems
+
+Two notation approaches coexist:
+
+1. **`alex.sty`** (used by `bernoulli_sets/`, `bernoulli_composition/`, `bernoulli_classification_measures/`, `bernoulli_entropy/`, `bernoulli-hash-function/`): Single unified package loaded as `\usepackage[fancy,section]{alex}`. Provides all macros: `\ASet`, `\Set`, `\Card`, `\APFun`, `\fprate`, `\fnrate`, `\tprate`, `\tnrate`, theorem environments, paired delimiters.
+
+2. **Modular `sty/` packages** (used by `bernoulli_maps/`, `bernoulli_relations/`, `bernoulli-phf/`, `bernoulli_data_type/`): Separate files per domain — `setnotation.sty`, `approxsetnotation.sty`, `functionnotation.sty`, `relationnotation.sty`, `envnotation.sty`, etc. Each paper has its own copy in a local `sty/` subdirectory.
+
+Core notation is consistent across both: `\Set{A}` for sets, `\ASet{A}` for approximate sets, `\fprate`/`\fnrate` for error rates, `\RV{X}` for random variables.
+
+## Architecture Pattern
+
+Each paper follows the same structure:
+- `main.tex` — Document root with preamble, package loading, section includes
+- `sections/` — One `.tex` file per section (included via `\input{}` or `\subfile{}`)
+- `references.bib` — Bibliography
+- `img/` — Compiled figures (PDF/PDF_TEX from TikZ or SVG)
+- `data/` — CSV datasets for plots
+- `research/` — Computational artifacts (Mathematica `.nb`, Maxima `.mac`, R `.Rmd`)
+- `code/` — Monte Carlo simulations (C++)
+
+## Conceptual Layering
+
+Papers build on a shared foundation:
+1. **Set algebra** → Boolean algebra of classical sets (`bernoulli_sets`)
+2. **Bernoulli model** → Random approximate sets with FPR/FNR parameterization, higher-order composition (`bernoulli_sets`)
+3. **Error count distributions** → Binomial FP/FN counts, CLT, confidence intervals (`bernoulli_sets`)
+4. **Set-theoretic composition** → Error propagation through union, intersection, complement, monoid structure (`bernoulli_composition`)
+5. **Relational predicates** → Subset, equality probabilities (`bernoulli_composition`)
+6. **Interval arithmetic** → Uncertain rate propagation through set operations (`bernoulli_composition`)
+7. **Classification measures** → PPV, NPV, accuracy, Youden's J as random variables (`bernoulli_classification_measures`)
+8. **Entropy & space** → Joint entropy of errors, information-theoretic lower bounds (`bernoulli_entropy`)
+9. **Optimal constructions** → Threshold predicate, space-optimal Bernoulli sets/maps (`bernoulli-hash-function`), perfect hash filter implementation (`bernoulli-phf`)
+10. **Extensions** → Relations (`bernoulli_relations`), maps (`bernoulli_maps`), ADTs (`bernoulli_data_type`)
+
+## Cross-Paper Topic Placement
+
+Each paper owns a specific domain. When deciding where new content belongs:
+
+| Topic | Paper | Why |
+|-------|-------|-----|
+| Set algebra, Bernoulli axioms, error count distributions, CLT, confidence intervals, higher-order composition, ADT | `bernoulli_sets/` | Core model: axioms, distributions, composition theorem |
+| Set-operation error rates (complement, union, intersection, difference), monoidal structure, relational predicates, interval arithmetic | `bernoulli_composition/` | Compositional closure of the model under set operations |
+| PPV, NPV, accuracy, Youden's J, prevalence sensitivity, delta method | `bernoulli_classification_measures/` | Binary classification measures induced by the model |
+| Joint entropy of error counts, space complexity lower bound, Bloom filter efficiency | `bernoulli_entropy/` | Information-theoretic properties of approximate sets |
+| Function spaces $X \to Y$, approximate maps, map composition | `bernoulli_maps/` | Functions as first-class objects with error |
+| Relational algebra (join, project, select), approximate relations | `bernoulli_relations/` | Multi-attribute relations and relational operators |
+| Algebraic types (Bool, sum, product, unit, absurd), computational basis | `bernoulli_data_type/` | Type-theoretic generalization of all the above |
+| Threshold predicate, generalized acceptance, space-optimal construction, unified set/map framework | `bernoulli-hash-function/` | Information-theoretically optimal Bernoulli set/map construction |
+| Perfect hash filter, k-perfect hashing, C++ implementation, ranked search application | `bernoulli-phf/` | Concrete implementation and deployment of one optimal construction |
+
+**The Boolean thread** connects all papers:
+- `bernoulli_sets/` introduces $U = \{\top, \bot\}$ as the minimal worked example and shows that membership queries return Bernoulli Booleans
+- `bernoulli_maps/` covers approximate Boolean functions ($\{\top,\bot\} \to \{\top,\bot\}$: id, not, const-true, const-false) and their compositions
+- `bernoulli_data_type/` gives the full type-theoretic treatment: Bool as a type, approximate AND/OR/NOT as logic gates, and generalization to sum/product types
+
+## Terminology
+
+- **Model order** = number of partition blocks (0 = exact, 1 = symmetric channel, 2 = FPR/FNR, $n$ = general)
+- **k-fold composition** = iterated application of approximate identity $\sigma^k$ (distinct from model order)
+- **Parametric parsimony** = An $n$-th order model on a single Boolean test has $n$ parameters (one per block). For $m$ joint tests, a general $n$-th order channel has $n(2^m - 1)$ parameters, but element-wise independence (Axiom 1) forces a Kronecker product factorization, reducing the count to at most $2m$. Example: the union of two second-order Bernoulli sets yields a fourth-order model with 4 parameters (not 12). This distinction between model order (partition granularity) and parameter count (constrained by independence) is important across all papers. Confusion matrices and model order are orthogonal concepts: order constrains which rows are identical, independence constrains the internal structure of each row.
+- These terms were corrected in `bernoulli_sets/` and are already consistent in `bernoulli_data_type/bernoulli_model/sections/order_and_channels.tex`
