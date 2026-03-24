@@ -1,0 +1,28 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+The Bernoulli set model~\cite{bernoulliSets} provides a probabilistic framework for \emph{random approximate sets}---sets that approximate an objective set with independent, element-wise errors parameterized by false positive and false negative rates.
+That companion paper establishes the axioms, derives the binomial distributions of error counts, and develops the asymptotic normal limits and confidence intervals for the error rates.
+
+This paper addresses the \emph{compositional} question: what happens when Bernoulli sets are combined through set-theoretic operations?
+Practical systems rarely use a single approximate set in isolation.
+Encrypted search indexes, database query planners, and distributed systems routinely compose approximate sets through union, intersection, complement, and difference.
+Without a compositional algebra, each new combination requires a bespoke error analysis.
+
+\paragraph{Contribution.}
+We show that Bernoulli sets are \emph{closed} under set-theoretic composition: every operation on Bernoulli sets yields a (possibly higher-order) Bernoulli set whose error rates are closed-form functions of the operand rates and set cardinalities.
+Specifically, we derive:
+\begin{enumerate}[nosep]
+    \item closed-form error rates for complement, union, intersection, and set difference, together with the monoidal structure they induce,
+    \item exact formulas for the relational predicates (subset and equality probabilities) on Bernoulli sets, and
+    \item an interval arithmetic extension that propagates uncertain rates through set operations, yielding guaranteed bounds on output error rates.
+\end{enumerate}
+
+\paragraph{Organization.}
+\Cref{sec:preliminaries} restates the definitions and results from~\cite{bernoulliSets} needed in this paper.
+\Cref{sec:set_theory} derives error rates for all four set-theoretic operations and establishes closure properties.
+\Cref{sec:relational} treats relational predicates (subset, equality) on Bernoulli sets.
+\Cref{sec:intervals} develops interval arithmetic for uncertain rate parameters.

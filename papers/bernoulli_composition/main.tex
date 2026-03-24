@@ -1,0 +1,90 @@
+\documentclass[11pt,final,hidelinks]{article}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,
+    spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{img/}}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{commath}
+\usepackage{appendix}
+\renewcommand\appendixtocname{Appendices}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[square,numbers]{natbib}
+\bibliographystyle{plain}
+\usepackage{siunitx}
+\numberwithin{equation}{section}
+\usepackage[hypertexnames=false]{hyperref}
+\usepackage{cleveref}
+
+\pgfplotsset{compat=newest}
+
+\usepackage[fancy,section]{alex}
+
+\hypersetup{
+    pdftitle={Composition of Bernoulli sets},
+    pdfauthor={Alexander Towell},
+    pdfsubject={computer science},
+    pdfkeywords={
+        probabilistic data structure,
+        approximate set,
+        bloom filter,
+        set operations,
+        interval arithmetic,
+        compositional algebra},
+    colorlinks=true,
+    linkcolor=magenta,
+    citecolor=green,
+    filecolor=blue,
+    urlcolor=green
+}
+
+\title
+{
+    Composition of Bernoulli sets
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Bernoulli sets---random approximate sets with independent, element-wise errors parameterized by false positive and false negative rates---are closed under set-theoretic composition.
+We derive closed-form error rates for complement, union, intersection, and set difference, showing that every such operation on Bernoulli sets yields a (possibly higher-order) Bernoulli set whose error rates are computable functions of the operand rates and set cardinalities.
+The resulting structure is monoidal under union and intersection, supports exact computation of relational predicates (subset and equality probabilities), and admits an interval arithmetic extension that propagates uncertain rate parameters through set operations with guaranteed bounds.
+These results build on the Bernoulli set model introduced in a companion paper~\cite{bernoulliSets}, which establishes the axioms, error-count distributions, and asymptotic limits assumed here.
+\end{abstract}
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+\microtypesetup{protrusion=true}
+
+\input{sections/intro}
+\input{sections/preliminaries}
+\input{sections/set_theory}
+\input{sections/relational}
+\input{sections/uncertain_rates}
+
+\input{sections/conclusion}
+
+\bibliography{references}
+
+\end{document}

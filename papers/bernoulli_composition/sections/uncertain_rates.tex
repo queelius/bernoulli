@@ -1,0 +1,85 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Interval -- uncertainty
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Interval arithmetic for uncertain rates}
+\label{sec:intervals}
+In practice, the expected false positive and true positive rates may not be known exactly.
+This section develops an \emph{interval arithmetic} approach: each uncertain rate is represented by an interval guaranteed to contain the true value, and the error-rate formulas of \cref{sec:set_theory} are evaluated over these intervals to produce guaranteed bounds on the output rates.
+
+\begin{definition}
+An interval is a convex set of real numbers.
+We denote by $\Interval{\underbar{x},\bar{x}}$ an interval with a lower-bound $\underbar{x}$ and an upper-bound $\bar{x}$.
+\end{definition}
+
+A confidence interval may be specified in interval notation.
+Here, however, we consider an algebra for interval arithmetic and put it to use quantifying our ignorance about the distribution of parameters after, for instance, a union operation.
+
+The error-rate formulas of \cref{sec:set_theory} depend upon the false positive and false negative rates being \emph{known}.
+Any parameters that are not known with certainty may be replaced by intervals that (are assumed to) contain the true value.
+As a consequence, the output error rate will also be an interval.
+
+\emph{Maximum} uncertainty is when the parameter value is in the interval $[0,1]$, e.g., $[\fprate] = [0,1]$, and \emph{minimum} uncertainty is when the parameter is some value in the degenerate interval $[x,x]$, e.g., $[\fprate] = [.2,.2]$. The more certain---the smaller the width of the intervals---the more certain the output rate.
+
+When using interval arithmetic, the \emph{dependency problem} can lead to overly pessimistic bounds.
+In our case, the formulae are simple enough to ensure dependencies are satisfied. The following example illustrates the approach for the union false positive rate.
+
+\begin{example}
+	Suppose two approximate sets have false positive rates known only to lie in $[\fprate_1]$ and $[\fprate_2]$ respectively.
+	The union FPR formula (\cref{thm:union_fprate}) is $\fprate = 1 - (1-\fprate_1)(1-\fprate_2)$, which is monotonically increasing in both $\fprate_1$ and $\fprate_2$.
+	Evaluating at the endpoints yields guaranteed bounds:
+	\begin{equation}
+		[\fprate] = \bigl[1 - (1 - \underline{\fprate}_1)(1 - \underline{\fprate}_2),\;
+		             1 - (1 - \overline{\fprate}_1)(1 - \overline{\fprate}_2)\bigr].
+	\end{equation}
+	For instance, if $[\fprate_1] = [0.01, 0.05]$ and $[\fprate_2] = [0.02, 0.08]$, then $[\fprate] = [0.0298, 0.126]$.
+\end{example}
+
+We may not be interested in the \emph{expected} value, but the smallest set of values such that with probability $1-\gamma$ the true rate
+realizes some value in the set, which is typically an \emph{interval}, i.e., a confidence interval.
+
+Intervals represent an uncertainty and they manifest themselves in two independent ways.
+The common notion of the \emph{confidence interval} is a product of the probabilistic model, i.e., the realized true positive rate $\tprateob$, which is normally centered around the expected true positive rate $\tprate$ as discussed in~\cite{bernoulliSets}.
+We may use \emph{interval arithmetic} and replace point values with interval values, point values being a degenerate case.
+Basic interval arithmetic is presented in~\cite{basicinterval}; the foundational treatment is due to Moore~\cite{mooreInterval}.
+
+A set sampled from $\tilde{A}[\fprate][\tprate]$ is an approximate set such that the $\gamma\cdot 100\%$ asymptotic confidence intervals for the realized false negative and false positive rates are respectively given by
+\begin{equation}
+\Interval{\fnrate} = \fnrate \pm \sqrt{\frac{\fnrate(1-\fnrate)}{p}}\, \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right)
+\end{equation}
+and
+\begin{equation}
+\Interval{\fprate} = \fprate \pm \sqrt{\frac{\fprate(1-\fprate)}{n}}\, \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right),
+\end{equation}
+where $p$ and $n$ are the number of positives and negatives respectively and $\Phi^{-1}$ is the inverse CDF of the standard normal (see \cref{eq:conf_fpr,eq:conf_tpr}).
+
+\subsection{Interval propagation through set operations}
+
+The simple error-rate formulas---union FPR, intersection FNR, and complement---are monotonically increasing in each input rate.
+The weighted formulas (union FNR, intersection FPR, and set difference rates) have \emph{mixed monotonicity}: they increase in same-type rates ($\fnrate$ in $\fnrate$, $\fprate$ in $\fprate$) and decrease in cross-type rates ($\fnrate$ in $\fprate$, $\fprate$ in $\fnrate$).
+Replacing point-valued rates with intervals and evaluating at the appropriate endpoints for each variable yields guaranteed bounds on the output rates.
+
+\begin{theorem}[Complement]
+\label{thm:uncertain_rates_comp_set}
+The \emph{complement} of an approximate set with a false negative rate $\Interval{\fnrate}$ and false positive rate $\Interval{\fprate}$ is an approximate set with a false negative rate $\Interval{\fprate}$ and false positive rate $\Interval{\fnrate}$.
+\end{theorem}
+\begin{proof}
+Follows immediately from \cref{thm:complement_rates}: complementation swaps positives and negatives, so it swaps the false positive and false negative rates. Since the interval endpoints swap accordingly, the result holds.
+\end{proof}
+
+\begin{theorem}[Union]
+\label{thm:uncertain_rates_union}
+Given two approximate sets with interval-valued rates $[\fprate_1]$, $[\fnrate_1]$ and $[\fprate_2]$, $[\fnrate_2]$, the union has interval-valued false positive rate
+\begin{equation}
+[\fprate] = \bigl[1 - (1 - \underline{\fprate}_1)(1 - \underline{\fprate}_2),\;
+             1 - (1 - \overline{\fprate}_1)(1 - \overline{\fprate}_2)\bigr],
+\end{equation}
+since the union FPR formula $\fprate = 1 - (1-\fprate_1)(1-\fprate_2)$ from \cref{thm:union_fprate} is monotonically increasing in both $\fprate_1$ and $\fprate_2$.
+Since the union FNR (\cref{eq:union_fnr}) increases in $\fnrate_1, \fnrate_2$ and decreases in $\fprate_1, \fprate_2$, the upper bound is attained at $(\overline{\fnrate}_1, \overline{\fnrate}_2, \underline{\fprate}_1, \underline{\fprate}_2)$ and the lower bound at $(\underline{\fnrate}_1, \underline{\fnrate}_2, \overline{\fprate}_1, \overline{\fprate}_2)$.
+\end{theorem}
+
+\begin{remark}
+Intersection and set difference follow analogously: the intersection FNR has the same form as the union FPR (by the De Morgan duality noted in \cref{sec:set_ops_summary}), and the set difference is handled by substituting complemented intervals per \cref{thm:uncertain_rates_comp_set}.
+\end{remark}
+
+

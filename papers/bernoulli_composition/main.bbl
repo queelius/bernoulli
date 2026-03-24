@@ -1,0 +1,33 @@
+\begin{thebibliography}{1}
+
+\bibitem{coverThomas}
+Thomas~M. Cover and Joy~A. Thomas.
+\newblock {\em Elements of Information Theory}.
+\newblock Wiley-Interscience, 2 edition, 2006.
+
+\bibitem{basicinterval}
+T.~Hickey, Q.~Ju, and M.~H.~Van Emden.
+\newblock Interval arithmetic: From principles to implementation.
+\newblock {\em Journal of the ACM}, 48(5):1038--1068, 2001.
+
+\bibitem{mooreInterval}
+Ramon~E. Moore.
+\newblock {\em Interval Analysis}.
+\newblock Prentice-Hall, 1966.
+
+\bibitem{bernoulliSets}
+Alexander Towell.
+\newblock Bernoulli sets: a model for random approximate sets.
+\newblock Companion paper, 2026.
+
+\bibitem{bernoulliMeasures}
+Alexander Towell.
+\newblock Binary classification measures for random approximate sets.
+\newblock Companion paper, 2026.
+
+\bibitem{bernoulliEntropy}
+Alexander Towell.
+\newblock Entropy and space complexity of random approximate sets.
+\newblock Companion paper, 2026.
+
+\end{thebibliography}

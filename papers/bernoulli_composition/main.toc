@@ -1,0 +1,22 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{2}{section.2}%
+\contentsline {paragraph}{Contribution.}{2}{section*.3}%
+\contentsline {paragraph}{Organization.}{2}{section*.7}%
+\contentsline {section}{\numberline {2}Preliminaries}{2}{section.8}%
+\contentsline {subsection}{\numberline {2.1}Bernoulli set model}{2}{subsection.9}%
+\contentsline {subsection}{\numberline {2.2}Distributions and asymptotic limits}{3}{subsection.14}%
+\contentsline {section}{\numberline {3}Set-theoretic operations}{3}{section.18}%
+\contentsline {subsection}{\numberline {3.1}Complement}{3}{subsection.20}%
+\contentsline {subsection}{\numberline {3.2}Union}{4}{subsection.22}%
+\contentsline {subsection}{\numberline {3.3}Intersection}{5}{subsection.42}%
+\contentsline {subsection}{\numberline {3.4}Set difference}{7}{subsection.62}%
+\contentsline {subsection}{\numberline {3.5}Summary of error rates}{7}{subsection.72}%
+\contentsline {subsection}{\numberline {3.6}Closure properties}{9}{subsection.79}%
+\contentsline {subsection}{\numberline {3.7}Asymptotic behavior of composed error rates}{10}{subsection.84}%
+\contentsline {section}{\numberline {4}Relational probabilities}{10}{section.86}%
+\contentsline {section}{\numberline {5}Interval arithmetic for uncertain rates}{12}{section.105}%
+\contentsline {subsection}{\numberline {5.1}Interval propagation through set operations}{13}{subsection.111}%
+\contentsline {section}{\numberline {6}Conclusion}{14}{section.115}%
+\contentsline {paragraph}{Practical implications.}{14}{section*.116}%
+\contentsline {paragraph}{Open problems.}{14}{section*.117}%
+\contentsline {paragraph}{Companion papers.}{14}{section*.118}%
