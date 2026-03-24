@@ -1,0 +1,24 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have shown that Bernoulli sets are closed under all four set-theoretic operations: complement, union, intersection, and set difference.
+Each operation yields a (possibly higher-order) Bernoulli set whose error rates are closed-form functions of the operand rates and set cardinalities.
+The resulting collection of Bernoulli sets forms commutative monoids under union and intersection, with the empty set and universal set serving as identity elements.
+Relational predicates---subset and equality---admit exact probability formulas that factorize element-wise.
+An interval arithmetic extension propagates uncertain rate parameters through set operations, yielding guaranteed bounds when parameters are only approximately known.
+
+\paragraph{Practical implications.}
+A practitioner building a system on Bloom filters need not re-derive the error analysis for each new combination of filters: the composition theorems of \cref{sec:set_theory} apply immediately, yielding closed-form error rates and confidence intervals for any set-theoretic expression.
+
+\paragraph{Open problems.}
+The partition weights $w_1, w_2, w_3$ in the set-operation formulas require knowledge of the objective set cardinalities, which are typically unknown (\cref{rem:unknown_partitions}).
+Developing principled estimators for these cardinalities from the approximate sets themselves, with quantified bias and variance, is a natural next step.
+
+\paragraph{Companion papers.}
+The Bernoulli set model, including the axioms, error-count distributions, asymptotic limits, confidence intervals, and higher-order composition theorem, is developed in~\cite{bernoulliSets}.
+The probability distributions of binary classification measures (positive predictive value, negative predictive value, accuracy, Youden's $J$) are derived in~\cite{bernoulliMeasures}.
+The joint entropy of error counts and the information-theoretic space complexity lower bound are developed in~\cite{bernoulliEntropy}.

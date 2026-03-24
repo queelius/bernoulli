@@ -1,0 +1,67 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Preliminaries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Preliminaries}
+\label{sec:preliminaries}
+
+We briefly restate the elements of the Bernoulli set model~\cite{bernoulliSets} needed in this paper.
+
+\subsection{Bernoulli set model}
+
+Let $U$ be a finite universal set with $u = |U|$, and let $A \subseteq U$ be an objective set.
+A \emph{Bernoulli set} $\tilde{A}$ is a random approximate set of $A$ governed by two axioms.
+
+\begin{axiom}[Element-wise independence {\cite[Axiom~1]{bernoulliSets}}]
+\label{asm:element_indep}
+For all distinct $x, y \in U$, the error events at $x$ and $y$ are mutually independent.
+Furthermore, within each partition block $B_i$ (\cref{def:model_order}), the error indicators $\{\mathbf{1}_{\tilde{A}}(x) : x \in B_i\}$ are identically distributed.
+\end{axiom}
+
+\begin{axiom}[Conditional independence of block error rates {\cite[Axiom~2]{bernoulliSets}}]
+\label{asm:fpr_fnr_r_indep}
+Given the objective set $R$, the random error rates $\alpha_1, \ldots, \alpha_n$ for the respective partition blocks $B_1, \ldots, B_n$ are mutually independent.
+\end{axiom}
+
+The Bernoulli set $\tilde{A}$ is parameterized by its expected false positive rate $\fprate$ and expected true positive rate $\tprate$, writing $\tilde{X}[\fprate][\tprate]$.
+The complementary rates are $\fnrate = 1 - \tprate$ (FNR) and $\tnrate = 1 - \fprate$ (TNR).
+
+\begin{proposition}[Element-level error probabilities {\cite[Prop.~1]{bernoulliSets}}]
+\label{prop:element_rates}
+By \cref{asm:element_indep}, for any single element $x \notin A$,
+$\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \fprate$, and for $x \in A$,
+$\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \tprate$.
+\end{proposition}
+
+\begin{definition}[Model order {\cite[Def.~3]{bernoulliSets}}]
+\label{def:model_order}
+The \emph{order} of a Bernoulli set model is the number of partition blocks $n$.
+A zeroth-order model ($n = 0$) is exact.
+A first-order model ($n = 1$) assigns a single error rate (symmetric channel).
+A second-order model ($n = 2$) distinguishes positives from negatives with rates $\tprate$ and $\fprate$.
+In general, an $n$-th order model partitions $U$ into $n$ blocks, each with its own error rate.
+\end{definition}
+
+\subsection{Distributions and asymptotic limits}
+
+The number of false positives given $n$ negatives is binomially distributed: $\FP_n \sim \bindist(n, \fprate)$.
+Similarly, the number of false negatives given $p$ positives satisfies $\FN_p \sim \bindist(p, \fnrate)$.
+
+The random false positive rate $\alpha_n = \FP_n / n$ converges in distribution to
+\begin{equation}
+\label{eq:fpr_clt}
+    \alpha_n \xrightarrow{d} \normdist(\fprate, \fprate(1-\fprate) / n),
+\end{equation}
+and the random true positive rate $\TPR_p$ converges to $\normdist(\tprate, \tprate(1-\tprate) / p)$.
+Asymptotic $\gamma \cdot 100\%$ confidence intervals for the false positive rate and true positive rate are respectively
+\begin{equation}
+\label{eq:conf_fpr}
+\fprate \pm \sqrt{\frac{\fprate(1-\fprate)}{n}} \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right)
+\end{equation}
+and
+\begin{equation}
+\label{eq:conf_tpr}
+\tprate \pm \sqrt{\frac{\tprate(1-\tprate)}{p}} \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right),
+\end{equation}
+where $\Phi^{-1}$ is the inverse CDF of the standard normal.
+See~\cite{bernoulliSets} for proofs.
