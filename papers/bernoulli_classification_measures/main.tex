@@ -1,0 +1,96 @@
+\documentclass[11pt,final,hidelinks]{article}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,
+    spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\graphicspath{{img/}}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{commath}
+\usepackage{appendix}
+\renewcommand\appendixtocname{Appendices}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage[square,numbers]{natbib}
+\bibliographystyle{plain}
+\usepackage{siunitx}
+\numberwithin{equation}{section}
+\usepackage[hypertexnames=false]{hyperref}
+\usepackage{cleveref}
+
+\pgfplotsset{compat=newest}
+
+\usepackage[fancy,section]{alex}
+
+\newcommand{\Fone}{\RV{F_1}}
+\newcommand{\fone}{\mathrm{f}_1}
+
+\hypersetup{
+    pdftitle={Binary classification measures for random approximate sets},
+    pdfauthor={Alexander Towell},
+    pdfsubject={computer science},
+    pdfkeywords={
+        probabilistic data structure,
+        approximate set,
+        binary classification,
+        precision,
+        recall,
+        positive predictive value,
+        F1-score,
+        accuracy},
+    colorlinks=true,
+    linkcolor=magenta,
+    citecolor=green,
+    filecolor=blue,
+    urlcolor=green
+}
+
+\title
+{
+    Binary classification measures\\
+    \large for random approximate sets
+}
+\author
+{
+    Alexander Towell\\
+    \texttt{atowell@siue.edu}
+}
+\date{2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We derive the probability distributions, expected values, and variances of standard binary classification measures---positive predictive value (precision), negative predictive value, accuracy, the $\fone$-score, and Youden's $J$ statistic---for the Bernoulli set model, a compositionally closed framework for random approximate sets with independent, element-wise errors.
+The expected PPV and $\fone$-score are obtained via second-order delta method expansions whose accuracy we validate by Monte Carlo simulation.
+All measures depend critically on the \emph{prevalence} (base rate): even a small false positive rate can drive precision to zero when the base rate is low.
+The results apply to any data structure satisfying the Bernoulli axioms, including Bloom filters and perfect hash filters.
+\end{abstract}
+
+\microtypesetup{protrusion=false}
+\tableofcontents
+\microtypesetup{protrusion=true}
+
+\input{sections/intro}
+\input{sections/preliminaries}
+\input{sections/measures}
+\input{sections/conclusion}
+
+\appendices
+\input{sections/appendix}
+
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,99 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Preliminaries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+We briefly restate the elements of the Bernoulli set model~\cite{bernoulliSets} needed in this paper.
+
+\begin{axiom}[Element-wise independence]
+\label{asm:element_indep}
+For all distinct $x, y \in U$, the error events at $x$ and $y$ are mutually independent:
+\begin{equation}
+P(\mathbf{1}_{\tilde{A}}(x) \neq \mathbf{1}_{A}(x) \mid \mathbf{1}_{\tilde{A}}(y) \neq \mathbf{1}_{A}(y)) =
+	P(\mathbf{1}_{\tilde{A}}(x) \neq \mathbf{1}_{A}(x)).
+\end{equation}
+More generally, the family $\{\mathbf{1}_{\tilde{A}}(x) : x \in U\}$ is mutually independent given the objective set $A$ and the error rates.
+Furthermore, within each partition block $B_i$, the error indicators $\{\mathbf{1}_{\tilde{A}}(x) : x \in B_i\}$ are identically distributed.
+\end{axiom}
+
+\begin{proposition}
+\label{prop:element_rates}
+By \cref{asm:element_indep}, for any single element $x \notin A$,
+$\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \fprate$, and for $x \in A$,
+$\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \tprate$.
+The expected sample rates satisfy $\Expect{\alpha} = \fprate$ and $\Expect{\beta} = \tprate$.
+\end{proposition}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}
+
+\begin{theorem}
+\label{thm:fpbinom}
+The random number of false positives $\FP$ given $\RV{N} = n$ in the second-order random approximate set $\tilde{\RV{R}}[\fprate]$ is given by
+\begin{equation}
+	\FP_n = n \alpha
+\end{equation}
+with a distribution given by
+\begin{equation}
+    \FP_n \sim \bindist(n, \fprate).
+\end{equation}
+\end{theorem}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}
+
+\begin{theorem}
+\label{thm:fpr}
+The random false positive rate $\alpha$ conditioned on $\RV{N} = n$ is denoted by $\alpha_n$ and has a distribution given by
+\begin{equation}
+    \alpha_n = \frac{\FP_n}{n},
+\end{equation}
+with an expectation $\fprate$, variance $\fprate(1-\fprate) / n$, and probability mass function
+\begin{equation}
+	p_{\alpha_n}(\fprateob | \fprate) = p_{\FP_n}(\fprateob n | \fprate)
+\end{equation}
+over the support $\SetBuilder{ \frac{j}{n} \in \RatSet}{j \in \{0,\ldots,n\}}$.
+\end{theorem}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:tnbinom}
+Given $n$ negatives, the number of \emph{true negatives} in a random approximate set with a false positive rate $\fprate$ is a random variable denoted by $\TN_n$ with a distribution given by
+\begin{equation}
+	\TN_n = n - \FP_n \sim \bindist\!\left(n, 1-\fprate\right).
+\end{equation}
+By definition, the \emph{true negative rate} $\mathrm{TNR}_n = \TN_n / n = 1 - \alpha_n$.
+\end{corollary}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}
+
+\begin{theorem}
+\label{thm:fnbinom}
+Given $p$ positives, the uncertain number of \emph{false negatives} in random approximate sets with a false negative rate $\fnrate$ is modeled as a binomial distributed random variable denoted by $\FN_p$,
+\begin{equation}
+	\FN_p \sim \bindist(p, \fnrate).
+\end{equation}
+\end{theorem}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:tpbinom}
+Given $p$ positives, the number of \emph{true positives} in an approximate set
+with a false negative rate $\fnrate$ is a random variable denoted by $\TP_p$
+with a distribution given by
+\begin{equation}
+    \TP_p \sim \bindist(p, \tprate).
+\end{equation}
+By definition, the \emph{true positive rate} is given by $\TPR_p = 1 -
+\beta_p$.
+\end{corollary}
+\begin{proof}
+See~\cite{bernoulliSets}.
+\end{proof}

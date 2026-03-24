@@ -1,0 +1,19 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Conclusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+\label{sec:conclusion_cm}
+
+We have derived the probability distributions, closed-form expected values, and variances of the principal binary classification measures---positive predictive value, negative predictive value, accuracy, the $\fone$-score, and Youden's $J$ statistic---for the Bernoulli set model.
+In each case the measure is a random variable whose distribution follows from the binomial error counts established by the element-wise independence axiom (\cref{asm:element_indep}).
+The expected PPV and $\fone$-score were obtained via second-order delta method expansions (\cref{thm:approx_expected_precision,thm:f1_approx}), and their accuracy was validated by Monte Carlo simulation (\cref{fig:ppv_theory_vs_sim,fig:f1_theory_vs_sim}).
+
+These results apply to any data structure satisfying the Bernoulli axioms, including Bloom filters~\cite{bf} and perfect hash filters~\cite{phf}.
+In particular, the sensitivity of PPV to prevalence (\cref{fig:ppv_vs_fprate}) has practical implications for system design: a data structure with a nominally small false positive rate may still produce unreliable positive predictions when the base rate of positives is low.
+Designers should therefore evaluate their systems not only by FPR and FNR but also by the predictive values that the intended query workload will induce.
+
+Several directions remain open.
+First, the distribution of the Matthews correlation coefficient (MCC) under the Bernoulli model has not been derived in closed form; it involves a more complex ratio of binomial random variables than PPV or $\fone$.
+Second, extension to correlated error models---where the element-wise independence axiom is relaxed---would broaden the applicability of the framework to data structures with dependent hash functions or adversarial inputs.
+Finally, the interplay between prevalence and the higher-order composition algebra of~\cite{bernoulliSets,bernoulliComposition} deserves further study: as approximate sets are composed through union and intersection, the effective prevalence at each stage changes, and so do the classification measures.

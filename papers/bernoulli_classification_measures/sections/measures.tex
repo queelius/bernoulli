@@ -1,0 +1,409 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Binary classification measures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Binary classification measures}
+\label{sec:measures}
+
+When a random approximate set $\ASet{A}$ replaces an objective set $\Set{A}$, any function of the membership query results becomes a random variable whose distribution is inherited from the binomial error counts of \cref{sec:prelim}.
+Binary classification measures---positive predictive value, negative predictive value, accuracy, the $\fone$-score, and Youden's $J$---are such functions.
+These measures are standard in binary classification and information retrieval; see Fawcett~\cite{fawcettROC} for an introduction to ROC analysis and Powers~\cite{powersEval} for a systematic comparison of evaluation measures.
+
+We derive expected values and variances for each measure.
+Since PPV, NPV, and the $\fone$-score are nonlinear ratios of binomial random variables, their expectations require the delta method (a Taylor expansion about the means); accuracy and Youden's $J$, being linear combinations, admit exact closed-form moments.
+The accuracy of \emph{predictions} about objective sets given a corresponding approximate set is usually the more relevant performance measure.
+The \emph{positive predictive value} is given by the following definition.
+\begin{definition}
+	The \emph{positive predictive value} is a performance measure defined as
+	\begin{equation}
+	\ppv = \frac{t_p}{t_p + f_p}
+	\end{equation}
+	where $t_p$ is the number of \emph{true positives} and $f_p$ is the number of \emph{false positives}.
+\end{definition}
+
+The positive predictive value of random approximate sets is a random variable given by the following theorem.
+\begin{theorem}
+	\label{thm:approx_expected_precision}
+	Given $\n$ negatives, $\p$ positives, and a random approximate set with false positive and true positive rates $\fprate$ and $\tprate$ respectively, the \emph{positive predictive value} is a random variable
+	\begin{equation}
+	\PPV = \frac{\TP_{\p}}{\TP_{\p} + \FP_{\n}}
+	\end{equation}
+	with an \emph{expectation} given \emph{approximately} by the second-order delta method~\cite{casellaBerger} (a Taylor expansion of $\Expect{\TP_\p / (\TP_\p + \FP_\n)}$ about the means, valid when $\p\tprate$ and $\n\fprate$ are both large; the error is $\mathcal{O}(1/\min(\p,\n)^2)$)
+	\begin{equation}
+	\label{eq:approx_expected_precision}
+	\ppv(\tprate, \fprate, \p, \n) \approx
+	\frac{\overline{t}_\p}{\overline{t}_\p + \overline{f}_\p} +
+	\frac{\overline{t}_\p \sigma_{\!f_\p}^2 - \overline{f}_\p
+		\sigma_{\!t_\p}^2}{\left(\overline{t}_\p + \overline{f}_\p\right)^3},
+	\end{equation}
+	where $\overline{t}_\p = \p \tprate$ is the expected \emph{true positive} frequency, $\overline{f}_\p =  \n \fprate$ is the expected \emph{false positive} frequency, $\sigma_{\!t_\p}^2 = (1-\tprate) \overline{t}_\p$ is the variance of the \emph{true positive} frequency, and $\sigma_{\!f_\p}^2 = (1-\fprate) \overline{f}_\p$ is the variance of \emph{false positive} frequency.
+	The first-order delta method variance is
+	\begin{equation}
+	\label{eq:var_ppv}
+	\Var{\PPV} \approx
+	\frac{\overline{f}_\p^{\,2}\,\sigma_{\!t_\p}^2 +
+		\overline{t}_\p^{\,2}\,\sigma_{\!f_\p}^2}
+	{\left(\overline{t}_\p + \overline{f}_\p\right)^4}.
+	\end{equation}
+\end{theorem}
+See \cref{sec:proof_approx_expected_precision} for a proof of
+\cref{thm:approx_expected_precision}.
+
+\begin{figure}
+	\def\svgwidth{\columnwidth/2}
+	%\def\svgscale{0.75}
+	\centering
+	\captionsetup{justification=centering}
+	\input{img/out.pdf_tex}
+	\caption{Relative frequency of positive predictive values for several different parameterizations of the false positive and true positive rates given $\n = 900$ negatives and $\p=100$ positives.}
+	\label{fig:prec_vs_fprate_and_fnrate}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+		width=0.7\textwidth,
+		height=0.45\textwidth,
+		xlabel={False positive rate $\fprate$},
+		ylabel={Expected precision (PPV)},
+		xmin=0, xmax=0.05,
+		ymin=0, ymax=1,
+		legend pos=north east,
+		ymajorgrids, xmajorgrids,
+		major grid style={gray!30},
+		thick,
+	]
+	\addplot[blue, solid] table[col sep=comma, x index=0, y index=1]
+		{data/prec_vs_fprate3.csv};
+	\addlegendentry{$\lambda = 10\%$}
+	\addplot[red, dashed] table[col sep=comma, x index=0, y index=1]
+		{data/prec_vs_fprate2.csv};
+	\addlegendentry{$\lambda = 1\%$}
+	\addplot[black!60!green, dashdotted] table[col sep=comma, x index=0, y index=1]
+		{data/prec_vs_fprate1.csv};
+	\addlegendentry{$\lambda = 0.1\%$}
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Expected precision (positive predictive value) as a function
+	of the false positive rate $\fprate$ for a positive Bernoulli set
+	($\fnrate = 0$) at three prevalences
+	$\lambda = \p/(\p+\n)$.
+	Even a small false positive rate dramatically reduces precision
+	when the base rate is low.}
+	\label{fig:ppv_vs_fprate}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+		width=0.7\textwidth,
+		height=0.45\textwidth,
+		xlabel={False positive rate $\fprate$},
+		ylabel={Expected precision (PPV)},
+		xmin=0, xmax=0.05,
+		ymin=0, ymax=1,
+		legend pos=north east,
+		ymajorgrids, xmajorgrids,
+		major grid style={gray!30},
+		thick,
+	]
+	\addplot[red, dashed] table[col sep=comma, x index=0, y index=1]
+		{data/prec_vs_fprate2.csv};
+	\addlegendentry{Theory ($\lambda = 1\%$)}
+	\addplot[only marks, mark=o, mark size=1.2pt, blue]
+		table[col sep=comma, x index=0, y index=1]
+		{data/ppv_sim_vs_theory.csv};
+	\addlegendentry{Monte Carlo ($N = 50\,000$)}
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Comparison of theoretical expected PPV
+	(\cref{eq:approx_expected_precision}, dashed) with Monte Carlo simulation
+	(circles, $N = 50\,000$ trials per point) for a positive Bernoulli set
+	($\fnrate = 0$) with prevalence $\lambda = 1\%$ ($\p = 100$, $\n = 9900$).
+	The theoretical curve and simulation points are indistinguishable,
+	validating the second-order Taylor approximation.}
+	\label{fig:ppv_theory_vs_sim}
+\end{figure}
+
+We make the following observations about \cref{eq:approx_expected_precision}:
+\begin{enumerate}
+	\item For sufficiently large approximate sets, $\ppv \approx \overline{t}_\p / (\overline{t}_\p + \overline{f}_\p)$.
+	\item If $\fprate \neq 0$, as $\n \to \infty$, $\ppv \to 0$.
+	\item As $\fprate \to 0, \ppv \to 1$.
+\end{enumerate}
+
+\emph{Accuracy} is given by the following definition.
+\begin{definition}
+	The \emph{accuracy} is the proportion of true results (both \emph{true
+		positives} and \emph{true negatives}) in the universe of positives and
+	negatives, $(t_p + t_n)/(\p + \n)$, where $t_p$, $t_n$, $\p$, and $\n$ are
+	respectively the number of \emph{true positives}, \emph{true negatives},
+	\emph{positives}, and \emph{negatives}.
+\end{definition}
+
+The \emph{expected} accuracy is given by the following theorem.
+Let $\lambda = \p / (\p + \n)$ denote the \emph{base rate} (proportion of positives).
+\begin{theorem}
+	\label{thm:approx_expected_accuracy}
+	Given $\p$ positives and $\n$ negatives, the accuracy of a random approximate set with an
+	\emph{expected} false positive rate $\fprate$ and an \emph{expected} true
+	positive rate $\tprate$ is a random variable given by
+	\begin{equation}
+	\ACC_{\p + \n} = \lambda \mathrm{TPR}_\p + (1 - \lambda) \mathrm{TNR}_n
+	\end{equation}
+	with an \emph{expected} accuracy
+	\begin{equation}
+	\label{eq:approx_expected_accuracy}
+	\acc(\tprate,\fprate,\n,\p) = \lambda \tprate + (1-\lambda) \tnrate
+	\end{equation}
+	and a variance
+	\begin{equation}
+	\frac{\lambda \fnrate \tprate + (1 - \lambda)\fprate
+		\tnrate}{\p+\n}.
+	\end{equation}
+\end{theorem}
+\begin{proof}
+	Suppose the $u$ elements in the universe can be partitioned into $\p$
+	positives and $\n$ negatives. An approximate set $\tilde{S}$ with a false
+	positive rate $\fprate$ and false negative rate $\fnrate$ has an uncertain
+	accuracy
+	\begin{equation}
+	\ACC_{\p + \n} = \frac{\TP_\p + \TN_\n}{\p + \n}.
+	\end{equation}
+	The expected accuracy is given by the expectation
+	\begin{align}
+	\Expect{\ACC_{\p + \n}}
+	&= \Expect{\frac{\TP_\p + \TN_\n}{\p + \n}}\\
+	&= \frac{\p (1 - \fnrate) + \n (1 - \fprate)}{\p + \n}.
+	\end{align}
+	Noting that $\n/(\p+\n) = 1 - \p/(\p+\n)$ and letting $\lambda = \p/(\p +
+	\n)$,
+	\begin{equation}
+	\Expect{\ACC_{\p + \n}} = \lambda (1 - \fnrate) + (1 - \lambda) (1 -
+	\fprate).
+	\end{equation}
+	The variance
+	\begin{align}
+	\Var{\ACC_{\p + \n}}
+	&= \Var{\frac{\TP_\p}{\p + \n}} + \Var{\frac{\TN_\n}{\p + \n}}\\
+	&= \frac{1}{(\p + \n)^2}\Var{\TP_\p} + \frac{1}{(\p + \n)^2}\Var{\TN_\n}\\
+	&= \frac{\p \fnrate (1 - \fnrate)}{(\p + \n)^2} + \frac{\n \fprate (1 -
+		\fprate)}{(\p + \n)^2}\\
+	&= \frac{\lambda \fnrate \tprate + (1 - \lambda)\fprate
+		\tnrate}{\p+\n}.
+	\end{align}
+\end{proof}
+
+\begin{definition}
+	The \emph{negative predictive value} is a performance measure defined as
+	\begin{equation}
+	\npv = \frac{t_n}{t_n + f_n}
+	\end{equation}
+	where $t_n$ and $f_n$ are respectively the number of \emph{true negatives}
+	and \emph{false negatives}.
+\end{definition}
+The expected negative predictive value is given by the following theorem.
+\begin{theorem}
+	\label{thm:npv_approx}
+	Given $\p$ positives, $\n$ negatives, and a random approximate set with false positive and true positive rates $\fprate$ and $\tprate$ respectively, the negative predictive value is a \emph{random variable}
+	\begin{equation}
+	\NPV = \frac{\TN_{\n}}{\TN_{\n} + \FN_{\p}}
+	\end{equation}
+	with an \emph{expectation} given approximately by
+	\begin{equation}
+	\label{eq:npv_approx}
+	\npv(\tprate, \fprate , \p, \n) \approx
+	\frac{\overline{t}_n}{\overline{t}_n + \overline{f}_{\!n}} +
+	\frac{\overline{t}_n \sigma_{\!f_n}^2 - \overline{f}_{\!n}
+		\sigma_{\!t_n}^2}{\left(\overline{t}_n + \overline{f}_{\!n}\right)^3},
+	\end{equation}
+	where $\overline{t}_\n = \n(1-\fprate)$ is the expected \emph{true negative} frequency, $\overline{f}_{\!\n} =  \p(1-\tprate)$ is the expected \emph{false negative} frequency, $\sigma_{\!t_\n}^2 = \fprate \overline{t}_\n$ is the variance of the \emph{true negative} frequency, and $\sigma_{\!f_\n}^2 = \tprate\overline{f}_{\!\n}$ is the variance of the \emph{false negative} frequency.
+	The first-order delta method variance is
+	\begin{equation}
+	\label{eq:var_npv}
+	\Var{\NPV} \approx
+	\frac{\overline{f}_{\!\n}^{\,2}\,\sigma_{\!t_\n}^2 +
+		\overline{t}_\n^{\,2}\,\sigma_{\!f_\n}^2}
+	{\left(\overline{t}_\n + \overline{f}_{\!\n}\right)^4}.
+	\end{equation}
+\end{theorem}
+The proof for \cref{thm:npv_approx} follows the same pattern as the proof for \cref{thm:approx_expected_precision}.
+
+Youden's $J$ statistic is a measure of the performance of a binary test, defined as
+\begin{equation}
+J = \frac{t_p}{t_p + f_n} + \frac{t_n}{t_n + f_p} - 1,
+\end{equation}
+with a range $[-1,1]$.
+In the case of the random approximate set model, $J$ is a random variable
+\begin{equation}
+\RV{J} = \mathrm{TPR}_\p - \alpha_n,
+\end{equation}
+which has an \emph{expectation}
+\begin{equation}
+\Expect{\RV{J}} = \tprate - \fprate
+\end{equation}
+and, by the independence of $\mathrm{TPR}_\p$ and $\alpha_n$, a \emph{variance}
+\begin{equation}
+\label{eq:var_j}
+\Var{\RV{J}} = \frac{\tprate\,\fnrate}{\p} + \frac{\fprate\,\tnrate}{\n}.
+\end{equation}
+
+\subsection{The \texorpdfstring{$\fone$}{F1}-score}
+\label{sec:f1}
+\begin{definition}
+	The \emph{$\fone$-score} is the harmonic mean of precision and recall:
+	\begin{equation}
+	\fone = \frac{2\,t_p}{2\,t_p + f_p + f_n}.
+	\end{equation}
+\end{definition}
+Since $f_n = \p - t_p$, the $\fone$-score may be written as a function of $t_p$ and $f_p$ alone:
+\begin{equation}
+\label{eq:f1_reduced}
+\fone = \frac{2\,t_p}{t_p + f_p + \p}.
+\end{equation}
+\begin{theorem}
+	\label{thm:f1_approx}
+	Given $\p$ positives, $\n$ negatives, and a random approximate set with false positive and true positive rates $\fprate$ and $\tprate$ respectively, the $\fone$-score is a random variable
+	\begin{equation}
+	\Fone = \frac{2\,\TP_{\p}}{\TP_{\p} + \FP_{\n} + \p}
+	\end{equation}
+	with an \emph{expectation} given approximately by the second-order delta method
+	\begin{equation}
+	\label{eq:f1_approx}
+	\Expect{\Fone} \approx
+	\frac{2\,\overline{t}_\p}{\overline{t}_\p + \overline{f}_\p + \p}
+	+ \frac{2\,\overline{t}_\p\,\sigma_{\!f_\p}^2 -
+		2\left(\overline{f}_\p + \p\right)\sigma_{\!t_\p}^2}
+	{\left(\overline{t}_\p + \overline{f}_\p + \p\right)^3}
+	\end{equation}
+	and a first-order delta method \emph{variance}
+	\begin{equation}
+	\label{eq:var_f1}
+	\Var{\Fone} \approx
+	\frac{4\left(\overline{f}_\p + \p\right)^2 \sigma_{\!t_\p}^2 +
+		4\,\overline{t}_\p^{\,2}\,\sigma_{\!f_\p}^2}
+	{\left(\overline{t}_\p + \overline{f}_\p + \p\right)^4},
+	\end{equation}
+	where $\overline{t}_\p = \p\tprate$, $\overline{f}_\p = \n\fprate$,
+	$\sigma_{\!t_\p}^2 = \p\tprate(1-\tprate)$, and
+	$\sigma_{\!f_\p}^2 = \n\fprate(1-\fprate)$.
+\end{theorem}
+See \cref{sec:proof_f1} for a proof of \cref{thm:f1_approx}.
+
+\begin{figure}[ht]
+	\centering
+	\begin{tikzpicture}
+	\begin{axis}[
+		width=0.7\textwidth,
+		height=0.45\textwidth,
+		xlabel={False positive rate $\fprate$},
+		ylabel={Expected $\fone$-score},
+		xmin=0, xmax=0.05,
+		ymin=0, ymax=1,
+		legend pos=north east,
+		ymajorgrids, xmajorgrids,
+		major grid style={gray!30},
+		thick,
+	]
+	\addplot[red, dashed] table[col sep=comma, x index=0, y index=1]
+		{data/f1_theory.csv};
+	\addlegendentry{Theory ($\lambda = 1\%$)}
+	\addplot[only marks, mark=o, mark size=1.2pt, blue]
+		table[col sep=comma, x index=0, y index=1]
+		{data/f1_sim_vs_theory.csv};
+	\addlegendentry{Monte Carlo ($N = 50\,000$)}
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Comparison of theoretical expected $\fone$-score
+	(\cref{eq:f1_approx}, dashed) with Monte Carlo simulation
+	(circles, $N = 50\,000$ trials per point) for a positive Bernoulli set
+	($\fnrate = 0$) with prevalence $\lambda = 1\%$ ($\p = 100$, $\n = 9900$).
+	The theoretical curve and simulation points are indistinguishable,
+	validating the second-order delta method approximation.}
+	\label{fig:f1_theory_vs_sim}
+\end{figure}
+
+\begin{table}
+	\centering
+	\caption{Various \emph{expected} performance measures.}
+	\label{tbl:perf_sum}
+	\begin{tabular}{@{} l l l @{}}
+		\toprule
+		\textbf{measure} & \textbf{parameter} & \textbf{expected value}\\
+		\midrule
+		true positive rate & $\tpr(\tprate)$ & $\tprate$\\
+		false positive rate & $\fpr(\fprate)$ & $\fprate$\\
+		false negative rate & $\fnr(\tprate)$ & $1-\tprate$\\
+		true negative rate & $\tnr(\fprate)$ & $1-\fprate$\\
+		accuracy & $\acc$ & \cref{eq:approx_expected_accuracy}\\
+		positive predictive value & $\ppv$ & \cref{eq:approx_expected_precision}\\
+		negative predictive value & $\npv$ & \cref{eq:npv_approx}\\
+		$\fone$-score & $\fone$ & \cref{eq:f1_approx}\\
+		false discovery rate & $\fdr$ & $1-\ppv$\\
+		false omission rate & $\forFn$ & $1-\npv$\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+\Cref{tbl:perf_sum} may be used to reparameterize an approximate set.
+\begin{example}
+	Suppose we seek a \emph{positive approximate set} with an expected accuracy
+	$\gamma$. By \cref{tbl:perf_sum},
+	\begin{equation}
+	\gamma = \acc(\fprate,\fnrate=0,\lambda) = 1 - \fprate(1 - \lambda).
+	\end{equation}
+	% Y = 1 - e(1- lam)
+	% (1-Y)/(1-lam) = e
+	Solving for $\fprate$ in terms of $\gamma$ yields the result
+	\begin{equation}
+	\fprate(\gamma, \lambda) = \frac{1 - \gamma}{1 -
+		\lambda}\
+	\end{equation}
+	subject to $0 \leq \lambda \leq \gamma \leq 1$ and $\lambda < 1$.
+	Under this parameterization of the 	positive approximate set, $\lambda$
+	must be known (or estimated).
+	Note that if $\lambda = 1$ then $\fprate(\gamma, \lambda=1)$ is undefined as expected, but as $\lambda$ goes to $1$, $\fprate(\,\cdot\,; \lambda)$ goes to $1$ and $\gamma$ goes to $1$, which logically follows since if there are no negatives, there can be no false positives.
+\end{example}
+
+\subsection{Interval-valued classification measures}
+\label{sec:interval_measures}
+When the error rates or the proportion of positives are not known exactly, interval arithmetic~\cite{bernoulliComposition,basicinterval,mooreInterval} may be applied: each uncertain parameter is replaced by an interval guaranteed to contain its true value, and the classification-measure formulas are evaluated over these intervals to produce guaranteed bounds.
+
+\begin{example}[Interval accuracy]
+\label{ex:interval_accuracy}
+	Suppose we wish to determine the expected accuracy given that the proportion of positives $\lambda$ is known to be some value in the interval $[\lambda]$, and that the false positive and false negative rates lie in $[\fprate]$ and $[\fnrate]$ respectively.
+	The accuracy formula $\acc = \lambda(1-\fnrate) + (1-\lambda)(1-\fprate)$ may be rewritten as
+	\begin{equation}
+		\acc = (1-\fprate) + \lambda(\fprate - \fnrate).
+	\end{equation}
+	Since the accuracy is multilinear in $(\fprate, \fnrate, \lambda)$, its extremes over the box $[\fprate] \times [\fnrate] \times [\lambda]$ are attained at vertices.
+	The formula is decreasing in $\fprate$ and $\fnrate$, but its monotonicity in $\lambda$ depends on the sign of $\fprate - \fnrate$:
+	\begin{itemize}
+		\item If $\fprate \geq \fnrate$ (the common case, e.g., Bloom filters), accuracy increases in $\lambda$, so:
+		\begin{equation}
+			\acc \in \bigl[
+			(1-\overline{\fprate}) + \underline{\lambda}(\overline{\fprate} - \overline{\fnrate}),\;
+			(1-\underline{\fprate}) + \overline{\lambda}(\underline{\fprate} - \underline{\fnrate})
+			\bigr].
+		\end{equation}
+		\item If $\fprate < \fnrate$, accuracy decreases in $\lambda$, so the $\lambda$ endpoints are reversed:
+		\begin{equation}
+			\acc \in \bigl[
+			(1-\overline{\fprate}) + \overline{\lambda}(\overline{\fprate} - \overline{\fnrate}),\;
+			(1-\underline{\fprate}) + \underline{\lambda}(\underline{\fprate} - \underline{\fnrate})
+			\bigr].
+		\end{equation}
+	\end{itemize}
+	In practice, guaranteed bounds are obtained by evaluating the accuracy at all $2^3 = 8$ vertices and taking the minimum and maximum.
+\end{example}
+
+\begin{example}[Interval PPV]
+\label{ex:interval_ppv}
+Given interval-valued rates, the positive predictive value inherits interval bounds.
+Since $\ppv \approx \overline{t}/(\overline{t} + \overline{f})$ for large sets (\cref{thm:approx_expected_precision}), substituting $\overline{t} = p\,\tprate$ and $\overline{f} = n\,\fprate$ and evaluating at the extremes of $[\fprate]$ and $[\tprate]$ yields
+\begin{equation}
+[\ppv] \approx \biggl[\frac{p\,\underline{\tprate}}{p\,\underline{\tprate} + n\,\overline{\fprate}},\; \frac{p\,\overline{\tprate}}{p\,\overline{\tprate} + n\,\underline{\fprate}}\biggr],
+\end{equation}
+providing guaranteed bounds on the expected precision under uncertain rates.
+\end{example}
