@@ -31,3 +31,17 @@ def test_bernoulli_constructs_with_value():
 
     b2 = Bernoulli(value=42)
     assert b2.value == 42
+
+
+def test_generic_subscription():
+    """Bernoulli must support Generic[T] subscription syntax."""
+    from bernoulli import Bernoulli
+    parameterized = Bernoulli[int]
+    assert parameterized is not None
+
+
+def test_version_synchronized_with_metadata():
+    """The __version__ string must match the package metadata version."""
+    from importlib.metadata import version
+    import bernoulli
+    assert bernoulli.__version__ == version("bernoulli")
