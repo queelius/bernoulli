@@ -1,0 +1,32 @@
+% amsthm must come before alex.sty (which calls \theoremstyle)
+\usepackage{amsthm}
+
+% Hyperlinks: must come before alex.sty because alex.sty loads cleveref,
+% and cleveref must be loaded after hyperref.
+\usepackage[hidelinks,colorlinks=false]{hyperref}
+
+% Notation package (unified macros: ASet, Set, fprate, fnrate, etc.)
+% alex.sty loads algorithm2e and cleveref internally.
+% Do not also load algorithm/algpseudocode or a second cleveref.
+\usepackage[fancy,section]{alex}
+
+% Bibliography
+\usepackage[backend=bibtex,style=alphabetic]{biblatex}
+\addbibresource{references.bib}
+
+% Better captions and floats
+\usepackage{caption}
+\usepackage{float}
+
+% Code listings (alex.sty also loads listings; this just adds our default settings)
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  showstringspaces=false
+}
+
+% Useful math packages not in alex.sty
+\usepackage{bm}
