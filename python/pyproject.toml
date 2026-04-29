@@ -29,10 +29,7 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Mathematics",
   "Topic :: Software Development :: Libraries :: Python Modules"
 ]
-dependencies = [
-  "numpy >= 1.26",
-  "sympy >= 1.13"
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
@@ -45,12 +42,16 @@ notebooks = [
   "jupyter >= 1.0",
   "matplotlib >= 3.8"
 ]
+numerics = [
+  "numpy >= 1.26",
+  "sympy >= 1.13"
+]
 
 [project.urls]
-Homepage = "https://github.com/queelius/bernoulli-py"
-Documentation = "https://github.com/queelius/bernoulli-book"
-Source = "https://github.com/queelius/bernoulli-py"
-Issues = "https://github.com/queelius/bernoulli-py/issues"
+Homepage = "https://github.com/queelius/bernoulli/tree/main/python"
+Documentation = "https://github.com/queelius/bernoulli/tree/main/book"
+Source = "https://github.com/queelius/bernoulli/tree/main/python"
+Issues = "https://github.com/queelius/bernoulli/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bernoulli"]
