@@ -1,0 +1,22 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.idx
+*.ind
+*.ilg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+_minted-*/
+*.glo
+*.gls
+*.glg
+
+# Final PDF is committed; intermediate PDFs are not
+book.pdf.bak
