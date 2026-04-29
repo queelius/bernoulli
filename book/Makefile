@@ -1,6 +1,6 @@
 TEX = pdflatex
 TEXFLAGS = -interaction=nonstopmode -halt-on-error
-BIB = bibtex
+BIB = biber
 MAIN = book
 
 .PHONY: all build draft watch clean cleanall
