@@ -18,5 +18,9 @@ _minted-*/
 *.gls
 *.glg
 
+# Biblatex auxiliary files
+*.run.xml
+*-blx.bib
+
 # Final PDF is committed; intermediate PDFs are not
 book.pdf.bak
