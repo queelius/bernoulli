@@ -27,7 +27,8 @@ watch:
 clean:
 	rm -f *.aux *.log *.out *.toc *.lof *.lot *.bbl *.blg \
 	      *.idx *.ind *.ilg *.synctex.gz *.fls *.fdb_latexmk \
-	      *.glo *.gls *.glg
+	      *.glo *.gls *.glg \
+	      *.bcf *.run.xml *-blx.bib
 	rm -rf _minted-*
 	find frontmatter parts chapters appendices -name '*.aux' -delete 2>/dev/null || true
 
