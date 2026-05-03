@@ -1,1 +1,128 @@
-% Drafted in Task: see plan 2026-05-02-bernoulli-textbook-ch04-axioms-kronecker.md
+% §4.6 What Comes Next
+%
+% Cross-references in this section and their resolution status:
+%
+% Already resolved (within chapter 4):
+%   \Cref{def:bernoulli-bool}        -- Definition 4.5.1
+%   \Cref{sec:bernoulli-bool-formal} -- section 4.5
+%   \Cref{thm:kronecker}             -- Kronecker Factorization Theorem (§4.4)
+%   \Cref{sec:axiom-1}               -- section 4.2 (Axiom 1)
+%   \Cref{sec:axiom-2}               -- section 4.3 (Axiom 2)
+%   \Cref{cor:parameter-reduction}   -- parameter reduction corollary (§4.4)
+%
+% Forward references (expected UNRESOLVED during ch 4 drafting):
+%   \Cref{ch:approximate-sets}  -- chapter 5 stub from Plan 0; SHOULD resolve now
+%   \Cref{sec:composition-theorem} -- chapter 3, section 3.3 (Plans 2-4)
+%
+% "Reference X undefined" warnings for sec:composition-theorem are expected
+% until Plan 4's Part I integration check. ch:approximate-sets resolves now
+% because the chapter 5 stub was created in Plan 0.
+
+\section{What Comes Next}
+\label{sec:what-comes-next}
+
+We have been building toward a single formal object---$\Bernoulli{\BoolType}$
+as defined in \Cref{sec:bernoulli-bool-formal}---and we have arrived. This is
+a good moment to take stock of where we stand and where Part~II will take us.
+
+\subsection*{What Part I delivered}
+
+Chapter 4 has completed Part~I's formal work. The two axioms are now stated
+with precision (\Cref{sec:axiom-1,sec:axiom-2}), the Kronecker factorization
+theorem shows what those axioms license (\Cref{thm:kronecker}), and
+Definition~\ref{def:bernoulli-bool} gives $\Bernoulli{\BoolType}$ a rigorous
+identity as the triple $(X, Y, Q)$ under those axioms. Every example in
+chapters 1 through 3---the biased coin, the binary symmetric channel, the
+classifier verdict, AND and OR and NOT under noise, the $k$-round Miller-Rabin
+bound---is now recognizable as an instance or an operation on instances of
+this type. The definition was not asserted; it was earned.
+
+\subsection*{Five Core Principles: status after Part I}
+
+The Bernoulli framework rests on five organizing principles. At the close of
+Part~I, three are fully in view and two remain ahead.
+
+\begin{description}
+  \item[\textbf{Two Axioms} \quad [\textsc{Part I, complete}]]
+    Axiom~1 (element-wise independence: \Cref{sec:axiom-1}) and Axiom~2
+    (conditional independence of block error rates: \Cref{sec:axiom-2}) are
+    both stated formally and proved to jointly imply the Kronecker
+    factorization. They are the load-bearing assumptions throughout the rest
+    of the book.
+
+  \item[\textbf{Composition Closure} \quad [\textsc{Part I, complete}]]
+    The composition theorem of \Cref{sec:composition-theorem} showed that
+    chaining $\Bernoulli{\BoolType}$ instances produces a new
+    $\Bernoulli{\BoolType}$ instance. AND, OR, and NOT are all
+    closure-preserving operations. The Kronecker theorem of \Cref{thm:kronecker}
+    is the tensor-product face of the same closure property: whether we
+    compose instances serially (matrix product) or view them in parallel
+    (tensor product), the type is closed. The Boolean universe is self-contained
+    under the operations we care about.
+
+  \item[\textbf{Boolean Thread} \quad [\textsc{Part I, complete}]]
+    Part~I chose $\Bool = \{\top, \bot\}$ as the input and output domain and
+    stayed there. Two elements, two partition blocks, two error rates, a
+    $2 \times 2$ channel matrix, two free parameters after
+    \Cref{cor:parameter-reduction} applies---the whole Part~I story has Boolean
+    structure at every level. This is not a limitation; it is the atom's
+    defining feature. The Boolean thread runs from the biased coin in chapter~1
+    to the formal definition in chapter~4 without deviation. Part~II lifts it
+    to sets; Part~III lifts it to maps.
+
+  \item[\textbf{Parametric Parsimony} \quad [\textsc{visible in Part I, completed in Part II}]]
+    The corollary to the Kronecker theorem (\Cref{cor:parameter-reduction})
+    showed the parameter count dropping from $n(2^m - 1)$ to $2m$ under
+    the two axioms. For the Boolean case, that reduction is already dramatic.
+    The full principle---why $2m$ parameters are not merely convenient but
+    are, in an information-theoretic sense, the right number---requires
+    the entropy-based lower bounds developed in Part~II, chapter~8. The seed
+    has been planted; the fruit arrives later.
+
+  \item[\textbf{Space-Accuracy Duality} \quad [\textsc{Part II, chapter 8}]]
+    This principle---that there is a fundamental trade-off between the
+    space a Bernoulli structure consumes and the error rates it can
+    achieve---has not yet appeared. Part~I did not need it because we
+    were analyzing a fixed $\Bernoulli{\BoolType}$ instance, not asking
+    how small we can make one while meeting an accuracy target.
+    Space-Accuracy Duality is the central organizing principle of Part~II.
+    It arrives in chapter~8.
+\end{description}
+
+\subsection*{From bits to sets}
+
+Part~I gave us the atom. Part~II asks: what happens when you build a set
+membership predicate from atoms?
+
+The question is less abstract than it sounds. A set $S$ over a universe
+$U$ induces, for each element $u \in U$, a Boolean query: is $u \in S$?
+An \emph{approximate} set replaces exact membership with a noisy channel:
+the predicate may report $u \in S$ when it should report $u \notin S$
+(a false positive) or the reverse (a false negative). The per-element
+error events are---under Axiom~1---mutually independent. Each element's
+query is a $\Bernoulli{\BoolType}$ instance. The approximate set as a
+whole is a structured collection of those instances, and its behavior is
+determined by how those instances are built and indexed.
+
+The canonical first construction is the Bloom filter. A Bloom filter
+maintains a bit array of $m$ bits and a family of $k$ hash functions;
+it answers set-membership queries with zero false negatives and a
+tunable false-positive rate. Understanding the Bloom filter from the
+Bernoulli perspective---as a mechanism for manufacturing
+$\Bernoulli{\BoolType}$ instances with $\fnrate = 0$ and a
+controlled $\fprate$---is the project of \Cref{ch:approximate-sets}.
+The Bloom filter is not a special case we study because it is famous; it
+is the cleanest first construction because it makes the $\fnrate = 0$
+boundary and the Space-Accuracy Duality both visible in one concrete object.
+
+By the end of \Cref{ch:approximate-sets}, the reader will see not just
+how the Bloom filter works but why its analysis is a consequence of the
+formal machinery we developed in Part~I.
+
+Part~II then extends: chapter~6 studies how set operations (union,
+intersection, complement) propagate error rates; chapter~7 develops the
+classification measures that quantify approximate-set quality; and
+chapter~8 derives the information-theoretic lower bounds that make
+Space-Accuracy Duality precise. The Boolean thread does not disappear in
+Part~II---it becomes the foundation on which more complex structures are
+built, one $\Bernoulli{\BoolType}$ instance at a time.
