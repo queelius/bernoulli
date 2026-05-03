@@ -1,1 +1,348 @@
-% Drafted in Task: see plan 2026-05-02-bernoulli-textbook-ch04-axioms-kronecker.md
+\section{Axiom 2: Conditional Independence of Block Error Rates}
+\label{sec:axiom-2}
+
+% Cross-references that will resolve in later plans:
+%   \Cref{sec:model-order} -- chapter 2, drafted in Plan 2
+%   \Cref{sec:bsc}         -- chapter 2, drafted in Plan 2
+% Cross-references that will resolve in this plan (Task 5):
+%   \Cref{sec:kronecker}   -- section 4.4, drafted in Task 5
+% Cross-references that already resolve:
+%   \Cref{sec:why-axioms}  -- section 4.1 (this chapter)
+%   \Cref{sec:axiom-1}     -- section 4.2 (this chapter)
+% Build warnings for the first two labels are expected during ch 4 drafting
+% and will be resolved by Plan 4's Part I integration check.
+
+\Cref{sec:axiom-1} gave the first independence axiom: error events at
+distinct inputs are mutually independent, given the objective set and
+the error rates. That axiom governs the \emph{spatial} structure of
+errors, the relationship between different elements of the universal
+set queried simultaneously or in any order.
+
+This section gives the second axiom. Axiom 2 governs the \emph{stability}
+of error rates across queries. It says that the error behavior on one
+query tells you nothing about the error behavior on another query to the
+same block: the per-block error rates are constant, not history-dependent.
+The two axioms are logically independent of each other. Axiom 1 alone
+does not imply Axiom 2, and Axiom 2 alone does not imply Axiom 1. Both
+are needed, and their conjunction is exactly what makes the Kronecker
+factorization theorem of \Cref{sec:kronecker} possible.
+
+\subsection*{Partition blocks and model order}
+
+Before stating Axiom 2, we need the partition structure it ranges over.
+A full treatment appears in \Cref{sec:model-order}; we summarize here
+the minimum needed for the axiom statement.
+
+Given an objective set $A \subseteq U$, the Bernoulli model partitions the
+universal set $U$ into blocks $B_1, \ldots, B_n$ such that every element
+within a block has the same error rate. The \emph{model order} is the
+number of blocks $n$. The simplest nontrivial case is order 2: the
+partition $\{B_1, B_2\} = \{A,\, A^c\}$ separates the positives from
+the negatives and assigns each group its own error rate.
+
+For the Boolean universe $U = \{\top, \bot\}$ with objective set
+$A = \{\top\}$, model order 2 yields two blocks:
+\begin{align*}
+  B_1 &= \{\top\} = A, \\
+  B_2 &= \{\bot\} = A^c.
+\end{align*}
+Elements of $B_1$ have false-negative rate $\fnrate$ (they test positive
+correctly with probability $\tprate$, incorrectly with probability
+$\fnrate$). Elements of $B_2$ have false-positive rate $\fprate$ (they
+test negative correctly with probability $\tnrate$, incorrectly with
+probability $\fprate$). The channel matrix $Q$ introduced in
+\Cref{sec:bsc} captures exactly these two rates:
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    \tprate & \fnrate \\
+    \fprate & \tnrate
+  \end{pmatrix},
+\]
+where row $i$ describes the output distribution for an element in block
+$B_i$.
+
+In general, an $n$-th order model has $n$ blocks and a corresponding
+channel matrix with $n$ distinct rows, one per block. Axiom 2 is a
+statement about those rows.
+
+\subsection*{The formal statement}
+
+\begin{axiom}[Conditional independence of block error rates]
+\label{ax:block-rates-indep}
+Let $\{\alpha_1, \ldots, \alpha_n\}$ be the random error rates for the
+respective partition blocks $B_1, \ldots, B_n$, conditional on the
+objective set $A$. The rates $\alpha_1, \ldots, \alpha_n$ are mutually
+independent:
+\[
+  f(\alpha_1, \ldots, \alpha_n \Given A)
+  \;=\;
+  \prod_{i=1}^n f(\alpha_i \Given A).
+\]
+\end{axiom}
+
+In plain language: knowing the error rate on positives tells you nothing
+about the error rate on negatives, and vice versa. The block rates are
+independent of each other given the objective set. This applies to all
+$n$ blocks simultaneously: no block's rate gives information about any
+other block's rate.
+
+A few clarifications help prevent common misreadings.
+
+\medskip
+\noindent\textbf{Rates as random variables.} The rates $\alpha_i$ are
+random in the formal sense: they are the \emph{expected} error
+frequencies, which may themselves vary across different realizations of
+the data structure or algorithm. A Bloom filter, for instance, has a
+false-positive rate that depends on the specific set of inserted
+elements and the hash function choices. Axiom 2 says that the
+resulting FPR and FNR are independent across blocks.
+
+\medskip
+\noindent\textbf{Stability, not constancy.} Axiom 2 does not say the
+rates are the same for every element within a block (that is the
+identically-distributed clause of Axiom 1). It says the rates are
+jointly independent across blocks. The distinction matters: a
+system could have rates that vary from element to element within a block
+while still satisfying Axiom 2. The axioms play complementary roles;
+neither subsumes the other.
+
+\medskip
+\noindent\textbf{The order-2 specialization.} In the second-order model,
+Axiom 2 reduces to a single statement: the random false-positive rate
+$\fprate$ and the random false-negative rate $\fnrate$ are
+conditionally independent given $A$. The joint density of the
+two rates factors:
+\[
+  f(\fprate, \fnrate \Given A)
+  \;=\;
+  f(\fprate \Given A) \cdot f(\fnrate \Given A).
+\]
+This is the instance that arises in virtually every example in
+chapters 1--3.
+
+\subsection*{Consequence: one channel matrix per block, stable across queries}
+
+Axiom 2 has a structural consequence for how we model repeated queries.
+Suppose we query an input $x \in B_i$ multiple times: first at step $t$,
+then again at step $t'$, and so on. Axiom 2 says the error rate on query
+at step $t$ does not influence the error rate on query at step $t'$.
+Combined with Axiom 1 (which says errors at distinct elements are
+independent), this means:
+
+\begin{proposition}[Stable channel matrices]
+\label{prop:stable-Q}
+Under \Cref{ax:block-rates-indep}, the channel matrix row corresponding
+to block $B_i$ is the same for every query involving an element of $B_i$,
+regardless of the order or history of prior queries. Formally, for any
+sequence of queries $(x_1, x_2, \ldots)$ with $x_t \in B_{i(t)}$, the
+conditional distribution
+\[
+  \Prob{\tilde{A}(x_t) = s \Given A,\; x_t \in B_{i(t)}}
+\]
+is the same function of $i(t)$ and $s$ for all $t$, independent of what
+happened at steps $1, \ldots, t-1$.
+\end{proposition}
+
+\begin{proof}
+Fix block $B_i$ and a sequence of queries. The distribution of the
+output at step $t$ for $x_t \in B_i$ is determined by the rate $\alpha_i$
+assigned to block $B_i$. By Axiom 2, $\alpha_i$ is independent of
+$\alpha_j$ for $j \neq i$. By Axiom 1, the error events at distinct
+elements are independent. Together, the conditional distribution of the
+output at step $t$ is a function only of $\alpha_i$ and the block
+membership of $x_t$, not of any prior query outcomes. Since this holds
+for all $t$, the channel matrix row for block $B_i$ is stable across the
+entire query sequence.
+\end{proof}
+
+This proposition is the precise sense in which ``there is one channel
+matrix $Q$ per input-block-pair.'' The matrix entry $Q_{ij}$ gives the
+probability that an element of block $B_i$ produces output $j$. That
+probability does not drift, does not warm up, and does not depend on
+how many prior queries have been processed. The channel is genuinely
+stationary within each block.
+
+The practical consequence is large. Without this stability, we would need
+a separate channel description for each time step, and the joint
+distribution over a sequence of queries would require specifying an
+exponentially growing family of time-varying matrices. With Axiom 2, a
+single matrix $Q$ suffices for the entire query sequence. This is what
+makes the Kronecker factorization of \Cref{sec:kronecker} possible: the
+$m$-query joint confusion matrix is the Kronecker product of $m$ copies
+of the same $Q$, precisely because each query sees the same stable
+channel.
+
+\subsection*{Worked illustration: the model-order-2 Boolean channel}
+
+Let us make Axiom 2's content concrete with the simplest nontrivial case,
+which will recur throughout the book: the Boolean universe with model
+order 2.
+
+Set $U = \{\top, \bot\}$ and $A = \{\top\}$, giving two blocks:
+$B_1 = \{\top\}$ (positives) and $B_2 = \{\bot\}$ (negatives). The
+channel matrix is
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    \tprate & \fnrate \\
+    \fprate & \tnrate
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate & 1 - \fprate
+  \end{pmatrix}.
+\]
+
+Now consider a sequence of three queries: query 1 asks for $\top$,
+query 2 asks for $\bot$, query 3 asks for $\top$ again. Axiom 2 says
+the following.
+
+\begin{itemize}
+  \item Query 1 involves $\top \in B_1$. It produces a positive response
+    with probability $\tprate$ and a negative response with probability
+    $\fnrate$. These probabilities come from row 1 of $Q$.
+
+  \item Query 2 involves $\bot \in B_2$. It produces a positive response
+    with probability $\fprate$ and a negative response with probability
+    $\tnrate$. These probabilities come from row 2 of $Q$. \emph{The
+    outcome of query 1 is irrelevant.}
+
+  \item Query 3 involves $\top \in B_1$ again. It again uses row 1 of
+    $Q$, with the \emph{same} probabilities $\tprate$ and $\fnrate$ as
+    query 1. The fact that query 1 may have made an error (false negative)
+    does not change the probability of error on query 3.
+\end{itemize}
+
+This is the channel's stationarity within blocks: the same row of $Q$
+applies whenever the same block is queried, no matter what came before.
+
+To write the joint distribution over the three-query sequence
+$(x_1, x_2, x_3) = (\top, \bot, \top)$ with outcomes
+$(s_1, s_2, s_3)$, Axioms 1 and 2 together give:
+\begin{align*}
+  &\Prob{\tilde{A}(\top) = s_1,\; \tilde{A}(\bot) = s_2,\; \tilde{A}(\top) = s_3 \Given A} \\
+  &\quad=\; Q_{1,s_1} \cdot Q_{2,s_2} \cdot Q_{1,s_3},
+\end{align*}
+where $Q_{i,s}$ denotes the $(i,s)$-entry of $Q$. The distribution
+factors as a product of independent channel evaluations, each determined
+by the block of the queried element. No interaction terms appear; no
+history from query 1 flows into query 3.
+
+For a concrete numerical example, take $\fprate = 0.05$ and
+$\tprate = 0.90$ (so $\fnrate = 0.10$ and $\tnrate = 0.95$). The
+probability that the three-query sequence produces outcomes
+$(+, -, +)$, that is, two true positives and one true negative, is:
+\[
+  Q_{1,+} \cdot Q_{2,-} \cdot Q_{1,+}
+  \;=\;
+  0.90 \times 0.95 \times 0.90
+  \;=\;
+  0.7695.
+\]
+The probability that query 2 produces a false positive while queries 1
+and 3 produce true positives is:
+\[
+  Q_{1,+} \cdot Q_{2,+} \cdot Q_{1,+}
+  \;=\;
+  0.90 \times 0.05 \times 0.90
+  \;=\;
+  0.0405.
+\]
+Both numbers follow from reading the appropriate rows of $Q$ and
+multiplying. No additional modeling is needed. The stationarity
+guaranteed by Axiom 2 is what makes this reading-and-multiplying
+procedure valid.
+
+\subsection*{Contrast: a Markov-correlated channel violates Axiom 2}
+
+To see what Axiom 2 rules out, consider a channel that violates it
+explicitly. A \emph{Markov-correlated channel} lets the error rate on
+each query depend on the outcome of the previous query. Concretely:
+
+\begin{enumerate}
+  \item If the previous query produced a correct response, the current
+    query uses a ``base'' false-positive rate $\fprate_0$.
+  \item If the previous query produced an error, the current query uses
+    an elevated false-positive rate $\fprate_1 > \fprate_0$ (errors
+    cluster together).
+\end{enumerate}
+
+This is a plausible model for hardware memory with correlated faults, or
+for a sensor that drifts after one bad reading. But it violates Axiom 2.
+
+To see why, consider block $B_2 = \{\bot\}$ (negatives). On query $t$,
+the error rate for block $B_2$ is not a fixed value $\fprate$: it is
+$\fprate_0$ if the previous query was correct, and $\fprate_1$ if the
+previous query was an error. The rate $\alpha_2$ at step $t$ is not
+independent of the rate at step $t-1$; they are coupled through the
+Markov chain. The joint density of the rates at different steps does not
+factor, and Axiom 2's independence condition fails.
+
+Let us put numbers to this. Suppose the base rate is $\fprate_0 = 0.05$
+and the elevated rate is $\fprate_1 = 0.30$. The channel starts in the
+correct state. Over two successive queries to $\bot$, the joint
+distribution of outcomes is:
+
+\begin{center}
+\begin{tabular}{lccl}
+\hline
+Outcome pair & Probability & Axiom-2 product & Discrepancy \\
+\hline
+$(-, -)$ & $0.95 \times 0.95 = 0.9025$ & $0.9025$ & none \\
+$(-, +)$ & $0.95 \times 0.05 = 0.0475$ & $0.0475$ & none \\
+$(+, +)$ & $0.05 \times 0.30 = 0.0150$ & $0.0025$ & $6\times$ inflation \\
+$(+, -)$ & $0.05 \times 0.70 = 0.0350$ & $0.0475$ & deflation \\
+\hline
+\end{tabular}
+\end{center}
+
+Here the marginal false-positive rate is $0.95 \times 0.05 + 0.05 \times 0.30 = 0.0625$
+(averaging over both states), so the Axiom-2 product for two positives
+would be $0.0625^2 = 0.0039$. The actual probability of two consecutive
+false positives is $0.05 \times 0.30 = 0.0150$, a factor of $3.8\times$ higher.
+
+The discrepancy is not small. The Markov channel produces error
+clustering that is invisible to the factored model. If a practitioner
+were to apply the Kronecker factorization of \Cref{sec:kronecker} to
+this channel, they would underestimate the probability of back-to-back
+errors by a factor of nearly four. In applications where error
+clustering is costly, this is not a tolerable approximation error.
+
+The Markov channel is not a pathological construction: it models a
+real failure mode. What Axiom 2 asserts is that the Bernoulli framework,
+in its standard form, is designed for channels where this clustering does
+not occur. If the channel is known to be Markov-correlated, the model
+must be extended, for example by conditioning on the hidden state, or
+by treating the full trajectory as the object to be analyzed. The
+Bernoulli axioms are then either violated, requiring a richer model, or
+satisfied at the level of the extended state space, in which case the
+standard machinery applies after the appropriate state augmentation.
+
+\subsection*{What Axiom 2 earns us}
+
+Axiom 1 and Axiom 2 are the full axiomatic foundation of the Bernoulli
+framework. They are minimal in the sense that neither alone is sufficient
+for the Kronecker factorization theorem: Axiom 1 gives spatial
+independence across elements, Axiom 2 gives temporal stability of rates
+across queries. Together they imply that the joint confusion matrix
+over any sequence of queries is a Kronecker product of single-query
+matrices, one factor per query (\Cref{sec:kronecker}).
+
+The parametric savings are substantial. A general $n$-th order model
+describing $m$ joint queries, without any independence assumption, has
+$n(2^m - 1)$ free parameters: $2^m$ output symbols, $n$ rows in the
+channel matrix, one free parameter per output symbol per row. Under
+Axioms 1 and 2, the Kronecker structure forces the parameter count down
+to $2m$ regardless of $n$: two parameters per query (one per block in
+the order-2 model), with no cross-query parameters at all. For $m = 50$
+queries on an order-2 channel, this is the difference between $50$
+parameters (under the axioms) and $50 \times (2^{50} - 1) \approx 5.6
+\times 10^{16}$ parameters (in the general case). The axioms are not
+merely philosophically satisfying; they are what makes the model
+tractable.
+
+We prove the Kronecker factorization theorem and its corollary on
+parameter reduction in \Cref{sec:kronecker}. That section is where the
+full benefit of both axioms becomes visible.
