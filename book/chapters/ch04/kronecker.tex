@@ -28,19 +28,31 @@ independent of each other, which implies that each block's channel row
 is stable across queries. Both sections foreshadowed a theorem that their
 conjunction enables. We now prove it.
 
-The question is this. Given $m$ queries on a Bernoulli predicate---queries
-about $m$ (not necessarily distinct) elements of the universal set---what
-does the joint confusion matrix look like? Without any structural
-assumption, the joint matrix is an $n \times n^m$ object where $n$ is
-the number of blocks and $n^m$ is the number of distinguishable joint
-output patterns. For the order-2 Boolean case with $m$ queries, the
-joint matrix has $2$ rows and $2^m$ columns. Specifying it freely
-requires $2(2^m - 1)$ real parameters (two rows, each summing to 1).
-For $m = 50$, that is over $10^{15}$ free parameters.
+The question is this. Given $m$ queries on a Bernoulli predicate, each on
+a distinct element of the universal set---what does the joint
+confusion matrix look like? The joint matrix $Q^{(m)}$ is an $n^m \times 2^m$
+object: rows are indexed by source-block tuples $(j_1,\ldots,j_m) \in
+\{1,\ldots,n\}^m$ (one row per ordered selection of source blocks across
+the $m$ queries), and columns are indexed by binary output patterns
+$(k_1,\ldots,k_m) \in \{0,1\}^m$. Without any structural assumption,
+specifying this matrix requires $n^m(2^m - 1)$ real parameters (one
+distribution over $2^m$ output patterns per source-block tuple). For
+$m = 50$ and $n = 2$, that is over $10^{30}$ free parameters.
 
-Under Axioms 1 and 2, the number drops to $2m$: two parameters per
-query, with no cross-query interaction. This is not an approximation.
-It is the exact structure forced by independence.
+A different, natural parameterization treats only the $n$ distinct source
+blocks, not all $n^m$ block-tuples, as the basic unit. Under this
+per-source-block convention the joint conditional distribution over $2^m$
+output patterns is the same for every query from block $B_j$, giving $n$
+distributions of size $2^m$ and hence $n(2^m - 1)$ free parameters. The
+parameter counts in this section's corollary and in \Cref{sec:axiom-2}
+are stated under this convention---and it is exactly the convention the
+axioms enforce, as the corollary explains.
+
+Under Axioms 1 and 2, the per-source-block parameter count drops to
+$nm$: $n$ free parameters per query (one per block row), with no
+cross-query interaction, summed over $m$ queries. In the order-2 Boolean
+case this is $2m$. This is not an approximation; it is the exact
+structure forced by independence.
 
 \begin{notation}
 The \emph{Kronecker product} of two matrices $P$ and $Q$, written
@@ -57,9 +69,9 @@ product throughout this section and the rest of the book.
 Let $\tilde{A}$ be an $n$-th order Bernoulli predicate satisfying
 \Cref{ax:element-indep} (Axiom~1) and \Cref{ax:block-rates-indep}
 (Axiom~2). Let $Q_1, Q_2, \ldots, Q_m$ be the per-query channel matrices,
-where $Q_i$ is the $n \times n$ stochastic matrix with $(j, k)$-entry
+where $Q_i$ is the $n \times 2$ stochastic matrix with $(j, k)$-entry
 equal to the probability that a query of an element in block $B_j$
-produces output label $k$, on the $i$-th query. Then the joint confusion
+produces output label $k \in \{0,1\}$, on the $i$-th query. Then the joint confusion
 matrix $Q^{(m)}$ of $m$ independent queries, whose $(j_1 j_2 \cdots j_m,\,
 k_1 k_2 \cdots k_m)$-entry is
 \[
@@ -72,15 +84,17 @@ factors as the Kronecker product
 \]
 \end{theorem}
 
-Before the proof, a note on what ``$m$ independent queries'' means
-precisely. The queries need not be about distinct elements (element
-$x$ may be queried more than once), but the key requirement is that
-the $m$ error events are governed by the independence structure of
-Axioms 1 and 2: error events at distinct elements are independent
-(Axiom 1), and for repeated queries of the same element, the channel
-row is stable (Axiom 2 plus \Cref{prop:stable-Q}).
-Together, these give independence across all $m$ query positions,
-whether or not the queried elements coincide.
+Before the proof, a note on scope. The theorem applies to $m$ queries
+on $m$ \emph{distinct} input elements. Repeated queries of the same
+element introduce correlations that Axioms 1 and 2 do not address:
+the two error events share a single realization of the element's
+underlying error draw, making them perfectly correlated (in a
+deterministic implementation) rather than independent. For repeated-query
+behavior---including the effects of memoization and caching---see
+Chapter~16 (negative space). With distinct-element queries, Axiom~1
+licenses independence across positions and Axiom~2 (via
+\Cref{prop:stable-Q}) ensures each block's channel row is stable, so
+the error events at all $m$ positions are mutually independent.
 
 \begin{proof}
 We build up the joint distribution by hand and read off the matrix
@@ -107,14 +121,20 @@ $( j_1 \cdots j_m, k_1 \cdots k_m )$-entry of $Q_1 \otimes \cdots \otimes Q_m$.
 By Axiom~2 (\Cref{ax:block-rates-indep}), the random rate $\alpha_i$ on
 block $B_i$ is independent of the random rate $\alpha_{i'}$ on block
 $B_{i'}$ for $i \neq i'$. By \Cref{prop:stable-Q}, once the rates are
-realized, each block $B_i$ contributes the same row of its per-block
-channel matrix $Q_i$ on every query involving an element of $B_i$.
-In particular, the channel row for block $B_{j_\ell}$ on query $\ell$
-is the $j_\ell$-th row of $Q_\ell$, and this row does not change
-with $\ell$ (for same-block queries) or depend on what happened at
-other query positions. Conditional on the realized rates, the output
-at query position $\ell$ has distribution $(Q_\ell)_{j_\ell, \cdot}$,
-the $j_\ell$-th row of $Q_\ell$.
+realized, each block $B_i$ contributes the same row of its
+rate-conditional channel matrix $Q_\ell^* = Q_\ell^*(\alpha_{j_\ell})$
+on every query involving an element of $B_i$. Here $Q_\ell^*$ denotes
+the channel matrix realized under the random draw $\alpha_{j_\ell}$; it
+is a random matrix. Write $(Q_\ell^*)_{j_\ell,k_\ell}$ for the
+$(j_\ell, k_\ell)$-entry of this random matrix---the rate-conditional
+probability that query $\ell$ from block $B_{j_\ell}$ returns label
+$k_\ell$. Distinct queries on the same block share the same realization
+of $\alpha_{j_\ell}$ and hence the same row of $Q_\ell^*$; this row
+does not depend on what happened at other query positions. When all $m$
+queries share a single realization of the channel family (the common
+case for a stationary data structure), $Q_1^* = Q_2^* = \cdots =
+Q_m^* = Q^*$; in particular the theorem's subscript $\ell$ flags
+per-query generality, not necessarily distinct matrices.
 
 \medskip
 \noindent\textbf{Step 3: apply Axiom 1 to factor the joint distribution.}
@@ -132,29 +152,34 @@ set $A$. Therefore, conditional on the rates, the joint probability in
   \prod_{\ell=1}^m \Prob{\tilde{A}(x_\ell) = k_\ell
                          \Given \alpha_{j_\ell},\, x_\ell \in B_{j_\ell}} \\
   &\quad=\;
-  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}.
+  \prod_{\ell=1}^m (Q_\ell^*)_{j_\ell, k_\ell}.
 \end{align*}
 
 \medskip
 \noindent\textbf{Step 4: marginalize over the rates.}
-To recover the unconditional probability, we integrate over the joint
-distribution of the rates. By Axiom~2, the rates factor across blocks,
-so this marginalization does not introduce cross-block interaction terms.
-Concretely, each factor $(Q_\ell)_{j_\ell, k_\ell}$ depends only on
-$\alpha_{j_\ell}$, the rate for block $B_{j_\ell}$ on query $\ell$. Because
-Axiom~2 makes the rates independent, the expectation over the rates
-distributes across the product:
+To recover the unconditional probability, we take the expectation over
+the joint distribution of the rates. Write $(Q_\ell)_{j_\ell,k_\ell}$
+for the marginal channel entry:
 \[
-  \Expect{\prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}}
-  \;=\;
-  \prod_{\ell=1}^m \Expect{(Q_\ell)_{j_\ell, k_\ell}}
-  \;=\;
-  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell},
+  (Q_\ell)_{j_\ell,k_\ell}
+  \;\coloneqq\;
+  \Expect{(Q_\ell^*)_{j_\ell,k_\ell}},
 \]
-where the last equality holds because $(Q_\ell)_{j_\ell, k_\ell}$ is
-already the expected channel entry (the per-query matrix $Q_\ell$ is
-defined as the marginal channel after integrating out the rate uncertainty
-for each block independently).
+where the expectation is over the random rate $\alpha_{j_\ell}$.
+Because $(Q_\ell^*)_{j_\ell,k_\ell}$ depends only on $\alpha_{j_\ell}$
+and Axiom~2 makes the block rates $\alpha_1,\ldots,\alpha_n$ mutually
+independent, the factors across $\ell$ involve independent sources of
+randomness. Consequently, the expectation of the product equals the
+product of the expectations:
+\[
+  \Expect{\prod_{\ell=1}^m (Q_\ell^*)_{j_\ell, k_\ell}}
+  \;=\;
+  \prod_{\ell=1}^m \Expect{(Q_\ell^*)_{j_\ell, k_\ell}}
+  \;=\;
+  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}.
+\]
+The first equality uses independence of the rates (Axiom~2); the second
+uses the definition of $Q_\ell$ as the rate-marginalized channel.
 
 \medskip
 \noindent\textbf{Step 5: identify the Kronecker product.}
@@ -182,7 +207,13 @@ underlying this theorem appears as Remark~3.4 in the companion paper
 confusion matrix to factor as a Kronecker product. The formal theorem
 statement and the constructive proof above are new contributions of this
 textbook. The companion paper's remark inspired the precise statement;
-the proof makes the mechanism explicit.
+the proof makes the mechanism explicit. That said, the companion paper
+attributes the factorization to Axiom~1 alone; the constructive proof
+above shows Axiom~2 is also needed when per-block rates are
+random---without Axiom~2's cross-block rate independence, the
+marginalization step (Step~4) would introduce cross-block coupling and
+the expectation of the product would not equal the product of the
+expectations.
 
 \subsection*{Corollary: the parameter count drop}
 
@@ -216,16 +247,17 @@ by $(\fnrate, \fprate)$. That is $2$ parameters per query, for $2m$
 parameters in total across $m$ queries.
 
 \medskip
-\noindent\textit{General case.} Without the Kronecker structure, the
-joint matrix $Q^{(m)}$ is indexed by all tuples
-$(j_1, \ldots, j_m) \in \{1, \ldots, n\}^m$ on the rows (giving $n^m$
-rows) and all joint output patterns on the columns. For binary-output
-queries, each output position is in $\{0,1\}$, so the joint output
-vector lives in $\{0,1\}^m$, giving $2^m$ columns. Counting parameters
-per source block: each of the $n$ source blocks contributes one
-(unconstrained) conditional distribution over $2^m$ output patterns,
-requiring $2^m - 1$ free parameters after normalization. Total:
-$n(2^m - 1)$.
+\noindent\textit{General case.} The full block-tuple matrix $Q^{(m)}$
+has $n^m$ rows and $2^m$ columns; specifying it freely would require
+$n^m(2^m - 1)$ parameters. The more compact count uses the
+per-source-block convention introduced above: without the Kronecker
+structure but still working source-block by source-block, each of the
+$n$ source blocks contributes one (unconstrained) conditional
+distribution over $2^m$ joint output patterns, requiring $2^m - 1$
+free parameters after normalization. Total under this convention:
+$n(2^m - 1)$. This is the comparison point used here and in
+\Cref{sec:axiom-2}, because it reflects the reduction attributable to
+the axioms alone rather than conflating it with the block-tuple explosion.
 
 \medskip
 \noindent\textit{Ratio.}
@@ -258,10 +290,13 @@ crossover probability $\fprate$ has channel matrix
 Since the BSC is symmetric, $\fprate$ is both the false-positive rate
 (an element outside $A$ is reported as inside) and the false-negative
 rate (an element inside $A$ is reported as outside). This is the
-first-order Bernoulli model: a single crossover parameter $\fprate$
-suffices because the channel is symmetric, FPR = FNR = $\fprate$, and
-the two rows $[1-\fprate,\, \fprate]$ and $[\fprate,\, 1-\fprate]$ are
-reversals of each other.
+symmetric special case of the order-2 Bernoulli model: a single
+crossover parameter $\fprate$ suffices because the channel obeys
+FPR = FNR = $\fprate$ (the symmetry constraint), and the two rows
+$[1-\fprate,\, \fprate]$ and $[\fprate,\, 1-\fprate]$ are reversals of
+each other. The model order is 2 because there are two partition blocks
+($B_1$ = positives, $B_2$ = negatives); the symmetry constraint reduces
+the two free parameters of the general order-2 model to one.
 
 Now suppose we run $m$ independent queries, each through the same BSC.
 By \Cref{thm:kronecker}, the joint confusion matrix is
@@ -360,7 +395,8 @@ row 2 corresponds to negatives ($x \notin A$, block $B_2$).
 Suppose we query two elements $x_1 \in B_{j_1}$ and $x_2 \in B_{j_2}$
 and observe outputs $k_1$ and $k_2$ respectively. For concreteness,
 take both queries to the same channel (both $Q_1 = Q_2 = Q$, since
-the rates are stationary by Axiom~2).
+the rates are stationary by \Cref{prop:stable-Q}, which relies on
+both Axioms~1 and~2).
 
 \Cref{thm:kronecker} predicts:
 \[
@@ -409,7 +445,7 @@ negative (correct), second reported positive (correct).}
   \Prob{\tilde{A}(x_1) = -, \tilde{A}(x_2) = + \Given x_1 \in B_2, x_2 \in B_1}
   \;=\; \tnrate \cdot \tprate.
 \]
-This matches $(Q \otimes Q)_{31} = \tnrate \tprate$ (row 3, column 3; note
+This matches $(Q \otimes Q)_{33} = \tnrate \tprate$ (row 3, column 3; note
 column 3 is the $(-,+)$ output pattern).
 
 \emph{Entry $(B_1 B_2, +-)$: positive then negative, both correctly
