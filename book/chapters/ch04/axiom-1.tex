@@ -1,1 +1,252 @@
-% Drafted in Task: see plan 2026-05-02-bernoulli-textbook-ch04-axioms-kronecker.md
+\section{Axiom 1: Element-Wise Independence}
+\label{sec:axiom-1}
+
+% Cross-references to sec:miller-rabin (ch 3) and ch:approximate-sets (ch 5)
+% will resolve when those chapters are drafted in later plans.
+% Build warnings for those labels are expected and will be resolved in Plan 4.
+
+The previous section sketched two kinds of independence that chapters 1--3
+quietly assumed. This section makes the first of them precise.
+
+A brief note on framing before we begin. In \Cref{sec:why-axioms} the
+chain-of-stages example, where $k$ noisy channels connected in series
+produce a compound error rate of $\prod_{i=1}^k (1-\tnrate_i)$, was
+offered as motivation for thinking carefully about independence. That
+example actually invokes a consequence of Axiom 1 applied to the
+composition theorem: once Axiom 1 guarantees that queries on distinct
+input elements are independent, the per-stage contributions to the
+end-to-end error decouple. The strict statement of Axiom 1 is about
+something slightly more elementary, namely that the error event at one
+element of the input domain tells you nothing about the error event at
+a different element. The chain example is the same idea, transported to
+a sequential setting. We state the clean version here, and the chain
+interpretation follows as a corollary.
+
+\subsection*{The formal statement}
+
+Let $U$ be the universal set, the domain of all possible inputs to
+the approximate membership predicate. For a fixed objective set
+$A \subseteq U$, the predicate either correctly reports the true answer
+or makes an error. For each $x \in U$, define the error indicator
+\[
+  E_x \;=\; \mathbf{1}\bigl[\tilde{A}(x) \neq \mathbf{1}_A(x)\bigr],
+\]
+where $\tilde{A}(x)$ is the approximate predicate's output on input $x$
+and $\mathbf{1}_A(x)$ is the exact answer. $E_x = 1$ means an error
+occurred at $x$; $E_x = 0$ means the answer was correct.
+
+\begin{axiom}[Element-wise independence]
+\label{ax:element-indep}
+For all distinct $x, y \in U$, the error events $E_x$ and $E_y$ are
+independent:
+\[
+  \Prob{E_x = 1, \, E_y = 1} \;=\; \Prob{E_x = 1} \cdot \Prob{E_y = 1}.
+\]
+More generally, the family $\{E_x : x \in U\}$ is mutually independent
+given the objective set $A$ and the error rates. Furthermore, within
+each partition block $B_i$ of $U$ (defined formally in \Cref{sec:axiom-2}),
+the error indicators $\{E_x : x \in B_i\}$ are identically distributed.
+\end{axiom}
+
+The notation $\tilde{A}(x)$ is deliberately abstract: it stands for any
+approximate membership test, whether implemented as a Bloom filter, a
+probabilistic data structure, a noisy sensor, or a randomized algorithm.
+Axiom 1 is a property of the \emph{process} that generates the answers,
+not of any particular implementation.
+
+\subsection*{Consequence: factored joint distributions}
+
+Axiom 1 is not merely a philosophical assertion. It has an immediate
+and quantitative consequence for joint query distributions.
+
+\begin{proposition}[Factored joint distribution]
+\label{prop:factored-joint}
+Under \Cref{ax:element-indep}, the joint distribution of the error
+indicators over any finite set of distinct inputs $\{x_1, \ldots, x_n\}
+\subseteq U$ factors as a product of $n$ marginal distributions:
+\[
+  \Prob{E_{x_1} = e_1, \, \ldots, \, E_{x_n} = e_n}
+  \;=\;
+  \prod_{i=1}^n \Prob{E_{x_i} = e_i}
+\]
+for any choice of $e_1, \ldots, e_n \in \{0, 1\}$.
+Equivalently, the joint distribution of the observed responses
+$\tilde{A}(x_1), \ldots, \tilde{A}(x_n)$ factors as
+\[
+  \Prob{\tilde{A}(x_1) = s_1, \ldots, \tilde{A}(x_n) = s_n \Given A}
+  \;=\;
+  \prod_{i=1}^n \Prob{\tilde{A}(x_i) = s_i \Given A},
+\]
+where each factor equals $\fprate$, $\tnrate$, $\tprate$, or $\fnrate$
+depending on whether $x_i \in A$ and whether $s_i$ is a correct response.
+\end{proposition}
+
+\begin{proof}
+The first identity is the definition of mutual independence for the
+family $\{E_x : x \in U\}$, which Axiom 1 asserts directly.
+The second identity follows because $\tilde{A}(x_i) = s_i$ is a
+deterministic function of $E_{x_i}$ and the exact answer $\mathbf{1}_A(x_i)$:
+knowing $A$ determines $\mathbf{1}_A(x_i)$, and given that,
+$\tilde{A}(x_i) = s_i$ iff $E_{x_i}$ takes the appropriate value.
+The product therefore inherits its factored form from the independence
+of $\{E_{x_i}\}$.
+\end{proof}
+
+This proposition is the engine behind every multi-query formula in the
+book. Whenever we write a joint probability over several distinct inputs
+as a product of marginals, we are using this proposition, which rests
+on Axiom 1.
+
+The factored joint distribution also licenses a key observation about
+the joint confusion matrix of $m$ simultaneous queries. Without any
+independence assumption, that matrix lives in a space of dimension
+$n(2^m - 1)$ for an $n$-th order model. Axiom 1 forces it to be a
+Kronecker product of per-query $2 \times 2$ matrices, collapsing the
+parameter count to at most $2m$. That is the content of
+\Cref{sec:kronecker}; we state it here as a forward reference so the
+reader knows why Axiom 1 matters at the level of the whole framework.
+
+\subsection*{Example 1: The Bloom filter's independence assumption}
+
+A Bloom filter~\cite{bloomfilter} answers membership queries on a set
+$A$ stored in a bit array of $m$ bits, using $k$ independent hash
+functions. When $k$ hashes are applied to a new element $x$, each hash
+selects a bit position; $x$ is declared a member if and only if all $k$
+selected positions are 1.
+
+For elements $x \notin A$, the probability that all $k$ positions happen
+to be set (a false positive) is approximately $(1 - e^{-kn/m})^k$, where
+$n = |A|$. This familiar formula is derived under an explicit assumption:
+for two distinct non-members $x$ and $y$, the event ``$x$ is a false
+positive'' is independent of the event ``$y$ is a false positive.'' Without
+this assumption, the formula gives neither an exact probability nor a
+useful bound; instead, one would need to account for correlations between
+all pairs of non-members, producing a quantity with no closed form.
+
+Axiom 1 is exactly the assumption the Bloom filter's analysis needs.
+The filter's $k$ hash functions are chosen to be independent, and the
+hash values for distinct elements are treated as unrelated. Whether or
+not this is precisely true in a given implementation, it is the
+assumption under which the false-positive rate formula is derived, and
+it is the assumption that the Bernoulli framework formalizes.
+
+We will analyze the Bloom filter fully in Part II
+(\Cref{ch:approximate-sets}), where Axiom 1 will be verified to hold
+under the standard random-oracle model for the hash functions. For now,
+the take-away is structural: the Bloom filter is a $\Bernoulli{\BoolType}$
+implementation, and Axiom 1 is the assumption that makes that claim
+non-trivial.
+
+\subsection*{Example 2: Miller-Rabin's $k$-round bound requires Axiom 1}
+
+In \Cref{sec:miller-rabin} we derived the Miller--Rabin bound: after
+$k$ independent rounds of witness testing, the probability that a
+composite number passes all $k$ rounds (the $k$-round false-positive
+rate) is at most $(1/4)^k$. The bound rests on two facts: each round's
+false-positive probability is at most $1/4$, and the rounds are independent.
+
+The independence of rounds is precisely Axiom 1. Specifically, each
+round tests a different witness $w_i$ drawn uniformly at random from
+$\{2, \ldots, n-2\}$. Whether $w_i$ happens to be a strong liar for
+the composite $n$ (the error event at $w_i$) must be independent of
+whether $w_j$ is a strong liar (the error event at $w_j$), for $i \neq j$.
+The distinct witnesses $w_1, \ldots, w_k$ play the role of the distinct
+elements $x_1, \ldots, x_k$ in \Cref{ax:element-indep}; the error events
+are the events that the witness fails to detect compositeness.
+
+Under Axiom 1, the joint probability that all $k$ witnesses are strong
+liars is the product of the individual probabilities:
+\[
+  \Prob{\text{all } k \text{ witnesses are strong liars}}
+  \;\leq\;
+  \prod_{i=1}^k \frac{1}{4} \;=\; \left(\frac{1}{4}\right)^k.
+\]
+Without Axiom 1, the $k$ error events could be positively correlated.
+A composite $n$ with an unusually large liar set might make the events
+``$w_1$ is a liar'' and ``$w_2$ is a liar'' positively correlated, because
+both witnesses are drawn from the same liar-dense number. In that
+case, the product bound $(1/4)^k$ would underestimate the true
+false-positive probability. The correct expression would involve the
+joint distribution over all $k$ witnesses, which does not simplify to
+a product without an independence assumption.
+
+The Miller--Rabin analysis works because the witnesses are drawn
+uniformly and independently from a large set. In the worst case, at
+most $1/4$ of all candidates are strong liars; with independent uniform
+sampling, the fraction is driven down exponentially.
+This is Axiom 1 at work.
+
+\subsection*{Classifier-verdict callback: when Axiom 1 fails}
+
+Recall the classifier-verdict thread from \Cref{sec:why-axioms}: two
+binary classifiers making decisions about the same input. This is the
+natural example where Axiom 1 fails, and the failure has quantitative
+consequences.
+
+Suppose two classifiers $C_1$ and $C_2$ are both trained on a shared
+dataset with overlapping features. Each classifier is a
+$\Bernoulli{\BoolType}$ individually: on any given input $x$,
+$C_1$ has false-positive rate $\fprate_1$ and $C_2$ has false-positive
+rate $\fprate_2$.
+
+Now consider their joint behavior on a single negative input $x \notin A$.
+If Axiom 1 held, the probability that both make a false positive would be:
+\[
+  \Prob{C_1(x) = 1, \, C_2(x) = 1 \Given x \notin A}
+  \;\stackrel{?}{=}\;
+  \fprate_1 \cdot \fprate_2.
+\]
+But these are not two \emph{distinct input elements}: both classifiers
+are operating on the same input $x$. Axiom 1 governs independence across
+distinct inputs, not independence between different classifiers on the
+same input. The two classifiers share training data, so their errors on
+$x$ tend to be correlated.
+
+Let $\rho \in [0,1]$ be the correlation between the error indicators
+$E_x^{(1)}$ and $E_x^{(2)}$. The joint probability is
+\[
+  \Prob{E_x^{(1)} = 1, \, E_x^{(2)} = 1}
+  \;=\;
+  \fprate_1 \fprate_2 \;+\; \rho \sqrt{\fprate_1(1-\fprate_1) \cdot \fprate_2(1-\fprate_2)}.
+\]
+For a concrete example, let $\fprate_1 = \fprate_2 = 0.10$ and
+$\rho = 0.60$. The product bound predicts a joint false-positive rate of
+$0.10 \times 0.10 = 0.01$. The actual joint rate is
+\[
+  0.01 + 0.60 \times \sqrt{0.10 \times 0.90 \times 0.10 \times 0.90}
+  \;=\;
+  0.01 + 0.60 \times 0.09
+  \;=\;
+  0.01 + 0.054
+  \;=\;
+  0.064.
+\]
+The inflation factor is $0.064 / 0.01 = 6.4$: the naive product
+underestimates the true joint false-positive rate by a factor of more
+than six.
+
+This is not a failure of the individual classifiers, which are each
+well-behaved $\Bernoulli{\BoolType}$ objects. It is a failure of the
+independence assumption between them. Specifically, this situation does
+not violate Axiom 1 in the technical sense: Axiom 1 governs independence
+of errors at \emph{distinct inputs} to a \emph{single approximate
+predicate}, whereas here we have a \emph{single input} to \emph{two
+different predicates}. The practical lesson is the same, however: when
+error events are correlated, the product formula overestimates
+independence and underestimates the joint error rate.
+
+The twin lessons are these. First, Axiom 1 is a genuine modeling
+assumption, not an automatic consequence of each individual predicate
+being a $\Bernoulli{\BoolType}$: the individual marginals can be well
+calibrated while the joint distribution fails to factor. Second,
+correlated errors are worse than independent errors in a precise,
+quantifiable sense: the inflation factor grows with the correlation
+coefficient and with the individual error rates.
+
+The Kronecker theorem proved in \Cref{sec:kronecker} makes this
+precise at the level of the joint confusion matrix: under Axiom 1,
+the matrix has a structured Kronecker-product form that encodes exactly
+the factored joint distribution in \Cref{prop:factored-joint}. Without
+Axiom 1, the matrix is unstructured, the parameter count explodes, and
+the elegant formulas of chapters 1--3 must be replaced by unwieldy
+joint distributions over all pairs and triples of query events.
