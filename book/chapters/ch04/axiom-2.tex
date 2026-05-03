@@ -151,9 +151,15 @@ assigned to block $B_i$. By Axiom 2, $\alpha_i$ is independent of
 $\alpha_j$ for $j \neq i$. By Axiom 1, the error events at distinct
 elements are independent. Together, the conditional distribution of the
 output at step $t$ is a function only of $\alpha_i$ and the block
-membership of $x_t$, not of any prior query outcomes. Since this holds
-for all $t$, the channel matrix row for block $B_i$ is stable across the
-entire query sequence.
+membership of $x_t$, not of any prior query outcomes. Because the
+per-block rate $\alpha_i$ is a fixed value once we condition on $A$
+(Axiom 2 makes it random over $A$, but conditioning on $A$ fixes it),
+and Axiom 1 makes the per-element error events conditionally independent
+at the same rate $\alpha_i$ for every element of block $B_i$, every
+query of an element from block $B_i$ contributes the same row of $Q$.
+The $Q$ matrix is therefore time-invariant across the query sequence.
+Since this holds for all $t$, the channel matrix row for block $B_i$ is
+stable across the entire query sequence.
 \end{proof}
 
 This proposition is the precise sense in which ``there is one channel
@@ -298,17 +304,21 @@ $(+, -)$ & $0.05 \times 0.70 = 0.0350$ & $0.0475$ & deflation \\
 \end{tabular}
 \end{center}
 
-Here the marginal false-positive rate is $0.95 \times 0.05 + 0.05 \times 0.30 = 0.0625$
-(averaging over both states), so the Axiom-2 product for two positives
-would be $0.0625^2 = 0.0039$. The actual probability of two consecutive
-false positives is $0.05 \times 0.30 = 0.0150$, a factor of $3.8\times$ higher.
+Axiom 2 predicts the joint probability of two consecutive false positives
+as $\fprate_0^2 = 0.05^2 = 0.0025$, since under Axiom 2 the per-block
+false-positive rate is a fixed constant $\fprate_0$ across queries (one $Q$
+matrix per block, stable). The Markov channel produces $0.0150$ instead, a
+factor of $6\times$ higher. The discrepancy is exactly what Axiom 2 forbids:
+the rate after a previous false positive ($\fprate_1 = 0.30$) is six times
+the rate after a previous correct response ($\fprate_0 = 0.05$). The
+per-block rate is no longer a constant; it depends on history.
 
 The discrepancy is not small. The Markov channel produces error
 clustering that is invisible to the factored model. If a practitioner
 were to apply the Kronecker factorization of \Cref{sec:kronecker} to
 this channel, they would underestimate the probability of back-to-back
-errors by a factor of nearly four. In applications where error
-clustering is costly, this is not a tolerable approximation error.
+errors by a factor of six. In applications where error clustering is
+costly, this is not a tolerable approximation error.
 
 The Markov channel is not a pathological construction: it models a
 real failure mode. What Axiom 2 asserts is that the Bernoulli framework,
