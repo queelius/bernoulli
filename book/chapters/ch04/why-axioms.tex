@@ -1,6 +1,14 @@
 \section{Why Axioms?}
 \label{sec:why-axioms}
 
+% Cross-references to chapters 1-3 (sec:and-under-noise, sec:composition-theorem)
+% will resolve when those chapters are drafted in Plans 2-4. Cross-references
+% to sibling sections sec:axiom-1, sec:axiom-2, sec:kronecker, and
+% sec:bernoulli-bool-formal will resolve as Tasks 3-6 of this plan land.
+% Build warnings ("Reference X undefined") for these labels are expected
+% during ch 4 drafting and will be resolved by Plan 4's Part I integration
+% check.
+
 The three chapters behind us built something real. We derived the error
 rates for AND and OR gates operating on noisy bits
 (\Cref{sec:and-under-noise}), showed that composition of
@@ -15,39 +23,42 @@ were correct.
 But correct derivations can hide assumptions. Chapters 1--3 made
 \emph{two} independence assumptions so naturally that we did not pause
 to name them. This chapter names them, states them precisely, and then
-shows exactly what mathematical structure they license. That structure,
-the Kronecker factorization of the joint confusion matrix, is the formal
-payoff for the care we are about to take.
+shows exactly what mathematical structure they license. That structure
+is a precise structural theorem showing what those assumptions cost and
+what they buy; it is the formal payoff for the care we are about to take.
 
 \subsection*{The first hidden assumption: element-wise independence}
 
 Recall the composition theorem from \Cref{sec:composition-theorem}.
-When we wrote the true-negative rate for $k$ chained channels as
-$\tnrate_{\mathrm{total}} = 1 - \prod_{i=1}^k (1 - \tnrate_i)$, we
-were treating each channel's error on a given query as independent of
-every other channel's error \emph{on the same query}. The formula is a
-product of independent terms. No correlation between channels was
-allowed.
+When we wrote the true-negative rate for $k$ channels chained in series
+as $\tnrate_{\mathrm{total}} = 1 - \prod_{i=1}^k (1 - \tnrate_i)$, we
+were treating each channel's contribution to the end-to-end error as
+independent of every other channel's contribution. One query enters the
+chain; it passes through channel 1, whose output feeds channel 2, and so
+on; the overall error rate is a product of independent per-stage terms.
+No correlation across stages was allowed, and the product formula relied
+on that fact throughout.
 
-This assumption is not always warranted. Suppose two classifiers are
-trained on overlapping data from the same source. Their errors on a new
-input $x$ will tend to correlate: when one misclassifies $x$, the other
-is more likely to as well. The product formula breaks. The effective
-error rate is worse than the product formula predicts, because the
-errors reinforce rather than cancel.
+A different scenario where Axiom 1 matters: two classifiers trained on
+overlapping data from the same source. Their errors on a new input $x$
+will tend to correlate: when one misclassifies $x$, the other is more
+likely to as well. The product formula breaks. The effective error rate
+is worse than the product formula predicts, because the errors reinforce
+rather than cancel.
 
-We will call the assumption that justifies the product formula \emph{Axiom 1}.
-It says, in brief: queries on distinct elements of the input domain
-produce statistically independent error events. When Axiom 1 holds, the
-joint error distribution over multiple queries factors into a product of
-marginals, and every formula in chapters 1--3 that relies on
-independence is automatically justified. When Axiom 1 fails, those
-formulas become bounds at best and misleading at worst. Chapter 3's
-Miller--Rabin analysis, for instance, requires Axiom 1: the $k$
-witness tests must be independent for the per-round bound to compound
-as $(1/4)^k$. If the witnesses were correlated, the product would
-underestimate the true composite error rate. We formalize Axiom 1 and
-trace its consequences in \Cref{sec:axiom-1}.
+We will call the assumption that justifies the product formula
+\emph{Axiom 1}. Roughly, Axiom 1 asserts independence of error events
+across distinct input elements; the precise statement and its scope
+appear in \Cref{sec:axiom-1}. The practical effect is that joint error
+distributions factor across distinct queries, which is what made the
+composition theorem's product form possible. When Axiom 1 holds, every
+formula in chapters 1--3 that relies on independence is automatically
+justified. When Axiom 1 fails, those formulas become bounds at best and
+misleading at worst. Chapter 3's Miller--Rabin analysis, for instance,
+requires Axiom 1: the $k$ witness tests must be independent for the
+per-round bound to compound as $(1/4)^k$. If the witnesses were
+correlated, the product would underestimate the true composite error
+rate.
 
 \subsection*{The second hidden assumption: stable block error rates}
 
@@ -71,9 +82,9 @@ make it explicit. Axiom 2 says: the error rates within each partition
 block of the input domain are the same for every query, unconditionally.
 There is one channel matrix $Q$ per input-block-pair, and it does not
 depend on which query in a sequence we are currently processing.
-Under Axiom 2, a Bernoulli channel is genuinely memoryless within
-each block: its statistical behavior is the same on the hundredth query
-as on the first.
+Under Axiom 2, the channel is genuinely memoryless within each block:
+its statistical behavior is the same on the hundredth query as on the
+first.
 
 This is a meaningful restriction, not a triviality. It rules out
 fatigue, warm-up effects, adversarial adaptation, and history
@@ -82,14 +93,13 @@ in \Cref{sec:axiom-2}.
 
 \subsection*{What the axioms buy}
 
-Once both axioms are in place, something remarkable follows. The joint
-confusion matrix describing $m$ independent queries on a Bernoulli
-channel is not a free $|B|^m \times |B|^m$ matrix with exponentially
-many parameters. Under Axioms 1 and 2, it \emph{must} factor as a
-Kronecker product of per-query matrices, one factor per query. The
-number of free parameters collapses from $n(2^m - 1)$ for a
-general $n$-th-order $m$-query channel down to $2m$: two rates per
-query, nothing more.
+Once both axioms are in place, something striking follows. The joint
+confusion matrix describing $m$ independent queries on the channel is
+not a free matrix with exponentially many parameters. Under Axioms 1
+and 2, it \emph{must} factor into a product of $m$ small per-query
+matrices, one factor per query. The exponential-to-linear collapse in
+parameter count, made precise in \Cref{sec:kronecker}, is the formal
+payoff of this chapter.
 
 This is not merely an algebraic convenience. It is the theorem that
 makes the Bernoulli framework useful in practice. Without it, a
@@ -119,7 +129,8 @@ left without a full PMF until we had the formal machinery to handle it.
 The trajectory of this chapter, then, is: axioms first
 (\Cref{sec:axiom-1,sec:axiom-2}), then the theorem they make possible
 (\Cref{sec:kronecker}), then the definition the theorem earns us
-(\Cref{sec:bernoulli-bool-formal}). By the end, the reader who worked
-through chapters 1--3 will recognize every example, every formula, and
-every derivation as an instance of one coherent definition. That is the
-point.
+(\Cref{sec:bernoulli-bool-formal}).
+
+By the end, the reader who worked through chapters 1--3 will recognize
+every example, every formula, and every derivation as an instance of
+one coherent definition. That is the point.
