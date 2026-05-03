@@ -18,10 +18,16 @@ the error rates. That axiom governs the \emph{spatial} structure of
 errors, the relationship between different elements of the universal
 set queried simultaneously or in any order.
 
-This section gives the second axiom. Axiom 2 governs the \emph{stability}
-of error rates across queries. It says that the error behavior on one
-query tells you nothing about the error behavior on another query to the
-same block: the per-block error rates are constant, not history-dependent.
+This section gives the second axiom. Axiom 2 governs how the random
+error rates at different blocks relate to each other: knowing the rate
+on one block tells you nothing about the rate on another. This is a
+\emph{cross-block independence} claim, not a within-block or
+across-queries stability claim. Combined with Axiom 1, however, it
+implies a stability we will derive as a formal consequence in
+\Cref{prop:stable-Q}: per-block rates are constant across queries.
+We state the formal axiom first, then derive the stability consequence,
+then work through what fails when stability fails.
+
 The two axioms are logically independent of each other. Axiom 1 alone
 does not imply Axiom 2, and Axiom 2 alone does not imply Axiom 1. Both
 are needed, and their conjunction is exactly what makes the Kronecker
@@ -151,12 +157,16 @@ assigned to block $B_i$. By Axiom 2, $\alpha_i$ is independent of
 $\alpha_j$ for $j \neq i$. By Axiom 1, the error events at distinct
 elements are independent. Together, the conditional distribution of the
 output at step $t$ is a function only of $\alpha_i$ and the block
-membership of $x_t$, not of any prior query outcomes. Because the
-per-block rate $\alpha_i$ is a fixed value once we condition on $A$
-(Axiom 2 makes it random over $A$, but conditioning on $A$ fixes it),
-and Axiom 1 makes the per-element error events conditionally independent
-at the same rate $\alpha_i$ for every element of block $B_i$, every
-query of an element from block $B_i$ contributes the same row of $Q$.
+membership of $x_t$, not of any prior query outcomes.
+
+By Axiom 1, every element of $B_i$ uses the same rate $\alpha_i$, drawn
+once at construction time for the data structure. Once that value is
+realized, the channel row for $B_i$ is a fixed function of $\alpha_i$
+at every subsequent query, regardless of the query index $t$. Marginalizing
+over the distribution of $\alpha_i$ then produces the same marginal channel
+row at every query. Because Axiom 1 also makes per-element error events
+conditionally independent given $\alpha_i$, every query of an element from
+block $B_i$ contributes the same row of $Q$.
 The $Q$ matrix is therefore time-invariant across the query sequence.
 Since this holds for all $t$, the channel matrix row for block $B_i$ is
 stable across the entire query sequence.
@@ -340,18 +350,24 @@ across queries. Together they imply that the joint confusion matrix
 over any sequence of queries is a Kronecker product of single-query
 matrices, one factor per query (\Cref{sec:kronecker}).
 
-The parametric savings are substantial. A general $n$-th order model
-describing $m$ joint queries, without any independence assumption, has
-$n(2^m - 1)$ free parameters: $2^m$ output symbols, $n$ rows in the
-channel matrix, one free parameter per output symbol per row. Under
+The parametric savings are substantial. Consider the order-2 Boolean
+predicate that runs throughout this chapter: a general channel on $m$
+joint queries with two blocks, and no independence assumption, requires
+$2(2^m - 1)$ free parameters: one for each joint outcome of $m$
+Boolean tests in each of the two rows, save normalization. Under
 Axioms 1 and 2, the Kronecker structure forces the parameter count down
-to $2m$ regardless of $n$: two parameters per query (one per block in
-the order-2 model), with no cross-query parameters at all. For $m = 50$
-queries on an order-2 channel, this is the difference between $50$
-parameters (under the axioms) and $50 \times (2^{50} - 1) \approx 5.6
-\times 10^{16}$ parameters (in the general case). The axioms are not
-merely philosophically satisfying; they are what makes the model
-tractable.
+to $2m$: two parameters per query (one per block), with no cross-query
+parameters at all. For $m = 50$ queries on the order-2 Boolean
+channel, that is $2m = 100$ parameters under the axioms versus
+$2(2^{50} - 1) \approx 2.25 \times 10^{15}$ in the general case.
+The axioms are not merely philosophically satisfying; they are what
+makes the model tractable.
+
+The Kronecker factorization theorem in \Cref{sec:kronecker} makes
+this precise and derives the parameter reduction as a corollary. For
+an $n$-th order model on $m$ joint queries, the general case has
+$n(2^m - 1)$ free parameters; under the axioms, the count falls
+to $nm$.
 
 We prove the Kronecker factorization theorem and its corollary on
 parameter reduction in \Cref{sec:kronecker}. That section is where the
