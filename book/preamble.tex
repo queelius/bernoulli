@@ -31,8 +31,9 @@
 % Useful math packages not in alex.sty
 \usepackage{bm}
 
-% Math-safe type macros for the Bernoulli type system.
-% \Bernoulli{T} renders as Bernoulli[T] (brackets per the type-notation convention).
-% \Bool renders as mathrm{bool}; overrides alex.sty's algorithm2e-only \SetKwData{Bool}{Bool}.
-\newcommand{\Bernoulli}[1]{\mathrm{Bernoulli}\!\left[#1\right]}
-\renewcommand{\Bool}{\mathrm{bool}}
+% Type-name macros for the textbook. Defined here rather than in alex.sty
+% because alex.sty is shared with the papers; book-specific notation lives
+% here. \BoolType is a separate name from alex.sty's algorithm2e \Bool
+% (which remains available inside algorithm2e environments for pseudocode).
+\newcommand{\Bernoulli}[1]{\mathrm{Bernoulli}[#1]}
+\newcommand{\BoolType}{\mathrm{bool}}
