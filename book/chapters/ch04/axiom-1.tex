@@ -8,19 +8,19 @@
 The previous section sketched two kinds of independence that chapters 1--3
 quietly assumed. This section makes the first of them precise.
 
-A brief note on framing before we begin. In \Cref{sec:why-axioms} the
-chain-of-stages example, where $k$ noisy channels connected in series
-produce a compound error rate of $\prod_{i=1}^k (1-\tnrate_i)$, was
-offered as motivation for thinking carefully about independence. That
-example actually invokes a consequence of Axiom 1 applied to the
-composition theorem: once Axiom 1 guarantees that queries on distinct
-input elements are independent, the per-stage contributions to the
-end-to-end error decouple. The strict statement of Axiom 1 is about
-something slightly more elementary, namely that the error event at one
-element of the input domain tells you nothing about the error event at
-a different element. The chain example is the same idea, transported to
-a sequential setting. We state the clean version here, and the chain
-interpretation follows as a corollary.
+A brief note on framing before we begin. In \Cref{sec:why-axioms} we
+used a chain-of-stages example as motivation: $k$ noisy channels in
+series, with end-to-end error rate $1 - \prod_{i=1}^k (1 - \tnrate_i)$.
+That example invokes a kind of independence, but it is not the same
+statement as Axiom 1. Axiom 1 governs independence across distinct input
+elements of a \emph{single} approximate predicate. Stage-wise independence
+in a composition chain is a separate assumption: closely related, often
+co-occurring, but operationally distinct. Both are needed for the chain
+formula; both fail in similar circumstances; and in well-behaved
+implementations both hold. We state Axiom 1 cleanly here, on a single
+predicate. The reader who wants to recover the chain formula from these
+axioms should track the two independences separately and combine them as
+the composition theorem of \Cref{ch:composition} prescribes.
 
 \subsection*{The formal statement}
 
@@ -145,13 +145,23 @@ composite number passes all $k$ rounds (the $k$-round false-positive
 rate) is at most $(1/4)^k$. The bound rests on two facts: each round's
 false-positive probability is at most $1/4$, and the rounds are independent.
 
-The independence of rounds is precisely Axiom 1. Specifically, each
+There is a subtle reframing required to fit Miller-Rabin under Axiom 1.
+The predicate being tested takes a \emph{single} fixed input $n$ (the
+integer in question), and randomness enters via the witness draw rather
+than via the input. To apply Axiom 1 cleanly, recast the test as a
+predicate $\tilde{P}\colon \{2, \ldots, n-2\} \to \{\text{composite},
+\text{probably prime}\}$ on the witness pool: now distinct witnesses
+\emph{are} distinct input elements, and Axiom 1's claim is that error
+events at distinct witnesses (the events ``$w_i$ is a strong liar for
+$n$'') are independent. Whether or not this independence holds for any
+particular composite $n$ depends on the structure of $n$'s strong-liar
+set, a separate fact about Miller-Rabin's mathematical content.
+
+With that reframing in place, the connection to Axiom 1 is clean. Each
 round tests a different witness $w_i$ drawn uniformly at random from
-$\{2, \ldots, n-2\}$. Whether $w_i$ happens to be a strong liar for
-the composite $n$ (the error event at $w_i$) must be independent of
-whether $w_j$ is a strong liar (the error event at $w_j$), for $i \neq j$.
-The distinct witnesses $w_1, \ldots, w_k$ play the role of the distinct
-elements $x_1, \ldots, x_k$ in \Cref{ax:element-indep}; the error events
+$\{2, \ldots, n-2\}$. Whether $w_i$ happens to be a strong liar for $n$
+(the error event at $w_i$) must be independent of whether $w_j$ is a
+strong liar (the error event at $w_j$), for $i \neq j$. The error events
 are the events that the witness fails to detect compositeness.
 
 Under Axiom 1, the joint probability that all $k$ witnesses are strong
@@ -162,9 +172,11 @@ liars is the product of the individual probabilities:
   \prod_{i=1}^k \frac{1}{4} \;=\; \left(\frac{1}{4}\right)^k.
 \]
 Without Axiom 1, the $k$ error events could be positively correlated.
-A composite $n$ with an unusually large liar set might make the events
-``$w_1$ is a liar'' and ``$w_2$ is a liar'' positively correlated, because
-both witnesses are drawn from the same liar-dense number. In that
+The events ``$w_1$ is a liar'' and ``$w_2$ is a liar'' may be
+positively correlated, because both witnesses are sampled from the same
+composite $n$, which may itself happen to have an unusually large
+strong-liar set. Conditioning on $n$, the witnesses are not independent
+of each other when the liar fraction is unknown. In that
 case, the product bound $(1/4)^k$ would underestimate the true
 false-positive probability. The correct expression would involve the
 joint distribution over all $k$ witnesses, which does not simplify to
@@ -176,12 +188,18 @@ most $1/4$ of all candidates are strong liars; with independent uniform
 sampling, the fraction is driven down exponentially.
 This is Axiom 1 at work.
 
-\subsection*{Classifier-verdict callback: when Axiom 1 fails}
+\subsection*{Classifier-verdict callback: a related independence failure}
 
-Recall the classifier-verdict thread from \Cref{sec:why-axioms}: two
-binary classifiers making decisions about the same input. This is the
-natural example where Axiom 1 fails, and the failure has quantitative
-consequences.
+The classifier-verdict thread from \Cref{sec:why-axioms} returns here,
+but with a deliberate caveat. Two correlated classifiers evaluating the
+\emph{same} input is not literally an Axiom 1 failure: Axiom 1 governs
+distinct \emph{inputs} to a single predicate, not distinct
+\emph{predicates} on a single input. The example we work below is one
+step removed from Axiom 1, but it illustrates the same family of
+phenomenon: when error events are correlated for any reason, the naive
+product formula underestimates the joint failure rate. The Axiom 1 case
+(correlated errors at distinct inputs to one predicate) is
+mathematically structurally identical.
 
 Suppose two classifiers $C_1$ and $C_2$ are both trained on a shared
 dataset with overlapping features. Each classifier is a
@@ -190,17 +208,15 @@ $C_1$ has false-positive rate $\fprate_1$ and $C_2$ has false-positive
 rate $\fprate_2$.
 
 Now consider their joint behavior on a single negative input $x \notin A$.
-If Axiom 1 held, the probability that both make a false positive would be:
+If the errors were independent, the probability that both make a false
+positive would be:
 \[
   \Prob{C_1(x) = 1, \, C_2(x) = 1 \Given x \notin A}
   \;\stackrel{?}{=}\;
   \fprate_1 \cdot \fprate_2.
 \]
-But these are not two \emph{distinct input elements}: both classifiers
-are operating on the same input $x$. Axiom 1 governs independence across
-distinct inputs, not independence between different classifiers on the
-same input. The two classifiers share training data, so their errors on
-$x$ tend to be correlated.
+But the two classifiers share training data, so their errors on $x$
+tend to be correlated.
 
 Let $\rho \in [0,1]$ be the correlation between the error indicators
 $E_x^{(1)}$ and $E_x^{(2)}$. The joint probability is
@@ -221,19 +237,13 @@ $0.10 \times 0.10 = 0.01$. The actual joint rate is
   \;=\;
   0.064.
 \]
-The inflation factor is $0.064 / 0.01 = 6.4$: the naive product
-underestimates the true joint false-positive rate by a factor of more
-than six.
+The inflation factor is $0.064 / 0.01 = 6.4$: the true joint
+false-positive rate is $6.4\times$ the naive product.
 
 This is not a failure of the individual classifiers, which are each
-well-behaved $\Bernoulli{\BoolType}$ objects. It is a failure of the
-independence assumption between them. Specifically, this situation does
-not violate Axiom 1 in the technical sense: Axiom 1 governs independence
-of errors at \emph{distinct inputs} to a \emph{single approximate
-predicate}, whereas here we have a \emph{single input} to \emph{two
-different predicates}. The practical lesson is the same, however: when
-error events are correlated, the product formula overestimates
-independence and underestimates the joint error rate.
+well-behaved $\Bernoulli{\BoolType}$ objects; it is a failure of the
+independence assumption between them. The Axiom 1 violation has the same
+arithmetic; only the source of the correlation differs.
 
 The twin lessons are these. First, Axiom 1 is a genuine modeling
 assumption, not an automatic consequence of each individual predicate
