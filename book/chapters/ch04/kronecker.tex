@@ -78,7 +78,7 @@ $x$ may be queried more than once), but the key requirement is that
 the $m$ error events are governed by the independence structure of
 Axioms 1 and 2: error events at distinct elements are independent
 (Axiom 1), and for repeated queries of the same element, the channel
-row is stable (Axiom 2 plus Proposition \Cref{prop:stable-Q}).
+row is stable (Axiom 2 plus \Cref{prop:stable-Q}).
 Together, these give independence across all $m$ query positions,
 whether or not the queried elements coincide.
 
@@ -200,21 +200,15 @@ per block) rather than $2(2^m - 1)$.
 We count the free parameters in $Q^{(m)} = Q_1 \otimes \cdots \otimes Q_m$.
 
 \medskip
-\noindent\textit{Constrained case.} Each per-query matrix $Q_\ell$ is an
-$n \times n$ stochastic matrix, so each row sums to 1. The $n$ rows of
-$Q_\ell$ are independent of each other by Axiom~2 (each block contributes
-one row, and the rates across blocks are independent). Each row has $n - 1$
-free real parameters (one entry determined by the sum-to-one constraint).
-Thus $Q_\ell$ has $n(n-1)$ free parameters.
-
-For $m$ queries, the $m$ matrices $Q_1, \ldots, Q_m$ share no parameters
-by Axiom~2 (the per-block rates are independent), so the total free
-parameter count is $m \cdot n(n-1)$. However, the quantity relevant to
-membership queries (binary output: element is in the set or not) is
-not the full $n \times n$ transition matrix but only the response rate
-of each block, one number per block. This reduces each $Q_\ell$ to $n$
-free parameters (one per block), giving a total of $nm$ free parameters
-across $m$ queries.
+\noindent\textit{Constrained case.} Under the axioms, $Q^{(m)}$ factors
+as $Q_1 \otimes \cdots \otimes Q_m$ (\Cref{thm:kronecker}), so each
+per-query matrix $Q_\ell$ contributes its own parameters independently.
+Each $Q_\ell$ is an $n \times 2$ stochastic matrix: rows are indexed by
+the $n$ source blocks, and columns by the two binary output labels. Each
+row sums to 1, leaving 1 free parameter per row. With $n$ rows, each
+$Q_\ell$ has $n$ free parameters. By Axiom~2 the per-block rates are
+independent across queries, so the $m$ matrices share no parameters.
+Across $m$ queries: $nm$ free parameters in total.
 
 In the order-2 Boolean case ($n = 2$), the two blocks are positives and
 negatives, parametrized by $(\tprate, \fprate)$ per query, or equivalently
@@ -223,13 +217,15 @@ parameters in total across $m$ queries.
 
 \medskip
 \noindent\textit{General case.} Without the Kronecker structure, the
-joint matrix $Q^{(m)}$ has $n$ rows (one per block identity on the
-\emph{first} query) and $n^m$ columns (all combinations of block-output
-pairs across $m$ queries, for $n$ output labels per query). Wait: for
-binary-output queries, the output at each query position is in $\{0,1\}$,
-so the joint output vector lives in $\{0,1\}^m$, giving $2^m$ columns.
-Each of the $n$ rows sums to 1, so the row has $2^m - 1$ free parameters.
-Total: $n(2^m - 1)$.
+joint matrix $Q^{(m)}$ is indexed by all tuples
+$(j_1, \ldots, j_m) \in \{1, \ldots, n\}^m$ on the rows (giving $n^m$
+rows) and all joint output patterns on the columns. For binary-output
+queries, each output position is in $\{0,1\}$, so the joint output
+vector lives in $\{0,1\}^m$, giving $2^m$ columns. Counting parameters
+per source block: each of the $n$ source blocks contributes one
+(unconstrained) conditional distribution over $2^m$ output patterns,
+requiring $2^m - 1$ free parameters after normalization. Total:
+$n(2^m - 1)$.
 
 \medskip
 \noindent\textit{Ratio.}
@@ -262,8 +258,10 @@ crossover probability $\fprate$ has channel matrix
 Since the BSC is symmetric, $\fprate$ is both the false-positive rate
 (an element outside $A$ is reported as inside) and the false-negative
 rate (an element inside $A$ is reported as outside). This is the
-first-order Bernoulli model: both blocks share the same channel row
-(by symmetry), so a single parameter $\fprate$ suffices.
+first-order Bernoulli model: a single crossover parameter $\fprate$
+suffices because the channel is symmetric, FPR = FNR = $\fprate$, and
+the two rows $[1-\fprate,\, \fprate]$ and $[\fprate,\, 1-\fprate]$ are
+reversals of each other.
 
 Now suppose we run $m$ independent queries, each through the same BSC.
 By \Cref{thm:kronecker}, the joint confusion matrix is
@@ -414,16 +412,10 @@ negative (correct), second reported positive (correct).}
 This matches $(Q \otimes Q)_{31} = \tnrate \tprate$ (row 3, column 3; note
 column 3 is the $(-,+)$ output pattern).
 
-\emph{Entry $(B_1 B_2, +-)$: positive then negative, positive reported
-positive (correct), negative reported positive (false positive).}
-\[
-  \Prob{\tilde{A}(x_1) = +, \tilde{A}(x_2) = + \Given x_1 \in B_1, x_2 \in B_2}
-  \;=\; \tprate \cdot \fprate.
-\]
-This matches $(Q \otimes Q)_{22} = \tprate \tnrate$. Wait---row 2 is
-block pair $(B_1, B_2)$ and column 2 is output pattern $(+, -)$: the
-second query's output is $-$, so element $x_2 \in B_2$ (negative)
-produces output $-$ (correct), probability $\tnrate$. Let us redo:
+\emph{Entry $(B_1 B_2, +-)$: positive then negative, both correctly
+reported. Block $B_1 = \{\top\}$ (positive), output $+$ is a true
+positive; block $B_2 = \{\bot\}$ (negative), output $-$ is a true
+negative.}
 \[
   \Prob{\tilde{A}(x_1) = +, \tilde{A}(x_2) = - \Given x_1 \in B_1, x_2 \in B_2}
   \;=\; \tprate \cdot \tnrate.
