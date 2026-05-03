@@ -1,1 +1,125 @@
-% Drafted in Task: see plan 2026-05-02-bernoulli-textbook-ch04-axioms-kronecker.md
+\section{Why Axioms?}
+\label{sec:why-axioms}
+
+The three chapters behind us built something real. We derived the error
+rates for AND and OR gates operating on noisy bits
+(\Cref{sec:and-under-noise}), showed that composition of
+channels produces predictable compound rates, and in \Cref{sec:composition-theorem}
+proved the composition theorem: when $k$ independent noisy channels
+are chained in series, their true-positive rates compose multiplicatively.
+We then applied that theorem immediately to Miller--Rabin primality testing,
+watching a per-round false-positive rate of at most $1/4$ collapse to
+$(1/4)^k$ after $k$ rounds. The derivations were concrete and the results
+were correct.
+
+But correct derivations can hide assumptions. Chapters 1--3 made
+\emph{two} independence assumptions so naturally that we did not pause
+to name them. This chapter names them, states them precisely, and then
+shows exactly what mathematical structure they license. That structure,
+the Kronecker factorization of the joint confusion matrix, is the formal
+payoff for the care we are about to take.
+
+\subsection*{The first hidden assumption: element-wise independence}
+
+Recall the composition theorem from \Cref{sec:composition-theorem}.
+When we wrote the true-negative rate for $k$ chained channels as
+$\tnrate_{\mathrm{total}} = 1 - \prod_{i=1}^k (1 - \tnrate_i)$, we
+were treating each channel's error on a given query as independent of
+every other channel's error \emph{on the same query}. The formula is a
+product of independent terms. No correlation between channels was
+allowed.
+
+This assumption is not always warranted. Suppose two classifiers are
+trained on overlapping data from the same source. Their errors on a new
+input $x$ will tend to correlate: when one misclassifies $x$, the other
+is more likely to as well. The product formula breaks. The effective
+error rate is worse than the product formula predicts, because the
+errors reinforce rather than cancel.
+
+We will call the assumption that justifies the product formula \emph{Axiom 1}.
+It says, in brief: queries on distinct elements of the input domain
+produce statistically independent error events. When Axiom 1 holds, the
+joint error distribution over multiple queries factors into a product of
+marginals, and every formula in chapters 1--3 that relies on
+independence is automatically justified. When Axiom 1 fails, those
+formulas become bounds at best and misleading at worst. Chapter 3's
+Miller--Rabin analysis, for instance, requires Axiom 1: the $k$
+witness tests must be independent for the per-round bound to compound
+as $(1/4)^k$. If the witnesses were correlated, the product would
+underestimate the true composite error rate. We formalize Axiom 1 and
+trace its consequences in \Cref{sec:axiom-1}.
+
+\subsection*{The second hidden assumption: stable block error rates}
+
+The derivation of AND under noise in \Cref{sec:and-under-noise} used
+specific values $\fprate$ and $\fnrate$, the false-positive and
+false-negative rates, treating them as fixed properties of each input.
+We implicitly assumed that querying an input repeatedly would yield the
+same error behavior each time: that $\fprate$ does not drift from query
+to query, that the channel is stationary across uses.
+
+This is not the only conceivable behavior. A Markov-correlated channel,
+for instance, lets the error rate on query $t+1$ depend on what
+happened at query $t$. If the channel just made a false positive, it
+might be more likely to make another. The rates are not stable; they are
+history-dependent. We did not model this, and for good reason: the
+stationary case is the tractable and practically important one. But
+we should say we are assuming it.
+
+We have been assuming Axiom 2 since \Cref{sec:and-under-noise}; let us
+make it explicit. Axiom 2 says: the error rates within each partition
+block of the input domain are the same for every query, unconditionally.
+There is one channel matrix $Q$ per input-block-pair, and it does not
+depend on which query in a sequence we are currently processing.
+Under Axiom 2, a Bernoulli channel is genuinely memoryless within
+each block: its statistical behavior is the same on the hundredth query
+as on the first.
+
+This is a meaningful restriction, not a triviality. It rules out
+fatigue, warm-up effects, adversarial adaptation, and history
+dependence. It also makes the math work cleanly. We formalize Axiom 2
+in \Cref{sec:axiom-2}.
+
+\subsection*{What the axioms buy}
+
+Once both axioms are in place, something remarkable follows. The joint
+confusion matrix describing $m$ independent queries on a Bernoulli
+channel is not a free $|B|^m \times |B|^m$ matrix with exponentially
+many parameters. Under Axioms 1 and 2, it \emph{must} factor as a
+Kronecker product of per-query matrices, one factor per query. The
+number of free parameters collapses from $n(2^m - 1)$ for a
+general $n$-th-order $m$-query channel down to $2m$: two rates per
+query, nothing more.
+
+This is not merely an algebraic convenience. It is the theorem that
+makes the Bernoulli framework useful in practice. Without it, a
+fifty-query analysis would require specifying an astronomically large
+matrix. With it, you need fifty pairs of numbers. The saving is
+exponential.
+
+We prove this Kronecker factorization theorem, derive the parameter
+count corollary, and work through explicit examples in
+\Cref{sec:kronecker}. The theorem is the chapter's climax and the
+formal vindication of every computation in chapters 1--3.
+
+\subsection*{The formal definition}
+
+Once the axioms and the Kronecker theorem are in hand, we can at last
+write down the formal definition of the type $\Bernoulli{\BoolType}$
+without fear of circularity. Chapter 1 named the noisy bit informally.
+Chapter 2 gave it a channel matrix. Chapter 3 showed how to compose
+these objects. Chapter 4 closes by showing that all of those things
+are instances of a single precise definition: a triple $(X, Y, Q)$
+where $X$ and $Y$ are the input and output domains $\{\top, \bot\}$,
+$Q$ is a $2 \times 2$ stochastic matrix, and the whole structure
+satisfies Axioms 1 and 2. We work this out in \Cref{sec:bernoulli-bool-formal},
+including the biased-coin example from \S 1.3 that was deliberately
+left without a full PMF until we had the formal machinery to handle it.
+
+The trajectory of this chapter, then, is: axioms first
+(\Cref{sec:axiom-1,sec:axiom-2}), then the theorem they make possible
+(\Cref{sec:kronecker}), then the definition the theorem earns us
+(\Cref{sec:bernoulli-bool-formal}). By the end, the reader who worked
+through chapters 1--3 will recognize every example, every formula, and
+every derivation as an instance of one coherent definition. That is the
+point.
