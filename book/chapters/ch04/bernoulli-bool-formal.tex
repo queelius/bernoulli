@@ -149,7 +149,7 @@ lands tails''). Define:
     (probability of reporting tails when the coin actually landed heads).
 \end{itemize}
 
-The joint PMF over all four (true value, observed report) pairs is:
+The joint PMF over all four (true value, observed report) pairs is:\footnote{This formulation differs from the companion paper's Example~3.5, which gives the PMF over the realized approximate-set value rather than the joint distribution over true-vs-observed pairs; the two are equivalent but suit different purposes.}
 
 \begin{center}
 \begin{tabular}{llll}
@@ -219,15 +219,25 @@ The channel matrix for this instance is:
     0.05 & 0.95
   \end{pmatrix}.
 \]
-Both axioms are satisfied by construction: error events at distinct
-inputs are independent (Axiom~1---the coin tosses and observation decisions
-are independent of each other), and the false-positive rate $\fprate = 0.05$
-is independent of the false-negative rate $\fnrate = 0.10$ (Axiom~2---knowing
-one does not change the other). This triple is a well-formed
-$\Bernoulli{\BoolType}$ instance.
+Axiom~1 is vacuously satisfied for this single-query example: there is only
+one input element, so ``independence across distinct inputs'' has no content.
+Axiom~1's operational role appears only with multi-query joint distributions
+(the setup of \Cref{thm:kronecker}), where it justifies the factored joint
+matrix. Here we are checking that the per-instance type structure does not
+violate Axiom~1, not that we exercise it.
+
+Axiom~2 governs the joint distribution over random per-block rates; this
+concrete instance fixes a single realization $(\fprate, \fnrate) = (0.05,
+0.10)$. The choice of these two values without coupling between them is
+consistent with Axiom~2's cross-block independence. The full content of
+Axiom~2 emerges when we consider rates as random variables drawn from a
+joint distribution; see \Cref{prop:stable-Q} and the closing summary of
+\Cref{sec:axiom-2}.
+
+This triple is a well-formed $\Bernoulli{\BoolType}$ instance.
 \end{example}
 
-The biased-coin example is the simplest nontrivial instance of the type.
+The biased-coin example is the simplest general (asymmetric) instance of the type.
 It has one free parameter in the source ($p$) and two in the channel
 ($\fprate$, $\fnrate$). The source prior $p$ controls how often each block
 is queried; the channel parameters control how reliably each query is
@@ -292,11 +302,32 @@ the joint computation). Now that both axioms are named, we can say it
 precisely: AND is a binary operation $\Bernoulli{\BoolType} \times
 \Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
 
+OR: by De Morgan's duality, the OR of two $\Bernoulli{\BoolType}$ instances
+is also a $\Bernoulli{\BoolType}$ instance. Its rates can be derived from
+AND via De Morgan or computed directly from the truth table of the noisy OR
+(\Cref{sec:or-not}); either way, the operation has type signature
+$\Bernoulli{\BoolType} \times \Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
+AND and OR together generate the rest of Boolean algebra under noise.
+
 NOT: complement swaps the block labels, exchanging $\fprate$ and $\fnrate$.
-The result is a $\Bernoulli{\BoolType}$ instance with $Q_{\mathrm{NOT}} =
-\left[\begin{smallmatrix} \tnrate & \fprate \\ \fnrate & \tprate
-\end{smallmatrix}\right]$ (rows and columns permuted). NOT is a unary
-operation $\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
+Let $\fprate' = \fnrate$ and $\fnrate' = \fprate$ denote the effective rates
+of the complemented instance. The result is a $\Bernoulli{\BoolType}$
+instance with
+\[
+  Q_{\mathrm{NOT}} \;=\;
+  \begin{pmatrix}
+    1 - \fnrate' & \fnrate' \\
+    \fprate' & 1 - \fprate'
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    1 - \fprate & \fprate \\
+    \fnrate & 1 - \fnrate
+  \end{pmatrix}.
+\]
+Here the new instance's effective false-positive rate is the original
+$\fnrate$ and its effective false-negative rate is the original $\fprate$.
+NOT is a unary operation $\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
 
 The composition theorem of \Cref{sec:composition-theorem}---that error
 rates compose multiplicatively in series---is the special case of
@@ -304,8 +335,11 @@ rates compose multiplicatively in series---is the special case of
 $\Bernoulli{\BoolType}$ instances. Each stage of the chain is one factor
 in the Kronecker product; the total joint distribution is the
 $m$-fold tensor $Q_1 \otimes \cdots \otimes Q_m$. This is not a
-coincidence: the composition theorem and the Kronecker theorem describe the
-same independence structure from two different vantage points.
+coincidence: both rest on the independence structure that the two axioms
+supply. The composition theorem (matrix product, serial composition) and the
+Kronecker theorem (tensor product, parallel composition) are sister
+consequences of the same axiomatic foundation operating in different
+geometries.
 
 \subsection*{What the formal definition earned}
 
