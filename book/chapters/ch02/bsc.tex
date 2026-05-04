@@ -7,6 +7,7 @@
 %   \Cref{sec:asymmetric-channel}-- chapter 2 §2.2 (will resolve in Task 3 of Plan 2)
 %   \Cref{sec:channel-composition}-- chapter 2 §2.3 (will resolve in Task 4 of Plan 2)
 %   \Cref{sec:model-order}       -- chapter 2 §2.4 (will resolve in Task 5 of Plan 2)
+%   \ref{ex:bsc-capacity}        -- §2.1 exercise on BSC capacity (will resolve in Task 7)
 %
 % ALREADY RESOLVED (chapter 4, drafted in Plan 1):
 %   \Cref{ch:axioms-kronecker}   -- chapter 4 label
@@ -14,7 +15,7 @@
 %   \Cref{sec:axiom-2}           -- chapter 4 §4.3
 %
 % Build warnings for the unresolved labels are expected at this stage.
-% They will be resolved when Plan 2 Tasks 3-5 land and Plan 4 runs.
+% They will be resolved when Plan 2 Tasks 3-5 and Task 7 land and Plan 4 runs.
 
 \section{The Binary Symmetric Channel}
 \label{sec:bsc}
@@ -293,12 +294,14 @@ the algebra of composing BSCs, discussed in \Cref{sec:channel-composition},
 particularly clean.
 
 Second, the \emph{capacity} of the BSC, defined as the maximum
-mutual information between input and output, is $1 - H(\fprate)$ bits,
-where $H(\fprate) = -\fprate \log_2 \fprate - (1-\fprate) \log_2(1-\fprate)$
-is the binary entropy function. At $\fprate = 0$ the capacity is 1 bit
-(perfect channel); at $\fprate = 0.5$ the capacity is 0 bits (the output
-carries no information about the input). The BSC achieves its maximum
-capacity at either extreme of $\fprate$. Exercise~\ref{ex:bsc-capacity}
+mutual information between input and output, is $1 - H_2(\fprate)$ bits
+per use, where $H_2(\fprate) = -\fprate \log_2 \fprate - (1-\fprate)
+\log_2(1-\fprate)$ is the binary entropy function. Capacity is maximized
+at $\fprate = 0$ (a perfect channel, transmitting one bit per use without
+error) and at $\fprate = 1$ (a perfectly anti-correlated channel, which
+also transmits one bit per use after relabeling outputs); it is minimized
+at $\fprate = 1/2$, where the output is statistically independent of the
+input and no information is transmitted. Exercise~\ref{ex:bsc-capacity}
 works through the derivation.
 
 Third, the BSC is its own \emph{inverse channel} in the following sense:
