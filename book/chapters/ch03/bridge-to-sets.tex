@@ -1,1 +1,230 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch03-boolean-algebra.md
+% §3.5 Composition is the Bridge to Sets
+%
+% Purpose: transition section. Chapter 3 is ending; Part II begins next.
+% Three named bridges, each made concrete---not vague hand-waving.
+%
+% Cross-reference resolution status:
+%
+% RESOLVED (chapters 2, 3, 4, drafted in Plans 1-3):
+%   \Cref{sec:and-under-noise}      -- chapter 3 §3.1
+%   \Cref{sec:composition-theorem}  -- chapter 3 §3.3
+%   \Cref{thm:composition}          -- the composition theorem
+%   \Cref{sec:miller-rabin}         -- chapter 3 §3.4
+%   \Cref{eq:mr-k-round}            -- §3.4 k-round FPR bound
+%
+% EXPECTED UNRESOLVED (forward refs to stubs that resolve in later Plans):
+%   \Cref{ch:approximate-sets}      -- chapter 5 stub (plan 0); resolves in later Plan
+%   \Cref{ch:set-composition}       -- chapter 6 stub (plan 0); resolves in later Plan
+%   \Cref{ch:approximate-functions} -- chapter 9 stub (plan 0); resolves in later Plan
+%   \Cref{sec:bib-notes-ch3}        -- chapter 3 §3.6 (resolves in Plan 3 Task 7)
+%   \Cref{ch:not-bernoulli}         -- chapter 16 (resolves in a later Plan)
+%   \Cref{sec:three-faces}          -- chapter 1 §1.1 (resolves in Plan 4)
+%
+% Build warnings for the unresolved labels above are expected at this stage.
+
+\section{Composition is the Bridge to Sets}
+\label{sec:bridge-to-sets}
+
+We have now arrived, via AND, OR, NOT, the composition theorem, and the
+Miller-Rabin walkthrough, at a complete picture of Boolean algebra under noise.
+A $\Bernoulli{\BoolType}$ instance is a noisy channel on a two-element type.
+The Boolean operations close this type: AND, OR, NOT applied to
+$\Bernoulli{\BoolType}$ instances produce new $\Bernoulli{\BoolType}$
+instances with derived error rates. The composition theorem
+(\Cref{sec:composition-theorem}, \Cref{thm:composition}) governs how those
+rates accumulate when instances are chained. Miller-Rabin
+(\Cref{sec:miller-rabin}) showed the payoff: one input from number theory,
+everything else from the composition theorem.
+
+But $\BoolType$ is only one type. Part II of this book builds approximate data
+structures over richer types: sets, maps, relations. The connection from
+$\Bernoulli{\BoolType}$ to $\Bernoulli{\Set{S}}$ is not a conceptual leap; it
+is a structural consequence of the same composition machinery developed in
+this chapter. Three named bridges make this concrete.
+
+%----------------------------------------------------------------------------
+\subsection*{Bridge 1: A Bloom filter's $m$ hash functions are $m$-fold AND
+composition}
+
+A Bloom filter tests set membership approximately. The classical construction
+uses $m$ independent hash functions $h_1, h_2, \ldots, h_m$, each mapping a
+query element $x$ to a bit position in a bit array. An element $x$ is declared
+a member of the set if and only if all $m$ bit positions are set in the array.
+The $m$-bit AND of hash outcomes is the filter's membership query.
+
+In the $\Bernoulli{\BoolType}$ language: each hash lookup is a
+$\Bernoulli{\BoolType}$ instance. For a true member $x$, every hash position
+is set, so each individual lookup returns $\top$ with probability 1 (no false
+negatives: $\fnrate_i = 0$ for each hash). For a non-member $x$, each hash
+position is set independently with probability $p = 1 - (1 - 1/n)^k$ (where
+$n$ is the bit-array size and $k$ is the count of elements inserted), giving a
+per-hash false-positive rate $\fprate_i = p$. The Bloom filter's reported
+membership---``all $m$ hash positions are set''---is the $m$-fold AND:
+
+\[
+  \bigwedge_{i=1}^{m} \tilde{h}_i(x)
+\]
+where $\tilde{h}_i(x)$ is the $i$-th hash lookup result. The AND of
+$\Bernoulli{\BoolType}$ instances with $\fnrate_i = 0$ is itself a
+$\Bernoulli{\BoolType}$ instance (shown in \Cref{sec:and-under-noise}), and
+its false-positive rate is the product of the individual false-positive rates
+by the composition theorem:
+\[
+  \fprate_{\text{filter}} \;\leq\; \prod_{i=1}^{m} \fprate_i \;=\; p^m.
+\]
+This is exactly the classical Bloom filter false-positive rate formula, derived
+here as a direct consequence of the Boolean algebra of noisy bits.
+
+This is not an analogy. A Bloom filter membership query is, definitionally, an
+$m$-fold AND of $\Bernoulli{\BoolType}$ instances. The derivation above does
+not add anything beyond what this chapter has already established; it merely
+identifies the Bloom filter as an instance of a pattern already in hand.
+
+\medskip
+\noindent\textbf{The difference from Miller-Rabin.} Both the Bloom filter and
+Miller-Rabin are $m$-fold AND compositions of $\Bernoulli{\BoolType}$ instances
+with $\fnrate = 0$. The structural pattern is identical; the sources differ.
+Miller-Rabin's per-round $\fprate \leq 1/4$ bound is a theorem from number
+theory. The Bloom filter's per-hash $\fprate$ is a design parameter controlled
+by the bit-array size and insertion count. In both cases, the composition
+theorem (\Cref{eq:mr-k-round} for Miller-Rabin; the formula above for the
+Bloom filter) converts a per-stage guarantee into an end-to-end guarantee.
+
+Chapter~\ref{ch:approximate-sets} develops the Bloom filter and its variants
+in full, including optimal parameter selection, the standard analysis of
+false-positive rate as a function of bit-array size, and the failure modes
+that chapter 16 (\Cref{ch:not-bernoulli}) examines.
+
+%----------------------------------------------------------------------------
+\subsection*{Bridge 2: Set-operation error rates are AND, OR, NOT error rates}
+
+Bridge 1 takes a Bloom filter query---a $\Bernoulli{\BoolType}$ instance---and
+deduces its error rates from the composition theorem. Bridge 2 lifts the same
+reasoning one level: from queries on individual elements to operations on
+\emph{sets}.
+
+Let $\tilde{A}$ and $\tilde{B}$ be two approximate sets, each a
+$\Bernoulli{\Set{S}}$ instance for some universe $\Set{S}$. For any element
+$x \in \Set{S}$, the membership indicator $x \in \tilde{A}$ is a
+$\Bernoulli{\BoolType}$ instance with rates $(\fprate_A, \fnrate_A)$, and
+similarly $x \in \tilde{B}$ has rates $(\fprate_B, \fnrate_B)$.
+
+Set operations on approximate sets are defined pointwise: for each $x$,
+\begin{align*}
+  x \in \tilde{A} \cap \tilde{B}
+    &\;\;\text{is computed as}\;\;
+    (x \in \tilde{A}) \wedge (x \in \tilde{B}), \\
+  x \in \tilde{A} \cup \tilde{B}
+    &\;\;\text{is computed as}\;\;
+    (x \in \tilde{A}) \vee (x \in \tilde{B}), \\
+  x \in \tilde{A}^c
+    &\;\;\text{is computed as}\;\;
+    \neg(x \in \tilde{A}).
+\end{align*}
+The error rates for intersection, union, and complement on approximate sets are
+therefore exactly the AND, OR, NOT error rates derived in
+\Cref{sec:and-under-noise} and the sections following it. For intersection:
+\begin{align*}
+  \fprate_{\cap}
+    &\;=\; \fprate_A \cdot \fprate_B, \\
+  \fnrate_{\cap}
+    &\;=\; 1 - (1 - \fnrate_A)(1 - \fnrate_B)
+     \;=\; \fnrate_A + \fnrate_B - \fnrate_A \fnrate_B.
+\end{align*}
+For union:
+\begin{align*}
+  \fprate_{\cup}
+    &\;=\; \fprate_A + \fprate_B - \fprate_A \fprate_B, \\
+  \fnrate_{\cup}
+    &\;=\; \fnrate_A \cdot \fnrate_B.
+\end{align*}
+For complement, the rates simply swap:
+\[
+  \fprate_{A^c} \;=\; \fnrate_A, \qquad \fnrate_{A^c} \;=\; \fprate_A.
+\]
+
+These formulas derive from nothing more than the AND, OR, NOT error rate
+formulas in chapter 3, applied one element at a time. The per-element
+membership query is a $\Bernoulli{\BoolType}$ instance; the set operation is
+the Boolean operation on those instances.
+
+This derivation is not the full story. To treat $\tilde{A} \cap \tilde{B}$ as
+a $\Bernoulli{\Set{S}}$ instance requires that the per-element rates be uniform
+across $\Set{S}$---that $\fprate_{\cap}(x)$ and $\fnrate_{\cap}(x)$ be the
+same for every $x$. This is exactly the rate-stability condition that chapter
+4's axioms address. For well-behaved approximate set data structures (Bloom
+filters, quotient filters, cuckoo filters), this uniformity holds by
+construction. For malicious inputs or adversarial query sequences, it may fail;
+chapter 16 examines those failure modes.
+
+Chapter~\ref{ch:set-composition} derives these formulas in full generality,
+works through the rate uniformity conditions, and shows how the Boolean algebra
+of $\Bernoulli{\BoolType}$ lifts to a Boolean algebra of $\Bernoulli{\Set{S}}$
+instances.
+
+%----------------------------------------------------------------------------
+\subsection*{Bridge 3: Approximate function composition lifts Boolean
+composition to maps}
+
+Bridges 1 and 2 both remain within the Boolean type: the output of the
+membership query is a bit. Bridge 3 generalizes to non-Boolean output types.
+
+Let $f\colon X \to Y$ be a function from some input type $X$ to some output
+type $Y$. An \emph{approximate function} $\tilde{f}\colon X \to Y$ is a
+function that may return incorrect values. When $Y = \BoolType$, this is
+precisely the $\Bernoulli{\BoolType}$ setting: the error events are false
+positives and false negatives. When $Y$ is an arbitrary type, errors are
+deviations from $f(x)$ in the output space; their structure depends on $Y$.
+
+The composition machinery of this chapter generalizes from $Y = \BoolType$ to
+arbitrary $Y$ in a single structural step. Suppose we have two approximate
+functions:
+\[
+  \tilde{f}\colon X \to Y, \qquad \tilde{g}\colon Y \to Z.
+\]
+The composed approximate function $\tilde{g} \circ \tilde{f}\colon X \to Z$
+accumulates error from both stages. In the $\BoolType$ case, this accumulation
+is governed by the composition theorem of \Cref{sec:composition-theorem}:
+the end-to-end error rate is derived from the per-stage rates via
+$\eta_{\mathrm{total}} = 1 - \prod_i(1 - \eta_i)$. For general $Y$, the
+end-to-end error is a convolution of the two error distributions in $Y$ and $Z$
+respectively; the Boolean formula is the special case where those distributions
+are Bernoulli distributions on a two-element type.
+
+When chapter~\ref{ch:approximate-functions} introduces $\Bernoulli{M}$ for a
+map type $M = \mathrm{Map}[X, Y]$, the composition machinery of this chapter
+is the foundation. Every derivation in the $\BoolType$ case carries over to the
+map case with $Y$-valued channels replacing scalar bits: the channel matrix $Q$
+grows from $2 \times 2$ to $|Y| \times |Y|$, but the composition law
+$Q_{\mathrm{total}} = Q_k \cdots Q_1$ is unchanged. The Boolean algebra of
+approximate sets is the $Y = \BoolType$ fiber of the full map algebra.
+
+This is the sense in which Boolean composition is the bridge: not a
+metaphor, but a degenerate case. The $\BoolType$ formulas of this chapter are
+the $Y = \BoolType$ specializations of formulas that hold for all output types.
+Chapter~\ref{ch:approximate-functions} will make the generalization explicit.
+
+%----------------------------------------------------------------------------
+\subsection*{The chapter in one sentence}
+
+The three bridges are not independent observations. They are consequences of
+a single fact: Boolean operations on $\Bernoulli{\BoolType}$ instances produce
+new $\Bernoulli{\BoolType}$ instances, with error rates governed by the
+composition theorem. Bridge 1 identifies Bloom filters as $m$-fold AND.
+Bridge 2 identifies set operations as pointwise Boolean operations on
+membership indicators. Bridge 3 identifies the $\BoolType$ case as a
+special fiber of map composition.
+
+Put differently: the composition theorem is a general fact about chained
+channels. In this chapter we have seen it in the Boolean case. Part II and
+Part III will see it in more general cases. The machinery does not change;
+only the output type does.
+
+\medskip
+\noindent\textbf{What comes next.} The bibliographic notes
+(\Cref{sec:bib-notes-ch3}) place the Miller-Rabin analysis, the Bloom filter
+connection, and the chapter's derivations in the literature. Chapter 4
+(\Cref{ch:axioms-kronecker}), which this chapter has cited throughout,
+formalizes the independence axioms that our derivations assumed; reading
+chapters 3 and 4 in sequence closes the loop. Part II then builds on both
+chapters to develop the full algebra of approximate sets and maps.
