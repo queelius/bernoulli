@@ -1,1 +1,396 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch03-boolean-algebra.md
+% §3.1 AND Under Noise
+%
+% Cross-reference resolution status:
+%
+% EXPECTED UNRESOLVED (forward refs to stubs that resolve in later Plans):
+%   \Cref{sec:three-faces}        -- chapter 1 §1.1 (will resolve in Plan 4)
+%   \Cref{sec:or-not}             -- chapter 3 §3.2 (will resolve in Task 3 of Plan 3)
+%   \Cref{sec:composition-theorem}-- chapter 3 §3.3 (will resolve in Task 4 of Plan 3)
+%   \Cref{sec:miller-rabin}       -- chapter 3 §3.4 (will resolve in Task 5 of Plan 3)
+%
+% ALREADY RESOLVED (chapters 2 and 4, drafted in Plans 1 and 2):
+%   \Cref{sec:bsc}                -- chapter 2 §2.1
+%   \Cref{sec:axiom-1}            -- chapter 4 §4.2
+%   \Cref{ax:element-indep}       -- Axiom 1 formal statement (chapter 4)
+%   \Cref{sec:axiom-2}            -- chapter 4 §4.3
+%   \Cref{ax:block-rates-indep}   -- Axiom 2 formal statement (chapter 4)
+%   \Cref{def:bernoulli-bool}     -- chapter 4 §4.5
+%
+% Build warnings for the unresolved labels are expected at this stage.
+% They resolve when Plan 3 Tasks 3-5 and Plan 4 land.
+
+\section{AND Under Noise}
+\label{sec:and-under-noise}
+
+We have, by now, a clear picture of a single noisy bit: a
+$\Bernoulli{\BoolType}$ instance with a false-positive rate $\fprate$ and
+a false-negative rate $\fnrate$, as defined formally in
+\Cref{def:bernoulli-bool}. The binary symmetric channel of \Cref{sec:bsc}
+was the symmetric special case $\fprate = \fnrate$. The biased-coin
+running example, introduced in \Cref{sec:three-faces}, is the general
+asymmetric case.
+
+The first question chapter 3 must answer is: what happens when we combine
+two noisy bits using a Boolean operation? AND is the natural place to start,
+because it is the most commonly composed gate in practice, the one behind
+the Bloom filter's $k$-hash membership query, and the operation that
+underlies Miller-Rabin's $k$-round test. Once we understand AND under noise,
+OR and NOT follow without new machinery, as \Cref{sec:or-not} shows.
+
+\subsection*{Setup: two independent noisy bits}
+
+Let $\tilde{b}_1$ and $\tilde{b}_2$ be two $\Bernoulli{\BoolType}$ instances
+with rates $(\fprate_1, \fnrate_1)$ and $(\fprate_2, \fnrate_2)$ respectively.
+Each instance has its own channel matrix:
+\[
+  Q_i \;=\;
+  \begin{pmatrix}
+    1 - \fnrate_i & \fnrate_i \\
+    \fprate_i & 1 - \fprate_i
+  \end{pmatrix},
+  \quad i = 1, 2.
+\]
+Row 1 of $Q_i$ governs positive inputs (true value $\top$); row 2 governs
+negative inputs (true value $\bot$). Columns are the output labels $\top$
+and $\bot$, following the convention from \Cref{sec:bsc}.
+
+We apply the AND function to the two observed outputs. The \emph{true} value
+of the AND is the AND of the two \emph{true} inputs. We want to know: what
+is the probability that the AND of the noisy observations agrees with the AND
+of the true values?
+
+\subsection*{Axioms invoked: a flag before we compute}
+
+Before proceeding to the case analysis, we must flag the independence
+assumptions the derivation below will silently use. We state them
+explicitly here because Part I's aim is to make these assumptions visible,
+not merely convenient.
+
+\textbf{Axiom 1} (\Cref{sec:axiom-1}, \Cref{ax:element-indep}) asserts
+that error events at distinct inputs to a single predicate are mutually
+independent. In the AND setting, $\tilde{b}_1$ and $\tilde{b}_2$ evaluate
+two distinct input elements. Axiom 1 therefore licenses the factorization:
+the event that $\tilde{b}_1$ makes an error is independent of the event that
+$\tilde{b}_2$ makes an error. Every product of probabilities in the
+case analysis below rests on this factorization.
+
+\textbf{Axiom 2} (\Cref{sec:axiom-2}, \Cref{ax:block-rates-indep}) asserts
+that the per-block error rates are conditionally independent of each other
+given the objective set. For $\tilde{b}_1$, this means $\fprate_1$ and
+$\fnrate_1$ are independent parameters; likewise for $\tilde{b}_2$. As a
+consequence (\Cref{prop:stable-Q}), the channel matrix $Q_i$ is stable
+across queries: the rate seen by one query of $\tilde{b}_1$ is the same rate
+that applies to any other query of the same instance. This is what allows us
+to read the rates $\fprate_i$ and $\fnrate_i$ as fixed constants throughout
+the case analysis, rather than tracking a time-varying stochastic process.
+
+Both axioms are in play. Axiom 1 handles the across-instance independence;
+Axiom 2 handles the within-instance rate stability. Chapter 4 proves both
+axioms in full (\Cref{sec:axiom-1} and \Cref{sec:axiom-2}) and shows, in
+\Cref{sec:kronecker}, that the two together are exactly the content of the
+Kronecker factorization theorem. What we do now is use these axioms
+deliberately, not accidentally.
+
+\subsection*{Truth table for AND: four cases}
+
+The AND of two Boolean values is $\top$ if and only if both inputs are $\top$.
+There are four combinations of true inputs; we analyze each.
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+True $b_1$ & True $b_2$ & Correct AND output & $\Pr[\text{AND output} = \top]$ \\
+\hline
+$\top$ & $\top$ & $\top$ & $(1 - \fnrate_1)(1 - \fnrate_2)$ \\
+$\top$ & $\bot$ & $\bot$ & $(1 - \fnrate_1)\fprate_2$ \\
+$\bot$ & $\top$ & $\bot$ & $\fprate_1(1 - \fnrate_2)$ \\
+$\bot$ & $\bot$ & $\bot$ & $\fprate_1 \fprate_2$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The rightmost column gives $\Pr[\text{observed AND} = \top]$ for each
+true-input combination. It does not give the probability that the AND is
+\emph{correct}; that requires also knowing which output is correct for that
+row. Let us work through each case in turn.
+
+\medskip
+\noindent\textbf{Case 1: both true inputs are $\top$.}
+The correct output is $\top$. For the AND of observed outputs to equal
+$\top$, both $\tilde{b}_1$ and $\tilde{b}_2$ must report $\top$. Each
+does so correctly with probability $1 - \fnrate_i$ (the true-positive rate).
+By Axiom 1, the two events are independent:
+\[
+  \Pr[\tilde{b}_1 = \top,\; \tilde{b}_2 = \top \mid b_1 = \top, b_2 = \top]
+  \;=\; (1 - \fnrate_1)(1 - \fnrate_2).
+\]
+This is the AND's true-positive probability.
+
+\medskip
+\noindent\textbf{Case 2: $b_1 = \top$, $b_2 = \bot$.}
+The correct output is $\bot$ (since $b_2 = \bot$). For the AND of observed
+outputs to incorrectly equal $\top$, $\tilde{b}_1$ must report $\top$
+(correctly, with probability $1 - \fnrate_1$) \emph{and} $\tilde{b}_2$ must
+report $\top$ (incorrectly, a false positive, with probability $\fprate_2$).
+By Axiom 1:
+\[
+  \Pr[\tilde{b}_1 = \top,\; \tilde{b}_2 = \top \mid b_1 = \top, b_2 = \bot]
+  \;=\; (1 - \fnrate_1)\fprate_2.
+\]
+This is a false positive conditional on the input pattern $(\top, \bot)$.
+
+\medskip
+\noindent\textbf{Case 3: $b_1 = \bot$, $b_2 = \top$.}
+Symmetric to Case 2. The AND output is $\top$ incorrectly when
+$\tilde{b}_1$ makes a false positive and $\tilde{b}_2$ reports correctly:
+\[
+  \Pr[\tilde{b}_1 = \top,\; \tilde{b}_2 = \top \mid b_1 = \bot, b_2 = \top]
+  \;=\; \fprate_1(1 - \fnrate_2).
+\]
+
+\medskip
+\noindent\textbf{Case 4: both true inputs are $\bot$.}
+The correct output is $\bot$. The AND output is $\top$ incorrectly only when
+both $\tilde{b}_1$ and $\tilde{b}_2$ make false positives simultaneously:
+\[
+  \Pr[\tilde{b}_1 = \top,\; \tilde{b}_2 = \top \mid b_1 = \bot, b_2 = \bot]
+  \;=\; \fprate_1\fprate_2.
+\]
+
+\subsection*{Closed-form output rates}
+
+The AND gate's output is a new Boolean value. To characterize it as a
+$\Bernoulli{\BoolType}$ instance, we need to identify its false-positive
+rate and false-negative rate with respect to the \emph{true AND output}.
+
+The true AND output is $\top$ if and only if $b_1 = b_2 = \top$. The true
+AND output is $\bot$ in all three remaining cases.
+
+\medskip
+\noindent\textbf{False-negative rate of AND.}
+A false negative occurs when the true output is $\top$ (meaning $b_1 = b_2 =
+\top$) but the observed AND is $\bot$. From Case 1, the probability that the
+observed AND is $\top$ when the true output is $\top$ is
+$(1 - \fnrate_1)(1 - \fnrate_2)$. Therefore, the false-negative rate is:
+\begin{equation}
+  \fnrate_\wedge
+  \;=\; 1 - (1-\fnrate_1)(1-\fnrate_2)
+  \;=\; \fnrate_1 + \fnrate_2 - \fnrate_1\fnrate_2.
+  \label{eq:and-fnr}
+\end{equation}
+This is the probability that at least one of the two instances reports $\bot$
+when the true value is $\top$. The union-of-events formula applies because
+both must succeed for the AND to succeed.
+
+\medskip
+\noindent\textbf{False-positive rate of AND.}
+A false positive occurs when the true output is $\bot$ (meaning at least one
+of $b_1$, $b_2$ is $\bot$) but the observed AND is $\top$. The true output
+is $\bot$ for three input patterns: $(\top, \bot)$, $(\bot, \top)$, and
+$(\bot, \bot)$.
+
+The observed AND is $\top$ in each of these three cases with the probabilities
+from Cases 2, 3, and 4 above. The false-positive rate of the AND gate is
+therefore a mixture over these three patterns, weighted by their prior
+probabilities. Let $\pi$ denote the prior probability that $b_1 = \top$, and
+let $\pi_1 = \pi$, $\pi_2 = \pi$ (assuming the two bits are drawn from the
+same prior for simplicity; the general formula follows with $\pi_1$ and
+$\pi_2$ distinct).
+
+The conditional-on-pattern false-positive events are:
+\begin{align*}
+  \Pr[\wedge = \top \mid b_1 = \top, b_2 = \bot] &= (1 - \fnrate_1)\fprate_2, \\
+  \Pr[\wedge = \top \mid b_1 = \bot, b_2 = \top] &= \fprate_1(1 - \fnrate_2), \\
+  \Pr[\wedge = \top \mid b_1 = \bot, b_2 = \bot] &= \fprate_1\fprate_2.
+\end{align*}
+
+These are three distinct conditional false-positive probabilities, one per
+input pattern. In the Bernoulli framework, the false-positive rate of the AND
+gate is the probability that the observed AND is $\top$ given that the true
+AND is $\bot$. Because the three patterns that yield true AND $= \bot$ have
+different likelihoods of a false $\top$ output, the effective false-positive
+rate of the AND gate depends on the input distribution.
+
+For the special case where both bits are independently queried about the same
+underlying question (both $\pi_1 = \pi_2 = \pi$, and the two bits are drawn
+independently), the marginal false-positive rate is:
+\begin{equation}
+  \fprate_\wedge(\pi)
+  \;=\;
+  \frac{
+    \pi(1-\pi)(1-\fnrate_1)\fprate_2
+    + (1-\pi)\pi\,\fprate_1(1-\fnrate_2)
+    + (1-\pi)^2 \fprate_1\fprate_2
+  }{
+    \pi(1-\pi) + (1-\pi)\pi + (1-\pi)^2
+  }.
+  \label{eq:and-fpr-general}
+\end{equation}
+The denominator is the probability that the true AND is $\bot$, which equals
+$1 - \pi^2$.
+
+\medskip
+\noindent\textbf{The input-distribution-free bounds.}
+In most practical analyses, we do not know the exact prior $\pi$. What we
+can say regardless of $\pi$ is the following. Since we are taking the AND
+of two outputs, the AND gate can only output $\top$ if both inputs report
+$\top$. This means:
+\[
+  \fprate_\wedge \;\leq\; \min(\fprate_1, \fprate_2),
+\]
+since the AND gate can falsely report $\top$ only when both individual
+instances report $\top$, which is at least as unlikely as each one doing so
+alone. The upper bound follows from the cases directly: no single case has a
+false-positive probability exceeding $\max(\fprate_1, \fprate_2)$, and the
+worst case (Case 2 with $\fnrate_1 = 0$) approaches $\fprate_2$.
+
+The most important special case is when both instances are independent,
+identically noisy copies: $\fprate_1 = \fprate_2 = \fprate$, $\fnrate_1 =
+\fnrate_2 = \fnrate$. The worst-case false-positive input pattern is the
+$(\bot, \bot)$ case, giving $\fprate^2$. For the $(\top, \bot)$ and
+$(\bot, \top)$ patterns, the false-positive probability is
+$(1 - \fnrate)\fprate$, which for small $\fnrate$ is approximately $\fprate$.
+The effective false-positive rate is therefore bounded above by
+$(1 - \fnrate)\fprate$, and the dominant pattern depends on the input prior.
+When both bits query the same two-valued population symmetrically, the
+AND gate reduces the false-positive rate dramatically compared to a single
+query: the $(\bot, \bot)$ contribution goes as $\fprate^2$, which for small
+$\fprate$ is negligible. This is the mechanism behind Miller-Rabin's
+exponential error reduction, which we examine in \Cref{sec:miller-rabin}.
+
+\medskip
+\noindent\textbf{AND as a $\Bernoulli{\BoolType}$ operation.}
+The AND gate's output is a new Boolean value. Its false-negative rate
+$\fnrate_\wedge$ in~\eqref{eq:and-fnr} depends only on the input rates,
+not on the input prior. Its false-positive rate $\fprate_\wedge$ depends on
+the input prior through~\eqref{eq:and-fpr-general}, unless we are in a
+special case that eliminates the dependence (for example, the
+$(1-\fnrate)\fprate_2$ bound applies when $b_1 = \top$ is guaranteed).
+
+The conclusion is that AND is a binary operation on $\Bernoulli{\BoolType}$
+instances that produces a new $\Bernoulli{\BoolType}$ instance. The type is
+closed under AND: each output is characterized by a pair of rates, derived
+from the input rates via the formulas above. The derivation invoked both
+axioms explicitly: Axiom 1 to factor probabilities across the two instances,
+and Axiom 2 to treat each instance's rates as stable constants throughout the
+computation.
+
+\subsection*{Worked example: AND of two noisy coin observers}
+
+The biased-coin thread from \Cref{sec:three-faces} returns here with its
+most concrete appearance so far. We have two observers of the same coin flip.
+
+\medskip
+\noindent\textbf{Setup.} A coin lands heads ($\top$) with probability
+$\pi = 0.5$ (fair coin). Two independent observers $\tilde{b}_1$ and
+$\tilde{b}_2$ each report the outcome, but with different noise levels:
+\begin{itemize}
+  \item Observer 1: $\fprate_1 = 0.10$, $\fnrate_1 = 0.05$ (more likely to miss
+    heads than to hallucinate heads).
+  \item Observer 2: $\fprate_2 = 0.08$, $\fnrate_2 = 0.12$ (more likely to
+    miss heads than to hallucinate, but with different magnitudes).
+\end{itemize}
+We declare ``heads'' (output $\top$) only if both observers agree: output
+$\tilde{b}_1 \wedge \tilde{b}_2$.
+
+\medskip
+\noindent\textbf{False-negative rate of AND.}
+From~\eqref{eq:and-fnr}:
+\[
+  \fnrate_\wedge
+  \;=\; \fnrate_1 + \fnrate_2 - \fnrate_1\fnrate_2
+  \;=\; 0.05 + 0.12 - (0.05)(0.12)
+  \;=\; 0.17 - 0.006
+  \;=\; 0.164.
+\]
+Requiring both observers to report ``heads'' when the coin actually landed
+heads raises the false-negative rate from the individual rates of $5\%$ and
+$12\%$ to $16.4\%$. This is the cost of the AND gate: it is harder to get
+two correct $\top$ reports simultaneously than just one.
+
+\medskip
+\noindent\textbf{Conditional false-positive rates, by pattern.}
+\begin{align*}
+  \Pr[\wedge = \top \mid b_1 = \top, b_2 = \bot]
+  &= (1 - 0.05)(0.08) = 0.95 \times 0.08 = 0.076, \\
+  \Pr[\wedge = \top \mid b_1 = \bot, b_2 = \top]
+  &= (0.10)(1 - 0.12) = 0.10 \times 0.88 = 0.088, \\
+  \Pr[\wedge = \top \mid b_1 = \bot, b_2 = \bot]
+  &= (0.10)(0.08) = 0.008.
+\end{align*}
+The AND gate is hardest to fool when both true values are $\bot$: the
+probability of a false $\top$ output drops to $0.8\%$, compared to $7.6\%$
+or $8.8\%$ when one true value is $\top$.
+
+\medskip
+\noindent\textbf{Effective false-positive rate (fair coin, $\pi = 0.5$).}
+With a fair coin, the four true-input patterns have probabilities:
+\begin{align*}
+  \Pr[b_1 = \top, b_2 = \top] &= 0.5 \times 0.5 = 0.25, \\
+  \Pr[b_1 = \top, b_2 = \bot] &= 0.5 \times 0.5 = 0.25, \\
+  \Pr[b_1 = \bot, b_2 = \top] &= 0.5 \times 0.5 = 0.25, \\
+  \Pr[b_1 = \bot, b_2 = \bot] &= 0.5 \times 0.5 = 0.25.
+\end{align*}
+The true AND is $\bot$ when any of the last three patterns hold, giving
+$\Pr[\text{true AND} = \bot] = 0.75$. The marginal probability that the
+observed AND is $\top$ when the true AND is $\bot$ is the weighted average:
+\begin{align*}
+  \text{numerator}
+  &= 0.25 \times 0.076 + 0.25 \times 0.088 + 0.25 \times 0.008 \\
+  &= 0.019 + 0.022 + 0.002 = 0.043.
+\end{align*}
+The effective false-positive rate is:
+\[
+  \fprate_\wedge
+  \;=\; \frac{0.043}{0.75}
+  \;\approx\; 0.057.
+\]
+
+\medskip
+\noindent\textbf{Comparison to individual rates.}
+The two individual observers have $\fprate_1 = 0.10$ and $\fprate_2 = 0.08$.
+Their AND gate reduces the effective false-positive rate to approximately
+$0.057$ under a fair-coin prior. The reduction is meaningful but not
+dramatic, because the dominant false-positive patterns are those where one
+true value is $\top$ (so only one observer needs to make an error); only the
+all-negative pattern benefits from requiring both observers to err
+simultaneously.
+
+The false-negative rate rises from $5\%$ and $12\%$ individually to $16.4\%$.
+The AND gate trades false-negative accuracy for false-positive suppression.
+In applications where false positives are costly and false negatives are
+tolerable, this is a favorable trade. In applications where false negatives
+are costly (a safety system that must not miss a $\top$ event), requiring both
+observers to agree is counterproductive.
+
+\medskip
+\noindent\textbf{Summary of the example.}
+Two $\Bernoulli{\BoolType}$ observers with rates $(0.10, 0.05)$ and
+$(0.08, 0.12)$ combine under AND to produce a new $\Bernoulli{\BoolType}$
+instance with $\fnrate_\wedge = 0.164$ and $\fprate_\wedge \approx 0.057$
+(at $\pi = 0.5$). The rates follow closed-form formulas derived from the
+four truth-table cases. Both Axiom 1 and Axiom 2 were invoked:
+Axiom 1 to factor the joint probability of both observers reporting $\top$
+into a product of individual probabilities; Axiom 2 to treat each
+observer's rates as stable constants rather than time-varying quantities.
+
+\subsection*{Looking ahead}
+
+The AND derivation gives us one gate. \Cref{sec:or-not} will derive OR and
+NOT under the same methodology: NOT is elementary (it swaps $\fprate$ and
+$\fnrate$), and OR follows via De Morgan's law applied to noisy gates.
+Together, AND, OR, and NOT generate all of Boolean algebra.
+
+Once we have all three gates, \Cref{sec:composition-theorem} asks what
+happens when we chain them: if AND has false-positive rate $\fprate_\wedge$,
+and we then AND the result with a third noisy bit, what is the total
+false-positive rate? The answer is the composition theorem,
+$\eta_{\text{total}} = 1 - \prod_{i=1}^k (1 - \eta_i)$, which describes
+how error rates accumulate in chains of identity-with-error operations.
+
+That composition theorem is precisely what makes Miller-Rabin's $k$-round
+bound derivable from first principles, as \Cref{sec:miller-rabin} will show.
+The $k$-round Miller-Rabin test is, in the framework's language, a $k$-fold
+AND of $\Bernoulli{\BoolType}$ witnesses. The derivation we just completed
+for two witnesses extends directly to $k$; the formulas are the same;
+only the indices change.
