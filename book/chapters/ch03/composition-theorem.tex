@@ -1,1 +1,571 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch03-boolean-algebra.md
+% §3.3 The Composition Theorem
+%
+% Cross-reference resolution status:
+%
+% EXPECTED UNRESOLVED (forward refs that resolve in later Tasks/Plans):
+%   \Cref{sec:miller-rabin}       -- chapter 3 §3.4 (resolves in Plan 3 Task 5)
+%   \Cref{sec:three-faces}        -- chapter 1 §1.1 (resolves in Plan 4)
+%
+% ALREADY RESOLVED (chapters 2 and 4, drafted in Plans 1 and 2;
+%                   and §3.1-§3.2, drafted in Tasks 2-3 of Plan 3):
+%   \Cref{sec:channel-composition}  -- chapter 2 §2.3
+%   \Cref{eq:bsc-composition}       -- chapter 2 §2.3 BSC composition formula
+%   \Cref{def:channel-composition}  -- chapter 2 §2.3 serial composition definition
+%   \Cref{sec:and-under-noise}      -- chapter 3 §3.1
+%   \Cref{eq:and-fnr}               -- §3.1 AND false-negative rate
+%   \Cref{sec:or-not}               -- chapter 3 §3.2
+%   \Cref{eq:or-fpr-direct}         -- §3.2 OR false-positive rate
+%   \Cref{sec:kronecker}            -- chapter 4 §4.4
+%   \Cref{thm:kronecker}            -- chapter 4 §4.4 Kronecker theorem
+%   \Cref{sec:axiom-1}              -- chapter 4 §4.2
+%   \Cref{ax:element-indep}         -- Axiom 1 formal statement
+%   \Cref{def:bernoulli-bool}       -- chapter 4 §4.5
+%
+% NOTE ON THE BSC RECONCILIATION (plan Task 4 Step 5):
+%   The composition theorem's formula eta_total = 1 - prod(1 - eta_i) gives
+%   the probability of at least one error in the chain. For identity-with-error
+%   composition (any single error corrupts the end-to-end result), this is the
+%   correct formula. For BSC chains, an even number of flips cancels out, giving
+%   the chapter 2 §2.3 formula 2*eps - 2*eps^2 (odd-flip probability) rather
+%   than 2*eps - eps^2 (at-least-one-flip probability). The section makes this
+%   distinction explicit. The composition theorem applies cleanly to one-sided
+%   error channels and to the AND/OR gates; BSC composition requires the
+%   §2.3 matrix-product formula.
+%
+% Build warnings for the two unresolved labels above are expected at this stage.
+% They resolve when Plan 3 Task 5 and Plan 4 land.
+
+\section{The Composition Theorem}
+\label{sec:composition-theorem}
+
+\Cref{sec:and-under-noise} showed that the AND of $k$ independent
+$\Bernoulli{\BoolType}$ witnesses drives the false-positive rate down:
+requiring all $k$ to agree on $\top$ makes a false $\top$ output unlikely.
+\Cref{sec:or-not} showed the dual: the OR of $k$ witnesses drives the
+false-negative rate down. Both sections closed with a preview of the
+same structural pattern: the probability that the chain produces \emph{no}
+error factors as a product.
+
+This section makes that pattern precise. We state and prove the
+\emph{composition theorem}: for $k$ independent identity-with-error stages
+chained in series, the end-to-end error rate is
+\[
+  \eta_{\mathrm{total}} = 1 - \prod_{i=1}^{k}(1 - \eta_i),
+\]
+where $\eta_i$ is the per-stage error rate. We then examine what this formula
+does and does not capture, paying particular attention to the BSC running
+thread---because the BSC has a subtlety, a cancellation structure, that the
+composition theorem does not capture. Understanding that gap is essential to
+using the theorem correctly.
+
+\subsection*{Setup: chaining identity-with-error stages}
+
+The model is simple. We have an original Boolean value $b \in \{\top, \bot\}$.
+A single \emph{identity-with-error} stage passes $b$ through a channel that
+reports the correct value with probability $1 - \eta_i$ and reports the wrong
+value with probability $\eta_i$. Call the stage's output $\hat{b}_i$. The stage
+is not a BSC in general: we will say more shortly about what the error rate
+$\eta_i$ means. For now, think of it as the probability that the stage makes
+\emph{any} error, regardless of direction.
+
+We chain $k$ such stages: $b \to \hat{b}_1 \to \hat{b}_2 \to \cdots \to
+\hat{b}_k$. The final output $\hat{b}_k$ is what we observe. The question is:
+what is the probability that $\hat{b}_k \neq b$?
+
+For this question to have a clean answer, we need a clean independence
+structure. We assume:
+
+\begin{enumerate}
+\item \textbf{Chain-stage independence.} The error event at stage $i$ is
+  independent of the error event at every other stage $j \neq i$. This is
+  a chain-level assumption: it says that the $k$ stages do not share
+  error-inducing correlations along the pipeline.
+
+\item \textbf{Each error is one-directional.} Once stage $i$ makes an error,
+  the subsequent stages in the chain receive the wrong value and propagate it.
+  Errors do not cancel. This is the identity-with-error regime: any single
+  error in the chain corrupts the end-to-end output.
+\end{enumerate}
+
+The second assumption is worth flagging before the theorem, not after. It is
+the source of the BSC subtlety we will return to.
+
+\subsection*{The composition theorem}
+
+\begin{theorem}[Composition theorem, identity-with-error chains]
+\label{thm:composition}
+Let $b$ be a Boolean value. Let $\hat{b}_1, \hat{b}_2, \ldots, \hat{b}_k$
+be the successive outputs of $k$ chained identity-with-error stages, where
+stage $i$ has error rate $\eta_i \in [0,1]$ and the error events across
+stages are mutually independent.
+
+Under the identity-with-error assumption (any single error in the chain
+corrupts the end-to-end output), the end-to-end error rate satisfies
+\begin{equation}
+\label{eq:composition-theorem}
+  \eta_{\mathrm{total}}
+  \;=\; 1 - \prod_{i=1}^{k}(1 - \eta_i).
+\end{equation}
+
+Equivalently, letting $\tnrate_i = 1 - \eta_i$ denote the per-stage
+\emph{correctness probability}, the end-to-end correctness probability is
+\begin{equation}
+\label{eq:composition-correctness}
+  \tnrate_{\mathrm{total}}
+  \;=\; \prod_{i=1}^{k} \tnrate_i.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+We prove the correctness-probability form~\eqref{eq:composition-correctness}
+by induction on $k$, then recover~\eqref{eq:composition-theorem} by
+complementation.
+
+\medskip
+\noindent\textbf{Base case, $k = 1$.} A single stage with error rate $\eta_1$
+has correctness probability $\tnrate_1 = 1 - \eta_1$. The formula gives
+$\prod_{i=1}^{1} \tnrate_i = \tnrate_1$. Correct.
+
+\medskip
+\noindent\textbf{Inductive step.} Assume the result holds for $k-1$ stages:
+the first $k-1$ stages in the chain produce a correct output with probability
+$\tnrate_1 \cdots \tnrate_{k-1}$. Now append stage $k$ with error rate
+$\eta_k$.
+
+Under the identity-with-error assumption, the final output $\hat{b}_k$ equals
+$b$ if and only if \emph{both} of the following hold:
+\begin{itemize}
+  \item The output of the first $k-1$ stages is correct, with
+    probability $\tnrate_1 \cdots \tnrate_{k-1}$ (by the inductive hypothesis).
+  \item Stage $k$ does not make an error, with probability $\tnrate_k$.
+\end{itemize}
+By chain-stage independence, these two events are independent. Their joint
+probability is:
+\[
+  \tnrate_{\mathrm{total}}
+  \;=\; (\tnrate_1 \cdots \tnrate_{k-1}) \cdot \tnrate_k
+  \;=\; \prod_{i=1}^{k} \tnrate_i.
+\]
+
+Taking the complement, the end-to-end error rate is
+\[
+  \eta_{\mathrm{total}} = 1 - \tnrate_{\mathrm{total}} = 1 - \prod_{i=1}^{k}(1 - \eta_i).
+\qedhere
+\]
+\end{proof}
+
+\noindent\textbf{Remark on the identity-with-error assumption.}
+The inductive step rests on the phrase ``if and only if both.'' This is only
+valid when any error at any stage is fatal to correctness. If stage $k$
+receives an already-wrong value and makes an error, it \emph{could} accidentally
+correct the previous error---returning to the right answer. The composition
+theorem excludes this possibility by assumption. For channels where
+cancellation is possible (notably the BSC), the formula~\eqref{eq:composition-theorem}
+does not give the exact end-to-end error rate, and the matrix-product
+computation of \Cref{sec:channel-composition} must be used instead. We return
+to this point with numerical evidence in the BSC worked example below.
+
+\subsection*{Connection to the AND and OR formulas}
+
+Before the BSC example, let us confirm that the composition theorem unifies
+the formulas already derived in \Cref{sec:and-under-noise,sec:or-not}.
+
+\medskip
+\noindent\textbf{AND as composition.}
+In \Cref{sec:and-under-noise}, the false-negative rate of AND was:
+\[
+  \fnrate_\wedge
+  \;=\; 1 - (1 - \fnrate_1)(1 - \fnrate_2).
+\]
+This is exactly~\eqref{eq:composition-theorem} with $k = 2$ and $\eta_i = \fnrate_i$.
+Interpreting AND as a two-stage identity-with-error composition in the positive block:
+stage 1 fails to deliver a $\top$ output with probability $\fnrate_1$; stage 2
+independently fails with probability $\fnrate_2$; the AND of the two outputs is
+$\top$ only if both succeed. The identity-with-error assumption is satisfied in
+the positive block because if either stage makes a false negative (reports $\bot$
+when the true value is $\top$), the AND output is $\bot$ regardless of the other
+stage. There is no cancellation in the $\top$ direction.
+
+Extending to $k$ independent $\Bernoulli{\BoolType}$ instances all having true
+value $\top$, with false-negative rates $\fnrate_1, \ldots, \fnrate_k$: the
+$k$-fold AND has false-negative rate
+\[
+  \fnrate_{\wedge,k} \;=\; 1 - \prod_{i=1}^{k}(1 - \fnrate_i).
+\]
+When all stages have the same rate $\fnrate$, this simplifies to
+$1 - (1 - \fnrate)^k$.
+
+\medskip
+\noindent\textbf{OR as composition.}
+In \Cref{sec:or-not}, the false-positive rate of OR was:
+\[
+  \fprate_\vee
+  \;=\; 1 - (1 - \fprate_1)(1 - \fprate_2).
+\]
+This is~\eqref{eq:composition-theorem} with $k = 2$ and $\eta_i = \fprate_i$.
+Interpreting OR as a two-stage identity-with-error composition in the negative
+block: stage 1 makes a false positive with probability $\fprate_1$; stage 2
+independently with probability $\fprate_2$; the OR output is $\bot$ only if
+both avoid false positives. The identity-with-error assumption holds in the
+$\bot$ direction because once either stage makes a false positive (reports
+$\top$ when the true value is $\bot$), the OR output is $\top$ regardless.
+
+Extending to $k$ stages with false-positive rates $\fprate_1, \ldots, \fprate_k$:
+the $k$-fold OR has false-positive rate
+\[
+  \fprate_{\vee,k} \;=\; 1 - \prod_{i=1}^{k}(1 - \fprate_i).
+\]
+
+\subsection*{The BSC running thread: where the formula applies and where it does not}
+
+The binary symmetric channel (BSC) from \Cref{sec:channel-composition} is the
+principal running example for composition in this book. We use it here to
+illustrate both what the composition theorem captures and, critically, where
+its identity-with-error assumption breaks down.
+
+\medskip
+\noindent\textbf{What chapter 2 §2.3 derived.}
+\Cref{sec:channel-composition} computed the crossover probability of two
+BSCs in series using the matrix product
+$Q_{\mathrm{total}} = Q_2 Q_1$. The result (\Cref{eq:bsc-composition}) was:
+\[
+  \fprate_{\mathrm{total}}
+  \;=\; \fprate_1 + \fprate_2 - 2\fprate_1\fprate_2.
+\]
+For equal crossovers $\fprate_1 = \fprate_2 = \fprate$, this becomes:
+\begin{equation}
+\label{eq:bsc-two-stage-correct}
+  \fprate_{\mathrm{total}}
+  \;=\; 2\fprate - 2\fprate^2.
+\end{equation}
+
+\medskip
+\noindent\textbf{What the composition theorem gives.}
+If we naively apply~\eqref{eq:composition-theorem} with $\eta_i = \fprate$ for
+both stages and $k = 2$, we obtain:
+\begin{equation}
+\label{eq:bsc-two-stage-naive}
+  \eta_{\mathrm{total}}
+  \;=\; 1 - (1 - \fprate)^2
+  \;=\; 2\fprate - \fprate^2.
+\end{equation}
+
+\medskip
+\noindent\textbf{These two formulas are different.}
+\[
+  \underbrace{2\fprate - 2\fprate^2}_{\text{correct BSC composition, §2.3}}
+  \;\neq\;
+  \underbrace{2\fprate - \fprate^2}_{\text{naive §3.3 formula}}.
+\]
+For $\fprate = 0.1$:
+\begin{align*}
+  \text{correct (§2.3): } & 2(0.1) - 2(0.01) = 0.18, \\
+  \text{naive (§3.3): }   & 2(0.1) - (0.01) = 0.19.
+\end{align*}
+The naive formula overestimates the BSC's end-to-end error rate.
+
+The discrepancy is not a bug in either formula. It reveals the identity-with-error
+assumption in action.
+
+\medskip
+\noindent\textbf{The cancellation structure of the BSC.}
+In a BSC, a ``flip'' swaps $\top \leftrightarrow \bot$. Two flips cancel:
+$\top \xrightarrow{\text{flip}} \bot \xrightarrow{\text{flip}} \top$. The
+end-to-end output is wrong if and only if an \emph{odd} number of flips
+occurred across the chain. The end-to-end output is right if an \emph{even}
+number of flips occurred (including zero).
+
+For $k = 2$ stages with equal crossover $\fprate$, the parity decomposition is:
+\begin{align*}
+  \Pr[\text{exactly 0 flips}] &= (1-\fprate)^2, \\
+  \Pr[\text{exactly 1 flip}]  &= 2\fprate(1-\fprate), \\
+  \Pr[\text{exactly 2 flips}] &= \fprate^2.
+\end{align*}
+The end-to-end error probability is the odd-flip probability:
+\[
+  \Pr[\text{odd number of flips}]
+  = 2\fprate(1-\fprate)
+  = 2\fprate - 2\fprate^2.
+\]
+This matches the §2.3 formula~\eqref{eq:bsc-two-stage-correct} exactly. The
+``at-least-one-flip'' probability that the naive §3.3 formula computes is
+\[
+  \Pr[\text{at least one flip}]
+  = 1 - (1-\fprate)^2
+  = 2\fprate - \fprate^2,
+\]
+which includes the event that both stages flip---an event that \emph{cancels}
+to correctness. The composition theorem counts this event as an error; the BSC
+does not. Hence the overestimate.
+
+\medskip
+\noindent\textbf{Summary of the distinction.}
+The composition theorem formula $\eta_{\mathrm{total}} = 1 - \prod(1 - \eta_i)$
+answers the question: \emph{what is the probability that at least one stage in
+the chain makes an error?} For the identity-with-error model---where a single
+error corrupts the end-to-end output irrecoverably---this is also the
+end-to-end error rate. But for the BSC, two errors cancel, so the relevant
+question is: \emph{what is the probability that an odd number of stages flip?}
+The BSC composition formula from \Cref{sec:channel-composition} answers this
+second question.
+
+The two questions agree only in special cases:
+\begin{itemize}
+  \item \textbf{One-sided error channels: FNR $= 0$.} If $\fnrate = 0$ (a
+    positive approximate set), then stage $i$ can only make errors in one
+    direction: a false positive cannot be ``uncorrected'' by a later false
+    positive, because the false positive takes a $\bot$ input to $\top$, and
+    a subsequent channel with FNR $= 0$ will report $\top$ correctly. There
+    is no cancellation in the positive direction. The composition theorem
+    formula gives the exact accumulated false-positive rate.
+
+  \item \textbf{One-sided error channels: FPR $= 0$.} Symmetrically, if
+    $\fprate = 0$, the only errors are false negatives, and two false negatives
+    do not cancel (a missed positive remains missed). The composition theorem
+    applies.
+
+  \item \textbf{AND / OR gates.} As shown above, AND with FNR rates and OR
+    with FPR rates are both in the identity-with-error regime in their
+    respective dominant error direction. No cancellation is possible.
+
+  \item \textbf{Miller-Rabin's $k$-round test.} The Miller-Rabin witness test
+    has FNR $= 0$ per round (it never falsely declares a prime composite).
+    The only error is a false positive, and a false positive cannot be
+    ``uncanceled'' by subsequent rounds---each round independently either
+    detects the compositeness or doesn't. The composition theorem applies
+    directly: $\fprate_k \leq (1/4)^k$. We work through this in
+    \Cref{sec:miller-rabin}.
+\end{itemize}
+
+For the BSC, neither condition holds: the BSC has $\fprate = \fnrate$, and two
+flips cancel. The correct composition formula is the one in
+\Cref{sec:channel-composition}: matrix product, not the composition theorem
+of this section. This is not a contradiction; it is two different theorems
+answering two different questions about two different models.
+
+\subsection*{The channel-matrix product view}
+
+The composition theorem has a direct interpretation in terms of the channel
+matrix $Q$ defined in \Cref{def:channel-composition}.
+
+For the identity-with-error model, the per-stage channel matrix is
+\[
+  Q_i
+  \;=\;
+  \begin{pmatrix}
+    1 - \eta_i & \eta_i \\
+    \eta_i & 1 - \eta_i
+  \end{pmatrix},
+\]
+a symmetric channel (BSC with crossover $\eta_i$). But we are using it in a
+regime where errors \emph{do not cancel}---we are tracking whether the value
+is still correct at the end of the chain, not whether the channel has the
+BSC's symmetry.
+
+The $k$-stage composition by matrix product gives $Q_{\mathrm{total}} = Q_k
+\cdots Q_1$. For the special case of identical stages ($Q_i = Q$) and the BSC
+structure, this gives the §2.3 formula, which does allow cancellation. The
+composition theorem~\eqref{eq:composition-theorem} corresponds instead to a
+different model: one where the correctness of the chain is a monotone property
+(once lost, it stays lost). This is not the same as the BSC's parity model.
+
+In the Boolean framework, the cleanest way to frame the composition theorem's
+domain is as follows. Let $\eta_i$ denote the \emph{unconditional error rate}
+of stage $i$: the probability that, regardless of the input, stage $i$
+produces the wrong answer. For the composition theorem to give the exact
+end-to-end error rate, we need that any single wrong answer from any stage
+propagates to a wrong final answer. This holds for one-sided channels and for
+AND / OR compositions; it does not hold for the BSC.
+
+\Cref{sec:channel-composition} gives the serial-composition formula for the
+BSC and for general asymmetric channels: it is the correct formula for those
+models. The composition theorem of this section is the correct formula for
+identity-with-error models. The two are complementary, not competing.
+
+\subsection*{Sister structure: Kronecker for parallel queries}
+
+The composition theorem governs \emph{serial} chains: one query passes through
+$k$ stages in sequence. The Kronecker factorization theorem
+(\Cref{thm:kronecker}) governs \emph{parallel} queries: $m$ queries on $m$
+distinct elements, each through its own copy of the channel.
+
+In the serial case (this section), correctness probabilities multiply along
+the chain:
+\[
+  \tnrate_{\mathrm{total}} \;=\; \tnrate_1 \cdot \tnrate_2 \cdots \tnrate_k.
+\]
+
+In the parallel case (\Cref{sec:kronecker}), the joint confusion matrix factors
+as a Kronecker product:
+\[
+  Q^{(m)} \;=\; Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m.
+\]
+
+These two factorizations arise from different independence structures. The
+serial factorization uses \emph{chain-stage independence}: the error events at
+distinct stages of the pipeline are independent. The Kronecker factorization
+uses \emph{Axiom 1} (\Cref{ax:element-indep}): the error events at distinct
+input elements are independent. The two independence assumptions can both hold
+simultaneously---and in well-designed systems, they do---but they are logically
+distinct.
+
+An important practical consequence: when $k$ parallel pipelines each consist of
+multiple stages in series, the combined channel matrix is
+\[
+  \left(Q_2^{(1)} Q_1^{(1)}\right)
+  \otimes
+  \left(Q_2^{(2)} Q_1^{(2)}\right)
+  \otimes \cdots,
+\]
+as \Cref{sec:channel-composition} noted. The serial composition (matrix product)
+applies \emph{within} each pipeline; the Kronecker product applies \emph{across}
+parallel pipelines. The composition theorem of this section computes the
+correctness probability of each pipeline's serial chain; the Kronecker theorem
+assembles the joint confusion matrix for the $m$ parallel pipelines together.
+
+\subsection*{A note on chain-stage independence vs.\ element-wise independence}
+
+The composition theorem assumes chain-stage independence. Axiom~1
+(\Cref{ax:element-indep}) guarantees element-wise independence: error events
+at distinct input elements are independent. These are closely related but
+operationally distinct.
+
+In the Miller-Rabin example of \Cref{sec:miller-rabin}, the $k$ witness
+evaluations are drawn from a pool of witnesses. If we treat each witness as a
+distinct element of a predicate over the witness pool---which is the right
+recasting, as \Cref{sec:miller-rabin} details---then Axiom 1 licenses
+independence across witnesses. That independence is also chain-stage
+independence for the $k$-AND composition: the $k$ AND stages each involve a
+distinct element, and their error events are independent by Axiom 1. In this
+setting, Axiom 1 implies chain-stage independence, and the composition theorem
+follows.
+
+In contrast, consider a pipeline where stage $i$ and stage $j$ query the
+\emph{same} element of the same Bernoulli predicate. If the implementation is
+deterministic (same input, same output), the two stages are perfectly
+correlated, not independent. Axiom 1 does not apply across repeated queries of
+the same element (Chapter 16 discusses this negative space). The composition
+theorem would not apply either: the chain-stage independence assumption fails
+when stages share elements.
+
+The honest position is this: chain-stage independence is a structural property
+of the pipeline, not a consequence of Axiom 1 alone. In well-behaved
+implementations where each stage of the pipeline queries a distinct element,
+Axiom 1 implies chain-stage independence and the composition theorem holds.
+In pipelines where stages share elements or are correlated through shared
+randomness, the theorem requires additional justification or does not apply.
+
+\subsection*{Worked numerical example: a 4-stage AND chain}
+
+To make the composition theorem concrete before we deploy it in Miller-Rabin,
+here is a worked example with four stages.
+
+Let $\tilde{b}_1, \tilde{b}_2, \tilde{b}_3, \tilde{b}_4$ be independent
+$\Bernoulli{\BoolType}$ instances, each a positive approximate set (FNR $= 0$),
+with false-positive rates:
+\[
+  \fprate_1 = 0.20, \quad \fprate_2 = 0.15, \quad
+  \fprate_3 = 0.10, \quad \fprate_4 = 0.25.
+\]
+We take their four-fold AND: declare $\top$ only if all four report $\top$.
+
+Since $\fnrate_i = 0$ for all stages (positive approximate set), the
+four-fold AND has $\fnrate_\wedge = 0$ as well: the AND never falsely
+suppresses a true $\top$ (every stage correctly passes $\top$ inputs through).
+
+The composition theorem gives the false-positive rate of the AND. With
+$\eta_i = \fprate_i$:
+\[
+  \tnrate_{\mathrm{total}}
+  = (1 - 0.20)(1 - 0.15)(1 - 0.10)(1 - 0.25)
+  = 0.80 \times 0.85 \times 0.90 \times 0.75.
+\]
+Computing step by step:
+\begin{align*}
+  0.80 \times 0.85 &= 0.680, \\
+  0.680 \times 0.90 &= 0.612, \\
+  0.612 \times 0.75 &= 0.459.
+\end{align*}
+So $\tnrate_{\mathrm{total}} = 0.459$ and:
+\[
+  \fprate_{\wedge,4}
+  = 1 - 0.459
+  = 0.541.
+\]
+
+Is this better than each individual stage? Yes: the individual stages have
+$\fprate_i \in \{0.10, 0.15, 0.20, 0.25\}$. The AND gate has
+$\fprate_{\wedge,4} \approx 0.541$---actually worse than each individual
+stage on its own.
+
+This counterintuitive result is not a paradox. The stages in this example are
+quite noisy ($\fprate_i$ up to 0.25). The AND of four noisy stages accumulates
+the FNR in the positive direction (here zero, since FNR $= 0$) and pushes the
+FPR down \emph{only} when $\fprate_i < 0.5$ and the product
+$\prod(1 - \fprate_i)$ is large. With four stages each above $0.10$, the
+product of TNRs is only $0.459$, so the AND gate's FPR is $0.541$. To get an
+AND gate with FPR below any individual stage, we need the product of individual
+TNRs to exceed the best individual TNR, i.e., the other stages must compensate.
+
+For comparison, if all four stages had $\fprate = 0.25$:
+\[
+  \fprate_{\wedge,4} = 1 - (0.75)^4 = 1 - 0.3164 = 0.684.
+\]
+And if all four stages had $\fprate = 0.05$:
+\[
+  \fprate_{\wedge,4} = 1 - (0.95)^4 = 1 - 0.8145 = 0.185.
+\]
+With low per-stage FPR, the AND gate's FPR is substantially lower than any
+individual stage. This is the regime Miller-Rabin exploits: with
+$\fprate \leq 1/4$ per round, a $k$-round AND achieves $\fprate_k \leq
+(1/4)^k$.
+
+\subsection*{Uniform case: the $(1-\eta)^k$ formula}
+
+When all $k$ stages have the same error rate $\eta$, the composition theorem
+simplifies to:
+\begin{equation}
+\label{eq:composition-uniform}
+  \eta_{\mathrm{total}} \;=\; 1 - (1 - \eta)^k, \qquad
+  \tnrate_{\mathrm{total}} \;=\; (1 - \eta)^k.
+\end{equation}
+
+This is perhaps the most-used form in practice. For Miller-Rabin with
+$\eta = \fprate \leq 1/4$ per round and $k$ rounds:
+\[
+  \fprate_k \;\leq\; \left(\frac{1}{4}\right)^k.
+\]
+For $k = 10$ rounds: $\fprate_{10} \leq (1/4)^{10} \approx 10^{-6}$.
+For $k = 20$ rounds: $\fprate_{20} \leq (1/4)^{20} \approx 10^{-12}$.
+
+The exponential decay in $k$ is the composition theorem's principal practical
+payoff. For the Miller-Rabin test, FNR $= 0$ holds exactly (no prime is ever
+declared composite), so the composition formula gives the exact accumulated
+FPR bound, not just an approximation.
+
+\Cref{sec:miller-rabin} builds the full walkthrough.
+
+\subsection*{Looking ahead to Miller-Rabin}
+
+The composition theorem establishes the machinery. \Cref{sec:miller-rabin}
+deploys it.
+
+The Miller-Rabin primality test evaluates $k$ independent witnesses against a
+candidate integer $n$. Each witness is a $\Bernoulli{\BoolType}$ instance with
+FNR $= 0$ and FPR $\leq 1/4$. The witnesses are independent samples from the
+witness pool---distinct input elements, in the sense of \Cref{ax:element-indep}.
+The $k$-round test is a $k$-fold AND of these witnesses: declare ``probably
+prime'' only if all $k$ witnesses pass.
+
+Since FNR $= 0$ for each witness, the AND gate also has FNR $= 0$: if $n$ is
+prime, all $k$ witnesses pass, and the AND declares ``probably prime''
+correctly. The only remaining error is a false positive: $n$ is composite but
+all $k$ witnesses fail to detect it. The composition theorem gives:
+\[
+  \fprate_k \;\leq\; (1/4)^k.
+\]
+This is not a heuristic or an approximation. It is the composition
+theorem~\eqref{eq:composition-uniform} applied to a channel with FNR $= 0$.
+The Miller-Rabin bound is an instance of the Bernoulli Boolean framework,
+derived from the same principles as the AND gate analysis of
+\Cref{sec:and-under-noise}. The next section makes this derivation explicit.
