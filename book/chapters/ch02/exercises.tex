@@ -1,1 +1,252 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch02-binary-channels.md
+% §2 Exercises
+%
+% Cross-references and their resolution status:
+%
+% Already resolved (within chapter 2, drafted in Tasks 2-5 of Plan 2):
+%   \Cref{sec:bsc}                  -- §2.1 Binary Symmetric Channel
+%   \Cref{def:bsc}                  -- §2.1 BSC formal definition
+%   \Cref{sec:asymmetric-channel}   -- §2.2 Asymmetric Binary Channel
+%   \Cref{def:asymmetric-channel}   -- §2.2 asymmetric channel definition
+%   \Cref{def:z-channel}            -- §2.2 Z-channel definition
+%   \Cref{sec:channel-composition}  -- §2.3 Composition of Channels
+%   \Cref{def:channel-composition}  -- §2.3 serial composition definition
+%   \Cref{eq:bsc-composition}       -- §2.3 BSC composition formula
+%   \Cref{sec:model-order}          -- §2.4 Model Order
+%   \Cref{def:model-order}          -- §2.4 model order definition
+%   \Cref{thm:boolean-ceiling}      -- §2.4 Boolean ceiling theorem
+%
+% Already resolved (chapter 4, drafted in Plan 1):
+%   \Cref{sec:axiom-2}             -- chapter 4 §4.3
+%   \Cref{thm:kronecker}           -- chapter 4 §4.4
+%   \Cref{cor:parameter-reduction} -- chapter 4 §4.4
+%
+% Unresolved forward refs (will resolve in later Plans):
+%   \Cref{sec:composition-theorem} -- chapter 3 §3.3 (will resolve in Plan 3)
+%   \Cref{ch:approximate-functions}-- chapter 9 Part III (will resolve in a later plan)
+%
+% label \label{ex:bsc-capacity} on Exercise 4 resolves the forward
+% reference placed at bsc.tex line 304 (Exercise~\ref{ex:bsc-capacity}).
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3)
+% -----------------------------------------------------------------------
+
+\item \exstar
+\textbf{Writing the channel matrix.}
+Let $\fprate = 0.07$ and $\fnrate = 0.12$.
+Write the $2 \times 2$ channel matrix $Q$ for the asymmetric binary
+channel (\Cref{def:asymmetric-channel}) with these parameters.
+Verify that both rows sum to 1 (row-stochastic condition).
+Then write the matrix for the special case $\fprate = \fnrate = 0.07$
+and identify which named channel (\Cref{def:bsc}) it gives.
+
+\item \exstar
+\textbf{Composing two BSCs by hand.}
+Let $Q_1$ be a BSC with crossover $\fprate_1 = 0.05$ and $Q_2$ be a
+BSC with crossover $\fprate_2 = 0.10$ (\Cref{def:bsc}).
+\begin{enumerate}
+  \item[(a)] Write out $Q_1$ and $Q_2$ explicitly as $2 \times 2$ matrices.
+  \item[(b)] Compute the matrix product $Q_{\mathrm{total}} = Q_2\, Q_1$
+    entry by entry (\Cref{def:channel-composition}).
+  \item[(c)] Using the formula $\fprate_{\mathrm{total}} = \fprate_1(1-\fprate_2) +
+    (1-\fprate_1)\fprate_2$ from \Cref{eq:bsc-composition}, verify that
+    $\fprate_{\mathrm{total}} = 0.14$ and that $Q_{\mathrm{total}}$ is a
+    BSC with this crossover.
+\end{enumerate}
+
+\item \exstar
+\textbf{Identifying model order.}
+For each of the following systems, state the model order
+(\Cref{def:model-order}) and justify your answer in one sentence.
+\begin{enumerate}
+  \item[(a)] A BSC with crossover $\fprate = 0.03$ (\Cref{def:bsc}).
+  \item[(b)] A Bloom filter (\Cref{def:z-channel}).
+  \item[(c)] An asymmetric binary channel with $\fprate = 0.05$ and
+    $\fnrate = 0.08$ (\Cref{def:asymmetric-channel}).
+  \item[(d)] The composition of a BSC followed by a Z-channel
+    (\Cref{def:channel-composition}).
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5)
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:bsc-capacity}
+\textbf{Deriving BSC capacity.}
+The capacity of a channel is the maximum mutual information $I(X;Y)$
+between input $X$ and output $Y$ over all input distributions.
+Let $p = \Pr\{X = \top\}$ be the prior probability of a positive input,
+so $\Pr\{X = \bot\} = 1 - p$.
+\begin{enumerate}
+  \item[(a)] For a BSC with crossover $\fprate$ (\Cref{def:bsc}), write out
+    $\Pr\{Y = \top\}$ and $\Pr\{Y = \bot\}$ in terms of $p$ and $\fprate$.
+  \item[(b)] Recall that mutual information satisfies
+    $I(X;Y) = H(Y) - H(Y \Given X)$, where $H$ denotes binary entropy.
+    Show that $H(Y \Given X) = H_2(\fprate)$ regardless of $p$, where
+    $H_2(\fprate) = -\fprate \log_2 \fprate - (1-\fprate)\log_2(1-\fprate)$.
+  \item[(c)] Show that $H(Y)$ is maximized at $p = 1/2$, and conclude
+    that the BSC capacity is $1 - H_2(\fprate)$.
+  \item[(d)] Evaluate the capacity at $\fprate = 0.05$ (the running example
+    from \Cref{sec:bsc}) and at $\fprate = 0.5$. Interpret both values.
+\end{enumerate}
+
+\item \exstarstar
+\textbf{Bloom filter as a Z-channel.}
+The Bloom filter satisfies $\fnrate = 0$: it never reports a false negative
+(\Cref{def:z-channel}).
+\begin{enumerate}
+  \item[(a)] Write the channel matrix $Q$ for a Bloom filter with false-positive
+    rate $\fprate = 0.05$ and verify that the matrix satisfies $\fnrate = 0$.
+  \item[(b)] A query returns ``not in set.'' Show that, under the Z-channel model
+    (\Cref{sec:asymmetric-channel}), this answer carries no uncertainty: the
+    true membership status is determined exactly.
+  \item[(c)] Argue that no amount of serial composition of Z-channels
+    (\Cref{def:channel-composition}) with $\fnrate = 0$ can produce a non-zero
+    false-negative rate. Use the matrix-product form to support your argument.
+\end{enumerate}
+(\textit{Hint for (c):} consider what the composition formula from
+\Cref{eq:bsc-composition} becomes when $\fnrate_1 = \fnrate_2 = 0$.)
+
+\item \exstarstar
+\textbf{The composition of two BSCs is a BSC.}
+Prove the general case of the composition result implicit in
+\Cref{eq:bsc-composition}: for any two BSC matrices $Q_1$ and $Q_2$
+with crossovers $\fprate_1$ and $\fprate_2$, the product
+$Q_{\mathrm{total}} = Q_2 Q_1$ is again a BSC.
+\begin{enumerate}
+  \item[(a)] A $2 \times 2$ stochastic matrix is a BSC (\Cref{def:bsc}) if
+    and only if both of its off-diagonal entries are equal. Show that
+    $Q_{\mathrm{total}}$ satisfies this condition by multiplying the two
+    symmetric matrices and comparing off-diagonal entries.
+  \item[(b)] Identify the crossover of $Q_{\mathrm{total}}$ in terms of
+    $\fprate_1$ and $\fprate_2$.
+  \item[(c)] The composition of BSCs is therefore \emph{closed} in the class
+    of BSCs. Give a one-sentence interpretation: why is closure a useful
+    property for building serial pipelines out of symmetric components?
+\end{enumerate}
+
+\item \exstarstar
+\textbf{When does an asymmetric channel reduce to a BSC?}
+An asymmetric binary channel (\Cref{def:asymmetric-channel}) has parameters
+$\fprate$ and $\fnrate$.
+\begin{enumerate}
+  \item[(a)] State the algebraic condition on $(\fprate, \fnrate)$ that makes
+    the asymmetric channel's matrix equal to a BSC matrix (\Cref{def:bsc}).
+  \item[(b)] In the $(\fprate, \fnrate)$ parameter space $[0,1)^2$, describe
+    the set of parameter pairs that correspond to BSCs. What geometric object
+    is this set?
+  \item[(c)] At the boundary of this set, perturb $\fnrate$ by a small amount
+    $\delta > 0$ while fixing $\fprate$. Compute the new $Q$ and identify the
+    model order (\Cref{def:model-order}) of the resulting channel.
+  \item[(d)] Explain in one paragraph why the BSC is a measure-zero special
+    case within the space of asymmetric channels, and what that implies for
+    real-world data systems.
+\end{enumerate}
+
+\item \exstarstar
+\textbf{Constructing a model-order-2 channel from two model-order-1 channels.}
+Two deterministic channels each have model order 1: the identity channel
+(crossover $\fprate = 0$) and the complementing channel (crossover $\fprate = 1$).
+Both are trivially order-1 BSCs.
+\begin{enumerate}
+  \item[(a)] Compute the serial composition of the identity channel followed
+    by the complementing channel (\Cref{def:channel-composition}).
+    What channel does the composition produce?
+  \item[(b)] Now consider a non-degenerate construction: compose a BSC with
+    crossover $\fprate_1 = 0.1$ with an asymmetric channel having
+    $\fprate_2 = 0.2$, $\fnrate_2 = 0.3$.
+    Compute $Q_{\mathrm{total}} = Q_2 Q_1$ and verify the model order
+    (\Cref{def:model-order}) of the result.
+  \item[(c)] Describe in general how serial composition (\Cref{sec:channel-composition})
+    affects the partition structure. Does composing two order-$n$ channels
+    always yield an order-$n$ channel? Does it always yield an order-$m$
+    channel for some fixed $m$ related to the input domain?
+\end{enumerate}
+(\textit{Hint:} focus on the input domain of the composed channel, not
+the intermediate domain.)
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3)
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\textbf{Rigorous proof of the Boolean ceiling.}
+\Cref{thm:boolean-ceiling} states that any binary channel over the input
+domain $\{\top, \bot\}$ has model order at most 2. Give a self-contained
+proof from the definitions.
+\begin{enumerate}
+  \item[(a)] State the definition of model order (\Cref{def:model-order})
+    precisely: a partition of $\{\top, \bot\}$ is a collection of non-empty
+    pairwise-disjoint subsets whose union is $\{\top, \bot\}$. List all
+    distinct partitions of the two-element set $\{\top, \bot\}$.
+  \item[(b)] Show that no partition of $\{\top, \bot\}$ can have more than
+    2 blocks. (The argument is purely combinatorial: a partition into $k$
+    blocks of a 2-element set requires $k \leq 2$.)
+  \item[(c)] Conclude that the model order of any channel over $\{\top, \bot\}$
+    is at most 2, and give the two distinct channel classes that correspond
+    to model order 1 (the BSC) and model order 2 (the general asymmetric
+    channel).
+  \item[(d)] Contrast with the n-ary case: state, without proving, how the
+    ceiling changes for an input domain of cardinality $k$ (foreshadows
+    \Cref{ch:approximate-functions} without entering Part III content).
+\end{enumerate}
+
+\item \exstarstarstar
+\textbf{Channel composition: associative but not commutative.}
+Let $Q_1$, $Q_2$, $Q_3$ be binary channel matrices and define serial
+composition as matrix product (\Cref{def:channel-composition}).
+\begin{enumerate}
+  \item[(a)] \textit{Associativity.} Prove that
+    $(Q_3 Q_2) Q_1 = Q_3 (Q_2 Q_1)$.
+    (This follows directly from associativity of matrix multiplication;
+    state the argument clearly and identify what it implies for building
+    pipelines of arbitrary length.)
+  \item[(b)] \textit{Non-commutativity by counterexample.}
+    Let $Q_1$ be a BSC with crossover $\fprate_1 = 0.1$ and $Q_2$ be an
+    asymmetric channel with $\fprate_2 = 0.4$ and $\fnrate_2 = 0.1$.
+    Compute $Q_2 Q_1$ and $Q_1 Q_2$ explicitly. Show that they are not equal.
+  \item[(c)] Interpret the non-commutativity result: the order in which
+    two noisy stages appear in a serial pipeline matters. Give a one-sentence
+    practical implication for designing a two-stage classification pipeline
+    where one stage has higher false-positive rate and the other has higher
+    false-negative rate.
+\end{enumerate}
+
+\item \exstarstarstar
+\textbf{A 3-input partition and model order 3.}
+The binary domain $\{\top, \bot\}$ supports at most model order 2
+(\Cref{thm:boolean-ceiling}). This exercise explores what happens when the
+input domain grows.
+\begin{enumerate}
+  \item[(a)] Let the input domain be $\{1, 2, 3\}$ (a 3-element set). List
+    all distinct partitions of this domain. How many distinct values of model
+    order are possible?
+  \item[(b)] Write a $3 \times 2$ channel matrix $Q$ for a channel from the
+    3-element input domain to the binary output domain $\{\top, \bot\}$,
+    choosing a partition into 2 blocks $B_1 = \{1, 2\}$ and $B_2 = \{3\}$
+    with per-block error rates $\fprate_1 = 0.05$, $\fprate_2 = 0.20$.
+    Verify that both rows in each block share the same entries and that the
+    matrix is row-stochastic.
+  \item[(c)] Write a second channel matrix using the 3-block partition
+    $B_1 = \{1\}$, $B_2 = \{2\}$, $B_3 = \{3\}$ with rates
+    $\fprate_1 = 0.05$, $\fprate_2 = 0.15$, $\fprate_3 = 0.30$.
+    State the model order of this channel.
+  \item[(d)] Explain in one paragraph why the Kronecker factorization
+    (\Cref{thm:kronecker}) discussed in the context of parallel queries
+    (chapter 4 §4.4) extends naturally to n-ary input domains, and identify
+    the one change in the parameter count. (This is a preview of
+    \Cref{ch:approximate-functions}; no detailed proof is expected.)
+\end{enumerate}
+
+\end{enumerate}
