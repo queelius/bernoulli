@@ -497,8 +497,10 @@ negative.}
   \Prob{\tilde{A}(x_1) = +, \tilde{A}(x_2) = - \Given x_1 \in B_1, x_2 \in B_2}
   \;=\; \tprate \cdot \tnrate.
 \]
-This matches $(Q \otimes Q)_{22} = \tprate\tnrate$. For the false-positive
-entry---output $(+,+)$ when blocks are $(B_1, B_2)$---we need column 1:
+This matches $(Q \otimes Q)_{22} = \tprate\tnrate$. For the mixed
+true-positive / false-positive entry---output $(+,+)$ when blocks are
+$(B_1, B_2)$, meaning the positive is correctly reported positive and
+the negative is falsely reported positive---we need column 1:
 $(Q \otimes Q)_{21} = \tprate \fprate$, which equals
 $\Prob{+,+ \Given B_1, B_2} = \tprate \cdot \fprate$. Confirmed.
 
@@ -527,7 +529,7 @@ the AND gate's output distribution is a deterministic function of
 that joint distribution. Nothing more was needed than what the two
 axioms provide.
 
-\subsection*{Closing: the formal type is next}
+\subsection*{The formal type is next}
 
 The Kronecker theorem is the formal payoff for chapters 1--4's
 accumulated independence assumptions. We now have a complete

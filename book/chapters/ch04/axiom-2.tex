@@ -117,8 +117,12 @@ neither subsumes the other.
 \noindent\textbf{The order-2 specialization.} In the second-order model,
 Axiom 2 reduces to a single statement: the random false-positive rate
 $\fprate$ and the random false-negative rate $\fnrate$ are
-conditionally independent given $A$. The joint density of the
-two rates factors:
+conditionally independent given $A$.\footnote{The companion paper
+\cite{towell-bernoulli-sets} specializes Axiom~2 in terms of (FPR, TPR)
+rather than (FPR, FNR). The two formulations are equivalent: TPR
+$= 1 - \text{FNR}$ is a deterministic transformation, so independence
+of (FPR, FNR) is the same as independence of (FPR, TPR).} The joint
+density of the two rates factors:
 \[
   f(\fprate, \fnrate \Given A)
   \;=\;

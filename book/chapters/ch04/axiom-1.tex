@@ -4,6 +4,12 @@
 % Cross-references to sec:miller-rabin (ch 3) and ch:approximate-sets (ch 5)
 % will resolve when those chapters are drafted in later plans.
 % Build warnings for those labels are expected and will be resolved in Plan 4.
+%
+% Convention note: long worked examples in this chapter use \subsection*{Example N: ...}
+% rather than \begin{example}...\end{example} (alex.sty). The \begin{example}
+% environment is reserved for short inline examples. Do not convert these
+% subsections to the example environment without verifying that the prose
+% reads naturally in italic body style.
 
 The previous section sketched two kinds of independence that chapters 1--3
 quietly assumed. This section makes the first of them precise.
@@ -37,15 +43,15 @@ occurred at $x$; $E_x = 0$ means the answer was correct.
 
 \begin{axiom}[Element-wise independence]
 \label{ax:element-indep}
-For all distinct $x, y \in U$, the error events $E_x$ and $E_y$ are
-independent:
+The family $\{E_x : x \in U\}$ is mutually independent given the
+objective set $A$ and the error rates. In particular, for any distinct
+$x, y \in U$, the pairwise factorization
 \[
-  \Prob{E_x = 1, \, E_y = 1} \;=\; \Prob{E_x = 1} \cdot \Prob{E_y = 1}.
+  \Prob{E_x = 1, \, E_y = 1} \;=\; \Prob{E_x = 1} \cdot \Prob{E_y = 1}
 \]
-More generally, the family $\{E_x : x \in U\}$ is mutually independent
-given the objective set $A$ and the error rates. Furthermore, within
-each partition block $B_i$ of $U$ (defined formally in \Cref{sec:axiom-2}),
-the error indicators $\{E_x : x \in B_i\}$ are identically distributed.
+holds. Furthermore, within each partition block $B_i$ of $U$ (defined
+formally in \Cref{sec:axiom-2}), the error indicators
+$\{E_x : x \in B_i\}$ are identically distributed.
 \end{axiom}
 
 The notation $\tilde{A}(x)$ is deliberately abstract: it stands for any
@@ -84,6 +90,10 @@ depending on whether $x_i \in A$ and whether $s_i$ is a correct response.
 \begin{proof}
 The first identity is the definition of mutual independence for the
 family $\{E_x : x \in U\}$, which Axiom 1 asserts directly.
+Mutual independence of the family $\{E_x : x \in U\}$ (the primary
+assertion of Axiom 1) implies, by definition, mutual independence of
+any finite subfamily; hence the joint distribution over
+$\{x_1, \ldots, x_n\}$ factors into the stated product of $n$ marginals.
 The second identity follows because $\tilde{A}(x_i) = s_i$ is a
 deterministic function of $E_{x_i}$ and the exact answer $\mathbf{1}_A(x_i)$:
 knowing $A$ determines $\mathbf{1}_A(x_i)$, and given that,
@@ -136,7 +146,11 @@ We will analyze the Bloom filter fully in Part II
 under the standard random-oracle model for the hash functions. For now,
 the take-away is structural: the Bloom filter is a $\Bernoulli{\BoolType}$
 implementation, and Axiom 1 is the assumption that makes that claim
-non-trivial.
+non-trivial. (For a Bloom filter the FNR is degenerate at zero, since
+a member element always matches all $k$ of its hash positions; the
+rates-as-random-variables framing of Axiom~1 here governs the per-element
+independence of FPR error events across distinct non-member queries,
+not the FNR.)
 
 \subsection*{Example 2: Miller-Rabin's $k$-round bound requires Axiom 1}
 
@@ -197,10 +211,10 @@ but with a deliberate caveat. Two correlated classifiers evaluating the
 distinct \emph{inputs} to a single predicate, not distinct
 \emph{predicates} on a single input. The example we work below is one
 step removed from Axiom 1, but it illustrates the same family of
-phenomenon: when error events are correlated for any reason, the naive
+phenomena: when error events are correlated for any reason, the naive
 product formula underestimates the joint failure rate. The Axiom 1 case
 (correlated errors at distinct inputs to one predicate) is
-mathematically structurally identical.
+structurally identical.
 
 Suppose two classifiers $C_1$ and $C_2$ are both trained on a shared
 dataset with overlapping features. Each classifier is a
