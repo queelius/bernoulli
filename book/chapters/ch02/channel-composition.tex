@@ -1,1 +1,366 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch02-binary-channels.md
+% §2.3 Composition of Channels
+%
+% Cross-reference resolution status:
+%
+% EXPECTED UNRESOLVED (forward refs that will resolve in later Plans):
+%   \Cref{sec:three-faces}          -- chapter 1 §1.1 (will resolve in Plan 4)
+%   \Cref{sec:composition-theorem}  -- chapter 3 §3.3 (will resolve in Plan 3)
+%
+% ALREADY RESOLVED (within this chapter or chapter 4, drafted earlier):
+%   \Cref{sec:bsc}              -- chapter 2 §2.1
+%   \Cref{def:bsc}              -- chapter 2 §2.1 BSC definition
+%   \Cref{sec:asymmetric-channel} -- chapter 2 §2.2
+%   \Cref{def:asymmetric-channel} -- chapter 2 §2.2 asymmetric channel definition
+%   \Cref{sec:kronecker}        -- chapter 4 §4.4
+%   \Cref{thm:kronecker}        -- chapter 4 §4.4 Kronecker theorem
+%   \Cref{cor:kronecker-unconditional} -- chapter 4 §4.4 corollary
+%
+% Build warnings for the two unresolved labels above are expected at this stage.
+% They will be resolved when Plan 3 (chapter 3) and Plan 4 (integration) run.
+
+\section{Composition of Channels}
+\label{sec:channel-composition}
+
+\subsection*{Channels in series}
+
+The channels we have studied so far---the BSC of \Cref{sec:bsc} and
+the asymmetric binary channel of \Cref{sec:asymmetric-channel}---model
+a single noisy step. Many real systems chain two or more such steps
+together. A signal passes through a first amplifier that introduces
+some noise, then through a second that adds more. A classification
+pipeline applies one model to filter candidates and a second to rank
+them. A Bloom filter checks membership; a downstream system then
+applies its own fallible test to the reported positives.
+
+In each case we have a \emph{serial pipeline}: an element enters the
+first channel $Q_1$, its output becomes the input to the second channel
+$Q_2$, and the combined system produces a final output. We want to know:
+what is the channel matrix of the composed system?
+
+\begin{definition}[Serial composition of binary channels]
+\label{def:channel-composition}
+Let $Q_1$ and $Q_2$ be two binary channel matrices. The \emph{serial
+composition} $Q_2 \circ Q_1$ is the channel formed by applying $Q_1$
+first and $Q_2$ second. Its channel matrix is the ordinary matrix
+product
+\[
+  Q_{\mathrm{total}} \;=\; Q_2\, Q_1.
+\]
+The $(i,j)$-entry of $Q_{\mathrm{total}}$ is the probability of
+observing final output $j$ given that the original input belongs to
+block $B_i$.
+\end{definition}
+
+The right-to-left convention $Q_2 Q_1$ is standard: in matrix notation,
+the \emph{rightmost} factor is applied first. The input vector (or row)
+is transformed by $Q_1$, and the intermediate output is then transformed
+by $Q_2$. The law of total probability is what makes the product work:
+
+\[
+  (Q_{\mathrm{total}})_{ij}
+  \;=\;
+  \sum_{k} (Q_1)_{ik}\,(Q_2)_{kj}.
+\]
+
+Reading this sum: $(Q_1)_{ik}$ is the probability that the first channel
+maps input block $B_i$ to intermediate output $k$; $(Q_2)_{kj}$ is the
+probability that the second channel maps intermediate input $k$ to final
+output $j$. Summing over all intermediate values $k$ gives the total
+probability that $B_i$ produces final output $j$, which is exactly the
+$(i,j)$-entry of the composed channel.
+
+\subsection*{Worked example: composing two BSCs}
+
+The Binary Symmetric Channel of \Cref{sec:bsc} is the cleanest test
+case for composition. We show that composing two BSCs always yields a
+third BSC, and we derive the composed crossover probability explicitly.
+
+Let $Q_1$ be a BSC with crossover $\fprate_1$ and $Q_2$ be a BSC with
+crossover $\fprate_2$:
+\[
+  Q_1 \;=\;
+  \begin{pmatrix}
+    1 - \fprate_1 & \fprate_1 \\
+    \fprate_1 & 1 - \fprate_1
+  \end{pmatrix},
+  \qquad
+  Q_2 \;=\;
+  \begin{pmatrix}
+    1 - \fprate_2 & \fprate_2 \\
+    \fprate_2 & 1 - \fprate_2
+  \end{pmatrix}.
+\]
+
+We compute $Q_{\mathrm{total}} = Q_2 Q_1$ directly:
+\begin{align*}
+  Q_2 Q_1
+  &=
+  \begin{pmatrix}
+    1-\fprate_2 & \fprate_2 \\
+    \fprate_2   & 1-\fprate_2
+  \end{pmatrix}
+  \begin{pmatrix}
+    1-\fprate_1 & \fprate_1 \\
+    \fprate_1   & 1-\fprate_1
+  \end{pmatrix} \\[6pt]
+  &=
+  \begin{pmatrix}
+    (1-\fprate_2)(1-\fprate_1) + \fprate_2 \fprate_1
+      & (1-\fprate_2)\fprate_1 + \fprate_2(1-\fprate_1) \\
+    \fprate_2(1-\fprate_1) + (1-\fprate_2)\fprate_1
+      & \fprate_2 \fprate_1 + (1-\fprate_2)(1-\fprate_1)
+  \end{pmatrix}.
+\end{align*}
+
+Observe that the top-left and bottom-right entries are equal, and the
+top-right and bottom-left entries are equal. That is precisely the
+structure of a BSC matrix. Denote the off-diagonal entry as
+$\fprate_{\mathrm{total}}$:
+\begin{align}
+  \fprate_{\mathrm{total}}
+  &= (1-\fprate_2)\fprate_1 + \fprate_2(1-\fprate_1) \notag \\
+  &= \fprate_1 - \fprate_1\fprate_2 + \fprate_2 - \fprate_1\fprate_2 \notag \\
+  &= \fprate_1 + \fprate_2 - 2\fprate_1\fprate_2.
+  \label{eq:bsc-composition}
+\end{align}
+
+So the composed channel is
+\[
+  Q_{\mathrm{total}}
+  \;=\;
+  \begin{pmatrix}
+    1 - \fprate_{\mathrm{total}} & \fprate_{\mathrm{total}} \\
+    \fprate_{\mathrm{total}}     & 1 - \fprate_{\mathrm{total}}
+  \end{pmatrix},
+\]
+a BSC with crossover
+\[
+  \fprate_{\mathrm{total}}
+  \;=\;
+  \fprate_1(1-\fprate_2) + (1-\fprate_1)\fprate_2.
+\]
+This is the formula stated in \Cref{def:channel-composition}: two BSCs
+in series produce a third BSC.
+
+\subsection*{Reading the composition formula}
+
+The formula $\fprate_{\mathrm{total}} = \fprate_1(1-\fprate_2) +
+(1-\fprate_1)\fprate_2$ has a direct probabilistic interpretation. An
+error in the composed channel occurs if and only if \emph{exactly one}
+of the two channels flips its input. There are two ways this can happen:
+\begin{itemize}
+  \item The first channel flips (probability $\fprate_1$) and the second
+    does not (probability $1 - \fprate_2$), contributing $\fprate_1(1-\fprate_2)$.
+  \item The first channel does not flip (probability $1 - \fprate_1$) and
+    the second does (probability $\fprate_2$), contributing $(1-\fprate_1)\fprate_2$.
+\end{itemize}
+
+If both channels flip, the two errors cancel: the input is back to its
+original value. If neither flips, the input passes through unchanged.
+The composed error is therefore the XOR of the two individual errors,
+and the probability of the XOR of two independent Bernoulli trials with
+parameters $\fprate_1$ and $\fprate_2$ is exactly
+$\fprate_1(1-\fprate_2) + (1-\fprate_1)\fprate_2$.
+
+\medskip
+\noindent\textbf{Two channels make things worse.}
+For $0 < \fprate_1, \fprate_2 < 1/2$, we have
+\[
+  \fprate_{\mathrm{total}}
+  = \fprate_1 + \fprate_2 - 2\fprate_1\fprate_2
+  > \fprate_1.
+\]
+Adding a second channel in series strictly increases the crossover
+probability (unless one of the channels is perfect, $\fprate = 0$, or
+one is a maximal-error channel, $\fprate = 1$). Two imperfect BSCs in
+series are noisier than either alone. The only way to reduce the
+crossover in a serial pipeline is to make the intermediate channel
+a \emph{corrector}, which is outside the binary-channel model we study
+here.
+
+\medskip
+\noindent\textbf{Numerical example.}
+Take $\fprate_1 = 0.05$ and $\fprate_2 = 0.10$. Then
+\[
+  \fprate_{\mathrm{total}}
+  = 0.05 \cdot 0.90 + 0.95 \cdot 0.10
+  = 0.045 + 0.095
+  = 0.140.
+\]
+
+The composed channel has crossover $0.14$, strictly larger than either
+$0.05$ or $0.10$. As a matrix:
+\[
+  Q_{\mathrm{total}}
+  \;=\;
+  \begin{pmatrix}
+    0.86 & 0.14 \\
+    0.14 & 0.86
+  \end{pmatrix}.
+\]
+Both rows sum to 1 and the off-diagonal entries are equal---the composed
+channel is indeed a BSC.
+
+\subsection*{General asymmetric channels compose by the same rule}
+
+The BSC is the symmetric special case. The general asymmetric binary
+channel of \Cref{def:asymmetric-channel} follows the same rule: the
+composed channel matrix is the matrix product $Q_2 Q_1$, and the
+composed error rates follow from the law of total probability exactly
+as above.
+
+Let $Q_1$ have false-positive rate $\fprate_1$ and false-negative
+rate $\fnrate_1$, and let $Q_2$ have $\fprate_2$ and $\fnrate_2$:
+\[
+  Q_1 =
+  \begin{pmatrix}
+    1-\fnrate_1 & \fnrate_1 \\
+    \fprate_1   & 1-\fprate_1
+  \end{pmatrix},
+  \qquad
+  Q_2 =
+  \begin{pmatrix}
+    1-\fnrate_2 & \fnrate_2 \\
+    \fprate_2   & 1-\fprate_2
+  \end{pmatrix}.
+\]
+The composed matrix $Q_2 Q_1$ yields combined rates (reading off the
+$(1,2)$-entry for the false-negative rate and the $(2,1)$-entry for the
+false-positive rate):
+\begin{align*}
+  \fnrate_{\mathrm{total}} &= (1-\fnrate_2)\fnrate_1 + \fnrate_2 \fprate_1, \\
+  \fprate_{\mathrm{total}} &= (1-\fprate_2)\fprate_1 + \fprate_2(1-\fnrate_1).
+\end{align*}
+
+This is Theorem~3.7 from the companion paper \cite{towell-bernoulli-sets},
+stated there in terms of the approximate-identity function composition
+$\widetilde{\mathrm{id}}_{\fprate,\tprate} \circ \widetilde{\mathrm{id}}_{\fprate',\tprate'}$.
+The matrix-product derivation above is the channel-matrix reformulation
+of the same result.
+
+Note that the composition of two asymmetric channels is \emph{not}
+generally a BSC even when the individual channels happen to have equal
+overall crossover rates: the asymmetry in $Q_1$ and $Q_2$ generally
+produces different false-positive and false-negative rates in $Q_2 Q_1$.
+The BSC is the special case in which the symmetry $\fprate = \fnrate$
+is preserved under composition because both inputs to the formula are
+symmetric, which forces $\fprate_{\mathrm{total}} = \fnrate_{\mathrm{total}}$.
+
+\subsection*{Serial composition vs.\ parallel queries}
+
+It is essential to distinguish the \emph{serial} composition of this
+section from the \emph{parallel} query structure studied in
+\Cref{sec:kronecker}.
+
+\begin{itemize}
+  \item \textbf{Serial composition} (this section): an element passes
+    through channel $Q_1$, and the \emph{output} of $Q_1$ becomes the
+    \emph{input} to channel $Q_2$. The combined system acts on a single
+    element, producing a single final output. The joint channel matrix
+    is the ordinary matrix product $Q_2 Q_1$, which is a $2 \times 2$
+    matrix (the same size as each factor).
+
+  \item \textbf{Parallel queries} (\Cref{sec:kronecker}): $m$
+    independent queries are applied to $m$ \emph{distinct} elements,
+    each through its own copy of the channel. The combined output is an
+    $m$-tuple. The joint channel matrix is the Kronecker product
+    $Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m$, which is a
+    $2^n \times 2^m$ matrix, growing \emph{exponentially} in $m$.
+\end{itemize}
+
+The two compositions are structurally different and answer different
+questions. Serial composition (matrix product) asks: what is the
+end-to-end error rate when one channel's output feeds another? Parallel
+composition (Kronecker product) asks: what is the joint output
+distribution when we query $m$ elements simultaneously?
+
+\Cref{thm:kronecker} shows that the Kronecker product structure arises
+because Axioms~1 and~2 force independence across parallel queries. The
+matrix product of this section arises from the law of total probability
+applied to the intermediate state in a serial pipeline. These are
+complementary, not competing, structures. When both matter---for
+instance, when $k$ parallel pipelines each consist of multiple stages
+in series---the combined channel is a Kronecker product of composed
+matrices:
+\[
+  \left(Q_2^{(1)} Q_1^{(1)}\right)
+  \otimes
+  \left(Q_2^{(2)} Q_1^{(2)}\right)
+  \otimes \cdots,
+\]
+where each parenthesized factor is a serial composition computed by
+ordinary matrix multiplication. The Kronecker product is applied
+\emph{across} parallel pipelines; the ordinary product is applied
+\emph{within} each pipeline.
+
+\subsection*{Composition is associative but not commutative}
+
+An immediate algebraic consequence of the matrix-product interpretation
+is that serial channel composition is \emph{associative}: composing
+three channels as $(Q_3 Q_2) Q_1$ or $Q_3 (Q_2 Q_1)$ gives the same
+result, since matrix multiplication is associative. This means that
+chaining any number of binary channels in series is unambiguous: the
+order of application matters, but the grouping does not.
+
+Commutativity, however, fails in general. The product $Q_2 Q_1$ need
+not equal $Q_1 Q_2$: applying the first channel before the second is
+not the same as applying the second before the first, unless the two
+channels have some special symmetry.
+
+For the BSC, commutativity \emph{does} hold: two BSC matrices commute
+because each is a polynomial in the same circulant permutation matrix.
+Concretely, if $Q_1$ and $Q_2$ are both BSCs, then $Q_2 Q_1 = Q_1 Q_2$
+by the symmetry of the composition formula
+$\fprate_{\mathrm{total}} = \fprate_1(1-\fprate_2) +
+(1-\fprate_1)\fprate_2$, which is symmetric in $\fprate_1$ and
+$\fprate_2$. This symmetry is a property of the BSC's circulant
+structure and is \emph{lost} in the asymmetric channel.
+
+Exercise~2.7 constructs an explicit pair of asymmetric channels that do
+not commute, illustrating that the order of channels in a serial
+pipeline matters outside the BSC special case.
+
+\subsection*{The stationary point}
+
+For a BSC with crossover $\fprate < 1/2$, the composition formula shows
+that $\fprate_{\mathrm{total}} = \fprate_1 + \fprate_2 - 2\fprate_1
+\fprate_2 > \max(\fprate_1, \fprate_2)$ whenever $0 < \fprate_1,
+\fprate_2 < 1/2$. As we chain more and more copies of the same BSC in
+series, the crossover approaches the stationary value $1/2$ from below.
+At $\fprate = 1/2$, the channel output is statistically independent of
+the input: the channel transmits no information. This convergence to
+the stationary point mirrors the figure in the companion paper
+\cite{towell-bernoulli-sets} (Figure~3.1), which shows both TPR and FPR
+converging to the stationary value $\fprate/(\fprate + \fnrate)$ under
+repeated composition of the general asymmetric channel.
+
+\subsection*{Looking ahead: two perspectives on the same idea}
+
+Channel composition via matrix product is the channel-theoretic
+perspective on a result that chapter 3 will reframe algebraically.
+\Cref{sec:composition-theorem} will show that composing $k$ approximate
+identity channels in series produces a composed false-positive rate
+(and, symmetrically, a composed hit rate $\eta_{\mathrm{total}}$)
+satisfying
+\[
+  \eta_{\mathrm{total}} \;=\; 1 - \prod_{i=1}^k (1 - \eta_i),
+\]
+where $\eta_i$ is the hit rate of the $i$-th stage. This is the same
+calculation as the matrix product, viewed through the Boolean-algebra
+lens: the composition theorem in chapter 3 is the algebraic restatement
+of what \Cref{def:channel-composition} computes.
+
+At the other end of the formalism, \Cref{sec:kronecker} and
+\Cref{thm:kronecker} give the \emph{parallel} analog: $m$ independent
+channels queried on $m$ distinct elements produce a joint confusion
+matrix that is the Kronecker product $Q_1 \otimes \cdots \otimes Q_m$.
+The Kronecker product is the structure forced by Axioms~1 and~2; the
+matrix product of this section needs neither axiom, only the law of
+total probability.
+
+Understanding which composition is relevant---serial (matrix product)
+or parallel (Kronecker product)---is one of the key skills this book
+develops. The corollary \Cref{cor:kronecker-unconditional} gives the
+parallel-query factorization; the formula of this section gives the
+serial-pipeline composition. Both structures appear throughout Parts~II
+and~III.
