@@ -1,1 +1,291 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch02-binary-channels.md
+% §2.2 The Asymmetric Binary Channel
+%
+% Cross-reference resolution status:
+%
+% EXPECTED UNRESOLVED (forward refs that will resolve in later Plans):
+%   \Cref{sec:three-faces}   -- chapter 1 §1.1 (will resolve in Plan 4)
+%   \Cref{sec:model-order}   -- chapter 2 §2.4 (will resolve in Task 5 of Plan 2)
+%
+% ALREADY RESOLVED (chapter 2 §2.1 drafted in Task 2 of Plan 2):
+%   \Cref{sec:bsc}           -- chapter 2 §2.1
+%   \Cref{def:bsc}           -- chapter 2 §2.1 BSC definition
+%
+% Build warnings for the two unresolved labels above are expected at this stage.
+% They will be resolved when Plan 2 Task 5 and Plan 4 run.
+
+\section{The Asymmetric Binary Channel}
+\label{sec:asymmetric-channel}
+
+\subsection*{Lifting the symmetry constraint}
+
+The Binary Symmetric Channel of \Cref{sec:bsc} is a useful starting
+point, but its defining property---equal error rates for both
+inputs---is rarely satisfied in practice. A spam filter flags
+legitimate mail as spam far more often than it lets genuine spam
+through. A Bloom filter returns false positives but never false
+negatives. A medical screening test is deliberately tuned to
+minimize one kind of error at the cost of the other.
+
+These systems are not defective BSCs; they are different channels
+altogether. When we allow the false-positive rate $\fprate$ and the
+false-negative rate $\fnrate$ to be independent parameters, we obtain
+the \emph{asymmetric binary channel}: the same two-element input and
+output domains, the same row-stochastic channel matrix $Q$, but no
+constraint tying $\fprate$ to $\fnrate$.
+
+\begin{definition}[General asymmetric binary channel]
+\label{def:asymmetric-channel}
+An \emph{asymmetric binary channel} with false-positive rate $\fprate
+\in [0,1)$ and false-negative rate $\fnrate \in [0,1)$ is a random
+map $\phi : \{\top, \bot\} \to \{\top, \bot\}$ satisfying
+\begin{align*}
+  \Pr\{\phi(\top) \neq \top\} &= \fnrate, \\
+  \Pr\{\phi(\bot) \neq \bot\} &= \fprate.
+\end{align*}
+The channel transition matrix is
+\[
+  Q
+  \;=\;
+  \begin{pmatrix}
+    \tprate  & \fnrate \\
+    \fprate  & \tnrate
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate     & 1 - \fprate
+  \end{pmatrix},
+\]
+where row 1 corresponds to input block $B_1 = \{\top\}$ (positives),
+row 2 to block $B_2 = \{\bot\}$ (negatives), and columns to output
+labels $\top$ (left) and $\bot$ (right), following the convention
+established in \Cref{sec:bsc}.
+\end{definition}
+
+Two special cases are immediately visible in the matrix. Setting
+$\fnrate = \fprate$ recovers the BSC of \Cref{def:bsc}: the two rows
+become identical up to a reflection, and the single crossover
+parameter $\fprate$ is enough to describe the channel. Setting
+$\fnrate = 0$ makes row 1 become $(1, 0)$: a positive input is
+always reported correctly. This is the \emph{Z-channel}, the subject
+of the next subsection. The name of each special case and its
+connection to a familiar system is spelled out in full in
+\Cref{sec:model-order}.
+
+\subsection*{The Z-channel: one-sided error}
+
+The most widely encountered asymmetric channel in computer science is
+the \emph{Z-channel}, so named because its error diagram traces the
+shape of the letter Z: the transmission $\top \to \top$ is perfect,
+and the only error is $\bot \to \top$ (a negative incorrectly
+reported as positive).
+
+\begin{definition}[Z-channel]
+\label{def:z-channel}
+A \emph{Z-channel} with false-positive rate $\fprate \in (0,1)$ is
+an asymmetric binary channel with $\fnrate = 0$. Its channel matrix is
+\[
+  Q_Z
+  \;=\;
+  \begin{pmatrix}
+    1       & 0 \\
+    \fprate & 1 - \fprate
+  \end{pmatrix}.
+\]
+\end{definition}
+
+The Z-channel has a sharp asymmetry: false negatives are impossible
+($\fnrate = 0$), while false positives occur with probability
+$\fprate$. This makes an output of $\bot$ fully reliable---it cannot
+be a mistake---while an output of $\top$ is uncertain.
+
+\paragraph{Bloom filters as Z-channels.}
+The Bloom filter is the canonical Z-channel instance from data
+structures. A Bloom filter answers membership queries for a set $S$:
+given an element $x$, it returns either \emph{present} ($\top$) or
+\emph{absent} ($\bot$). The filter is constructed so that
+\[
+  x \in S \;\Longrightarrow\; \text{Bloom returns } \top \quad
+  \text{(no false negatives)},
+\]
+while a non-member $x \notin S$ may still trigger $\top$ with some
+probability $\fprate$ (a false positive). In the channel-matrix
+language, the Bloom filter is exactly a Z-channel: $\fnrate = 0$ by
+construction, $\fprate$ controlled by the filter's bit-width and hash
+count. When the Bloom filter returns absent ($\bot$), the answer is
+certain; when it returns present ($\top$), the answer is probabilistic.
+This semantic asymmetry---reliable ``no'', uncertain ``yes''---is the
+hallmark of all Z-channel systems.
+
+\subsection*{The biased coin, revisited}
+
+\Cref{sec:three-faces} introduced the biased coin as one framing of
+the noisy bit. In \Cref{sec:bsc} we identified it as a BSC: a coin
+with the same flip probability for heads and tails. But a coin can be
+\emph{doubly biased}: the probability of landing heads on a flip from
+heads may differ from the probability of landing tails on a flip from
+tails. Such a coin is not a BSC; it is an asymmetric binary channel.
+
+Concretely: let $\top$ represent heads and $\bot$ represent tails.
+Suppose a flipped-heads coin shows tails with probability $\fnrate$,
+and a flipped-tails coin shows heads with probability $\fprate$, where
+$\fnrate \neq \fprate$. The channel matrix for this coin is exactly
+$Q$ from \Cref{def:asymmetric-channel}. The BSC of \Cref{sec:bsc}
+was the special case $\fnrate = \fprate$, where the double bias
+collapses to a single bias. The asymmetric channel is the general case
+that was always there, waiting for $\fnrate$ and $\fprate$ to differ.
+
+Physical examples are easy to construct. A coin that spins on a
+surface comes to rest heads or tails with probabilities that depend on
+its initial face. A weighted die, approximated as a two-sided object,
+has different effective flip rates for each face. A market that can
+only move a small amount in one direction (a price floor or ceiling)
+is an asymmetric channel on the direction of movement. In every case,
+the natural description is an asymmetric binary channel with two
+independent parameters $\fprate$ and $\fnrate$.
+
+\subsection*{Medical tests as asymmetric channels}
+
+Medical screening tests illustrate the asymmetric channel in a domain
+where the two error types have very different consequences. A test for
+a serious disease might be deliberately calibrated to err on the side
+of sensitivity: it flags nearly every true case ($\fnrate$ small) at
+the cost of a higher false-alarm rate ($\fprate$ larger). A
+confirmatory test later in the diagnostic pipeline does the opposite:
+it trades sensitivity for specificity ($\fprate$ small, $\fnrate$
+possibly larger).
+
+In both cases, the test is fully described by the matrix $Q$ from
+\Cref{def:asymmetric-channel}. The \emph{screening test} has small
+$\fnrate$ and larger $\fprate$; the \emph{confirmatory test} has
+small $\fprate$ and larger $\fnrate$. Neither is a BSC. The
+channel-matrix representation makes the trade-off visible at a glance:
+the top row (positives) and bottom row (negatives) can be tuned
+independently by adjusting the decision threshold.
+
+This is precisely the receiver operating characteristic (ROC) curve
+familiar from binary classification: as the threshold moves, $(\fprate,
+\fnrate)$ traces a curve in the unit square $[0,1]^2$, and each point
+on the curve is a distinct asymmetric binary channel.
+
+\subsection*{Worked example: $\fprate = 0.05$, $\fnrate = 0.10$}
+
+To make the asymmetric channel concrete, we work through the channel
+matrix and several derived quantities for $\fprate = 0.05$ and
+$\fnrate = 0.10$.
+
+\medskip
+\noindent\textbf{The matrix.}
+\[
+  Q
+  \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate     & 1 - \fprate
+  \end{pmatrix}
+  \;=\;
+  \begin{pmatrix}
+    0.90 & 0.10 \\
+    0.05 & 0.95
+  \end{pmatrix}.
+\]
+
+\medskip
+\noindent\textbf{Row sums.}
+Row 1: $0.90 + 0.10 = 1.00$. Row 2: $0.05 + 0.95 = 1.00$. Both
+rows sum to 1, confirming that $Q$ is row-stochastic.
+
+\medskip
+\noindent\textbf{Reading the matrix.}
+A positive input ($\top$) is correctly reported as positive with
+probability $0.90$ (true-positive rate $\tprate = 1 - \fnrate$) and
+incorrectly reported as negative with probability $0.10$ (false-negative
+rate $\fnrate$). A negative input ($\bot$) is incorrectly reported as
+positive with probability $0.05$ (false-positive rate $\fprate$) and
+correctly reported as negative with probability $0.95$ (true-negative
+rate $\tnrate = 1 - \fprate$). The two error rates are distinct:
+$\fnrate = 0.10 \neq 0.05 = \fprate$. This channel is not a BSC.
+
+\medskip
+\noindent\textbf{Error-rate asymmetry.}
+The ratio of the two error rates is $\fnrate / \fprate = 0.10 /
+0.05 = 2$: false negatives are twice as likely as false positives.
+For the BSC with $\fprate = \fnrate = 0.075$ (the mean of the two
+rates), the matrix would be
+\[
+  Q_{\mathrm{BSC}}
+  \;=\;
+  \begin{pmatrix}
+    0.925 & 0.075 \\
+    0.075 & 0.925
+  \end{pmatrix},
+\]
+which has identical off-diagonal entries. Comparing this with the
+asymmetric $Q$ above makes the structural difference plain: the
+off-diagonal entries $0.10$ and $0.05$ are a factor of 2 apart.
+
+\medskip
+\noindent\textbf{Joint probabilities under a uniform prior.}
+If the input is drawn uniformly from $\{\top, \bot\}$ (prior
+probability $1/2$ for each), the joint probabilities of each
+input-output pair are:
+\begin{center}
+\begin{tabular}{l|cc|l}
+           & output $\top$ & output $\bot$ & total \\
+\hline
+input $\top$ & $\tfrac{1}{2} \cdot 0.90 = 0.450$ & $\tfrac{1}{2} \cdot 0.10 = 0.050$ & $0.500$ \\
+input $\bot$ & $\tfrac{1}{2} \cdot 0.05 = 0.025$ & $\tfrac{1}{2} \cdot 0.95 = 0.475$ & $0.500$ \\
+\hline
+total        & $0.475$                             & $0.525$                             & $1.000$ \\
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent\textbf{Accuracy.}
+Under the uniform prior, accuracy is the sum of the diagonal joint
+probabilities: $0.450 + 0.475 = 0.925$. This is the average of
+$\tprate = 0.90$ and $\tnrate = 0.95$: accuracy $= \frac{1}{2}(0.90
++ 0.95) = 0.925$. Compare this with the BSC above: the BSC would
+achieve accuracy $0.925$ as well, but by having both error rates at
+$0.075$ rather than one at $0.05$ and one at $0.10$. The asymmetric
+channel and this particular BSC have the same accuracy under a uniform
+prior, but their error structures are different---a point that matters
+when the prior is not uniform or when the two error types carry
+different costs.
+
+\subsection*{The asymmetric channel as the general order-2 case}
+
+The BSC has one free parameter ($\fprate$, with the constraint
+$\fprate = \fnrate$ reducing the two-parameter family to one). The
+asymmetric binary channel has two free parameters ($\fprate$ and
+$\fnrate$, with no constraint between them). \Cref{sec:model-order}
+formalizes what ``order 2'' means: the Boolean input domain $\{\top,
+\bot\}$ partitions into two blocks, $B_1 = \{\top\}$ and $B_2 = \{
+\bot\}$, each with its own per-block error rate. The asymmetric
+channel assigns $\fnrate$ to $B_1$ and $\fprate$ to $B_2$
+independently; the BSC additionally forces $\fnrate = \fprate$.
+
+In this sense, the BSC is not a different type of channel from the
+asymmetric channel: it is the \emph{symmetric special case} of the
+same order-2 structure. The constraint $\fnrate = \fprate$ reduces
+the number of free parameters from 2 to 1 without changing the
+partition of the input domain.
+
+The distinction between model order (the number of partition blocks)
+and parameter count (how many numbers are needed to describe the
+channel) is a recurring theme. \Cref{sec:model-order} makes it
+precise and proves the Boolean ceiling theorem: because the Boolean
+domain has exactly two elements, any binary channel has model order
+at most 2. There is no room for a more fine-grained partition, no
+matter how many free parameters the channel has.
+
+\subsection*{Looking ahead}
+
+The Z-channel and general asymmetric channel are the natural habitat
+of most real-world approximate Boolean systems. In
+\Cref{sec:channel-composition} we compose two binary channels---which
+may each be symmetric, asymmetric, or Z-channel---via matrix
+multiplication and read off the resulting channel's error rates
+directly from the product. The asymmetric channel's two-parameter
+freedom makes the composition richer than the BSC case, and the
+matrix formalism handles both cases uniformly.
