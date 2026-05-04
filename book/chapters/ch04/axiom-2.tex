@@ -363,6 +363,16 @@ $2(2^{50} - 1) \approx 2.25 \times 10^{15}$ in the general case.
 The axioms are not merely philosophically satisfying; they are what
 makes the model tractable.
 
+One refinement is worth flagging now and pursuing in \Cref{sec:kronecker}.
+The Kronecker structure forces the parameter count down to $nm$ for the
+rate-conditional channel; the unconditional matrix achieves the same
+count when no block is queried twice (\Cref{cor:kronecker-unconditional})
+or when rates are deterministic (the regime of all worked examples in
+this book). When two queries hit the same block under genuinely random
+rates, the unconditional joint involves higher moments of those rates
+and the simple per-query count no longer applies; \Cref{sec:kronecker}
+treats this distinction explicitly.
+
 The Kronecker factorization theorem in \Cref{sec:kronecker} makes
 this precise and derives the parameter reduction as a corollary. For
 an $n$-th order model on $m$ joint queries, the general case has

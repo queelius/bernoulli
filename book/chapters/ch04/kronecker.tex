@@ -64,37 +64,64 @@ unambiguous without parentheses. We use $\otimes$ for the Kronecker
 product throughout this section and the rest of the book.
 \end{notation}
 
-\begin{theorem}[Kronecker Factorization]
+\begin{theorem}[Kronecker Factorization, conditional form]
 \label{thm:kronecker}
 Let $\tilde{A}$ be an $n$-th order Bernoulli predicate satisfying
 \Cref{ax:element-indep} (Axiom~1) and \Cref{ax:block-rates-indep}
-(Axiom~2). Let $Q_1, Q_2, \ldots, Q_m$ be the per-query channel matrices,
-where $Q_i$ is the $n \times 2$ stochastic matrix with $(j, k)$-entry
-equal to the probability that a query of an element in block $B_j$
-produces output label $k \in \{0,1\}$, on the $i$-th query. Then the joint confusion
-matrix $Q^{(m)}$ of $m$ independent queries, whose $(j_1 j_2 \cdots j_m,\,
-k_1 k_2 \cdots k_m)$-entry is
+(Axiom~2). For any realization of the per-block rates
+$\alpha = (\alpha_1, \ldots, \alpha_n)$, let $Q^*_1(\alpha), \ldots, Q^*_m(\alpha)$
+be the resulting per-query channel matrices, where $Q^*_i(\alpha)$ is the
+$n \times 2$ stochastic matrix whose $(j, k)$-entry is the probability,
+under the realized rate $\alpha_j$, that a query of an element in block
+$B_j$ produces output label $k$ on the $i$-th query. Then the
+\emph{rate-conditional} joint confusion matrix
+$Q^{(m) *}(\alpha)$ of $m$ queries on $m$ distinct input elements,
+whose $(j_1 \cdots j_m,\, k_1 \cdots k_m)$-entry is
 \[
   \Prob{\tilde{A}(x_1) = k_1, \ldots, \tilde{A}(x_m) = k_m
-        \Given x_\ell \in B_{j_\ell} \text{ for each } \ell},
+        \Given \alpha,\; x_\ell \in B_{j_\ell} \text{ for each } \ell},
 \]
 factors as the Kronecker product
 \[
-  Q^{(m)} \;=\; Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m.
+  Q^{(m) *}(\alpha) \;=\; Q^*_1(\alpha) \otimes Q^*_2(\alpha) \otimes \cdots \otimes Q^*_m(\alpha).
 \]
 \end{theorem}
 
-Before the proof, a note on scope. The theorem applies to $m$ queries
-on $m$ \emph{distinct} input elements. Repeated queries of the same
-element introduce correlations that Axioms 1 and 2 do not address:
+\begin{corollary}[Unconditional factorization, distinct-block queries]
+\label{cor:kronecker-unconditional}
+Under the hypotheses of \Cref{thm:kronecker}, if the queried blocks
+$j_1, \ldots, j_m$ are pairwise distinct (each query hits a different
+block), the unconditional joint confusion matrix factors as
+\[
+  Q^{(m)} \;=\; Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m,
+\]
+where $Q_\ell \coloneqq \Expect{Q^*_\ell(\alpha)}$ is the rate-marginalized
+per-query channel.
+\end{corollary}
+
+Before the proof, two notes on scope. \textbf{First}, the theorem applies
+to $m$ queries on $m$ \emph{distinct} input elements. Repeated queries of
+the same element introduce correlations that Axioms 1 and 2 do not address:
 the two error events share a single realization of the element's
-underlying error draw, making them perfectly correlated (in a
-deterministic implementation) rather than independent. For repeated-query
-behavior---including the effects of memoization and caching---see
-Chapter~16 (negative space). With distinct-element queries, Axiom~1
-licenses independence across positions and Axiom~2 (via
-\Cref{prop:stable-Q}) ensures each block's channel row is stable, so
-the error events at all $m$ positions are mutually independent.
+underlying error draw, making them perfectly correlated (in a deterministic
+implementation) rather than independent. For repeated-query behavior,
+including the effects of memoization and caching, see Chapter~16
+(negative space).
+
+\textbf{Second}, the theorem's primary claim is at the rate-conditional
+level: given any realization of the per-block rates $\alpha$, the joint
+confusion matrix factors. The unconditional matrix factors only when the
+queried blocks are pairwise distinct (\Cref{cor:kronecker-unconditional}).
+When two queries hit the same block $B_j$, both factors involve the same
+random rate $\alpha_j$, and the unconditional joint
+$\Expect{\alpha_j^2}$ exceeds the Kronecker prediction $(\Expect{\alpha_j})^2$
+whenever $\alpha_j$ is non-degenerate (a Jensen gap). The conditional
+factorization holds always; the unconditional factorization holds when
+either the rates are realized as constants (the deterministic-implementation
+case used throughout chapters~1--3) or when no block is queried twice. In
+the running BSC thread below and in subsequent chapters, we work in the
+deterministic-rates regime, where $Q^*_\ell = Q_\ell$ and the conditional
+and unconditional forms coincide.
 
 \begin{proof}
 We build up the joint distribution by hand and read off the matrix
@@ -104,142 +131,141 @@ structure.
 \noindent\textbf{Step 1: reduce to a joint probability calculation.}
 Index the $m$ query positions as $\ell = 1, \ldots, m$. Position $\ell$
 queries element $x_\ell \in B_{j_\ell}$ and observes output $k_\ell$.
-The $( j_1 \cdots j_m, k_1 \cdots k_m )$-entry of $Q^{(m)}$ is
+Fix a realization of the per-block rates $\alpha = (\alpha_1, \ldots,
+\alpha_n)$. The $( j_1 \cdots j_m, k_1 \cdots k_m )$-entry of the
+rate-conditional matrix $Q^{(m) *}(\alpha)$ is
 \begin{equation}
 \label{eq:joint-entry}
-  Q^{(m)}_{j_1 \cdots j_m,\, k_1 \cdots k_m}
+  Q^{(m) *}(\alpha)_{j_1 \cdots j_m,\, k_1 \cdots k_m}
   \;=\;
   \Prob{\tilde{A}(x_1) = k_1, \ldots, \tilde{A}(x_m) = k_m
-        \Given x_\ell \in B_{j_\ell},\; \ell = 1,\ldots,m}.
+        \Given \alpha,\; x_\ell \in B_{j_\ell},\; \ell = 1,\ldots,m}.
 \end{equation}
 We want to evaluate this probability and show it equals
-$\prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}$, which is precisely the
-$( j_1 \cdots j_m, k_1 \cdots k_m )$-entry of $Q_1 \otimes \cdots \otimes Q_m$.
+$\prod_{\ell=1}^m (Q^*_\ell(\alpha))_{j_\ell, k_\ell}$, which is precisely
+the $( j_1 \cdots j_m, k_1 \cdots k_m )$-entry of
+$Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha)$.
 
 \medskip
 \noindent\textbf{Step 2: apply Axiom 2 to fix the per-block rates.}
 By Axiom~2 (\Cref{ax:block-rates-indep}), the random rate $\alpha_i$ on
 block $B_i$ is independent of the random rate $\alpha_{i'}$ on block
 $B_{i'}$ for $i \neq i'$. By \Cref{prop:stable-Q}, once the rates are
-realized, each block $B_i$ contributes the same row of its
-rate-conditional channel matrix $Q_\ell^* = Q_\ell^*(\alpha_{j_\ell})$
-on every query involving an element of $B_i$. Here $Q_\ell^*$ denotes
-the channel matrix realized under the random draw $\alpha_{j_\ell}$; it
-is a random matrix. Write $(Q_\ell^*)_{j_\ell,k_\ell}$ for the
-$(j_\ell, k_\ell)$-entry of this random matrix---the rate-conditional
-probability that query $\ell$ from block $B_{j_\ell}$ returns label
-$k_\ell$. Distinct queries on the same block share the same realization
-of $\alpha_{j_\ell}$ and hence the same row of $Q_\ell^*$; this row
-does not depend on what happened at other query positions. When all $m$
-queries share a single realization of the channel family (the common
-case for a stationary data structure), $Q_1^* = Q_2^* = \cdots =
-Q_m^* = Q^*$; in particular the theorem's subscript $\ell$ flags
-per-query generality, not necessarily distinct matrices.
+realized, the rate-conditional channel matrix $Q^*_\ell(\alpha)$ for
+query $\ell$ has its row $j$ determined by $\alpha_j$ alone: row $j$
+gives the conditional output distribution for an element in block $B_j$
+under the realized rate $\alpha_j$. Write
+$(Q^*_\ell(\alpha))_{j_\ell,k_\ell}$ for the $(j_\ell, k_\ell)$-entry of
+this random matrix, the rate-conditional probability that query $\ell$
+from block $B_{j_\ell}$ returns label $k_\ell$ given the rate
+$\alpha_{j_\ell}$. Distinct queries on the same block share the same
+realization of $\alpha_{j_\ell}$ and hence the same row of
+$Q^*_\ell(\alpha)$; this row does not depend on what happened at other
+query positions. When all $m$ queries share a single realization of the
+channel family (the common case for a stationary data structure),
+$Q^*_1(\alpha) = Q^*_2(\alpha) = \cdots = Q^*_m(\alpha) = Q^*(\alpha)$;
+the theorem's subscript $\ell$ flags per-query generality, not necessarily
+distinct matrices.
 
 \medskip
 \noindent\textbf{Step 3: apply Axiom 1 to factor the joint distribution.}
-Conditional on the realized rates $\{\alpha_i\}$, the outputs at
-positions $\ell = 1, \ldots, m$ are mutually independent, because each
-output is a deterministic function of the (conditionally independent)
-error event at $x_\ell$. By Axiom~1 (\Cref{ax:element-indep}), these
-error events are mutually independent given the rates and the objective
-set $A$. Therefore, conditional on the rates, the joint probability in
-\eqref{eq:joint-entry} factors:
+Conditional on the realized rates $\alpha = (\alpha_1, \ldots, \alpha_n)$,
+the outputs at positions $\ell = 1, \ldots, m$ are mutually independent,
+because each output is a deterministic function of the (conditionally
+independent) error event at $x_\ell$. By Axiom~1
+(\Cref{ax:element-indep}), these error events are mutually independent
+given the rates and the objective set $A$. Therefore, conditional on the
+rates, the joint probability in \eqref{eq:joint-entry} factors:
 \begin{align*}
   &\Prob{\tilde{A}(x_1) = k_1, \ldots, \tilde{A}(x_m) = k_m
-         \Given \{\alpha_i\}, x_\ell \in B_{j_\ell}} \\
+         \Given \alpha, x_\ell \in B_{j_\ell}} \\
   &\quad=\;
   \prod_{\ell=1}^m \Prob{\tilde{A}(x_\ell) = k_\ell
                          \Given \alpha_{j_\ell},\, x_\ell \in B_{j_\ell}} \\
   &\quad=\;
-  \prod_{\ell=1}^m (Q_\ell^*)_{j_\ell, k_\ell}.
+  \prod_{\ell=1}^m (Q^*_\ell(\alpha))_{j_\ell, k_\ell}.
 \end{align*}
 
 \medskip
-\noindent\textbf{Step 4: marginalize over the rates.}
-To recover the unconditional probability, we take the expectation over
-the joint distribution of the rates. Write $(Q_\ell)_{j_\ell,k_\ell}$
-for the marginal channel entry:
-\[
-  (Q_\ell)_{j_\ell,k_\ell}
-  \;\coloneqq\;
-  \Expect{(Q_\ell^*)_{j_\ell,k_\ell}},
-\]
-where the expectation is over the random rate $\alpha_{j_\ell}$.
-Because $(Q_\ell^*)_{j_\ell,k_\ell}$ depends only on $\alpha_{j_\ell}$
-and Axiom~2 makes the block rates $\alpha_1,\ldots,\alpha_n$ mutually
-independent, the factors across $\ell$ involve independent sources of
-randomness. Consequently, the expectation of the product equals the
-product of the expectations:
-\[
-  \Expect{\prod_{\ell=1}^m (Q_\ell^*)_{j_\ell, k_\ell}}
-  \;=\;
-  \prod_{\ell=1}^m \Expect{(Q_\ell^*)_{j_\ell, k_\ell}}
-  \;=\;
-  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}.
-\]
-The first equality uses independence of the rates (Axiom~2); the second
-uses the definition of $Q_\ell$ as the rate-marginalized channel.
-
-\medskip
-\noindent\textbf{Step 5: identify the Kronecker product.}
-The entry of $Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m$ in position
-$( j_1 \cdots j_m, k_1 \cdots k_m )$ is, by the definition of the
-Kronecker product,
-\[
-  \bigl( Q_1 \otimes \cdots \otimes Q_m \bigr)_{j_1 \cdots j_m,\, k_1 \cdots k_m}
-  \;=\;
-  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}.
-\]
-This matches the joint probability computed in steps 2--4 exactly. Since
-this equality holds for every index tuple $(j_1,\ldots,j_m,k_1,\ldots,k_m)$,
-the two matrices agree entry-by-entry:
+\noindent\textbf{Step 4: read off the conditional matrix.}
+The expression $\prod_{\ell=1}^m (Q^*_\ell)_{j_\ell, k_\ell}$ derived in
+Step~3 is, by definition, the $(j_1 \cdots j_m,\, k_1 \cdots k_m)$-entry
+of the Kronecker product
+$Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha)$. Since this holds for
+every index tuple, the rate-conditional joint matrix factors:
 \begin{equation}
 \label{eq:kronecker-conclusion}
-  Q^{(m)} \;=\; Q_1 \otimes Q_2 \otimes \cdots \otimes Q_m.
+  Q^{(m) *}(\alpha) \;=\; Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha).
 \end{equation}
+This proves \Cref{thm:kronecker}.
+
+To obtain the unconditional version (\Cref{cor:kronecker-unconditional})
+under the additional hypothesis that the queried blocks are pairwise
+distinct, take expectation over $\alpha = (\alpha_1, \ldots, \alpha_n)$:
+\[
+  \Expect{\prod_{\ell=1}^m (Q^*_\ell)_{j_\ell, k_\ell}}
+  \;=\;
+  \prod_{\ell=1}^m \Expect{(Q^*_\ell)_{j_\ell, k_\ell}}
+  \;=\;
+  \prod_{\ell=1}^m (Q_\ell)_{j_\ell, k_\ell}.
+\]
+The first equality uses Axiom~2: when $j_1, \ldots, j_m$ are pairwise
+distinct, each factor depends on a distinct rate $\alpha_{j_\ell}$, and
+the cross-block independence guaranteed by Axiom~2 makes the factors
+mutually independent random variables. (When two queries hit the same
+block, this equality fails; see the second scope note above.)
 \end{proof}
 
 \medskip
 \noindent\textbf{Honesty note.} The parametric parsimony observation
 underlying this theorem appears as Remark~3.4 in the companion paper
 \cite{towell-bernoulli-sets}, which notes that Axiom~1 forces the joint
-confusion matrix to factor as a Kronecker product. The formal theorem
-statement and the constructive proof above are new contributions of this
-textbook. The companion paper's remark inspired the precise statement;
-the proof makes the mechanism explicit. That said, the companion paper
-attributes the factorization to Axiom~1 alone; the constructive proof
-above shows Axiom~2 is also needed when per-block rates are
-random---without Axiom~2's cross-block rate independence, the
-marginalization step (Step~4) would introduce cross-block coupling and
-the expectation of the product would not equal the product of the
-expectations.
+confusion matrix to factor as a Kronecker product. The companion paper
+states this remark in a regime where rates are either deterministic or
+implicitly conditioned upon; under that reading the remark is correct,
+and the conditional form of \Cref{thm:kronecker} above makes the
+conditioning explicit. Axiom~2's role in this textbook is not to extend
+the conditional factorization to the unconditional case in general. That
+is impossible without further hypotheses, since same-block queries on
+random rates produce a Jensen gap $\Expect{\alpha_j^2} > (\Expect{\alpha_j})^2$.
+Axiom~2 instead extends the unconditional factorization to the special
+case of distinct-block queries (\Cref{cor:kronecker-unconditional}) and,
+more importantly, certifies the rate-stability that lets us speak of
+``the'' channel matrix $Q_\ell$ for each query position. The constructive
+proof above and the explicit conditional/unconditional decomposition are
+new contributions of this textbook.
 
 \subsection*{Corollary: the parameter count drop}
 
-\begin{corollary}[Parameter reduction]
+\begin{corollary}[Parameter reduction, conditional form]
 \label{cor:parameter-reduction}
-Under Axioms~1 and~2, an $n$-th order Bernoulli predicate queried $m$
-times requires at most $nm$ parameters to specify the joint confusion
-matrix $Q^{(m)}$, rather than the $n(2^m - 1)$ parameters required by
-a general (unconstrained) $m$-query channel. For the order-2
-Boolean predicate this reduces to $2m$ parameters (one per query
-per block) rather than $2(2^m - 1)$.
+Under Axioms~1 and~2, the rate-conditional joint confusion matrix
+$Q^{(m) *}(\alpha)$ of an $n$-th order Bernoulli predicate queried $m$
+times requires at most $nm$ parameters to specify, rather than the
+$n(2^m - 1)$ parameters required by a general (unconstrained) $m$-query
+channel. For the order-2 Boolean predicate this reduces to $2m$
+parameters (one per query per block) rather than $2(2^m - 1)$. The same
+count applies to the unconditional matrix $Q^{(m)}$ when rates are
+realized as constants (the deterministic-rates regime of all worked
+examples in this book) or when no block is queried twice
+(\Cref{cor:kronecker-unconditional}).
 \end{corollary}
 
 \begin{proof}
-We count the free parameters in $Q^{(m)} = Q_1 \otimes \cdots \otimes Q_m$.
+We count the free parameters in
+$Q^{(m) *}(\alpha) = Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha)$.
 
 \medskip
-\noindent\textit{Constrained case.} Under the axioms, $Q^{(m)}$ factors
-as $Q_1 \otimes \cdots \otimes Q_m$ (\Cref{thm:kronecker}), so each
-per-query matrix $Q_\ell$ contributes its own parameters independently.
-Each $Q_\ell$ is an $n \times 2$ stochastic matrix: rows are indexed by
-the $n$ source blocks, and columns by the two binary output labels. Each
-row sums to 1, leaving 1 free parameter per row. With $n$ rows, each
-$Q_\ell$ has $n$ free parameters. By Axiom~2 the per-block rates are
-independent across queries, so the $m$ matrices share no parameters.
-Across $m$ queries: $nm$ free parameters in total.
+\noindent\textit{Constrained case.} Under the axioms, $Q^{(m) *}(\alpha)$
+factors as $Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha)$
+(\Cref{thm:kronecker}), so each per-query matrix $Q^*_\ell(\alpha)$
+contributes its own parameters independently. Each $Q^*_\ell(\alpha)$ is
+an $n \times 2$ stochastic matrix: rows are indexed by the $n$ source
+blocks, and columns by the two binary output labels. Each row sums to 1,
+leaving 1 free parameter per row. With $n$ rows, each $Q^*_\ell(\alpha)$
+has $n$ free parameters. By Axiom~2 the per-block rates are independent
+across queries, so the $m$ matrices share no parameters. Across $m$
+queries: $nm$ free parameters in total.
 
 In the order-2 Boolean case ($n = 2$), the two blocks are positives and
 negatives, parametrized by $(\tprate, \fprate)$ per query, or equivalently
@@ -247,17 +273,27 @@ by $(\fnrate, \fprate)$. That is $2$ parameters per query, for $2m$
 parameters in total across $m$ queries.
 
 \medskip
-\noindent\textit{General case.} The full block-tuple matrix $Q^{(m)}$
-has $n^m$ rows and $2^m$ columns; specifying it freely would require
-$n^m(2^m - 1)$ parameters. The more compact count uses the
-per-source-block convention introduced above: without the Kronecker
-structure but still working source-block by source-block, each of the
-$n$ source blocks contributes one (unconstrained) conditional
-distribution over $2^m$ joint output patterns, requiring $2^m - 1$
-free parameters after normalization. Total under this convention:
-$n(2^m - 1)$. This is the comparison point used here and in
-\Cref{sec:axiom-2}, because it reflects the reduction attributable to
-the axioms alone rather than conflating it with the block-tuple explosion.
+\noindent\textit{General case.} The full block-tuple matrix has $n^m$
+rows and $2^m$ columns; specifying it freely would require $n^m(2^m - 1)$
+parameters. The more compact count uses the per-source-block convention
+introduced above: without the Kronecker structure but still working
+source-block by source-block, each of the $n$ source blocks contributes
+one (unconstrained) conditional distribution over $2^m$ joint output
+patterns, requiring $2^m - 1$ free parameters after normalization. Total
+under this convention: $n(2^m - 1)$. This is the comparison point used
+here and in \Cref{sec:axiom-2}, because it reflects the reduction
+attributable to the axioms alone rather than conflating it with the
+block-tuple explosion.
+
+\medskip
+\noindent\textit{Transfer to the unconditional matrix.} When per-block
+rates are deterministic constants (so $Q^*_\ell(\alpha) = Q_\ell$
+identically), the conditional and unconditional matrices coincide and
+the $nm$ count applies to $Q^{(m)}$ directly. When rates are random but
+the queried blocks are pairwise distinct,
+\Cref{cor:kronecker-unconditional} gives $Q^{(m)} = Q_1 \otimes \cdots
+\otimes Q_m$ with each $Q_\ell$ contributing $n$ free parameters, again
+totalling $nm$. Both regimes cover every worked example in Part~I.
 
 \medskip
 \noindent\textit{Ratio.}
@@ -299,7 +335,10 @@ each other. The model order is 2 because there are two partition blocks
 the two free parameters of the general order-2 model to one.
 
 Now suppose we run $m$ independent queries, each through the same BSC.
-By \Cref{thm:kronecker}, the joint confusion matrix is
+We work in the deterministic-rates regime announced in the second scope
+note above, where $Q^*_\ell = Q$ for every query and the conditional
+matrix of \Cref{thm:kronecker} coincides with the unconditional one. The
+joint confusion matrix is then
 \[
   Q^{(m)} \;=\; \underbrace{Q \otimes Q \otimes \cdots \otimes Q}_{m \text{ copies}}
   \;=\; Q^{\otimes m}.
@@ -396,7 +435,9 @@ Suppose we query two elements $x_1 \in B_{j_1}$ and $x_2 \in B_{j_2}$
 and observe outputs $k_1$ and $k_2$ respectively. For concreteness,
 take both queries to the same channel (both $Q_1 = Q_2 = Q$, since
 the rates are stationary by \Cref{prop:stable-Q}, which relies on
-both Axioms~1 and~2).
+both Axioms~1 and~2). As in the BSC thread, we work in the
+deterministic-rates regime, where the conditional matrix of
+\Cref{thm:kronecker} coincides with the unconditional one.
 
 \Cref{thm:kronecker} predicts:
 \[
