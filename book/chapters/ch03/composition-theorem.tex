@@ -345,42 +345,16 @@ answering two different questions about two different models.
 
 \subsection*{The channel-matrix product view}
 
-The composition theorem has a direct interpretation in terms of the channel
-matrix $Q$ defined in \Cref{def:channel-composition}.
-
-For the identity-with-error model, the per-stage channel matrix is
-\[
-  Q_i
-  \;=\;
-  \begin{pmatrix}
-    1 - \eta_i & \eta_i \\
-    \eta_i & 1 - \eta_i
-  \end{pmatrix},
-\]
-a symmetric channel (BSC with crossover $\eta_i$). But we are using it in a
-regime where errors \emph{do not cancel}---we are tracking whether the value
-is still correct at the end of the chain, not whether the channel has the
-BSC's symmetry.
-
-The $k$-stage composition by matrix product gives $Q_{\mathrm{total}} = Q_k
-\cdots Q_1$. For the special case of identical stages ($Q_i = Q$) and the BSC
-structure, this gives the §2.3 formula, which does allow cancellation. The
-composition theorem~\eqref{eq:composition-theorem} corresponds instead to a
-different model: one where the correctness of the chain is a monotone property
-(once lost, it stays lost). This is not the same as the BSC's parity model.
-
-In the Boolean framework, the cleanest way to frame the composition theorem's
-domain is as follows. Let $\eta_i$ denote the \emph{unconditional error rate}
-of stage $i$: the probability that, regardless of the input, stage $i$
-produces the wrong answer. For the composition theorem to give the exact
-end-to-end error rate, we need that any single wrong answer from any stage
-propagates to a wrong final answer. This holds for one-sided channels and for
-AND / OR compositions; it does not hold for the BSC.
-
-\Cref{sec:channel-composition} gives the serial-composition formula for the
-BSC and for general asymmetric channels: it is the correct formula for those
-models. The composition theorem of this section is the correct formula for
-identity-with-error models. The two are complementary, not competing.
+The matrix-product computation in \Cref{sec:channel-composition} gives the
+BSC composition formula (with cancellation): two flips that cancel return the
+chain to the correct answer, and the resulting end-to-end crossover is
+$\fprate_1 + \fprate_2 - 2\fprate_1\fprate_2$, not $1 - (1-\fprate_1)(1-\fprate_2)$.
+The composition theorem of this section applies to a different underlying
+model: each stage either preserves correctness or destroys it, with no
+possibility of recovery (``once lost, stays lost''). The BSC's bidirectional
+flip structure is incompatible with this monotone correctness assumption.
+The two formulas describe different physical processes; neither is wrong,
+and they answer different questions about different models.
 
 \subsection*{Sister structure: Kronecker for parallel queries}
 
@@ -520,52 +494,11 @@ individual stage. This is the regime Miller-Rabin exploits: with
 $\fprate \leq 1/4$ per round, a $k$-round AND achieves $\fprate_k \leq
 (1/4)^k$.
 
-\subsection*{Uniform case: the $(1-\eta)^k$ formula}
-
-When all $k$ stages have the same error rate $\eta$, the composition theorem
-simplifies to:
-\begin{equation}
-\label{eq:composition-uniform}
-  \eta_{\mathrm{total}} \;=\; 1 - (1 - \eta)^k, \qquad
-  \tnrate_{\mathrm{total}} \;=\; (1 - \eta)^k.
-\end{equation}
-
-This is perhaps the most-used form in practice. For Miller-Rabin with
-$\eta = \fprate \leq 1/4$ per round and $k$ rounds:
-\[
-  \fprate_k \;\leq\; \left(\frac{1}{4}\right)^k.
-\]
-For $k = 10$ rounds: $\fprate_{10} \leq (1/4)^{10} \approx 10^{-6}$.
-For $k = 20$ rounds: $\fprate_{20} \leq (1/4)^{20} \approx 10^{-12}$.
-
-The exponential decay in $k$ is the composition theorem's principal practical
-payoff. For the Miller-Rabin test, FNR $= 0$ holds exactly (no prime is ever
-declared composite), so the composition formula gives the exact accumulated
-FPR bound, not just an approximation.
-
-\Cref{sec:miller-rabin} builds the full walkthrough.
-
 \subsection*{Looking ahead to Miller-Rabin}
 
 The composition theorem establishes the machinery. \Cref{sec:miller-rabin}
-deploys it.
-
-The Miller-Rabin primality test evaluates $k$ independent witnesses against a
-candidate integer $n$. Each witness is a $\Bernoulli{\BoolType}$ instance with
-FNR $= 0$ and FPR $\leq 1/4$. The witnesses are independent samples from the
-witness pool---distinct input elements, in the sense of \Cref{ax:element-indep}.
-The $k$-round test is a $k$-fold AND of these witnesses: declare ``probably
-prime'' only if all $k$ witnesses pass.
-
-Since FNR $= 0$ for each witness, the AND gate also has FNR $= 0$: if $n$ is
-prime, all $k$ witnesses pass, and the AND declares ``probably prime''
-correctly. The only remaining error is a false positive: $n$ is composite but
-all $k$ witnesses fail to detect it. The composition theorem gives:
-\[
-  \fprate_k \;\leq\; (1/4)^k.
-\]
-This is not a heuristic or an approximation. It is the composition
-theorem~\eqref{eq:composition-uniform} applied to a channel with FNR $= 0$.
-The Miller-Rabin bound is an instance of the Bernoulli Boolean framework,
-derived from the same principles as the AND gate analysis of
-\Cref{sec:and-under-noise}. The next section makes this derivation explicit.
+deploys it against a canonical example: Miller-Rabin witnesses are
+$\Bernoulli{\BoolType}$ instances with FNR $= 0$ and FPR $\leq 1/4$, so
+$k$ independent rounds give the bound $\fprate_k \leq (1/4)^k$
+from~\eqref{eq:composition-theorem}, a direct instance of the framework
+developed in this section.
