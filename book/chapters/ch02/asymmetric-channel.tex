@@ -3,8 +3,9 @@
 % Cross-reference resolution status:
 %
 % EXPECTED UNRESOLVED (forward refs that will resolve in later Plans):
-%   \Cref{sec:three-faces}   -- chapter 1 §1.1 (will resolve in Plan 4)
-%   \Cref{sec:model-order}   -- chapter 2 §2.4 (will resolve in Task 5 of Plan 2)
+%   \Cref{sec:three-faces}       -- chapter 1 §1.1 (will resolve in Plan 4)
+%   \Cref{sec:model-order}       -- chapter 2 §2.4 (will resolve in Task 5 of Plan 2)
+%   \Cref{sec:channel-composition} -- chapter 2 §2.x (will resolve in Task 4)
 %
 % ALREADY RESOLVED (chapter 2 §2.1 drafted in Task 2 of Plan 2):
 %   \Cref{sec:bsc}           -- chapter 2 §2.1
@@ -75,10 +76,16 @@ connection to a familiar system is spelled out in full in
 \subsection*{The Z-channel: one-sided error}
 
 The most widely encountered asymmetric channel in computer science is
-the \emph{Z-channel}, so named because its error diagram traces the
-shape of the letter Z: the transmission $\top \to \top$ is perfect,
-and the only error is $\bot \to \top$ (a negative incorrectly
-reported as positive).
+the \emph{Z-channel}. In the variant used here, the transmission
+$\top \to \top$ is perfect, and the only error is $\bot \to \top$: a
+negative input incorrectly reported as positive.\footnote{Information-theory
+texts often define the Z-channel with the opposite asymmetry---false
+negatives only, no false positives ($\omega > 0$, $\varepsilon = 0$),
+so that $\bot \to \bot$ is perfect and the only error is $\top \to
+\bot$. Both variants are equivalent up to relabeling of inputs and
+outputs. The convention here aligns with the Bloom filter and other
+positive approximate sets, where the false-positive direction is the
+natural error mode.}
 
 \begin{definition}[Z-channel]
 \label{def:z-channel}
