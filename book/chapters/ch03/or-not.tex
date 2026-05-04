@@ -1,1 +1,369 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch03-boolean-algebra.md
+% §3.2 OR and NOT
+%
+% Cross-reference resolution status:
+%
+% EXPECTED UNRESOLVED (forward refs to stubs that resolve in later tasks/plans):
+%   \Cref{sec:composition-theorem} -- chapter 3 §3.3 (resolves in Task 4 of Plan 3)
+%   \Cref{sec:three-faces}         -- chapter 1 §1.1 (resolves in Plan 4)
+%
+% ALREADY RESOLVED (chapters 2 and 4, drafted in Plans 1 and 2;
+%                   and §3.1, drafted in Task 2 of Plan 3):
+%   \Cref{sec:and-under-noise}     -- chapter 3 §3.1
+%   \Cref{def:bernoulli-bool}      -- chapter 4 §4.5
+%   \Cref{sec:axiom-1}             -- chapter 4 §4.2
+%   \Cref{ax:element-indep}        -- Axiom 1 formal statement (chapter 4)
+%   \Cref{sec:axiom-2}             -- chapter 4 §4.3
+%   \Cref{ax:block-rates-indep}    -- Axiom 2 formal statement (chapter 4)
+%
+% Build warnings for the unresolved labels are expected at this stage.
+% They resolve when Plan 3 Task 4 (§3.3) and Plan 4 land.
+
+\section{OR and NOT}
+\label{sec:or-not}
+
+\Cref{sec:and-under-noise} derived what happens when we AND two
+$\Bernoulli{\BoolType}$ instances. We found that AND is a binary
+operation on the type: two instances with rates $(\fprate_1, \fnrate_1)$
+and $(\fprate_2, \fnrate_2)$ combine to produce a new instance with
+closed-form rates $\fprate_\wedge$ and $\fnrate_\wedge$. The computation
+invoked both axioms: Axiom~1 to factor joint probabilities, and Axiom~2 to
+treat the per-instance rates as stable constants.
+
+OR and NOT call for the same treatment. As we will see, NOT is immediate
+from the channel-matrix perspective, and OR follows from De Morgan's law
+applied to noisy gates. We then verify the De Morgan derivation by
+re-deriving OR from the truth table directly, confirming that both paths
+agree. The section closes by identifying what the three gates together
+buy us: closure of $\Bernoulli{\BoolType}$ under all of Boolean algebra.
+
+\subsection*{NOT under noise}
+
+Let $\tilde{b}$ be a $\Bernoulli{\BoolType}$ instance with channel matrix
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate     & 1 - \fprate
+  \end{pmatrix}.
+\]
+Its NOT, $\neg\tilde{b}$, reports the complement of the observed output.
+What are the rates of the complemented instance?
+
+We answer this by tracing the meaning of the four outcomes. If the true
+value of $\tilde{b}$ is $b$ and the observed output is $\hat{b}$, then
+$\neg\tilde{b}$ has true value $\neg b$ and observed output $\neg\hat{b}$.
+
+\medskip
+\noindent\textbf{False-positive rate of $\neg\tilde{b}$.}
+A false positive of $\neg\tilde{b}$ is the event that the true value of
+$\neg b$ is $\bot$---meaning the true value of $b$ is $\top$---while the
+observed output of $\neg\tilde{b}$ is $\top$---meaning the observed output
+of $\tilde{b}$ is $\bot$. In other words, a false positive of $\neg\tilde{b}$
+is a \emph{false negative} of $\tilde{b}$. The rate is:
+\[
+  \fprate_{\neg} \;=\; \fnrate.
+\]
+
+\medskip
+\noindent\textbf{False-negative rate of $\neg\tilde{b}$.}
+A false negative of $\neg\tilde{b}$ is the event that the true value of
+$\neg b$ is $\top$---meaning $b = \bot$---while the observed output of
+$\neg\tilde{b}$ is $\bot$---meaning $\hat{b} = \top$. In other words, a
+false negative of $\neg\tilde{b}$ is a \emph{false positive} of
+$\tilde{b}$. The rate is:
+\[
+  \fnrate_{\neg} \;=\; \fprate.
+\]
+
+\medskip
+\noindent\textbf{Summary.}
+The NOT operation acts on the channel matrix by swapping the
+roles of false positives and false negatives:
+\begin{equation}
+  Q_{\neg\tilde{b}}
+  \;=\;
+  \begin{pmatrix}
+    1 - \fprate & \fprate \\
+    \fnrate     & 1 - \fnrate
+  \end{pmatrix}.
+  \label{eq:not-Q}
+\end{equation}
+In rate notation: $(\fprate, \fnrate) \xmapsto{\neg} (\fnrate, \fprate)$.
+
+This is the simplest operation in the Boolean algebra of noisy bits. The
+channel matrix is not recomputed from a truth table; it is obtained by
+reading the rows of $Q$ in the opposite order. Complementing a predicate
+swaps the positive and negative blocks; the row that formerly governed
+positives now governs negatives, and vice versa.
+
+\medskip
+\noindent\textbf{NOT is its own inverse.}
+Applying NOT twice returns the original:
+\[
+  (\fprate_{\neg}, \fnrate_{\neg}) \;=\; (\fnrate, \fprate)
+  \;\xmapsto{\neg}\;
+  (\fprate, \fnrate).
+\]
+In channel-matrix terms, the row-swap~\eqref{eq:not-Q} applied twice
+restores $Q$ exactly. More precisely, NOT is an \emph{involution} on
+$\Bernoulli{\BoolType}$: $(\neg)^2 = \mathrm{id}$.
+
+This is the noisy-gate analog of the classical fact $\neg\neg b = b$. Under
+noise, the equality is at the level of the channel matrix, not the
+individual observation: applying NOT twice to a $\Bernoulli{\BoolType}$
+instance returns an instance with the same rates as the original, not the
+same realized output on any given query.
+
+\subsection*{OR via De Morgan's law}
+
+De Morgan's law says $b_1 \vee b_2 = \neg(\neg b_1 \wedge \neg b_2)$.
+We apply this identity at the gate level, using NOT (derived above) and
+AND (from \Cref{sec:and-under-noise}).
+
+Let $\tilde{b}_1$ and $\tilde{b}_2$ be two independent
+$\Bernoulli{\BoolType}$ instances with rates $(\fprate_1, \fnrate_1)$ and
+$(\fprate_2, \fnrate_2)$ respectively.
+
+\medskip
+\noindent\textbf{Step 1: Negate each input.}
+By the NOT formula above:
+\begin{align*}
+  \neg\tilde{b}_1 &\text{ has rates } (\fnrate_1, \fprate_1), \\
+  \neg\tilde{b}_2 &\text{ has rates } (\fnrate_2, \fprate_2).
+\end{align*}
+
+\medskip
+\noindent\textbf{Step 2: AND the negated inputs.}
+We apply the AND formula from \Cref{sec:and-under-noise} to
+$\neg\tilde{b}_1$ and $\neg\tilde{b}_2$ with their swapped rates.
+For two $\Bernoulli{\BoolType}$ instances with rates $(a_1, c_1)$ and
+$(a_2, c_2)$, the AND gate's false-negative rate is
+$c_1 + c_2 - c_1 c_2$ (from \Cref{eq:and-fnr}).
+
+For the AND of $\neg\tilde{b}_1$ and $\neg\tilde{b}_2$, the roles
+of $\fprate$ and $\fnrate$ are swapped relative to the original instances,
+so $a_i = \fnrate_i$ and $c_i = \fprate_i$:
+\begin{align}
+  \fnrate_{\neg\wedge\neg}
+  &\;=\; \fprate_1 + \fprate_2 - \fprate_1\fprate_2.
+  \label{eq:and-of-nots-fnr}
+\end{align}
+The FPR of the AND of the negated inputs is, again from the AND formula,
+now with the input FPRs equal to $\fnrate_1, \fnrate_2$ (the swapped values).
+It depends on the input prior over the negated values; but we will see in
+Step~3 that the outer NOT maps it to the OR's FNR, which we handle directly
+from the truth table.
+
+\medskip
+\noindent\textbf{Step 3: Negate the result.}
+The outer NOT swaps the rates of $\neg\tilde{b}_1 \wedge \neg\tilde{b}_2$:
+\begin{align}
+  \fprate_\vee
+  &\;=\; \fnrate_{\neg\wedge\neg}
+   \;=\; \fprate_1 + \fprate_2 - \fprate_1\fprate_2,
+  \label{eq:or-fpr}
+\end{align}
+and $\fnrate_\vee = \fprate_{\neg\wedge\neg}$.
+
+The FPR of the OR gate, $\fprate_\vee = \fprate_1 + \fprate_2 - \fprate_1\fprate_2$,
+is the inclusion-exclusion formula for the probability that at least one of
+two independent events occurs. It is input-distribution-free: it depends
+only on the individual false-positive rates, not on the prior over input
+patterns. This is the noisy-gate analog of the classical fact that
+$\Pr[A \cup B] = \Pr[A] + \Pr[B] - \Pr[A \cap B]$ for independent events.
+
+\subsection*{OR via the direct truth table}
+
+We now re-derive the OR false-positive rate directly from the truth table,
+to confirm that both paths yield the same result.
+
+The OR of the observed outputs is $\top$ if \emph{at least one} of
+$\hat{b}_1$, $\hat{b}_2$ is $\top$. The true OR output, $b_1 \vee b_2$,
+is $\top$ if at least one of $b_1$, $b_2$ is $\top$.
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+True $b_1$ & True $b_2$ & Correct OR output & $\Pr[\text{OR output} = \bot]$ \\
+\hline
+$\top$ & $\top$ & $\top$ & $\fnrate_1 \fnrate_2$ \\
+$\top$ & $\bot$ & $\top$ & $\fnrate_1 (1 - \fprate_2)$ \\
+$\bot$ & $\top$ & $\top$ & $(1 - \fprate_1)\fnrate_2$ \\
+$\bot$ & $\bot$ & $\bot$ & $(1 - \fprate_1)(1 - \fprate_2)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The rightmost column gives $\Pr[\text{observed OR} = \bot]$ for each
+true-input combination (the OR is $\bot$ only when both observed outputs
+are $\bot$, which by Axiom~1 has probability equal to the product of the
+individual $\bot$-reporting probabilities).
+
+\medskip
+\noindent\textbf{False-positive rate of OR.}
+A false positive of the OR gate occurs when the true OR is $\bot$---meaning
+both true inputs are $\bot$---but the observed OR is $\top$. This is the
+complement of both observed outputs being $\bot$:
+\begin{equation}
+  \fprate_\vee
+  \;=\; \Pr[\hat{b}_1 = \top \text{ or } \hat{b}_2 = \top \mid b_1 = \bot, b_2 = \bot]
+  \;=\; 1 - (1 - \fprate_1)(1 - \fprate_2)
+  \;=\; \fprate_1 + \fprate_2 - \fprate_1\fprate_2.
+  \label{eq:or-fpr-direct}
+\end{equation}
+This matches~\eqref{eq:or-fpr} from the De Morgan derivation exactly.
+
+\medskip
+\noindent\textbf{False-negative rate of OR.}
+A false negative of the OR gate occurs when the true OR is $\top$---meaning
+at least one true input is $\top$---but the observed OR is $\bot$. The
+observed OR is $\bot$ when \emph{both} observed outputs are $\bot$.
+
+The three cases where the true OR is $\top$ are $(\top,\top)$, $(\top,\bot)$,
+and $(\bot,\top)$:
+\begin{align*}
+  \Pr[\hat{b}_1 = \bot, \hat{b}_2 = \bot \mid b_1 = \top, b_2 = \top]
+  &\;=\; \fnrate_1\fnrate_2, \\
+  \Pr[\hat{b}_1 = \bot, \hat{b}_2 = \bot \mid b_1 = \top, b_2 = \bot]
+  &\;=\; \fnrate_1(1 - \fprate_2), \\
+  \Pr[\hat{b}_1 = \bot, \hat{b}_2 = \bot \mid b_1 = \bot, b_2 = \top]
+  &\;=\; (1 - \fprate_1)\fnrate_2.
+\end{align*}
+
+As with the AND's false-positive rate, the OR's false-negative rate depends
+on the input distribution: different mixtures of the three patterns yield
+different marginal FNR values. For the special case $\fprate_1 = \fprate_2 = 0$
+(no false positives), the three conditional FNRs simplify to $\fnrate_1\fnrate_2$,
+$\fnrate_1$, and $\fnrate_2$ respectively. The dominant pattern is then
+whichever positive-input combination is most common: if most queries have
+exactly one positive input, the FNR of OR is close to $\fnrate_1$ or $\fnrate_2$
+individually (OR requires only one correct positive report, but it still misses
+when the positive input's reporter makes a false negative).
+
+In contrast, the FPR of OR~\eqref{eq:or-fpr-direct} is fully determined
+by the individual FPRs alone: the only way the true OR is $\bot$ is if
+both true inputs are $\bot$, and the only way the observed OR is then $\top$
+is if at least one of the reporters makes a false positive. Both the input
+pattern and the conditional false-positive probability are distribution-free.
+This asymmetry between the OR's FPR and FNR is the dual of the AND's
+asymmetry: AND has a distribution-free FNR and a distribution-dependent FPR;
+OR has a distribution-free FPR and a distribution-dependent FNR.
+
+\subsection*{Summary of the three gates}
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Gate & FPR & FNR \\
+\hline
+$\tilde{b}_1 \wedge \tilde{b}_2$ (AND)
+  & depends on input prior (see \S\ref{sec:and-under-noise})
+  & $\fnrate_1 + \fnrate_2 - \fnrate_1\fnrate_2$ \\
+$\neg\tilde{b}$ (NOT)
+  & $\fnrate$
+  & $\fprate$ \\
+$\tilde{b}_1 \vee \tilde{b}_2$ (OR)
+  & $\fprate_1 + \fprate_2 - \fprate_1\fprate_2$
+  & depends on input prior \\
+\hline
+\end{tabular}
+\end{center}
+
+The table crystallizes the fundamental duality between AND and OR. Under
+noise, AND suppresses false positives at the cost of inflating false negatives
+(the FNR of AND grows monotonically with the number of ANDed instances), while
+OR suppresses false negatives at the cost of inflating false positives (the FPR
+of OR grows monotonically with the number of ORed instances). NOT is the
+exchange operator that converts one regime into the other.
+
+\medskip
+\noindent\textbf{Worked check: consistency at $\fprate = \fnrate$.}
+For the symmetric case $\fprate_1 = \fprate_2 = \fprate$ and $\fnrate_1 =
+\fnrate_2 = \fnrate$:
+\begin{align*}
+  \fnrate_\wedge &= 2\fnrate - \fnrate^2, \\
+  \fprate_\vee   &= 2\fprate - \fprate^2.
+\end{align*}
+For a BSC with crossover probability $\fprate = \fnrate$, these are symmetric:
+the AND gate inflates errors for positives by the same formula as the OR gate
+inflates errors for negatives. De Morgan's duality is exact, as expected.
+
+\subsection*{Boolean algebra closure under noise}
+
+AND, OR, and NOT together generate all of two-valued Boolean algebra. Every
+Boolean function of $n$ variables can be expressed as a formula built from
+AND, OR, and NOT (this is the completeness of the connective basis $\{\wedge,
+\vee, \neg\}$). We have now derived the channel matrices for each of the three
+generators. The key structural observation is the following.
+
+\begin{proposition}[Closure of $\Bernoulli{\BoolType}$ under Boolean operations]
+\label{prop:boolean-closure}
+If $\tilde{b}_1, \ldots, \tilde{b}_n$ are $\Bernoulli{\BoolType}$ instances,
+then every Boolean formula $\varphi(\tilde{b}_1, \ldots, \tilde{b}_n)$
+built from AND, OR, and NOT is also a $\Bernoulli{\BoolType}$ instance.
+Its channel matrix has entries expressible as polynomials in the input
+rates $\fprate_1, \fnrate_1, \ldots, \fprate_n, \fnrate_n$.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+By induction on the structure of $\varphi$. The base case is a single
+instance $\tilde{b}_i$, which is $\Bernoulli{\BoolType}$ by assumption.
+For the inductive step:
+
+\emph{NOT}: if $\tilde{b}$ is $\Bernoulli{\BoolType}$ with rates
+$(\fprate, \fnrate)$, then $\neg\tilde{b}$ is $\Bernoulli{\BoolType}$
+with rates $(\fnrate, \fprate)$ by the derivation above.
+
+\emph{AND}: if $\tilde{b}_1$ and $\tilde{b}_2$ are $\Bernoulli{\BoolType}$
+instances, then $\tilde{b}_1 \wedge \tilde{b}_2$ is $\Bernoulli{\BoolType}$
+by the derivation in \Cref{sec:and-under-noise}, with FNR given
+by~\eqref{eq:and-fnr} and FPR by~\eqref{eq:and-fpr-general}. Both are
+polynomial functions of the input rates.
+
+\emph{OR}: by De Morgan's law, $\tilde{b}_1 \vee \tilde{b}_2 =
+\neg(\neg\tilde{b}_1 \wedge \neg\tilde{b}_2)$. The outer and inner NOTs
+each preserve $\Bernoulli{\BoolType}$ membership (by the NOT case); the
+AND of the negated instances is $\Bernoulli{\BoolType}$ (by the AND case).
+The composition is therefore $\Bernoulli{\BoolType}$.
+
+Since every Boolean formula is built by finitely many applications of AND,
+OR, and NOT, the induction terminates and the result holds.
+\end{proof}
+
+Closure is not merely a formal nicety. It is what makes the Bernoulli
+framework composable: we can build complex Boolean circuits from noisy
+gates and know that every intermediate and final result is still a
+$\Bernoulli{\BoolType}$ instance. Error propagation through the circuit
+is computable in closed form; it does not require re-deriving the framework
+from scratch at each stage.
+
+\subsection*{Looking ahead to composition}
+
+The OR gate illustrates a structural point about the composition theorem,
+which \Cref{sec:composition-theorem} will state precisely.
+
+The FPR of OR is $\fprate_1 + \fprate_2 - \fprate_1\fprate_2$. For small
+$\fprate_1$ and $\fprate_2$, this is approximately $\fprate_1 + \fprate_2$:
+error rates \emph{add} under OR. Equivalently, the probability of no error
+is $(1 - \fprate_1)(1 - \fprate_2)$: no-error probabilities \emph{multiply}.
+
+The AND gate, dually, has FNR equal to $\fnrate_1 + \fnrate_2 - \fnrate_1\fnrate_2$:
+a symmetric formula showing that false-negative error rates add under AND.
+The no-false-negative probability $(1 - \fnrate_1)(1 - \fnrate_2)$ again
+factors as a product.
+
+Both formulas are instances of the same pattern. When we chain $k$ independent
+identity-with-error stages---each of which fails independently with rate
+$\eta_i$---the total no-error probability is $\prod_i (1 - \eta_i)$, and the
+total error rate is $\eta_\mathrm{total} = 1 - \prod_i (1 - \eta_i)$.
+\Cref{sec:composition-theorem} proves this formula in its general form and
+shows that the AND and OR formulas above are special cases. Once we have the
+composition theorem in hand, Miller-Rabin's $k$-round error bound becomes
+immediate: $k$ rounds of witness-ANDing drive the FPR to
+$(1/4)^k$ because each round is an independent stage of error suppression,
+and the no-error probability multiplies.
+
+The gates derived in this section---NOT, OR, AND, and their interaction via
+De Morgan---are the moving parts of that composition argument. They are also
+the gates that give the Bernoulli framework its claim to being a complete
+algebra, not merely a collection of special-purpose error-rate formulas.
