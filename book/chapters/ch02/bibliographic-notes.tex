@@ -1,1 +1,85 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch02-binary-channels.md
+% §2.5 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 2, drafted in Tasks 2-5 of Plan 2):
+%   \Cref{sec:bsc}                  -- chapter 2 §2.1
+%   \Cref{sec:asymmetric-channel}   -- chapter 2 §2.2
+%   \Cref{sec:channel-composition}  -- chapter 2 §2.3
+%   \Cref{sec:model-order}          -- chapter 2 §2.4
+%   \Cref{def:model-order}          -- chapter 2 §2.4 Definition 2.x
+%   \Cref{thm:boolean-ceiling}      -- chapter 2 §2.4 Boolean Ceiling Theorem
+%
+% ALREADY RESOLVED (chapter 4, drafted in Plan 1):
+%   \Cref{sec:bib-notes-ch4}        -- chapter 4 §4.7 Bibliographic Notes
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch2}
+
+\paragraph{Shannon and the channel framework.}
+The channel matrix formalism used throughout this chapter descends directly
+from \textcite{shannon-1948}. Shannon's paper introduced the discrete
+memoryless channel as the mathematical object for studying noisy
+communication: a channel is specified by a conditional distribution
+$P(\text{output} \mid \text{input})$, and the capacity of the channel is the
+maximum mutual information between input and output over all input
+distributions. The binary symmetric channel of \Cref{sec:bsc} is one of
+Shannon's central running examples; the crossover parameter $\fprate$ and
+the capacity formula $1 - H(\fprate)$ are both in that 1948 paper. The
+treatment of the asymmetric binary channel in \Cref{sec:asymmetric-channel}
+is a natural extension of Shannon's framework to the case where the two
+input symbols face independent error probabilities. For a modern textbook
+development of binary channels, channel capacity, and the channel coding
+theorem, see \textcite{cover-thomas}, especially Chapters~7 and~8.
+
+\paragraph{The Bernoulli papers.}
+The connection between binary channels and the Bernoulli framework is drawn
+in \textcite{towell-bernoulli-sets}, which introduces the two-axiom model
+and proves the composition theorem that \Cref{sec:channel-composition}
+reformulates in matrix-product language. The matrix-product form---that
+serial composition of two binary channels corresponds to matrix multiplication
+of their channel matrices---is a reorganization of the rate-propagation
+formula in that paper; see the companion notes in \Cref{sec:bib-notes-ch4}
+for a precise account of what is new in this text and what descends from the
+companion papers.
+
+The model-order treatment of \Cref{sec:model-order}, and in particular the
+definition of model order as the number of partition blocks in the finest
+compatible partition of the input domain (\Cref{def:model-order}), follows
+\textcite{towell-bernoulli-data-type}. That paper extends the Bernoulli
+framework from Boolean sets to approximate values over arbitrary algebraic
+types; the order-2 Boolean case developed in this chapter is the simplest
+instance of its general theory. The Boolean Ceiling Theorem
+(\Cref{thm:boolean-ceiling})---that any binary channel over $\{\top, \bot\}$
+has model order at most $2$---is explicit in the algebraic-types paper as
+the base case of the more general statement that a channel over a $k$-element
+domain has model order at most $k$.
+
+\paragraph{Model order versus degrees of freedom.}
+A clarification that deserves explicit attention is the distinction between
+model order and parameter count, developed in \Cref{sec:model-order} under
+the heading ``Model order vs.\ parameter count.'' This distinction is easy
+to miss in the source papers, because for a single Boolean query the two
+quantities agree: an $n$-th order channel on one Boolean input has $n$
+partition blocks and also $n$ free parameters, one per block. The difference
+surfaces in the multi-query setting and is worth recording here, as it is
+flagged as a source of confusion in the companion repository's planning
+notes (\texttt{papers/CLAUDE.md}, Terminology section). When $m$ queries
+are issued jointly, a general order-$n$ channel on $m$ inputs has
+$n(2^m - 1)$ parameters in the per-source-block convention, but the
+independence axioms (Axioms~1 and~2) force a Kronecker factorization that
+reduces this to $nm$. The model order does not change: it remains $n$,
+determined by the partition of the single-query input domain. What changes
+is the parameter count, and the axioms are entirely responsible for the
+reduction. Model order constrains which rows of the channel matrix $Q$ can
+be identified; the axioms constrain how the channel matrix factorizes across
+queries. These are orthogonal constraints.
+
+\paragraph{Further reading.}
+Chapter~4's Bibliographic Notes (\Cref{sec:bib-notes-ch4}) provide
+additional context for the Kronecker product and its role in the multi-query
+factorization, and for the relationship between the Bernoulli axioms and the
+memoryless channel. Readers who want a deeper grounding in information
+theory beyond what Part~I requires will find \textcite{cover-thomas}
+the standard reference.
