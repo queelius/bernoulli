@@ -1,1 +1,116 @@
-% Drafted in Task: see plan 2026-05-04-bernoulli-textbook-ch03-boolean-algebra.md
+% §3.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 3, drafted in Tasks 2-6 of Plan 3):
+%   \Cref{sec:and-under-noise}        -- chapter 3 §3.1
+%   \Cref{sec:composition-theorem}    -- chapter 3 §3.3
+%   \Cref{sec:miller-rabin}           -- chapter 3 §3.4
+%
+% ALREADY RESOLVED (chapter 2, drafted in Plan 2):
+%   \Cref{sec:channel-composition}    -- chapter 2 §2.3
+%   \Cref{sec:bib-notes-ch2}          -- chapter 2 §2.5 Bibliographic Notes
+%
+% ALREADY RESOLVED (chapter 4, drafted in Plan 1):
+%   \Cref{sec:kronecker}              -- chapter 4 §4.4
+%   \Cref{thm:kronecker}              -- chapter 4 §4.4 Kronecker theorem
+%   \Cref{sec:bib-notes-ch4}          -- chapter 4 §4.7 Bibliographic Notes
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{miller-1976}          -- Miller 1976
+%   \cite{rabin-1980}           -- Rabin 1980
+%   \cite{cormen-clrs}          -- Cormen, Leiserson, Rivest, Stein 2009
+%   \cite{mitzenmacher-upfal}   -- Mitzenmacher and Upfal 2017
+%
+% Citations resolved by prior references.bib entries:
+%   \cite{towell-bernoulli-sets}        -- already in references.bib from Plan 0
+%   \cite{towell-bernoulli-data-type}   -- already in references.bib from Plan 1
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch3}
+
+\paragraph{The original Miller-Rabin papers.}
+The primality test at the center of \Cref{sec:miller-rabin} has two distinct
+intellectual parents. \textcite{miller-1976} showed, assuming the Extended
+Riemann Hypothesis, that a deterministic variant of the witness test runs in
+polynomial time and is correct for all sufficiently large $n$. The
+witness-based structure---compute $a^d \bmod n$ and test for a non-trivial
+square root of unity---originates in that paper.
+\textcite{rabin-1980} removed the unproven hypothesis: his contribution was to
+show that, when the witness $a$ is chosen uniformly at random from
+$\{2, \ldots, n-2\}$, the probability that a composite $n$ passes the test
+is at most $1/4$, unconditionally. This is the bound that makes the composed
+$k$-round test practical; no number-theoretic conjecture is required.
+Chapter~3's Bernoulli reading of Miller-Rabin---treating a single witness
+as a $\Bernoulli{\BoolType}$ instance with $\fnrate = 0$ and $\fprate \leq
+1/4$---is a reformulation of Rabin's 1980 result in the language of this
+text.
+
+\paragraph{Standard textbook treatments.}
+Both the Miller-Rabin algorithm and the broader topic of randomized algorithms
+receive thorough coverage in two standard graduate texts.
+\textcite{cormen-clrs} covers Miller-Rabin in Chapter~31 (Number-Theoretic
+Algorithms), including a proof of the $1/4$ FPR bound via the structure of
+strong liars modulo a composite; that proof provides the number-theoretic
+backing for the Bernoulli characterization in \Cref{sec:miller-rabin}.
+\textcite{mitzenmacher-upfal} covers randomized algorithms and probabilistic
+analysis more broadly, with particular attention to the concentration-of-error
+phenomena that arise when independent probabilistic tests are composed---the
+same setting as \Cref{sec:composition-theorem}'s chain model.
+Readers who want the full number-theoretic argument for the $1/4$ bound,
+or who want to see the Miller-Rabin test situated among other randomized
+primality tests, should consult either of these references before proceeding to
+Part~III's treatment of randomized algorithms.
+
+\paragraph{The Bernoulli papers and the composition theorem.}
+The composition theorem of \Cref{sec:composition-theorem}---that chaining $k$
+identities-with-error gives an end-to-end error rate
+$\eta_{\mathrm{total}} = 1 - \prod_{i=1}^{k}(1 - \eta_i)$---is a
+Boolean-algebra reformulation of Theorem~3.7 in
+\textcite{towell-bernoulli-sets}. That paper states the rate-propagation
+result in terms of the Bernoulli set model; Chapter~3 restates it at the
+Boolean-algebra layer, where the ``set'' is replaced by a single $\Bernoulli{\BoolType}$
+instance and the composition is explicitly a chain of identities-with-error
+rather than set-intersection operations. The AND, OR, and NOT rules of
+\Cref{sec:and-under-noise} are derived in \textcite{towell-bernoulli-data-type},
+which extends the Bernoulli framework from Boolean sets to approximate values
+over arbitrary algebraic types; the $\BoolType$ case is the base case of that
+general theory.
+
+\paragraph{Three abstraction layers, one composition algebra.}
+A thread that runs through Chapters~2, 3, and~4 is worth naming explicitly
+here. The same underlying composition algebra appears at three different
+abstraction layers:
+\begin{itemize}
+  \item \emph{Matrix product layer.}
+        In \Cref{sec:channel-composition} (Chapter~2), serial composition of
+        two binary channels corresponds to matrix multiplication
+        $Q_{\mathrm{total}} = Q_2 Q_1$. The composition formula for the
+        crossover probability follows from this product by reading off the
+        $(1,0)$ entry of the composed channel matrix.
+
+  \item \emph{Boolean-algebra layer.}
+        In \Cref{sec:composition-theorem} (this chapter), the same
+        composition appears as
+        $\eta_{\mathrm{total}} = 1 - \prod_{i=1}^{k}(1 - \eta_i)$ for
+        chained identity-with-error gates. This is the Boolean-algebra
+        rephrasing of the matrix-product formula; for a symmetric channel
+        the two are not identical because BSC composition has a cancellation
+        structure (two flips return to the original), but for one-way
+        identities-with-error the product formula is exact.
+
+  \item \emph{Kronecker-product layer.}
+        In \Cref{sec:kronecker} (Chapter~4), parallel composition of
+        independent $\Bernoulli{\BoolType}$ queries factors the joint
+        confusion matrix as a Kronecker product (\Cref{thm:kronecker}).
+        The Kronecker product is the algebraic expression of the same
+        independence structure that underlies the $k$-round product formula
+        of \Cref{sec:composition-theorem}.
+\end{itemize}
+The three layers are not three separate ideas; they are one idea viewed through
+three different algebraic lenses. Chapter~4's Bibliographic Notes
+(\Cref{sec:bib-notes-ch4}) situate the Kronecker layer in its own literature;
+Chapter~2's Bibliographic Notes (\Cref{sec:bib-notes-ch2}) situate the
+matrix-product layer. Seeing all three in the same framework is a contribution
+of this text.
