@@ -61,6 +61,15 @@ HEAD at integration: 54370a761a03235cb979542adc2c06a8ebe3ed42
 
 ## Open follow-ups
 
+- The final quality review found a biased-coin attribution error in
+  chapter 4: `ch04/why-axioms.tex` cited "the biased-coin example from
+  \S 1.3", attributing the example's origin to §1.3, when the coin is
+  introduced in §1.1 (`sec:three-faces`) and only revisited in §1.3
+  (`sec:boolean-universe-first-look`), where its full PMF was
+  deliberately deferred. (`ch04/bernoulli-bool-formal.tex` was checked
+  in the same pass and found already correct and internally
+  consistent.) Fixed in this commit: origin now points at
+  `sec:three-faces`, PMF-deferral at `sec:boolean-universe-first-look`.
 - Chapter 3 is at the upper edge of its page band (40 pp, band
   22-40 pp). Not a failure, but flagged for the polish plan in case
   trimming is desired.
