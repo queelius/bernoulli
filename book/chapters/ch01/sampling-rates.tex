@@ -115,24 +115,28 @@ statements concrete. It simulates a binary symmetric channel with a
 known crossover probability and lets the reader vary the sample size
 across several orders of magnitude.
 
-The notebook does three things. First, it runs a single long simulation
-at a fixed true $\fprate$ and plots $\hat{\fprate}$ as a function of
-$n_0$ for $n_0$ sweeping from $10$ to $10\,000$. The plot shows the
-empirical estimator settling toward the true rate, with a visible
-$1/\sqrt{n_0}$ band of fluctuation. The unbiasedness statement of the
-previous subsection is visible in the centering of the band; the
-variance formula is visible in its width.
+The notebook does four things. First, it runs many independent
+replications at a fixed true $\fprate$ for each sample size and plots
+$\hat{\fprate}$ as a function of $n_0$ for $n_0$ sweeping from tens of
+samples to tens of thousands. The plot shows the empirical estimator
+settling toward the true rate, with a visible $1/\sqrt{n_0}$ band of
+fluctuation traced by the spread of the replications. The unbiasedness
+statement of the previous subsection is visible in the centering of the
+band; the variance formula is visible in its width.
 
-Second, it runs many independent replications at each sample size and
-constructs the Wald interval at the $95\%$ level for each. It then
-counts the fraction of intervals that actually contain the true
-$\fprate$. The CLT promises this fraction will approach $95\%$ at large
-$n_0$; for small $n_0$ or for $\fprate$ near a boundary the empirical
-coverage falls below $95\%$, exactly the under-coverage promised above.
-The reader sees the asymptotic guarantee work, and watches it fail in
-the regime where it is supposed to fail.
+Second, at a single fixed $n_0$ it runs many independent replications,
+constructs the Wald interval at the $95\%$ level for each, and counts
+the fraction of intervals that actually contain the true $\fprate$. The
+CLT promises this fraction will approach $95\%$; the reader sees it land
+close to nominal at a moderate sample size.
 
-Third, it sweeps the true $\fprate$ from $0.5$ down to $0.01$ at a
+Third, it sweeps $n_0$ across several orders of magnitude and plots the
+empirical coverage at each size. For small $n_0$ the coverage falls
+below $95\%$, exactly the under-coverage promised above, and the gap
+closes as $n_0$ grows. The reader watches the asymptotic guarantee fail
+in the regime where it is supposed to fail.
+
+Fourth, it sweeps the true $\fprate$ from $0.5$ down to $0.01$ at a
 fixed $n_0$ and shows the coverage gap widening as the rate approaches
 the boundary. The pattern is a small but real warning: an estimator
 that is asymptotically correct can still mislead at the sample sizes
