@@ -1,1 +1,301 @@
-% Placeholder. Drafted in Plan 4 Task 8.
+% §1 Exercises
+%
+% Cross-references and their resolution status:
+%
+% Already resolved (within chapter 1):
+%   \Cref{sec:three-faces}                  -- §1.1
+%   \Cref{sec:quantifying-noise}            -- §1.2
+%   \Cref{sec:boolean-universe-first-look}  -- §1.3
+%   \Cref{sec:sampling-rates}               -- §1.4
+%   \Cref{sec:why-atom}                     -- §1.5
+%
+% Forward references (resolved later in the book or in spirit only):
+%   Chapter 16 (negative-space) is named in prose only (no \Cref);
+%   chapter 16 is not yet drafted, and the references in exercises 2,
+%   10, and 11 are intentionally prose-level forward gestures.
+%   Chapter 7 (Wald CI alternatives) is named in prose only.
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3)
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch1-1}
+\textbf{Confusion matrix to rate conversion.}
+A binary classifier is evaluated on a labelled test set and produces the
+following counts: $\mathrm{TP} = 72$, $\mathrm{FP} = 8$, $\mathrm{FN} = 14$,
+$\mathrm{TN} = 106$.
+\begin{enumerate}
+  \item[(a)] Compute the empirical false-positive rate $\hat{\fprate}$
+    and false-negative rate $\hat{\fnrate}$ using the row-conditional
+    proportions from \Cref{sec:quantifying-noise}. Be explicit about
+    which counts go in the numerator and which in the denominator.
+  \item[(b)] Compute the precision $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$
+    and the recall $\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})$.
+  \item[(c)] In one sentence, explain why $\hat{\fprate}$ and precision are
+    \emph{different} numbers even though both involve the false-positive
+    count. (\textit{Hint:} which marginal does each one condition on?)
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch1-2}
+\textbf{Three real-world noisy bits and one non-example.}
+The three faces of \Cref{sec:three-faces} (BSC, biased coin, classifier
+verdict) are stand-ins for many real systems. Name \emph{three} systems
+of your own that you think of as noisy bits in the sense of
+\Cref{sec:quantifying-noise} (a Boolean-output system with stable
+per-input rates).
+\begin{enumerate}
+  \item[(a)] For each of the three, identify what plays the role of the
+    Boolean input and Boolean output, then write a rough estimate of
+    $\fprate$ and $\fnrate$.
+  \item[(b)] Construct one explicit \emph{non-example}: a Boolean-output
+    system whose error behaviour is real but does \emph{not} fit the
+    noisy-bit model, because its per-input rates are not stable across
+    queries (the rates drift over time, depend on history, or depend on
+    inputs in a way the model cannot capture).
+  \item[(c)] In one sentence, identify which property of the noisy-bit
+    model your non-example violates. We return to non-examples like
+    this in chapter 16, which makes the failure modes of the model
+    its explicit subject.
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch1-3}
+\textbf{Joint table to rates.}
+A noisy bit is described by the joint table below, where the truth has
+prior $\Pr\{X = \top\} = 0.3$ and $\Pr\{X = \bot\} = 0.7$:
+\[
+  \begin{array}{c|cc}
+    & Y = \top & Y = \bot \\\hline
+    X = \top & 0.27 & 0.03 \\
+    X = \bot & 0.07 & 0.63
+  \end{array}
+\]
+The four cell entries are joint probabilities $\Pr\{X, Y\}$, and they sum
+to 1.
+\begin{enumerate}
+  \item[(a)] Verify that the row sums match the priors.
+  \item[(b)] Compute the row-conditional false-positive rate $\fprate =
+    \Pr\{Y = \top \Given X = \bot\}$ and the false-negative rate
+    $\fnrate = \Pr\{Y = \bot \Given X = \top\}$ by dividing the
+    appropriate cell by its row sum (\Cref{sec:quantifying-noise}).
+  \item[(c)] Confirm that $\fprate$ and $\fnrate$ are properties of the
+    \emph{channel} (the conditional distribution $\Pr\{Y \Given X\}$),
+    independent of the prior on $X$. In one sentence, explain why this
+    independence is the reason the noisy-bit model uses two parameters
+    rather than four.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5)
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch1-4}
+\textbf{Empirical estimation under varying $n$ (notebook-tied).}
+Open the chapter 1 companion notebook
+\texttt{python/notebooks/ch01-noisy-bit.ipynb}. Use the binary symmetric
+channel simulator with true crossover $\fprate = 0.10$ and run the
+estimator at $n \in \{10, 100, 1000, 10000\}$.
+\begin{enumerate}
+  \item[(a)] Tabulate $\hat{\fprate}$ for each value of $n$ from a single
+    run, and the absolute deviation $|\hat{\fprate} - \fprate|$ from
+    the true rate.
+  \item[(b)] Plot $\hat{\fprate}$ as a function of $n$ on a log-$n$
+    axis, with the true rate drawn as a horizontal reference line.
+    Describe in one sentence how the spread of the estimator around
+    the true rate shrinks with $n$.
+  \item[(c)] Compare the rate at which the empirical deviation shrinks
+    to the predicted standard error
+    $\sqrt{\fprate(1-\fprate)/n}$ from \Cref{sec:sampling-rates}.
+    Is the observed convergence consistent with a $1/\sqrt{n}$ shrinking
+    band?
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch1-5}
+\textbf{The trivial biased coin.}
+A trivial biased coin is a noisy bit that ignores the input entirely:
+it returns $\top$ with probability $p$ and $\bot$ with probability
+$1-p$, regardless of whether the truth is $\top$ or $\bot$.
+\begin{enumerate}
+  \item[(a)] Using the definitions in \Cref{sec:quantifying-noise},
+    write $\fprate$ and $\fnrate$ as functions of $p$.
+  \item[(b)] At what value of $p$ is the trivial biased coin
+    \emph{useless} for the classification task, in the sense that
+    $\fprate$ and $\fnrate$ are both equal? Compute that pair of rates.
+  \item[(c)] At what values of $p$ does the trivial biased coin achieve
+    its \emph{best} behaviour, in the sense that one of the two rates
+    is exactly zero? Which rate, at which value of $p$?
+  \item[(d)] Comment briefly on the asymmetry: a constant function is
+    a perfect classifier for one truth class and a maximally bad one
+    for the other. The biased-coin parameterization makes this trade-off
+    visible.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch1-6}
+\textbf{NOT swaps the two rates.}
+Let $b$ be a noisy bit with rates $(\fprate, \fnrate)$. Define $b' = \neg
+b$ to be the noisy bit obtained by swapping the output: whenever $b$
+reports $\top$, $b'$ reports $\bot$, and vice versa. (No additional
+randomness is introduced; $b'$ is a deterministic relabelling of the
+output of $b$.)
+\begin{enumerate}
+  \item[(a)] Write the channel matrix of $b$ in the conditional form
+    $\Pr\{Y \Given X\}$ from \Cref{sec:quantifying-noise}.
+  \item[(b)] Apply the output swap to $b$ and write the channel matrix
+    of $b'$ in the same conditional form.
+  \item[(c)] Read off the rates of $b'$. Show that $\fprate' = \fnrate$
+    and $\fnrate' = \fprate$.
+  \item[(d)] Conclude that NOT acts on the parameter pair as the swap
+    $(\fprate, \fnrate) \mapsto (\fnrate, \fprate)$. In one sentence,
+    interpret this geometrically as a reflection in the parameter plane
+    $[0,1]^2$.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch1-7}
+\textbf{ROC curve parameterized by threshold.}
+A score-based classifier produces a real-valued score $s(x) \in [0, 1]$
+on each input $x$ and reports $\top$ if and only if $s(x) > \theta$ for a
+threshold $\theta$. For each value of $\theta$, the system is a noisy
+bit with rates that depend on $\theta$.
+\begin{enumerate}
+  \item[(a)] Write $\fprate(\theta)$ and $\fnrate(\theta)$ as conditional
+    probabilities involving the score distribution under $X = \bot$ and
+    under $X = \top$ respectively, following the row-conditional
+    convention of \Cref{sec:quantifying-noise}.
+  \item[(b)] As $\theta$ increases from $0$ to $1$, describe in two
+    sentences how $\fprate(\theta)$ and $\fnrate(\theta)$ each change.
+    Be explicit about whether each is monotone in $\theta$ and in which
+    direction.
+  \item[(c)] The ROC curve is the trace of $(\fprate(\theta),
+    \fnrate(\theta))$ as $\theta$ sweeps. State qualitatively what the
+    curve looks like at the two endpoints $\theta = 0$ and $\theta = 1$,
+    and explain why the curve passes through both corners $(0, 1)$
+    and $(1, 0)$ of the parameter plane.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch1-8}
+\textbf{Sample-size formula via the CLT bound.}
+\Cref{sec:sampling-rates} gives the variance of the empirical
+false-positive estimator as $\Var(\hat{\fprate}) = \fprate(1 - \fprate)/n_0$.
+Suppose we want the standard error to satisfy $\sqrt{\Var(\hat{\fprate})}
+\le \sigma$ for some target $\sigma > 0$.
+\begin{enumerate}
+  \item[(a)] Solve the inequality $\sqrt{\fprate(1 - \fprate)/n_0} \le
+    \sigma$ for $n_0$. Write the smallest integer $n_0$ that satisfies
+    the bound as a function of $\fprate$ and $\sigma$.
+  \item[(b)] Evaluate $n_0$ for the practical target $\sigma = 0.01$ at
+    $\fprate \in \{0.01, 0.05, 0.10, 0.50\}$. Tabulate the four
+    sample-size requirements.
+  \item[(c)] Identify the value of $\fprate$ that requires the largest
+    sample size. In one sentence, explain why this maximum sits at
+    $\fprate = 1/2$ rather than at the boundary (cf.\
+    \Cref{sec:sampling-rates}, which observes that the variance numerator
+    peaks at $1/2$).
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3)
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch1-9}
+\textbf{Informal LLN argument for $\hat{\fprate} \to \fprate$.}
+Argue informally that under iid sampling, the empirical estimator
+$\hat{\fprate}$ from \Cref{sec:sampling-rates} converges to the true
+rate $\fprate$ in probability as $n_0 \to \infty$.
+\begin{enumerate}
+  \item[(a)] State precisely the iid assumption you are using: each of
+    the $n_0$ negative-truth queries produces a Bernoulli$(\fprate)$
+    output independent of all the others. Write the empirical count
+    $\textnormal{FP}$ as a sum of $n_0$ such Bernoulli variables.
+  \item[(b)] Recall (or look up) Chebyshev's inequality: for any random
+    variable $Z$ with finite variance and any $\delta > 0$,
+    $\Pr\{|Z - \mathbb{E}[Z]| \ge \delta\} \le \Var(Z)/\delta^2$.
+    Apply this to $Z = \hat{\fprate}$, using the unbiasedness statement
+    $\mathbb{E}[\hat{\fprate}] = \fprate$ and the variance formula
+    $\Var(\hat{\fprate}) = \fprate(1 - \fprate)/n_0$ from
+    \Cref{sec:sampling-rates}.
+  \item[(c)] Show that the right-hand side of the Chebyshev bound goes
+    to zero as $n_0 \to \infty$ for any fixed $\delta > 0$. Conclude
+    that $\hat{\fprate} \to \fprate$ in probability.
+  \item[(d)] In one sentence, identify which assumption from part (a)
+    is most likely to fail in a real data system, and what kind of
+    correlation across queries would prevent the Chebyshev argument
+    from going through.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch1-10}
+\textbf{A system that looks like a noisy bit but is not one.}
+The noisy-bit model rests on two assumptions: the per-input rates are
+stable across queries, and the noise events on different queries are
+independent. Construct an explicit Boolean-input, Boolean-output system
+that violates at least one of these assumptions in a way that real
+practitioners might fail to notice.
+\begin{enumerate}
+  \item[(a)] Construct the system. Specify the input domain (Boolean),
+    the output domain (Boolean), and the mechanism that determines the
+    output given the input. The mechanism must produce a well-defined
+    Boolean output on every query, but its statistical behaviour must
+    fall outside the noisy-bit model in a stated way.
+  \item[(b)] Identify which assumption your system violates: stable
+    per-input rates, query-independence, or both. For each violated
+    assumption, give a one-sentence explanation of how the mechanism
+    causes the violation.
+  \item[(c)] Argue that a naive observer who computes $\hat{\fprate}$
+    and $\hat{\fnrate}$ from a sample of queries on your system would
+    produce numerical estimates that do not characterize the system in
+    the way the noisy-bit model implies. Be specific about what they
+    would miss.
+  \item[(d)] Chapter 16 is the negative-space chapter of the book: its
+    explicit subject is what fails to fit the model. Your construction
+    is a candidate worked example for that chapter; in one sentence,
+    state the conceptual lesson your example would carry there.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch1-11}
+\textbf{Stress test of the notebook coverage estimator.}
+The chapter 1 notebook runs a Wald-interval coverage check that
+empirically counts the fraction of $95\%$ intervals containing the true
+$\fprate$. \Cref{sec:sampling-rates} flags the under-coverage caveat:
+the Wald form is asymptotically correct but is known to under-cover at
+small $n_0$ when $\fprate$ sits near $0$ or $1$.
+\begin{enumerate}
+  \item[(a)] Identify parameter regimes (combinations of $n_0$ and
+    $\fprate$) under which you predict the empirical coverage will fall
+    visibly below $0.95$. Justify your prediction by reference to the
+    under-coverage caveat in \Cref{sec:sampling-rates}.
+  \item[(b)] Run the notebook's coverage estimator in two regimes of
+    your choosing: one where you predict good coverage (close to $0.95$)
+    and one where you predict bad coverage. Report the two empirical
+    coverage numbers.
+  \item[(c)] Explain in one paragraph \emph{why} the Wald form
+    under-covers in the bad regime. The argument should reference the
+    Normal approximation underlying the Wald form and identify what
+    fails when $\fprate$ sits near a boundary or $n_0$ is small. (No
+    rigorous derivation is needed; the explanation should be sound.)
+  \item[(d)] State which of the alternative intervals named in
+    \Cref{sec:sampling-rates} (Wilson, Clopper-Pearson, Jeffreys) you
+    would expect to perform better in your bad-coverage regime, and
+    briefly explain the intuition. Full derivations are deferred to
+    chapter 7.
+\end{enumerate}
+
+\end{enumerate}
