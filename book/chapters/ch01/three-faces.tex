@@ -30,10 +30,9 @@ each produce a single Boolean output that may be wrong. The first is a
 biased coin that reports an external state. The second is a one-bit
 communication channel that occasionally corrupts what it transmits. The
 third is a binary classifier that emits a verdict about each input it sees.
-We will look at each in turn, with no formalism beyond the most informal
-arithmetic. The question we want the reader to hold throughout this section
-is the same in every case: what is the abstract structure that all three
-share?
+We look at each in turn, with no formalism beyond informal arithmetic.
+The question to hold throughout: what is the abstract structure that
+all three share?
 
 \subsection*{Face 1: The biased coin}
 \label{subsec:biased-coin-intro}
@@ -52,17 +51,17 @@ parameters for how reliably the output tracks the input. The same flip
 mechanism is at work in both cases; what changes is how the coin is being
 held. In the language we are building toward, ``in'' is a positive
 condition and ``out'' is a negative condition, and the coin reports each
-with its own characteristic reliability. The biased coin will return as a
-running example throughout Part~I, first in
-\Cref{sec:asymmetric-channel} as an asymmetric channel and again as the
-worked example of the formal definition in \Cref{ch:axioms-kronecker}.
+with its own characteristic reliability. The biased coin returns as a running example throughout Part~I, first
+in \Cref{sec:asymmetric-channel} as an asymmetric channel and again as
+the worked example of the formal definition in \Cref{ch:axioms-kronecker}.
 
 \subsection*{Face 2: The binary symmetric channel}
 \label{subsec:bsc-intro}
 
 A single bit is transmitted across a noisy line: a wire, a wireless link,
 a chip-to-chip trace, or any one-bit communication path subject to
-disturbance. The line sends $\top$ or $\bot$ from sender to receiver, and
+disturbance. The line sends $\top$ or $\bot$ ($\top$ for true, $\bot$ for false,
+used throughout the book) from sender to receiver, and
 for each bit independently the line behaves as if a small probabilistic
 adversary acts on it. With probability $\fprate$ the line flips the bit;
 with probability $1 - \fprate$ it passes the bit through unchanged. The
@@ -71,7 +70,9 @@ being transmitted: a $\top$ flips to $\bot$ with probability $\fprate$,
 and a $\bot$ flips to $\top$ with the same probability $\fprate$.
 
 This object is the binary symmetric channel, and it is the simplest model
-of a noisy one-bit communication line. The symmetry assumption (one
+of a noisy one-bit communication line. The word \emph{channel} is borrowed
+from Shannon's information theory and is the standard name for any
+single-input, single-output stochastic transmission. The symmetry assumption (one
 parameter for both flip directions) is a strong one. Many real
 communication systems are asymmetric: a transistor pulled to ground may
 be more reliable than one held high; a photon detector may have a small
@@ -124,19 +125,27 @@ behavior in every case is characterized by at most two numbers: the rate
 of reporting $\top$ when the truth is $\bot$, and the rate of reporting
 $\bot$ when the truth is $\top$. The BSC happens to have a single
 parameter because its two rates are constrained to be equal; the coin
-and the spam filter need two. But in all three cases, two numbers
-suffice to describe everything probabilistic about the system at the
-single-query level.
+and the spam filter need two. In all three cases, two numbers suffice
+to describe everything probabilistic at the single-query level.
 
 We will call the abstract structure that all three share \emph{a noisy
 bit}.
+
+The three sections used three different letterings, by design: each
+example is more natural in its own vocabulary. The reconciliation is
+straightforward. The biased coin's $1 - \tau$ is the rate of reporting
+$\top$ when the truth is $\bot$, which the classifier section called
+$\fprate$. The coin's $1 - \omega$ is the rate of reporting $\bot$
+when the truth is $\top$, which the classifier called $\fnrate$. The
+binary symmetric channel is the special case in which these two rates
+are forced equal, and a single $\fprate = \fnrate$ suffices.
 
 The naming is deliberate. It captures three commitments we will hold to
 throughout Part~I. First, the object is atomic: a noisy bit has one
 Boolean input slot and one Boolean output slot, and nothing larger. (We
 will see in chapters 2 and 4 that everything bigger, multi-bit channels,
-multi-witness algorithms, classifier ensembles, is built up from noisy
-bits.) Second, the structure is purely behavioral: we say nothing about
+repeated-trial algorithms like Miller-Rabin, classifier ensembles, is
+built up from noisy bits.) Second, the structure is purely behavioral: we say nothing about
 how the noise arises, only about its rates. A biased coin, a thermal
 photon detector, and a logistic-regression classifier may have totally
 different mechanisms and identical noisy-bit profiles, and our framework
@@ -157,8 +166,7 @@ deferring the joint-probability formalism to chapter~4.
 from data, hooking the chapter's accompanying notebook.
 \Cref{sec:why-atom} closes the chapter by saying why this object earns
 the title ``atom'' and previews the algebraic development of chapters 2,
-3, and 4. The three faces introduced here will return at named points in
-each of those chapters; by the end of Part~I, each face will have been
-treated at four progressively tighter levels of formality, culminating
-in a single definition that retroactively justifies everything we say
-about it now.
+3, and 4. The three faces return at named points in each of those
+chapters; by the end of Part~I, each will have been treated at four
+progressively tighter levels of formality, culminating in a single
+definition that retroactively justifies everything we say about it now.
