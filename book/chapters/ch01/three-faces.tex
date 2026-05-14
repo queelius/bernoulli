@@ -39,9 +39,9 @@ all three share?
 
 Imagine a coin that is not quite fair, and whose bias depends on how it has
 been held. When you palm it ``in'' (cupped, warm side down) and flip, it
-lands heads with probability $\omega$. When you palm it ``out'' (cool side
-down) and flip, it lands heads with probability $1 - \tau$. The numbers
-$\omega$ and $\tau$ are properties of the coin and how it is being held.
+lands heads with probability $\tau$. When you palm it ``out'' (cool side
+down) and flip, it lands heads with probability $\epsilon$. The numbers
+$\tau$ and $\epsilon$ are properties of the coin and how it is being held.
 They need not be equal, and neither needs to be close to $1/2$.
 
 This is a contrived setup, on purpose. Read it as a thought-experiment
@@ -131,14 +131,13 @@ to describe everything probabilistic at the single-query level.
 We will call the abstract structure that all three share \emph{a noisy
 bit}.
 
-The three sections used three different letterings, by design: each
-example is more natural in its own vocabulary. The reconciliation is
-straightforward. The biased coin's $1 - \tau$ is the rate of reporting
-$\top$ when the truth is $\bot$, which the classifier section called
-$\fprate$. The coin's $1 - \omega$ is the rate of reporting $\bot$
-when the truth is $\top$, which the classifier called $\fnrate$. The
-binary symmetric channel is the special case in which these two rates
-are forced equal, and a single $\fprate = \fnrate$ suffices.
+The three sections used three vocabularies, by design: each face is more
+natural in its own letters. The reconciliation is direct. The biased
+coin's $\tau$ is the true-positive rate $\tprate = 1 - \fnrate$, and
+its $\epsilon$ is the false-positive rate $\fprate$. The classifier's
+$\fprate, \fnrate$ are the same quantities under different names. The
+binary symmetric channel is the special case where these two rates are
+forced to be equal: a single $\fprate = \fnrate$ suffices.
 
 The naming is deliberate. It captures three commitments we will hold to
 throughout Part~I. First, the object is atomic: a noisy bit has one

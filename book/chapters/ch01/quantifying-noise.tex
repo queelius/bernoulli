@@ -51,7 +51,9 @@ positive}. A pair where the truth is $\top$ but the output is $\bot$ is a
 \emph{false negative}, the noisy bit reported a $\bot$ when it should have
 reported $\top$. A pair where the truth is $\bot$ but the output is $\top$ is a
 \emph{false positive}. A pair where the truth is $\bot$ and the output is $\bot$
-is a \emph{true negative}.
+is a \emph{true negative}. A standing source of student confusion is that
+``false negative'' names the \emph{system output}, not the truth: a false
+negative is a $\bot$ output produced when the truth was $\top$.
 
 Let TP, FN, FP, and TN denote the counts of each joint state across the $n$
 trials. By construction $\textnormal{TP} + \textnormal{FN} + \textnormal{FP} +
@@ -126,6 +128,10 @@ The four rates used throughout this book have fixed Greek letters and fixed
   \item[$\tprate$ (\texttt{\textbackslash tprate})] true-positive rate, $= 1 - \fnrate$. Also called \emph{sensitivity} or \emph{recall}.
   \item[$\tnrate$ (\texttt{\textbackslash tnrate})] true-negative rate, $= 1 - \fprate$. Also called \emph{specificity}.
 \end{description}
+\noindent In the biased-coin vocabulary of \Cref{sec:three-faces}, $\tprate$
+was written $\tau$ and $\fprate$ was written $\epsilon$; here we adopt names
+that emphasize what each rate measures.
+
 \noindent The two free parameters of a generic noisy bit are $\fprate$ and
 $\fnrate$; the other two are derived. The binary symmetric channel of
 \Cref{sec:bsc} is the constrained case in which $\fprate = \fnrate$, and one
@@ -154,7 +160,9 @@ Precision is different. Its denominator is the column total $\textnormal{TP} +
 also on how many $\top$- and $\bot$-inputs were in the sample. Concretely, if
 the sample contains $n_\top$ positives and $n_\bot$ negatives with $n_\top +
 n_\bot = n$, then $\textnormal{TP} \approx n_\top \tprate$ and
-$\textnormal{FP} \approx n_\bot \fprate$, so
+$\textnormal{FP} \approx n_\bot \fprate$ (treating $\tprate$ and $\fprate$ as
+the population rates, this is the expected-count decomposition; for the
+finite-sample version see \Cref{sec:sampling-rates}), so
 \[
   \textnormal{precision}
   \;\approx\;
