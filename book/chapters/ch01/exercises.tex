@@ -26,15 +26,21 @@
 \begin{enumerate}
 
 % -----------------------------------------------------------------------
-% WARM-UP  (★ × 3)
+% Difficulty tiers (markers, not physical order): the exercises stay in
+% their natural teaching order; the star markers carry the difficulty.
+%   Warm-up      (★   × 3): exercises 1, 2, 3
+%   Medium       (★★  × 5): exercises 4, 5, 6, 8, 9
+%   Challenging  (★★★ × 3): exercises 7, 10, 11
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
 % -----------------------------------------------------------------------
 
 \item \exstar
 \label{ex:ch1-1}
 \textbf{Confusion matrix to rate conversion.}
 A binary classifier is evaluated on a labelled test set and produces the
-following counts: $\mathrm{TP} = 72$, $\mathrm{FP} = 8$, $\mathrm{FN} = 14$,
-$\mathrm{TN} = 106$.
+following counts: $\mathrm{TP} = 90$, $\mathrm{FP} = 10$, $\mathrm{FN} = 10$,
+$\mathrm{TN} = 90$.
 \begin{enumerate}
   \item[(a)] Compute the empirical false-positive rate $\hat{\fprate}$
     and false-negative rate $\hat{\fnrate}$ using the row-conditional
@@ -59,15 +65,15 @@ per-input rates).
   \item[(a)] For each of the three, identify what plays the role of the
     Boolean input and Boolean output, then write a rough estimate of
     $\fprate$ and $\fnrate$.
-  \item[(b)] Construct one explicit \emph{non-example}: a Boolean-output
-    system whose error behaviour is real but does \emph{not} fit the
-    noisy-bit model, because its per-input rates are not stable across
-    queries (the rates drift over time, depend on history, or depend on
-    inputs in a way the model cannot capture).
-  \item[(c)] In one sentence, identify which property of the noisy-bit
-    model your non-example violates. We return to non-examples like
-    this in chapter 16, which makes the failure modes of the model
-    its explicit subject.
+  \item[(b)] Construct one explicit \emph{non-example} whose per-input
+    error rates are not stable: they change over time, or depend on
+    which queries came before. The error behaviour is real, but the
+    rates are not the stable numbers the noisy-bit model of
+    \Cref{sec:quantifying-noise} assumes.
+  \item[(c)] In one sentence, identify the stability property of the
+    noisy-bit model that your non-example violates. We return to
+    non-examples like this in chapter 16, which makes the failure
+    modes of the model its explicit subject.
 \end{enumerate}
 
 \item \exstar
@@ -91,14 +97,16 @@ to 1.
     $\fnrate = \Pr\{Y = \bot \Given X = \top\}$ by dividing the
     appropriate cell by its row sum (\Cref{sec:quantifying-noise}).
   \item[(c)] Confirm that $\fprate$ and $\fnrate$ are properties of the
-    \emph{channel} (the conditional distribution $\Pr\{Y \Given X\}$),
-    independent of the prior on $X$. In one sentence, explain why this
-    independence is the reason the noisy-bit model uses two parameters
-    rather than four.
+    noisy bit itself, not of the prior $\Pr\{X = \top\}$: recompute
+    them for a different prior (say $\Pr\{X = \top\} = 0.5$) with the
+    same conditional behaviour, and check that they are unchanged. In
+    one sentence, explain why this independence from the prior is what
+    lets the noisy-bit model get by with two rates.
 \end{enumerate}
 
 % -----------------------------------------------------------------------
-% MEDIUM  (★★ × 5)
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 8, 9
+% (exercise 7 sits in the natural order here but is marked ★★★)
 % -----------------------------------------------------------------------
 
 \item \exstarstar
@@ -153,10 +161,13 @@ reports $\top$, $b'$ reports $\bot$, and vice versa. (No additional
 randomness is introduced; $b'$ is a deterministic relabelling of the
 output of $b$.)
 \begin{enumerate}
-  \item[(a)] Write the channel matrix of $b$ in the conditional form
-    $\Pr\{Y \Given X\}$ from \Cref{sec:quantifying-noise}.
-  \item[(b)] Apply the output swap to $b$ and write the channel matrix
-    of $b'$ in the same conditional form.
+  \item[(a)] Write out the four conditional probabilities
+    $\Pr\{Y = \top \Given X = \top\}$, $\Pr\{Y = \bot \Given X = \top\}$,
+    $\Pr\{Y = \top \Given X = \bot\}$, $\Pr\{Y = \bot \Given X = \bot\}$
+    for $b$, following the row-conditional convention of
+    \Cref{sec:quantifying-noise}.
+  \item[(b)] Apply the output swap to $b$ and write out the same four
+    conditional probabilities for $b'$.
   \item[(c)] Read off the rates of $b'$. Show that $\fprate' = \fnrate$
     and $\fnrate' = \fprate$.
   \item[(d)] Conclude that NOT acts on the parameter pair as the swap
@@ -165,27 +176,30 @@ output of $b$.)
     $[0,1]^2$.
 \end{enumerate}
 
-\item \exstarstar
+\item \exstarstarstar
 \label{ex:ch1-7}
-\textbf{ROC curve parameterized by threshold.}
-A score-based classifier produces a real-valued score $s(x) \in [0, 1]$
-on each input $x$ and reports $\top$ if and only if $s(x) > \theta$ for a
+\textbf{Threshold sweep and the error-rate trade-off curve.}
+A score-based classifier produces a score $s(x) \in [0, 1]$ on each
+input $x$ and reports $\top$ if and only if $s(x) > \theta$ for a
 threshold $\theta$. For each value of $\theta$, the system is a noisy
-bit with rates that depend on $\theta$.
+bit with rates $\fprate(\theta)$ and $\fnrate(\theta)$ that depend on
+$\theta$.
 \begin{enumerate}
-  \item[(a)] Write $\fprate(\theta)$ and $\fnrate(\theta)$ as conditional
-    probabilities involving the score distribution under $X = \bot$ and
-    under $X = \top$ respectively, following the row-conditional
-    convention of \Cref{sec:quantifying-noise}.
-  \item[(b)] As $\theta$ increases from $0$ to $1$, describe in two
-    sentences how $\fprate(\theta)$ and $\fnrate(\theta)$ each change.
-    Be explicit about whether each is monotone in $\theta$ and in which
-    direction.
-  \item[(c)] The ROC curve is the trace of $(\fprate(\theta),
-    \fnrate(\theta))$ as $\theta$ sweeps. State qualitatively what the
-    curve looks like at the two endpoints $\theta = 0$ and $\theta = 1$,
-    and explain why the curve passes through both corners $(0, 1)$
-    and $(1, 0)$ of the parameter plane.
+  \item[(a)] As $\theta$ increases from $0$ to $1$, describe what
+    happens to $\fprate(\theta)$ and $\fnrate(\theta)$: which one
+    increases, which one decreases, and why. (You do not need a
+    formula; reason from the threshold rule of \Cref{sec:quantifying-noise}.)
+  \item[(b)] At $\theta = 0$ the classifier reports $\top$ for almost
+    every input; at $\theta = 1$ it reports $\bot$ for almost every
+    input. Give the $(\fprate, \fnrate)$ pair at each of these two
+    extremes.
+  \item[(c)] The curve traced by $(\fprate(\theta), \fnrate(\theta))$
+    as $\theta$ sweeps from $0$ to $1$ is the trade-off curve between
+    the two error rates. The standard \emph{ROC curve} plots the
+    true-positive rate against the false-positive rate, which is the
+    same information re-axed. Sketch (in words) the shape of the
+    $(\fprate, \fnrate)$ trade-off curve, and explain why a classifier
+    cannot in general drive both rates to zero at once.
 \end{enumerate}
 
 \item \exstarstar
@@ -210,10 +224,11 @@ Suppose we want the standard error to satisfy $\sqrt{\Var(\hat{\fprate})}
 \end{enumerate}
 
 % -----------------------------------------------------------------------
-% CHALLENGING / EXTENSION  (★★★ × 3)
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 7, 10, 11
+% (exercise 9 sits in the natural order here but is marked ★★)
 % -----------------------------------------------------------------------
 
-\item \exstarstarstar
+\item \exstarstar
 \label{ex:ch1-9}
 \textbf{Informal LLN argument for $\hat{\fprate} \to \fprate$.}
 Argue informally that under iid sampling, the empirical estimator
@@ -242,27 +257,31 @@ rate $\fprate$ in probability as $n_0 \to \infty$.
 
 \item \exstarstarstar
 \label{ex:ch1-10}
-\textbf{A system that looks like a noisy bit but is not one.}
+\textbf{Stable rates, correlated errors.}
 The noisy-bit model rests on two assumptions: the per-input rates are
 stable across queries, and the noise events on different queries are
 independent. Construct an explicit Boolean-input, Boolean-output system
-that violates at least one of these assumptions in a way that real
-practitioners might fail to notice.
+with \emph{stable} per-input rates whose errors are nonetheless
+\emph{correlated} across queries, so that a naive iid estimator
+misjudges its behaviour.
 \begin{enumerate}
   \item[(a)] Construct the system. Specify the input domain (Boolean),
     the output domain (Boolean), and the mechanism that determines the
     output given the input. The mechanism must produce a well-defined
-    Boolean output on every query, but its statistical behaviour must
-    fall outside the noisy-bit model in a stated way.
-  \item[(b)] Identify which assumption your system violates: stable
-    per-input rates, query-independence, or both. For each violated
-    assumption, give a one-sentence explanation of how the mechanism
-    causes the violation.
+    Boolean output on every query and must have well-defined, stable
+    per-input rates $\fprate$ and $\fnrate$, but the error events on
+    successive queries must be statistically dependent in a stated way.
+  \item[(b)] Identify precisely how the independence assumption fails:
+    describe the dependence between the error event on one query and
+    the error event on the next, and confirm in one sentence that the
+    per-input rates themselves are still stable (so it is independence,
+    not stability, that breaks).
   \item[(c)] Argue that a naive observer who computes $\hat{\fprate}$
-    and $\hat{\fnrate}$ from a sample of queries on your system would
-    produce numerical estimates that do not characterize the system in
-    the way the noisy-bit model implies. Be specific about what they
-    would miss.
+    and $\hat{\fnrate}$ from a sample of queries, and then treats those
+    estimates as if the queries were iid, would misjudge the system. Be
+    specific: the point estimates may be fine, but what quantity (an
+    error bar, a coverage claim, a sample-size requirement) would they
+    get wrong, and in which direction?
   \item[(d)] Chapter 16 is the negative-space chapter of the book: its
     explicit subject is what fails to fit the model. Your construction
     is a candidate worked example for that chapter; in one sentence,
@@ -272,9 +291,9 @@ practitioners might fail to notice.
 \item \exstarstarstar
 \label{ex:ch1-11}
 \textbf{Stress test of the notebook coverage estimator.}
-The chapter 1 notebook runs a Wald-interval coverage check that
-empirically counts the fraction of $95\%$ intervals containing the true
-$\fprate$. \Cref{sec:sampling-rates} flags the under-coverage caveat:
+The chapter 1 notebook \texttt{python/notebooks/ch01-noisy-bit.ipynb}
+runs a Wald-interval coverage check that empirically counts the
+fraction of $95\%$ intervals containing the true $\fprate$. \Cref{sec:sampling-rates} flags the under-coverage caveat:
 the Wald form is asymptotically correct but is known to under-cover at
 small $n_0$ when $\fprate$ sits near $0$ or $1$.
 \begin{enumerate}
