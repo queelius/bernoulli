@@ -26,7 +26,10 @@
 A noisy bit has two possible inputs and two possible outputs. The truth on
 any given trial is either $\top$ or $\bot$, and the reported value is also
 either $\top$ or $\bot$. Cross those two binary choices and four
-input-output combinations exhaust the joint behavior of the device. We
+input-output combinations exhaust the joint behavior of the device. You
+have already seen this $2 \times 2$ grid in \Cref{sec:quantifying-noise},
+but as a table of counts; here we look at it as a table of \emph{outcome
+types}, the four ways a noisy bit's trial can turn out. We
 arrange the combinations in a $2 \times 2$ outcome matrix indexed by the
 true input (rows) and the observed report (columns):
 
@@ -167,10 +170,11 @@ takes the bridge.
 
 \subsection*{Where the chapter goes from here}
 
-We now have the conceptual picture of the four cells but no data on how
-they actually fill. \Cref{sec:sampling-rates} takes the next step:
-it asks how the noisy bit is sampled in practice and how the rates of
-\Cref{sec:quantifying-noise} are estimated from a finite number of
-trials. That returns the chapter to concrete arithmetic and sets up the
-question, picked up by chapters 2 through 4, of what an algebra of these
-noisy bits looks like.
+This section has named four cells of the joint distribution but refused
+to write down the joint distribution itself. \Cref{sec:sampling-rates}
+takes the next concrete step: you can \emph{measure} what is in those
+cells, by sampling, even before \Cref{sec:bernoulli-bool-formal} writes
+the joint formula. Estimation and formalization meet later; in
+\Cref{sec:sampling-rates} we start estimating. That returns the chapter
+to concrete arithmetic and sets up the question, picked up by chapters 2
+through 4, of what an algebra of these noisy bits looks like.
