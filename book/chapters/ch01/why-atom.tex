@@ -61,6 +61,16 @@ composition rule, from noisy bits. The atom is the smallest object
 that the framework's machinery applies to without itself invoking the
 machinery.
 
+A second sense of atomicity is worth flagging now.
+\Cref{sec:model-order} will define the \emph{model order} of a noisy
+system: the number of equivalence classes the input domain splits
+into. A noisy bit has model order two ($B_1 = \{\top\}$, $B_2 =
+\{\bot\}$), the smallest non-trivial value; everything richer is built
+by composition from objects whose model order is exactly two. The
+noisy bit is atomic not only because Booleans are indivisible but
+because its channel matrix has the smallest non-trivial structure any
+noisy system can have.
+
 That commitment is empty until we discharge it. The next three
 chapters do the discharging in three different directions.
 
@@ -103,9 +113,12 @@ distribution over a block of inputs factors as a tensor product of the
 per-element channel matrices, which is what makes the per-element
 description sufficient. Chapter 4 then writes the formal definition
 $\Bernoulli{\BoolType} = (X, Y, Q)$
-(\Cref{sec:bernoulli-bool-formal}) and shows that every concrete object
-chapters 1 through 3 worked with is an instance of it. The atom is
-characterized axiomatically, not just by example.
+(\Cref{sec:bernoulli-bool-formal}), where $X$ is the input domain, $Y$
+is the output report, and $Q$ is the channel matrix that chapter 2
+will introduce. The triple ties the chapter 1, chapter 2, and chapter 4
+threads together in a single object, and chapter 4 shows that every
+concrete object chapters 1 through 3 worked with is an instance of it.
+The atom is characterized axiomatically, not just by example.
 
 \subsection*{Miller-Rabin: a familiar algorithm in unfamiliar dress}
 
@@ -171,4 +184,7 @@ retrieval, and the original Miller and Rabin papers on primality
 testing. The historical record will tell us that almost every
 component of chapter 1 was already in use somewhere; what is new is
 the decision to treat them all as one object and to call that object
-an atom.
+an atom. Chapter 1 has done what chapter 1 should do, namely shown
+the framework's atom, named it, and pointed at the algebra the rest
+of Part~I unfolds; everything that follows is composition, and the
+atom is what gets composed.
