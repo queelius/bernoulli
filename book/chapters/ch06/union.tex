@@ -73,37 +73,75 @@ two operand predicates are, and its rates will follow from the rates
 of the operands together with the OR-gate analysis already done in
 \Cref{ch:boolean-algebra}.
 
-\subsection*{The Bloom filter case: bit-wise OR}
+\subsection*{Two realizations on Bloom filters: predicate-OR and bit-OR-Bloom}
 
-When both operands are Bloom filters with the same parameters, the
-union has a strikingly compact operational realization. Suppose
-$\ASet{A}$ is the Bloom filter $(b_1, h_1, \ldots, h_k)$ for a set
-$A$ and $\ASet{B}$ is the Bloom filter $(b_2, h_1, \ldots, h_k)$ for
-a set $B$, using the same bit-array size $m$ and the same hash family
-$h_1, \ldots, h_k$. Then the bit-wise OR $b_1 \lor b_2$ of their two
-bit arrays is itself a Bloom filter with parameters $(m, k)$ that
-represents a superset of $A \cup B$ and reports $\top$ on every
-member of $A \cup B$ with certainty.
+\Cref{def:union-of-sets} commits to a predicate-level operation:
+evaluate $\ASet{A}(x)$, evaluate $\ASet{B}(x)$, take the Boolean OR
+of the two outputs. We call this realization \emph{predicate-OR}.
+It keeps the two filters as separate objects and asks two queries per
+lookup. The proposition derived below (\Cref{prop:union-fpr-fnr}) and
+its formula $1 - (1 - \fprate_A)(1 - \fprate_B)$ describe this
+construction and only this one.
 
-The argument is direct. A query for $x$ against the bit-OR filter
-returns $\top$ when $(b_1 \lor b_2)[h_i(x)] = 1$ for every
-$i \in \{1, \ldots, k\}$; equivalently, when $b_1[h_i(x)] = 1$ or
-$b_2[h_i(x)] = 1$ for every $i$. Every element of $A$ has all its
-$k$ bits set in $b_1$, hence all $k$ bits set in $b_1 \lor b_2$;
-every element of $B$ has all its $k$ bits set in $b_2$, hence in
-$b_1 \lor b_2$. The query therefore returns $\top$ on every member
-of $A \cup B$, and the union filter remains FNR-zero by the same
-monotonicity argument as \Cref{def:bloom-filter}. False positives
-can arise from coincidental patterns in the OR'd array; the rate of
-that event is what the next subsection derives.
+When both operands are Bloom filters with the same parameters, a
+tempting operational shortcut presents itself. Suppose $\ASet{A}$ is
+the Bloom filter $(b_1, h_1, \ldots, h_k)$ for a set $A$ and
+$\ASet{B}$ is the Bloom filter $(b_2, h_1, \ldots, h_k)$ for a set
+$B$, using the same bit-array size $m$ and the same hash family
+$h_1, \ldots, h_k$. The bit-wise OR $b_1 \lor b_2$ is itself a
+length-$m$ bit array, and one can query the combined bitmap with a
+single $k$-position lookup. Call this realization
+\emph{bit-OR-Bloom}: one bitmap, one query, one returned verdict.
+It is a different operation from predicate-OR, and it gives a
+different FPR.
 
-The bit-wise OR construction is the canonical implementation of Bloom
-union and is the example chapter~6 keeps returning to. The
-construction requires the two filters to share parameters and hash
-family; bit-wise OR between filters with different hash families
-produces a bit array whose query behavior does not correspond to any
-clean set-level operation. Exercises in this chapter and the chapter
-notebook revisit this constraint.
+Both realizations preserve FNR-zero on FNR-zero operands. For
+bit-OR-Bloom: every element of $A$ has its $k$ bits set in $b_1$,
+hence in $b_1 \lor b_2$, and symmetrically for $B$, so every member
+of $A \cup B$ is reported $\top$ with certainty. For predicate-OR:
+each operand correctly reports $\top$ on its inserted items, and the
+OR of any two outputs containing a $\top$ is $\top$.
+
+The two realizations diverge on false positives. Bit-OR-Bloom is
+exactly a Bloom filter with parameters $(m, k)$ holding the union of
+inserted items, so its FPR is
+\begin{equation}
+\label{eq:bit-or-bloom-fpr}
+  \fprate_{\text{bit-OR}}
+  \;\approx\; \bigl(1 - e^{-k(n_A + n_B)/m}\bigr)^k,
+\end{equation}
+the chapter 5 Bloom-filter formula evaluated at the combined item
+count $n_A + n_B$. This is materially different from the predicate-OR
+rate $1 - (1 - \fprate_A)(1 - \fprate_B)$. At $m = 5000$, $k = 7$,
+$n_A = n_B = 500$, the per-filter rate is $\fprate \approx 0.0082$;
+predicate-OR gives $\approx 0.0163$ while
+\eqref{eq:bit-or-bloom-fpr} gives $\approx 0.137$, an order of
+magnitude higher. The chapter notebook measures both and recovers
+each formula within sampling noise.
+
+The gap is structural. Predicate-OR asks
+$(\,\forall i: b_1[h_i(x)] = 1\,) \lor (\,\forall i: b_2[h_i(x)] = 1\,)$:
+one filter must have \emph{all} $k$ bits set for the query to pass.
+Bit-OR-Bloom asks $\forall i: (b_1[h_i(x)] = 1 \lor b_2[h_i(x)] = 1)$:
+at every queried position, \emph{either} filter's bit suffices, and
+the responsible filter may differ position by position. Queries that
+fail predicate-OR can pass bit-OR-Bloom by combining bits from
+different sources, so bit-OR-Bloom is the more permissive operation
+and carries the larger FPR.
+
+Predicate-OR is the union of approximate sets in the sense of
+\Cref{def:union-of-sets}: the lift of $\lor$ at the predicate level,
+inheriting its rates from the composition theorem of
+\Cref{ch:boolean-algebra}. Bit-OR-Bloom is a different data-structure
+choice, the choice of inserting both sets into a single Bloom filter
+to save one bitmap and one $k$-position lookup per query, paid for by
+the higher FPR of \eqref{eq:bit-or-bloom-fpr}. Bit-OR-Bloom also
+requires the two operand filters to share parameters and hash family;
+bit-wise OR between filters with different hash families produces a
+bit array whose query behavior does not correspond to any clean
+set-level operation. Predicate-OR is well-defined regardless.
+Exercises in this chapter and the chapter notebook revisit these
+distinctions.
 
 \subsection*{False-positive rate}
 
@@ -217,16 +255,22 @@ sit on the FNR-zero axis of the perfect filter line. The union has
 \]
 The union FNR is $\fnrate_\cup = 0$, by direct inspection
 of~\eqref{eq:union-fnr} with $\fnrate_A = \fnrate_B = 0$: every term
-in the weighted sum vanishes. The conclusion is operationally
-familiar from the bit-wise OR realization: an element inserted into
-either filter has its $k$ bits set in one of the two bit arrays,
-hence in their OR. The union of two FNR-zero Bloom filters is itself
-an FNR-zero approximate set, with the slightly elevated false-positive
-rate that the formula prescribes. The increase from $0.02$ (the worse
-operand) to $0.0298$ is the price of the OR composition; the
-multiplicative second-order term $\fprate_A \fprate_B = 0.0002$ is
-small relative to the additive part, so for small operand rates the
-union FPR is well-approximated by the sum $\fprate_A + \fprate_B$.
+in the weighted sum vanishes. Both realizations of the union
+preserve FNR-zero: predicate-OR because the OR of two correct
+$\top$'s is $\top$, and bit-OR-Bloom because every member of either
+operand set still has all $k$ bits set in the OR'd array. The
+arithmetic above, however, is the predicate-OR FPR: it composes the
+two operand rates via $1 - (1 - \fprate_A)(1 - \fprate_B)$, the rate
+of the Boolean OR of two independent operand verdicts. The bit-OR-Bloom
+realization would give a different (larger) number through
+\eqref{eq:bit-or-bloom-fpr}, since merging two filters into one
+bitmap inflates the load.
+
+The increase from $0.02$ (the worse operand) to $0.0298$ is the price
+of the OR composition; the multiplicative second-order term
+$\fprate_A \fprate_B = 0.0002$ is small relative to the additive
+part, so for small operand rates the union FPR is well-approximated
+by the sum $\fprate_A + \fprate_B$.
 
 \subsection*{Connection to the composition theorem}
 
