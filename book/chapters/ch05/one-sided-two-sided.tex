@@ -73,15 +73,18 @@ all, and is excluded from \Cref{def:one-sided}.
 \subsection*{Why FNR-zero is the natural default for insertion-only structures}
 
 The Bloom filter's FNR-zero property was structural, not designed. The
-insert operation sets bits to $1$, and no operation ever resets them;
-a subsequent query for an inserted item reads bits that were set, so
-the query returns $\top$ regardless of what else has happened since.
-The argument depended only on the monotonicity of the bit array.
-Insertions go up, never down. Any data structure built on the same
-monotone-insert primitive shares the property: counting sketches keyed
-by hash, summary structures over append-only logs, and any
-representation of an insertion-only bit-set query (read what was
-written) are one-sided in FNR for the same structural reason.
+insert operation sets bits to $1$, and no operation in the chosen
+insertion-only API ever resets them; a subsequent query for an inserted
+item reads bits that were set, so the query returns $\top$ regardless
+of what else has happened since. The argument depended only on the
+monotonicity of the bit array under that API. Insertions go up, never
+down. Any data structure built on the same monotone-insert primitive
+shares the property: counting sketches keyed by hash, summary
+structures over append-only logs, and any representation of an
+insertion-only bit-set query (read what was written) are one-sided
+in FNR for the same structural reason. (Counting Bloom filters, taken
+up below, restore deletions by storing small integer counters in place
+of bits, paying for that change of API with $\fnrate > 0$.)
 
 The asymmetry runs the other way. Forcing $\fprate = 0$ on a designated
 set, while keeping $\fnrate > 0$ elsewhere, requires the construction
@@ -121,22 +124,25 @@ sketches are typically two-sided on derived predicates. The trade is
 honest: dropping one side of the asymmetry frees the construction to
 use space more aggressively.
 
-A worked comparison makes the size of the trade visible. A Bloom
-filter with target $\fprate = 0.01$ and $\fnrate = 0$ requires
-$m \approx 10\, n \log_2 e \approx 14.4\, n$ bits, by the optimal-$k$
-formula of \Cref{sec:bloom-from-scratch} solved for $m/n$ at the
-given $\fprate$. Suppose a hypothetical two-sided set achieves
-$\fprate = \fnrate = 0.05$ at $m \approx 7\, n$ bits. On a balanced
-workload of $1000$ in-set and $1000$ out-of-set queries, the Bloom
-filter expects $0.01 \cdot 1000 = 10$ false positives and $0$ false
-negatives. The two-sided set expects $0.05 \cdot 1000 + 0.05 \cdot
-1000 = 100$ misclassifications, ten times more, but in roughly half
-the space. The hypothetical framing is honest: chapter~14's Bernoulli
-Hash Function is the real space-optimal one-sided construction, and
-actual two-sided constructions that beat the Bloom filter are more
-constrained than the comparison suggests. The point is the qualitative
-shape. One-sidedness is paid for in bits, and a less safety-conscious
-construction can in principle spend those bits elsewhere.
+A bit-budget comparison makes the size of the trade visible. By the
+optimal-$k$ formula of \Cref{sec:bloom-from-scratch}, a Bloom filter
+at $\fprate = 0.01$ and $\fnrate = 0$ requires
+$m \approx 1.44 \, n \log_2(1/\fprate) \approx 9.6 \, n$ bits, since
+$\log_2(100) / \ln 2 \approx 9.58$. Chapter~8 will show that the
+information-theoretic floor for an FNR-zero approximate set at the
+same $\fprate$ is $n \log_2(1/\fprate) = n \log_2 100 \approx 6.64 \, n$
+bits per element, so the Bloom filter pays a $9.6 / 6.64 \approx 1.44 \times$
+overhead above the floor that any FNR-zero construction must respect.
+That fixed overhead is the standard literature's $\log_2 e \approx 1.44$
+constant, and chapter~14's Bernoulli Hash Function is the construction
+that closes the gap.
+A two-sided set is not bound by the same one-sided floor at $\fprate$,
+because it can split its error budget across both directions. Splitting
+the budget can purchase space below the FNR-zero floor, but it spends
+the certain $\bot$ that the Bloom filter buys with its extra bits.
+The qualitative shape is what matters here. One-sidedness is paid for
+in bits, and a construction that gives up the certain direction can
+in principle spend those bits elsewhere.
 
 \subsection*{The perfect filter line}
 
