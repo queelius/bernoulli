@@ -1,1 +1,343 @@
-% Placeholder. Drafted in Plan 6 Task 3.
+% §6.2 Intersection, Complement, Difference
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:other-set-ops}                   -- this section
+%   \label{def:intersection-of-sets}            -- intersection definition
+%   \label{prop:intersection-fpr-fnr}           -- intersection rate proposition
+%   \label{def:complement-of-set}               -- complement definition
+%   \label{prop:complement-swap}                -- complement rate proposition
+%   \label{def:difference-of-sets}              -- difference definition
+%   \label{prop:difference-fpr-fnr}             -- difference rate proposition
+%
+% ALREADY DEFINED (chapter 3):
+%   \Cref{ch:boolean-algebra}                   -- chapter 3
+%   \Cref{sec:composition-theorem}              -- chapter 3 §3.3
+%   \Cref{thm:composition}                      -- chapter 3 §3.3
+%   \Cref{sec:or-not}                           -- chapter 3 §3.2
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{ch:approximate-sets}                  -- chapter 5
+%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2
+%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
+%   \Cref{def:one-sided}                        -- chapter 5 §5.4
+%
+% ALREADY DEFINED (chapter 6, earlier sections):
+%   \Cref{sec:union-of-sets}                    -- §6.1
+%   \Cref{prop:union-fpr-fnr}                   -- §6.1
+%   \Cref{eq:union-fpr}                         -- §6.1
+%
+% FORWARD REFS within chapter 6 (resolve in later Plan 6 tasks):
+%   \Cref{sec:cancellation}                     -- §6.3 (Task 4)
+%   \Cref{sec:perfect-filter-line}              -- §6.4 (Task 5)
+
+\section{Intersection, Complement, Difference}
+\label{sec:other-set-ops}
+
+The union of \Cref{sec:union-of-sets} was the first compositional step.
+The Boolean algebra of classical sets has three other operations to
+account for: intersection, complement, and difference. Each lifts to
+approximate sets in the same way the union did. The membership
+predicate of the composed set is a Boolean combination of the operand
+predicates, and the rates of the composed set follow from the
+corresponding gate analysis of \Cref{ch:boolean-algebra} together with
+the cross-set independence assumption already invoked in §6.1. This
+section takes the three operations in turn, derives the rate formulas,
+collects them in a worked numerical example, and signposts the
+cancellation phenomena that §6.3 will scrutinize.
+
+\subsection*{Intersection}
+
+A classical intersection $A \cap B$ has the AND of the two operand
+membership predicates: $\SetIndicator{A \cap B}(x) = \SetIndicator{A}(x)
+\land \SetIndicator{B}(x)$. The predicate framing carries over.
+
+\begin{definition}[Intersection of approximate sets]
+\label{def:intersection-of-sets}
+Let $\ASet{A}, \ASet{B} : \Universe \to \Bernoulli{\BoolType}$ be two
+approximate sets over the same universe $\Universe$. Their
+\emph{intersection} $\ASet{A} \cap \ASet{B}$ is the approximate set
+whose membership predicate is the Boolean AND of the two operand
+predicates: for every $x \in \Universe$,
+\[
+  (\ASet{A} \cap \ASet{B})(x) \;=\; \ASet{A}(x) \,\land\, \ASet{B}(x).
+\]
+The intersection approximates the objective set $A \cap B$, where $A$
+and $B$ are the objective sets that $\ASet{A}$ and $\ASet{B}$
+represent.
+\end{definition}
+
+The operational realization for two Bloom filters with the same
+parameters and the same hash family is the bit-wise AND of the two
+bit arrays, in the same spirit as the bit-wise OR for union. The
+bit-AND construction has a subtlety we will flag at the end of this
+subsection; the predicate-level definition above is unambiguous and is
+the one the rate algebra operates on.
+
+\begin{proposition}[Intersection rate formulas]
+\label{prop:intersection-fpr-fnr}
+Let $\ASet{A}$ and $\ASet{B}$ be approximate sets of $A, B \subseteq
+\Universe$ with per-block rates $(\fprate_A, \fnrate_A)$ and
+$(\fprate_B, \fnrate_B)$ respectively. Assume the error events of the
+two operands at every query point $x$ are mutually independent (the
+same cross-set independence assumption as~\Cref{prop:union-fpr-fnr}).
+Then the intersection $\ASet{A} \cap \ASet{B}$ has false-negative rate
+\begin{equation}
+\label{eq:intersection-fnr}
+  \fnrate_\cap \;=\; 1 - (1 - \fnrate_A)(1 - \fnrate_B),
+\end{equation}
+and false-positive rate
+\begin{equation}
+\label{eq:intersection-fpr}
+  \fprate_\cap \;=\; \fprate_A \cdot \fprate_B
+\end{equation}
+on negatives at which the two operand sets agree (the bulk regime;
+see below).
+\end{proposition}
+
+\paragraph{FNR derivation.}
+Fix a query point $x \in A \cap B$. Both operand predicates should
+report $\top$. A false negative of the intersection occurs when at
+least one of the two reports $\bot$, that is, when the AND fails to be
+$\top$. We compute the false-negative event as the complement of the
+joint correct-report event:
+\begin{align*}
+  \Prob{(\ASet{A} \cap \ASet{B})(x) = \bot \Given x \in A \cap B}
+  &= 1 - \Prob{\ASet{A}(x) = \top,\, \ASet{B}(x) = \top
+       \Given x \in A,\, x \in B} \\
+  &= 1 - \Prob{\ASet{A}(x) = \top \Given x \in A}\,
+         \Prob{\ASet{B}(x) = \top \Given x \in B} \\
+  &= 1 - (1 - \fnrate_A)(1 - \fnrate_B).
+\end{align*}
+The probability is the same for every $x \in A \cap B$, so the
+intersection's false-negative rate is~\eqref{eq:intersection-fnr}. The
+formula is the dual of the union FPR~\eqref{eq:union-fpr} with
+$\fnrate$ in place of $\fprate$, exactly as De Morgan duality leads us
+to expect.
+
+\paragraph{FPR derivation, simplified.}
+A false positive of the intersection requires both operand predicates
+to report $\top$ at an $x \notin A \cap B$. For $x \notin A$ and
+$x \notin B$ simultaneously, the two reports are false positives of the
+operands with conditional probabilities $\fprate_A$ and $\fprate_B$, so
+by cross-set independence the joint event has probability
+$\fprate_A \cdot \fprate_B$, giving~\eqref{eq:intersection-fpr}. The
+full intersection FPR mixes this contribution with two boundary regions
+where $x$ lies in exactly one operand set; the resulting weighted
+average is bounded above by $\fprate_A + \fprate_B$ and below by
+$\fprate_A \cdot \fprate_B$, and the simplified form is exact when the
+two operand sets coincide on the negatives of the intersection. We
+adopt~\eqref{eq:intersection-fpr} as the working formula for the
+intersection FPR; the full mixture appears in the
+\Cref{prop:union-fpr-fnr}-style derivation that the
+companion composition paper records.
+
+\paragraph{The multiplicative shape matters.}
+The intersection FPR is the \emph{product} of the operand FPRs, not a
+sum. For small operand rates the contrast with the union is sharp:
+two filters at $\fprate \approx 0.01$ give a union FPR near $0.02$ but
+an intersection FPR near $0.0001$. Intersection drives false positives
+exponentially toward zero with the number of independent filters; union
+inflates them roughly linearly. The dual fact for false negatives is
+that intersection's FNR adds in the same inclusion-exclusion sense the
+union's FPR did, while union's FNR is multiplicative across the
+regions where both operands could miss.
+
+\subsection*{Complement}
+
+Complement is the simplest of the three operations to analyze.
+
+\begin{definition}[Complement of an approximate set]
+\label{def:complement-of-set}
+Let $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ be an approximate
+set of $A \subseteq \Universe$. Its \emph{complement}
+$\complement \ASet{A}$ is the approximate set whose membership
+predicate is the Boolean NOT of $\ASet{A}$'s predicate:
+$(\complement \ASet{A})(x) = \lnot \ASet{A}(x)$.
+The complement approximates the classical complement
+$\complement A = \Universe \setminus A$.
+\end{definition}
+
+\begin{proposition}[Complement-swap of rates]
+\label{prop:complement-swap}
+If $\ASet{A}$ has per-block rates $(\fprate_A, \fnrate_A)$, then its
+complement $\complement \ASet{A}$ has rates
+\begin{equation}
+\label{eq:complement-swap}
+  \fprate_\complement = \fnrate_A, \qquad \fnrate_\complement = \fprate_A.
+\end{equation}
+\end{proposition}
+
+The result is the set-level reading of the NOT-under-noise calculation
+already done in \Cref{sec:or-not} at the per-bit level, lifted from
+the noisy bit to the noisy predicate. We give the two-line proof.
+
+A false positive of $\complement \ASet{A}$ is the event that the truth
+says negative and the report says positive on the complement side:
+$x \in \complement A$ is false (so $x \in A$) while
+$\complement \ASet{A}(x) = \top$ (so $\ASet{A}(x) = \bot$). The
+combined event is $\ASet{A}(x) = \bot$ given $x \in A$, which is a
+false negative of $\ASet{A}$ at rate $\fnrate_A$. So
+$\fprate_\complement = \fnrate_A$. Dually, a false negative of
+$\complement \ASet{A}$ is the event $x \in \complement A$ true (so
+$x \notin A$) while $\complement \ASet{A}(x) = \bot$ (so
+$\ASet{A}(x) = \top$). The combined event is $\ASet{A}(x) = \top$
+given $x \notin A$, which is a false positive of $\ASet{A}$ at rate
+$\fprate_A$. So $\fnrate_\complement = \fprate_A$. The two rates
+swap, as~\eqref{eq:complement-swap} records.
+
+The same result was proven at the noisy-bit level in \Cref{sec:or-not}.
+The lifting to the set level uses the predicate framing of
+\Cref{ch:approximate-sets} and nothing else. NOT is its own inverse:
+applying complement twice returns the original rates,
+$(\fprate_A, \fnrate_A) \mapsto (\fnrate_A, \fprate_A) \mapsto
+(\fprate_A, \fnrate_A)$. The complement operation is an involution on
+the rate plane $[0, 1]^2$, exchanging the two coordinate axes.
+
+\subsection*{Difference}
+
+Set difference is intersection with the complemented second operand.
+
+\begin{definition}[Difference of approximate sets]
+\label{def:difference-of-sets}
+For approximate sets $\ASet{A}, \ASet{B}$ over $\Universe$, the
+\emph{difference} $\ASet{A} \setminus \ASet{B}$ is the approximate set
+whose membership predicate is $\ASet{A}(x) \land \lnot \ASet{B}(x)$;
+equivalently, $\ASet{A} \setminus \ASet{B} = \ASet{A} \cap \complement
+\ASet{B}$. It approximates the classical difference
+$A \setminus B = A \cap \complement B$.
+\end{definition}
+
+\begin{proposition}[Difference rate formulas]
+\label{prop:difference-fpr-fnr}
+Under the same cross-set independence as
+\Cref{prop:intersection-fpr-fnr}, the difference $\ASet{A} \setminus
+\ASet{B}$ has false-positive rate
+\begin{equation}
+\label{eq:difference-fpr}
+  \fprate_\setminus \;=\; \fprate_A \cdot \fnrate_B
+\end{equation}
+on the bulk negative region, and false-negative rate
+\begin{equation}
+\label{eq:difference-fnr}
+  \fnrate_\setminus \;=\; 1 - (1 - \fnrate_A)(1 - \fprate_B).
+\end{equation}
+\end{proposition}
+
+The proof is compositional. The complement of $\ASet{B}$ has rates
+$(\fprate_B^\complement, \fnrate_B^\complement) = (\fnrate_B,
+\fprate_B)$ by \Cref{prop:complement-swap}. Substitute these into the
+intersection formulas of \Cref{prop:intersection-fpr-fnr} applied to
+$\ASet{A}$ and $\complement \ASet{B}$:
+\[
+  \fprate_\setminus
+  \;=\; \fprate_A \cdot \fprate_B^\complement
+  \;=\; \fprate_A \cdot \fnrate_B,
+\]
+which is~\eqref{eq:difference-fpr}, and
+\[
+  \fnrate_\setminus
+  \;=\; 1 - (1 - \fnrate_A)(1 - \fnrate_B^\complement)
+  \;=\; 1 - (1 - \fnrate_A)(1 - \fprate_B),
+\]
+which is~\eqref{eq:difference-fnr}.
+
+The formulas mix the two operands' rates in a characteristic way:
+the difference FPR pairs $\fprate_A$ with $\fnrate_B$ (the swapped
+complement-side FPR), and the difference FNR pairs $\fnrate_A$ with
+$\fprate_B$ (the swapped complement-side FNR). Both operands'
+\emph{both} rates appear in the answer; even an FNR-zero $\ASet{A}$
+inherits false negatives from the difference when $\ASet{B}$ has a
+nonzero FPR, because elements of $A \setminus B$ that are false
+positives of $\ASet{B}$ are wrongly excluded.
+
+\subsection*{Worked numerical example}
+
+Let $\ASet{A}$ and $\ASet{B}$ be two Bloom filters over the same
+universe with the same parameters and operand rates
+\[
+  \fprate_A = 0.01, \qquad \fnrate_A = 0,
+  \qquad
+  \fprate_B = 0.02, \qquad \fnrate_B = 0.
+\]
+Both operands are FNR-zero (\Cref{def:one-sided}), so they sit on the
+FNR-zero axis of the perfect filter line. The intersection has
+\[
+  \fprate_\cap \;=\; \fprate_A \cdot \fprate_B
+                \;=\; 0.01 \times 0.02
+                \;=\; 0.0002,
+  \qquad
+  \fnrate_\cap \;=\; 1 - (1 - 0)(1 - 0) \;=\; 0.
+\]
+The intersection of two FNR-zero Bloom filters is itself FNR-zero, and
+its false-positive rate is smaller than either operand's by an order of
+magnitude (an absolute drop of nearly a factor of $50$ relative to the
+worse operand). The contrast with the union's $\fprate_\cup = 0.0298$
+of \Cref{sec:union-of-sets} is striking: composing two filters
+multiplicatively reduces the false-positive rate, while composing them
+disjunctively inflates it. The two operations are exact duals of one
+another, and the choice of which to use is dictated by what one wants
+the composed filter to assert.
+
+The complement of $\ASet{A}$ has rates
+$(\fprate_\complement, \fnrate_\complement) = (\fnrate_A, \fprate_A)
+= (0, 0.01)$. The complement has moved $\ASet{A}$ off the FNR-zero
+axis and onto the FPR-zero axis: what was a one-sided false-positive
+machine is now a one-sided false-negative machine. The next section
+returns to this geometric observation.
+
+The difference $\ASet{A} \setminus \ASet{B}$ has
+\[
+  \fprate_\setminus \;=\; \fprate_A \cdot \fnrate_B \;=\; 0.01 \times 0 \;=\; 0,
+  \qquad
+  \fnrate_\setminus \;=\; 1 - (1 - 0)(1 - 0.02) \;=\; 0.02.
+\]
+The difference of two FNR-zero filters has dropped its false-positive
+rate to zero (because $\fnrate_B = 0$ kills the FPR product) and picked
+up a false-negative rate equal to $\fprate_B$. The structural reason
+is that $\ASet{B}$'s false positives become misclassified exclusions in
+$\ASet{A} \setminus \ASet{B}$: an element of $A \setminus B$ that
+$\ASet{B}$ erroneously reports as a member of $B$ will be filtered out
+by the difference even though it should be kept. The difference
+exemplifies the cancellation phenomena §6.3 will scrutinize.
+
+\subsection*{A caveat on bit-AND of Bloom filters}
+
+The intersection of \Cref{def:intersection-of-sets} is a predicate-level
+operation: query $\ASet{A}$, query $\ASet{B}$, AND the two Boolean
+outputs. For two Bloom filters with the same parameters and the same
+hash family, this predicate intersection is the canonical definition
+and the rate formulas of \Cref{prop:intersection-fpr-fnr} apply to it.
+The operational shortcut of bit-wise AND of the two underlying bit
+arrays is a different construction. The bit-AND of two Bloom filters
+gives a bit array whose query behaviour reports $\top$ when the AND of
+the bit arrays has $1$ at every queried position; this is the same as
+both filters individually reporting $\top$, so on items inserted into
+\emph{both} sets the bit-AND query matches the predicate AND. On items
+inserted into one set only, however, the bit-AND filter can still
+report $\top$ when both bits happen to be set in the AND'd array (one
+from the legitimate insertion, one from a coincidental hash collision
+of an insertion of the other set), and the resulting filter is not in
+general a Bloom filter for $A \cap B$. The bit-AND is an operational
+shortcut that coincides with the predicate intersection in some regimes
+and not others; the chapter notebook explores the discrepancy
+empirically, and we will not rely on bit-AND in the rate analyses to
+come.
+
+\subsection*{What comes next}
+
+The four operations of \S6.1 and \S6.2 (union, intersection,
+complement, difference) suffice to express every Boolean combination of
+approximate sets, with closed-form rate formulas derived from the
+composition theorem of \Cref{thm:composition} applied to the
+corresponding Boolean gate. \Cref{sec:cancellation} takes up the
+phenomena that the difference example already foreshadowed: composition
+can move an operand off the perfect filter line, can swap which side of
+the line a one-sided set sits on, and can introduce both rates as
+nonzero even when each input had one rate set to zero by construction.
+\Cref{sec:perfect-filter-line} then restates the line itself as a
+formal subalgebra: the FNR-zero axis is closed under union and
+intersection, the FPR-zero axis is closed dually, and the two axes
+together form a non-convex set whose closure properties this chapter's
+operations either preserve or break.
