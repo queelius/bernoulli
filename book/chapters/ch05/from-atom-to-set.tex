@@ -52,10 +52,14 @@ Let $\Universe$ be a fixed universe (finite or countably infinite) and
 let $A \subseteq \Universe$ be the underlying \emph{objective set} we
 intend to represent. An \emph{approximate set} of $A$ is a function
 \[
-  \ASet{A} : \Universe \longrightarrow \{\top, \bot\}
+  \ASet{A} : \Universe \longrightarrow \Bernoulli{\BoolType}
 \]
 such that each evaluation $\ASet{A}(x)$ is a $\Bernoulli{\BoolType}$
-instance. The notation is the bookkeeping: $A$ is the truth, $\ASet{A}$
+instance. Per \Cref{def:bernoulli-bool}, a $\Bernoulli{\BoolType}$
+instance is a triple $(X, Y, Q)$ that produces a Boolean output when
+sampled; we write $\ASet{A}(x) \in \{\top, \bot\}$ when referring to
+the sampled output of $\ASet{A}$ at $x$.
+The notation is the bookkeeping: $A$ is the truth, $\ASet{A}$
 is its noisy representation, and $\ASet{A}(x) = \top$ is read as ``the
 structure reports that $x$ is a member of $A$.'' The structure may be a
 Bloom filter, a perfect hash filter, a learned classifier with a
@@ -147,7 +151,14 @@ generalizes cleanly to many queries. Chapter 4
 independent queries on a $\Bernoulli{\BoolType}$ instance produce a
 joint distribution that factors as the Kronecker product of the $n$
 per-query channels. The same theorem applies here, with the
-membership partition in place of the Boolean partition. A workload
+membership partition in place of the Boolean partition. The Kronecker
+factorization of $n$-query behavior also relies on Axiom~1
+(\Cref{ax:element-indep}), which we silently invoked above: error
+events at distinct elements of $\Universe$ are mutually independent.
+Axiom~1 lets us treat the queries as independent draws; Axiom~2 lets
+us assign the same per-block rate to every draw within a block.
+Together they give the Kronecker product structure of
+\Cref{thm:kronecker}. A workload
 of $n$ queries on $\ASet{A}$, drawn from the in-set and out-of-set
 blocks in some specified ratio, has a joint behavior that factors
 exactly as the tensor product of the per-query matrices. The price
