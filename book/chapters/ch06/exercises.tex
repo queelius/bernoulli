@@ -1,1 +1,331 @@
-% Placeholder. Drafted in Plan 6 Task 8.
+% §6 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch6-1} through \label{ex:ch6-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{prop:union-fpr-fnr}            -- §6.1 (Plan 6 Task 2)
+%   \Cref{eq:union-fpr}                  -- §6.1 (Plan 6 Task 2)
+%   \Cref{eq:union-fnr}                  -- §6.1 (Plan 6 Task 2)
+%   \Cref{prop:intersection-fpr-fnr}     -- §6.2 (Plan 6 Task 3)
+%   \Cref{prop:complement-swap}          -- §6.2 (Plan 6 Task 3)
+%   \Cref{prop:difference-fpr-fnr}       -- §6.2 (Plan 6 Task 3)
+%   \Cref{prop:fnr-zero-closure}         -- §6.4 (Plan 6 Task 5)
+%   \Cref{def:perfect-filter-line}       -- §6.4 (Plan 6 Task 5)
+%   \Cref{def:one-sided}                 -- chapter 5 §5.4 (Plan 5)
+%   \Cref{thm:composition}               -- chapter 3 §3.3 (Plan 3)
+%   \Cref{eq:composition-theorem}        -- chapter 3 §3.3 (Plan 3)
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch6-1}
+\textbf{Union rates for two FNR-zero Bloom filters.}
+Two FNR-zero Bloom filters on the same universe with the same parameters
+have operand rates $\fprate_1 = 0.05, \fnrate_1 = 0$ and $\fprate_2 =
+0.10, \fnrate_2 = 0$.
+\begin{enumerate}
+  \item[(a)] Apply \Cref{eq:union-fpr} of \Cref{prop:union-fpr-fnr} to
+    compute the union false-positive rate $\fprate_\cup$. Report to
+    four decimal places.
+  \item[(b)] Apply \Cref{eq:union-fnr} to compute the union
+    false-negative rate $\fnrate_\cup$, noting that every term in the
+    weighted sum carries at least one operand $\fnrate$ as a factor.
+  \item[(c)] Confirm that the inequality
+    $\max(\fprate_1, \fprate_2) \le \fprate_\cup \le \fprate_1 +
+    \fprate_2$ holds for the numbers you computed, and name the
+    second-order term that accounts for the gap between
+    $\fprate_\cup$ and $\fprate_1 + \fprate_2$.
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch6-2}
+\textbf{Intersection rates for the same two filters.}
+Take the same operand rates as \Cref{ex:ch6-1}: $\fprate_1 = 0.05,
+\fnrate_1 = 0, \fprate_2 = 0.10, \fnrate_2 = 0$.
+\begin{enumerate}
+  \item[(a)] Apply \Cref{prop:intersection-fpr-fnr} to compute the
+    intersection false-positive rate $\fprate_\cap$. Report to four
+    decimal places.
+  \item[(b)] Compute the intersection false-negative rate
+    $\fnrate_\cap$. State why $\fnrate_\cap = 0$ when both operands
+    are FNR-zero.
+  \item[(c)] Compare the magnitudes of $\fprate_\cap$ and
+    $\fprate_\cup$ from \Cref{ex:ch6-1}. By what factor does
+    intersection reduce the false-positive rate relative to the
+    smaller operand $\fprate_1$, and by what factor does union
+    inflate it?
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch6-3}
+\textbf{Complement-swap verification.}
+An approximate set $\ASet{A}$ has per-block rates $\fprate = 0.03$ and
+$\fnrate = 0.07$.
+\begin{enumerate}
+  \item[(a)] Apply \Cref{prop:complement-swap} to write the rates
+    $(\fprate_\complement, \fnrate_\complement)$ of the complement
+    $\complement \ASet{A}$.
+  \item[(b)] Apply complement a second time. Verify that the
+    twice-complemented rates return to $(0.03, 0.07)$, confirming that
+    the complement operation is an involution on the rate plane.
+  \item[(c)] In one sentence, name the per-bit precedent for this
+    swap that chapter 3 §3.2 already established at the noisy-bit
+    level.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch6-4}
+\textbf{Notebook-tied set-op verification.}
+Open the chapter 6 companion notebook
+\texttt{python/notebooks/ch06-set-composition.ipynb}. Build two Bloom
+filters with $m = 5000$ bits, $n = 500$ inserted random strings each,
+and $k = 7$ hash functions, drawn from disjoint inserted sets $S_1$
+and $S_2$ so that the operand rates approximate $\fprate_1 \approx
+\fprate_2 \approx 0.01$ with $\fnrate_1 = \fnrate_2 = 0$.
+\begin{enumerate}
+  \item[(a)] Construct the union by bit-wise OR of the two underlying
+    bit arrays. Query a pool of $10000$ random strings known to be
+    absent from both inserted sets, and record the empirical
+    false-positive rate $\hat{\fprate}_\cup$.
+  \item[(b)] Compute the closed-form prediction
+    $1 - (1 - \hat{\fprate}_1)(1 - \hat{\fprate}_2)$ from
+    \Cref{eq:union-fpr}, using empirical operand rates from the
+    notebook in place of the targets, and compare to
+    $\hat{\fprate}_\cup$. State in one sentence how close the
+    empirical and closed-form values agree.
+  \item[(c)] Repeat the construction with the operand sets $S_1$ and
+    $S_2$ chosen to overlap by $250$ elements. Does the empirical
+    union FPR still match the formula, and if so, why does the formula
+    not depend on the cardinality of $S_1 \cap S_2$? Refer back to
+    the FPR derivation in \Cref{prop:union-fpr-fnr}.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch6-5}
+\textbf{Difference algebra.}
+\Cref{prop:difference-fpr-fnr} gave the difference rate formulas
+$\fprate_\setminus = \fprate_A \cdot \fnrate_B$ and
+$\fnrate_\setminus = 1 - (1 - \fnrate_A)(1 - \fprate_B)$ on the bulk
+region. Specialize these to two boundary cases.
+\begin{enumerate}
+  \item[(a)] Take $\ASet{B}$ to be a perfect filter on the FPR-zero
+    axis, so $\fprate_B = 0$ and $\fnrate_B \ge 0$. Substitute into
+    the difference FPR formula and confirm that
+    $\fprate_\setminus = \fprate_A \cdot \fnrate_B$ is the only
+    surviving term. Substitute into the difference FNR formula and
+    show that $\fnrate_\setminus = \fnrate_A$, that is, $\ASet{A}
+    \setminus \ASet{B}$ inherits its FNR from the first operand alone.
+  \item[(b)] Now swap: take $\ASet{B}$ to be FNR-zero, so
+    $\fnrate_B = 0$ and $\fprate_B \ge 0$. Substitute into the
+    difference FPR formula and confirm $\fprate_\setminus = 0$. Then
+    substitute into the difference FNR formula and derive
+    $\fnrate_\setminus = 1 - (1 - \fnrate_A)(1 - \fprate_B)$. In one
+    sentence, explain the mechanism: false positives of $\ASet{B}$
+    become wrongful exclusions in $\ASet{A} \setminus \ASet{B}$, and
+    therefore false negatives of the difference.
+  \item[(c)] Combine the two boundary readings to argue that the
+    difference operation is FPR-preserving when the second operand
+    is FNR-zero, and FNR-preserving when the second operand is a
+    perfect filter on the FPR-zero axis.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch6-6}
+\textbf{De Morgan duality under noise.}
+The classical De Morgan laws assert
+$\complement(A \cup B) = \complement A \cap \complement B$ and
+$\complement(A \cap B) = \complement A \cup \complement B$. This
+exercise verifies that the rate algebra of chapter 6 preserves the
+first of these identities under the cross-set independence assumption
+of \Cref{prop:union-fpr-fnr}.
+\begin{enumerate}
+  \item[(a)] Compute the rates of $\complement(\ASet{A} \cup
+    \ASet{B})$ by first applying \Cref{prop:union-fpr-fnr} to get the
+    union rates and then applying \Cref{prop:complement-swap}. Write
+    the resulting $(\fprate, \fnrate)$ as a pair of expressions in the
+    operand rates.
+  \item[(b)] Compute the rates of $\complement \ASet{A} \cap
+    \complement \ASet{B}$ by first applying \Cref{prop:complement-swap}
+    to each operand and then applying \Cref{prop:intersection-fpr-fnr}
+    to the complements.
+  \item[(c)] Compare the two answers and confirm that the FPR
+    expressions agree and the FNR expressions agree. The De Morgan
+    duality holds for the rate algebra whenever the cross-set
+    independence assumption is in force for both compositions.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch6-7}
+\textbf{Independence sensitivity.}
+The FPR derivation in the proof of \Cref{prop:union-fpr-fnr} assumed
+that the two operand error events at a query point $x$ are mutually
+independent. This exercise constructs a small example where the
+assumption fails and shows what happens to the formula.
+\begin{enumerate}
+  \item[(a)] Let $\ASet{A}$ and $\ASet{B}$ be two Bloom filters that
+    share \emph{exactly the same} hash family $h_1, \ldots, h_k$,
+    that store the same set $S$, and that are derived from the same
+    bit array. Argue that the two operand predicates are not merely
+    correlated but identical: $\ASet{A}(x) = \ASet{B}(x)$ for every
+    $x \in \Universe$.
+  \item[(b)] Compute the actual union FPR for this construction.
+    Since the two predicates are identical, the OR of their outputs
+    agrees with the single-filter output, and the union FPR equals
+    the common operand FPR $\fprate$. Compare to the formula
+    prediction $1 - (1 - \fprate)(1 - \fprate) = 2 \fprate - \fprate^2$
+    and describe the direction of the discrepancy.
+  \item[(c)] In one sentence, identify which structural property of
+    the construction the formula presupposes, and which paragraph of
+    \Cref{sec:union-of-sets} flags the requirement that the bit-wise
+    OR construction needs distinct (or at least uncorrelated) hash
+    families to match the rate prediction.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch6-8}
+\textbf{Intersection escape from the line.}
+\Cref{prop:fnr-zero-closure} stated that intersection of two FNR-zero
+sets stays FNR-zero, but the same need not hold when one operand is
+FNR-zero and the other is FPR-zero.
+\begin{enumerate}
+  \item[(a)] Let $\ASet{A}$ be FNR-zero with $\fprate_A > 0$ and
+    $\fnrate_A = 0$, and let $\ASet{B}$ be FPR-zero with
+    $\fprate_B = 0$ and $\fnrate_B > 0$. Substitute these operand
+    rates into \Cref{prop:intersection-fpr-fnr} and derive the
+    intersection rates as expressions in $\fprate_A$ and $\fnrate_B$.
+  \item[(b)] Verify that $\fprate_\cap = 0$ in this regime, and that
+    $\fnrate_\cap = \fnrate_B > 0$. The intersection has migrated to
+    the FPR-zero axis: starting from one operand on each axis, the
+    composition has landed on a single axis but on the FPR-zero one,
+    not the FNR-zero one of $\ASet{A}$.
+  \item[(c)] Now perturb the construction: let $\ASet{B}$ instead be
+    two-sided with $\fprate_B > 0$ and $\fnrate_B > 0$, leaving
+    $\ASet{A}$ FNR-zero. Substitute again and show that both rates
+    of the intersection become strictly positive. In one sentence,
+    name the geometric phenomenon (the composed point now lies in the
+    interior of the rate square) and refer the reader to
+    \Cref{def:perfect-filter-line} for the line whose escape this
+    exercise concretely exhibits.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch6-9}
+\textbf{Three-way union via the composition theorem.}
+Extend \Cref{prop:union-fpr-fnr} to three operands. Let $\ASet{A},
+\ASet{B}, \ASet{C}$ be three approximate sets with per-operand FPRs
+$\fprate_A, \fprate_B, \fprate_C$, all pairwise independent at every
+query point.
+\begin{enumerate}
+  \item[(a)] Compute $\fprate_{\cup}$ for $\ASet{A} \cup \ASet{B}
+    \cup \ASet{C}$ by chained pairwise union: first apply
+    \Cref{eq:union-fpr} to $\ASet{A} \cup \ASet{B}$, then apply it
+    again to the result composed with $\ASet{C}$. Simplify the
+    nested expression to a single product form.
+  \item[(b)] Compute $\fprate_{\cup}$ directly from independence as
+    in the proof of \Cref{prop:union-fpr-fnr}: a false positive of
+    the three-way union at an $x$ outside all three sets requires at
+    least one of the three operand predicates to report $\top$, so
+    the union FPR is $1$ minus the joint probability that all three
+    report $\bot$. Use independence to factor the joint into a
+    product.
+  \item[(c)] Confirm that (a) and (b) agree. Then argue that the
+    result is the composition theorem \Cref{thm:composition} of
+    chapter 3 §3.3 instantiated at $k = 3$, that is,
+    \Cref{eq:composition-theorem} with $\eta_i = \fprate_i$. The
+    same product formula governs every $k \ge 2$ by induction.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch6-10}
+\textbf{Perfect filter as algebraic inverse.}
+A perfect filter on a designated input set $A$ is an approximate set
+with $\fprate = 0$ on $A$, paying with a positive $\fnrate$ on the
+complement domain. \Cref{prop:fnr-zero-closure} part (4) suggested
+that pairing such a filter with an FNR-zero filter can give an
+exact-set test on a constrained domain. This exercise sketches the
+construction.
+\begin{enumerate}
+  \item[(a)] Let $\ASet{A}_+$ be a perfect filter for $A$ with rates
+    $(0, \fnrate_+)$ on its designed domain, and let $\ASet{A}_-$ be
+    an FNR-zero filter for $A$ with rates $(\fprate_-, 0)$. Construct
+    the composed predicate $\ASet{A}_+(x) \land \ASet{A}_-(x)$ and
+    apply \Cref{prop:intersection-fpr-fnr} to compute its rates.
+    Confirm $\fprate = \fprate_- \cdot 0 = 0$ and
+    $\fnrate = 1 - (1 - \fnrate_+)(1 - 0) = \fnrate_+$.
+  \item[(b)] State the condition under which $\fnrate_+ = 0$ also.
+    The perfect filter has zero FNR on a subset of its designed
+    domain (its ``acceptance set''); if that subset coincides with
+    $A$ itself, the composition has both rates zero on $A$, that is,
+    an exact-set test.
+  \item[(c)] Describe the architectural reading: the FNR-zero filter
+    serves as a fast first-pass classifier (eliminating most
+    non-members with one cheap query), and the perfect filter
+    serves as a precise second-pass classifier (verifying the
+    remaining candidates with certainty on the designed domain).
+    Sketch why this two-pass composition is the algorithmic skeleton
+    of the perfect hash filter that chapter 15 will develop in
+    detail.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch6-11}
+\textbf{Entropy floor on the union operation.}
+Chapter 8 will prove that any FNR-zero approximate set at false-positive
+rate $\fprate$ requires at least $-\log_2 \fprate$ bits per stored
+element to represent, and chapter 14 will exhibit the Bernoulli Hash
+Function construction that achieves this floor. This exercise applies
+the floor to the union of two FNR-zero sets and shows that no clever
+implementation of union can beat it.
+\begin{enumerate}
+  \item[(a)] Let $\ASet{A}$ and $\ASet{B}$ be two FNR-zero approximate
+    sets for $A, B \subseteq \Universe$, with operand FPRs
+    $\fprate_A, \fprate_B$. By \Cref{prop:fnr-zero-closure} part (1)
+    the union $\ASet{A} \cup \ASet{B}$ is FNR-zero with FPR
+    $\fprate_{\cup} = 1 - (1 - \fprate_A)(1 - \fprate_B)$. Apply the
+    chapter 8 floor (anticipated) to the union: any representation
+    of $\ASet{A} \cup \ASet{B}$ as a single FNR-zero approximate set
+    of the objective set $A \cup B$ requires at least $|A \cup B|
+    \cdot (-\log_2 \fprate_{\cup})$ bits.
+  \item[(b)] Argue that the chapter 6 composition formulas do not
+    cheat the floor. The composed structure stores no more than the
+    two operands together (its bit array, in the Bloom case, is the
+    OR of the two operand bit arrays and so occupies $m$ bits, the
+    same as each operand). However, $\fprate_{\cup} > \max(\fprate_A,
+    \fprate_B)$, so the floor for the composed structure permits a
+    correspondingly looser bound; the bit budget allocated by each
+    operand at its own floor is sufficient (and asymptotically tight,
+    by chapter 14) for the composed FPR.
+  \item[(c)] In one or two sentences, draw the structural conclusion
+    that motivates chapter 14. The union operation does not save
+    bits beyond what the operands already paid for; constructive
+    realizations that achieve the floor on each operand also achieve
+    the floor on their union, modulo the small inflation $\fprate_{\cup}
+    > \max(\fprate_A, \fprate_B)$ that the union FPR formula records.
+    Chapter 14 develops the constructive realization (the BHF) that
+    saturates this regime.
+\end{enumerate}
+
+\end{enumerate}
