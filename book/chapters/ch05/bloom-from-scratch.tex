@@ -241,10 +241,24 @@ Multiply through by $(1 - u)$:
 \]
 that is, $(1 - u) \ln(1 - u) = u \ln u$. By inspection, $u = 1/2$
 solves this equation: both sides equal $(1/2) \ln(1/2) = -(\ln 2)/2$.
-A short convexity argument (left as an exercise to the calculus
-appendix-minded reader) shows this is the unique solution in
-$(0, 1)$, and that it is a minimum of $f$ rather than a maximum or
-saddle.
+This is a minimum of $f$, not a maximum or saddle, by the following
+boundary argument. The base $1 - e^{-kn/m}$ lies in $(0, 1)$ for
+every $k > 0$, so $f(k) \in (0, 1)$ everywhere in the interior. At
+the boundaries, $f \to 1$: as $k \to 0^+$, $\ln f(k) = k \ln(1 -
+e^{-kn/m}) \approx k \ln(kn/m) \to 0$; as $k \to \infty$, $1 -
+e^{-kn/m} \to 1$ fast enough that $k \ln(1 - e^{-kn/m}) \approx -k
+e^{-kn/m} \to 0$. So $f$ is a smooth function on $(0, \infty)$ that
+sits strictly below $1$ in the interior and tends to $1$ at both
+endpoints; it therefore attains a global minimum at some interior
+critical point. Differentiating the FOC and substituting $u = 1/2$
+gives
+\[
+  \left.\frac{d^2 \ln f}{dk^2}\right|_{k = k^*}
+  \;=\; 2\,(n/m)\,(1 - \ln 2) \;>\; 0,
+\]
+so $k^* = (m/n)\ln 2$ is a local minimum, and by direct check the
+FOC has $u = 1/2$ as its only solution in $(0, 1)$ (see
+\Cref{ex:ch5-5}). The local minimum is therefore the global one.
 
 Substituting back, $u = e^{-kn/m} = 1/2$ gives $kn/m = \ln 2$, hence
 \begin{equation}
@@ -310,11 +324,11 @@ rounded approximation, evaluate \eqref{eq:bloom-fpr} at $k = 5, 6,
 \hline
 $k$ & $1 - e^{-kn/m}$ & $\fprate \approx (1 - e^{-kn/m})^k$ \\
 \hline
-$5$ & $0.3935$ & $0.00945$ \\
-$6$ & $0.4512$ & $0.00843$ \\
+$5$ & $0.3935$ & $0.00943$ \\
+$6$ & $0.4512$ & $0.00844$ \\
 $7$ & $0.5034$ & $0.00819$ \\
 $8$ & $0.5507$ & $0.00846$ \\
-$9$ & $0.5934$ & $0.00919$ \\
+$9$ & $0.5934$ & $0.00913$ \\
 \hline
 \end{tabular}
 \end{center}
@@ -333,14 +347,18 @@ storage; the bit-per-item budget is what matters. Second, the FPR is
 indeed sensitive to $k$ away from the optimum: a Bloom filter built
 with $k = 1$ and $m/n = 10$ has FPR $1 - e^{-0.1} \approx 0.0952$,
 about $12$ times the optimal rate; a Bloom filter built with $k = 20$
-has FPR $(1 - e^{-2})^{20} \approx 0.0117$, also worse than the
-optimum though by a smaller margin. The penalty for picking $k$ too
-small is a populous shared bit array with many random ones; the
-penalty for picking $k$ too large is too many bits required to align
-for a false positive, except that the array is now fuller and the
-per-bit probability is closer to $1$. The minimum at $k^* = (m/n) \ln
-2$ balances these two forces, and the half-full array marks the
-crossover.
+has FPR $(1 - e^{-2})^{20} \approx 0.0546$, about $7$ times the
+optimal rate. Both off-optimum choices are markedly worse than $k =
+7$, and the curve is shallow only in a small neighborhood of the
+optimum. The optimum sits where two opposing pressures balance.
+Increasing $k$ widens the conjunction the query must satisfy, which
+on its own would drive the FPR down; but it also fills the array
+faster, so each individual bit-check is more likely $\top$, driving
+the FPR up. Decreasing $k$ has the mirror effect: each bit-check is
+less likely $\top$, but the conjunction is narrower. The minimum at
+$k^* = (m/n)\ln 2$ is where these two forces cancel: half the array
+is occupied at the optimum, and the per-bit and per-query terms
+exactly trade off.
 
 \subsection*{Looking ahead}
 
