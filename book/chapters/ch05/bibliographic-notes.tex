@@ -1,1 +1,116 @@
-% Placeholder. Drafted in Plan 5 Task 7.
+% §5.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 5, drafted in Tasks 2-6 of Plan 5):
+%   \Cref{sec:from-atom-to-set}                 -- chapter 5 §5.1
+%   \Cref{sec:bloom-from-scratch}               -- chapter 5 §5.2
+%   \Cref{sec:predicate-algebra}                -- chapter 5 §5.3
+%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
+%   \Cref{def:one-sided}                        -- chapter 5 §5.4
+%
+% ALREADY RESOLVED (Plan 0 chapter stubs):
+%   \Cref{ch:set-composition}                   -- chapter 6 stub label
+%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14 stub label
+%   \Cref{ch:perfect-hash-filters}              -- chapter 15 stub label
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{broder-mitzenmacher-2004}             -- Broder and Mitzenmacher 2004
+%   \cite{carter-wegman-1979}                   -- Carter and Wegman 1979
+%   \cite{towell-bernoulli-hash-function}       -- Towell BHF manuscript
+%
+% Citations resolved by prior references.bib entries:
+%   \cite{bloomfilter}                          -- already in references.bib
+%   \cite{mitzenmacher-upfal}                   -- already in references.bib (Plan 3)
+%   \cite{towell-bernoulli-sets}                -- already in references.bib (Plan 0)
+%   \cite{towell-bernoulli-data-type}           -- already in references.bib (Plan 1)
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch5}
+
+\paragraph{Bloom's original paper.}
+The data structure at the center of \Cref{sec:bloom-from-scratch} is due
+to \textcite{bloomfilter}, in a four-page \emph{Communications of the
+ACM} note from 1970. Bloom's framing was operational rather than
+probabilistic: he was concerned with hyphenation dictionaries for a
+typesetting application, and the question was how much memory could be
+saved by accepting a small rate of mishyphenated words in exchange for
+not having to store the dictionary itself. The analysis in that paper
+already contains the optimal-$k$ derivation that
+\Cref{thm:bloom-optimal-k} reproduces in modern notation, including
+the $k = (m/n)\ln 2$ result and the resulting per-bit
+false-positive rate $(1/2)^k$ at the optimum. What this textbook adds
+is not the construction or its analysis but the framing: the Bloom
+filter as a particular construction of a function
+$\Universe \to \Bernoulli{\BoolType}$, rather than as a clever bit-array
+trick for set membership. The two readings agree on every numerical
+prediction.
+
+\paragraph{Survey and textbook context.}
+For an entry into the broader literature on approximate-set data
+structures, two references are standard. \textcite{mitzenmacher-upfal}
+devotes Chapter~5 to hashing, Bloom filters, and the
+balls-and-bins analysis that underlies both; the proof of the
+optimal-$k$ result in that text follows the same calculus argument used
+in \Cref{sec:bloom-from-scratch}, though without the
+$\Bernoulli{\BoolType}$ framing. \textcite{broder-mitzenmacher-2004}
+collects applications of Bloom filters across networking, distributed
+systems, and database query processing, organized by the kind of
+approximate-set operation each application requires. The survey is
+the natural follow-up reading for anyone who wants to see how widely
+the Bloom filter's $\fnrate = 0$ property gets used in practice; it
+also documents the variants (counting filters, scalable filters,
+compressed filters) that the present chapter mentions only in passing.
+
+\paragraph{The set-as-predicate viewpoint.}
+The framing of an approximate set as a function
+$\Universe \to \Bernoulli{\BoolType}$, rather than as a data structure
+that happens to have an error rate, is the contribution of
+\textcite{towell-bernoulli-sets}. Earlier literature, including
+\textcite{bloomfilter} and the broad sweep of
+\textcite{broder-mitzenmacher-2004}, treats approximate sets as
+\emph{data structures with error rates}: an array of bits plus a
+membership test, characterized by a single false-positive probability.
+The Bernoulli-sets reading inverts that emphasis. The object of study
+is the function itself, the per-query Boolean output is a
+$\Bernoulli{\BoolType}$ instance in the sense of
+\textcite{towell-bernoulli-data-type}, and the data structure is one
+of many possible realizations. \Cref{sec:from-atom-to-set,sec:predicate-algebra}
+develop this framing as a continuation of Part~I's atom-and-axiom
+construction; the algebra of \Cref{sec:predicate-algebra} is the
+direct lift of the order-2 $\Bernoulli{\BoolType}$ algebra of
+chapter~4 to the per-element setting.
+
+\paragraph{One-sided and perfect-filter lineage.}
+The one-sided / two-sided dichotomy of \Cref{sec:one-sided-two-sided}
+has two ancestors in the literature. The FNR-zero shape is the Bloom
+filter's structural property, named as such in
+\textcite{bloomfilter} but not isolated as a category until the
+broader approximate-set literature accumulated multiple constructions
+sharing it. The FPR-zero shape---a \emph{perfect filter} in the sense
+of \Cref{def:one-sided}, on a designated set---has its constructive
+roots in the perfect-hashing literature opened by
+\textcite{carter-wegman-1979}. Carter and Wegman's universal hash
+families and the perfect hashing constructions that followed are
+what makes a fingerprint-per-element scheme realizable in the first
+place: without a perfect hash on $A$, the fingerprint table cannot
+guarantee $\fprate = 0$ on $x \in A$. Chapter~15's perfect hash
+filter (\Cref{ch:perfect-hash-filters}) is the modern descendant
+of that line. The chapter's exposition treats the Bernoulli-set
+characterization first, then the construction; the historical order is
+the opposite.
+
+\paragraph{Forward bridge: chapters 14 and 15.}
+Both chapter~14 (\Cref{ch:optimal-bernoulli-sets}) and chapter~15
+(\Cref{ch:perfect-hash-filters}) build on a single foundational
+manuscript: \textcite{towell-bernoulli-hash-function}, which derives
+the space-optimal Bernoulli hash filter (BHF) for both the unrestricted
+and FPR-zero-on-$A$ regimes and proves the entropy lower bound that
+makes ``optimal'' precise. The construction in that paper realizes
+the FPR-zero shape of \Cref{def:one-sided} explicitly and shows that
+the Bloom filter is, on the relevant axis, off-optimal by a constant
+factor that is well understood. Readers who want the punch line of
+the chapters that follow---why \emph{optimal} can be said precisely,
+and what the cost of optimality is in construction time and update
+support---will find it in that manuscript.
