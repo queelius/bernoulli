@@ -1,1 +1,343 @@
-% Placeholder. Drafted in Plan 5 Task 8.
+% §5 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch5-1} through \label{ex:ch5-11}
+%
+% RESOLVES forward references:
+%   \Cref{ex:ch5-5} -- referenced from bloom-from-scratch.tex line 261
+%                      (the optimal-k uniqueness exercise that §5.2's
+%                      proof of \Cref{thm:bloom-optimal-k} defers to).
+%   \Cref{ex:ch5-7} -- referenced from bloom-from-scratch.tex line 208
+%                      (the bit-check independence counter-example that
+%                      §5.2's FPR derivation defers to).
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{thm:bloom-optimal-k}      -- §5.2 (Plan 5 Task 3)
+%   \Cref{eq:bloom-fpr}             -- §5.2 (Plan 5 Task 3)
+%   \Cref{cor:kronecker-set}        -- §5.3 (Plan 5 Task 4)
+%   \Cref{sec:predicate-algebra}    -- §5.3 (Plan 5 Task 4)
+%   \Cref{thm:kronecker}            -- chapter 4 §4.4 (Plan 1)
+%   \Cref{thm:composition}          -- chapter 3 §3.3 (Plan 3)
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch5-1}
+\textbf{Predicate-to-rates.}
+Let $\Universe = \{1, 2, \ldots, 10\}$ and $A = \{2, 5, 7\}$. An
+approximate set $\ASet{A}$ is queried once on every element of
+$\Universe$ and produces the following table of reports:
+\[
+  \begin{array}{c|cccccccccc}
+    x & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\\hline
+    \ASet{A}(x) & \bot & \top & \top & \bot & \top & \bot & \bot & \bot & \top & \bot
+  \end{array}
+\]
+\begin{enumerate}
+  \item[(a)] Identify which queries hit in-set elements and which hit
+    out-of-set elements; tabulate the four outcome counts (TP, FP, FN,
+    TN) using $A$ as ground truth.
+  \item[(b)] Compute the empirical false-positive rate $\hat{\fprate}$
+    as the fraction of out-of-set queries that report $\top$, and the
+    empirical false-negative rate $\hat{\fnrate}$ as the fraction of
+    in-set queries that report $\bot$. Be explicit about the
+    denominators.
+  \item[(c)] State in one sentence why these two empirical rates are
+    the natural sample-based estimators of the per-block parameters
+    $(\fprate, \fnrate)$ that \Cref{sec:predicate-algebra} attaches to
+    $\ASet{A}$.
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch5-2}
+\textbf{Bloom filter parameters.}
+A Bloom filter is built with $m = 8000$ bits, $n = 1000$ inserted
+elements, and $k = 5$ hash functions.
+\begin{enumerate}
+  \item[(a)] Compute $\fprate$ from \Cref{eq:bloom-fpr}, that is,
+    $\fprate \approx (1 - e^{-kn/m})^k$ with the given $(m, n, k)$.
+    Report at least three significant figures.
+  \item[(b)] For the same $(m, n)$, compute the optimal hash count
+    $k^* = (m/n)\ln 2$ from \Cref{thm:bloom-optimal-k}. Round to the
+    nearest integer if necessary and report both the real-valued
+    optimum and the integer used.
+  \item[(c)] Evaluate \eqref{eq:bloom-fpr} at $k = k^*$ and compare to
+    the rate from (a). By what factor does the optimal $k$ reduce the
+    false-positive rate at this $(m, n)$?
+\end{enumerate}
+
+\item \exstar
+\label{ex:ch5-3}
+\textbf{One-sided check.}
+For each of the following data structures, state whether it is
+one-sided in $\fnrate$ ($\fnrate = 0$, $\fprate > 0$), one-sided in
+$\fprate$ ($\fprate = 0$, $\fnrate > 0$), two-sided (both rates
+positive), or exact (both rates zero). Give a one-sentence
+justification per item drawn from the construction.
+\begin{enumerate}
+  \item[(a)] A Bloom filter (\Cref{def:bloom-filter}).
+  \item[(b)] An exact set-membership test on a hash table that stores
+    every element of $A$ verbatim.
+  \item[(c)] A cardinality estimator such as HyperLogLog used as a
+    membership oracle by thresholding the estimated cardinality.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch5-4}
+\textbf{Notebook-tied Bloom filter empirics.}
+Open the chapter 5 companion notebook
+\texttt{python/notebooks/ch05-approximate-sets.ipynb}. Build a Bloom
+filter with $m = 10000$ bits and $n = 1000$ inserted random strings,
+and vary the hash count over $k \in \{1, 2, 3, \ldots, 15\}$.
+\begin{enumerate}
+  \item[(a)] For each $k$, estimate the empirical false-positive rate
+    $\hat{\fprate}(k)$ by querying a large pool of strings known to be
+    absent from the inserted set and recording the fraction reported
+    as $\top$.
+  \item[(b)] On the same axes, plot $\hat{\fprate}(k)$ and the
+    theoretical curve $(1 - e^{-kn/m})^k$ from \Cref{eq:bloom-fpr}.
+    Describe in one sentence how closely the two curves agree across
+    the range of $k$.
+  \item[(c)] Read off the integer $k$ that minimizes $\hat{\fprate}$
+    and compare to the optimum $k^* = (m/n)\ln 2$ predicted by
+    \Cref{thm:bloom-optimal-k}. Do the empirical and theoretical
+    optima agree to within the one-bin resolution of your sweep?
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch5-5}
+\textbf{Uniqueness of the optimal $k$.}
+The proof of \Cref{thm:bloom-optimal-k} in \Cref{sec:bloom-from-scratch}
+reduced the first-order optimality condition to
+\[
+  (1 - u)\ln(1 - u) \;-\; u \ln u \;=\; 0, \qquad u \in (0, 1),
+\]
+under the change of variable $u = e^{-kn/m}$, and observed by
+inspection that $u = 1/2$ solves it. The proof then claimed that
+$u = 1/2$ is the \emph{only} solution in $(0, 1)$, leaving the
+uniqueness to this exercise.
+\begin{enumerate}
+  \item[(a)] Define $\phi(u) = (1 - u)\ln(1 - u) - u \ln u$ on
+    $(0, 1)$. Verify the symmetry $\phi(1 - u) = -\phi(u)$, and
+    confirm that $\phi(u) \to 0$ as $u \to 0^+$ and as $u \to 1^-$.
+    Conclude that $\phi(1/2) = 0$ without further calculation.
+  \item[(b)] Compute $\phi'(u)$ and verify that $\phi'(u) =
+    -\ln(1 - u) - \ln u - 2$. Show that $\phi'$ attains its minimum
+    at $u = 1/2$, where $\phi'(1/2) = 2 \ln 2 - 2 < 0$, and tends to
+    $+\infty$ at both endpoints. Conclude that $\phi'$ changes sign
+    exactly twice on $(0, 1)$, once on $(0, 1/2)$ and once on
+    $(1/2, 1)$.
+  \item[(c)] Use the sign pattern of (b) and the boundary behavior of
+    (a) to conclude that $\phi$ is positive throughout $(0, 1/2)$
+    and negative throughout $(1/2, 1)$, with the unique zero located
+    at $u = 1/2$.
+  \item[(d)] Transfer the conclusion back to $k$ via the change of
+    variable $u = e^{-kn/m}$. Confirm that $k^* = (m/n) \ln 2$ is
+    the unique interior critical point of $f(k) = (1 - e^{-kn/m})^k$
+    on $(0, \infty)$, and combine with the second-derivative check
+    in \Cref{sec:bloom-from-scratch} to conclude that it is the
+    global minimum.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch5-6}
+\textbf{Predicate algebra: joint probability via Kronecker.}
+Let $\Universe$ have $|\Universe| = 6$ elements and $A \subseteq
+\Universe$ with $|A| = 2$. An approximate set $\ASet{A}$ has per-block
+rates $\fprate = 0.1$ and $\fnrate = 0.05$ in the deterministic-rates
+regime of \Cref{sec:predicate-algebra}.
+\begin{enumerate}
+  \item[(a)] Fix three specific out-of-set elements $x_1, x_2, x_3 \in
+    \Universe \setminus A$. Compute the probability that $\ASet{A}$
+    reports $\top$ on each of $x_1, x_2, x_3$ (three simultaneous
+    false positives), assuming Axioms 1 and 2 are in force.
+  \item[(b)] Write the same probability as a single entry of the
+    Kronecker power $Q^{\otimes 3}$, identifying which row and column
+    of the per-query matrix
+    $Q = \bigl(\begin{smallmatrix} 0.95 & 0.05 \\ 0.10 & 0.90
+    \end{smallmatrix}\bigr)$ each of the three factors reads.
+  \item[(c)] Justify the factorization in one or two sentences by
+    naming the role of \Cref{thm:kronecker} (which gives the joint
+    matrix as a Kronecker product) and \Cref{cor:kronecker-set}
+    (which specializes the product to the two-parameter approximate-set
+    setting).
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch5-7}
+\textbf{Bit-check independence counter-example.}
+The derivation of $\fprate \approx (1 - e^{-kn/m})^k$ in
+\Cref{sec:bloom-from-scratch} treats the $k$ bit-check events as
+independent. \Cref{eq:bloom-fpr} is therefore an approximation; the
+exact false-positive rate is in general different. This exercise
+constructs the smallest worked counter-example.
+\begin{enumerate}
+  \item[(a)] Take $m = 4$ bits, $n = 1$ inserted element, $k = 2$
+    independent hash functions, each uniform over $\{1, 2, 3, 4\}$.
+    Enumerate all $4 \times 4 = 16$ assignments of $(h_1(\text{inserted}),
+    h_2(\text{inserted}))$ with equal probability $1/16$; for each
+    assignment, write out which bits are set.
+  \item[(b)] Now consider a query on a fresh out-of-set element $y$.
+    Its two hashes $(h_1(y), h_2(y))$ are also uniform over
+    $\{1, \ldots, 4\}^2$, independent of $h_i(\text{inserted})$.
+    Compute the exact probability that both $b[h_1(y)] = 1$ and
+    $b[h_2(y)] = 1$, that is, the exact false-positive rate, by
+    averaging over all $16 \times 16 = 256$ joint hash assignments.
+  \item[(c)] Compare the exact rate from (b) to the approximation
+    \eqref{eq:bloom-fpr}, $\fprate \approx (1 - e^{-2 \cdot 1/4})^2
+    = (1 - e^{-1/2})^2 \approx 0.155$. State in one or two sentences
+    why the two values differ and identify the source of the
+    correlation: if $h_1(y) = h_2(y)$, the two ``independent''
+    bit-check events collapse into one.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch5-8}
+\textbf{Two-sided vs one-sided space trade-off via the entropy floor.}
+\Cref{sec:one-sided-two-sided} previews chapter~8's entropy floor: any
+FNR-zero approximate set at false-positive rate $\fprate$ requires at
+least $-\log_2 \fprate$ bits per stored element. The standard Bloom
+filter, at its optimal $k^*$ (\Cref{thm:bloom-optimal-k}), pays
+$\approx 1.44 \cdot \log_2(1/\fprate)$ bits per element.
+\begin{enumerate}
+  \item[(a)] Compute the entropy floor $-\log_2 \fprate$ in bits per
+    element for the three target rates $\fprate \in \{0.1, 0.01,
+    0.001\}$. Tabulate to one decimal place.
+  \item[(b)] Compute the Bloom filter's actual bit-per-element cost
+    $1.44 \cdot \log_2(1/\fprate)$ for the same three targets.
+  \item[(c)] Report the absolute overhead in bits per element (Bloom
+    cost minus entropy floor) at each target. Interpret in one
+    sentence: as $\fprate$ shrinks, does the absolute overhead grow,
+    shrink, or stay constant, and what does that mean for the
+    practical cost of one-sidedness at very low false-positive rates?
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch5-9}
+\textbf{Counting Bloom filter sketch.}
+The standard Bloom filter (\Cref{def:bloom-filter}) supports no
+deletions: clearing a bit on \textsc{Delete}$(x)$ would clear bits
+shared by other inserted elements and break their queries. A
+\emph{counting Bloom filter} resolves this by replacing each bit with
+a small unsigned integer counter (typically 4 bits); \textsc{Insert}
+increments the $k$ chosen counters and \textsc{Delete} decrements
+them; \textsc{Query} returns $\top$ if all $k$ counters are positive.
+\begin{enumerate}
+  \item[(a)] Argue that \textsc{Delete} is correct \emph{provided}
+    no counter ever overflows during \textsc{Insert} and no counter
+    is ever decremented for an element that was not previously
+    inserted. Both conditions can fail in practice; identify the
+    failure mode of each.
+  \item[(b)] Sketch why a counting Bloom filter is in general
+    two-sided rather than one-sided: counter overflow (saturation
+    at the maximum value) and the use of small counters together
+    introduce a positive false-negative rate. Counter overflow caps
+    the count, so subsequent decrements may zero a counter that
+    should still be positive, causing a query on an inserted element
+    to return $\bot$.
+  \item[(c)] Compare the space cost. A $b$-bit counter Bloom filter
+    occupies $bm$ bits, compared with $m$ bits for the standard
+    filter. For the typical choice $b = 4$, this is a $4\times$
+    overhead. Comment in one or two sentences on the trade-off: the
+    counting filter buys an additional API (\textsc{Delete}) at the
+    price of $4\times$ space, structural two-sidedness, and a small
+    overflow-induced loss.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch5-10}
+\textbf{Block-stability under non-uniform priors.}
+\Cref{prop:block-stability} of \Cref{sec:predicate-algebra} invokes
+Axiom 2 to collapse the per-element rates $\fprate(x), \fnrate(x)$
+to per-block rates $\fprate, \fnrate$. The collapse depends on the
+assumption that the random rate attached to each block is shared by
+every element in that block. Construct a scenario where this
+assumption fails.
+\begin{enumerate}
+  \item[(a)] Take a learned classifier (a noisy approximate-membership
+    oracle, in our framework) whose accuracy varies across the
+    out-of-set block: queries on out-of-set elements with very low
+    prior probability of confusion are answered correctly with rate
+    $1 - \fprate_{\text{easy}} = 0.99$, while queries on
+    near-the-boundary out-of-set elements achieve only
+    $1 - \fprate_{\text{hard}} = 0.70$. Describe how this construction
+    gives a $\fprate(x)$ that genuinely depends on $x$ within the
+    out-of-set block $B_2 = \Universe \setminus A$.
+  \item[(b)] Argue informally that the construction violates the
+    spirit of Axiom 2 even though the classifier itself is
+    deterministic. (\emph{Hint:} Axiom 2 says the per-block rate is
+    a single random variable shared by every block member; here the
+    per-element rates are distinct, so no single block rate fits.)
+  \item[(c)] State the immediate consequence: the Kronecker
+    factorization of \Cref{cor:kronecker-set} no longer applies in
+    its two-parameter form; the joint distribution over $m$ queries
+    must instead carry per-element rates and is no longer
+    universe-size-independent. Briefly identify which workloads make
+    the gap visible and which mask it (\emph{hint:} a workload that
+    samples uniformly from $B_2$ averages over the heterogeneity and
+    looks like a single-rate workload; a workload that adversarially
+    selects near-boundary out-of-set elements exposes the gap).
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch5-11}
+\textbf{Forward to chapter 6: union FPR via the composition theorem.}
+Chapter~6 will derive the false-positive rate of the union of two
+approximate sets $\ASet{A}_1 \cup \ASet{A}_2$ from the rates of the
+constituents. For two FNR-zero approximate sets with FPRs
+$\fprate_1, \fprate_2$, both representing the same underlying set $A$
+on the same universe, and assuming independent error events, the
+union (implemented by bit-OR on Bloom filters with disjoint hash
+families) has FPR
+\[
+  \fprate_{\text{union}} \;=\; 1 - (1 - \fprate_1)(1 - \fprate_2).
+\]
+\begin{enumerate}
+  \item[(a)] Derive this expression from \Cref{thm:composition} of
+    chapter~3. (\emph{Hint:} for a fixed out-of-set element $x$, the
+    union reports $\top$ if and only if at least one of the two
+    constituent queries reports $\top$. The complement is that both
+    report $\bot$, which under independence factors as $(1 -
+    \fprate_1)(1 - \fprate_2)$.)
+  \item[(b)] Verify the formula on a numerical example: take
+    $\fprate_1 = 0.10$ and $\fprate_2 = 0.05$ and compute
+    $\fprate_{\text{union}}$. Confirm that the result lies between
+    $\max(\fprate_1, \fprate_2)$ and $\fprate_1 + \fprate_2$, with
+    the second-order term $\fprate_1 \fprate_2$ accounting for the
+    gap.
+  \item[(c)] Describe a concrete situation where the independence
+    assumption breaks and the formula no longer applies. For
+    instance, the two filters share the same hash family over the
+    same universe; then the bit-OR event on the same out-of-set
+    element $x$ is perfectly positively correlated across the two
+    filters whenever both filters set the same bits, and the union
+    FPR collapses to a single-filter FPR rather than the
+    composition-theorem prediction. State the qualitative effect on
+    the union rate (over-estimate or under-estimate) and identify
+    which structural property of the construction the formula
+    presupposes.
+\end{enumerate}
+
+\end{enumerate}
