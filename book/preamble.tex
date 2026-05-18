@@ -37,3 +37,11 @@
 % (which remains available inside algorithm2e environments for pseudocode).
 \newcommand{\Bernoulli}[1]{\mathrm{Bernoulli}[#1]}
 \newcommand{\BoolType}{\mathrm{bool}}
+
+% Approximate-set macros for the textbook chapter 5 onward.
+% alex.sty already provides \ASet (line 453: parametric form supporting
+% optional sub/superscripts, defaulting to a ^\pm decoration). \Universe
+% is not in alex.sty so we add it here for the discrete universe U.
+% \providecommand is used so the textbook stays robust if alex.sty adds
+% these names later.
+\providecommand{\Universe}{U}
