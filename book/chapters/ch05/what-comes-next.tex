@@ -1,1 +1,127 @@
-% Placeholder. Drafted in Plan 5 Task 6.
+% §5.5 What Comes Next
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:ch5-what-comes-next}             -- this section (closes §5.4's forward ref)
+%
+% RESOLVED (already in source tree from Plans 1-4 and Plan 5 Tasks 2-5):
+%   \Cref{sec:from-atom-to-set}                 -- chapter 5 §5.1
+%   \Cref{sec:bloom-from-scratch}               -- chapter 5 §5.2
+%   \Cref{sec:predicate-algebra}                -- chapter 5 §5.3
+%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
+%   \Cref{sec:composition-theorem}              -- chapter 3 §3.3
+%   \Cref{sec:sampling-rates}                   -- chapter 1 §1.4
+%   \Cref{ch:set-composition}                   -- chapter 6 stub label (Plan 0)
+%   \Cref{ch:classification-measures}           -- chapter 7 stub label (Plan 0)
+%   \Cref{ch:information-bounds}                -- chapter 8 stub label (Plan 0)
+%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14 stub label (Plan 0)
+%   \Cref{ch:perfect-hash-filters}              -- chapter 15 stub label (Plan 0)
+%
+% This is the Part II analog of chapter 1 §1.5 (trajectory preview), but at
+% the start of Part II rather than the start of Part I. Kept deliberately
+% short: ~3 pp, 700-900 prose words. Section-level forward references into
+% chapters 6, 7, 8 do NOT exist yet; we use chapter-level \Cref or prose.
+
+\section{What Comes Next}
+\label{sec:ch5-what-comes-next}
+
+The chapter has built one abstraction and worked one example.
+\Cref{sec:from-atom-to-set} lifted the noisy bit of Part~I to a function
+$\ASet{A} : \Universe \to \Bernoulli{\BoolType}$, the approximate set.
+\Cref{sec:bloom-from-scratch} built the Bloom filter as the canonical
+realization of that abstraction and pinned down its rates.
+\Cref{sec:predicate-algebra} placed the abstraction inside chapter~4's
+formal machinery: every query is a $\Bernoulli{\BoolType}$ instance,
+every $n$-query workload is a Kronecker product of per-block channels,
+and the per-set rates $(\fprate, \fnrate)$ are the only parameters that
+survive Axiom~2. \Cref{sec:one-sided-two-sided} separated the shapes an
+approximate set can take and pointed at the perfect filter line. What
+remains to do in Part~II is the algebra and the bounds that the
+abstraction underwrites. Four chapters follow, each picking up one
+strand from the present chapter and carrying it to its proper
+conclusion.
+
+\subsection*{Chapter 6: the algebra of sets}
+
+\Cref{ch:set-composition} takes up set operations. Approximate sets
+have unions, intersections, complements, and differences; each
+operation has rates that follow from the rates of its inputs. The
+calculation is not new machinery; it is the composition theorem of
+\Cref{sec:composition-theorem} applied to the per-element predicates
+described in \Cref{sec:predicate-algebra}. The union of two Bloom
+filters by bit-OR gives an FPR of
+$1 - (1 - \fprate_1)(1 - \fprate_2)$, the intersection gives a cleaner
+$\fprate_1 \fprate_2$, and the complement swaps the two coordinate
+axes. The chapter then asks which subfamilies of approximate sets are
+closed under these operations. The FNR-zero family of
+\Cref{sec:one-sided-two-sided} is closed under union and intersection
+(one-sidedness is preserved in the same direction), but the complement
+maps it to the FPR-zero family on the opposite axis. The perfect filter
+line is a subalgebra under some operations and not others, and the
+asymmetry foreshadows chapter~15's constructive treatment of the
+FPR-zero side.
+
+\subsection*{Chapter 7: classification measures}
+
+\Cref{ch:classification-measures} measures quality. The two rates
+$(\fprate, \fnrate)$ are a complete intrinsic description, but
+practitioners often want derived quantities: positive predictive value,
+negative predictive value, recall, F1. Each is a function of the two
+rates and the workload's prevalence of in-set elements, and each
+depends on the workload in a way the rates themselves do not. A Bloom
+filter with $\fprate = 0.01$ achieves a PPV near $0.99$ on a workload
+of mostly true positives and a PPV near $0.5$ on a workload of mostly
+out-of-set queries. The chapter develops the closed forms, derives
+sampling distributions and confidence intervals for the estimators,
+and retires the deferral \Cref{sec:sampling-rates} flagged: the Wald
+interval was a placeholder, and the Wilson, Clopper-Pearson, and
+Jeffreys alternatives that handle the boundary properly are stated and
+applied. The chapter that began with a sawtooth in chapter~1's
+notebook ends here with the proper estimator vocabulary in place.
+
+\subsection*{Chapter 8: information-theoretic bounds}
+
+\Cref{ch:information-bounds} bounds the space. Any FNR-zero
+approximate set that achieves false-positive rate $\fprate$ must
+consume at least $-\log_2 \fprate$ bits per stored element. The proof
+runs through Shannon entropy and the source-coding theorem; the
+statement is sharp. The standard Bloom filter of
+\Cref{sec:bloom-from-scratch} achieves $\log_2 e \cdot \log_2(1/\fprate)
+\approx 1.44 \log_2(1/\fprate)$ bits per element under
+\Cref{thm:bloom-optimal-k}, which is roughly $44\%$ above the floor.
+That $44\%$ overhead is exactly the gap \Cref{sec:one-sided-two-sided}
+named in its bit-budget comparison. The chapter's job is to make the
+gap precise. The construction that closes it is chapter~14's, not
+chapter~8's.
+
+\subsection*{Chapter 14: the construction that closes the gap}
+
+\Cref{ch:optimal-bernoulli-sets} is the constructive payoff of the
+bound. The Bernoulli Hash Function (BHF) is an approximate set whose
+bit-per-item cost achieves the entropy lower bound up to lower-order
+terms. The $44\%$ overhead the standard Bloom filter pays is the right
+kind of unfinished business: a gap that is real, that is calculable,
+and that admits a closed-form remedy. The BHF construction is one of
+the climactic results of the book; chapters 5 through 8 build the
+language in which the result can be both stated and appreciated, and
+chapter~14 then delivers it.
+
+\Cref{ch:perfect-hash-filters} is the FPR-zero counterpart on the
+other half of the perfect filter line. It takes the chapter~6 algebraic
+constraint seriously and constructs a representation that achieves
+$\fprate = 0$ on a designated set, paying the dual price the asymmetry
+of \Cref{sec:one-sided-two-sided} predicts.
+
+\subsection*{Closing}
+
+The bibliographic notes of \Cref{sec:bloom-from-scratch}'s parent
+chapter, drafted next, name the antecedents of what we have done:
+Bloom's $1970$ paper, the survey literature that grew up around it,
+and the Bernoulli-set papers that recast the data structure as an
+instance of a predicate algebra. The four chapters previewed above
+develop that algebra into a working theory of approximate-set
+operations, classification measures, information-theoretic bounds, and
+space-optimal constructions. Each picks up one of the strands the
+present chapter has set down; together they make the approximate set a
+first-class object of study.
