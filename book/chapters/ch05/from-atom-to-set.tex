@@ -1,1 +1,180 @@
-% Placeholder. Drafted in Plan 5 Task 2.
+% §5.1 From Atom to Set
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:from-atom-to-set}                -- this section
+%
+% RESOLVED (already in source tree from Plans 1-4):
+%   \Cref{ch:noisy-bit}                         -- chapter 1
+%   \Cref{sec:three-faces}                      -- chapter 1 §1.1
+%   \Cref{sec:why-atom}                         -- chapter 1 §1.5
+%   \Cref{ch:axioms-kronecker}                  -- chapter 4
+%   \Cref{sec:bernoulli-bool-formal}            -- chapter 4 §4.5
+%   \Cref{def:bernoulli-bool}                   -- chapter 4 §4.5
+%   \Cref{sec:axiom-2}                          -- chapter 4 §4.3
+%   \Cref{ax:block-rates-indep}                 -- chapter 4 §4.3
+%   \Cref{sec:kronecker}                        -- chapter 4 §4.4
+%   \Cref{thm:kronecker}                        -- chapter 4 §4.4
+%
+% FORWARD REFS within chapter 5 (resolve in Plan 5 Tasks 3-4):
+%   \Cref{sec:bloom-from-scratch}               -- §5.2 (Task 3)
+%   \Cref{sec:predicate-algebra}                -- §5.3 (Task 4)
+
+\section{From Atom to Set}
+\label{sec:from-atom-to-set}
+
+Part~I closed with a promise. \Cref{sec:why-atom} described the noisy
+bit as the framework's atom and previewed what Part~II would do with it:
+take many of them, arrange them into a structure, and study the algebra
+of that structure. The single-Boolean object of chapters 1 through 4
+would become a building block, and the natural building was a noisy bit
+per universe element. That object is the approximate set, and Part~II
+opens with it.
+
+Why is the construction inevitable? A classical set $A \subseteq U$ is
+characterized entirely by its membership predicate: a function
+$\SetIndicator{A} : \Universe \to \{\top, \bot\}$ that returns $\top$ on
+the elements of $A$ and $\bot$ everywhere else. Two sets are equal if
+and only if their predicates agree on every input. The predicate is the
+set; the set-builder notation $\{x : \SetIndicator{A}(x) = \top\}$ is
+just the predicate read backwards. Now replace the exact predicate with
+a noisy one. Each query $x \mapsto \tilde A(x)$ returns a Boolean that
+is usually but not always the correct membership verdict. Each
+evaluation is a noisy bit, an instance of the formal type
+$\Bernoulli{\BoolType}$ that \Cref{sec:bernoulli-bool-formal} defined.
+An approximate set is the object whose membership predicate has been
+made noisy in this way, one query at a time.
+
+\subsection*{The predicate framing}
+
+Let $\Universe$ be a fixed universe (finite or countably infinite) and
+let $A \subseteq \Universe$ be the underlying \emph{objective set} we
+intend to represent. An \emph{approximate set} of $A$ is a function
+\[
+  \ASet{A} : \Universe \longrightarrow \{\top, \bot\}
+\]
+such that each evaluation $\ASet{A}(x)$ is a $\Bernoulli{\BoolType}$
+instance. The notation is the bookkeeping: $A$ is the truth, $\ASet{A}$
+is its noisy representation, and $\ASet{A}(x) = \top$ is read as ``the
+structure reports that $x$ is a member of $A$.'' The structure may be a
+Bloom filter, a perfect hash filter, a learned classifier with a
+threshold, or any other implementation whose membership queries return
+Booleans. What makes it an approximate set, in the sense Part~II
+develops, is that each per-element query is governed by a single
+$Q$-matrix from chapter 4: two rates of error, one rate for the
+positives and one rate for the negatives, and nothing else.
+
+Two paragraphs are worth pausing on. First, the predicate framing is
+not a definitional choice; it is a recognition. The classical
+correspondence between a set and its indicator function is exact, and
+the approximate analogue is forced once we ask what a set looks like
+when each query may be wrong. The predicate is where the noise lives
+and there is nowhere else for it to live, because there is no other
+behavioral handle on a set besides the membership test. Second, the
+distinction between $A$ and $\ASet{A}$ is the distinction between truth
+and report. We never lose access to $A$ at the level of the model: $A$
+is the objective set, and the rates of $\ASet{A}$ are defined against
+it. What we lose, when we query the structure, is the ability to read
+$A$ off directly. We see only the report, $\ASet{A}(x)$, and the rates
+tell us how that report relates to the underlying truth.
+
+\subsection*{The two error rates}
+
+Every query $\ASet{A}(x)$ is one of two kinds, determined by whether
+$x$ is in $A$. If $x \notin A$, then the correct verdict is $\bot$ and
+the structure errs only by reporting $\top$. The false-positive rate
+of the approximate set is the conditional probability of that error:
+\[
+  \fprate \;=\; \Prob{\ASet{A}(x) = \top \Given x \notin A}.
+\]
+If $x \in A$, then the correct verdict is $\top$ and the structure
+errs only by reporting $\bot$. The false-negative rate is the
+conditional probability of that error:
+\[
+  \fnrate \;=\; \Prob{\ASet{A}(x) = \bot \Given x \in A}.
+\]
+These are the two rates that chapter 1 introduced for a single noisy
+bit (\Cref{sec:three-faces}) and that chapter 4 collected into the
+channel matrix $Q$ (\Cref{def:bernoulli-bool}). The change in Part~II
+is one of grouping rather than of substance. A noisy bit had one
+positive input and one negative input; the approximate set has $|A|$
+positive inputs (the members) and $|\Universe \setminus A|$ negative
+inputs (the non-members). The two-rate description does not grow: the
+same $\fprate$ governs every query on a non-member, and the same
+$\fnrate$ governs every query on a member.
+
+That collapse from many per-element rates to two per-set rates is not
+automatic. In principle every element $x \in \Universe$ could carry
+its own rate $\fprate(x)$ or $\fnrate(x)$, and the predicate would
+need a function-valued description rather than a two-number one. What
+collapses the description is Axiom 2 of chapter 4
+(\Cref{ax:block-rates-indep}, \Cref{sec:axiom-2}): the per-block rates
+are stable across the block. Membership splits the universe into two
+blocks, and Axiom 2 forces a single rate per block. \Cref{sec:predicate-algebra}
+makes this precise. For now, the operational takeaway is that an
+approximate set is described, at the rate level, by the pair
+$(\fprate, \fnrate)$ alone, no matter how large $|\Universe|$ or
+$|A|$ is.
+
+\subsection*{The block structure}
+
+The universe $\Universe$ does not enter the rate description as a flat
+list of elements. It enters as a two-block partition: the in-set
+block $B_1 = A$ and the out-of-set block $B_2 = \Universe \setminus
+A$. Membership induces the partition; the partition determines which
+rate applies to which query. This is exactly the model-order-two block
+structure of chapter 4: two blocks, two rate-rows in the channel
+matrix $Q$, one row per block. An approximate set is a
+$\Bernoulli{\BoolType}$ instance whose input domain is $\Universe$
+rather than $\{\top, \bot\}$, with the membership partition standing
+in for the Boolean partition of the atomic case. The matrix $Q$ that
+governs each query is the same:
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate & 1 - \fprate
+  \end{pmatrix},
+\]
+with row 1 for the in-set block and row 2 for the out-of-set block.
+\Cref{sec:predicate-algebra} writes this out formally and treats the
+case where the rates depend on $x$ before Axiom 2 collapses them.
+
+The payoff of the block structure is that the per-query description
+generalizes cleanly to many queries. Chapter 4
+(\Cref{sec:kronecker}, \Cref{thm:kronecker}) showed that $n$
+independent queries on a $\Bernoulli{\BoolType}$ instance produce a
+joint distribution that factors as the Kronecker product of the $n$
+per-query channels. The same theorem applies here, with the
+membership partition in place of the Boolean partition. A workload
+of $n$ queries on $\ASet{A}$, drawn from the in-set and out-of-set
+blocks in some specified ratio, has a joint behavior that factors
+exactly as the tensor product of the per-query matrices. The price
+of the full joint description is the two rates, not $2^n$
+probabilities. The chapter 4 machinery does not need to be rebuilt
+for Part~II; it transfers over wholesale, and \Cref{sec:predicate-algebra}
+states the transfer precisely.
+
+\subsection*{Where the chapter goes from here}
+
+The construction is so far an abstraction. We have said what an
+approximate set is, namely a function from a universe to the noisy-bit
+atom of Part~I, and we have named the rates that describe it. We
+have not yet said how anyone would build one. The most widely deployed
+construction is the Bloom filter, and \Cref{sec:bloom-from-scratch}
+develops it from scratch as the canonical instance of the predicate
+framing. The construction will have a structural false-negative rate
+of zero, a tunable false-positive rate, and a closed-form formula for
+the false-positive rate as a function of three integers (the bit-array
+size $m$, the hash count $k$, and the number of stored items $n$).
+The Bloom filter is the example chapters 6 through 8 keep returning
+to, so getting it on the table first matters.
+
+\Cref{sec:predicate-algebra} then develops the predicate algebra in
+general. The Bloom filter is one approximate set; the predicate
+framing covers every approximate set, and the chapter 4 axioms and
+Kronecker theorem apply uniformly across the family.
+\Cref{sec:one-sided-two-sided} draws the line between approximate sets
+with one structural zero rate and those with two positive rates: a
+distinction that organizes chapters 6 and 15.
