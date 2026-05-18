@@ -1,1 +1,269 @@
-% Placeholder. Drafted in Plan 6 Task 2.
+% §6.1 Union of Approximate Sets
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:union-of-sets}                   -- this section
+%   \label{prop:union-fpr-fnr}                  -- the union rate proposition
+%
+% ALREADY DEFINED (chapter 3):
+%   \Cref{ch:boolean-algebra}                   -- chapter 3
+%   \Cref{sec:composition-theorem}              -- chapter 3 §3.3
+%   \Cref{thm:composition}                      -- chapter 3 §3.3
+%   \Cref{sec:or-not}                           -- chapter 3 §3.2
+%   \Cref{sec:bridge-to-sets}                   -- chapter 3 §3.5
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{ch:approximate-sets}                  -- chapter 5
+%   \Cref{sec:from-atom-to-set}                 -- chapter 5 §5.1
+%   \Cref{sec:bloom-from-scratch}               -- chapter 5 §5.2
+%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2
+%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
+%   \Cref{def:one-sided}                        -- chapter 5 §5.4
+%
+% FORWARD REFS within chapter 6 (resolve in later Plan 6 tasks):
+%   \Cref{sec:other-set-ops}                    -- §6.2 (Task 3)
+%   \Cref{sec:cancellation}                     -- §6.3 (Task 4)
+%   \Cref{sec:perfect-filter-line}              -- §6.4 (Task 5)
+
+\section{Union of Approximate Sets}
+\label{sec:union-of-sets}
+
+Chapter~5 framed an approximate set $\ASet{A}$ as a noisy membership
+predicate over a universe $\Universe$, with two per-block error rates
+$(\fprate, \fnrate)$. The Bloom filter of \Cref{def:bloom-filter} was
+the canonical instance: a structurally one-sided approximate set with
+$\fnrate = 0$ and a tunable $\fprate$. The present section takes the
+first compositional step. Given two approximate sets $\ASet{A}$ and
+$\ASet{B}$ over the same universe, we ask what their union is and what
+error rates the union inherits. The answer is the composition theorem
+of \Cref{thm:composition} applied to the OR gate of
+\Cref{sec:or-not}, lifted from the per-bit level to the per-set level.
+
+\subsection*{Definition}
+
+A classical union $A \cup B$ is characterized by its membership
+predicate: $\SetIndicator{A \cup B}(x) = \SetIndicator{A}(x) \lor
+\SetIndicator{B}(x)$. The set-builder reading is the same:
+$x \in A \cup B$ if and only if $x \in A$ or $x \in B$. The membership
+test is a Boolean OR of two simpler membership tests. The predicate
+framing of \Cref{sec:from-atom-to-set} lifts this characterization
+directly to approximate sets.
+
+\begin{definition}[Union of approximate sets]
+\label{def:union-of-sets}
+Let $\ASet{A}, \ASet{B} : \Universe \to \Bernoulli{\BoolType}$ be two
+approximate sets over the same universe $\Universe$. Their
+\emph{union} $\ASet{A} \cup \ASet{B}$ is the approximate set whose
+membership predicate is the Boolean OR of the two operand predicates:
+for every $x \in \Universe$,
+\[
+  (\ASet{A} \cup \ASet{B})(x) \;=\; \ASet{A}(x) \,\lor\, \ASet{B}(x).
+\]
+The union approximates the objective set $A \cup B$, where $A$ and $B$
+are the underlying objective sets that $\ASet{A}$ and $\ASet{B}$
+represent.
+\end{definition}
+
+The definition is structural and it makes no commitment to a
+particular implementation. To evaluate the union's predicate at $x$,
+query $\ASet{A}(x)$ and $\ASet{B}(x)$, then take the OR of the two
+Boolean outputs. The union is therefore well-defined as soon as the
+two operand predicates are, and its rates will follow from the rates
+of the operands together with the OR-gate analysis already done in
+\Cref{ch:boolean-algebra}.
+
+\subsection*{The Bloom filter case: bit-wise OR}
+
+When both operands are Bloom filters with the same parameters, the
+union has a strikingly compact operational realization. Suppose
+$\ASet{A}$ is the Bloom filter $(b_1, h_1, \ldots, h_k)$ for a set
+$A$ and $\ASet{B}$ is the Bloom filter $(b_2, h_1, \ldots, h_k)$ for
+a set $B$, using the same bit-array size $m$ and the same hash family
+$h_1, \ldots, h_k$. Then the bit-wise OR $b_1 \lor b_2$ of their two
+bit arrays is itself a Bloom filter with parameters $(m, k)$ that
+represents a superset of $A \cup B$ and reports $\top$ on every
+member of $A \cup B$ with certainty.
+
+The argument is direct. A query for $x$ against the bit-OR filter
+returns $\top$ when $(b_1 \lor b_2)[h_i(x)] = 1$ for every
+$i \in \{1, \ldots, k\}$; equivalently, when $b_1[h_i(x)] = 1$ or
+$b_2[h_i(x)] = 1$ for every $i$. Every element of $A$ has all its
+$k$ bits set in $b_1$, hence all $k$ bits set in $b_1 \lor b_2$;
+every element of $B$ has all its $k$ bits set in $b_2$, hence in
+$b_1 \lor b_2$. The query therefore returns $\top$ on every member
+of $A \cup B$, and the union filter remains FNR-zero by the same
+monotonicity argument as \Cref{def:bloom-filter}. False positives
+can arise from coincidental patterns in the OR'd array; the rate of
+that event is what the next subsection derives.
+
+The bit-wise OR construction is the canonical implementation of Bloom
+union and is the example chapter~6 keeps returning to. The
+construction requires the two filters to share parameters and hash
+family; bit-wise OR between filters with different hash families
+produces a bit array whose query behavior does not correspond to any
+clean set-level operation. Exercises in this chapter and the chapter
+notebook revisit this constraint.
+
+\subsection*{False-positive rate}
+
+\begin{proposition}[Union rate formulas]
+\label{prop:union-fpr-fnr}
+Let $\ASet{A}$ and $\ASet{B}$ be approximate sets of $A, B \subseteq
+\Universe$ with per-block rates $(\fprate_A, \fnrate_A)$ and
+$(\fprate_B, \fnrate_B)$ respectively. Assume the error events of
+$\ASet{A}$ and $\ASet{B}$ at every query point $x \in \Universe$ are
+mutually independent. Then the union $\ASet{A} \cup \ASet{B}$ has
+false-positive rate
+\begin{equation}
+\label{eq:union-fpr}
+  \fprate_\cup \;=\; 1 - (1 - \fprate_A)(1 - \fprate_B).
+\end{equation}
+The false-negative rate $\fnrate_\cup$ depends on the prior
+distribution over the three regions $A \setminus B$, $B \setminus A$,
+$A \cap B$ of the objective union $A \cup B$; for a query distribution
+that draws $x$ from each region with respective weights
+$w_1, w_2, w_3$ summing to one,
+\begin{equation}
+\label{eq:union-fnr}
+  \fnrate_\cup
+  \;=\; w_1 \fnrate_A (1 - \fprate_B)
+        \,+\, w_2 \fnrate_B (1 - \fprate_A)
+        \,+\, w_3 \fnrate_A \fnrate_B.
+\end{equation}
+\end{proposition}
+
+We prove the two parts in turn.
+
+\paragraph{FPR derivation.}
+Fix a query point $x \notin A \cup B$. Since $x$ is outside both
+operand sets, the correct verdict for the union at $x$ is $\bot$, and
+the only way for $(\ASet{A} \cup \ASet{B})(x) = \top$ to occur is for
+at least one of the two operand predicates to falsely report $\top$
+at $x$. The two events $\ASet{A}(x) = \top$ (given $x \notin A$) and
+$\ASet{B}(x) = \top$ (given $x \notin B$) are exactly the per-operand
+false-positive events at $x$, with conditional probabilities
+$\fprate_A$ and $\fprate_B$ respectively. By the cross-set
+independence assumption, the two events are independent. We compute
+the union false-positive event as the complement of the joint
+non-event:
+\begin{align*}
+  \Prob{(\ASet{A} \cup \ASet{B})(x) = \top \Given x \notin A \cup B}
+  &= 1 - \Prob{\ASet{A}(x) = \bot,\, \ASet{B}(x) = \bot
+       \Given x \notin A,\, x \notin B} \\
+  &= 1 - \Prob{\ASet{A}(x) = \bot \Given x \notin A}\,
+         \Prob{\ASet{B}(x) = \bot \Given x \notin B} \\
+  &= 1 - (1 - \fprate_A)(1 - \fprate_B).
+\end{align*}
+The result holds for every $x \notin A \cup B$ with the same
+probability, so the union's false-positive rate is
+$\fprate_\cup = 1 - (1 - \fprate_A)(1 - \fprate_B)$, as claimed.
+
+\paragraph{FNR derivation.}
+A false negative of the union at $x \in A \cup B$ requires both
+operand predicates to report $\bot$. Whether each report is itself a
+false negative or a true negative depends on which of the three
+regions $x$ comes from. Partition the objective union into the
+disjoint blocks
+\[
+  A \cup B \;=\; (A \setminus B) \,\sqcup\, (B \setminus A)
+                  \,\sqcup\, (A \cap B).
+\]
+For $x \in A \setminus B$ we have $x \in A$ and $x \notin B$, so
+$\ASet{A}(x) = \bot$ is a false negative of $\ASet{A}$ with
+probability $\fnrate_A$, while $\ASet{B}(x) = \bot$ is a true negative
+of $\ASet{B}$ with probability $1 - \fprate_B$. By independence the
+joint probability that both predicates report $\bot$ on this region is
+$\fnrate_A (1 - \fprate_B)$. The region $B \setminus A$ contributes
+symmetrically $\fnrate_B (1 - \fprate_A)$. For $x \in A \cap B$ both
+operand predicates must miss their respective member, contributing
+$\fnrate_A \fnrate_B$ by independence. Weighting the three regions
+by the prior $w_1, w_2, w_3$ on $A \cup B$ and applying the law of
+total probability yields~\eqref{eq:union-fnr}.
+
+\paragraph{The role of the prior.}
+The union false-positive rate $\fprate_\cup$ is a closed-form
+polynomial in the two operand FPRs alone; no prior is required because
+every negative of $A \cup B$ falls into one and the same region (the
+complement of the union). The union false-negative rate, in contrast,
+mixes three different per-region rates, and the closed form depends on
+how often a query lands in each region. The weights $w_i$ are
+determined by the cardinalities $|A \setminus B|, |B \setminus A|,
+|A \cap B|$ together with the prior over $A \cup B$. When the operand
+sets are disjoint the third region vanishes and the formula
+simplifies; when the operands coincide the first two regions vanish
+and only the $\fnrate_A \fnrate_B$ term survives. The general
+expression is the \emph{marginal} rate over the union; chapter~7's
+classification measures will revisit it for confidence-interval
+purposes.
+
+\subsection*{Worked example: union of two Bloom filters}
+
+Let $\ASet{A}$ and $\ASet{B}$ be two Bloom filters over the same
+universe with the same parameters, with operand rates
+\[
+  \fprate_A = 0.01, \qquad \fnrate_A = 0,
+  \qquad
+  \fprate_B = 0.02, \qquad \fnrate_B = 0.
+\]
+Both operands are FNR-zero, in the sense of \Cref{def:one-sided}: they
+sit on the FNR-zero axis of the perfect filter line. The union has
+\[
+  \fprate_\cup
+  \;=\; 1 - (1 - 0.01)(1 - 0.02)
+  \;=\; 1 - 0.99 \times 0.98
+  \;=\; 1 - 0.9702
+  \;=\; 0.0298.
+\]
+The union FNR is $\fnrate_\cup = 0$, by direct inspection
+of~\eqref{eq:union-fnr} with $\fnrate_A = \fnrate_B = 0$: every term
+in the weighted sum vanishes. The conclusion is operationally
+familiar from the bit-wise OR realization: an element inserted into
+either filter has its $k$ bits set in one of the two bit arrays,
+hence in their OR. The union of two FNR-zero Bloom filters is itself
+an FNR-zero approximate set, with the slightly elevated false-positive
+rate that the formula prescribes. The increase from $0.02$ (the worse
+operand) to $0.0298$ is the price of the OR composition; the
+multiplicative second-order term $\fprate_A \fprate_B = 0.0002$ is
+small relative to the additive part, so for small operand rates the
+union FPR is well-approximated by the sum $\fprate_A + \fprate_B$.
+
+\subsection*{Connection to the composition theorem}
+
+\eqref{eq:union-fpr} is the composition theorem of
+\Cref{thm:composition} applied to the OR gate of \Cref{sec:or-not}
+with $k = 2$ stages and $\eta_i = \fprate_i$. Chapter~3 §3.2 already
+analyzed the OR-under-noise event at the per-bit level: the false
+positive of OR is the failure to read a $\bot$ from at least one
+input, and the probability of that joint failure factors into the
+product of per-input correctness probabilities $1 - \fprate_i$.
+\Cref{sec:bridge-to-sets} previewed the lift to sets; the present
+section completes it. The Boolean operation OR is the same at both
+levels and the algebra is the same; what changes is the
+interpretation of the rates. At the bit level $\fprate_i$ is the
+per-bit crossover of an asymmetric channel; at the set level it is the
+per-block rate of an approximate set. The composition theorem governs
+both.
+
+The connection is the central pedagogical claim of chapters~6 and
+later: every set operation has an underlying Boolean gate, every gate
+has its noise propagation rule from \Cref{ch:boolean-algebra}, and the
+set-level rate algebra is the Boolean noise algebra reread at the
+set scale. The remaining sections of this chapter walk through that
+correspondence for intersection, complement, and difference, then
+identify the regimes in which the composed rates leave the perfect
+filter line.
+
+\subsection*{What comes next}
+
+\Cref{sec:other-set-ops} takes up intersection, complement, and
+difference. Intersection is the AND gate at the set level, with the
+dual structure of the union formulas: multiplicative FPR and an
+additive-style FNR. Complement is the NOT gate and swaps the two
+rates without further work. Set difference is intersection with the
+complemented second operand, and its rates fall out by composing the
+two formulas. \Cref{sec:cancellation} then turns to the regimes in
+which composition escapes the perfect filter line, when a chain of
+operations forces both rates positive even though each operand sat
+on an axis, and \Cref{sec:perfect-filter-line} restates the line as
+the formal subalgebra it really is.
