@@ -29,7 +29,9 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Mathematics",
   "Topic :: Software Development :: Libraries :: Python Modules"
 ]
-dependencies = []
+dependencies = [
+    "scipy>=1.17.1",
+]
 
 [project.optional-dependencies]
 dev = [
