@@ -1,1 +1,373 @@
-% Placeholder. Drafted in Plan 7 Task 4.
+% §7.3 Confidence Intervals Properly
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:confidence-intervals}              -- this section
+%   \label{def:wald-ci}                           -- Wald CI definition
+%   \label{def:wilson-ci}                         -- Wilson CI definition
+%   \label{def:clopper-pearson-ci}                -- Clopper-Pearson CI definition
+%   \label{def:jeffreys-ci}                       -- Jeffreys CI definition
+%
+% ALREADY DEFINED (chapter 1):
+%   \Cref{sec:sampling-rates}                     -- chapter 1 §1.4
+%
+% ALREADY DEFINED (chapter 7, this plan):
+%   \Cref{sec:setup-revisited}                    -- §7.1
+%   \Cref{sec:binomial-estimator}                 -- §7.2
+%   \Cref{prop:binomial-variance}                 -- §7.2 variance proposition
+%
+% FORWARD REFS within chapter 7 (resolve in later Plan 7 tasks):
+%   \Cref{sec:derived-measures}                   -- §7.4 (Task 5)
+%
+% §7.3 retires items (ii) and (iii) of the §1.4 deferral named in §7.1:
+% the proper-CI question (Wald, Wilson, Clopper-Pearson, Jeffreys) and
+% the sawtooth under-coverage observed in the chapter 1 notebook. The
+% four CI definitions cumulate; the closing recommendation is Wilson by
+% default, Jeffreys as the Bayesian alternative, Clopper-Pearson when
+% conservative coverage is required, Wald only in large-$n_0$ regimes
+% away from the boundaries.
+
+\section{Confidence Intervals Properly}
+\label{sec:confidence-intervals}
+
+\Cref{sec:binomial-estimator} fixed the point estimate
+$\hat{\fprate} = \mathrm{FP}/n_0$ as the unbiased, efficient
+maximum-likelihood estimator of $\fprate$. A point estimate is not a
+confidence statement. The Wald interval given in
+\Cref{sec:sampling-rates} attaches Normal-approximation error bars to
+the point estimate and stops there. The chapter~1 notebook showed the
+attached error bars failing in exactly the regime a practitioner most
+needs them: small $n_0$, $\fprate$ near $0$ or $1$. This section
+diagnoses the failure rigorously, then derives three alternatives
+(Wilson, Clopper-Pearson, Jeffreys), compares their coverage on the
+small-$n_0$ regime, and recommends a default.
+
+\subsection*{The Wald interval}
+
+The Wald interval is the central-limit-theorem interval read off the
+sampling distribution of the point estimate, with the unknown
+$\fprate$ in the variance replaced by its empirical value.
+
+\begin{definition}[Wald confidence interval]
+\label{def:wald-ci}
+At confidence level $1 - \alpha$, the Wald interval for $\fprate$ is
+\[
+  \hat{\fprate} \;\pm\; z_{\alpha/2}
+    \sqrt{\frac{\hat{\fprate}(1 - \hat{\fprate})}{n_0}},
+\]
+where $z_{\alpha/2}$ is the upper-$\alpha/2$ quantile of the standard
+Normal distribution and $\hat{\fprate} = \mathrm{FP}/n_0$ is the
+point estimate from \Cref{sec:binomial-estimator}.
+\end{definition}
+
+The derivation is the standard one. The central limit theorem applied
+to the i.i.d.\ sum $\mathrm{FP} = \sum X_i$ of
+\Cref{sec:binomial-estimator} gives an asymptotic Normal approximation
+$\hat{\fprate} \sim \mathrm{Normal}(\fprate, \fprate(1 - \fprate)/n_0)$
+as $n_0 \to \infty$. Substituting $\hat{\fprate}$ for $\fprate$ inside
+the variance (the plug-in step) and reading off the $1 - \alpha$
+two-sided quantile interval of the resulting Normal yields the
+formula. The interval is correct in the limit $n_0 \to \infty$ for
+every fixed $\fprate \in (0, 1)$. The trouble is that practitioners
+work at finite $n_0$.
+
+\subsection*{The under-coverage problem}
+
+The chapter~1 notebook ran $M$ independent replications of the
+classifier at sample size $n_0$, constructed the Wald interval at
+each, and tallied the fraction containing the true $\fprate$. At
+$n_0 = 100$ and $\fprate = 0.05$ the empirical coverage settled near
+$0.92$ rather than the nominal $0.95$. The gap widened as $\fprate$
+moved closer to $0$. Two distinct failure modes are at work.
+
+\smallskip
+\noindent\emph{(a) The boundary problem.}
+The Wald formula is a symmetric interval centered at $\hat{\fprate}$,
+which lives in $[0, 1]$. The radius
+$z_{\alpha/2} \sqrt{\hat{\fprate}(1 - \hat{\fprate})/n_0}$ is positive
+and depends on $\hat{\fprate}$, not on $\fprate$. When
+$\hat{\fprate}$ is small and the radius is comparable to it, the
+lower endpoint $\hat{\fprate} - z_{\alpha/2}
+\sqrt{\hat{\fprate}(1 - \hat{\fprate})/n_0}$ can fall below $0$;
+symmetrically the upper endpoint can rise above $1$ when
+$\hat{\fprate}$ is near $1$. Both cases assign positive probability
+mass to impossible values of $\fprate$. The interval has to be
+clipped to $[0, 1]$ by hand, which is not a property the construction
+provides.
+
+\smallskip
+\noindent\emph{(b) The skew problem.}
+The binomial distribution $\mathrm{Binomial}(n_0, \fprate)$ is
+symmetric only at $\fprate = 1/2$. Near $\fprate = 0$ it is
+right-skewed: the mass piles up at small counts with a long right
+tail. Near $\fprate = 1$ it is left-skewed. The Normal approximation
+is symmetric and cannot capture the skew. At small $n_0$ and
+$\fprate$ near a boundary, the central limit theorem has not yet
+overcome the binomial skew, and the symmetric Wald interval
+miscalibrates: it places too much of its tail probability on the
+side away from the boundary and too little on the side toward it.
+The empirical coverage drops below nominal.
+
+\smallskip
+There is a third pattern, visible in the chapter~1 notebook sweep of
+$n_0$ at fixed $\fprate = 0.05$. The empirical coverage as a
+function of $n_0$ is not monotone: it rises and dips in a jagged
+pattern as $n_0$ grows. This is the \emph{sawtooth}. The cause is
+discreteness. The Wald interval is built on a continuous Normal
+approximation, but the underlying $\mathrm{FP}$ takes only the
+integer values $0, 1, \dots, n_0$. As $n_0$ increments by one, the
+boundary at which the interval just barely covers or just barely
+misses the true $\fprate$ shifts in a discrete jump, and the
+empirical coverage hops between values close to but rarely exactly
+at nominal. The pattern is a real feature of every CI built on a
+discrete distribution; the Wald interval is unusual in how
+pronounced the sawtooth is, because of failure modes (a) and (b)
+above.
+
+The three alternatives in this section address the failures in
+different ways: Wilson fixes the boundary problem by inverting a
+different statistic, Clopper-Pearson sidesteps the Normal
+approximation entirely by inverting the exact binomial CDF, and
+Jeffreys does the Bayesian thing and reports a posterior credible
+interval.
+
+\subsection*{The Wilson interval}
+
+The Wald construction plugs $\hat{\fprate}$ into the variance and
+inverts the resulting Normal-form statistic. Wilson inverts a
+different statistic, the score statistic, which uses the true
+$\fprate$ (not its estimate) in the variance.
+
+The score statistic for the binomial mean is
+\[
+  Z(\fprate)
+  \;=\; \frac{\hat{\fprate} - \fprate}{\sqrt{\fprate(1 - \fprate)/n_0}}.
+\]
+Under the central limit theorem, $Z(\fprate) \to \mathrm{Normal}(0, 1)$
+as $n_0 \to \infty$ when $\fprate$ is the true parameter, so the
+confidence set at level $1 - \alpha$ is the set of $\fprate$
+satisfying $|Z(\fprate)| \leq z_{\alpha/2}$. Squaring both sides and
+clearing the denominator gives a quadratic inequality in $\fprate$:
+\[
+  (\hat{\fprate} - \fprate)^2 \;\leq\; z_{\alpha/2}^2 \,
+    \frac{\fprate(1 - \fprate)}{n_0}.
+\]
+Writing $z = z_{\alpha/2}$ for brevity and expanding,
+\[
+  \hat{\fprate}^2 - 2 \hat{\fprate} \fprate + \fprate^2
+  \;\leq\;
+  \frac{z^2}{n_0} \fprate - \frac{z^2}{n_0} \fprate^2,
+\]
+which rearranges to
+\[
+  \fprate^2 \left(1 + \frac{z^2}{n_0}\right)
+    - 2 \fprate \left(\hat{\fprate} + \frac{z^2}{2 n_0}\right)
+    + \hat{\fprate}^2 \;\leq\; 0.
+\]
+This is a downward-closed quadratic in $\fprate$, so its solution set
+is the interval between the two roots. Applying the quadratic formula
+and simplifying gives the form below.
+
+\begin{definition}[Wilson confidence interval]
+\label{def:wilson-ci}
+At confidence level $1 - \alpha$, with $z = z_{\alpha/2}$, the Wilson
+interval for $\fprate$ is
+\[
+  \frac{\hat{\fprate} + z^2/(2 n_0)}{1 + z^2/n_0}
+  \;\pm\;
+  \frac{z}{1 + z^2/n_0}
+    \sqrt{\frac{\hat{\fprate}(1 - \hat{\fprate})}{n_0}
+      + \frac{z^2}{4 n_0^2}}.
+\]
+\end{definition}
+
+The center of the Wilson interval is not $\hat{\fprate}$ but a shrunken
+version of it pulled toward $1/2$ by the factor $z^2/(2 n_0)$ in the
+numerator and the factor $1 + z^2/n_0$ in the denominator. The radius
+likewise has a correction $z^2/(4 n_0^2)$ inside the square root that
+keeps the interval well-defined even at $\hat{\fprate} \in \{0, 1\}$.
+Both adjustments matter. At $\hat{\fprate} = 0$ the Wald interval
+collapses to the degenerate point $[0, 0]$; the Wilson interval
+gives $[0, z^2/(n_0 + z^2)]$, a non-empty interval whose upper
+endpoint admits the possibility that the true rate is small but
+positive. The boundary problem of (a) is gone: both endpoints lie in
+$[0, 1]$ for every $\hat{\fprate}$ and every $n_0$, because the
+defining inequality has the true $\fprate$ in the variance and is a
+proper quadratic in $\fprate$. The skew problem of (b) is partially
+addressed: the Wilson center is shifted toward $1/2$, which is the
+direction the symmetric Wald interval got wrong near the boundaries.
+
+\subsection*{The Clopper-Pearson interval}
+
+Wilson still relies on a Normal approximation, even if a sharper one.
+Clopper-Pearson abandons the approximation and works with the exact
+binomial CDF. The construction is the test-inversion construction in
+its cleanest form: for each candidate $\fprate$, test whether the
+observed $\mathrm{FP}$ is consistent with $\mathrm{Binomial}(n_0,
+\fprate)$ at level $\alpha$, and include $\fprate$ in the interval iff
+the test fails to reject.
+
+The lower endpoint $L$ is the smallest $\fprate$ such that
+$\Pr[\mathrm{Binomial}(n_0, \fprate) \geq \mathrm{FP}] > \alpha/2$;
+equivalently, $L$ is the largest $\fprate$ such that
+$\Pr[\mathrm{Binomial}(n_0, \fprate) \geq \mathrm{FP}] \leq \alpha/2$.
+The upper endpoint $U$ is symmetric: the smallest $\fprate$ such that
+$\Pr[\mathrm{Binomial}(n_0, \fprate) \leq \mathrm{FP}] \leq \alpha/2$.
+
+These endpoints have closed forms via the Beta distribution, because
+the binomial CDF and the Beta CDF are related by the identity
+\[
+  \Pr[\mathrm{Binomial}(n_0, \fprate) \geq k]
+  \;=\; \Pr[\mathrm{Beta}(k, n_0 - k + 1) \leq \fprate].
+\]
+The endpoints are therefore Beta quantiles.
+
+\begin{definition}[Clopper-Pearson confidence interval]
+\label{def:clopper-pearson-ci}
+At confidence level $1 - \alpha$, the Clopper-Pearson interval for
+$\fprate$ has endpoints
+\[
+  L \;=\; F^{-1}_{\mathrm{Beta}(\mathrm{FP},\, n_0 - \mathrm{FP} + 1)}(\alpha/2),
+  \qquad
+  U \;=\; F^{-1}_{\mathrm{Beta}(\mathrm{FP} + 1,\, n_0 - \mathrm{FP})}(1 - \alpha/2),
+\]
+where $F^{-1}_{\mathrm{Beta}(a, b)}$ denotes the inverse CDF of the
+$\mathrm{Beta}(a, b)$ distribution. At the boundaries: if
+$\mathrm{FP} = 0$ set $L = 0$; if $\mathrm{FP} = n_0$ set $U = 1$.
+\end{definition}
+
+The interval is called \emph{exact} because the construction uses the
+exact binomial CDF rather than a Normal approximation. The label is
+slightly misleading: the coverage probability is guaranteed to be at
+least $1 - \alpha$ at every $\fprate$, but is strictly greater than
+$1 - \alpha$ at most $\fprate$ because the binomial is discrete. The
+interval over-covers, sometimes substantially, especially at small
+$n_0$. Conservative coverage is the price of the guarantee.
+
+\subsection*{The Jeffreys interval}
+
+The Bayesian alternative reports a credible interval from a posterior
+distribution over $\fprate$. The choice of prior matters; the
+Jeffreys prior is the one whose density is proportional to the square
+root of the Fisher information,
+\[
+  \pi_J(\fprate)
+  \;\propto\; \sqrt{I(\fprate)}
+  \;=\; \sqrt{\frac{n_0}{\fprate(1 - \fprate)}}
+  \;\propto\; \fprate^{-1/2} (1 - \fprate)^{-1/2}.
+\]
+This is the kernel of the $\mathrm{Beta}(1/2, 1/2)$ distribution, which
+serves as a non-informative reference prior with a frequentist
+calibration property: the resulting credible interval has approximate
+$1 - \alpha$ coverage to higher order than the Wald interval. Under
+this prior the posterior given the observed count $\mathrm{FP}$ is
+$\mathrm{Beta}(\mathrm{FP} + 1/2, n_0 - \mathrm{FP} + 1/2)$ by
+conjugacy.
+
+\begin{definition}[Jeffreys credible interval]
+\label{def:jeffreys-ci}
+At credibility level $1 - \alpha$, the Jeffreys interval for
+$\fprate$ is the central $1 - \alpha$ quantile interval of the
+posterior $\mathrm{Beta}(\mathrm{FP} + 1/2, n_0 - \mathrm{FP} + 1/2)$:
+\[
+  \bigl[\,
+    F^{-1}_{\mathrm{Beta}(\mathrm{FP} + 1/2,\, n_0 - \mathrm{FP} + 1/2)}(\alpha/2),
+    \;
+    F^{-1}_{\mathrm{Beta}(\mathrm{FP} + 1/2,\, n_0 - \mathrm{FP} + 1/2)}(1 - \alpha/2)
+  \,\bigr].
+\]
+\end{definition}
+
+The Jeffreys interval is structurally close to Clopper-Pearson but
+uses different Beta parameters (the half-integer shift) and does not
+treat the endpoints asymmetrically. At $\mathrm{FP} = 0$ the
+posterior is $\mathrm{Beta}(1/2, n_0 + 1/2)$, which has a
+well-defined lower quantile strictly above $0$; the interval is
+non-degenerate at the boundaries. The frequentist coverage of the
+Jeffreys interval is close to nominal at small $n_0$ without the
+heavy conservatism of Clopper-Pearson.
+
+\subsection*{Comparison}
+
+The four intervals can be ranked along several axes: empirical
+coverage at a fixed $(n_0, \fprate)$, behavior at the boundary
+$\hat{\fprate} = 0$, and structural symmetry about the point
+estimate. \Cref{tab:ci-comparison} summarizes.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{l|cccc}
+\hline
+                                & Wald             & Wilson           & Clopper-Pearson  & Jeffreys \\
+\hline
+Coverage at $n_0 = 100$, $\fprate = 0.05$
+                                & $\approx 0.92$   & $\approx 0.94$   & $\geq 0.95$      & $\approx 0.945$ \\
+Coverage at $n_0 = 1000$, $\fprate = 0.05$
+                                & $\approx 0.95$   & $\approx 0.95$   & $\geq 0.95$      & $\approx 0.95$ \\
+Interval at $\hat{\fprate} = 0$
+                                & $[0, 0]$         & $[0,\, z^2/(n_0 + z^2)]$
+                                                                      & $[0,\, U_{\mathrm{CP}}]$
+                                                                                         & $[L_J,\, U_J]$, $L_J > 0$ \\
+Symmetric about $\hat{\fprate}$ & yes              & no               & no               & no \\
+Endpoints in $[0, 1]$ by construction
+                                & no               & yes              & yes              & yes \\
+Approximation type              & Normal           & Normal (score)   & exact binomial   & Bayesian posterior \\
+\hline
+\end{tabular}
+\caption{Comparison of four binomial confidence intervals at
+nominal $1 - \alpha = 0.95$. Coverage numbers are read from the
+chapter~1 notebook sweep at $\fprate = 0.05$ for the Wald row;
+Wilson, Clopper-Pearson, and Jeffreys numbers are standard results
+from Brown, Cai, and DasGupta (2001) at the same parameters. The
+small-$n_0$ row shows the Wald under-coverage diagnosed above and
+the substantial recovery from each of the three alternatives. The
+large-$n_0$ row confirms that all four intervals agree
+asymptotically. The boundary row shows that Wald collapses to a
+degenerate point at $\hat{\fprate} = 0$ while the three
+alternatives give non-trivial intervals that admit small positive
+values of $\fprate$ as compatible with the data.}
+\label{tab:ci-comparison}
+\end{table}
+
+The coverage entries for the small-$n_0$ row are not constants: each
+oscillates along a sawtooth as $n_0$ varies, by the discreteness
+argument above. The numbers report the average coverage over a small
+window of $n_0$ values near $100$, smoothing the sawtooth. The Wilson
+and Jeffreys sawteeth are mild and stay close to nominal. The
+Clopper-Pearson sawtooth dips down only to the guarantee floor
+$1 - \alpha = 0.95$ and is otherwise above; the over-coverage is
+visible in the strict inequality. The Wald sawtooth dips below
+nominal repeatedly and is the only one of the four whose minimum is
+far enough below nominal to mislead at the precision a careful
+practitioner would report.
+
+\subsection*{Recommendation}
+
+The Wilson interval is the default for binomial confidence intervals
+in this book and is what \Cref{sec:derived-measures} feeds into the
+delta-method derivations. It corrects the Wald boundary failure
+without the conservatism of Clopper-Pearson and is easy to implement
+from a Normal-quantile table. Jeffreys is the Bayesian alternative
+when a credible-interval interpretation is wanted; its frequentist
+coverage is also excellent. Clopper-Pearson is the conservative-safe
+choice when an absolute lower bound on coverage is required (in a
+regulatory or worst-case setting) and a slightly wider interval is
+acceptable. Wald is acceptable only when $n_0$ is large and
+$\hat{\fprate}$ is far from $0$ and $1$, the regime in which all
+four intervals agree; using Wald outside that regime invites the
+under-coverage of \Cref{tab:ci-comparison}.
+
+\subsection*{What has been retired}
+
+Items~(ii) and~(iii) of the §1.4 deferral named in
+\Cref{sec:setup-revisited} are now retired. The Wilson,
+Clopper-Pearson, and Jeffreys intervals fix the boundary failure of
+the Wald interval and substantially recover the lost coverage in the
+small-$n_0$ regime; the sawtooth pattern observed in the chapter~1
+notebook is now attributed to its proper cause (binomial
+discreteness viewed through a continuous-distribution lens) and shown
+to be mild for the three alternatives. \Cref{sec:derived-measures}
+takes up item~(iv): the derived measures (PPV, NPV, F1) and the
+delta-method translation of binomial CIs on $\fprate, \fnrate$ into
+CIs on the derived quantities.
