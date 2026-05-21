@@ -1,1 +1,305 @@
-% Placeholder. Drafted in Plan 7 Task 3.
+% §7.2 The Binomial Estimator: Properties
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:binomial-estimator}              -- this section
+%   \label{prop:binomial-unbiased}              -- unbiasedness proposition
+%   \label{prop:binomial-variance}              -- variance proposition
+%   \label{prop:binomial-mle}                   -- MLE proposition
+%   \label{prop:fisher-information}             -- Fisher information / CRLB
+%   \label{prop:binomial-efficiency}            -- CRLB-attainment / efficiency
+%
+% ALREADY DEFINED (chapter 1):
+%   \Cref{sec:sampling-rates}                   -- chapter 1 §1.4
+%   \Cref{sec:quantifying-noise}                -- chapter 1 §1.2
+%
+% ALREADY DEFINED (chapter 7, this plan):
+%   \Cref{sec:setup-revisited}                  -- §7.1
+%
+% FORWARD REFS within chapter 7 (resolve in later Plan 7 tasks):
+%   \Cref{sec:confidence-intervals}             -- §7.3 (Task 4)
+%
+% §7.2 retires item (i) of the four-item §1.4 deferral named in §7.1:
+% prove $\hat{\fprate} = \mathrm{FP}/n_0$ is unbiased for $\fprate$,
+% derive its variance, identify it as the MLE, and confirm it attains
+% the Cramer-Rao lower bound via the Fisher information of the
+% Binomial$(n_0, \fprate)$ model. The proofs are short and the
+% propositions cumulate; §7.3 then takes up the CI question.
+
+\section{The Binomial Estimator: Properties}
+\label{sec:binomial-estimator}
+
+\Cref{sec:setup-revisited} named four items the chapter~1 hook left
+deferred. Item~(i) is the present section's target: the binomial
+estimator $\hat{\fprate} = \mathrm{FP}/n_0$ stated without proof in
+\Cref{sec:sampling-rates} is unbiased for $\fprate$, has the variance
+$\fprate(1 - \fprate)/n_0$ claimed there, equals the
+maximum-likelihood estimator, and attains the Cramer-Rao lower bound.
+Four short propositions, each with a one-paragraph proof, settle
+these claims.
+
+\subsection*{Setup}
+
+Fix the truth-$\bot$ slice of the sample. Of the $n$ trials of
+\Cref{sec:sampling-rates}, the $n_0$ trials whose truth is $\bot$ are
+the only ones a false positive can come from. For each such trial $i
+\in \{1, \dots, n_0\}$, let $X_i = 1$ if the noisy bit reports $\top$
+and $X_i = 0$ otherwise. Axiom~1 of the Bernoulli model (element-wise
+independence) makes the $X_i$ mutually independent and identically
+distributed, each Bernoulli with success probability $\fprate$:
+\[
+  X_i \;\sim\; \mathrm{Bernoulli}(\fprate),
+  \qquad
+  X_1, \dots, X_{n_0} \text{ independent.}
+\]
+The false-positive count is their sum,
+\[
+  \mathrm{FP} \;=\; \sum_{i=1}^{n_0} X_i
+  \;\sim\; \mathrm{Binomial}(n_0, \fprate),
+\]
+recovering the Binomial form already stated in
+\Cref{sec:sampling-rates}. The estimator under study is the
+row-conditional empirical proportion
+\[
+  \hat{\fprate} \;=\; \frac{\mathrm{FP}}{n_0}
+  \;=\; \frac{1}{n_0} \sum_{i=1}^{n_0} X_i.
+\]
+The arguments for $\hat{\fnrate} = \mathrm{FN}/n_1$ on the truth-$\top$
+slice are formally identical and are not repeated; everything in this
+section transfers by renaming $\fprate \to \fnrate$ and $n_0 \to n_1$.
+
+\subsection*{Unbiasedness}
+
+\begin{proposition}[Unbiasedness]
+\label{prop:binomial-unbiased}
+The empirical estimator $\hat{\fprate} = \mathrm{FP}/n_0$ is unbiased
+for $\fprate$:
+\[
+  \mathbb{E}[\hat{\fprate}] \;=\; \fprate.
+\]
+\end{proposition}
+
+\begin{proof}
+Linearity of expectation, applied to the sum $\mathrm{FP} =
+\sum_{i=1}^{n_0} X_i$, gives
+\[
+  \mathbb{E}[\mathrm{FP}]
+  \;=\; \sum_{i=1}^{n_0} \mathbb{E}[X_i]
+  \;=\; \sum_{i=1}^{n_0} \fprate
+  \;=\; n_0 \fprate,
+\]
+because each $X_i \sim \mathrm{Bernoulli}(\fprate)$ has expectation
+$\fprate$. Dividing by the deterministic constant $n_0$,
+\[
+  \mathbb{E}[\hat{\fprate}]
+  \;=\; \mathbb{E}\!\left[\frac{\mathrm{FP}}{n_0}\right]
+  \;=\; \frac{\mathbb{E}[\mathrm{FP}]}{n_0}
+  \;=\; \frac{n_0 \fprate}{n_0}
+  \;=\; \fprate,
+\]
+as claimed.
+\end{proof}
+
+The bias of the estimator is zero at every $\fprate \in [0, 1]$ and
+every sample size $n_0 \geq 1$, not merely in the limit. This is the
+first piece of the §1.4 deferral retired.
+
+\subsection*{Variance}
+
+\begin{proposition}[Variance]
+\label{prop:binomial-variance}
+The empirical estimator $\hat{\fprate} = \mathrm{FP}/n_0$ has variance
+\[
+  \mathrm{Var}(\hat{\fprate})
+  \;=\; \frac{\fprate(1 - \fprate)}{n_0}.
+\]
+\end{proposition}
+
+\begin{proof}
+The textbook variance of a Binomial random variable is
+$\mathrm{Var}(\mathrm{Binomial}(n, p)) = n p (1 - p)$; we recover it
+from the Bernoulli decomposition for completeness. Each $X_i$ takes
+value $1$ with probability $\fprate$ and $0$ with probability $1 -
+\fprate$, so
+\[
+  \mathrm{Var}(X_i)
+  \;=\; \mathbb{E}[X_i^2] - \mathbb{E}[X_i]^2
+  \;=\; \fprate - \fprate^2
+  \;=\; \fprate(1 - \fprate).
+\]
+By Axiom~1 the $X_i$ are mutually independent, so the variance of
+their sum is the sum of their variances,
+\[
+  \mathrm{Var}(\mathrm{FP})
+  \;=\; \sum_{i=1}^{n_0} \mathrm{Var}(X_i)
+  \;=\; n_0 \, \fprate(1 - \fprate).
+\]
+The scaling rule $\mathrm{Var}(c Z) = c^2 \mathrm{Var}(Z)$ for a
+constant $c$ then gives
+\[
+  \mathrm{Var}(\hat{\fprate})
+  \;=\; \mathrm{Var}\!\left(\frac{\mathrm{FP}}{n_0}\right)
+  \;=\; \frac{1}{n_0^2} \mathrm{Var}(\mathrm{FP})
+  \;=\; \frac{n_0 \, \fprate(1 - \fprate)}{n_0^2}
+  \;=\; \frac{\fprate(1 - \fprate)}{n_0},
+\]
+which is the formula stated.
+\end{proof}
+
+Two consequences are worth naming. First, the variance shrinks as
+$1/n_0$: doubling the truth-$\bot$ sample halves the variance, and
+the standard error shrinks as $1/\sqrt{n_0}$. Second, the numerator
+$\fprate(1 - \fprate)$ peaks at $\fprate = 1/2$ and vanishes at the
+boundaries $\fprate \in \{0, 1\}$. The estimator is hardest to pin
+down when the classifier is maximally noisy and easiest when it is
+deterministic, a fact that returns in \Cref{sec:confidence-intervals}
+as the reason Wald intervals deform near the boundary.
+
+\subsection*{Maximum likelihood}
+
+\begin{proposition}[The MLE is the empirical estimator]
+\label{prop:binomial-mle}
+The maximum-likelihood estimator of $\fprate$ from the binomial
+observation $\mathrm{FP} \sim \mathrm{Binomial}(n_0, \fprate)$ equals
+the row-conditional empirical proportion:
+\[
+  \hat{\fprate}_{\mathrm{MLE}} \;=\; \frac{\mathrm{FP}}{n_0}
+  \;=\; \hat{\fprate}.
+\]
+\end{proposition}
+
+\begin{proof}
+The likelihood of the observed count $\mathrm{FP}$ under the model
+$\mathrm{Binomial}(n_0, \fprate)$ is
+\[
+  L(\fprate)
+  \;=\; \binom{n_0}{\mathrm{FP}} \, \fprate^{\mathrm{FP}} \,
+        (1 - \fprate)^{n_0 - \mathrm{FP}}.
+\]
+The binomial coefficient does not depend on $\fprate$ and contributes
+an additive constant to the log-likelihood:
+\[
+  \log L(\fprate)
+  \;=\; \log \binom{n_0}{\mathrm{FP}}
+        + \mathrm{FP} \log \fprate
+        + (n_0 - \mathrm{FP}) \log(1 - \fprate).
+\]
+Differentiating in $\fprate$ over the open interval $(0, 1)$ gives
+\[
+  \frac{\partial \log L}{\partial \fprate}
+  \;=\; \frac{\mathrm{FP}}{\fprate}
+        - \frac{n_0 - \mathrm{FP}}{1 - \fprate}.
+\]
+The first-order condition $\partial \log L / \partial \fprate = 0$
+becomes
+\[
+  \mathrm{FP} \, (1 - \fprate) \;=\; (n_0 - \mathrm{FP}) \, \fprate,
+\]
+which simplifies to $\mathrm{FP} - \mathrm{FP} \fprate = n_0 \fprate -
+\mathrm{FP} \fprate$, then to $\mathrm{FP} = n_0 \fprate$, and finally
+to $\fprate = \mathrm{FP}/n_0$. The second derivative
+\[
+  \frac{\partial^2 \log L}{\partial \fprate^2}
+  \;=\; -\frac{\mathrm{FP}}{\fprate^2}
+        - \frac{n_0 - \mathrm{FP}}{(1 - \fprate)^2}
+\]
+is strictly negative on $(0, 1)$ for any $\mathrm{FP} \in \{1, \dots,
+n_0 - 1\}$, so the critical point is the unique interior maximum.
+The boundary cases $\mathrm{FP} = 0$ and $\mathrm{FP} = n_0$ assign
+$\hat{\fprate}_{\mathrm{MLE}} = 0$ and $\hat{\fprate}_{\mathrm{MLE}} =
+1$ respectively, again matching $\mathrm{FP}/n_0$. Hence
+$\hat{\fprate}_{\mathrm{MLE}} = \mathrm{FP}/n_0 = \hat{\fprate}$.
+\end{proof}
+
+The MLE identity says the empirical estimator was not just
+convenient: it is what likelihood theory asks for under the binomial
+model. Method-of-moments and maximum-likelihood agree on this problem;
+in more general settings they need not, as Exercise~9 of this chapter
+illustrates.
+
+\subsection*{Fisher information and the Cramer-Rao bound}
+
+\begin{proposition}[Fisher information and Cramer-Rao bound]
+\label{prop:fisher-information}
+The Fisher information of $\fprate$ in the
+$\mathrm{Binomial}(n_0, \fprate)$ model is
+\[
+  I(\fprate)
+  \;=\; \frac{n_0}{\fprate(1 - \fprate)}.
+\]
+Consequently, every unbiased estimator $T$ of $\fprate$ satisfies the
+Cramer-Rao lower bound
+\[
+  \mathrm{Var}(T) \;\geq\; \frac{1}{I(\fprate)}
+  \;=\; \frac{\fprate(1 - \fprate)}{n_0}.
+\]
+\end{proposition}
+
+\begin{proof}
+The Fisher information for a regular parametric model with
+log-likelihood $\log L$ is $I(\fprate) = -\mathbb{E}[\partial^2 \log L
+/ \partial \fprate^2]$. The second derivative was computed in the
+proof of \Cref{prop:binomial-mle}:
+\[
+  \frac{\partial^2 \log L}{\partial \fprate^2}
+  \;=\; -\frac{\mathrm{FP}}{\fprate^2}
+        - \frac{n_0 - \mathrm{FP}}{(1 - \fprate)^2}.
+\]
+Taking expectations under $\mathrm{FP} \sim \mathrm{Binomial}(n_0,
+\fprate)$ uses $\mathbb{E}[\mathrm{FP}] = n_0 \fprate$ and
+$\mathbb{E}[n_0 - \mathrm{FP}] = n_0(1 - \fprate)$:
+\[
+  \mathbb{E}\!\left[\frac{\partial^2 \log L}{\partial \fprate^2}\right]
+  \;=\; -\frac{n_0 \fprate}{\fprate^2}
+        - \frac{n_0(1 - \fprate)}{(1 - \fprate)^2}
+  \;=\; -\frac{n_0}{\fprate} - \frac{n_0}{1 - \fprate}.
+\]
+Combining the two terms over the common denominator $\fprate(1 -
+\fprate)$,
+\[
+  -\mathbb{E}\!\left[\frac{\partial^2 \log L}{\partial \fprate^2}\right]
+  \;=\; \frac{n_0(1 - \fprate) + n_0 \fprate}{\fprate(1 - \fprate)}
+  \;=\; \frac{n_0}{\fprate(1 - \fprate)}
+  \;=\; I(\fprate).
+\]
+The Binomial family is regular (the support $\{0, 1, \dots, n_0\}$
+does not depend on $\fprate$, the log-likelihood is twice
+differentiable in $\fprate$ on $(0, 1)$, and the standard
+interchange-of-order conditions hold), so the Cramer-Rao inequality
+applies and the bound $\mathrm{Var}(T) \geq 1/I(\fprate) = \fprate(1 -
+\fprate)/n_0$ follows by direct substitution.
+\end{proof}
+
+\subsection*{Efficiency}
+
+\begin{proposition}[Efficiency]
+\label{prop:binomial-efficiency}
+The empirical estimator $\hat{\fprate} = \mathrm{FP}/n_0$ attains the
+Cramer-Rao lower bound and is therefore an efficient unbiased
+estimator of $\fprate$.
+\end{proposition}
+
+\begin{proof}
+\Cref{prop:binomial-unbiased} establishes that $\hat{\fprate}$ is
+unbiased. \Cref{prop:binomial-variance} computes
+$\mathrm{Var}(\hat{\fprate}) = \fprate(1 - \fprate)/n_0$.
+\Cref{prop:fisher-information} computes the Cramer-Rao bound as
+$1/I(\fprate) = \fprate(1 - \fprate)/n_0$. The two quantities are
+equal, so $\hat{\fprate}$ attains the bound.
+\end{proof}
+
+\subsection*{What has been retired}
+
+The four propositions above establish the four claims the chapter~1
+hook deferred for item~(i): $\hat{\fprate} = \mathrm{FP}/n_0$ is
+unbiased, has variance $\fprate(1 - \fprate)/n_0$, equals the
+maximum-likelihood estimator, and attains the Cramer-Rao lower bound
+of $\fprate(1 - \fprate)/n_0$. No unbiased estimator of $\fprate$ can
+do better in mean-squared error within the binomial model: any
+candidate that reports a lower variance is biased and is trading bias
+for variance. Item~(i) of the §1.4 deferral is now retired. What
+remains is the question of how to turn the point estimate into a
+confidence statement that holds at every $n_0$ and every $\fprate$,
+not merely asymptotically. \Cref{sec:confidence-intervals} takes up
+that question and retires items~(ii) and~(iii).
