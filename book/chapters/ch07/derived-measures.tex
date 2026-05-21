@@ -1,1 +1,411 @@
-% Placeholder. Drafted in Plan 7 Task 5.
+% §7.4 Derived Measures: PPV, NPV, F1
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:derived-measures}                 -- this section
+%   \label{def:ppv}                              -- PPV as a function of fpr, fnr, pi
+%   \label{def:npv}                              -- NPV as a function of fpr, fnr, pi
+%   \label{def:f1}                               -- F1 as a function of fpr, fnr, pi
+%   \label{thm:delta-method}                     -- delta-method theorem (stated, cited)
+%   \label{prop:ppv-variance}                    -- PPV variance via delta method
+%
+% ALREADY DEFINED (chapter 1):
+%   \Cref{sec:sampling-rates}                    -- chapter 1 §1.4
+%   \Cref{sec:quantifying-noise}                 -- chapter 1 §1.2
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{sec:bloom-from-scratch}                -- chapter 5 §5.2
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%
+% ALREADY DEFINED (chapter 7, this plan):
+%   \Cref{sec:setup-revisited}                   -- §7.1
+%   \Cref{sec:binomial-estimator}                -- §7.2
+%   \Cref{sec:confidence-intervals}              -- §7.3
+%   \Cref{def:wilson-ci}                         -- §7.3 Wilson CI
+%
+% FORWARD REFS within chapter 7 (resolve in later Plan 7 tasks):
+%   \Cref{sec:bloom-diagnostics}                 -- §7.5 (Task 6)
+%
+% §7.4 retires item (iv) of the §1.4 deferral named in §7.1: the
+% derived measures. PPV, NPV, recall, F1 written as functions of
+% $(\fprate, \fnrate, \pi)$; the prevalence-dependence of PPV is the
+% central caveat. The delta-method theorem is stated and applied to
+% PPV (and to F1 in the worked example). Bloom filter PPV under
+% workload closes the section and forward-references §7.5.
+
+\section{Derived Measures}
+\label{sec:derived-measures}
+
+\Cref{sec:binomial-estimator,sec:confidence-intervals} retired the
+first three items of the §1.4 deferral. The fourth item is the
+derived measures. Precision, recall, $\Fone$, and the two predictive
+values (PPV and NPV) appear throughout binary classification and
+information retrieval. \Cref{sec:quantifying-noise} introduced
+precision and recall informally and pointed out that precision
+depends on a quantity the noisy bit itself does not control: the
+workload's prevalence of $\top$. The present section makes that
+observation precise. Each derived measure is written as a function of
+$(\fprate, \fnrate, \pi)$, where $\pi = \Pr[X = \top]$ is the
+prevalence. Estimators for each are read off the same contingency
+table whose row counts gave $\hat{\fprate}, \hat{\fnrate}$ in
+\Cref{sec:binomial-estimator}; their variances and confidence
+intervals follow from the delta method.
+
+\subsection*{Definitions in terms of $(\fprate, \fnrate, \pi)$}
+
+Fix a noisy bit (equivalently, an approximate set
+$\ASet{A} : \Universe \to \Bernoulli{\BoolType}$) with rates
+$\fprate, \fnrate$. Apply it to a workload of $n$ inputs in which
+each input's truth is drawn independently from a Bernoulli
+distribution with success probability $\pi = \Pr[X = \top]$. The
+expected counts on the four cells of the contingency table are then
+\[
+  \mathbb{E}[\TP] \;=\; n \pi (1 - \fnrate),
+  \qquad
+  \mathbb{E}[\FN] \;=\; n \pi \fnrate,
+\]
+\[
+  \mathbb{E}[\FP] \;=\; n (1 - \pi) \fprate,
+  \qquad
+  \mathbb{E}[\TN] \;=\; n (1 - \pi) (1 - \fprate).
+\]
+The first row of the table sums to $n \pi$ (the row total for truth
+$\top$); the second row sums to $n (1 - \pi)$. The four derived
+measures are ratios of these expectations.
+
+Recall is the row-conditional rate already named in
+\Cref{sec:quantifying-noise}:
+\[
+  \Recall \;=\; \tprate \;=\; 1 - \fnrate.
+\]
+The denominator is the truth-$\top$ row total $n \pi$ and the
+numerator is the diagonal $n \pi (1 - \fnrate)$, so the $\pi$
+cancels. Recall is a property of the noisy bit alone.
+
+\begin{definition}[Positive predictive value]
+\label{def:ppv}
+The positive predictive value of a noisy bit at workload prevalence
+$\pi$ is
+\[
+  \PPV
+  \;=\; \Precision
+  \;=\; \frac{\pi (1 - \fnrate)}{\pi (1 - \fnrate) + (1 - \pi) \fprate}.
+\]
+\end{definition}
+
+The numerator is $\mathbb{E}[\TP]/n$ and the denominator is the
+column total $\mathbb{E}[\TP + \FP]/n$. The $\pi$ does not cancel.
+PPV is precision under the cross-walk of
+\Cref{sec:quantifying-noise}, and the definition makes the workload's
+share of $\top$ explicit.
+
+\begin{definition}[Negative predictive value]
+\label{def:npv}
+The negative predictive value of a noisy bit at workload prevalence
+$\pi$ is
+\[
+  \NPV
+  \;=\; \frac{(1 - \pi) (1 - \fprate)}{(1 - \pi) (1 - \fprate) + \pi \fnrate}.
+\]
+\end{definition}
+
+NPV is the analogue of PPV for the other column: the fraction of
+$\bot$-reports that are correct. Like PPV, it depends on $\pi$. The
+numerator is $\mathbb{E}[\TN]/n$ and the denominator is the
+$\bot$-output column total $\mathbb{E}[\TN + \FN]/n$.
+
+\begin{definition}[$\Fone$-score]
+\label{def:f1}
+The $\Fone$-score of a noisy bit at workload prevalence $\pi$ is the
+harmonic mean of precision and recall,
+\[
+  \Fone \;=\; \frac{2 \Precision \cdot \Recall}{\Precision + \Recall}.
+\]
+\end{definition}
+
+Substituting the formulas for precision and recall gives
+\[
+  \Fone
+  \;=\;
+  \frac{2 \pi (1 - \fnrate)}{2 \pi (1 - \fnrate) + (1 - \pi) \fprate + \pi \fnrate}
+  \;=\;
+  \frac{2 \pi (1 - \fnrate)}{\pi (1 - \fnrate) + \pi + (1 - \pi) \fprate},
+\]
+where the second equality uses $\pi (1 - \fnrate) + \pi \fnrate =
+\pi$ to collapse the denominator. $\Fone$ is a balanced summary of
+precision and recall; like precision, it depends on the workload.
+
+Each of these is the ratio of two binomial-mean quantities and is a
+deterministic function of $(\fprate, \fnrate, \pi)$. Replace the
+parameters by their estimates and the same formulas give point
+estimators $\widehat{\Recall}, \widehat{\PPV}, \widehat{\NPV},
+\widehat{\Fone}$. The next subsection takes up what happens to the
+ratios as $\pi$ varies; the subsection after returns to estimators
+and their distributions.
+
+\subsection*{Prevalence dependence}
+
+Recall does not depend on $\pi$. PPV does. Fix $\fprate, \fnrate$
+and read \Cref{def:ppv} as a function of $\pi \in [0, 1]$:
+\[
+  \PPV(\pi)
+  \;=\; \frac{\pi (1 - \fnrate)}{\pi (1 - \fnrate) + (1 - \pi) \fprate}.
+\]
+At $\pi = 0$ the numerator is $0$ and the denominator is $\fprate
+\geq 0$, giving $\PPV(0) = 0$ when $\fprate > 0$. A noisy bit on a
+workload with no genuine positives reports only false positives;
+every $\top$-report is wrong. At $\pi = 1$ the denominator becomes
+the numerator and $\PPV(1) = 1$: a workload with no genuine
+negatives cannot produce a false positive, so every $\top$-report is
+correct. Between the endpoints the function is monotone increasing,
+and its rate of change near $\pi = 0$ is steep when $\fprate$ is
+appreciable. NPV runs the same story in reverse: $\NPV(0) = 1$ and
+$\NPV(1) = 0$ for $\fnrate > 0$.
+
+The point is the framing. The pair $(\fprate, \fnrate)$ is intrinsic
+to the classifier: it describes how the noisy bit responds to
+$\bot$-inputs and to $\top$-inputs, conditional on each. Precision
+is intrinsic to the classifier and the workload together: change the
+mix of inputs and precision changes, even though $\fprate$ and
+$\fnrate$ have not moved. A classifier vendor who reports only
+precision is, implicitly, reporting only what their evaluation
+workload happened to look like. A vendor who reports $(\fprate,
+\fnrate)$ has reported the noisy bit. The book uses $(\fprate,
+\fnrate)$ as the primary description for exactly this reason.
+
+\subsection*{PPV from samples}
+
+The estimator analogous to $\hat{\fprate}, \hat{\fnrate}$ for PPV is
+the empirical proportion read off the column total of the contingency
+table:
+\[
+  \widehat{\PPV} \;=\; \frac{\TP}{\TP + \FP}.
+\]
+On the workload of $n$ inputs with random truth, $\TP$ is binomial
+on the truth-$\top$ row with parameters $(n_\top, \tprate)$ where
+$n_\top = n \pi$ is itself random if $\pi$ is treated as unknown.
+Conditioning on $n_\top, n_\bot$ removes that source of variability;
+then $\TP \sim \mathrm{Binomial}(n_\top, \tprate)$ and $\FP \sim
+\mathrm{Binomial}(n_\bot, \fprate)$, and the two counts are
+independent by Axiom~1. The estimator $\widehat{\PPV}$ is the ratio
+of two independent binomial counts.
+
+Two consequences follow. First, $\widehat{\PPV}$ is not unbiased for
+$\PPV$. The expectation of a ratio is not the ratio of expectations;
+Jensen's inequality applied to the convex function $x \mapsto a/(a +
+x)$ in the denominator gives $\mathbb{E}[\widehat{\PPV}] \neq \PPV$
+in general. The bias is small when the means $\mathbb{E}[\TP],
+\mathbb{E}[\FP]$ are both large (the central-limit regime) and
+$\widehat{\PPV}$ is a consistent estimator of $\PPV$ as
+$n \to \infty$. Second, $\widehat{\PPV}$ has variance and a sampling
+distribution, both inherited from the binomial counts. Reading them
+off directly is awkward because of the ratio; the delta method is
+the standard tool for the job.
+
+\subsection*{The delta method}
+
+The delta method approximates the distribution of a smooth function
+of an asymptotically Normal estimator by a Normal whose variance is
+read off the derivative of the function.
+
+\begin{theorem}[Delta method]
+\label{thm:delta-method}
+Suppose $\hat\theta$ is an estimator that is asymptotically Normal,
+\[
+  \sqrt{n} (\hat\theta - \theta) \;\xrightarrow{d}\; \mathrm{Normal}(0, \sigma^2(\theta)),
+\]
+and suppose $g$ is a function differentiable at $\theta$ with
+$g'(\theta) \neq 0$. Then
+\[
+  \sqrt{n} (g(\hat\theta) - g(\theta))
+  \;\xrightarrow{d}\;
+  \mathrm{Normal}\!\bigl(0,\, [g'(\theta)]^2 \sigma^2(\theta)\bigr).
+\]
+\end{theorem}
+
+\noindent The theorem is a one-line consequence of the first-order
+Taylor expansion $g(\hat\theta) \approx g(\theta) + g'(\theta)
+(\hat\theta - \theta)$ combined with Slutsky's lemma; a proof
+appears in Casella and Berger~\cite{casella-berger}. The
+generalization to multivariate $\hat\theta$ replaces $g'(\theta)$
+with the gradient $\nabla g(\theta)$ and $\sigma^2(\theta)$ with a
+covariance matrix $\Sigma(\theta)$; the asymptotic variance of
+$g(\hat\theta)$ becomes the quadratic form $\nabla g(\theta)^\top
+\Sigma(\theta) \nabla g(\theta)$.
+
+\begin{proposition}[Delta-method variance of $\widehat{\PPV}$]
+\label{prop:ppv-variance}
+With $\bar t = n_\top \tprate$, $\bar f = n_\bot \fprate$,
+$\sigma_t^2 = n_\top \tprate (1 - \tprate)$, and
+$\sigma_f^2 = n_\bot \fprate (1 - \fprate)$, the first-order
+delta-method approximation to the variance of $\widehat{\PPV}$ is
+\[
+  \Var[\widehat{\PPV}]
+  \;\approx\;
+  \frac{\bar f^{\,2} \sigma_t^2 + \bar t^{\,2} \sigma_f^2}{(\bar t + \bar f)^4}.
+\]
+\end{proposition}
+
+\noindent The derivation is a direct application of
+\Cref{thm:delta-method} in its bivariate form. Let $g(t, f) =
+t / (t + f)$ be the PPV function of two arguments. Its gradient is
+\[
+  \nabla g(t, f)
+  \;=\; \frac{1}{(t + f)^2}
+  \begin{bmatrix} f \\ -t \end{bmatrix}.
+\]
+The covariance matrix of $(\TP, \FP)$ is $\mathrm{diag}(\sigma_t^2,
+\sigma_f^2)$ because the two counts are independent. Evaluating
+$\nabla g$ at the mean $(\bar t, \bar f)$ and computing the
+quadratic form gives
+\[
+  \Var[\widehat{\PPV}]
+  \;\approx\; \nabla g^\top\, \mathrm{diag}(\sigma_t^2, \sigma_f^2)\, \nabla g
+  \;=\; \frac{\bar f^{\,2} \sigma_t^2 + \bar t^{\,2} \sigma_f^2}{(\bar t + \bar f)^4},
+\]
+which is the stated formula. Substituting the parameter values
+$\bar t = n \pi (1 - \fnrate)$, $\bar f = n (1 - \pi) \fprate$,
+$\sigma_t^2 = n \pi (1 - \fnrate) \fnrate$, and $\sigma_f^2 =
+n (1 - \pi) \fprate (1 - \fprate)$ writes the variance as an
+explicit function of $(\fprate, \fnrate, \pi, n)$.
+
+\subsection*{Delta-method CI for PPV}
+
+A Wald-style $1 - \alpha$ confidence interval for $\PPV$ follows
+from \Cref{prop:ppv-variance} by substituting the empirical
+estimates $\hat{\fprate}, \hat{\fnrate}, \hat\pi$ into the variance
+formula and pairing the result with the empirical $\widehat{\PPV}$:
+\[
+  \widehat{\PPV}
+  \;\pm\; z_{\alpha/2} \sqrt{\widehat{\Var[\widehat{\PPV}]}},
+\]
+where the hat over the variance indicates plug-in evaluation. This
+inherits the boundary and skew problems of the Wald interval for
+$\fprate$ in \Cref{sec:confidence-intervals}: when $\widehat{\PPV}$
+is near $0$ or $1$ the symmetric interval can extend past the unit
+interval, and at small $n_\top$ or $n_\bot$ the Normal approximation
+breaks down. The remedy is the same: a Wilson- or
+Clopper-Pearson-style interval on the binomial count
+$\TP$ conditioned on $\TP + \FP$ (which is binomial with parameter
+$\PPV$ when $n_\top, n_\bot$ are conditioned upon), or a bootstrap
+interval resampling the contingency table. The bootstrap is
+attractive when the analytic formula is unwieldy; the score-based
+Wilson interval is attractive when computation is cheap. The choice
+is mostly a matter of taste once $n$ is large enough that all three
+agree, and a matter of correctness near the boundaries.
+
+\subsection*{$\Fone$ via the delta method}
+
+The same calculation runs for $\Fone$. Writing $\Fone = 2 \TP /
+(\TP + \FP + n_\top)$ (the $\FN = n_\top - \TP$ substitution turns
+the harmonic mean into a function of $\TP$ and $\FP$ only) and
+applying \Cref{thm:delta-method} to the gradient of $h(t, f) =
+2 t / (t + f + n_\top)$ at the means gives the first-order
+delta-method variance
+\[
+  \Var[\Fone]
+  \;\approx\;
+  \frac{4 (\bar f + n_\top)^2 \sigma_t^2 + 4 \bar t^{\,2} \sigma_f^2}{(\bar t + \bar f + n_\top)^4}.
+\]
+The extra $n_\top$ in the coefficient of $\sigma_t^2$ is the only
+structural difference from the PPV variance: it adds the column
+total to the gradient component along $\TP$.
+
+\begin{example}[$\Fone$ with delta-method CI]
+\label{ex:f1-delta}
+Take $\fprate = 0.05$, $\fnrate = 0.10$, $\pi = 0.1$, $n = 1000$.
+Conditioning on $n_\top = n \pi = 100$ and $n_\bot = n (1 - \pi) =
+900$, the point estimate is
+\[
+  \Recall = 1 - 0.10 = 0.90,
+  \qquad
+  \Precision = \frac{0.1 \cdot 0.9}{0.1 \cdot 0.9 + 0.9 \cdot 0.05}
+  = \frac{0.09}{0.135} = \frac{2}{3} \approx 0.667,
+\]
+\[
+  \Fone = \frac{2 \cdot (2/3) \cdot 0.9}{(2/3) + 0.9}
+        = \frac{1.2}{1.5667} \approx 0.766.
+\]
+The expected counts are $\bar t = 90$, $\bar f = 45$, with variances
+$\sigma_t^2 = 100 \cdot 0.9 \cdot 0.1 = 9$ and $\sigma_f^2 = 900
+\cdot 0.05 \cdot 0.95 = 42.75$. The denominator is $s = 90 + 45 +
+100 = 235$, so
+\[
+  \Var[\Fone]
+  \;\approx\;
+  \frac{4 \cdot 145^2 \cdot 9 + 4 \cdot 90^2 \cdot 42.75}{235^4}
+  \;=\;
+  \frac{756900 + 1385100}{3{,}049{,}800{,}625}
+  \;\approx\;
+  7.02 \times 10^{-4},
+\]
+giving a standard deviation of about $0.0265$. The 95\% Wald-style
+confidence interval at $z_{0.025} = 1.96$ is therefore
+\[
+  \Fone \;\in\; 0.766 \pm 1.96 \cdot 0.0265
+  \;\approx\; 0.766 \pm 0.052
+  \;\approx\; [0.714, 0.818].
+\]
+The interval is narrower than the analogous PPV interval at the same
+parameters because the $n_\top$ in the denominator of $\Fone$ acts
+as a stabilizer: a small change in $\TP$ or $\FP$ moves $\Fone$ less
+than it moves $\PPV$, and the variance is correspondingly smaller.
+\end{example}
+
+\subsection*{Bloom filter PPV under workload}
+
+The dependence of PPV on prevalence is sharp enough to drive a
+concrete example. Consider a Bloom filter
+(\Cref{def:bloom-filter,sec:bloom-from-scratch}) tuned to one-sided
+error: $\fnrate = 0$ (no false negatives, by the filter's
+construction) and $\fprate = 0.01$ (typical of the
+$m / n \approx 10$, $k = 7$ regime). The same filter is now deployed
+on two workloads.
+
+\emph{Workload~A: rare $\top$.} Suppose the workload has prevalence
+$\pi = 0.01$. By \Cref{def:ppv},
+\[
+  \PPV
+  \;=\; \frac{0.01 \cdot 1}{0.01 \cdot 1 + 0.99 \cdot 0.01}
+  \;=\; \frac{0.01}{0.0199}
+  \;\approx\; 0.503.
+\]
+About half of all positive reports the filter produces are false
+positives. The filter is correct on every $\top$ in the workload
+(by $\fnrate = 0$) and wrong on $1\%$ of the much larger $\bot$
+population; in the aggregate the wrongs roughly match the rights at
+the column total.
+
+\emph{Workload~B: common $\top$.} The same filter on a workload with
+$\pi = 0.5$ gives
+\[
+  \PPV
+  \;=\; \frac{0.5 \cdot 1}{0.5 \cdot 1 + 0.5 \cdot 0.01}
+  \;=\; \frac{0.5}{0.505}
+  \;\approx\; 0.990.
+\]
+About one in a hundred positive reports is wrong.
+
+Same filter, same $(\fprate, \fnrate)$, two workloads, PPV moving by
+nearly a factor of two. A claim like ``the Bloom filter has
+precision $0.99$'' is workload-dependent and uninformative without
+the workload. The corresponding claim about $(\fprate, \fnrate)$ is
+workload-free. \Cref{sec:bloom-diagnostics} works out the diagnostic
+inversion: given an observed false-positive count on a workload of
+known prevalence, recover a confidence interval for the underlying
+$\fprate$ and translate it back into a confidence interval for PPV
+at that prevalence. The forward direction (parameters to PPV) is
+straightforward; the backward direction (observation to PPV with
+uncertainty) is where the chapter-7 toolkit pays off.
+
+\subsection*{What has been retired}
+
+Item~(iv) of the §1.4 deferral is now retired. PPV, NPV, recall, and
+$\Fone$ are defined in terms of $(\fprate, \fnrate, \pi)$;
+estimators read off the contingency table inherit variances from
+the binomial counts via the delta method; the prevalence-dependence
+of PPV is recorded as the central caveat that separates intrinsic
+classifier properties from joint classifier-and-workload properties.
+\Cref{sec:bloom-diagnostics} closes the chapter with one worked
+diagnostic application using the entire toolkit.
