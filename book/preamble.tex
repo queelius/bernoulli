@@ -45,3 +45,15 @@
 % \providecommand is used so the textbook stays robust if alex.sty adds
 % these names later.
 \providecommand{\Universe}{U}
+
+% Classification-measure macros for Part II chapter 7.
+% alex.sty already provides \PPV (\RV{PPV}) and \NPV (\RV{NPV}) at
+% lines 648 and 649, plus \ACC, \FOR, \FDR, \FPR, \FNR, \TNR, \TPR,
+% \TP, \FP, \FN, \TN. The following are not in alex.sty, so we add
+% them here. The Greek symbol \pi for prevalence is conventional in
+% epidemiology and works inline as $\pi$; the \Prevalence macro just
+% makes prose references cleaner.
+\providecommand{\Precision}{\mathrm{precision}}
+\providecommand{\Recall}{\mathrm{recall}}
+\providecommand{\Fone}{F_1}
+\providecommand{\Prevalence}{\pi}
