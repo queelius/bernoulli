@@ -1,1 +1,110 @@
-% Placeholder. Drafted in Plan 9 Task 7.
+% §9.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 9, drafted in Tasks 2-6 of Plan 9):
+%   \Cref{sec:atom-to-function}                  -- chapter 9 §9.1
+%   \Cref{sec:n-ary-channels}                    -- chapter 9 §9.2
+%   \Cref{def:n-ary-channel}                     -- chapter 9 §9.2 definition
+%   \Cref{sec:n-ary-kronecker}                   -- chapter 9 §9.3
+%   \Cref{thm:n-ary-kronecker}                   -- chapter 9 §9.3 theorem
+%   \Cref{cor:n-ary-parameter-count}             -- chapter 9 §9.3 corollary
+%   \Cref{sec:n-ary-capacity}                    -- chapter 9 §9.4
+%   \Cref{prop:n-ary-capacity}                   -- chapter 9 §9.4 proposition
+%   \Cref{sec:bridge-to-sketches}                -- chapter 9 §9.5
+%
+% ALREADY RESOLVED (chapters 4, 8):
+%   \Cref{sec:kronecker}                         -- chapter 4 §4.4
+%   \Cref{thm:kronecker}                         -- chapter 4 §4.4 theorem
+%   \Cref{sec:bsc-capacity}                      -- chapter 8 §8.2
+%   \Cref{sec:entropy-refresher}                 -- chapter 8 §8.1
+%
+% FORWARD REFERENCES (resolve in later plans):
+%   \Cref{ch:sketches}                           -- chapter 10 (Plan 0 stub)
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{towell-bernoulli-maps}                 -- Towell approximate-maps manuscript
+%
+% Citations resolved by prior references.bib entries:
+%   \cite{cover-thomas}                          -- already in references.bib (Plan 0)
+%   \cite{shannon-1948}                          -- already in references.bib (Plan 0)
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch9}
+
+\paragraph{The approximate-maps manuscript.}
+The reformulation of the noisy-bit atom $\Bernoulli{\BoolType}$ into a
+general type-lifted noisy value $\Bernoulli{T}$, together with the
+n-ary channel matrix $Q$ that organizes its per-block conditional
+output distributions, follows \textcite{towell-bernoulli-maps}. That
+manuscript is the primary source for the chapter: the move from the
+predicate framing of Part~II to the $T$-valued framing of Part~III in
+\Cref{sec:atom-to-function}, the formal $K \times L$ row-stochastic
+channel of \Cref{def:n-ary-channel}, the n-ary Kronecker factorization
+of \Cref{thm:n-ary-kronecker} and its parameter-count corollary
+\Cref{cor:n-ary-parameter-count}, and the capacity formulation of
+\Cref{sec:n-ary-capacity} are all taken from it. The chapter's
+contribution beyond the manuscript is the pedagogical scaffolding: the
+explicit recall of \Cref{sec:kronecker} and \Cref{sec:bsc-capacity} as
+the model-order-2 special cases that the chapter generalizes, the
+3-class classifier and integer-valued counter as concrete instances of
+$\Bernoulli{T}$ for non-Boolean $T$, and the bridge-to-sketches
+discussion of \Cref{sec:bridge-to-sketches} that prepares
+chapter~\ref{ch:sketches} by exhibiting CountMin, HyperLogLog, and
+MinHash as $\Bernoulli{T}$ instances of the same shape.
+
+\paragraph{N-ary channels and the Blahut-Arimoto algorithm.}
+The information-theoretic background for the n-ary discrete memoryless
+channel is standard textbook material, and the depth reference for
+readers who want more than the working summary of
+\Cref{sec:n-ary-capacity} is \textcite{cover-thomas}. Their chapter~7
+develops the discrete memoryless channel, defines capacity as the
+supremum of mutual information over input distributions on a finite
+alphabet, proves the noisy-channel coding theorem in both directions,
+and treats the symmetric and weakly symmetric special cases whose
+closed-form capacities the chapter quotes. Their chapter~10 covers
+the Blahut-Arimoto algorithm, the iterative coordinate ascent on the
+KL-divergence form of mutual information that the chapter's notebook
+implements, with proofs of monotone improvement and convergence to the
+capacity-achieving input distribution. The Blahut-Arimoto recipe is
+the default numerical tool for any channel that does not admit a
+closed-form capacity; it is what makes the general n-ary capacity of
+\Cref{prop:n-ary-capacity} a computable quantity rather than a
+definition.
+
+\paragraph{Shannon's original framework.}
+The channel-capacity vocabulary that chapter~8 \S8.2 introduces for
+the binary symmetric channel and that this chapter generalizes to
+arbitrary $K \times L$ matrices originates in
+\textcite{shannon-1948}. The 1948 paper introduces the entropy
+$\Entropy(X)$ recalled in \Cref{sec:entropy-refresher}, the channel
+capacity $C = \max_{P_X} \MutualInfo(X; Y)$ that
+\Cref{sec:n-ary-capacity} specializes to the n-ary discrete case, and
+the source-coding theorem that connects the two through the operational
+characterization of capacity as the largest rate at which information
+can be transmitted with vanishing error. Shannon's framing of the
+channel as a probabilistic mapping from input alphabet to output
+alphabet, conditional on the input distribution and producing an
+output distribution governed by a fixed transition kernel, is exactly
+the framing that \Cref{def:n-ary-channel} adopts: the chapter's $Q$ is
+Shannon's transition matrix, the chapter's $K$ and $L$ are the
+cardinalities of his input and output alphabets, and the chapter's
+capacity is his capacity. The 1948 paper remains worth reading on its
+own terms, both for the conceptual clarity of its development and for
+the perspective it gives on how thoroughly Shannon's vocabulary has
+shaped every subsequent treatment of noisy information transmission,
+this chapter included.
+
+\paragraph{Forward to chapter 10.}
+The sketch literature that \Cref{sec:bridge-to-sketches} previews
+(CountMin, HyperLogLog, MinHash, and the streaming-algorithms
+tradition that produced them) is taken up in chapter~\ref{ch:sketches}
+\S10.6, where the original papers are cited alongside the survey
+treatments that have become the standard secondary sources. The
+strategy of chapter~9 is deliberately to fix the framework first and
+defer the named constructions: the three sketches are presented in
+chapter~10 as the first non-Boolean instances of $\Bernoulli{T}$ that
+exercise the full $K \times L$ channel machinery developed here, and
+the bibliographic discussion belongs with the constructions rather
+than with the abstract framework that subsumes them.
