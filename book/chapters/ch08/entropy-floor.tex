@@ -1,1 +1,290 @@
-% Placeholder. Drafted in Plan 8 Task 4.
+% §8.3 The Entropy Floor for Approximate Sets
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:entropy-floor}                    -- this section
+%   \label{thm:entropy-floor}                    -- the headline lower-bound theorem
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{sec:one-sided-two-sided}               -- chapter 5 §5.4
+%   \Cref{def:one-sided}                         -- chapter 5 §5.4 one-sided defn
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%   \Cref{ch:optimal-bernoulli-sets}             -- chapter 14 stub label
+%
+% ALREADY DEFINED (chapter 8 §§8.1--8.2, Plan 8 Tasks 2--3):
+%   \Cref{sec:entropy-refresher}                 -- §8.1
+%   \eqref{eq:entropy}                           -- §8.1 entropy definition
+%   \eqref{eq:binary-entropy}                    -- §8.1 binary entropy function
+%   \Cref{sec:bsc-capacity}                      -- §8.2
+%
+% FORWARD REFS within chapter 8 (resolve in later Plan 8 tasks):
+%   \Cref{sec:bloom-gap}                         -- §8.4 (Task 5)
+%
+% §8.3 states and sketches the chapter's headline theorem: any FNR-zero
+% approximate-set representation with false-positive rate at most fpr
+% requires at least n log_2(1/fpr) bits, i.e. -log_2 fpr bits per
+% element. The proof sketch is a counting argument; the full derivation
+% is in the towell-bernoulli-entropy paper. The section also explains
+% why the floor is asymmetric in fpr vs fnr and forward-links to
+% chapter 14, which constructs an approximate set that achieves the
+% floor asymptotically.
+
+\section{The Entropy Floor for Approximate Sets}
+\label{sec:entropy-floor}
+
+The Bloom filter of \Cref{def:bloom-filter} solves a concrete
+engineering problem with a concrete bit budget, and chapter~5 already
+hinted that the budget is not minimal: a footnote in
+\Cref{sec:one-sided-two-sided} placed Bloom at roughly $9.6$ bits per
+item at $\fprate = 0.01$ and contrasted that with a floor near $6.64$
+bits. The present section turns that contrast into a theorem. For
+any approximate set with false-negative rate zero and false-positive
+rate at most $\fprate$, every representation, including ones nobody
+has invented yet, must store at least $\log_2(1/\fprate)$ bits per
+element on average. The Bloom filter pays a constant factor above
+this floor; chapter~14 constructs a representation that meets it.
+
+\subsection*{Setup}
+
+Fix a finite universe $\Universe$ with $|\Universe| = N$ and a target
+set $A \subseteq \Universe$ with $|A| = n$. By an
+\emph{approximate-set representation} we mean a pair
+$(R, \mathrm{query})$ in which $R \in \{0, 1\}^L$ is a bit string of
+length $L$, and $\mathrm{query}(R, \cdot) : \Universe \to \{\top,
+\bot\}$ is a deterministic algorithm that reads $R$ and any candidate
+$x \in \Universe$ and returns a membership verdict. The bit-string
+length $L$ is the cost we want to bound below, and the parameter pair
+$(\fprate, \fnrate)$ that chapter~5 used to characterize an
+approximate set translates here into constraints on the verdict the
+algorithm produces. Following \Cref{def:one-sided}, we restrict
+attention to FNR-zero representations, the family that contains the
+Bloom filter:
+\begin{description}
+  \item[\emph{FNR-zero.}] For every $x \in A$, $\mathrm{query}(R, x) =
+    \top$. The representation never misses an inserted element.
+  \item[\emph{FPR at most $\fprate$.}] When $x$ is sampled uniformly at
+    random from $\Universe \setminus A$, the probability that
+    $\mathrm{query}(R, x) = \top$ is at most $\fprate$. Equivalently,
+    the number of non-members that the algorithm accepts is at most
+    $\fprate \, (N - n)$.
+\end{description}
+The two conditions together pin down the structure of the
+\emph{accepted set}
+\[
+  A_R \;\coloneqq\; \{\, x \in \Universe \,:\, \mathrm{query}(R, x) =
+  \top \,\}.
+\]
+FNR-zero forces $A \subseteq A_R$: every true element is accepted.
+The FPR bound forces $|A_R \setminus A| \le \fprate (N - n)$: among
+the $N - n$ non-members, at most a $\fprate$ fraction is accepted. So
+\begin{equation}
+\label{eq:accepted-size}
+  |A_R| \;\le\; n + \fprate (N - n) \;\approx\; n + \fprate N
+  \quad \text{for } N \gg n.
+\end{equation}
+The approximate set $\ASet{A}$ is determined by $A_R$, since the
+verdict on $x$ depends on $R$ only through which side of $A_R$ the
+query lands on. The bit string $R$ is whatever encoding the data
+structure happens to use; the accepted set $A_R$ is the
+representation-independent object that does the work. We will count
+both, and the relation between the two is what gives the floor.
+
+\subsection*{The theorem}
+
+\begin{theorem}[Entropy floor for FNR-zero approximate sets]
+\label{thm:entropy-floor}
+Let $\Universe$ be a universe of size $N$ and let $\mathcal{A}_n =
+\{ A \subseteq \Universe : |A| = n \}$ be the family of $n$-element
+subsets. Suppose $(R, \mathrm{query})$ is an FNR-zero approximate-set
+representation scheme with bit-string length $L$ that, for every $A
+\in \mathcal{A}_n$, produces a representation $R(A)$ whose accepted
+set $A_R$ satisfies $A \subseteq A_R$ and the FPR bound
+$|A_R \setminus A| \le \fprate (N - n)$. Then in the asymptotic regime
+$N \gg n$ and $\fprate \in (0, 1)$ bounded away from $1$,
+\begin{equation}
+\label{eq:entropy-floor}
+  L \;\ge\; n \log_2 (1/\fprate) \;-\; o(n),
+\end{equation}
+where $o(n)$ is sublinear in $n$. Equivalently, the bit cost per
+stored element is bounded below by
+\[
+  L / n \;\ge\; -\log_2 \fprate \;+\; o(1).
+\]
+\end{theorem}
+
+The dominant term $n \log_2(1/\fprate)$ is the floor; the sublinear
+correction collects finite-universe boundary effects and is
+negligible at the scales for which approximate sets are deployed.
+The constant has no parameters to tune: it is a feature of the
+information being represented, not of the algorithm representing it.
+
+\subsection*{Proof sketch}
+
+The argument is a counting argument in two steps. The first counts
+how many distinct $A_R$ accepting sets a single representation $R$
+can describe; the second counts how many $A$'s of size $n$ the
+scheme must cover. The bit budget $L$ is then forced by the
+pigeonhole principle.
+
+\medskip
+\noindent\textbf{Step 1: each $A_R$ covers many $A$'s.}
+Fix the accepted set $A_R$ produced by a particular representation
+$R$. By FNR-zero we know that $A \subseteq A_R$, and by
+\eqref{eq:accepted-size} we know that $|A_R| \le n + \fprate N$. The
+true set $A$ is therefore some $n$-element subset of $A_R$: any of
+\[
+  \binom{|A_R|}{n}
+\]
+choices is consistent with the verdict that $R$ delivers. To phrase
+this from the algorithm's point of view: $\mathrm{query}(R, \cdot)$
+cannot distinguish among the $\binom{|A_R|}{n}$ possible true sets
+$A$ that all sit inside $A_R$. They are all consistent with what the
+algorithm reports. The representation $R$ implicitly describes an
+\emph{equivalence class} of true sets, not a single $A$.
+
+\medskip
+\noindent\textbf{Step 2: every $A$ needs a representation.}
+The total number of $n$-element subsets of $\Universe$ is
+$\binom{N}{n}$. For every such $A$, the scheme must produce some bit
+string $R(A) \in \{0, 1\}^L$ that, when paired with $\mathrm{query}$,
+delivers an accepting set $A_R$ containing $A$ and satisfying the FPR
+bound. Two distinct true sets $A_1, A_2$ may share the same bit
+string $R$, but only if both are contained in the common $A_R$;
+otherwise some query would have to be answered differently and the
+representation could not work for both. The number of distinct
+$L$-bit strings is at most $2^L$, and each string accounts for at
+most $\binom{|A_R|}{n}$ true sets. So
+\begin{equation}
+\label{eq:pigeonhole}
+  2^L \cdot \max_{A_R} \binom{|A_R|}{n} \;\ge\; \binom{N}{n}.
+\end{equation}
+Inequality \eqref{eq:pigeonhole} is the pigeonhole step.
+
+\medskip
+\noindent\textbf{Step 3: solve for $L$.}
+Take logarithms in \eqref{eq:pigeonhole}, use $|A_R| \le n + \fprate
+N$ in the binomial on the left, and use Stirling's approximation for
+both binomials:
+\begin{align*}
+  L
+  &\ge\; \log_2 \binom{N}{n} \;-\; \log_2 \binom{n + \fprate N}{n}.
+\end{align*}
+The first term is $\log_2 \binom{N}{n} = n \log_2(N / n) + O(n)$ for
+$N \gg n$. The second term is
+$\log_2 \binom{n + \fprate N}{n}
+= n \log_2 \bigl((n + \fprate N) / n\bigr) + O(n)
+= n \log_2 \bigl(1 + \fprate N / n\bigr) + O(n)$,
+which in the regime $\fprate N \gg n$ simplifies to $n \log_2(\fprate
+N / n) + O(n)$. Subtracting,
+\[
+  L \;\ge\; n \log_2(N / n) \;-\; n \log_2(\fprate N / n) \;-\; O(n)
+  \;=\; n \log_2(1/\fprate) \;-\; O(n).
+\]
+The $O(n)$ slack absorbs the $\log_2$-of-Stirling polynomial
+corrections and is sublinear when divided by $n$, so $L/n \ge
+-\log_2 \fprate + o(1)$.
+
+\medskip
+\noindent\textbf{The asymptotic regime.}
+The simplification $\fprate N \gg n$ used in step~3 is the regime in
+which $\fprate$ is fixed and $N$ grows large relative to $n$, which
+is precisely the deployment regime for approximate sets: a target
+set of $n$ items in a much larger universe, with $\fprate$ the
+designer's chosen error tolerance. In that regime the floor is
+sharp. Outside it (for instance, when $\Universe$ is barely larger
+than $A$ and $\fprate N \approx n$), the bound holds in the rougher
+form \eqref{eq:pigeonhole} but the per-element interpretation $-\log_2
+\fprate$ degrades into a more elaborate expression. The exercises
+return to this regime question. The full asymptotic analysis,
+including the $o(n)$ control, is in the
+\texttt{towell-bernoulli-entropy} paper, which works through the
+Stirling expansion in detail and identifies the sublinear correction
+explicitly. \qed
+
+\subsection*{Form of the bound}
+
+The pleasing thing about \eqref{eq:entropy-floor} is its lack of
+parameters. The per-element cost is a function of the one quantity
+the user controls, and the function is simple: a logarithm of the
+inverse error rate. The bit budget for a representation at target
+$\fprate$ scales as $-\log_2 \fprate$ bits per element regardless of
+how the representation is built. Numerical values at standard error
+tolerances make the scale concrete:
+\begin{center}
+\begin{tabular}{l|ll}
+\hline
+  $\fprate$ & $-\log_2 \fprate$ (bits/element) & bits for $n = 10^6$ \\
+\hline
+  $10^{-1}$ & $\approx 3.32$  & $\approx 0.42$\,MB \\
+  $10^{-2}$ & $\approx 6.64$  & $\approx 0.83$\,MB \\
+  $10^{-3}$ & $\approx 9.97$  & $\approx 1.25$\,MB \\
+  $10^{-6}$ & $\approx 19.93$ & $\approx 2.49$\,MB \\
+  $10^{-9}$ & $\approx 29.90$ & $\approx 3.74$\,MB \\
+\hline
+\end{tabular}
+\end{center}
+A million-element approximate set at one-in-a-billion false-positive
+rate cannot fit in less than about $3.74$ megabytes, no matter what
+clever encoding it uses, so long as it is FNR-zero. The number doubles
+roughly every order of magnitude in $1/\fprate$, because each extra
+factor of $10$ in error tolerance buys about $\log_2 10 \approx 3.32$
+extra bits per element. The size of the universe $N$ does not appear
+in the leading term. Only the target set size $n$ and the error rate
+$\fprate$ matter. That is striking, since one might have expected a
+universe-dependent term akin to $\log_2 \binom{N}{n}$ (the cost of
+identifying $A$ exactly within $\Universe$). The point of an
+approximate set is that the FPR budget buys back exactly the
+universe-dependent excess, leaving the residual $n \log_2(1/\fprate)$.
+
+\subsection*{Why the floor is in $\fprate$, not in $\fnrate$}
+
+\Cref{thm:entropy-floor} is stated for the FNR-zero family of
+\Cref{def:one-sided}. The reader might reasonably ask why the floor
+takes the form $-\log_2 \fprate$ and not the symmetric $-\log_2
+\fprate - \log_2 \fnrate$ or some average of the two. The short
+answer is that the floor is asymmetric because the constraint is
+asymmetric. The proof's pigeonhole step \eqref{eq:pigeonhole} uses
+the FNR-zero condition to force $A \subseteq A_R$, and that
+containment is what makes the count $\binom{|A_R|}{n}$ the right
+measure of equivalence-class size. If the FNR were also positive,
+the true set $A$ would not need to sit inside $A_R$ at all: some
+true elements could be misclassified, and the equivalence classes
+that representations describe would broaden in both directions.
+Spreading the error budget across both rates breaks the rigid
+$A \subseteq A_R$ containment that step~1 of the proof rests on. The
+bound \eqref{eq:entropy-floor} relaxes.
+
+Stated as a theorem we do not prove here: a two-sided approximate
+set with rates $(\fprate, \fnrate)$ can in principle be represented
+in fewer than $n \log_2(1/\fprate)$ bits, because the false negatives
+let the representation get away with describing a smaller equivalence
+class on average. The exact two-sided bound is the binary-symmetric
+analog of the present floor: roughly $n \bigl( 1 - H(\fnrate) \bigr)
+\log_2(1/\fprate)$ bits per element, with $H$ the binary entropy
+function of \eqref{eq:binary-entropy} and the $H(\fnrate)$ term
+discounting the cost by the amount the false negatives blur the
+identity of $A$. We omit the derivation. The qualitative reading is
+enough for the present chapter: the FNR-zero family pays a strictly
+positive premium relative to the two-sided rates because it has given
+up the option of trading some false negatives for fewer bits.
+Chapter~14 discusses the two-sided question in greater depth.
+
+\subsection*{The constructive question}
+
+\Cref{thm:entropy-floor} is a lower bound. Like all lower bounds, it
+forbids: no FNR-zero scheme can do better than $-\log_2 \fprate$
+bits per element. The question it begs is whether the bound is
+tight. Is there an FNR-zero approximate set that actually achieves
+$L / n = -\log_2 \fprate$, or do all constructions pay a strictly
+positive overhead? The standard Bloom filter pays a factor of about
+$1.44$, which \Cref{sec:bloom-gap} derives in the next section.
+Chapter~14 (\Cref{ch:optimal-bernoulli-sets}) constructs the
+Bernoulli Hash Function, a representation that achieves the floor
+asymptotically. The combination of \Cref{thm:entropy-floor} and the
+chapter~14 construction is a tight characterization of the FNR-zero
+family: the floor is at $-\log_2 \fprate$, and there is a known
+scheme that hits it. Until chapter~14 lands, the floor is a target;
+\Cref{sec:bloom-gap} measures how far the standard Bloom filter
+sits above it and asks what structural choice of the Bloom design
+is responsible for the overhead.
