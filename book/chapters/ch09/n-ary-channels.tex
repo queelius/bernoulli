@@ -1,1 +1,347 @@
-% Placeholder. Drafted in Plan 9 Task 3.
+% §9.2 N-ary Channels
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:n-ary-channels}                    -- this section
+%   \label{def:n-ary-channel}                     -- the formal n-ary channel definition
+%
+% RESOLVED (chapter 2):
+%   \Cref{def:bsc}                                -- chapter 2 §2.1 BSC definition
+%   \Cref{def:asymmetric-channel}                 -- chapter 2 §2.2 asymmetric channel
+%   \Cref{sec:model-order}                        -- chapter 2 §2.4 model order
+%   \Cref{def:model-order}                        -- chapter 2 §2.4 definition
+%   \Cref{thm:boolean-ceiling}                    -- chapter 2 §2.4 ceiling theorem
+%
+% RESOLVED (chapter 3):
+%   \Cref{sec:miller-rabin}                       -- chapter 3 §3.4 Miller-Rabin
+%
+% RESOLVED (chapter 4):
+%   \Cref{sec:axiom-1}                            -- chapter 4 §4.2
+%   \Cref{ax:element-indep}                       -- chapter 4 §4.2 Axiom 1
+%   \Cref{sec:axiom-2}                            -- chapter 4 §4.3
+%   \Cref{ax:block-rates-indep}                   -- chapter 4 §4.3 Axiom 2
+%   \Cref{sec:kronecker}                          -- chapter 4 §4.4
+%   \Cref{cor:parameter-reduction}                -- chapter 4 §4.4 corollary
+%   \Cref{sec:bernoulli-bool-formal}              -- chapter 4 §4.5
+%   \Cref{def:bernoulli-bool}                     -- chapter 4 §4.5 formal type
+%
+% RESOLVED (chapter 5):
+%   \Cref{sec:bloom-from-scratch}                 -- chapter 5 §5.2 Bloom filter
+%
+% RESOLVED (chapter 9, sibling sections):
+%   \Cref{sec:atom-to-function}                   -- §9.1 (Task 2)
+%
+% FORWARD REFS within chapter 9 (resolve in Tasks 4-5):
+%   \Cref{sec:n-ary-kronecker}                    -- §9.3 (Task 4)
+%   \Cref{sec:n-ary-capacity}                     -- §9.4 (Task 5)
+%
+% §9.2 formalizes the n-ary channel as a $K \times L$ row-stochastic
+% matrix. The notation choice ($K$ uppercase for model-order, separate
+% from the lowercase $k$ that runs through Part II as Bloom-filter hash
+% count and Miller-Rabin round count) is fixed here and used throughout
+% the rest of Part III.
+
+\section{N-ary Channels}
+\label{sec:n-ary-channels}
+
+\Cref{sec:atom-to-function} established the type-lifting picture: an
+approximate function $\tilde{f} : \Universe \to T$ produces a noisy
+$T$-valued report at every input, and the per-block behavior is a
+distribution on $T$ rather than the single Bernoulli parameter that
+sufficed for the Boolean case. This section converts that picture into
+a formal definition. The object is a row-stochastic matrix; the
+parameter count and the axioms transfer directly from chapter~4, with
+the binary $2$ replaced by the model-order $K$ on the input side and
+the output cardinality $L$ on the output side. The rest of Part~III
+builds on the matrix defined here.
+
+\subsection*{The formal definition}
+
+The setup mirrors \Cref{def:bernoulli-bool}: an input domain, an
+output domain, and a channel matrix that records the per-block
+output distribution. What changes is the size of the matrix.
+
+\begin{definition}[n-ary channel]
+\label{def:n-ary-channel}
+An \emph{n-ary channel} is a triple $(X, Y, Q)$ where:
+\begin{enumerate}
+  \item $X$ is the \emph{input domain}, partitioned by the finest
+    compatible partition (\Cref{def:model-order}) into $K$ blocks
+    $B_1, B_2, \ldots, B_K$. The integer $K$ is the \emph{model
+    order} of the channel.
+  \item $Y$ is the \emph{output domain}, with $|Y| = L$. The
+    elements of $Y$ are indexed $1, 2, \ldots, L$.
+  \item $Q$ is a $K \times L$ \emph{row-stochastic matrix}: its
+    entries satisfy $Q_{ij} \ge 0$ for every $i \in \{1, \ldots, K\}$
+    and $j \in \{1, \ldots, L\}$, and every row sums to one,
+    \[
+      \sum_{j = 1}^{L} Q_{ij} \;=\; 1
+      \qquad
+      \text{for each } i \in \{1, \ldots, K\}.
+    \]
+    The entry $Q_{ij}$ is the probability that the channel reports
+    output $j$ given that the input lies in block $B_i$:
+    \[
+      Q_{ij} \;=\; \Prob{\text{output} = j \Given \text{input} \in B_i}.
+    \]
+  The triple satisfies \Cref{ax:element-indep} (Axiom~1: error events
+  at distinct inputs are mutually independent) and
+  \Cref{ax:block-rates-indep} (Axiom~2: the per-block output
+  distributions are conditionally independent of one another given
+  the objective function).
+\end{enumerate}
+\end{definition}
+
+The triple $(X, Y, Q)$ is the n-ary analogue of the Boolean triple of
+\Cref{def:bernoulli-bool}. Setting $K = L = 2$ recovers that
+definition exactly, with the two rows of $Q$ governing the two
+blocks $B_1 = \{\top\}$ and $B_2 = \{\bot\}$. Allowing $K$ or $L$ to
+exceed $2$ produces a strictly larger family of channels, of which
+the Boolean case is the smallest non-trivial member.
+
+Three components of the definition deserve highlighting. First, the
+input partition is the finest compatible partition in the sense of
+\Cref{def:model-order}: two inputs go in the same block precisely
+when their output distributions agree. This is the same convention as
+chapter~2; the model order $K$ is a property of the channel itself,
+not a description of the input domain's set-theoretic structure.
+Second, the rows are indexed by input blocks and the columns by
+output values, with row $i$ giving the distribution conditional on
+input block $B_i$. The convention matches the $2 \times 2$ orientation
+of chapter~4 (row 1 for $\{\top\}$, row 2 for $\{\bot\}$) and
+generalizes without surprise to the $K \times L$ case. Third, the
+row-stochastic constraint $\sum_j Q_{ij} = 1$ is the only constraint
+the entries satisfy beyond non-negativity. Every row is a probability
+distribution on the output alphabet, and that distribution is
+arbitrary up to summing to one. The shape of the matrix is wider when
+$L$ is larger and taller when $K$ is larger; non-square shapes ($K
+\ne L$) are the rule rather than the exception, and a $K = 5, L = 2$
+channel (say, a five-block classifier whose output is binary
+accept/reject) is just as much an n-ary channel as the square cases.
+
+\subsection*{Notation: $K$ uppercase, $k$ lowercase}
+
+Throughout Part~III, the symbol $K$ (uppercase) denotes the
+model-order of the input partition, as fixed by
+\Cref{def:n-ary-channel}. The symbol $k$ (lowercase) is reserved for
+the two unrelated counts that have run through Parts~I and~II: the
+number of hash functions in a Bloom filter (\Cref{sec:bloom-from-scratch})
+and the number of independent witness draws in a round of
+Miller-Rabin primality testing (\Cref{sec:miller-rabin}). The two
+roles are unrelated, and the case distinction (uppercase versus
+lowercase) is the one device that keeps them apart.
+
+The collision is real, not contrived. A Bloom filter has model order
+$K = 2$ (the input domain partitions into ``in the set'' and ``not in
+the set'') and hash count $k$ (the per-element bookkeeping parameter
+that controls space and the false-positive rate). Miller-Rabin has
+model order $K = 2$ (the input partitions into ``prime'' and
+``composite'') and round count $k$ (the independent witnesses
+combined per query). In both cases the model-order $K$ is fixed by
+the problem (it is binary), and the lowercase $k$ is a design knob
+that the implementer chooses. Treating them as a single symbol would
+collapse two genuinely different roles and obscure the fact that
+$K = 2$ is structural while $k$ is tunable. Beyond Part~II, where
+$K = 2$ is implicit throughout and the lowercase $k$ shoulders the
+narrative weight, Part~III makes $K$ explicit and lets it vary, while
+the lowercase $k$ continues to denote per-construction tuning
+parameters in the chapters that introduce them.
+
+The same case discipline applies to $L$. The output cardinality is
+the uppercase $L$; any lowercase $l$ that appears in derivations is
+a per-stage index or summation variable and is local in scope. The
+convention is the same one used in chapter~4 for $Q$ and in
+chapter~8 for capacity: structural parameters of the channel are
+uppercase, indices and tuning knobs are lowercase.
+
+\subsection*{Examples}
+
+The definition specializes to every channel that has appeared so
+far in the book, plus the new n-ary cases that motivate Part~III.
+We work through four examples: two binary, one three-way, and one
+with a countably infinite input and output domain.
+
+\paragraph{Example 1: $K = 2$, $L = 2$, symmetric.}
+The simplest n-ary channel is the binary symmetric channel of
+\Cref{def:bsc}. The input partitions into $B_1 = \{\top\}$ and $B_2
+= \{\bot\}$, both with the same flip probability $\fprate$, and the
+matrix is
+\[
+  Q_{\mathrm{BSC}} \;=\;
+  \begin{pmatrix}
+    1 - \fprate & \fprate \\
+    \fprate & 1 - \fprate
+  \end{pmatrix}.
+\]
+The model order is $K = 2$ by partition count under the discrete
+partition, with the symmetry constraint $\fprate$ shared between the
+rows; the output cardinality is $L = 2$; and the matrix is square.
+The definition specializes exactly: $Q_{\mathrm{BSC}}$ is a $2 \times
+2$ row-stochastic matrix and the axioms transfer directly from
+\Cref{def:bernoulli-bool}.
+
+\paragraph{Example 2: $K = 2$, $L = 2$, asymmetric.}
+Dropping the symmetry constraint recovers the asymmetric binary
+channel of \Cref{def:asymmetric-channel}:
+\[
+  Q_{\mathrm{asym}} \;=\;
+  \begin{pmatrix}
+    1 - \fnrate & \fnrate \\
+    \fprate     & 1 - \fprate
+  \end{pmatrix}.
+\]
+Row 1 governs $B_1 = \{\top\}$ with false-negative rate $\fnrate$;
+row 2 governs $B_2 = \{\bot\}$ with false-positive rate $\fprate$.
+The matrix is again $2 \times 2$, but the two rows now have
+independently chosen probabilities, and the channel is fully
+specified by the pair $(\fprate, \fnrate)$. The Z-channel is the
+specialization $\fnrate = 0$ (or $\fprate = 0$): a one-sided
+asymmetric channel still living in the $K = L = 2$ family.
+
+\paragraph{Example 3: $K = 3$, $L = 3$, a 3-class classifier.}
+A confusion matrix is exactly an n-ary channel. Suppose
+$\tilde{f}$ classifies an input image as one of three labels: cat,
+dog, or bird. The input domain partitions into three blocks by true
+class, $B_1 = \text{cats}$, $B_2 = \text{dogs}$, $B_3 = \text{birds}$,
+and the output alphabet is also $\{\text{cat}, \text{dog},
+\text{bird}\}$. A representative channel with 90\% per-class accuracy
+and the off-diagonal mass split evenly between the two competing
+labels is
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    0.90 & 0.05 & 0.05 \\
+    0.05 & 0.90 & 0.05 \\
+    0.05 & 0.05 & 0.90
+  \end{pmatrix}.
+\]
+Each row sums to $1$; the diagonal entries are the per-class
+accuracies; the off-diagonal entries are the per-class confusion
+rates. The matrix has six free parameters once row sums are imposed
+($3 \times (3 - 1) = 6$). The example above is constrained beyond
+the row-sum requirement (each row has only one free parameter, the
+diagonal $0.90$), but a generic 3-class classifier uses all six
+degrees of freedom and produces a non-symmetric confusion matrix in
+which different true classes have different error profiles.
+
+\paragraph{Example 4: $K = \infty$, $L = \infty$, a counter.}
+Sketches preview. Let $\tilde{f}$ be a frequency estimator whose
+input is a stream item and whose output is an integer estimate
+$\hat{n}$ of that item's true count $n$. The input domain partitions
+into the blocks $B_n = \{x : \text{true count of } x = n\}$ for
+$n = 0, 1, 2, \ldots$, giving $K = \infty$. The output alphabet is
+$\mathbb{N}$, so $L = \infty$. The channel matrix is infinite in both
+dimensions, but row $n$ is still a probability distribution on
+$\mathbb{N}$ (typically concentrated near $n$ with a tractable tail).
+Writing the matrix out is impractical, but the structure transfers:
+$Q_{nm}$ is the probability that the estimator reports $m$ when the
+true count is $n$, and every row sums to one. Concrete sketches
+realize this object with specific tail shapes (CountMin gives a
+one-sided tail, HyperLogLog gives a relative-error tail), and
+chapter~10 builds out the constructions in detail.
+
+\subsection*{Axiom transfer from chapter 4}
+
+The two chapter~4 axioms transfer to the n-ary setting without
+modification. Both axioms are stated in chapter~4 for the Boolean
+case, but neither statement is binary in any essential way: they are
+claims about independence, and independence is indifferent to
+alphabet size.
+
+\paragraph{Axiom 1 (\Cref{ax:element-indep}) lifts unchanged.}
+The Boolean form of the axiom asserts that error events at distinct
+inputs are mutually independent: the probability that the channel
+errs on input $x_1$ is independent of the probability that it errs
+on $x_2$, for any pair of distinct inputs. The same statement
+applies verbatim in the n-ary case, with ``errs'' replaced by
+``produces output $j$'': the events $\{\text{output on } x_1 =
+j_1\}$ and $\{\text{output on } x_2 = j_2\}$ are independent for
+all $x_1 \ne x_2$ and all $j_1, j_2 \in Y$. The Boolean case is the
+$L = 2$ instance of the same condition. Nothing in the proof of
+\Cref{ax:element-indep} (or in any of its uses) depended on $L = 2$,
+and the proof template carries forward.
+
+\paragraph{Axiom 2 (\Cref{ax:block-rates-indep}) lifts unchanged.}
+The Boolean form asserts that the per-block rates $\fprate$ and
+$\fnrate$ are conditionally independent of each other given the
+objective set. In the n-ary case, each block $B_i$ has a per-block
+output distribution rather than a single rate, but the independence
+claim is the same: the per-block distributions
+$Q_{1\,\cdot}, Q_{2\,\cdot}, \ldots, Q_{K\,\cdot}$ (the $K$ rows
+of $Q$ viewed as probability distributions on $Y$) are mutually
+conditionally independent given the objective function. The Boolean
+case is the $K = 2$ instance, with the two row distributions
+parametrized by $(\fprate)$ and $(\fnrate)$ respectively. The
+generalization to $K$ rows is dimensional, not conceptual.
+
+The conjunction of Axiom~1 and Axiom~2 is what makes the channel
+matrix $Q$ a sufficient summary of the n-ary channel's behavior, in
+the same sense that the pair $(\fprate, \fnrate)$ was sufficient for
+the Boolean case. \Cref{sec:n-ary-kronecker} converts the
+independence claim into a factorization theorem for joint queries.
+
+\subsection*{Parameter count}
+
+A $K \times L$ row-stochastic matrix has $K \cdot L$ entries, but
+the $K$ row-sum constraints (one per row) eliminate one degree of
+freedom per row. The free-parameter count is therefore
+\[
+  K \cdot L - K \;=\; K(L - 1).
+\]
+Each row of $L$ probabilities is a probability distribution on a
+finite set, and a distribution on an $L$-element set has $L - 1$ free
+parameters. Multiplying by the $K$ rows gives the total. The formula
+is the n-ary generalization of the Boolean parameter count of
+\Cref{cor:parameter-reduction}: at $K = L = 2$, it reduces to
+$2 \cdot (2 - 1) = 2$, the familiar $(\fprate, \fnrate)$ pair.
+
+\medskip
+
+\noindent\textbf{The growth rate.}
+The parameter count grows linearly in both $K$ and $L$ (a $K = 5,
+L = 3$ channel has $5 \cdot 2 = 10$ parameters; a $K = 10, L = 4$
+channel has $10 \cdot 3 = 30$). For practical specification, the
+growth is gentle: a 10-class classifier with model order $K = 10$ is
+specified by 90 numbers (90\% of the 100 entries of $Q$). The
+contrast with the unconstrained joint-distribution parameter count
+is sharp. A general joint distribution over the same $K \times L$
+input-output pairs has $K \cdot L - 1$ parameters in total (just
+one normalization constraint over the whole table). The Axiom~1
+and Axiom~2 reduction from chapter~4 cuts this to $K(L - 1)$ by
+imposing per-row normalization, exactly as in the Boolean case.
+
+\medskip
+
+\noindent\textbf{Constraints from problem structure.}
+Many channels carry additional structural constraints that further
+reduce the parameter count below $K(L - 1)$. Example~1's BSC
+imposes the symmetry constraint $\fprate$ shared between the two
+rows, dropping the count from $2$ to $1$. Example~3's 3-class
+classifier with uniform off-diagonal mass (and a common diagonal)
+imposes additional constraints that reduce the six row-sum-free
+parameters to a single accuracy value $0.90$. Strongly symmetric
+n-ary channels (\Cref{sec:n-ary-capacity}) impose that the rows
+of $Q$ be permutations of each other and that the columns be
+permutations as well, reducing the count to a single error
+probability. The $K(L - 1)$ count is the upper bound; specific
+channels can be much more compact under their own symmetries.
+
+\subsection*{Where the chapter goes next}
+
+The chapter now has the formal object that \Cref{sec:atom-to-function}
+previewed: a $K \times L$ row-stochastic matrix $Q$, satisfying
+the two chapter~4 axioms, with $K(L - 1)$ free parameters in general.
+The next two sections lift the two structural results of Parts~I and~II
+to the n-ary setting. \Cref{sec:n-ary-kronecker} generalizes
+\Cref{cor:parameter-reduction}: the joint distribution over $m$
+queries on an n-ary channel factors as the $m$-fold Kronecker product
+of the per-query channel matrices, with parameter count growing as
+$mK(L - 1)$ rather than exponentially in $m$. \Cref{sec:n-ary-capacity}
+generalizes the BSC capacity result: capacity is still the maximum
+mutual information $I(X; Y)$ over input distributions on the $K$
+blocks, with closed forms for the symmetric sub-family and numerical
+recipes (Blahut-Arimoto) for the general case. Both results have the
+same shape as their Boolean ancestors; the change is dimensional, and
+the proofs are mostly bookkeeping once the n-ary Kronecker structure
+is in hand.
