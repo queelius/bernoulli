@@ -1,1 +1,352 @@
-% Placeholder. Drafted in Plan 9 Task 4.
+% §9.3 The n-ary Kronecker Theorem
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:n-ary-kronecker}                   -- this section
+%   \label{thm:n-ary-kronecker}                   -- the headline theorem
+%   \label{cor:n-ary-parameter-count}             -- parameter count corollary
+%
+% RESOLVED (chapter 4):
+%   \Cref{sec:kronecker}                          -- chapter 4 §4.4
+%   \Cref{thm:kronecker}                          -- chapter 4 §4.4 theorem
+%   \Cref{cor:kronecker-unconditional}            -- chapter 4 §4.4 corollary
+%   \Cref{cor:parameter-reduction}                -- chapter 4 §4.4 corollary
+%   \Cref{ax:element-indep}                       -- chapter 4 §4.2 Axiom 1
+%   \Cref{ax:block-rates-indep}                   -- chapter 4 §4.3 Axiom 2
+%   \Cref{sec:bernoulli-bool-formal}              -- chapter 4 §4.5
+%
+% RESOLVED (chapter 9, sibling sections):
+%   \Cref{sec:n-ary-channels}                     -- §9.2
+%   \Cref{def:n-ary-channel}                      -- §9.2 definition
+%
+% §9.3 lifts the Kronecker factorization theorem of chapter 4 §4.4
+% from model-order 2 to general $K$. The structure mirrors the chapter 4
+% treatment: a headline theorem (the joint distribution over $m$ queries
+% factors as a product over channel matrix entries), a proof sketch
+% recycling Axioms 1 and 2 at the n-ary level, a parameter-count
+% corollary generalizing \Cref{cor:parameter-reduction}, and a worked
+% example using the 3-class classifier of \Cref{sec:n-ary-channels}.
+% Part III continues to work in the deterministic-rates regime of
+% chapter 4, where the conditional and unconditional factorization
+% forms coincide.
+
+\section{The n-ary Kronecker Theorem}
+\label{sec:n-ary-kronecker}
+
+\Cref{sec:n-ary-channels} closed with the promise that the joint
+distribution over $m$ queries on an n-ary channel would factor in the
+same way as for the Boolean case of chapter~4. This section delivers
+the promise. The statement, the proof, the corollary, and the worked
+example all mirror \Cref{sec:kronecker}; the only change is dimensional,
+with the binary output alphabet replaced by an output alphabet of size
+$L$ and the binary input partition replaced by one of size $K$.
+
+\subsection*{Recalling the chapter 4 theorem}
+
+At model-order 2, chapter~4 proved that the joint confusion matrix of
+$m$ queries on a Bernoulli predicate factors as a Kronecker product of
+the $m$ per-query channel matrices. The headline statement is
+\Cref{thm:kronecker}: under Axiom~1 (error events at distinct inputs
+are mutually independent, \Cref{ax:element-indep}) and Axiom~2
+(per-block rates are mutually independent across blocks,
+\Cref{ax:block-rates-indep}), the rate-conditional joint matrix
+factors as
+\[
+  Q^{(m) *}(\alpha) \;=\; Q^*_1(\alpha) \otimes Q^*_2(\alpha)
+                          \otimes \cdots \otimes Q^*_m(\alpha).
+\]
+\Cref{cor:kronecker-unconditional} promotes this conditional statement
+to an unconditional one when the queried blocks are pairwise distinct,
+or, more importantly for the worked examples of Parts~I and~II, when
+the per-block rates are deterministic constants. In the
+deterministic-rates regime, $Q^*_\ell = Q_\ell$ for every query
+position $\ell$, and the conditional and unconditional matrices
+coincide. Plan~5's §5.3 review of Part~II confirmed that every Bloom
+filter and Miller-Rabin computation in the book operates in this
+regime, and Part~III continues the convention. From here on we drop
+the conditional star and write $Q$ for the (deterministic) per-query
+channel matrix.
+
+The structural payoff of the chapter~4 theorem was the parameter-count
+collapse of \Cref{cor:parameter-reduction}: the joint matrix
+$Q^{(m)}$ requires $nm$ free parameters rather than the
+$n(2^m - 1)$ that an unconstrained $m$-query channel would demand. The
+exponent $2^m$ became a linear $2m$ because the two axioms force a
+Kronecker structure that no general joint distribution shares. The
+$n$-ary generalization preserves this collapse, with the binary $2$
+replaced by the output cardinality $L$.
+
+\subsection*{The headline theorem}
+
+Fix an n-ary channel $(X, Y, Q)$ in the sense of
+\Cref{def:n-ary-channel}: input domain $X$ partitioned into $K$ blocks
+$B_1, \ldots, B_K$, output domain $Y$ of size $L$, and channel matrix
+$Q$ a $K \times L$ row-stochastic matrix whose entries $Q_{ij}$ record
+$\Prob{Y = j \Given X \in B_i}$. The axioms transfer from chapter~4
+without modification, as already established in
+\Cref{sec:n-ary-channels}. We now query the channel $m$ times.
+
+\begin{theorem}[n-ary Kronecker factorization]
+\label{thm:n-ary-kronecker}
+Let $(X, Y, Q)$ be an n-ary channel of model-order $K$ and output
+cardinality $L$, satisfying \Cref{ax:element-indep} (Axiom~1) and
+\Cref{ax:block-rates-indep} (Axiom~2), and working in the
+deterministic-rates regime of chapter~4. Let $X_1, \ldots, X_m$ be
+$m$ inputs queried in order, with $X_i \in B_{j_i}$ for each
+$i = 1, \ldots, m$, and let $Y_1, \ldots, Y_m$ be the corresponding
+outputs. Then the joint distribution of outputs given the input
+blocks factors as
+\[
+  \Prob{Y_1, \ldots, Y_m \Given X_1 \in B_{j_1}, \ldots,
+                                 X_m \in B_{j_m}}
+  \;=\;
+  \prod_{i = 1}^{m} Q_{j_i,\, Y_i}.
+\]
+Equivalently, the $K^m \times L^m$ joint channel matrix
+$Q^{(m)}$ whose
+$(j_1 \cdots j_m,\, y_1 \cdots y_m)$-entry is the probability above
+factors as the $m$-fold Kronecker product
+\[
+  Q^{(m)} \;=\; Q \otimes Q \otimes \cdots \otimes Q
+          \;=\; Q^{\otimes m}.
+\]
+\end{theorem}
+
+The statement is the n-ary version of
+\Cref{cor:kronecker-unconditional} once the conditional form
+\Cref{thm:kronecker} is specialized to deterministic rates. Each
+per-query channel matrix is the same $K \times L$ matrix $Q$, so the
+$m$-fold Kronecker product is a Kronecker power. Different queries on
+inputs from the same block draw from the same row of $Q$, and the
+independence forced by Axiom~1 makes the joint probability the
+product of $m$ row-column lookups in $Q$. The factor for query $i$ is
+the $(j_i, Y_i)$ entry: pick row $j_i$ for the input block, read
+column $Y_i$ for the observed output, and multiply across queries.
+
+Two notes on scope. First, the statement is in the
+deterministic-rates regime of chapter~4, the regime that every worked
+example in Parts~I and~II inhabited and that Part~III continues to
+inhabit by default. In the more general random-rates setting, the
+same conditional-then-unconditional structure of
+\Cref{thm:kronecker} applies, with the same Jensen-gap caveat for
+repeated-block queries. The deterministic case is the case we use, and
+keeping the statement focused on it keeps the bookkeeping clean.
+Second, the queries are on distinct input elements; repeated queries
+on the same element produce perfectly correlated outputs in any
+deterministic implementation, just as in chapter~4. Repeated queries
+on \emph{different} elements that happen to lie in the same block
+$B_{j_i} = B_{j_{i'}}$ are still independent under Axiom~1: the
+events depend on different elements' draws, and only the row of $Q$
+they consult is shared.
+
+\subsection*{Proof sketch}
+
+The proof recycles the chapter~4 argument with one cosmetic change:
+each row of $Q$ has $L$ entries instead of two. The four steps below
+mirror \Cref{thm:kronecker}'s proof step for step.
+
+\medskip
+\noindent\textbf{Step 1: reduce to a joint probability calculation.}
+Index the queries by $i = 1, \ldots, m$. Query $i$ inputs element
+$X_i \in B_{j_i}$ and observes output $Y_i \in \{1, \ldots, L\}$.
+The $(j_1 \cdots j_m,\, y_1 \cdots y_m)$-entry of $Q^{(m)}$ is
+\[
+  Q^{(m)}_{j_1 \cdots j_m,\, y_1 \cdots y_m}
+  \;=\;
+  \Prob{Y_1 = y_1, \ldots, Y_m = y_m \Given
+        X_i \in B_{j_i} \text{ for each } i}.
+\]
+We aim to show this equals $\prod_{i = 1}^{m} Q_{j_i,\, y_i}$, which
+is the corresponding entry of $Q^{\otimes m}$ by the definition of
+the Kronecker product.
+
+\medskip
+\noindent\textbf{Step 2: Axiom 2 makes each per-query row stable.}
+The deterministic-rates regime means each per-block output
+distribution is a fixed row of $Q$, not a random draw from a
+distribution over rows. Axiom~2 (\Cref{ax:block-rates-indep})
+guarantees that the rows of $Q$ are jointly meaningful: the
+distribution of outputs given $X_i \in B_{j_i}$ is row $j_i$ of $Q$,
+the same row regardless of which other queries are made or what their
+input blocks are. In the chapter~4 proof this was the role of the
+proposition that rates remain stable across queries. In the n-ary
+case the statement is identical, with rows of $Q$ in place of the
+$(\fprate, \fnrate)$ pair.
+
+\medskip
+\noindent\textbf{Step 3: Axiom 1 factors the joint distribution.}
+The outputs $Y_1, \ldots, Y_m$ are deterministic functions of the
+error events at $X_1, \ldots, X_m$. Axiom~1
+(\Cref{ax:element-indep}) asserts that these error events are
+mutually independent across distinct inputs, and the $L = 2$
+restriction in the original Boolean statement plays no role in the
+independence claim itself. Independence of error events implies
+independence of outputs, so
+\begin{align*}
+  &\Prob{Y_1 = y_1, \ldots, Y_m = y_m \Given X_i \in B_{j_i}
+          \text{ for each } i} \\
+  &\quad =\; \prod_{i = 1}^{m}
+              \Prob{Y_i = y_i \Given X_i \in B_{j_i}} \\
+  &\quad =\; \prod_{i = 1}^{m} Q_{j_i,\, y_i}.
+\end{align*}
+The first equality is independence; the second is the definition of
+$Q_{j_i,\, y_i}$ as the probability that the channel reports output
+$y_i$ given input block $B_{j_i}$.
+
+\medskip
+\noindent\textbf{Step 4: read off the matrix.}
+The product $\prod_{i = 1}^{m} Q_{j_i,\, y_i}$ is, by the definition
+of the Kronecker product, the
+$(j_1 \cdots j_m,\, y_1 \cdots y_m)$-entry of $Q \otimes \cdots
+\otimes Q = Q^{\otimes m}$. Since the identification holds for every
+index tuple, the joint matrix factors:
+\[
+  Q^{(m)} \;=\; Q^{\otimes m}. \qed
+\]
+
+\medskip
+
+\noindent\textbf{The conditions used.} The deterministic-rates regime
+plus Axiom~1 plus Axiom~2 is exactly the n-ary version of what the
+chapter~4 proof of \Cref{thm:kronecker} required. Axiom~1 supplies
+factorization across queries; Axiom~2 supplies stability of each
+per-block row across queries; the deterministic-rates regime collapses
+the rate-conditional and unconditional statements into one. The only
+binary-specific step in chapter~4 was reading the two entries of each
+row as $(\fprate, \fnrate)$ or $(\tprate, \fnrate)$ pairs; the n-ary
+proof reads each row as a length-$L$ probability vector and the rest
+is the same calculation.
+
+\subsection*{Parameter count}
+
+\begin{corollary}[Parameter count for joint n-ary queries]
+\label{cor:n-ary-parameter-count}
+Under the hypotheses of \Cref{thm:n-ary-kronecker}, the joint channel
+matrix $Q^{(m)}$ of $m$ queries on an n-ary channel of model-order
+$K$ and output cardinality $L$ is fully specified by the single
+$K \times L$ matrix $Q$, which carries $K(L - 1)$ free parameters.
+Adding queries does not add free parameters; it adds only the
+specification of which input block each query draws from. The general
+$m$-query joint channel, by contrast, would have $K (L^m - 1)$ free
+parameters per source-block convention, growing exponentially in $m$.
+\end{corollary}
+
+\begin{proof}
+The Kronecker product $Q^{\otimes m}$ is determined entirely by the
+single matrix $Q$. Each query position contributes one row index
+$j_i$ (the input block) and one column index $y_i$ (the observed
+output), and the joint entry is the product of $m$ entries of $Q$
+read off in the order given by these indices. The free parameters in
+$Q$ are exactly $K (L - 1)$, as established by the parameter count of
+\Cref{sec:n-ary-channels} (each of the $K$ rows is a probability
+distribution on $L$ outputs, hence $L - 1$ free parameters per row).
+Adding a query position $m + 1$ multiplies the joint matrix shape
+from $K^m \times L^m$ to $K^{m+1} \times L^{m+1}$, but the underlying
+parameters do not change: the new factor in the Kronecker product is
+still $Q$. The exponential parameter cost of the unconstrained
+$m$-query channel is
+\[
+  K (L^m - 1),
+\]
+one probability distribution on $L^m$ joint outputs per source block,
+minus the normalization constraint per block. The ratio
+$\frac{K(L^m - 1)}{K(L - 1)} = \frac{L^m - 1}{L - 1}$ grows
+exponentially in $m$ for fixed $L \ge 2$.
+\end{proof}
+
+This corollary is the direct generalization of
+\Cref{cor:parameter-reduction}. At $K = L = 2$, the
+parameter count $K(L - 1) = 2$ recovers the familiar
+$(\fprate, \fnrate)$ pair of the Boolean case, and the unconstrained
+count $K(L^m - 1) = 2(2^m - 1)$ recovers the exponential reference
+point of chapter~4. The growth in $m$ is the same: linear under the
+axioms, exponential without them. The growth in $L$ is new and
+benign: the unconstrained joint scales as $L^m$, but each row of the
+per-query channel scales only as $L$, so a 10-output channel queried
+50 times is specified by $K \cdot 9$ numbers rather than
+$K \cdot (10^{50} - 1)$. The reduction is even more dramatic at
+larger $L$ than it was at $L = 2$, which is part of why the n-ary
+generalization is worth stating explicitly.
+
+\subsection*{Worked example: the 3-class classifier}
+
+We compute a joint probability with the 3-class classifier of
+\Cref{sec:n-ary-channels}, Example~3. The channel has $K = L = 3$
+and matrix
+\[
+  Q \;=\;
+  \begin{pmatrix}
+    0.9  & 0.05 & 0.05 \\
+    0.05 & 0.9  & 0.05 \\
+    0.05 & 0.05 & 0.9
+  \end{pmatrix}.
+\]
+Row $i$ governs inputs in block $B_i$ (the inputs whose true class is
+$i$), column $j$ records the probability that the classifier outputs
+class $j$, and the diagonal entries are the per-class accuracies of
+$90\%$. The matrix has $K(L - 1) = 3 \cdot 2 = 6$ free parameters in
+general; this particular $Q$ is constrained beyond that, with a single
+diagonal value and uniform off-diagonal mass, but the structure of
+$Q^{\otimes m}$ does not care about those extra constraints.
+
+Consider three queries with inputs
+\[
+  (X_1, X_2, X_3) \in (B_1, B_2, B_1)
+\]
+and observed outputs
+\[
+  (Y_1, Y_2, Y_3) = (1, 2, 1).
+\]
+Each query is correctly classified: $X_1$ is a true class-1 input
+that the classifier reports as class $1$; $X_2$ is a true class-2
+input reported as class $2$; $X_3$ is another true class-1 input
+reported as class $1$. The block sequence $(B_1, B_2, B_1)$ has $B_1$
+appearing twice; in the random-rates setting of chapter~4 this would
+trigger the Jensen-gap caveat, but in the deterministic-rates regime
+both class-1 queries draw from the same fixed row of $Q$ and the
+products work out cleanly.
+
+\Cref{thm:n-ary-kronecker} gives the joint probability as
+\begin{align*}
+  \Prob{Y_1 = 1, Y_2 = 2, Y_3 = 1 \Given X_1 \in B_1, X_2 \in B_2,
+        X_3 \in B_1}
+  &\;=\; Q_{1, 1} \cdot Q_{2, 2} \cdot Q_{1, 1} \\
+  &\;=\; 0.9 \cdot 0.9 \cdot 0.9 \\
+  &\;=\; 0.729.
+\end{align*}
+Three independent queries each correctly classified with probability
+$0.9$ produces a joint correct-classification probability of $0.9^3$,
+which is the n-ary analogue of the BSC's $(1 - \fprate)^m$ joint
+success probability from chapter~4's worked example.
+
+To exercise an off-diagonal entry, consider the same input blocks
+$(B_1, B_2, B_1)$ but the output sequence $(Y_1, Y_2, Y_3) =
+(2, 2, 1)$ (first input misclassified as class $2$, second and third
+correct). The joint probability is
+\begin{align*}
+  Q_{1, 2} \cdot Q_{2, 2} \cdot Q_{1, 1}
+  &\;=\; 0.05 \cdot 0.9 \cdot 0.9 \\
+  &\;=\; 0.0405.
+\end{align*}
+The first factor is the probability of class-1 input being reported
+as class $2$ ($0.05$, off-diagonal); the next two factors are the
+correct-classification probabilities for the second and third queries.
+
+The joint matrix $Q^{(3)}$ for this classifier has shape
+$27 \times 27$. The unconstrained joint parameter count by the
+per-source-block convention is $K(L^m - 1) = 78$ for $m = 3$, but
+the Kronecker factorization brings it down to the $K(L - 1) = 6$
+that specifies $Q$ itself. For $m = 10$ the gap is starker:
+$3 \cdot (59\,049 - 1) \approx 1.77 \times 10^5$ unconstrained
+parameters versus the same $6$. The exponential cost of joint
+queries without independence is the chapter~4 story told with
+bigger matrices.
+
+\subsection*{Looking ahead}
+
+\Cref{thm:n-ary-kronecker} closes the structural loop opened in
+\Cref{sec:n-ary-channels}. The two chapter~4 axioms transfer to the
+n-ary setting, and the Kronecker theorem they force transfers with
+them. \Cref{sec:n-ary-capacity} turns from structure to information,
+generalizing the BSC capacity formula of chapter~8 to the n-ary case.
