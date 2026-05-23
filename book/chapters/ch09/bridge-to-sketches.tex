@@ -1,1 +1,99 @@
-% Placeholder. Drafted in Plan 9 Task 6.
+% §9.5 Bridge to Sketches
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bridge-to-sketches}                -- this section
+%
+% RESOLVED (chapter 9, sibling sections):
+%   \Cref{sec:n-ary-channels}                     -- §9.2
+%   \Cref{def:n-ary-channel}                      -- §9.2 definition
+%   \Cref{sec:n-ary-kronecker}                    -- §9.3
+%   \Cref{thm:n-ary-kronecker}                    -- §9.3 theorem
+%   \Cref{sec:n-ary-capacity}                     -- §9.4
+%   \Cref{prop:n-ary-capacity}                    -- §9.4 proposition
+%
+% RESOLVED (chapter 4):
+%   \Cref{ax:element-indep}                       -- chapter 4 §4.2 Axiom 1
+%   \Cref{ax:block-rates-indep}                   -- chapter 4 §4.3 Axiom 2
+%
+% RESOLVED (chapter 5):
+%   \Cref{ch:approximate-sets}                    -- chapter 5
+%
+% RESOLVED (chapter 8):
+%   \eqref{eq:bsc-capacity}                       -- §8.2 BSC capacity
+%
+% FORWARD REFS to later chapters (Plan 0 stubs):
+%   \Cref{ch:sketches}                            -- chapter 10 (stub)
+%
+% §9.5 is the short forward-looking transition that closes chapter 9 and
+% opens chapter 10. Three paragraphs: what a sketch is, why three named
+% sketches (CountMin, HyperLogLog, MinHash) instantiate the chapter 9
+% n-ary-channel framework, and what chapter 10 builds.
+
+\section{Bridge to Sketches}
+\label{sec:bridge-to-sketches}
+
+A \emph{sketch} is a function from a sequence of items to a compact
+summary, with bounded reconstruction error. The input is a stream or
+multiset $x_1, x_2, \ldots, x_n$ drawn from some universe, the output
+is a small data structure (often of size sublinear in $n$), and a
+query routine reconstructs an answer to a fixed family of questions
+about the input from the summary alone. The reconstruction is not
+exact: a frequency query returns an estimate $\hat f$ rather than the
+true count $f$, a cardinality query returns an estimate $\hat n$
+rather than the true distinct-item count $n$, a similarity query
+returns an estimate of Jaccard overlap rather than the true overlap.
+What makes a sketch useful, and what distinguishes it from a lossy
+compression scheme, is that the error is bounded by an analytic
+expression in the summary size and the input distribution: the user
+trades a known accuracy for a known space budget, picks an operating
+point on the curve, and the data structure delivers it. The three
+sketches that chapter~\ref{ch:sketches} builds (CountMin, HyperLogLog,
+MinHash) are the canonical instances of this trade-off for frequency,
+cardinality, and similarity respectively.
+
+Each of the three sketches is a $\Bernoulli{T}$ instance in the sense
+of this chapter. CountMin is an approximate counter: the type is
+$T = \mathbb{N}$, the channel matrix $Q$ has an input row for every
+true count and an output column for every reported estimate, and the
+sketch's one-sided overestimation guarantee corresponds to a $Q$ with
+all probability mass at or above the diagonal. HyperLogLog is an
+approximate cardinality estimator: the type is again $T = \mathbb{N}$,
+but the channel matrix $Q$ has its mass concentrated within a
+multiplicative band around the diagonal (relative error rather than
+the additive-or-one-sided error of CountMin). MinHash is an
+approximate similarity estimator: the type is $T = [0, 1]$ (Jaccard
+similarities live in the unit interval), and the channel matrix $Q$
+becomes a continuous kernel rather than a discrete matrix, with rows
+indexed by true similarities and an output distribution concentrated
+within a band of width $O(1 / \sqrt{r})$ around the diagonal at sketch
+size $r$. The unifying lens of \Cref{def:n-ary-channel} is that all
+three sketches share the same structural skeleton: an input type, an
+output type, a row-stochastic kernel $Q$ specifying the conditional
+output distribution given each input, and a per-query independence
+property inherited from Axioms 1 and 2 of chapter~4
+(\Cref{ax:element-indep}, \Cref{ax:block-rates-indep}). The
+differences among the three sketches are differences in the structure
+of $Q$, not differences in framework.
+
+Chapter~\ref{ch:sketches} builds these three sketches from scratch.
+Each one comes with a $\Bernoulli{T}$ type identifying its input and
+output spaces, an error bound naming the constants in the analytic
+relationship between summary size and reconstruction accuracy, and a
+composition rule describing how the sketch behaves under the natural
+operations of its setting (merging two sketches built on disjoint
+streams, querying a sketch built by aggregating heterogeneous sources,
+combining a frequency sketch with a cardinality sketch in a single
+estimation pipeline). The chapter~9 n-ary-channel framework is the
+unifying lens that ties the three sketches together: each one's error
+bound is a statement about the entries of $Q$, each one's composition
+rule is a statement about how $Q$-matrices combine, and each one's
+capacity (the bits per query the summary can convey about the input)
+falls out of \Cref{prop:n-ary-capacity} or its specialization to the
+sketch's particular symmetry structure. Chapter~9 prepares the reader for chapter~10 not by
+anticipating particular formulas but by fixing the vocabulary in which
+those formulas are expressed: input type, output type, channel matrix,
+factorization across queries, capacity per use. The three sketches
+that follow are the first non-Boolean instances of $\Bernoulli{T}$
+that the book examines in detail.
