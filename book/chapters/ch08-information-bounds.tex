@@ -1,4 +1,36 @@
 \chapter{Information-Theoretic Bounds}
 \label{ch:information-bounds}
 
-\textit{Placeholder. Content drafted in Plan 2.}
+\begin{quote}
+\textsc{After this chapter you will be able to:}
+\begin{itemize}
+  \item State Shannon entropy $H(X)$ and channel capacity for
+    the BSC; relate them to the noisy-bit object of Part~I.
+  \item Derive the $-\log_2 \fprate$ bits-per-element lower bound for
+    any FNR-zero approximate set with false-positive rate $\fprate$.
+  \item Quantify the standard Bloom filter's $\approx 1.44 \times$
+    space overhead relative to the entropy floor, and identify the
+    construction (chapter~14's BHF) that closes the gap.
+\end{itemize}
+\end{quote}
+
+% Section 8.1
+\input{chapters/ch08/entropy-refresher}
+
+% Section 8.2
+\input{chapters/ch08/bsc-capacity}
+
+% Section 8.3
+\input{chapters/ch08/entropy-floor}
+
+% Section 8.4
+\input{chapters/ch08/bloom-gap}
+
+% Section 8.5
+\input{chapters/ch08/what-comes-next}
+
+% Section 8.6
+\input{chapters/ch08/bibliographic-notes}
+
+% Exercises
+\input{chapters/ch08/exercises}
