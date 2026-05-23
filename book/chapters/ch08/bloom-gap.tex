@@ -1,1 +1,222 @@
-% Placeholder. Drafted in Plan 8 Task 5.
+% §8.4 The Bloom Filter's Gap
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bloom-gap}                       -- this section
+%   \label{prop:bloom-overhead}                 -- the 1.44x overhead proposition
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2 Bloom filter
+%   \Cref{thm:bloom-optimal-k}                  -- chapter 5 §5.2 optimal-k result
+%   \eqref{eq:bloom-optimal-fpr}                -- chapter 5 §5.2 optimal FPR formula
+%
+% ALREADY DEFINED (chapter 8 §8.3):
+%   \Cref{sec:entropy-floor}                    -- §8.3
+%   \Cref{thm:entropy-floor}                    -- §8.3 headline lower bound
+%   \eqref{eq:entropy-floor}                    -- §8.3 floor inequality
+%
+% FORWARD REFS (resolve later in Plan 8 or in chapter 14):
+%   \Cref{sec:ch8-what-comes-next}              -- §8.5 (Task 6)
+%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14 (Plan 0 stub label)
+%
+% §8.4 computes the standard Bloom filter's per-element bit cost from
+% chapter 5 §5.2's optimal-k result, compares it to §8.3's entropy
+% floor, and isolates the constant log_2 e ≈ 1.443 as the ratio. The
+% gap is structural: it comes from the (m, k, n) Bloom design, where k
+% independent hashes write into a flat bit array and the analysis
+% treats the k bit-checks as independent events. Chapter 14 abandons
+% that structure to close the gap.
+
+\section{The Bloom Filter's Gap}
+\label{sec:bloom-gap}
+
+\Cref{thm:entropy-floor} put a floor under every FNR-zero approximate
+set: at least $-\log_2 \fprate$ bits per element, no matter what the
+encoding looks like. The standard Bloom filter is FNR-zero by
+construction (\Cref{def:bloom-filter}), so it is in the family the
+theorem governs. The question this section settles is how far above
+the floor the standard construction sits. The answer is a single
+constant, $\log_2 e \approx 1.443$, and the constant is the same at
+every $\fprate$. Bloom pays a fixed $44\%$ markup on the entropy
+floor and never closes it; chapter~14 builds a different
+representation that does.
+
+\subsection*{Setup}
+
+Recall the result of \Cref{thm:bloom-optimal-k}. A Bloom filter
+parameterized by bit count $m$, hash count $k$, and insertion count
+$n$ achieves its minimum false-positive rate at $k^* = (m/n) \ln 2$,
+the choice that leaves the bit array half-occupied in expectation.
+At that $k^*$ the optimal rate is
+\begin{equation}
+\label{eq:bloom-optimal-fpr-recall}
+  \fprate^* \;=\; 2^{-(m/n) \ln 2}.
+\end{equation}
+The design parameter the engineer controls is the bit-per-element
+ratio $m/n$. The error rate $\fprate^*$ that comes out is a fixed
+function of that ratio. Larger $m/n$ buys a smaller $\fprate^*$, and
+the trade is exponential.
+
+\subsection*{Bits per element at a target FPR}
+
+The engineering question is usually posed the other way around. A
+designer chooses a target false-positive rate $\fprate$ and asks how
+many bits per element the filter needs. Solving
+\eqref{eq:bloom-optimal-fpr-recall} for $m/n$ at $\fprate^* =
+\fprate$ inverts the relation. Take logarithms base 2 of both
+sides:
+\[
+  \log_2 \fprate \;=\; -(m/n) \ln 2,
+\]
+which rearranges to
+\begin{equation}
+\label{eq:bloom-bits-per-element}
+  \frac{m}{n}
+  \;=\; \frac{\log_2(1/\fprate)}{\ln 2}
+  \;=\; \log_2(1/\fprate) \cdot \log_2 e.
+\end{equation}
+The second equality uses the identity $1 / \ln 2 = \log_2 e$. So
+the bit budget per element for a standard Bloom filter at target
+$\fprate$ is a constant multiple, $\log_2 e$, of the quantity
+$\log_2(1/\fprate)$, which is the entropy-floor cost from
+\Cref{thm:entropy-floor}.
+
+\subsection*{Comparing to the floor}
+
+The floor of \eqref{eq:entropy-floor} reads, in the same units as
+\eqref{eq:bloom-bits-per-element},
+\[
+  \frac{m_{\min}}{n} \;\ge\; \log_2(1/\fprate).
+\]
+Dividing the Bloom expression by the floor gives the ratio
+\[
+  \frac{m / n}{m_{\min} / n}
+  \;=\; \log_2 e
+  \;=\; \frac{1}{\ln 2}
+  \;\approx\; 1.4427.
+\]
+The ratio is independent of $\fprate$: every Bloom filter, regardless
+of the target error rate, pays the same $\log_2 e$ multiplier on the
+floor.
+
+\begin{proposition}[Bloom filter overhead]
+\label{prop:bloom-overhead}
+At every target false-positive rate $\fprate \in (0, 1)$, the optimal
+standard Bloom filter (\Cref{thm:bloom-optimal-k}) uses
+\[
+  \frac{m}{n} \;=\; \log_2(1/\fprate) \cdot \log_2 e
+\]
+bits per element, which is $\log_2 e \approx 1.4427$ times the
+information-theoretic floor of \Cref{thm:entropy-floor}. The relative
+overhead is a constant, independent of $\fprate$.
+\end{proposition}
+
+The number $\log_2 e$ has surfaced before, in the chapter~5
+derivation of $k^*$: the optimal hash count $(m/n)\ln 2$ is the one
+that produces a half-occupied bitmap, and $\ln 2$ is precisely
+$1/\log_2 e$. The same constant that pins down the optimal hash
+count also pins down the gap to the floor. The two facts are dual
+statements about the same construction: half-occupancy is
+information-theoretically the wrong target, but it is the best target
+available to a representation built from $k$ independent hashes and a
+flat bit array.
+
+\subsection*{The 44\% overhead in absolute terms}
+
+The constant $1.44$ understates how much storage the gap costs at
+small $\fprate$. Multiplying a fixed factor onto a function that
+grows like $\log_2(1/\fprate)$ produces an absolute overhead that
+also grows, and at the error tolerances people actually deploy the
+overhead is several bits per element. The table makes this
+concrete:
+\begin{center}
+\begin{tabular}{l|rrr}
+\hline
+  $\fprate$ & floor (bits/el) & Bloom (bits/el) & gap (bits/el) \\
+\hline
+  $10^{-2}$ & $6.64$  & $9.59$  & $2.95$ \\
+  $10^{-3}$ & $9.97$  & $14.38$ & $4.41$ \\
+  $10^{-6}$ & $19.93$ & $28.76$ & $8.83$ \\
+  $10^{-9}$ & $29.90$ & $43.14$ & $13.25$ \\
+\hline
+\end{tabular}
+\end{center}
+At a one-percent false-positive rate the standard Bloom filter pays
+about three extra bits per element on top of the floor. At a
+one-in-a-million rate it pays about nine. The relative overhead is
+fixed at $44\%$, but the absolute overhead grows linearly in
+$\log_2(1/\fprate)$ along with the floor itself. Doubling the bit
+budget (in floor-equivalent terms) doubles the absolute waste. For a
+million-element approximate set at $\fprate = 10^{-6}$, the gap
+between Bloom and the floor is about $8.83$ megabits, or $1.10$
+megabytes per million items, that the standard construction simply
+cannot recover.
+
+A more sympathetic reading is also available. The Bloom filter pays a
+constant factor, not a growing one, and a $44\%$ markup on an
+already-small quantity is acceptable in many deployment settings.
+The information-theoretic floor is a target, not a deadline; the
+Bloom filter is competitive even though it is suboptimal. The point
+of \Cref{prop:bloom-overhead} is to quantify the slack, not to
+condemn the construction. Bloom filters dominate the
+approximate-set ecosystem for a reason. The question we now turn to
+is what part of the Bloom design forces the slack and what kind of
+construction would avoid it.
+
+\subsection*{Why the gap is structural}
+
+The Bloom filter pays its $\log_2 e$ overhead because of three
+design choices that compose into the standard recipe:
+\begin{itemize}
+  \item \emph{$k$ independent hash functions} write into a single
+    shared bit array.
+  \item The \emph{shared bit array is flat}: bit $j$ is independent
+    of bit $j'$ in the encoding's structure, and the only correlation
+    between bits comes from the random hash collisions during
+    insertion.
+  \item The \emph{query is a conjunction of bit reads}: $\textsc{Query}(x)$
+    accepts iff every one of the $k$ bits read at positions
+    $h_1(x), \ldots, h_k(x)$ is $1$.
+\end{itemize}
+The analysis of \Cref{thm:bloom-optimal-k} treats the $k$ bits read
+at query time as independent Bernoulli$(p)$ variables with $p = 1 -
+e^{-kn/m}$. The product $p^k$ is the FPR formula
+\eqref{eq:bloom-fpr}, and the optimum of $p^k$ over $k$ for fixed
+$m/n$ sits at $p = 1/2$, where the bit array is half-occupied. A
+half-occupied array carries one bit of Shannon entropy per array
+bit, which is the maximum a binary variable can carry. The
+representation is therefore information-dense at the bit level. But
+the entropy floor is set by the membership-test problem, not by the
+information density of the encoding, and the two coincide only when
+the encoding's bits are tuned to the problem they encode rather than
+to a generic balance condition. The Bloom filter optimizes the wrong
+thing. It maximizes per-bit entropy and then takes the $k$th power
+of that, getting a clean closed form and a clean optimum but
+spending bits on the encoding's internal balance rather than on the
+discrimination it was supposed to perform.
+
+A representation that achieves the floor must abandon at least one
+of these three design choices. The choice chapter~14 abandons is
+the second: the flat shared bit array. The Bernoulli Hash Function
+(BHF) of \Cref{ch:optimal-bernoulli-sets} replaces the flat bit
+array with a \emph{perfect-hash-based encoding}, in which each
+inserted element gets a deterministic location chosen by a perfect
+hash, and the encoding stores a short fingerprint at that location.
+The fingerprint length is exactly $\log_2(1/\fprate)$ bits, matching
+the floor; the perfect hash ensures that collisions in the
+fingerprint table are themselves the only source of false positives,
+so the per-element cost is dominated by the fingerprint and the
+$\log_2 e$ overhead disappears. The detailed construction is
+chapter~14's business. The point to register here is that the gap
+is not a deficiency of analysis. It comes from a specific structural
+choice in the Bloom design, and a different structural choice can
+in principle close the gap.
+
+\subsection*{What \texorpdfstring{\S}{S}8.5 takes up}
+
+\Cref{sec:ch8-what-comes-next} sketches the rest of the route from
+the present chapter to the constructive payoff in chapter~14: Part~III
+generalizes from sets to maps and to arbitrary algebraic types,
+and Part~IV builds the constructions, BHF among them, that close
+the gap quantified by \Cref{prop:bloom-overhead}.
