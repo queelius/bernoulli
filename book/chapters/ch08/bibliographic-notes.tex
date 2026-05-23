@@ -1,1 +1,103 @@
-% Placeholder. Drafted in Plan 8 Task 7.
+% §8.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 8, drafted in Tasks 2-6 of Plan 8):
+%   \Cref{sec:entropy-refresher}                 -- chapter 8 §8.1
+%   \Cref{sec:bsc-capacity}                      -- chapter 8 §8.2
+%   \Cref{sec:entropy-floor}                     -- chapter 8 §8.3
+%   \Cref{sec:bloom-gap}                         -- chapter 8 §8.4
+%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
+%   \Cref{prop:bloom-overhead}                   -- chapter 8 §8.4
+%
+% ALREADY RESOLVED (chapters 1, 2, 5):
+%   \Cref{sec:bsc}                               -- chapter 2 §2.1
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%   \Cref{thm:bloom-optimal-k}                   -- chapter 5 §5.2
+%
+% FORWARD REFERENCES (resolve in later plans):
+%   \Cref{ch:bhf}                                -- chapter 14 (Plan 0 stub)
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{towell-bernoulli-entropy}              -- Towell entropy manuscript
+%   \cite{mitzenmacher-2002}                     -- Compressed Bloom filters
+%
+% Citations resolved by prior references.bib entries:
+%   \cite{carter-wegman-1979}                    -- already in references.bib (Plan 5)
+%   \cite{cover-thomas}                          -- already in references.bib (Plan 0)
+%   \cite{bloomfilter}                           -- already in references.bib (Plan 0)
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch8}
+
+\paragraph{The entropy manuscript.}
+The entropy floor of \Cref{thm:entropy-floor} and the standard-Bloom
+overhead calculation of \Cref{prop:bloom-overhead} both follow
+\textcite{towell-bernoulli-entropy}. That manuscript is the primary
+source for \Cref{sec:entropy-floor} and \Cref{sec:bloom-gap}: the
+counting argument that converts the FNR-zero approximate-set
+specification into a lower bound on representation length, the
+asymptotic form $-n \log_2 \fprate$, and the comparison to the
+$\log_2 e$ overhead of the standard Bloom filter are all taken from
+it. The chapter's contribution beyond the manuscript is the
+pedagogical scaffolding: the entropy refresher of
+\Cref{sec:entropy-refresher} written for readers who have not seen
+$\Entropy(X)$ before, the BSC bridge in \Cref{sec:bsc-capacity} that
+ties the floor to Part~I's running channel example, and the explicit
+forward pointers to chapter~14's construction that closes the gap.
+
+\paragraph{Universal hashing and the counting argument.}
+The counting-argument shape of the proof sketch in
+\Cref{sec:entropy-floor} owes its structure to the universal hashing
+program of \textcite{carter-wegman-1979}, who showed that one can
+reason about the worst-case behavior of randomized hash-based data
+structures by counting collisions across an explicitly chosen family
+of hash functions rather than by appeal to the random-oracle model.
+The same combinatorial style of bookkeeping is what makes
+\Cref{thm:entropy-floor} go through: for every representation $R$ of
+length $L$, count the accepting sets $A_R$ that $R$ can describe; for
+every true set $A$ that has to be represented at FPR $\le \fprate$,
+count the candidate $R$'s that work. The ratio is the bound. The
+Carter-Wegman framework is the prior art that makes this kind of
+argument standard rather than ad hoc.
+
+\paragraph{Entropy and channel capacity.}
+The information-theoretic background of \Cref{sec:entropy-refresher}
+and \Cref{sec:bsc-capacity} is standard textbook material; the depth
+reference for readers who want more than the working summary given
+here is \textcite{cover-thomas}, whose first three chapters cover
+$\Entropy(X)$, mutual information $\MutualInfo(X;Y)$, the binary
+symmetric channel, channel capacity, and the source-coding theorem.
+The BSC capacity result $\Capacity = 1 - \Entropy(\fprate)$ that
+\Cref{sec:bsc-capacity} sketches is treated rigorously there, as is
+the source-coding interpretation that underwrites
+\Cref{thm:entropy-floor}: any encoding of a structured object with
+inherent entropy rate $h$ bits per symbol needs at least $h$ bits per
+symbol on average. The entropy floor is the specialization of that
+generic statement to the FNR-zero approximate-set object whose
+inherent rate is $-\log_2 \fprate$ bits per element. Shannon's
+original 1948 paper \parencite{shannon-1948} remains the cleanest
+short presentation of the source-coding idea for readers who prefer
+to go to the source.
+
+\paragraph{Compressed Bloom filters.}
+\textcite{mitzenmacher-2002} observed that the standard Bloom filter
+operating at the optimal $k = (m/n) \ln 2$ produces a bit array in
+which roughly half the bits are $1$ and half are $0$. The array's
+empirical entropy is therefore close to $1$ bit per array bit, and
+arithmetic coding of the array recovers a representation whose length
+matches the entropy floor of \Cref{thm:entropy-floor} rather than the
+$\log_2 e$-inflated cost of \Cref{prop:bloom-overhead}. The
+compressed Bloom filter trades the constant-time random-access query
+of the bitmap for the smaller stored size, which is appropriate when
+the filter is transmitted across a network (the original setting of
+the 2002 paper) but inappropriate when the filter is queried in place
+on disk or in cache. Mitzenmacher's paper is the right entry point
+for readers who want to understand how much of the $1.44$ gap can be
+closed without abandoning the bitmap structure, and it sets up the
+contrast with chapter~14's BHF, which closes the gap by abandoning
+the bitmap entirely in favor of a perfect-hash-based representation
+whose query is again constant time. The Mitzenmacher and Upfal text
+\parencite{mitzenmacher-upfal} cited in earlier chapters is a useful
+companion for the probabilistic background.
