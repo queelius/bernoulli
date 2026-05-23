@@ -57,3 +57,12 @@
 \providecommand{\Recall}{\mathrm{recall}}
 \providecommand{\Fone}{F_1}
 \providecommand{\Prevalence}{\pi}
+
+% Information-theory macros for Part II chapter 8.
+% alex.sty already provides \Entropy (line 610: \FunctionFamily{\mathcal{H}}{X}
+% renders as \mathcal{H}(X), with an optional conditioning slot). The textbook
+% chapter 8 also needs mutual information I(X;Y) and channel capacity C, which
+% alex.sty does not provide. \providecommand keeps things safe if alex.sty
+% later adds either name.
+\providecommand{\MutualInfo}{I}
+\providecommand{\Capacity}{C}
