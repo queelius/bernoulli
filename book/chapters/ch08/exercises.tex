@@ -1,1 +1,272 @@
-% Placeholder. Drafted in Plan 8 Task 8.
+% §8 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch8-1} through \label{ex:ch8-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{sec:entropy-refresher}                  -- §8.1 (Plan 8 Task 2)
+%   \Cref{eq:binary-entropy}                      -- §8.1 (Plan 8 Task 2)
+%   \Cref{eq:mutual-info}                         -- §8.1 (Plan 8 Task 2)
+%   \Cref{sec:bsc-capacity}                       -- §8.2 (Plan 8 Task 3)
+%   \Cref{prop:bsc-capacity}                      -- §8.2 (Plan 8 Task 3)
+%   \Cref{sec:entropy-floor}                      -- §8.3 (Plan 8 Task 4)
+%   \Cref{thm:entropy-floor}                      -- §8.3 (Plan 8 Task 4)
+%   \Cref{sec:bloom-gap}                          -- §8.4 (Plan 8 Task 5)
+%   \Cref{prop:bloom-overhead}                    -- §8.4 (Plan 8 Task 5)
+%   \Cref{def:union-of-sets}                      -- §6.1 (Plan 6)
+%   \Cref{def:bsc}                                -- §2.1 (Plan 2)
+%   \Cref{thm:bloom-optimal-k}                    -- §5.2 (Plan 5)
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch8-1}
+\textbf{Entropy of a biased coin.}
+Compute the binary entropy $H(p)$ from \Cref{eq:binary-entropy} for
+$p \in \{0.01, 0.5, 0.99\}$. Report each to four decimal places. In
+one sentence, name the symmetry $H(p) = H(1 - p)$ that makes the
+$p = 0.01$ and $p = 0.99$ values agree, and identify the maximum of
+$H$ on $[0, 1]$.
+
+\item \exstar
+\label{ex:ch8-2}
+\textbf{BSC capacity computation.}
+For $\fprate \in \{0.01, 0.1, 0.5\}$, compute the BSC channel
+capacity $C = 1 - H(\fprate)$ from \Cref{prop:bsc-capacity}. Report
+each to four decimal places. In one sentence, identify the regime
+($\fprate$ near $0$ vs $\fprate$ near $1/2$) where the channel
+carries close to a full bit per use vs where it carries essentially
+nothing.
+
+\item \exstar
+\label{ex:ch8-3}
+\textbf{Entropy floor evaluation.}
+For each target false-positive rate $\fprate \in \{0.1, 0.01,
+0.001\}$, compute the entropy floor $-\log_2 \fprate$ in bits per
+element from \Cref{thm:entropy-floor}. Report each to four decimal
+places. In one sentence, describe the linear-in-$-\log_2 \fprate$
+scaling of the floor and contrast it with the linear-in-$1/\fprate$
+scaling one might naively expect from the rate alone.
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch8-4}
+\textbf{Notebook-tied gap plot.}
+Open the chapter 8 companion notebook
+\texttt{python/notebooks/ch08-information-bounds.ipynb}.
+\begin{enumerate}
+  \item[(a)] For $\fprate \in [10^{-5}, 10^{-1}]$ (log-spaced, at
+    least 25 points), compute the entropy floor $-\log_2 \fprate$
+    bits per element and the standard Bloom cost
+    $-\log_2 \fprate \cdot \log_2 e$ bits per element from
+    \Cref{prop:bloom-overhead}.
+  \item[(b)] Plot both as line plots on a log-$\fprate$ axis.
+    Visually confirm that the two lines are parallel on this scale
+    (they differ by a constant additive offset in bits per
+    element).
+  \item[(c)] Plot the ratio (Bloom cost) / (floor) vs $\fprate$.
+    Verify the ratio is constant at $\approx 1.443$ across the
+    entire range, matching $\log_2 e = 1/\ln 2$ exactly. In one
+    sentence, state which feature of the standard Bloom filter
+    (the $k$ independent hash functions of \Cref{thm:bloom-optimal-k})
+    produces this constant overhead.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch8-5}
+\textbf{Mutual information of the BSC.}
+The BSC of \Cref{def:bsc} has input $X \in \{\top, \bot\}$ with
+distribution $P_X$, output $Y \in \{\top, \bot\}$, and crossover
+$\fprate$. Use \Cref{eq:mutual-info} as $I(X; Y) = H(Y) - H(Y |
+X)$.
+\begin{enumerate}
+  \item[(a)] Show that $H(Y | X) = H(\fprate)$ for every $P_X$ (the
+    conditional output uncertainty is just the channel's flip
+    uncertainty, independent of the input distribution).
+  \item[(b)] Compute the marginal output distribution as $P_Y(\top)
+    = P_X(\top)(1 - \fprate) + P_X(\bot) \fprate$, and substitute
+    to obtain $I(X; Y) = H(P_X(\top)(1 - \fprate) + P_X(\bot)
+    \fprate) - H(\fprate)$.
+  \item[(c)] Maximize $I(X; Y)$ over $P_X$ by maximizing $H(Y)$ in
+    the first term. Since $H$ on a binary alphabet is maximized at
+    $1/2$, the optimum is $P_X$ uniform, which produces $P_Y$
+    uniform and $H(Y) = 1$. Recover the BSC capacity
+    $C = 1 - H(\fprate)$ of \Cref{prop:bsc-capacity}.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch8-6}
+\textbf{The 1.44 constant.}
+The constant $\log_2 e \approx 1.4427$ appears in
+\Cref{prop:bloom-overhead} as the ratio of standard Bloom cost to
+entropy floor.
+\begin{enumerate}
+  \item[(a)] Starting from the change-of-base identity $\log_2 e =
+    \ln e / \ln 2 = 1 / \ln 2$, compute $\log_2 e$ to four decimal
+    places using $\ln 2 \approx 0.6931$.
+  \item[(b)] Verify the equivalent form $\log_2(1/\fprate) \cdot
+    \log_2 e = \ln(1/\fprate) / (\ln 2)^2$ by substituting
+    $\log_2 x = \ln x / \ln 2$ on both factors. State why this
+    quadratic-in-$1/\ln 2$ form is the natural one for the Bloom
+    filter's bits-per-element formula (one factor of $1/\ln 2$
+    comes from the optimal-$k$ scaling, a second from the
+    conversion of natural to binary logarithms).
+  \item[(c)] In one sentence, state the geometric meaning of
+    $\log_2 e$: it is the number of base-$2$ digits required to
+    represent one nat of information.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch8-7}
+\textbf{Entropy floor for sparse universes.}
+\Cref{thm:entropy-floor} is stated in the asymptotic regime $N
+\gg n$, where $N = |\Universe|$ is the universe size and $n = |A|$
+is the set size.
+\begin{enumerate}
+  \item[(a)] Suppose instead that $N$ is comparable to $n$, say
+    $N = 10 n$. Recompute the counting argument of
+    \Cref{sec:entropy-floor}: how many false positives can a
+    representation accept before the FPR ceiling $\fprate$ is
+    breached? Does the dominant term in the bound $|A_R| \le n +
+    \fprate (N - n)$ change as $N$ approaches $n$?
+  \item[(b)] Discuss the regime where the asymptotic form
+    $-n \log_2 \fprate$ is accurate (large $N$, small $\fprate$)
+    vs where finite-$N$ corrections matter (small $N/n$ ratio, or
+    $\fprate$ close to the trivial ceiling $1 - n/N$).
+  \item[(c)] In one sentence, identify the trivial representation
+    that achieves $\fprate = 1 - n/N$ at zero space cost (always
+    return $\top$), and argue that the entropy floor is
+    informative only below this trivial ceiling.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch8-8}
+\textbf{Two-sided floor.}
+\Cref{thm:entropy-floor} is stated for FNR-zero approximate sets.
+A two-sided approximate set permits both false positives at rate
+$\fprate$ and false negatives at rate $\fnrate$.
+\begin{enumerate}
+  \item[(a)] Sketch (without proof) why a two-sided set can have a
+    lower space cost than $-n \log_2 \fprate$ at the same maximum
+    error. Hint: the two-sided set splits its error budget across
+    both directions, so each side can be allowed a larger rate
+    than the one-sided $\fprate$.
+  \item[(b)] Suppose the maximum-error budget is $\fprate = \delta$
+    for the one-sided case and $\max(\fprate, \fnrate) = \delta$
+    for the two-sided case. Argue informally that the two-sided
+    set need only achieve $\fprate = \fnrate = \delta$ (each
+    saturating its own ceiling), so the relevant rate in the
+    bound is now $\delta$ on each side rather than $\delta$
+    concentrated on the FPR axis alone.
+  \item[(c)] In one sentence, state the qualitative consequence: a
+    two-sided set with $\fprate = \fnrate$ can sit below the
+    one-sided floor at the same max-error budget, at the cost of
+    abandoning the FNR-zero guarantee of \Cref{thm:entropy-floor}.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch8-9}
+\textbf{The floor as a counting argument.}
+\Cref{thm:entropy-floor} is proved in \Cref{sec:entropy-floor} via
+a counting argument.
+\begin{enumerate}
+  \item[(a)] Reproduce the proof sketch in your own words. Begin
+    with: a representation $R$ of length $L$ bits induces a query
+    algorithm that accepts a superset $A_R \supseteq A$; FNR-zero
+    forces the inclusion; FPR $\le \fprate$ caps $|A_R \setminus
+    A|$.
+  \item[(b)] Identify the load-bearing step: the pigeonhole bound
+    on the number of distinct $A$ that a single $R$ can encode.
+    State the inequality $2^L \cdot (\text{accepting sets per
+    } R) \ge \binom{N}{n}$ and explain in one sentence why each
+    of the $\binom{N}{n}$ possible truth-sets $A$ must be encoded
+    by at least one $R$.
+  \item[(c)] Take the binary logarithm of the resulting inequality
+    and apply Stirling's approximation to $\binom{N}{n}$ to
+    recover $L \ge n \log_2(1/\fprate)$ asymptotically. Identify
+    which step of the derivation discards the additive
+    lower-order terms.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch8-10}
+\textbf{Compressed Bloom filter.}
+\cite{mitzenmacher-2002} showed that arithmetic compression of a
+standard Bloom filter's bit array can recover much of the $\log_2
+e$ overhead identified in \Cref{prop:bloom-overhead}.
+\begin{enumerate}
+  \item[(a)] Sketch the argument: under the optimal $k$ of
+    \Cref{thm:bloom-optimal-k}, the bitmap is tuned so that
+    approximately half its bits are $1$ and half are $0$ at
+    insertion saturation. Conclude that the per-bit entropy of
+    the bitmap is $H(1/2) = 1$ bit, so the bitmap is already
+    informationally dense per stored bit.
+  \item[(b)] Argue that the $\log_2 e$ overhead comes from a
+    different place: not from per-bit redundancy in the bitmap,
+    but from the choice of bitmap-with-$k$-independent-hashes as
+    the underlying representation. Arithmetic compression
+    eliminates the per-bit redundancy that DOES exist when the
+    bitmap is loaded below the half-full optimum (e.g., during
+    construction or with a non-optimal $k$).
+  \item[(c)] In one sentence, identify why full elimination of
+    the gap still requires abandoning the bitmap-with-$k$-hashes
+    structure: the standard Bloom representation is wasteful at
+    the structural level, not merely at the per-bit-encoding
+    level, and only a different representation (chapter 14's BHF)
+    can close the gap to the floor of \Cref{thm:entropy-floor}.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch8-11}
+\textbf{Entropy floor for the union.}
+\Cref{def:union-of-sets} of §6.1 derived the FPR of the union
+$\tilde A \cup \tilde B$ of two approximate sets. The §8.3 floor
+applies to the union itself as an FNR-zero approximate set.
+\begin{enumerate}
+  \item[(a)] Apply \Cref{thm:entropy-floor} to the union: the bits
+    required to represent $A \cup B$ approximately at FPR
+    $\fprate_\cup$ are at least $|A \cup B| \cdot \log_2(1 /
+    \fprate_\cup)$.
+  \item[(b)] Compare to the cost of representing $A$ and $B$
+    separately at FPRs $\fprate_A, \fprate_B$ and combining their
+    query algorithms by disjunction. The separate cost is at
+    least $|A| \log_2(1/\fprate_A) + |B| \log_2(1/\fprate_B)$ bits;
+    the combined query has FPR $\le \fprate_A + \fprate_B -
+    \fprate_A \fprate_B$ (and equals $\fprate_A + \fprate_B$ when
+    both are small). When $A$ and $B$ are disjoint and
+    $\fprate_A = \fprate_B = \fprate_\cup / 2$ (so the combined
+    rate matches the union's $\fprate_\cup$), show that the two
+    costs agree to leading order: $(|A| + |B|)
+    \log_2(2/\fprate_\cup) = |A \cup B|(\log_2(1/\fprate_\cup) +
+    1)$, exceeding the union floor by exactly one bit per element.
+  \item[(c)] Identify when union representation is strictly more
+    efficient: when $A$ and $B$ overlap heavily ($|A \cup B| \ll
+    |A| + |B|$), the union floor scales with $|A \cup B|$, while
+    the separate-then-combine cost scales with $|A| + |B|$. State
+    in one sentence the practical guideline: store the union
+    directly when membership in $A$ vs $B$ is not separately
+    required by downstream queries.
+\end{enumerate}
+
+\end{enumerate}
