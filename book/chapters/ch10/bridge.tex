@@ -1,1 +1,100 @@
-% Placeholder. Drafted in Plan 10 Task 6.
+% §10.5 Bridge
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:ch10-bridge}                       -- this section
+%
+% RESOLVED (chapter 10, prior sections):
+%   \Cref{sec:sketches-as-bernoulli}              -- §10.1
+%   \Cref{sec:countmin}                           -- §10.2
+%   \Cref{thm:countmin-bound}                     -- §10.2
+%   \Cref{sec:hyperloglog}                        -- §10.3
+%   \Cref{prop:hyperloglog-error}                 -- §10.3
+%   \Cref{sec:minhash-lsh}                        -- §10.4
+%   \Cref{prop:minhash-error}                     -- §10.4
+%
+% RESOLVED (chapter 9):
+%   \Cref{ch:approximate-functions}               -- chapter 9
+%   \Cref{def:n-ary-channel}                      -- §9.2
+%   \Cref{thm:n-ary-kronecker}                    -- §9.3
+%
+% FORWARD REFS to later chapters (Plan 0 stubs):
+%   \Cref{ch:randomized-algorithms}               -- chapter 11
+%   \Cref{ch:approximate-relations}               -- chapter 12
+%   \Cref{ch:algebra-types}                       -- chapter 13
+%
+% §10.5 is the short closing section of chapter 10. Three paragraphs:
+% a recap of the three sketches as $\Bernoulli{T}$ instances, a forward
+% pointer to chapter 13's composition algebra, and a forward pointer to
+% chapters 11 and 12.
+
+\section{Bridge}
+\label{sec:ch10-bridge}
+
+The three sketches built in this chapter share one skeleton and differ
+only in the structure of the output type and the shape of the channel
+matrix that ties true input to reported estimate. CountMin
+(\Cref{sec:countmin}) is the frequency sketch: its output type is
+$T = \mathbb{N}$, its query is one-sided (the estimate $\hat f_a$
+never underestimates the true count $f_a$), and its channel matrix
+$Q$ places all probability mass at or above the diagonal, with row
+$f_a$ supported on $\{f_a, f_a + 1, \ldots\}$ and tail probability
+controlled by $\Pr[\hat f_a \ge f_a + \epsilon F] \le \delta$ from
+\Cref{thm:countmin-bound}. HyperLogLog (\Cref{sec:hyperloglog}) is the
+cardinality sketch: its output type is again $T = \mathbb{N}$, but its
+error is two-sided and approximately log-normal, with the standard
+relative error $1.04 / \sqrt m$ of \Cref{prop:hyperloglog-error} fixing
+the multiplicative width of the channel-matrix band around the
+diagonal. MinHash (\Cref{sec:minhash-lsh}) is the similarity sketch:
+its output type is the unit interval $T = [0, 1]$, its per-coordinate
+agreement is a Bernoulli draw with success probability $J(A, B)$, and
+the Hoeffding bound of \Cref{prop:minhash-error} controls the width of
+the channel kernel around the diagonal at signature length $k$. Three
+sketches, three $\Bernoulli{T}$ types, one common pattern: a
+construction, an error analysis bounding $Q$ row-by-row, a composition
+rule for combining sketches built on different streams.
+
+The composition rules of the three sketches share a deeper structure
+that the present chapter notes in passing but does not axiomatize.
+Merging two CountMin tables is entry-wise integer addition on the
+$d \times w$ counter array; merging two HyperLogLog register banks is
+entry-wise maximum on the $m$-register array; merging two MinHash
+signatures (in the natural sense of forming the signature of the union
+set from the two component signatures) is entry-wise minimum on the
+$k$-coordinate array. Each operation is associative, commutative, and
+has an identity (the all-zero table, the all-zero register bank, the
+all-$\infty$ signature respectively). Each operation respects the
+chapter~9 channel structure: the merge of two $Q$-matrices is itself a
+$Q$-matrix for the merged input, with the rows of the merged matrix
+computable from the rows of the components by a known formula.
+\Cref{ch:algebra-types} treats this pattern systematically. It
+introduces the composition algebra of $\Bernoulli{T \times U}$
+(product types, for sketches over pairs), $\Bernoulli{T + U}$ (sum
+types, for sketches over tagged unions of input domains), and
+$\Bernoulli{L\, T}$ (list types, for sketches whose output is a
+sequence rather than a single value), and shows that the three
+sketches of the present chapter are instances of those constructors.
+The chapter~13 algebra is what makes the family of sketches
+combinatorial rather than ad hoc: once the type constructors are
+fixed, new sketches compose by structure.
+
+Chapter~\ref{ch:randomized-algorithms} turns from streaming and
+estimation to the algorithmic side of the same picture: randomized
+algorithms whose answer is approximate in a one-sided sense, with
+Miller-Rabin primality testing as the canonical worked example. The
+move is from the data-structure setting of the present chapter (a
+summary built from a stream, queried many times) to the
+algorithm-execution setting (a Monte Carlo procedure run with fresh
+randomness, possibly many times, against a single fixed input). The
+channel framework of chapter~9 carries over without modification: a
+randomized one-sided algorithm is a $\Bernoulli{\{\text{accept,
+reject}\}}$ instance with a known false-positive or false-negative
+rate, and amplification by repetition is composition of the same
+channel matrix with itself. Chapter~\ref{ch:approximate-relations}
+lifts the framework from approximate functions to approximate
+relations, which is the necessary generalization for join queries and
+multi-set membership tests. Chapter~\ref{ch:algebra-types}
+unifies the three threads (the chapter~10 sketches, the chapter~11
+randomized algorithms, the chapter~12 relations) under a single
+algebraic vocabulary, and is the end of Part~III.
