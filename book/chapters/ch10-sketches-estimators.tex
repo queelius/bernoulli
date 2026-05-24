@@ -1,4 +1,36 @@
 \chapter{Sketches and Estimators}
 \label{ch:sketches-estimators}
 
-\textit{Placeholder. Content drafted in Plan 3.}
+\begin{quote}
+\textsc{After this chapter you will be able to:}
+\begin{itemize}
+  \item Construct CountMin, HyperLogLog, and MinHash sketches from
+    scratch, and identify each as a $\Bernoulli{T}$ instance under the
+    chapter~9 framework.
+  \item State the error bound and confidence parameter for each
+    sketch, and derive the space/accuracy trade-off.
+  \item Compose sketches via the type-driven algebra (the chapter~13
+    unification).
+\end{itemize}
+\end{quote}
+
+% Section 10.1
+\input{chapters/ch10/sketches-as-bernoulli}
+
+% Section 10.2
+\input{chapters/ch10/countmin}
+
+% Section 10.3
+\input{chapters/ch10/hyperloglog}
+
+% Section 10.4
+\input{chapters/ch10/minhash-lsh}
+
+% Section 10.5
+\input{chapters/ch10/bridge}
+
+% Section 10.6
+\input{chapters/ch10/bibliographic-notes}
+
+% Exercises
+\input{chapters/ch10/exercises}
