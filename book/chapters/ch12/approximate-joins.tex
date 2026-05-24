@@ -1,1 +1,244 @@
-% Placeholder. Drafted in Plan 12 Task 4.
+% §12.3 Approximate Joins in Databases
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:approximate-joins}                 -- this section
+%
+% RESOLVED (already in source tree from Plans 1-11):
+%   \Cref{sec:minhash-lsh}                        -- chapter 10 §10.4
+%   \Cref{def:minhash}                            -- chapter 10 §10.4
+%   \Cref{prop:minhash-collision}                 -- chapter 10 §10.4
+%   \Cref{prop:minhash-error}                     -- chapter 10 §10.4
+%   \Cref{sec:relation-composition}               -- chapter 12 §12.2
+%   \Cref{thm:join-rates}                         -- chapter 12 §12.2
+%
+% FORWARD REFS within chapter 12 (resolve in Plan 12 Tasks 5-7):
+%   \Cref{sec:ch12-bridge}                        -- §12.4 (Task 5)
+
+\section{Approximate Joins in Databases}
+\label{sec:approximate-joins}
+
+\Cref{sec:relation-composition} treated the natural join algebraically:
+two approximate relations go in, the conjunction of their membership
+predicates comes out, and the FPR multiplies by \Cref{thm:join-rates}.
+Nothing in that derivation said how the join is computed. For two
+relations of $n$ tuples each, naively evaluating the predicate
+$\tilde R_1(t, u) \land \tilde R_2(u, v)$ for every candidate triple is
+$O(n^2)$, and for the similarity-join variant of the problem (where
+the matching condition is not equality on a shared attribute but
+threshold similarity between two rows) it is $O(n^2)$ even without
+the predicate evaluations. The database literature has spent thirty
+years on sub-quadratic algorithms for this regime. This section reads
+one family of those algorithms, the MinHash-based similarity join,
+through the framework of \Cref{sec:relation-composition} and shows
+that the published FPR/FNR analyses are the chapter 12 join rates
+specialized to a particular implementation of the predicate.
+
+\subsection*{The similarity-join problem}
+
+Let $R_1$ and $R_2$ be two relations whose rows are sets drawn from a
+common universe of tokens. A row $r$ might be the bag of words in a
+document, the bag of $k$-shingles in a string, the bag of bigrams in
+a name, or the bag of features extracted from a record. The
+\emph{similarity join} at threshold $\theta$ is the relation
+\[
+  R_1 \bowtie_\theta R_2 \;=\; \{ (r_1, r_2) \in R_1 \times R_2 :
+    J(r_1, r_2) \ge \theta \},
+\]
+where $J(r_1, r_2) = |r_1 \cap r_2| / |r_1 \cup r_2|$ is the Jaccard
+similarity of the two sets. The output is the set of cross-relation
+pairs whose contents overlap by at least a $\theta$ fraction. The
+applications run across record linkage (matching customer entries
+across two databases), near-duplicate detection (matching documents
+across two crawls), and entity resolution (matching mentions across
+two corpora). The classical evaluation is two nested loops: for each
+$r_1 \in R_1$, for each $r_2 \in R_2$, compute $J(r_1, r_2)$ and emit
+the pair if the similarity is above $\theta$. The cost is $|R_1|
+\cdot |R_2|$ Jaccard evaluations, each of which is itself linear in
+the row sizes. At million-row scale this is prohibitive.
+
+The natural-join machinery of \Cref{sec:relation-composition} reads
+this problem as a single approximate-relation lookup. Build an
+indicator $\tilde S_\theta \subseteq R_1 \times R_2$ whose membership
+predicate is ``$J(r_1, r_2) \ge \theta$,'' implement it with a sketch
+that estimates Jaccard without materializing the full intersection,
+and read FPR and FNR off the sketch's error bound. The MinHash sketch
+of chapter~10 (\Cref{def:minhash}) is exactly such an estimator.
+
+\subsection*{MinHash similarity join}
+
+The chapter 10 construction (\Cref{sec:minhash-lsh}) replaces a set
+$A$ with a $k$-vector of independent minimum-hash values, its MinHash
+\emph{signature}. The collision probability of two signatures'
+$i$th coordinates is the Jaccard similarity of the underlying sets
+(\Cref{prop:minhash-collision}), so the fraction of matching
+coordinates is an unbiased estimator of $J(A, B)$. Specialized to the
+similarity-join setting:
+
+\begin{enumerate}
+  \item Build the MinHash signature $\sigma(r)$ of length $k$ for
+    every row $r \in R_1 \cup R_2$. Cost: $O(k \cdot \sum |r|)$
+    hashes, linear in the total token count.
+  \item For each candidate pair $(r_1, r_2)$, count the matches
+    $|\{i : \sigma(r_1)_i = \sigma(r_2)_i\}|$ and divide by $k$ to
+    get the MinHash Jaccard estimate $\hat J(r_1, r_2)$.
+  \item Emit the pair if $\hat J(r_1, r_2) \ge \theta$.
+\end{enumerate}
+
+Step 2 is still $O(|R_1| \cdot |R_2|)$ candidate pairs if we leave it
+as written, but each per-pair cost drops from $O(\max(|r_1|, |r_2|))$
+hash comparisons to $O(k)$ signature comparisons with $k$ a constant
+independent of row size. That alone is a useful constant-factor
+speedup for short signatures. The sub-quadratic gain comes from the
+LSH layer below, which prunes the candidate set before the per-pair
+comparison is even attempted.
+
+The framework reading is that the similarity join is implemented as
+the approximate relation
+\[
+  \tilde S_\theta(r_1, r_2) \;=\; [\hat J(r_1, r_2) \ge \theta],
+\]
+whose two error rates come directly from the MinHash error bound
+(\Cref{prop:minhash-error}). False positive: $J(r_1, r_2) < \theta$
+but $\hat J(r_1, r_2) \ge \theta$, which requires the estimator to
+overshoot the truth by at least $\theta - J(r_1, r_2)$. False
+negative: $J(r_1, r_2) \ge \theta$ but $\hat J(r_1, r_2) < \theta$,
+which requires the estimator to undershoot the truth by at least
+$J(r_1, r_2) - \theta$. Both events are bounded by the chapter~10
+Hoeffding-style bound
+$\Prob{|\hat J - J| \ge t} \le 2 \exp(-2 k t^2)$, with $t$ equal to
+the relevant gap. Larger $k$ shrinks both rates exponentially; the
+operating point of the join is a choice of signature length.
+
+\subsection*{LSH bands}
+
+The remaining quadratic factor is the candidate enumeration. The LSH
+layer of \Cref{sec:minhash-lsh} replaces the all-pairs scan with a
+hash-bucket reduction. Partition the signature into $b$ bands of $r$
+rows each (so $k = b \cdot r$), hash each band of each signature into
+a bucket, and declare $(r_1, r_2)$ a candidate pair if any of their
+$b$ bands collide in any bucket. The candidate set is the union of
+within-bucket pairs over all $b$ band-level hash tables.
+
+The probability that two signatures collide on a single band of $r$
+rows is $J^r$ (each band is $r$ independent coordinates, each
+collision with probability $J$ by \Cref{prop:minhash-collision}).
+The probability that they collide on at least one of $b$ bands is
+$1 - (1 - J^r)^b$. As a function of $J$, this is the S-curve of LSH:
+nearly zero for $J$ below a threshold, nearly one above. The
+inflection point is at $J^* \approx (1/b)^{1/r}$; the slope at the
+inflection determines how sharp the separation is. Choosing $(b, r)$
+to place $J^* \approx \theta$ concentrates the candidate set on pairs
+with $J \approx \theta$ or higher and excludes pairs with $J$ much
+below $\theta$. The candidate-set size is sub-quadratic in $|R_1| +
+|R_2|$ when most pairs have $J \ll \theta$, which is the typical
+sparse-similarity regime of the database applications above.
+
+The LSH layer is itself an approximate relation
+$\tilde C \subseteq R_1 \times R_2$ whose membership predicate is
+``the pair collides on at least one band.'' Composed with the
+MinHash-threshold predicate $\tilde S_\theta$ above, the full
+similarity-join pipeline is the intersection of two approximate
+relations:
+\[
+  \tilde S_\theta \cap \tilde C
+  \;=\; \{(r_1, r_2) : \hat J(r_1, r_2) \ge \theta \text{ and }
+    \tilde C(r_1, r_2) = \top\}.
+\]
+The intersection is the chapter~6 intersection of approximate sets,
+and its rates compose by \Cref{thm:join-rates}.
+
+\subsection*{FPR and FNR for the join classifier}
+
+Two error rates govern the similarity-join pipeline as a binary
+classifier on cross-relation pairs. False positive: the pipeline
+outputs a pair whose true Jaccard is below $\theta$. False negative:
+the pipeline omits a pair whose true Jaccard is at or above $\theta$.
+
+For pure MinHash thresholding (no LSH), both rates are read off the
+chapter~10 error bound. A pair with true similarity $J$ is emitted
+with probability
+\[
+  \Prob{\hat J \ge \theta \Given J}
+  \;=\; \Prob{\text{Binomial}(k, J)/k \ge \theta},
+\]
+since $\hat J \cdot k$ is binomial with $k$ trials and success
+probability $J$. For $J < \theta$, this is the upper-tail
+binomial-deviation probability and bounds the per-pair false-positive
+rate; for $J \ge \theta$, the complementary lower-tail probability
+bounds the per-pair false-negative rate. Both decay exponentially in
+$k(\theta - J)^2$, by Hoeffding (\Cref{prop:minhash-error}). The
+pipeline rates are the per-pair rates averaged over the distribution
+of true similarities across the cross-relation.
+
+The LSH layer modifies the false-negative side. A pair with true
+similarity $J$ survives LSH with probability $1 - (1 - J^r)^b$ (the
+S-curve), and the MinHash threshold acts on the survivors. A truly
+similar pair (one with $J \ge \theta$) is missed if it fails the LSH
+collision test or passes LSH but fails the threshold; the two events
+combine by the chapter~3 OR-under-noise rule. The LSH layer also
+modifies the false-positive rate not by changing the per-pair
+probability but by shrinking the denominator: fewer candidates means
+fewer chances for the threshold to emit a spurious pair.
+
+The pair $(b, r)$ tunes the trade-off. Increasing $r$ sharpens the
+S-curve (fewer false positives from low-similarity pairs, more false
+negatives near the threshold); increasing $b$ widens it (more false
+positives, fewer false negatives). The standard tuning sets $(1/b)^{1/r}
+= \theta$ to centre the inflection on the threshold and then chooses
+the band size $r$ to control the steepness. Once $(b, r)$ are fixed,
+the MinHash $k = b \cdot r$ is determined, and the per-pair error
+decays exponentially in $k$ as above.
+
+\subsection*{Worked example}
+
+Take $|R_1| = |R_2| = 1000$, similarity threshold $\theta = 0.5$, and
+MinHash parameter $k = 200$ partitioned into $b = 20$ bands of $r = 10$
+rows each. The total candidate space is $10^6$ cross-relation pairs.
+
+\emph{Per-pair MinHash threshold rates.} For a pair with true
+similarity $J = 0.3$ (well below threshold), the Hoeffding bound gives
+$\Prob{\hat J \ge 0.5} \le \exp(-2 \cdot 200 \cdot 0.2^2)
+\approx \exp(-16) \approx 1.1 \times 10^{-7}$. For a pair with true
+similarity $J = 0.7$ (well above threshold), the same bound gives
+$\Prob{\hat J < 0.5} \le \exp(-16) \approx 1.1 \times 10^{-7}$. Both
+rates are negligible at $k = 200$ for pairs that are not on the
+boundary. For a boundary pair with $J = 0.5$, the threshold rate is
+$1/2$ (the estimator is symmetric around the threshold), and the
+sharp gradient of the rate function near the boundary means pairs
+within a few percent of $\theta$ contribute most of the classifier
+error.
+
+\emph{LSH band rates.} The per-pair LSH collision probability is
+$1 - (1 - J^{10})^{20}$. For $J = 0.7$, $J^{10} \approx 0.028$ and
+$(1 - 0.028)^{20} \approx 0.566$, so the LSH passes the pair with
+probability $1 - 0.566 \approx 0.434$. For $J = 0.5$, $J^{10}
+\approx 9.8 \times 10^{-4}$ and $(1 - 9.8 \times 10^{-4})^{20}
+\approx 0.981$, so the LSH passes the pair with probability
+$\approx 0.019$. For $J = 0.3$, $J^{10} \approx 5.9 \times 10^{-6}$
+and the LSH passes with probability $\approx 1.2 \times 10^{-4}$.
+The S-curve is steep but not sharp at $\theta = 0.5$ with $(b, r) =
+(20, 10)$: most truly similar pairs at $J = 0.7$ survive, half of
+boundary pairs at $J = 0.6$ survive, and very few low-similarity
+pairs at $J = 0.3$ survive.
+
+\emph{Output size estimate.} Suppose the true similarity distribution
+across the $10^6$ pairs has $0.1\%$ at $J \ge 0.5$ (1000 truly
+similar pairs), $1\%$ at $0.3 \le J < 0.5$, and the remaining
+$98.9\%$ at $J < 0.3$. The candidate set is then
+\[
+  1000 \cdot 0.434 + 10000 \cdot 0.019 + 989000 \cdot 1.2 \times 10^{-4}
+  \;\approx\; 434 + 190 + 119
+  \;\approx\; 743
+\]
+pairs, against a maximum possible $10^6$. The candidate set is three
+orders of magnitude smaller than the all-pairs scan, which is the
+sub-quadratic speedup. The threshold pass on those 743 candidates is
+$O(k)$ per pair, total cost $\approx 1.5 \times 10^5$ signature
+comparisons rather than $2 \times 10^8$. Both the false-positive and
+false-negative rates of the final classifier are dominated by the LSH
+S-curve at this parameter setting; the per-pair MinHash threshold is
+sharp enough to add negligible additional error. This is the standard
+operating regime of MinHash + LSH similarity joins in record linkage
+and near-duplicate detection.
