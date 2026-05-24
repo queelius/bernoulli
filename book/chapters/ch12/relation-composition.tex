@@ -1,1 +1,255 @@
-% Placeholder. Drafted in Plan 12 Task 3.
+% §12.2 Composition of Approximate Relations
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:relation-composition}              -- this section
+%   \label{thm:join-rates}                        -- the headline theorem
+%
+% RESOLVED (already in source tree from Plans 1-11):
+%   \Cref{sec:and-under-noise}                    -- chapter 3 §3.1
+%   \Cref{ch:set-composition}                     -- chapter 6
+%   \Cref{prop:intersection-fpr-fnr}              -- chapter 6 §6.2
+%   \Cref{sec:sets-to-relations}                  -- chapter 12 §12.1
+%
+% FORWARD REFS within chapter 12 (resolve in Plan 12 Task 4):
+%   \Cref{sec:approximate-joins}                  -- §12.3 (Task 4)
+
+\section{Composition of Approximate Relations}
+\label{sec:relation-composition}
+
+\Cref{sec:sets-to-relations} treated an approximate relation as an
+approximate set on the Cartesian product universe and stopped there.
+The universe carries structure beyond ``set of pairs,'' though: a
+binary relation $R \subseteq T \times U$ admits projection onto its
+attributes, selection by a predicate, and join with a second relation
+that shares an attribute. Each of these operations is a building
+block of classical relational algebra. Each has an approximate
+analogue, and the propagation of $(\fprate, \fnrate)$ through each
+analogue follows from chapter 3's AND-under-noise calculation
+(\Cref{sec:and-under-noise}) and chapter 6's intersection theorem
+(\Cref{prop:intersection-fpr-fnr}), with pairs substituted for
+elements.
+
+\subsection*{Natural join}
+
+The natural join of two relations
+$R_1 \subseteq T \times U$ and $R_2 \subseteq U \times V$ on the
+shared attribute $U$ is the set of triples
+\[
+  R_1 \bowtie R_2 \;=\; \{ (t, u, v) \in T \times U \times V :
+    (t, u) \in R_1 \text{ and } (u, v) \in R_2 \}.
+\]
+A triple is in the join when both component pairs are in their
+respective relations. The membership predicate of $R_1 \bowtie R_2$ is
+the conjunction of the two component predicates, evaluated at the
+matching attribute value:
+\[
+  \SetIndicator{R_1 \bowtie R_2}(t, u, v)
+  \;=\;
+  \SetIndicator{R_1}(t, u) \;\land\; \SetIndicator{R_2}(u, v).
+\]
+The classical case is exact; the approximate case substitutes
+$\tilde R_1$ and $\tilde R_2$ for the two predicates and reads the
+output as the conjunction of two noisy Booleans:
+\[
+  (\tilde R_1 \bowtie \tilde R_2)(t, u, v)
+  \;=\;
+  \tilde R_1(t, u) \;\land\; \tilde R_2(u, v).
+\]
+The right-hand side is the AND of two $\Bernoulli{\BoolType}$
+instances, which is exactly the object whose rates chapter 3 derived
+(\Cref{sec:and-under-noise}). The lift to relations changes nothing
+about the algebra: each $\tilde R_i(t, u)$ is a Bernoulli Boolean and
+AND-under-noise applies pointwise to the joined triple. The only
+ingredient the lift adds is the cross-relation independence
+assumption: the per-query randomness of $\tilde R_1$ at $(t, u)$ is
+independent of the per-query randomness of $\tilde R_2$ at $(u, v)$.
+That assumption is essentially Axiom~1 of chapter 4 applied across the
+two structures rather than within one of them, and it holds whenever
+the two relations are built and queried independently, which is the
+typical implementation case.
+
+\subsection*{FPR and FNR under join}
+
+The headline result is what chapter 6 already proved for intersection
+of approximate sets, restated for relations. It is what chapter 6's
+intersection theorem looks like with pairs instead of elements.
+
+\begin{theorem}[Join error rates]
+\label{thm:join-rates}
+Let $\tilde R_1 \subseteq T \times U$ and
+$\tilde R_2 \subseteq U \times V$ be two approximate relations with
+false-negative rates $\fnrate_1 = \fnrate_2 = 0$ and false-positive
+rates $\fprate_1, \fprate_2$, and assume cross-relation independence
+of the per-query randomness. Then the natural join
+$\tilde R_1 \bowtie \tilde R_2$ has false-negative rate
+\[
+  \fnrate_{\bowtie} \;=\; 0
+\]
+and false-positive rate
+\[
+  \fprate_{\bowtie} \;=\; \fprate_1 \fprate_2.
+\]
+\end{theorem}
+
+The proof is the AND-of-Booleans calculation lifted to pairs. A true
+join triple $(t, u, v) \in R_1 \bowtie R_2$ requires $(t, u) \in R_1$
+and $(u, v) \in R_2$; both component predicates have structural
+false-negative rate zero, so both report $\top$ with probability one,
+and their conjunction reports $\top$ with probability one. The join
+inherits $\fnrate_{\bowtie} = 0$. A spurious join triple is one for
+which at least one component pair is outside its relation. For the
+join predicate to wrongly report $\top$ on such a triple, both
+component predicates must wrongly report $\top$. If exactly one of the
+two pairs is outside its relation, the join's false-positive
+probability is $\fprate_1 \fprate_2 \cdot 0 + \fprate_i \cdot 1$ for
+the offending index; if both are outside, it is $\fprate_1 \fprate_2$.
+The conditional rate ``given the triple is not in the join'' is a
+mixture of these cases, but each component pair's truth status is
+fixed by the triple, so the conditional becomes the product
+$\fprate_1 \fprate_2$ exactly. This is \Cref{prop:intersection-fpr-fnr}
+of chapter 6 applied to the pair universe $T \times U \times V$, with
+the in-join block playing the role of $A \cap B$ and the out-of-join
+block playing the role of $(A \cap B)^c$.
+
+Two things are worth noting. First, the product structure is the
+chapter 3 AND result. False-positive rates multiply under conjunction
+when both inputs have structural false-negative rate zero; the lift to
+pairs does not alter the formula. Second, the assumption of
+$\fnrate_1 = \fnrate_2 = 0$ is the standard Bloom-style operating
+regime. If either relation has positive $\fnrate_i$, the join inherits
+a positive $\fnrate_{\bowtie}$ as well, computed by the general
+intersection formula of \Cref{prop:intersection-fpr-fnr}; the
+clean product formula is the one-sided special case.
+
+\subsection*{Projection}
+
+The projection of a relation $R \subseteq T \times U$ onto its first
+attribute is the set
+\[
+  \pi_T(R) \;=\; \{ t \in T : \exists u \in U, (t, u) \in R \},
+\]
+a subset of $T$. Projection collapses the $U$ axis by an existential
+quantifier. Under an approximate relation, the projection predicate
+becomes
+\[
+  t \in \pi_T(\tilde R) \;\Longleftrightarrow\; \exists u \in U \;\text{s.t.}\;
+  \tilde R(t, u) = \top.
+\]
+For each candidate $t \in T$, the projection runs $|U|$ membership
+tests across the second attribute and reports $\top$ if any of them
+returns $\top$. The rate analysis is the OR-of-Booleans calculation
+on $|U|$ independent inputs (\Cref{sec:and-under-noise} derived the
+OR rule as the De Morgan dual of AND). If the input relation has
+$\fnrate = 0$, the projection inherits $\fnrate = 0$: a true $t$ has
+at least one $u$ with $(t, u) \in R$, and that pair reports $\top$
+with probability one, so the OR reports $\top$ with probability one.
+The false-positive side amplifies. For a non-projecting $t$ (no $u$
+with $(t, u) \in R$), every pair $(t, u)$ is outside the relation and
+each test reports $\top$ independently with probability $\fprate$; the
+probability that at least one reports $\top$ is $1 - (1 - \fprate)^{|U|}$,
+which approaches one as $|U|$ grows.
+
+Projection thus inflates the false-positive rate by the cardinality of
+the projected-out attribute. This is a structural feature of the
+operation, not an artifact: existential quantification over many noisy
+tests amplifies any false-positive bias. In practice, projection is
+applied to relations whose underlying $R$ has many in-relation pairs
+per $t$, so the test never has to traverse all of $U$; in the limiting
+case where the projection is over a sparse relation with a large
+co-domain, the inflation can be severe and motivates the
+approximate-projection variants discussed in
+\Cref{sec:approximate-joins}.
+
+\subsection*{Selection}
+
+The selection of $R$ by a predicate
+$P : T \times U \to \{\top, \bot\}$ is the subset
+\[
+  \sigma_P(R) \;=\; \{ (t, u) \in R : P(t, u) = \top \},
+\]
+those pairs of $R$ on which $P$ holds. Two cases arise in the
+approximate setting. If $P$ is exact, the selection predicate is
+$\tilde R(t, u) \land P(t, u)$ with the second factor deterministic;
+the conditional rates of $\sigma_P(\tilde R)$ relative to
+$\sigma_P(R)$ are the same as those of $\tilde R$ relative to $R$
+restricted to the support $\{(t, u) : P(t, u) = \top\}$. The rates
+$\fprate, \fnrate$ pass through unchanged. If $P$ is itself
+approximate, with rates $(\fprate_P, \fnrate_P)$, the selection
+predicate is the AND of two noisy Booleans and the rates compose by
+the chapter 3 product rule under the same cross-channel independence
+assumption: the selected $\tilde R$ has structural
+$\fnrate_{\sigma} = 0$ (if both inputs had $\fnrate = 0$) and
+$\fprate_{\sigma} = \fprate \fprate_P$.
+
+\subsection*{Worked example: friend-and-coworker}
+
+Let $\tilde F \subseteq P \times P$ be a Bloom-style approximate
+friend-of relation with $\fnrate_F = 0$ and $\fprate_F = 0.05$, and
+let $\tilde C \subseteq P \times P$ be a Bloom-style is-a-coworker
+relation with $\fnrate_C = 0$ and $\fprate_C = 0.02$. Both structures
+were built independently and are queried independently, so the
+cross-relation independence assumption holds. A natural-join query
+$\tilde F \bowtie \tilde C$ on the common attribute $P$ returns
+triples $(p_1, p_2, p_3)$ for which $\tilde F$ reports $p_1$ as a
+friend of $p_2$ and $\tilde C$ reports $p_2$ as a coworker of $p_3$.
+By \Cref{thm:join-rates}, the join has $\fnrate_{\bowtie} = 0$ and
+\[
+  \fprate_{\bowtie} \;=\; \fprate_F \fprate_C
+  \;=\; 0.05 \times 0.02 \;=\; 0.001.
+\]
+Three orders of magnitude of false-positive rate are bought for the
+price of one extra query. The exact same structure underlies the
+Bloom-filter intersection of chapter 6: composing two structures with
+one-sided error rates is one of the cheapest gains in the framework.
+The cost is in the assumptions, not the algebra. Cross-relation
+independence has to hold; if the two filters share hash functions or
+were built from correlated data, the product formula breaks and the
+true $\fprate_{\bowtie}$ moves toward
+$\max(\fprate_F, \fprate_C)$. In practice the assumption is enforced
+by using independent hash seeds across the two filters.
+
+What the join example does \emph{not} show is the projection-side
+inflation. If we project the friend-and-coworker join onto the first
+attribute (``persons with at least one friend-coworker chain''), the
+existential quantifier over $|P|^2$ candidate chains amplifies
+$\fprate_{\bowtie} = 0.001$ by a factor that depends on how many true
+chains each $p_1$ has. For populations where most persons have at
+least one true friend-coworker chain, the projection inherits the
+join's modest rate; for sparse populations it does not.
+\Cref{sec:approximate-joins} treats the database setting where the
+join, projection, and selection are composed at scale.
+
+\subsection*{Composing the operators}
+
+The three operators (join, projection, selection) compose in any
+order, and the rate propagation through a composed expression follows
+by induction on the expression tree. A query like
+$\pi_T(\sigma_P(\tilde R_1 \bowtie \tilde R_2))$ is evaluated bottom
+up: first the join gives an approximate relation with rates
+$(\fprate_1 \fprate_2, 0)$ (assuming both inputs have
+$\fnrate_i = 0$); then the exact selection passes those rates
+through unchanged; then the projection inflates the false-positive
+side by the existential-quantification factor derived above and
+preserves the structural zero on the false-negative side. The
+intermediate rates do not have to be tracked through symbolic
+arithmetic; each operator has a closed-form rate-update rule, and
+chaining the rules gives the rate-update rule for the whole
+expression. This is the same closure-under-composition story chapter 6
+told for unions, intersections, and complements of approximate sets:
+the rate algebra closes, and rates propagate through expression trees
+by the same induction that the rates of an approximate set propagate
+through Boolean expressions in chapter 5.
+
+What the chapter 6 story did not have is the projection inflation. A
+union of approximate sets is a single Boolean OR per query and has
+no existential quantifier over a domain of unknown size. A projection
+is an existential quantifier over the full second-attribute domain
+and inflates the false-positive rate by a factor that grows with
+$|U|$. This is the one structural penalty the lift to relations
+introduces, and it motivates the approximate-projection techniques of
+\Cref{sec:approximate-joins}: instead of querying every $u \in U$ for
+each candidate $t$, we use a sketch (typically a MinHash signature)
+that estimates the existential quantifier directly, without paying the
+$|U|$ amplification factor in full.
