@@ -1,1 +1,120 @@
-% Placeholder. Drafted in Plan 11 Task 7.
+% §11.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 11, drafted in Tasks 2-6 of Plan 11):
+%   \Cref{sec:miller-rabin-formal}                -- §11.1
+%   \Cref{thm:miller-rabin-formal}                -- §11.1 theorem
+%   \Cref{sec:las-vegas-vs-monte-carlo}           -- §11.2
+%   \Cref{def:las-vegas}                          -- §11.2
+%   \Cref{def:monte-carlo}                        -- §11.2
+%   \Cref{sec:rp-bpp}                             -- §11.3
+%   \Cref{def:rp}                                 -- §11.3
+%   \Cref{def:bpp}                                -- §11.3
+%   \Cref{sec:sample-complexity}                  -- §11.4
+%   \Cref{thm:chernoff}                           -- §11.4 theorem
+%   \Cref{sec:ch11-bridge}                        -- §11.5
+%
+% ALREADY RESOLVED (earlier chapters):
+%   \Cref{sec:miller-rabin}                       -- chapter 3 §3.4 (informal walkthrough)
+%   \Cref{sec:binomial-estimator}                 -- chapter 7 §7.2
+%
+% Citations resolved by existing references.bib entries:
+%   \cite{miller-1976}                            -- Miller (1976), already present
+%   \cite{rabin-1980}                             -- Rabin (1980), already present
+%   \cite{mitzenmacher-upfal}                     -- Mitzenmacher-Upfal, already present
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{motwani-raghavan}                       -- Motwani-Raghavan (1995)
+%   \cite{karger-1993}                            -- Karger (1993) min-cut
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch11}
+
+\paragraph{Miller-Rabin primality testing.}
+The formal $\Bernoulli{\BoolType}$ statement of
+\Cref{thm:miller-rabin-formal} packages two ingredients of separate
+origin. The per-round bound $\fprate \le 1/4$ is
+\textcite{rabin-1980}'s strong-liar theorem, which sharpens to
+$1/4$ a polynomial-time randomized primality test that
+\textcite{miller-1976} had earlier shown to be deterministic and
+correct under the generalized Riemann hypothesis. Rabin's
+contribution was to replace the GRH assumption with random sampling
+of bases, trading determinism for an unconditional probabilistic
+guarantee and a $1/4$ rather than $1/2$ per-round false-positive
+rate. The number-theoretic content of \Cref{sec:miller-rabin-formal}
+is theirs; the framework reading, in which the witness predicate is
+a $\Bernoulli{\BoolType}$ and the $k$-round bound
+$\fprate^{(k)} \le (1/4)^k$ is a corollary of the composition
+theorem of chapter~3 applied to independent samples under chapter~4
+Axiom~1, is the chapter's specialization rather than theirs. A
+historical and pedagogical comparison of the deterministic
+Miller test and the probabilistic Rabin test is given in chapter~31
+of \textcite{cormen-clrs}; the AKS deterministic polynomial-time
+primality test of Agrawal, Kayal, and Saxena (2002) supersedes both
+in worst-case complexity terms but is not competitive in
+constant factors with $k$-round Miller-Rabin for the input sizes
+that arise in practical cryptographic key generation, which is why
+Miller-Rabin remains the standard library implementation.
+
+\paragraph{Randomized algorithms as a field.}
+The standard graduate-level reference on randomized algorithms is
+\textcite{motwani-raghavan}, whose 1995 Cambridge textbook covers
+the Las~Vegas/Monte~Carlo distinction of
+\Cref{sec:las-vegas-vs-monte-carlo}, the RP/BPP/ZPP classification of
+\Cref{sec:rp-bpp}, the Chernoff and Hoeffding tail bounds of
+\Cref{sec:sample-complexity}, and dozens of specific algorithms
+(randomized quicksort, Karger min-cut, polynomial identity testing,
+pattern matching, geometric algorithms, approximate counting, Markov
+chain Monte Carlo) that the chapter treats only by example or not at
+all. Motwani-Raghavan organizes its material by technique;
+the chapter organizes by error structure. The two organizations are
+complementary: a reader who wants to apply randomization to a new
+problem should treat Motwani-Raghavan as the next book, and a reader
+who has finished Motwani-Raghavan and wants the unifying type-algebra
+view should treat this book as the complement.
+
+\paragraph{Chernoff bounds and concentration.}
+The multiplicative Chernoff bound of \Cref{thm:chernoff} and the
+moment-generating-function technique that gives it originated in
+Chernoff's 1952 \emph{Annals of Mathematical Statistics} paper on
+the efficiency of tests based on sums of observations; the textbook
+formulation used in \Cref{sec:sample-complexity} and the BPP
+amplification calculation follow chapter~4 of
+\textcite{mitzenmacher-upfal}, the recommended companion to the
+chapter for any reader who wants the concentration-inequality
+machinery developed more fully. Mitzenmacher and Upfal also give the
+additive Hoeffding inequality, the Azuma-Hoeffding martingale
+generalization, and McDiarmid's bounded-difference inequality, all
+of which subsume \Cref{thm:chernoff} in different directions and are
+needed for randomized algorithms whose error is not a simple sum of
+independent Bernoulli trials. The chapter uses only the
+multiplicative form because that is what the Miller-Rabin and BPP
+applications need; in chapter~10 the additive form underwrites the
+CountMin and HyperLogLog error bounds. The choice between additive
+and multiplicative formulations is problem-driven rather than a
+matter of mathematical taste.
+
+\paragraph{Karger's min-cut algorithm.}
+The randomized min-cut algorithm cited in
+\Cref{sec:las-vegas-vs-monte-carlo} as the canonical Monte Carlo
+example beyond Miller-Rabin is due to \textcite{karger-1993}, whose
+SODA paper introduces the contraction algorithm: repeatedly pick a
+uniformly random edge and contract its endpoints, terminate when two
+vertices remain, and return the cut between them. The analysis
+shows that any fixed min-cut survives all contractions with
+probability at least $2/(n(n-1))$, so $\Theta(n^2 \log n)$
+independent trials suffice to find a min-cut with high probability,
+in $\widetilde O(n^4)$ total time. Karger's later refinements with
+Stein and others bring this to $\widetilde O(n^2)$ via the recursive
+contraction tree, which is the asymptotically fastest known
+algorithm for the unweighted min-cut problem. The pedagogical value
+of Karger's algorithm in the present chapter is not its complexity
+result but its illustration of the Monte Carlo design pattern: a
+fixed-runtime randomized procedure with a small per-trial success
+probability is converted to a high-confidence algorithm by
+amplification through independent repetition, which is the same
+$\Bernoulli{\BoolType}$ amplification analyzed in
+\Cref{sec:sample-complexity} for Miller-Rabin and BPP, applied to a
+combinatorial optimization problem rather than a decision problem.
