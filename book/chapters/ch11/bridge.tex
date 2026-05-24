@@ -1,1 +1,93 @@
-% Placeholder. Drafted in Plan 11 Task 6.
+% §11.5 Bridge
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:ch11-bridge}                       -- this section
+%
+% RESOLVED (chapter 11, prior sections):
+%   \Cref{sec:miller-rabin-formal}                -- §11.1
+%   \Cref{thm:miller-rabin-formal}                -- §11.1
+%   \Cref{sec:las-vegas-vs-monte-carlo}           -- §11.2
+%   \Cref{def:las-vegas}                          -- §11.2
+%   \Cref{def:monte-carlo}                        -- §11.2
+%   \Cref{sec:rp-bpp}                             -- §11.3
+%   \Cref{def:rp}                                 -- §11.3
+%   \Cref{def:bpp}                                -- §11.3
+%   \Cref{sec:sample-complexity}                  -- §11.4
+%   \Cref{thm:chernoff}                           -- §11.4
+%
+% RESOLVED (chapters 5, 6, 7):
+%   \Cref{sec:one-sided-two-sided}                -- chapter 5 §5.4
+%   \Cref{sec:perfect-filter-line}                -- chapter 6 §6.4
+%   \Cref{def:perfect-filter-line}                -- chapter 6 §6.4
+%   \Cref{sec:binomial-estimator}                 -- chapter 7 §7.2
+%
+% FORWARD REFS to later chapters (Plan 0 stubs):
+%   \Cref{ch:approximate-relations}               -- chapter 12
+%   \Cref{ch:algebra-types}                       -- chapter 13
+%
+% §11.5 is the closing section of chapter 11. Three paragraphs:
+% a recap of §§11.1-11.4 as a single arc through the $\Bernoulli{\BoolType}$
+% lens, a forward pointer to chapter 12's lift from approximate sets/functions
+% to approximate relations, and a forward pointer to chapter 13's type-driven
+% unification of Part III.
+
+\section{Bridge}
+\label{sec:ch11-bridge}
+
+The four prior sections of this chapter trace one figure from four
+angles. \Cref{sec:miller-rabin-formal} closes the chapter~3 \S3.4
+deferral by restating the Miller-Rabin witness predicate as a formal
+$\Bernoulli{\BoolType}$ instance with $\fnrate = 0$ and
+$\fprate \le 1/4$ per round (\Cref{thm:miller-rabin-formal}), which
+makes the per-round bound a theorem with citations to Rabin (1980)
+rather than an unmotivated assertion. \Cref{sec:las-vegas-vs-monte-carlo}
+separates that contract from its sibling: Las Vegas algorithms
+(\Cref{def:las-vegas}) trade unbounded worst-case runtime for a
+deterministic output, while Monte Carlo algorithms
+(\Cref{def:monte-carlo}) trade a bounded error rate for a fixed
+runtime, and the Monte Carlo regime is exactly the regime in which
+$\Bernoulli{\BoolType}$ analysis applies. \Cref{sec:rp-bpp} carves up
+the Monte Carlo regime into the classical complexity classes RP, coRP,
+ZPP, and BPP, and reads each one as a location on the chapter~6 rate
+plane: RP (\Cref{def:rp}) sits on the FNR-zero axis of the perfect
+filter line of \Cref{def:perfect-filter-line}, coRP on the FPR-zero
+axis, ZPP at the origin, BPP in the bounded interior. The one-sided
+versus two-sided distinction of \Cref{sec:one-sided-two-sided} is the
+same distinction that separates RP from BPP. \Cref{sec:sample-complexity}
+closes the arc by quantifying how many independent rounds drive the
+chapter~4 Axiom~1 composition bound below a target $\delta$: the
+multiplicative Chernoff bound (\Cref{thm:chernoff}) gives the tight
+$k = \Theta(\log(1/\delta))$ count that makes randomized algorithms
+practical at all, and the same machinery sharpens the variance-based
+confidence interval of the chapter~7 binomial estimator
+(\Cref{sec:binomial-estimator}) from polynomial to exponential decay.
+Five sections, one $\Bernoulli{\BoolType}$: a per-round bound, a
+runtime contract, a location on the rate plane, a sample budget.
+
+The chapter~11 picture extends in two directions before Part~III
+closes. \Cref{ch:approximate-relations} lifts the analysis from
+$\Bernoulli{\BoolType}$ and the approximate functions of chapter~9 to
+$\Bernoulli{R}$ for binary relations $R \subseteq A \times B$. A
+random approximate relation is what is needed once the question stops
+being ``does $x$ belong to $S$'' and starts being ``do $x$ and $y$
+stand in some relation,'' which is the natural setting for join
+queries, equality predicates over pairs, and multi-table membership
+tests. The randomized-algorithm vocabulary of the present chapter
+carries over without modification: a Monte Carlo relation-test
+algorithm is a $\Bernoulli{R}$ instance with a known per-pair error
+rate, and amplification by repetition is the chapter~3 composition
+theorem specialized to the corresponding two-state channel.
+
+\Cref{ch:algebra-types} closes Part~III by giving the type-driven
+algebra under which the chapter~10 sketches, the present chapter's
+randomized algorithms, and the chapter~12 relations are all instances
+of a small set of constructors over $\Bernoulli{T}$. Sketches over
+product types $\Bernoulli{T \times U}$, sketches over sum types
+$\Bernoulli{T + U}$, sketches over list types $\Bernoulli{L\,T}$, and
+Monte Carlo decision procedures as $\Bernoulli{\BoolType}$ all
+compose by structure once the type constructors are fixed. The
+present chapter is the algorithmic instance of that algebra; the next
+two chapters supply the relational instance and the algebraic
+vocabulary that unifies them.
