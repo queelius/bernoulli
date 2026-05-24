@@ -1,1 +1,107 @@
-% Placeholder. Drafted in Plan 10 Task 7.
+% §10.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% ALREADY RESOLVED (within chapter 10, drafted in Tasks 2-6 of Plan 10):
+%   \Cref{sec:countmin}                           -- chapter 10 §10.2
+%   \Cref{thm:countmin-bound}                     -- chapter 10 §10.2 theorem
+%   \Cref{sec:hyperloglog}                        -- chapter 10 §10.3
+%   \Cref{prop:hyperloglog-error}                 -- chapter 10 §10.3 proposition
+%   \Cref{sec:minhash-lsh}                        -- chapter 10 §10.4
+%   \Cref{prop:minhash-error}                     -- chapter 10 §10.4 proposition
+%   \Cref{sec:sketches-as-bernoulli}              -- chapter 10 §10.1
+%   \Cref{sec:ch10-bridge}                        -- chapter 10 §10.5
+%
+% ALREADY RESOLVED (chapters 5, 9):
+%   \Cref{ch:approximate-sets}                    -- chapter 5
+%   \Cref{def:bloom-filter}                       -- chapter 5 §5.2
+%   \Cref{ch:approximate-functions}               -- chapter 9
+%   \Cref{def:n-ary-channel}                      -- chapter 9 §9.2
+%
+% FORWARD REFERENCES (resolve in later plans):
+%   \Cref{ch:type-algebra}                        -- chapter 13 (Plan 0 stub)
+%
+% Citations resolved by new references.bib entries added in this task:
+%   \cite{cormode-muthukrishnan-2005}             -- CountMin original
+%   \cite{flajolet-et-al-2007}                    -- HyperLogLog original
+%   \cite{broder-1997}                            -- MinHash original
+%   \cite{indyk-motwani-1998}                     -- LSH original
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch10}
+
+\paragraph{The Count-Min sketch.}
+The construction of \Cref{sec:countmin} and the additive error bound of
+\Cref{thm:countmin-bound} are due to
+\textcite{cormode-muthukrishnan-2005}. Their paper introduces the
+$d \times w$ counter table with $d$ pairwise-independent row hashes,
+the update rule that increments one counter per row, the query rule
+that returns the minimum across rows, and the analysis that gives the
+$\hat f_a \le f_a + \epsilon F$ guarantee with probability at least
+$1 - \delta$ when $w = \lceil e / \epsilon \rceil$ and
+$d = \lceil \log(1 / \delta) \rceil$. The proof in their Theorem 1 is
+the Markov-plus-union-bound argument reproduced in \Cref{sec:countmin};
+the chapter adds nothing to the proof itself. What the chapter adds is
+the reading of CountMin as a $\Bernoulli{\mathbb{N}}$ instance:
+the channel matrix $Q$ has rows indexed by true counts and columns by
+estimated counts, the upper-triangular shape encodes the one-sided
+$\hat f_a \ge f_a$ guarantee, and the merge operation (entry-wise
+addition of two tables with matched parameters) is a composition under
+the chapter~9 framework rather than a CountMin-specific recipe.
+Cormode and Muthukrishnan also catalog applications (heavy hitters,
+quantile estimation, inner-product estimation) that the chapter does
+not cover; their paper is the right entry point for readers who want
+the full operational repertoire.
+
+\paragraph{The HyperLogLog cardinality estimator.}
+The HyperLogLog construction of \Cref{sec:hyperloglog} and the
+$1.04 / \sqrt{m}$ standard relative error of
+\Cref{prop:hyperloglog-error} are due to
+\textcite{flajolet-et-al-2007}, building on the earlier LogLog and
+probabilistic-counting work of Flajolet and Martin. Their Theorem 1 is
+an exact generating-function calculation that gives both the bias
+correction $\alpha_m$ and the asymptotic standard deviation factor; the
+chapter quotes the constants but does not reproduce the derivation. The
+limiting log-normal shape of the estimation error, which underwrites
+the symmetric-on-a-log-scale rows of the $Q$ matrix in
+\Cref{sec:hyperloglog}, is also their result, as are the small-$m$
+corrections and the tabulated $\alpha_m$ values that production
+HyperLogLog implementations use. The merge operation (entry-wise
+maximum on the register array) is the natural composition under the
+underlying max-of-leading-zeros structure and is treated as a
+chapter~9 composition rather than as a HyperLogLog-specific operation;
+the equivalence between the merged sketch and a HyperLogLog of the
+union stream is left as an exercise at the end of the chapter.
+
+\paragraph{MinHash and Jaccard similarity.}
+The MinHash sketch of \Cref{sec:minhash-lsh} is due to
+\textcite{broder-1997}, whose original setting was near-duplicate
+detection across a large web corpus. The key probabilistic identity,
+$\Pr[\min h(A) = \min h(B)] = J(A, B)$ for a uniform hash $h$, is from
+that paper; the $k$-hash signature, the estimator
+$\hat J = (1/k) |\{i : \sigma_i(A) = \sigma_i(B)\}|$, and the Hoeffding
+concentration bound of \Cref{prop:minhash-error} are the standard
+treatment that follows from the identity. The reading of MinHash as a
+$\Bernoulli{[0, 1]}$ instance, with rows of $Q$ indexed by true Jaccard
+similarity and columns by the empirical fraction of agreeing signature
+positions, is again the chapter~9 framework rather than the original
+formulation, but the underlying Binomial-in-$k$ structure of $\hat J$ is
+already implicit in Broder's analysis.
+
+\paragraph{Locality-Sensitive Hashing.}
+The LSH construction of \Cref{sec:minhash-lsh} is due to
+\textcite{indyk-motwani-1998}, who developed it for approximate nearest
+neighbor search in high dimensions and proved that the curse of
+dimensionality can be partially evaded by hashing to buckets in which
+nearby points collide with high probability and far points collide with
+low probability. The MinHash-plus-band structure of the chapter is the
+specialization of their general LSH framework to the Jaccard metric:
+MinHash signatures provide the locality-sensitive hash family, the
+band-and-row parameter sweep controls the precision/recall trade-off,
+and the bucketing turns an $O(N^2)$ pairwise comparison into an
+$O(N)$-amortized indexed lookup. Indyk and Motwani's paper covers
+LSH families for Hamming distance and $\ell_p$ norms in addition to
+the Jaccard case the chapter develops; their framework is the right
+entry point for readers who want the general theory rather than its
+MinHash specialization.
