@@ -1,1 +1,87 @@
-% Placeholder. Drafted in Plan 13 Task 6.
+% §13.5 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bib-notes-ch13}                    -- this section
+%
+% RESOLVED (within chapter 13):
+%   \Cref{sec:bernoulli-of-composite}             -- §13.2
+%   \Cref{sec:composition-functor}                -- §13.3
+%
+% Citations used here:
+%   \cite{towell-bernoulli-data-type}             -- primary source (in bib from ch1)
+%   \cite{maclane-categories}                     -- Mac Lane, added this task
+%   \cite{hudak-1989}                             -- Hudak FP survey, added this task
+%   \cite{wadler-1992}                            -- Wadler monads, added this task
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch13}
+
+\paragraph{The type-driven algebra as a manuscript.}
+The four-row table of \Cref{sec:composition-functor} and the
+type-by-type lift of \Cref{sec:bernoulli-of-composite} are drawn from
+\textcite{towell-bernoulli-data-type}, ``Random approximate values
+over algebraic types,'' the manuscript that worked out the algebraic
+data type of $\Bernoulli{T}$ and the four composition rules over
+products, sums, lists, and functions. The manuscript treats
+$\Bernoulli{-}$ as a type-level operation with its own algebra, gives
+the channel-matrix factorizations explicitly, and develops the
+function-row monad structure at greater length than the chapter
+allows. A reader who wants the type-algebra treatment as primary,
+with the channel-matrix derivations of chapters~4 and~9 as derived
+consequences of the type structure, should treat the manuscript as
+the next reading. The book takes the opposite route, starting with
+the channel matrix and reading the type algebra off it; the two
+presentations agree on the four rows.
+
+\paragraph{Algebraic data types in programming-language theory.}
+The four-constructor view of types as products, sums, lists, and
+functions is the standard algebraic-data-type framing from
+programming-language theory. It is the type system of ML, Haskell,
+and the functional descendants of Hindley-Milner; the chapter assumes
+the reader has seen pairs, tagged unions, and parametrically
+polymorphic lists before. \textcite{hudak-1989}'s survey
+``Conception, Evolution, and Application of Functional Programming
+Languages'' is a readable history of how this type system grew out of
+the lambda calculus and Church's simply typed terms, and it
+introduces the algebraic-data-type idiom to readers coming from
+imperative or object-oriented backgrounds. The book uses the type
+constructors without their language-implementation baggage; readers
+who want to see them as features of a working language should read
+the Haskell or OCaml documentation alongside the chapter.
+
+\paragraph{The categorical reading.}
+The structure-preserving language of \Cref{sec:composition-functor}
+is informal category theory. The formal name for a map between two
+collections of objects-with-operations that preserves the operations
+is a \emph{functor}, and the four-row table is the statement that
+$\Bernoulli{-}$ is a functor from the category of algebraic types
+(with type constructors) to a category of noisy channels (with
+Kronecker product, direct sum, list, and exponentiation). The
+function-row identity $\Bernoulli{T \to U} \cong T \to \Bernoulli{U}$
+is the statement that $\Bernoulli{-}$ is, more specifically, a monad
+in the categorical sense; the chapter mentioned this in passing
+without checking the monad axioms.
+\textcite{maclane-categories}'s ``Categories for the Working
+Mathematician'' is the standard reference for the categorical
+machinery: functors in chapter~I, natural transformations in
+chapter~II, monads in chapter~VI. \textcite{wadler-1992}'s ``The
+Essence of Functional Programming'' translates the categorical monad
+into the programming-language idiom and is the reference for the
+$T \to \Bernoulli{U}$ reading we used.
+
+\paragraph{Where to go for more.}
+The chapter's algebra is one application of the algebraic-data-type
+machinery; the same machinery applies to many other lifts. Probability
+monads in the categorical sense were studied by Giry and Lawvere in
+the 1980s and have re-emerged in the functional-programming
+literature as ``probabilistic programming'' DSLs. The Bernoulli
+lift is one such monad, with the specific property that its
+channel-level representation is a finite stochastic matrix and its
+composition rules are computable in closed form. A reader who wants
+the broader categorical picture of probability and approximation
+should follow the references in
+\textcite{towell-bernoulli-data-type}; the book stops at the
+four-row table because that is the level the practitioner needs.
