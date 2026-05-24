@@ -1,1 +1,245 @@
-% Placeholder. Drafted in Plan 10 Task 8.
+% §10 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch10-1} through \label{ex:ch10-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{sec:countmin}                           -- §10.2 (Plan 10 Task 3)
+%   \Cref{def:countmin}                           -- §10.2 (Plan 10 Task 3)
+%   \Cref{thm:countmin-bound}                     -- §10.2 (Plan 10 Task 3)
+%   \Cref{sec:hyperloglog}                        -- §10.3 (Plan 10 Task 4)
+%   \Cref{def:hyperloglog}                        -- §10.3 (Plan 10 Task 4)
+%   \Cref{prop:hyperloglog-error}                 -- §10.3 (Plan 10 Task 4)
+%   \Cref{sec:minhash-lsh}                        -- §10.4 (Plan 10 Task 5)
+%   \Cref{def:minhash}                            -- §10.4 (Plan 10 Task 5)
+%   \Cref{prop:minhash-collision}                 -- §10.4 (Plan 10 Task 5)
+%   \Cref{prop:minhash-error}                     -- §10.4 (Plan 10 Task 5)
+%   \Cref{sec:sketches-as-bernoulli}              -- §10.1 (Plan 10 Task 2)
+%   \Cref{sec:ch10-bridge}                        -- §10.5 (Plan 10 Task 6)
+%   \Cref{def:n-ary-channel}                      -- §9.2 (Plan 9 Task 3)
+%   \Cref{ch:approximate-functions}               -- chapter 9 (Plan 9)
+%   \Cref{def:bloom-filter}                       -- §5.2 (Plan 5)
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch10-1}
+\textbf{CountMin parameter selection.}
+Fix the CountMin guarantee at $\epsilon = 0.01$ and $\delta = 0.001$
+(at most $1\%$ over-estimation, with failure probability at most
+one in a thousand). From \Cref{thm:countmin-bound}, compute the
+sketch dimensions $w = \lceil e / \epsilon \rceil$ and $d =
+\lceil \ln(1 / \delta) \rceil$. Report both integers, the total
+cell count $w \cdot d$, and a one-sentence interpretation of which
+parameter buys accuracy and which buys confidence.
+
+\item \exstar
+\label{ex:ch10-2}
+\textbf{HyperLogLog accuracy.}
+The standard relative error of \Cref{prop:hyperloglog-error} is
+$1.04 / \sqrt{m}$, where $m$ is the register count. Tabulate the
+relative error for $m \in \{64, 256, 1024\}$ as a percentage to
+two significant figures. In one sentence, identify the
+quartering-of-error-per-quadrupling-of-$m$ scaling and connect to
+the $\sqrt{m}$ space-accuracy trade-off discussed in
+\Cref{sec:hyperloglog}.
+
+\item \exstar
+\label{ex:ch10-3}
+\textbf{MinHash variance.}
+For two sets with true Jaccard similarity $J = 0.5$ and a MinHash
+signature of length $k = 100$, compute the variance
+$\Var{\hat{J}} = J(1 - J) / k$ of \Cref{prop:minhash-error}, the
+standard deviation $\sqrt{\Var{\hat{J}}}$, and a one-standard-deviation
+confidence interval $\hat{J} \pm \sigma$ for the estimate. Report
+all three to three decimal places.
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch10-4}
+\textbf{Notebook-tied sketch comparison.}
+Open the chapter~10 companion notebook
+\texttt{python/notebooks/ch10-sketches-estimators.ipynb}.
+\begin{enumerate}
+  \item[(a)] Generate a synthetic stream of $N = 10\,000$ items
+    drawn from a Zipfian distribution over $1\,000$ distinct keys.
+    Run CountMin with $(\epsilon, \delta) = (0.01, 0.001)$ and
+    record the empirical maximum over-estimation $\max_a
+    (\hat{f}_a - f_a)$ across $20$ trials.
+  \item[(b)] Run HyperLogLog with $m = 256$ on the same stream's
+    distinct-element subset; report the empirical relative error
+    against the true distinct count, and compare with the
+    theoretical $1.04 / \sqrt{256} \approx 6.5\%$.
+  \item[(c)] Split the stream into two halves $A, B$. Compute
+    MinHash signatures of length $k = 200$ for the two halves'
+    item sets and report $\hat{J}(A, B)$ against the true Jaccard.
+    Compare empirical with theoretical error from
+    \Cref{prop:minhash-error}.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch10-5}
+\textbf{CountMin bound proof.}
+Reproduce the proof of \Cref{thm:countmin-bound} step by step.
+\begin{enumerate}
+  \item[(a)] Compute the per-row expected over-estimation
+    $\mathbb{E}[\hat{f}_a^{(i)} - f_a] = (N - f_a) / w \le N / w$
+    by linearity of expectation over collisions.
+  \item[(b)] Apply Markov's inequality with $\epsilon = e / w$ to
+    obtain a per-row failure probability at most $1 / e$.
+  \item[(c)] Take the minimum over $d$ rows; the joint failure
+    probability is at most $(1 / e)^d = e^{-d}$. Set $e^{-d} \le
+    \delta$ and solve for $d \ge \ln(1 / \delta)$.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch10-6}
+\textbf{HyperLogLog at low cardinality.}
+Argue informally why the harmonic-mean estimator of
+\Cref{def:hyperloglog} under-estimates the true cardinality $n$
+when $n$ is small relative to $m$ (say $n < 5m/2$). The issue is
+that most registers remain at their initial value zero, so the
+$\rho$-statistic concentrates on small values and the geometric
+extrapolation breaks down. State the standard fix: switch to the
+linear-counting estimator $\hat{n} = m \ln(m / V)$, where $V$ is
+the count of zero registers, and identify why this estimator is
+exact in the limit $n \to 0$ (under the Poissonization argument
+sketched in \Cref{sec:hyperloglog}).
+
+\item \exstarstar
+\label{ex:ch10-7}
+\textbf{MinHash for documents.}
+A document with $n = 1000$ distinct words is represented by a
+MinHash signature of length $k = 200$, each signature entry being
+a $64$-bit hash.
+\begin{enumerate}
+  \item[(a)] Compute the signature storage cost in bits and bytes.
+  \item[(b)] Compute the full-set storage cost assuming each word
+    averages $8$ bytes (so $n \cdot 8 \cdot 8 = 64\,000$ bits) and
+    state the compression ratio.
+  \item[(c)] In one sentence, identify what is lost in the
+    compression (the full set), what is preserved (Jaccard
+    similarity to other signed sets, within the
+    \Cref{prop:minhash-error} bound), and why this trade-off is
+    the right one for near-duplicate detection at scale.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch10-8}
+\textbf{Channel matrix for CountMin.}
+Cast the CountMin sketch of \Cref{def:countmin} as an n-ary
+channel in the sense of \Cref{def:n-ary-channel}.
+\begin{enumerate}
+  \item[(a)] Identify the input partition: blocks are indexed by
+    the true count $f_a \in \{0, 1, 2, \ldots\}$, so the model
+    order is $K = \infty$ in principle and $K = N + 1$ for a
+    stream of length $N$.
+  \item[(b)] Identify the output alphabet: $L = \infty$, the
+    non-negative integers reported by query.
+  \item[(c)] Describe the structure of $Q$. Show that
+    $Q_{n, \hat{n}} = 0$ for $\hat{n} < n$ (CountMin never
+    under-counts, so the matrix is upper triangular with respect
+    to the natural ordering), and that $\sum_{\hat{n} \ge n}
+    Q_{n, \hat{n}} = 1$ (row-stochasticity). In one sentence,
+    connect the upper-triangular shape to the FNR-zero structure
+    of the Bloom filter of \Cref{def:bloom-filter}, of which
+    CountMin is the multi-set analog.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch10-9}
+\textbf{CountMin expected overshoot, exact form.}
+\Cref{thm:countmin-bound} gives a probabilistic upper bound on the
+over-estimation $\hat{f}_a - f_a$. Here, derive the exact
+\emph{expectation} in a single row $i$, not merely a bound on its
+tail.
+\begin{enumerate}
+  \item[(a)] Write $\hat{f}_a^{(i)} - f_a = \sum_{b \ne a} f_b
+    \cdot \mathbb{I}\{h_i(b) = h_i(a)\}$, where $h_i$ is the row's
+    hash function. Apply linearity of expectation.
+  \item[(b)] Use the assumption that $h_i$ is fully random (or
+    pairwise independent), so $\Pr[h_i(b) = h_i(a)] = 1 / w$ for
+    any fixed $b \ne a$.
+  \item[(c)] Conclude $\mathbb{E}[\hat{f}_a^{(i)} - f_a] = (N - f_a)
+    / w$, where $N = \sum_b f_b$ is the total stream length.
+    Contrast with the probabilistic bound of
+    \Cref{thm:countmin-bound}: in expectation the over-estimation
+    is exactly $(N - f_a) / w \le N / w = \epsilon N / e$; the
+    factor of $e$ in the bound is the Markov slack.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch10-10}
+\textbf{HyperLogLog merge.}
+\Cref{sec:hyperloglog} states that two HyperLogLog sketches over
+the same hash function and register count $m$ merge by taking the
+entry-wise maximum of their register arrays. Show that this merge
+is exactly a HyperLogLog sketch of the union stream.
+\begin{enumerate}
+  \item[(a)] Recall the register update rule: register $j$ stores
+    the maximum $\rho$-value (leading-zero count plus one) observed
+    over all stream items hashing to bucket $j$.
+  \item[(b)] Let $S_A, S_B$ be the register arrays of the two
+    sketches, and $S_{A \cup B}$ the register array of a single
+    sketch built on $A \cup B$. Argue that $S_{A \cup B}(j) =
+    \max(S_A(j), S_B(j))$ entry-wise: each bucket's stored value
+    is a maximum, and the maximum over $A \cup B$ equals the
+    maximum over $A$ combined with the maximum over $B$.
+  \item[(c)] In one sentence, contrast this with CountMin, whose
+    merge rule is entry-wise \emph{sum} (compatible with the
+    additive count semantics) rather than entry-wise max
+    (compatible with the cardinality semantics). The merge rule
+    is dictated by the algebra of the underlying $\Bernoulli{T}$
+    type, as previewed in \Cref{sec:sketches-as-bernoulli}.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch10-11}
+\textbf{LSH parameter sweep.}
+The locality-sensitive hashing (LSH) scheme from
+\Cref{sec:ch10-bridge} partitions a length-$k$ MinHash signature
+into $b$ bands of $r$ rows each (so $k = b \cdot r$). Two items
+are reported as candidates when at least one band has all $r$
+signature entries agree.
+\begin{enumerate}
+  \item[(a)] For two items with Jaccard similarity $J$, a single
+    row of MinHash agrees with probability $J$ (by
+    \Cref{prop:minhash-collision}). Derive the candidate
+    probability $p(J) = 1 - (1 - J^r)^b$ by union over bands and
+    intersection over rows within a band.
+  \item[(b)] Plot or tabulate $p(J)$ for $(b, r) = (20, 5)$ over
+    $J \in \{0.1, 0.2, \ldots, 0.9\}$. Identify the S-curve
+    shape: a sharp threshold near $J^* = (1 / b)^{1 / r}$ that
+    separates high-recall (large $J$) from low-precision (small
+    $J$) candidate pairs.
+  \item[(c)] In one sentence, identify the design trade-off:
+    increasing $r$ sharpens the S-curve (fewer false-positive
+    candidates from low-$J$ pairs, at the cost of fewer true
+    candidates from moderate-$J$ pairs); increasing $b$ shifts
+    the S-curve left (more recall, more candidates to verify).
+    The choice of $(b, r)$ is the LSH analog of choosing
+    $(w, d)$ in \Cref{thm:countmin-bound}.
+\end{enumerate}
+
+\end{enumerate}
