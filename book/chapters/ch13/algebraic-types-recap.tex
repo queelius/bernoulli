@@ -1,1 +1,128 @@
-% Placeholder. Drafted in Plan 13 Task 2.
+% §13.1 Algebraic Types Recap
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:algebraic-types-recap}             -- this section
+%
+% RESOLVED (earlier chapters):
+%   \Cref{ch:approximate-sets}                    -- chapter 5
+%   \Cref{ch:set-composition}                     -- chapter 6
+%   \Cref{ch:approximate-functions}               -- chapter 9
+%   \Cref{ch:sketches-estimators}                 -- chapter 10
+%   \Cref{ch:approximate-relations}               -- chapter 12
+%
+% FORWARD REFS within chapter 13 (resolve in Plan 13 Tasks 3-4):
+%   \Cref{sec:bernoulli-of-composite}             -- §13.2 (Task 3)
+%   \Cref{sec:composition-functor}                -- §13.3 (Task 4)
+
+\section{Algebraic Types Recap}
+\label{sec:algebraic-types-recap}
+
+Twelve chapters in, the book has built a family of approximate
+structures: predicates, sets, set algebras, sketches, randomized
+deciders, relations, joins. Each looks different on the surface, but
+the same calculations keep appearing. The Kronecker product of
+channel matrices that organized the joint distribution of $m$ Boolean
+queries in chapter~4 returned for $n$-ary channels in chapter~9 and
+again for relational products in chapter~12. The set composition
+rules of chapter~6 lined up with the n-ary composition rules of
+chapter~9. CountMin and HyperLogLog of chapter~10 were noisy
+counters: a different output type, the same two-axiom framework.
+
+This chapter is the unification. The thread tying these structures
+together is that each one is a $\Bernoulli{T}$ for some type $T$. To
+state the algebra that organizes them, we recall how types compose.
+
+\subsection*{The four type constructors}
+
+Standard algebraic data types are built from a small number of
+constructors. We use four.
+
+\textbf{Products.} The product $T \times U$ is the type of pairs
+$(t, u)$ with $t : T$ and $u : U$, with cardinality
+$|T| \cdot |U|$. Records, tuples, and structs are products. The pair
+$(\text{class}, \text{count})$ for a labeled counter is a product.
+
+\textbf{Sums.} The sum $T + U$ is the tagged-union type of values
+that are either a $T$ or a $U$, with a tag recording which. The two
+injections are $\mathrm{Left}(t)$ and $\mathrm{Right}(u)$.
+Cardinality adds: $|T + U| = |T| + |U|$. Variants, enums, and
+discriminated unions are sums. A query result that is either a hit
+with payload of type $T$ or a miss with no payload is a sum
+$T + \mathrm{Unit}$.
+
+\textbf{Lists.} The list constructor $L$ takes a type $T$ to the type
+$L T$ of finite sequences of $T$-values, of any length. Lists encode
+sequences, multisets (up to ordering), and variable-length records.
+
+\textbf{Functions.} The function type $T \to U$ is the type of maps
+from $T$ to $U$. A predicate is a function $T \to \BoolType$; a hash
+is a function $T \to \mathbb{N}$; a labeled classifier is a function
+$T \to \text{Class}$. Function types are the most general of the
+four: products, sums, and lists all embed into appropriate function
+types.
+
+These four constructors close under composition. Any algebraic data
+type built from primitive types and these constructors has a clear
+structural decomposition.
+
+\subsection*{Each approximate structure lives at one type constructor}
+
+The approximate structures we have built so far each live at one of
+the four constructors. Reading the chapters with this in mind:
+
+\textbf{Approximate sets} (chapter~5) are predicates on a universe.
+A predicate over $T$ is a function $T \to \BoolType$, so the Bloom
+filter is a noisy predicate: a $\Bernoulli{T \to \BoolType}$. The
+chapter~6 set composition rules are the rules for composing such
+predicates under independent noise.
+
+\textbf{Approximate maps and channels} (chapter~9) are functions out
+of a finite type. A $\Bernoulli{T \to U}$ for finite $T$ and $U$ is
+exactly the n-ary channel structure chapter~9 named.
+
+\textbf{Sketches} (chapter~10) are noisy values of an aggregate type.
+CountMin and HyperLogLog produce values in $\mathbb{N}$, so each is
+a $\Bernoulli{\mathbb{N}}$. MinHash produces a similarity estimate
+in $[0, 1]$, a $\Bernoulli{[0, 1]}$.
+
+\textbf{Approximate relations} (chapter~12) are predicates on products.
+A relation $R \subseteq T \times U$ is a function $T \times U \to
+\BoolType$, and an approximate relation is a $\Bernoulli{T \times U
+\to \BoolType}$. The join rate calculations of §12.2 compose two
+such predicates by relational composition.
+
+Every structure in the book so far is a noisy value of some
+algebraic type. The type tells you which composition rules apply.
+Chapter~13 makes the correspondence explicit.
+
+\subsection*{The lift as a type-level operation}
+
+Write $\Bernoulli{-}$ as a type-level operation. Given a type $T$, the
+type $\Bernoulli{T}$ is the type of random approximate values over
+$T$: each value carries a probability distribution over $T$ that
+concentrates near the true value but allows error with quantified
+rates. The atomic case is $\Bernoulli{\BoolType}$, the noisy bit of
+Part~I.
+
+The substantive content of this chapter is that $\Bernoulli{-}$
+preserves type structure. The lift through a product is a tensor of
+factor lifts; through a sum, a block-diagonal lift; through a list,
+a per-position lift; through a function, a per-input lift. Each of
+the four type constructors gives a composition rule for
+$\Bernoulli{T}$ instances. Calling the property ``structure-preserving''
+is the polite way of saying that the lift commutes with the type
+constructors. §13.3 packages this formally, after §13.2 establishes
+the lift on each constructor.
+
+\subsection*{Signpost}
+
+§13.2 specifies the lift on each of the four type constructors:
+products (the Kronecker theorem of chapters~4 and~9, read at the type
+level), sums (block-diagonal channels), lists (per-position lifts,
+with the length possibly noisy), and functions (per-input lifts).
+§13.3 packages the four rules as a single structure-preserving map.
+The chapter closes with the consequence for the whole book: every
+approximate structure we have built is one application of this
+algebra.
