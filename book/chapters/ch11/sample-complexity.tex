@@ -1,1 +1,278 @@
-% Placeholder. Drafted in Plan 11 Task 5.
+% §11.4 Sample Complexity
+%
+% Derives how many independent samples (or rounds, or repetitions) are
+% needed to drive a Bernoulli-shaped failure probability below a target
+% $\delta$. The workhorse is the multiplicative Chernoff bound, stated
+% as a theorem with an MGF + Markov proof sketch. Two applications:
+% Miller-Rabin round count (a clean closed form because per-round
+% $\fprate \le 1/4$) and BPP majority-vote amplification (the Chernoff
+% calculation supplied at \Cref{thm:bpp-amplification}'s deferral
+% point). Closes with the comparison to the variance-based interval of
+% chapter 7 §7.2: Chebyshev-style polynomial decay versus Chernoff-style
+% exponential decay on the same binomial estimator.
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:sample-complexity}       -- this section
+%   \label{thm:chernoff}                -- multiplicative Chernoff bound
+%
+% RESOLVED (earlier chapters, drafted in Plans 1-7):
+%   \Cref{sec:binomial-estimator}       -- chapter 7 §7.2
+%   \Cref{prop:binomial-unbiased}       -- chapter 7 §7.2
+%   \Cref{prop:binomial-variance}       -- chapter 7 §7.2
+%   \Cref{thm:composition}              -- chapter 3 §3.3
+%   \Cref{ax:element-indep}             -- chapter 4 §4.2 Axiom 1
+%
+% RESOLVED (chapter 11, earlier in this plan):
+%   \Cref{sec:miller-rabin-formal}      -- §11.1
+%   \Cref{thm:miller-rabin-formal}      -- §11.1
+%   \Cref{def:bpp}                      -- §11.3
+%   \Cref{thm:bpp-amplification}        -- §11.3 (proof deferred to here)
+
+\section{Sample Complexity}
+\label{sec:sample-complexity}
+
+Every randomized algorithm of the preceding three sections has a knob
+labelled $k$: the number of Miller-Rabin rounds, the number of BPP
+repetitions for majority vote, the number of Karger trials. Each
+$k$-knob does the same job: drive a per-trial error rate below a
+target failure probability $\delta$. The sample-complexity question
+is how to set the knob. Given a target relative error $\epsilon$ and
+a target failure probability $\delta$, how many independent samples
+$k$ are needed? The answer for every algorithm in this chapter is the
+same family of bounds, derived from a single theorem about sums of
+independent Bernoulli random variables. This section states that
+theorem, sketches its proof via the moment-generating function, and
+applies it to Miller-Rabin and to BPP amplification. The closing
+remarks compare the bound to the variance-based confidence interval
+of \Cref{sec:binomial-estimator}: same estimator, two different
+tails.
+
+%---------------------------------------------------------------------------
+\subsection*{The multiplicative Chernoff bound}
+
+Fix iid Bernoulli random variables $X_1, \ldots, X_n$ with success
+probability $p$, and let $X = \sum_{i=1}^n X_i$ be their sum. Write
+$\mu = \mathbb{E}[X] = np$ for the mean. The textbook variance bound
+of \Cref{prop:binomial-variance} controls $\Pr[|X - \mu| \ge t]$
+polynomially in $t$. The Chernoff bound improves the polynomial decay
+to exponential decay in $\mu \epsilon^2$, at the price of an upper
+tail expressed in multiplicative form $(1 + \epsilon) \mu$ rather than
+additive form $\mu + t$.
+
+\begin{theorem}[Multiplicative Chernoff bound]
+\label{thm:chernoff}
+Let $X_1, \ldots, X_n$ be independent Bernoulli random variables with
+$\Pr[X_i = 1] = p$, and set $X = \sum_{i=1}^n X_i$ and $\mu = np$.
+For every $\epsilon \in (0, 1]$,
+\begin{equation}
+\label{eq:chernoff-upper}
+  \Pr[X \ge (1 + \epsilon) \mu] \;\le\; \exp\!\left(-\frac{\mu \epsilon^2}{3}\right),
+\end{equation}
+and symmetrically
+\begin{equation}
+\label{eq:chernoff-lower}
+  \Pr[X \le (1 - \epsilon) \mu] \;\le\; \exp\!\left(-\frac{\mu \epsilon^2}{2}\right).
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The argument is the moment-generating-function (MGF) plus Markov
+recipe, optimized over the free parameter. Fix $t > 0$. By Markov's
+inequality applied to the random variable $e^{tX}$,
+\[
+  \Pr[X \ge a]
+  \;=\; \Pr[e^{tX} \ge e^{ta}]
+  \;\le\; e^{-ta} \, \mathbb{E}[e^{tX}].
+\]
+Independence of the $X_i$ factors the MGF of the sum into the product
+of the per-variable MGFs:
+\[
+  \mathbb{E}[e^{tX}]
+  \;=\; \prod_{i=1}^n \mathbb{E}[e^{tX_i}]
+  \;=\; \prod_{i=1}^n \bigl(1 - p + p e^t\bigr)
+  \;=\; \bigl(1 + p(e^t - 1)\bigr)^n.
+\]
+The pointwise inequality $1 + x \le e^x$ valid for all real $x$
+(applied with $x = p(e^t - 1) \ge 0$) gives
+\[
+  \mathbb{E}[e^{tX}]
+  \;\le\; \exp\!\bigl(np(e^t - 1)\bigr)
+  \;=\; \exp\!\bigl(\mu(e^t - 1)\bigr).
+\]
+Substituting $a = (1 + \epsilon) \mu$ into the Markov step yields
+\[
+  \Pr[X \ge (1 + \epsilon) \mu]
+  \;\le\; \exp\!\bigl(-t(1 + \epsilon) \mu + \mu(e^t - 1)\bigr).
+\]
+The right-hand exponent is minimized over $t > 0$ at $t = \ln(1 + \epsilon)$,
+where it equals $-\mu \bigl((1 + \epsilon) \ln(1 + \epsilon) - \epsilon\bigr)$.
+The function $\phi(\epsilon) := (1 + \epsilon) \ln(1 + \epsilon) - \epsilon$
+satisfies $\phi(\epsilon) \ge \epsilon^2 / 3$ for $\epsilon \in (0, 1]$
+(a Taylor-remainder estimate; the constant $1/3$ is the value that
+makes the inequality tight at $\epsilon = 1$). Substituting gives
+\eqref{eq:chernoff-upper}. The lower-tail bound \eqref{eq:chernoff-lower}
+follows from the same recipe with $t < 0$ and the matching estimate
+$\phi(-\epsilon) \ge \epsilon^2 / 2$.
+\end{proof}
+
+The two bounds are not symmetric in the constant: the upper tail has
+exponent $\mu \epsilon^2 / 3$ and the lower tail has the tighter
+$\mu \epsilon^2 / 2$. This asymmetry is a feature of the Bernoulli
+case (large deviations above the mean are harder than below because
+of the $\{0, 1\}$ ceiling) and matters in sample-complexity
+calculations only when the dominant failure mode is on a specific
+side. When both tails are bad and a two-sided bound is wanted, taking
+the union of the two events and using the worse constant gives
+\[
+  \Pr[|X - \mu| \ge \epsilon \mu]
+  \;\le\; 2 \exp\!\left(-\frac{\mu \epsilon^2}{3}\right),
+\]
+which is the form used in most of what follows.
+
+%---------------------------------------------------------------------------
+\subsection*{Application: Miller-Rabin round count}
+
+The simplest application is also the cleanest, because Miller-Rabin
+sits on the FNR-zero axis and the Chernoff bound is not needed at all
+for the count. The per-round false-positive rate of
+\Cref{thm:miller-rabin-formal} is $\fprate \le 1/4$, and the
+$k$-round composition theorem reduces $\fprate^{(k)}$ to the product
+of per-round rates: $\fprate^{(k)} \le (1/4)^k$. Choosing $k$ to
+drive $\fprate^{(k)}$ below a target $\delta$ requires solving
+$(1/4)^k \le \delta$, which gives
+\[
+  k \;\ge\; \log_4(1/\delta) \;=\; \frac{\log_2(1/\delta)}{2}.
+\]
+At $\delta = 10^{-6}$, $\log_2(10^6) \approx 19.93$, so $k \ge 10$
+rounds suffice. At $\delta = 10^{-12}$, $k \ge 20$ rounds. At
+$\delta = 2^{-128}$ (cryptographic-strength confidence), $k \ge 64$.
+The bound is sharp up to the per-round constant $1/4$: doubling the
+desired confidence in bits costs a constant number of additional
+rounds, not a constant factor.
+
+This calculation does not use \Cref{thm:chernoff} at all. The reason
+is that Miller-Rabin's error is one-sided ($\fprate$ only, with
+$\fnrate = 0$), so a single failure event collapses the chain. The
+relevant bound is the chain rule of \Cref{thm:composition}, not a
+concentration bound on a sum. Chernoff enters when the failure event
+is a tail count rather than a single witness, which is the BPP case
+below.
+
+%---------------------------------------------------------------------------
+\subsection*{Application: BPP amplification}
+
+The BPP majority-vote amplification of \Cref{thm:bpp-amplification}
+deferred its Chernoff calculation to this section. We can now supply
+it. Let $A$ be a BPP algorithm with per-run accuracy bounded by
+$1/2 + \epsilon_0$ on every input, where $\epsilon_0 > 0$ is the
+margin above the $1/2$ threshold. (The conventional $2/3$ versus
+$1/3$ of \Cref{def:bpp} corresponds to $\epsilon_0 = 1/6$.) Run $A$
+on input $x$ for $k$ independent rounds, and report the majority of
+the $k$ outputs. We bound the probability that the majority is wrong.
+
+Let $X_i = 1$ if the $i$th run gives the correct answer, $0$
+otherwise. By the BPP guarantee, $\Pr[X_i = 1] \ge 1/2 + \epsilon_0$
+on every $x$, and by \Cref{ax:element-indep} the $X_i$ are mutually
+independent. Let $X = \sum_{i=1}^k X_i$ be the number of correct
+runs. The majority vote is wrong exactly when $X < k/2$. The mean of
+$X$ is $\mu = k(1/2 + \epsilon_0)$, and the threshold $k/2$ sits
+below $\mu$ by the deviation
+\[
+  \mu - k/2 \;=\; k \epsilon_0,
+\]
+which in multiplicative form is
+\[
+  k/2 \;=\; (1 - \epsilon')\mu
+  \quad\text{with}\quad
+  \epsilon' \;=\; \frac{\epsilon_0}{1/2 + \epsilon_0}.
+\]
+Applying the lower-tail bound \eqref{eq:chernoff-lower} gives
+\[
+  \Pr[X < k/2]
+  \;\le\; \Pr[X \le (1 - \epsilon')\mu]
+  \;\le\; \exp\!\left(-\frac{\mu (\epsilon')^2}{2}\right).
+\]
+Substituting $\mu = k(1/2 + \epsilon_0)$ and
+$(\epsilon')^2 = \epsilon_0^2 / (1/2 + \epsilon_0)^2$, the right side
+simplifies to
+\[
+  \exp\!\left(-\frac{k \epsilon_0^2}{2(1/2 + \epsilon_0)}\right)
+  \;\le\; \exp\!\left(-\frac{2 k \epsilon_0^2}{3}\right)
+\]
+when $\epsilon_0 \le 1/2$. Loosening the constant to a clean
+$\exp(-k \epsilon_0^2 / 3)$ and asking that this be at most $\delta$,
+\[
+  k \;\ge\; \frac{3 \ln(1/\delta)}{\epsilon_0^2}.
+\]
+For the conventional BPP gap $\epsilon_0 = 1/6$, this is
+$k \ge 108 \ln(1/\delta)$, so $\delta = 10^{-6}$ requires
+$k \approx 1490$ rounds. The constant $108$ looks large; in practice
+the proof can be tightened by using \eqref{eq:chernoff-lower} with
+its better $\mu \epsilon^2 / 2$ exponent throughout and the per-step
+inequalities at their tightest, which trims the constant to single
+digits. The qualitative point is what matters: BPP amplification is
+$O((1/\epsilon_0^2) \log(1/\delta))$ rounds, exponential decay in $k$
+rather than polynomial, and the exponent is the square of the margin
+above $1/2$.
+
+The cost asymmetry between BPP amplification and RP amplification is
+worth naming. RP amplification (\Cref{thm:rp-amplification}) brings
+$\fnrate$ from $1/2$ to $2^{-k}$ in $k$ rounds: a bit of confidence
+per round. BPP amplification brings the same confidence in
+$(3/\epsilon_0^2) k$ rounds, with a quadratic dependence on the
+margin. A BPP algorithm with a $2/3$-versus-$1/3$ gap pays a
+$\Theta(1/\epsilon_0^2) = \Theta(36)$ overhead per bit of confidence,
+relative to a one-sided RP algorithm. This is the price of the
+two-sided contract: when both errors can occur on the same coin
+sequence, a single repetition is not enough; a vote across many
+repetitions is needed, and votes concentrate exponentially in the
+margin squared rather than exponentially in the count.
+
+%---------------------------------------------------------------------------
+\subsection*{Connection to the variance-based interval}
+
+The Chernoff bound and the variance-based confidence interval of
+\Cref{sec:binomial-estimator} are two tail bounds for the same
+estimator. The binomial estimator $\hat{p} = X/n$ studied there had
+variance $p(1-p)/n$ (\Cref{prop:binomial-variance}); Chebyshev's
+inequality applied to that variance gives
+\[
+  \Pr\!\left[|\hat{p} - p| \ge \epsilon\right]
+  \;\le\; \frac{p(1-p)}{n \epsilon^2}
+  \;\le\; \frac{1}{4 n \epsilon^2},
+\]
+where the second step uses $p(1-p) \le 1/4$. The bound is polynomial
+in $n \epsilon^2$: doubling $n$ halves the failure probability. The
+Chernoff bound on the same estimator (rewriting $\hat{p} = X/n$ with
+$X = \sum X_i$ and $\mu = np$, taking absolute deviation $\epsilon$
+in the additive sense rather than multiplicative) gives
+\[
+  \Pr\!\left[|\hat{p} - p| \ge \epsilon\right]
+  \;\le\; 2 \exp\!\left(-2 n \epsilon^2\right)
+\]
+by Hoeffding's inequality, the additive cousin of \Cref{thm:chernoff}
+specialized to bounded $\{0,1\}$ random variables. The bound is
+exponential in $n \epsilon^2$: doubling $n$ squares the failure
+probability.
+
+The two bounds describe the same estimator, but they answer different
+questions at different cost. Chebyshev gives a bound that requires
+only the variance, so it works for any distribution with the right
+second moment; Chernoff requires the full MGF, so it is restricted to
+distributions whose MGF is finite. The variance-based bound is what
+chapter 7 §7.2 used to construct an unbiased point estimate with a
+crisp Cramer-Rao certificate; the Chernoff bound is what chapter 11
+uses to specify sample complexity. The two are not in competition;
+they are the polynomial and the exponential tails of the same
+binomial. When the question is ``what is the variance of $\hat{p}$,''
+the chapter 7 answer suffices. When the question is ``how many
+samples to drive the failure probability below $\delta$,'' the
+chapter 11 answer is needed, because the polynomial bound forces
+$n = \Theta(1/\delta)$ samples whereas the exponential bound asks
+only $n = \Theta(\log(1/\delta))$. The gap between
+$1/\delta$ and $\log(1/\delta)$ is the gap between a system that
+needs $10^6$ samples for $\delta = 10^{-6}$ confidence and one that
+needs $20$. This is why the Chernoff bound (and not Chebyshev) is the
+workhorse of randomized-algorithm analysis.
