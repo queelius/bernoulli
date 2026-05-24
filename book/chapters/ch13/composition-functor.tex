@@ -1,1 +1,187 @@
-% Placeholder. Drafted in Plan 13 Task 4.
+% §13.3 The Composition Functor
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:composition-functor}               -- this section
+%
+% RESOLVED (earlier chapters):
+%   \Cref{ch:set-composition}                     -- chapter 6
+%   \Cref{ch:approximate-functions}               -- chapter 9
+%   \Cref{ch:sketches-estimators}                 -- chapter 10
+%   \Cref{ch:approximate-relations}               -- chapter 12
+%
+% RESOLVED (within chapter 13):
+%   \Cref{sec:algebraic-types-recap}              -- §13.1
+%   \Cref{sec:bernoulli-of-composite}             -- §13.2
+%   \Cref{thm:bernoulli-product}                  -- §13.2
+%
+% Note: the categorical name "functor" for the structure-preserving
+% map is deferred to §13.5 (bibliographic notes); this section uses
+% "structure-preserving map" throughout the prose.
+
+\section{The Composition Functor}
+\label{sec:composition-functor}
+
+§13.2 catalogued the lift $\Bernoulli{-}$ on each of the four type
+constructors. Four rules, one per constructor. This section observes
+that the four rules belong together: they are the four cases of one
+underlying lift. Naming and using that lift is the chapter's
+headline payoff.
+
+\subsection*{A structure-preserving map}
+
+Pick any operation on types: product, sum, list, function. The lift
+$\Bernoulli{-}$ takes that operation on the type level to an
+analogous operation on the noisy-channel level. For products,
+\Cref{thm:bernoulli-product} said $\Bernoulli{T \times U} \cong
+\Bernoulli{T} \otimes \Bernoulli{U}$: the product on types becomes a
+Kronecker product on channels. For sums, $\Bernoulli{T + U} \cong
+\Bernoulli{T} \oplus \Bernoulli{U}$: the sum on types becomes a
+direct sum on channels. For lists and functions, the pattern repeats
+with each constructor's natural channel-level operation.
+
+A map between two settings that takes operations to corresponding
+operations is what we call a \emph{structure-preserving map}.
+$\Bernoulli{-}$ is such a map from the world of algebraic types to
+the world of noisy channels: it takes each type constructor to a
+specific channel-level operation, and it does so consistently across
+the four constructors. The formal categorical name for this kind of
+map is ``functor,'' a term §13.5 returns to. The prose name is
+enough for the chapter.
+
+\subsection*{The isomorphism table}
+
+The four cases collected into one table:
+
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Type level & Channel level & Reading \\
+\hline
+$T \times U$ & $\Bernoulli{T} \otimes \Bernoulli{U}$ & Kronecker product \\
+$T + U$ & $\Bernoulli{T} \oplus \Bernoulli{U}$ & direct sum (block-diagonal) \\
+$L T$ & $L \Bernoulli{T}$ (modulo length) & per-position lift \\
+$T \to U$ & $T \to \Bernoulli{U}$ & per-input lift \\
+\hline
+\end{tabular}
+\end{center}
+
+Each row is an isomorphism: the type on the left and the channel on
+the right specify the same $\Bernoulli{-}$ instance up to relabeling
+of indices. The four rows together state that $\Bernoulli{-}$
+commutes with the four type constructors.
+
+The function row $\Bernoulli{T \to U} \cong T \to \Bernoulli{U}$ is
+worth pausing on. It says the noisy version of a function is the
+same as a function returning noisy values. Programmers will recognize
+this as the signature of a ``monad'' in the type-theoretic sense:
+a wrapper type $M$ together with operations that let computations
+return $M$-values be sequenced. $\Bernoulli{-}$ qualifies as a monad
+in this sense, with $T \to \Bernoulli{U}$ as the basic
+noise-introducing function shape. We mention this here for readers
+fluent in programming-language type theory; the formal monad axioms
+are checked in exercises.
+
+\subsection*{Why the table matters operationally}
+
+Without the table, every new approximate structure required its own
+composition derivation. Bloom filters got chapter~6; sketches got
+chapter~10; relations got chapter~12. Each chapter rederived a
+composition rule that was, in retrospect, an instance of the same
+underlying structure-preserving map.
+
+With the table, composition of $\Bernoulli{-}$ instances is
+mechanical. Given a composite type $T$ built from the four
+constructors, the channel-level structure of $\Bernoulli{T}$ is
+determined by decomposing $T$ into constructors and applying the
+appropriate row of the table at each level. No new derivation is
+needed. The four rows handle every composite type the four
+constructors generate.
+
+The practical consequence is that adding a new approximate data
+structure to the catalogue is a matter of identifying its type, not
+of redoing the algebra. A new sketch that estimates entries of a
+matrix? That is $\Bernoulli{T \times U \to \mathbb{R}}$: a product of
+two index types feeding into a real-valued function. The composition
+rule for this sketch is determined by the table, not by a fresh
+derivation. A new probabilistic data structure for sparse vectors?
+That is $\Bernoulli{T \to \mathbb{R}}$ with $T$ a sparse index set:
+the function-row rule applies, and the per-input noise propagates
+through any downstream computation.
+
+This is what we mean by an algebra of approximate types. The book's
+chapters did the work of deriving each instance because the unified
+view was easier to motivate after the instances were on the table.
+Now that the table is in place, every future approximate structure
+inherits its composition rules.
+
+\subsection*{Examples from prior chapters as instances}
+
+The structures we have built so far each instantiate the table.
+
+\textbf{Chapter~6 set composition.} An approximate set is a noisy
+predicate $\Bernoulli{T \to \BoolType}$. The function row of the
+table gives the composition rule: a noisy predicate is one
+$\Bernoulli{\BoolType}$ per input. Composing two such predicates by
+AND or OR or XOR is then the chapter~3 noisy-bit composition applied
+pointwise across inputs. The chapter~6 results that took several
+sections to derive are a special case of the function row,
+specialized to codomain $\BoolType$ and read pointwise.
+
+\textbf{Chapter~10 CountMin.} A CountMin sketch is a
+$\Bernoulli{\mathbb{N}}$ per key, hence a function
+$T \to \Bernoulli{\mathbb{N}}$ where $T$ is the universe of keys. By
+the function row of the table this is the same as
+$\Bernoulli{T \to \mathbb{N}}$. CountMin's well-known property
+``estimates are additive across independent sketches'' is the
+$\mathbb{N}$-arithmetic analogue of the product-row Kronecker
+factorization applied to the codomain. The chapter~10 derivation of
+CountMin's composition rules is the function-and-product-row
+specialization at $T \to \mathbb{N}$.
+
+\textbf{Chapter~12 approximate relations.} A relation $R \subseteq
+T \times U$ is a function $T \times U \to \BoolType$. An approximate
+relation is $\Bernoulli{T \times U \to \BoolType}$. The function row
+gives the per-input lift; the product row inside the domain factors
+the index space as $T \times U$. The join-rate calculations of §12.2
+combine the predicate-noise of two relations via the function-row
+rule and propagate the result across the product-row domain
+structure. Both rows of the table contribute, in the natural order
+their composite type calls for them.
+
+\textbf{Chapter~9 n-ary channels.} The n-ary channel $(X, Y, Q)$ is
+the building block: a noisy function $X \to Y$ on finite $X$ and $Y$.
+Every other example in the list is built on top of this one. The
+$X \to Y$ shape is the function row of the table; the finiteness of
+$X$ and $Y$ keeps the parameter count manageable. Sets, sketches, and
+relations are all special cases of this structure, distinguished by
+their choice of codomain and by what additional structure the domain
+carries.
+
+\subsection*{The Bernoulli framework as one thing}
+
+The lesson of the chapter is that there is one underlying
+mathematical object across the book. The atomic case is the noisy
+bit of Part~I, $\Bernoulli{\BoolType}$. Every other approximate
+structure is a $\Bernoulli{T}$ for some algebraic type $T$ built from
+$\BoolType$ and the four type constructors. The composition rules
+that organized the earlier chapters are all special cases of the
+four-row table above.
+
+The book's title was ``an algebra of approximate computation.'' That
+title is now justified. The algebra is the algebra of the type
+constructors; the lift $\Bernoulli{-}$ is the algebra's action on the
+approximate-computation side. Every approximate calculation in the
+preceding twelve chapters and every approximate calculation in the
+five chapters ahead can be read as an instance of one type-driven
+algebra.
+
+The remaining chapters of the book do not introduce new structural
+machinery. They specialize the algebra to specific constructive
+problems: chapter~14 builds Bloom filters that achieve the entropy
+floor of chapter~8; chapter~15 does the same for perfect-hash
+filters; chapter~16 catalogues the cases where the algebra's
+independence assumptions break down; chapters~17 and~18 turn the
+algebra to cryptographic uses. Each of these chapters is a
+specialized application of one of the rows of the table.
