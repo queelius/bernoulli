@@ -1,1 +1,295 @@
-% Placeholder. Drafted in Plan 12 Task 7.
+% §12 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch12-1} through \label{ex:ch12-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{sec:sets-to-relations}                  -- §12.1 (Plan 12 Task 2)
+%   \Cref{sec:relation-composition}               -- §12.2 (Plan 12 Task 3)
+%   \Cref{thm:join-rates}                         -- §12.2 (Plan 12 Task 3)
+%   \Cref{sec:approximate-joins}                  -- §12.3 (Plan 12 Task 4)
+%   \Cref{prop:union-fpr-fnr}                     -- ch6 §6.2
+%   \Cref{prop:intersection-fpr-fnr}              -- ch6 §6.2
+%   \Cref{prop:minhash-collision}                 -- ch10 §10.4
+%   \Cref{prop:minhash-error}                     -- ch10 §10.4
+%   \Cref{def:minhash}                            -- ch10 §10.4
+%   \Cref{sec:minhash-lsh}                        -- ch10 §10.4
+%   \Cref{sec:entropy-lower-bound}                -- ch8 §8.3 (entropy floor)
+%   \Cref{ch:algebra-types}                       -- ch13 (forward)
+%
+% Difficulty-marker macros (not in alex.sty; defined locally if not yet defined):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch12-1}
+\textbf{Join FPR computation.}
+Two FNR-zero approximate relations $\tilde R_1 \subseteq T \times U$
+and $\tilde R_2 \subseteq U \times V$ have false-positive rates
+$\fprate_1 = 0.05$ and $\fprate_2 = 0.10$. Apply
+\Cref{thm:join-rates} under cross-relation independence to compute
+$\fprate_{\bowtie}$ for the natural join
+$\tilde R_1 \bowtie \tilde R_2$, and report the value to three
+significant digits: $\fprate_{\bowtie} = \fprate_1 \cdot \fprate_2
+= 0.05 \cdot 0.10 = 0.005$. State $\fnrate_{\bowtie}$ as well: zero,
+by the FNR-zero hypothesis on both inputs.
+
+\item \exstar
+\label{ex:ch12-2}
+\textbf{Projection FPR amplification.}
+A relation $\tilde R \subseteq T \times U$ has $\fprate = 0.01$ at
+the per-pair level, and the second-attribute domain $U$ has
+cardinality $|U| = 100$. From \Cref{sec:relation-composition}, the
+projection $\hat t \in \pi_T(\tilde R)$ on a non-projecting $t$
+(no $u$ with $(t, u) \in R$) reports $\top$ if any of the $|U|$
+independent membership tests reports $\top$. Compute the projection
+FPR
+\[
+  \fprate_{\pi} = 1 - (1 - 0.01)^{100} \approx 1 - 0.366 \approx 0.634
+\]
+and report the value. State in one sentence the moral: existential
+quantification over a moderate-size co-domain inflates a $1\%$
+per-pair rate into a $63\%$ per-projection rate.
+
+\item \exstar
+\label{ex:ch12-3}
+\textbf{Selection composition.}
+A relation $\tilde R$ has $\fprate_R = 0.02$ and $\fnrate_R = 0$;
+the selection predicate $P$ is exact (deterministic, no error).
+From \Cref{sec:relation-composition}, state the output rates of
+$\sigma_P(\tilde R)$: the exact predicate passes the rates through
+unchanged, so $\fprate_\sigma = 0.02$ and $\fnrate_\sigma = 0$.
+In one sentence, contrast with the approximate-predicate case of
+exercise~8, where the second factor contributes its own rate by
+the chapter~3 AND rule.
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch12-4}
+\textbf{Notebook-tied: MinHash similarity join.}
+Open the chapter~12 companion notebook
+\texttt{python/notebooks/ch12-approximate-relations.ipynb}.
+\begin{enumerate}
+  \item[(a)] Generate two synthetic relations $R_1, R_2$ of $1000$
+    rows each, each row a token set of size $\approx 10$ drawn so
+    that a controlled fraction of cross-relation pairs has true
+    Jaccard $J \ge 0.5$ and the rest has $J < 0.5$.
+  \item[(b)] Compute MinHash signatures of length $k = 200$ for
+    every row, then run the threshold join of
+    \Cref{sec:approximate-joins} at $\theta = 0.5$, both with and
+    without the LSH band pre-filter at $(b, r) = (20, 10)$.
+  \item[(c)] Report empirical $\hat\fprate$ and $\hat\fnrate$ for
+    each variant, and compare to the per-pair Hoeffding bound of
+    \Cref{prop:minhash-error} and the S-curve survival probability
+    $1 - (1 - J^r)^b$ of \Cref{sec:approximate-joins}. In one
+    sentence, identify which rate (FPR or FNR) is dominated by the
+    LSH layer at this $(b, r)$ setting.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch12-5}
+\textbf{De Morgan for relations.}
+The chapter~6 rate algebra (\Cref{prop:union-fpr-fnr},
+\Cref{prop:intersection-fpr-fnr}) for approximate sets carries
+over to approximate relations on the pair universe $T \times U$,
+by \Cref{sec:sets-to-relations}. Show that the De Morgan identity
+$\complement(\tilde R_1 \cup \tilde R_2) = \complement \tilde R_1
+\cap \complement \tilde R_2$ holds at the rate level: derive the
+output $(\fprate, \fnrate)$ of each side under the chapter~6
+composition rules and verify they agree, when both inputs have
+$\fnrate = 0$ and FPRs $\fprate_1, \fprate_2$ and the
+complementation rule swaps $\fprate \leftrightarrow \fnrate$. In
+one sentence, identify why the rate-level De Morgan is a corollary
+of the classical De Morgan plus the chapter~5 rate definitions
+(both sides are the same membership predicate, with the same rate
+calculation applied to it).
+
+\item \exstarstar
+\label{ex:ch12-6}
+\textbf{Three-way join.}
+Three FNR-zero approximate relations
+$\tilde R_1 \subseteq T_1 \times T_2$,
+$\tilde R_2 \subseteq T_2 \times T_3$,
+$\tilde R_3 \subseteq T_3 \times T_4$
+with FPRs $\fprate_1, \fprate_2, \fprate_3$ are composed by
+natural join into $\tilde R_1 \bowtie \tilde R_2 \bowtie \tilde R_3$.
+\begin{enumerate}
+  \item[(a)] Apply \Cref{thm:join-rates} pairwise: the join of
+    the first two has $\fnrate = 0$ and FPR $\fprate_1 \fprate_2$;
+    the join with the third has $\fnrate = 0$ and FPR
+    $\fprate_1 \fprate_2 \fprate_3$.
+  \item[(b)] Conclude that for $k$-fold natural join under
+    cross-relation independence, $\fprate_{\bowtie}^{(k)} =
+    \prod_{i=1}^k \fprate_i$ and $\fnrate_{\bowtie}^{(k)} = 0$.
+    State the analog of the AND-of-Booleans calculation of
+    chapter~3: $k$-fold join is $k$-fold AND lifted to the pair
+    universe, and the FPR product is the chapter~3 product rule.
+  \item[(c)] For $\fprate_1 = \fprate_2 = \fprate_3 = 0.05$,
+    compute $\fprate_{\bowtie}^{(3)} = 0.05^3 = 1.25 \times 10^{-4}$.
+    Three orders of magnitude of false-positive rate are bought
+    for the price of two extra joins, the same gain as the
+    chapter~6 intersection of three approximate sets.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch12-7}
+\textbf{LSH parameters for a target precision-recall.}
+A similarity-join task at threshold $\theta = 0.7$ requires LSH
+parameters $(b, r)$ such that pairs with $J = 0.85$ survive the
+LSH filter with probability $\ge 0.95$ (recall target) and pairs
+with $J = 0.55$ survive with probability $\le 0.05$ (precision
+target). The S-curve survival probability is $1 - (1 - J^r)^b$ per
+\Cref{sec:approximate-joins}.
+\begin{enumerate}
+  \item[(a)] Write the two inequalities:
+    $1 - (1 - 0.85^r)^b \ge 0.95$ and $1 - (1 - 0.55^r)^b \le 0.05$.
+  \item[(b)] By trial: $r = 4, b = 30$ gives $1 - (1 - 0.85^4)^{30}
+    = 1 - (1 - 0.522)^{30} = 1 - 0.478^{30} \approx 1 -
+    1.3 \times 10^{-10} \approx 1.000$ on the recall side, and
+    $1 - (1 - 0.55^4)^{30} = 1 - (1 - 0.0915)^{30} \approx
+    1 - 0.0561 \approx 0.944$ on the precision side, which fails
+    the $\le 0.05$ target. Try $r = 8, b = 10$: recall
+    $1 - (1 - 0.85^8)^{10} = 1 - (1 - 0.272)^{10} \approx 1 -
+    0.0428 \approx 0.957$, precision $1 - (1 - 0.55^8)^{10}
+    \approx 1 - 0.918 \approx 0.082$. Iterate to converge on
+    $(b, r) \approx (10, 8)$ as a working trade-off.
+  \item[(c)] Conclude with the MinHash signature length:
+    $k = b \cdot r \approx 80$ for the converged parameters,
+    which sets the per-pair cost and the per-pair Hoeffding bound
+    of \Cref{prop:minhash-error}.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch12-8}
+\textbf{Composing relation with approximate predicate.}
+A relation $\tilde R \subseteq T \times U$ has FPR $\fprate_R =
+0.01$ and FNR $\fnrate_R = 0$. The selection predicate $\tilde P$
+is itself approximate with FPR $\fprate_P = 0.05$ and FNR
+$\fnrate_P = 0$, applied independently of $\tilde R$ per the
+cross-relation independence assumption of \Cref{thm:join-rates}.
+Apply the chapter~3 AND-under-noise rule (the same rule that
+proves \Cref{thm:join-rates}) to derive the joint FPR of
+$\sigma_{\tilde P}(\tilde R) = \{(t, u) : \tilde R(t, u) = \top
+\text{ and } \tilde P(t, u) = \top\}$:
+\[
+  \fprate_\sigma = \fprate_R \cdot \fprate_P = 0.01 \cdot 0.05 = 5
+    \times 10^{-4},
+\]
+and state the joint FNR (zero, since both inputs are FNR-zero).
+In one sentence, identify the structural fact: AND of two FNR-zero
+noisy Booleans always multiplies the FPRs.
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch12-9}
+\textbf{Optimality of MinHash for similarity sketches.}
+Chapter~8 \S8.3 established an entropy lower bound on the bits per
+element needed for an approximate-set predicate with FPR $\le
+\epsilon$ to compress its input. The MinHash sketch of
+\Cref{def:minhash}, applied to similarity estimation rather than
+set membership, has its own information-theoretic floor: the bits
+needed to distinguish two sets at Jaccard precision $\pm t$ with
+confidence $1 - \delta$ are bounded below by $\Omega(\log(1/t) +
+\log(1/\delta))$ per coordinate (an entropy argument on the
+collision-probability distribution). Sketch why MinHash achieves
+this floor up to constants. \emph{Hint}: each MinHash coordinate
+is a uniform draw from the universe restricted to the union $A
+\cup B$; its collision probability is exactly $J$, and the
+$k$-coordinate signature has Shannon information $k \cdot H(J)$
+about the underlying $J$, matching the lower bound in the regime
+where the rate function $H(J)$ approaches its argument-derivative
+of Hoeffding. The chapter~8 framework gives the lower bound; the
+MinHash construction saturates it.
+
+\item \exstarstarstar
+\label{ex:ch12-10}
+\textbf{Approximate equijoin via Bloom intersection.}
+The MinHash-LSH pipeline of \Cref{sec:approximate-joins} handles
+similarity joins. The equijoin variant matches rows on equality of
+a shared attribute, which is the classical SQL inner join. A
+Bloom-filter implementation of the equijoin builds a Bloom filter
+$B_2$ over the join-attribute values of $R_2$, scans $R_1$, and
+emits $(r_1, r_2)$ pairs where $r_1$'s join attribute hits
+$B_2$ and a verification step on the candidate confirms equality.
+\begin{enumerate}
+  \item[(a)] Sketch the construction: $B_2 \leftarrow$
+    \textsc{BloomFilter}($\{r_2.\text{key} : r_2 \in R_2\}$),
+    then \textbf{for} $r_1 \in R_1$ \textbf{do if} $r_1.\text{key}
+    \in B_2$ \textbf{then} scan $R_2$ for matching $r_2$ values
+    and emit pairs.
+  \item[(b)] Derive the FPR at the candidate-pair level: a pair
+    $(r_1, r_2)$ with $r_1.\text{key} \ne r_2.\text{key}$ becomes
+    a candidate iff $r_1.\text{key}$ collides in $B_2$ with some
+    stored key, with probability equal to the Bloom-filter
+    $\fprate$ from chapter~5. Verification eliminates the
+    false-positive pairs at the cost of one comparison per
+    candidate; the final classifier has $\fprate_{\bowtie} = 0$
+    and $\fnrate_{\bowtie} = 0$ exactly (the Bloom filter is a
+    candidate pruner, not a final decision).
+  \item[(c)] Identify the framework reading: this is the
+    approximate-relation $\tilde R \subseteq R_1 \times R_2$ with
+    membership predicate ``$r_1.\text{key}$ hits $B_2$,'' which
+    is a one-sided FNR-zero approximate relation in the
+    \Cref{sec:relation-composition} sense; the verification step
+    is the exact selection of exercise~3 applied to remove the
+    residual false positives.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch12-11}
+\textbf{Approximate relation as $\Bernoulli{T \times U}$.}
+Chapter~13 (\Cref{ch:algebra-types}) recasts the approximate
+relations of this chapter as instances of the type-algebraic
+construct $\Bernoulli{T \times U}$: the universe is the product
+type $T \times U$, and the constructor $\Bernoulli{\cdot}$ acts
+functorially on it.
+\begin{enumerate}
+  \item[(a)] State the identification: an approximate relation
+    $\tilde R \subseteq T \times U$ with predicate $\tilde R(t, u)
+    \in \Bernoulli{\BoolType}$ equals an element of
+    $\Bernoulli{T \times U}$ in the sense that
+    $\Bernoulli{T \times U}$ is, by the type-algebraic
+    construction, the set of $\Bernoulli{\BoolType}$-valued
+    functions on $T \times U$.
+  \item[(b)] Identify two composition isomorphisms preserved
+    under the recasting: (i) the join $\tilde R_1 \bowtie
+    \tilde R_2$ becomes the product-type natural transformation
+    that pulls $\Bernoulli{T \times U} \otimes \Bernoulli{U
+    \times V}$ to $\Bernoulli{T \times U \times V}$ along the
+    shared $U$ axis, and (ii) the projection $\pi_T(\tilde R)$
+    becomes the functorial image $\pi_T : \Bernoulli{T \times U}
+    \to \Bernoulli{T}$ that traces over $U$ with an existential
+    quantifier. State which of the chapter~12 rate formulas
+    survives the type-algebra recasting unchanged
+    (\Cref{thm:join-rates}: yes; projection FPR amplification:
+    yes, as a quantifier-trace formula on the type algebra) and
+    which becomes a corollary of a more general algebraic
+    identity (the chapter~6 De Morgan rule of exercise~5
+    generalizes to all complementable Bernoulli types).
+  \item[(c)] In one sentence, identify why the recasting matters:
+    the chapter~12 derivations are each separate ``lifts'' of
+    chapter~5 and chapter~6, but as type-algebra constructions
+    they become single functorial statements that apply
+    uniformly across $\Bernoulli{T}, \Bernoulli{T \times U},
+    \Bernoulli{L\,T}$, and any other type the algebra produces.
+\end{enumerate}
+
+\end{enumerate}
