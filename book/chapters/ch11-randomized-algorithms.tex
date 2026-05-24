@@ -1,4 +1,38 @@
 \chapter{Randomized Algorithms}
 \label{ch:randomized-algorithms}
 
-\textit{Placeholder. Content drafted in Plan 3.}
+\begin{quote}
+\textsc{After this chapter you will be able to:}
+\begin{itemize}
+  \item Restate Miller-Rabin formally as a $\Bernoulli{\BoolType}$
+    with $\fnrate = 0$ and $\fprate \le 1/4$ per round, closing
+    chapter~3 \S3.4's informal walkthrough with a formal proof.
+  \item Distinguish Las Vegas (random runtime, exact output) from
+    Monte Carlo (fixed runtime, random output) and identify when each
+    is appropriate.
+  \item State the RP and BPP complexity classes via the chapter~7
+    PPV framework, and apply the Chernoff bound for sample-complexity
+    analysis.
+\end{itemize}
+\end{quote}
+
+% Section 11.1
+\input{chapters/ch11/miller-rabin-formal}
+
+% Section 11.2
+\input{chapters/ch11/las-vegas-vs-monte-carlo}
+
+% Section 11.3
+\input{chapters/ch11/rp-bpp}
+
+% Section 11.4
+\input{chapters/ch11/sample-complexity}
+
+% Section 11.5
+\input{chapters/ch11/bridge}
+
+% Section 11.6
+\input{chapters/ch11/bibliographic-notes}
+
+% Exercises
+\input{chapters/ch11/exercises}
