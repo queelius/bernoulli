@@ -1,1 +1,116 @@
-% Placeholder. Drafted in Plan 14 Task 8.
+% §14.7 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bib-notes-ch14}                   -- this section
+%
+% RESOLVED (within chapter 14):
+%   \Cref{sec:bhf-construction}                  -- §14.2
+%   \Cref{def:bhf}                               -- §14.2
+%   \Cref{sec:space-analysis}                    -- §14.3
+%   \Cref{thm:bhf-optimality}                    -- §14.3
+%   \Cref{sec:fpr-analysis}                      -- §14.4
+%   \Cref{prop:bhf-fpr}                          -- §14.4
+%   \Cref{sec:construction-time}                 -- §14.5
+%
+% Citations used here:
+%   \cite{towell-bernoulli-hash-function}        -- primary source (in bib)
+%   \cite{carter-wegman-1979}                    -- universal hashing (in bib)
+%   \cite{belazzougui-2009}                      -- BDZ perfect hash (added Task 8)
+%   \cite{fan-cuckoo-2014}                       -- cuckoo filter (added Task 8)
+%   \cite{bender-quotient-2012}                  -- quotient filter (added Task 8)
+%
+% Four paragraphs: primary source; universal-hashing foundation
+% (Carter-Wegman); modern perfect-hash construction (BDZ); comparison
+% data structures (cuckoo filter, quotient filter). Section style
+% matches ch13.
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch14}
+
+\paragraph{The BHF construction as a manuscript.}
+The construction of \Cref{def:bhf} and the optimality result of
+\Cref{thm:bhf-optimality} are drawn from
+\textcite{towell-bernoulli-hash-function}, ``The Bernoulli Hash
+Function: Optimal Bernoulli Sets and Maps,'' the manuscript that
+introduced the BHF as the constructive complement to the entropy
+floor of chapter~8. The manuscript treats the BHF in greater
+generality than the chapter allows, extending the membership
+construction of \Cref{sec:bhf-construction} to approximate maps
+(the value-bearing analogue, where each slot stores not a
+fingerprint but a key-value pair) and to the perfect-hash filter
+of chapter~15. The space and FPR analyses of
+\Cref{sec:space-analysis} and \Cref{sec:fpr-analysis} are
+specializations of the manuscript's more general framework to the
+set-membership case. A reader who wants the algebraic
+generalization, with the BHF as a particular instance of the
+``optimal Bernoulli map'' construction, should treat the manuscript
+as the natural next reading.
+
+\paragraph{The universal-hashing foundation.}
+The fingerprint hash $g$ that appears in \Cref{prop:bhf-fpr}
+inherits its uniformity guarantee from the universal hashing
+literature, originating with \textcite{carter-wegman-1979}'s
+``Universal Classes of Hash Functions.'' Carter and Wegman
+constructed the first hash-function family with provable pairwise
+independence (now called $2$-universal), establishing that
+randomization at the hash-function level suffices to bound
+collision probabilities to $1/|\text{codomain}|$ in the average
+case over the family's random selection. The chapter's
+fingerprint-hash analysis selects $g$ from such a family at build
+time and treats the selection as fixed for the data structure's
+lifetime; the collision probability bound then applies pointwise
+over query points. Subsequent refinements (Wegman-Carter 1981 on
+$k$-universal families, Siegel 1989 on faster construction) are
+not needed for the BHF analysis, which requires only pairwise
+independence. The Carter-Wegman paper remains the standard
+reference for the result the BHF analysis depends on.
+
+\paragraph{The modern perfect-hash construction.}
+The sublinear perfect-hash bound that
+\Cref{sec:space-analysis} cited and the linear-expected-time
+construction algorithms that \Cref{sec:construction-time} sketched
+both trace to a long line of work culminating in
+\textcite{belazzougui-2009}'s ``Hash, Displace, and Compress''
+algorithm (the BDZ scheme in the data-structures literature). BDZ
+achieves $O(n)$ expected construction time with output bits in the
+range $O(n \log \log \log n / \log n)$ at concrete constants below
+$3$ bits per element for $n$ in the millions. The algorithm
+combines hash-and-displace placement (a fingerprint-table analogue
+that resolves collisions by displacement vectors) with output
+compression (encoding the displacement values entropy-efficiently).
+The chapter quoted the BDZ asymptotic bound as a black-box
+subroutine; the BDZ paper is the place to read the algorithm in
+full and to understand the constants the BHF inherits at finite
+$n$. Earlier perfect-hash constructions (Fredman-Komlos-Szemeredi
+1984 for the classical $O(n \log n)$-bit bound; Hagerup-Tholey 2001
+for the first $O(n)$-bit construction; the MWHC and BBHash
+displacement-based families for the implementation lineage) are
+the historical antecedents that BDZ improves on.
+
+\paragraph{Comparison data structures: cuckoo and quotient filters.}
+Two contemporary data structures occupy design spaces adjacent to
+the BHF and deserve mention as comparison points.
+\textcite{fan-cuckoo-2014}'s cuckoo filter is a streaming-capable
+alternative to the Bloom filter that uses cuckoo hashing to store
+fingerprints in a cache-friendly layout. The cuckoo filter
+achieves slightly better space than the standard Bloom filter
+(approximately $1.05$ to $1.3$ times the entropy floor depending
+on load factor, versus the Bloom filter's $1.44$) while supporting
+insertions and deletions in amortized $O(1)$ time. It does not
+reach the BHF's $1.00$ asymptotic ratio but recovers about half
+the Bloom filter's overhead while remaining streamable, making it
+a competitive choice when the static-set restriction is
+unacceptable. \textcite{bender-quotient-2012}'s quotient filter is
+a related design that stores fingerprints in a quotient-style
+addressing scheme allowing cache-efficient access and insertion.
+The quotient filter operates on similar space-time trade-offs to
+the cuckoo filter and offers similar streaming properties. Neither
+construction matches the BHF's asymptotic optimality, but both
+narrow the gap that the standard Bloom filter pays and extend the
+streaming use case beyond what the BHF supports. A reader designing
+a deployment that needs both space efficiency and streaming
+updates should evaluate cuckoo and quotient filters as the
+practical middle ground between the Bloom filter and the BHF.
