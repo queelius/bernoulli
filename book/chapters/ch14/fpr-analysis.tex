@@ -1,1 +1,261 @@
-% Placeholder. Drafted in Plan 14 Task 5.
+% §14.4 False-Positive Rate Analysis
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:fpr-analysis}                     -- this section
+%   \label{prop:bhf-fpr}                         -- the BHF FPR proposition
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%
+% ALREADY DEFINED (chapter 8):
+%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
+%
+% ALREADY DEFINED (chapter 14, earlier sections):
+%   \Cref{def:bhf}                               -- §14.2
+%   \Cref{sec:bhf-construction}                  -- §14.2
+%   \Cref{alg:bhf-insert-query}                  -- §14.2 pseudocode
+%   \eqref{eq:bhf-r}                             -- §14.2 fingerprint width
+%   \eqref{eq:bhf-insert}                        -- §14.2 build pass
+%   \Cref{sec:space-analysis}                    -- §14.3
+%   \Cref{thm:bhf-optimality}                    -- §14.3
+%
+% Citations:
+%   \cite{carter-wegman-1979}                    -- universal hashing (in bib)
+%
+% §14.4 completes the FPR argument previewed at the end of §14.2.
+% Sets up the question for x not in A; argues the two cases for phi(x)
+% (collides with some a in A, or lands outside the image); bounds FPR
+% by 2^{-r}; states the proposition; discusses the uniformity
+% assumption on g; verifies the bound at r=7.
+
+\section{False-Positive Rate Analysis}
+\label{sec:fpr-analysis}
+
+\Cref{sec:bhf-construction} previewed the false-positive analysis at
+the end of \Cref{def:bhf}: for $x \notin A$ the BHF query reduces to
+comparing two independent uniform $r$-bit strings, and the
+comparison succeeds with probability $2^{-r}$. The present section
+makes that argument careful. The setup is small; the argument is two
+cases; the bound is $\fprate \le 2^{-r}$. The hash-function
+assumption that the bound rests on, uniformity of the fingerprint
+hash $g$ on $\{0, 1\}^r$, is named and connected to the universal
+hashing literature. A worked verification at $r = 7$ closes the
+section and ties back to the worked example of
+\Cref{sec:bhf-construction}.
+
+\subsection*{Setup}
+
+Fix a designated set $A \subseteq \Universe$ with $|A| = n$, a
+perfect hash $\phi : A \to [n]$ extended in some manner to all of
+$\Universe$, and a fingerprint hash $g : \Universe \to \{0, 1\}^r$
+with $r = \lceil -\log_2 \fprate \rceil$ from \eqref{eq:bhf-r}. The
+fingerprint table $F$ has been populated by the build pass
+\eqref{eq:bhf-insert}: $F[\phi(a)] = g(a)$ for every $a \in A$. Pick
+a query point $x \notin A$. The question the section answers is:
+\[
+  \Prob{\textsc{Query}(x) = \top \Given x \notin A} \;=\; ?
+\]
+where the probability is taken over the random choice of the
+fingerprint hash $g$ (the perfect hash $\phi$ is fixed by the build
+phase and is not randomized at query time). The query algorithm of
+\Cref{alg:bhf-insert-query} reads slot $\phi(x)$ of the table,
+computes $g(x)$, and returns $\top$ iff $F[\phi(x)] = g(x)$. The
+question reduces to: when is $F[\phi(x)] = g(x)$ for a non-member
+$x$?
+
+\subsection*{The argument: two cases for \texorpdfstring{$\phi(x)$}{phi(x)}}
+
+The perfect hash $\phi$ was constructed to be injective on $A$, but
+it is defined on all of $\Universe$ by some extension rule (a
+detail of the perfect-hash construction; for the FPR analysis only
+the resulting image matters). When $x \notin A$, two structural
+situations arise.
+
+\smallskip
+\noindent\emph{Case (a): $\phi(x)$ lands in the image $\phi(A) \subseteq
+[n]$.} The perfect hash maps $x$ to some slot $i \in [n]$ that
+coincides with $\phi(a^*)$ for the unique $a^* \in A$ with $\phi(a^*)
+= i$ (uniqueness by injectivity of $\phi$ on $A$). The slot's
+contents are $F[i] = g(a^*)$, set by the build pass. The query
+compares this to $g(x)$, and returns $\top$ iff $g(a^*) = g(x)$.
+Since $x \neq a^*$ (because $x \notin A$ and $a^* \in A$), and since
+$g$ is independent of the choice of $a^*$ versus $x$, the probability
+of a fingerprint collision is exactly $\Prob{g(a^*) = g(x)}$. Under
+the uniformity assumption on $g$, the two values $g(a^*)$ and $g(x)$
+are independent uniform random strings in $\{0, 1\}^r$, and their
+collision probability is $2^{-r}$.
+
+\smallskip
+\noindent\emph{Case (b): $\phi(x)$ lands outside the image $\phi(A)$.}
+The perfect hash's extension may map some $x \notin A$ to slots that
+no element of $A$ uses, or the extension may flag such inputs as
+out-of-range. The two standard implementations behave the same way
+for FPR purposes. If the extension flags the input as out-of-range,
+the query returns $\bot$ directly (no false positive). If the
+extension maps $x$ to a slot $i \in [n] \setminus \phi(A)$, that
+slot was never written by the build pass; the slot's contents are
+either an explicit sentinel (designed to mismatch every fingerprint)
+or an arbitrary residual value, depending on how the construction
+initializes unused slots. In either implementation, the slot's
+contents are independent of $g(x)$, so the fingerprint comparison
+succeeds with probability at most $2^{-r}$ (and zero in the sentinel
+case). Across the two implementations, case (b) contributes at most
+$2^{-r}$ to the false-positive rate, and contributes zero in the
+sentinel variant the BHF assumes by default.
+
+The two cases together bound the false-positive rate: case (a) is the
+dominant contributor and case (b) adds at most an equal amount,
+which in the sentinel-initialized variant collapses to zero. The
+worst case is when every $x \notin A$ falls into case (a), giving
+$\fprate = 2^{-r}$ exactly; the best case is when the perfect-hash
+extension flags case (b) as out-of-range, removing the contribution
+from non-image queries entirely. Both bracket the central result.
+
+\subsection*{The bound}
+
+Combining the two cases gives the headline inequality.
+
+\begin{proposition}[BHF false-positive rate]
+\label{prop:bhf-fpr}
+Let the BHF of \Cref{def:bhf} be constructed for a designated set
+$A$ with parameters $\phi$, $g$, and $r = \lceil -\log_2 \fprate
+\rceil$. Assume the fingerprint hash $g$ is uniformly distributed on
+$\{0, 1\}^r$ over the query point. For every $x \notin A$,
+\[
+  \fprate_{\text{BHF}} \;=\; \Prob{\textsc{Query}(x) = \top \Given
+  x \notin A} \;\le\; 2^{-r}.
+\]
+With $r = \lceil -\log_2 \fprate \rceil$, the bound implies
+$\fprate_{\text{BHF}} \le 2^{-r} \le \fprate$. The BHF meets the
+designer's target false-positive rate by construction.
+\end{proposition}
+
+The proposition is the second half of the optimality story. The
+first half, in \Cref{thm:bhf-optimality}, was that the BHF
+achieves the entropy floor of \Cref{thm:entropy-floor} up to
+integer rounding plus a sublinear correction; the present
+proposition is that it does so while meeting the FPR target. The
+two together certify the BHF as both space-optimal and accuracy-
+correct: it spends the minimum number of bits per element (up to
+rounding) and delivers the false-positive rate the designer asked
+for.
+
+The inequality in the proposition is tight in the sentinel-free
+variant of the construction (when case (b) maps to arbitrary
+residual contents, the upper bound $2^{-r}$ is achieved for every
+$x \notin A$) and strict in the sentinel variant (when case (b)
+contributes zero, the FPR is $2^{-r}$ weighted by the probability
+that $\phi(x) \in \phi(A)$, which is strictly less than $1$ when
+the universe extends beyond $A$). The sentinel variant is the
+canonical implementation and is what most published BHF
+constructions use; the analysis proceeds with the upper-bound
+inequality regardless, because the bound is what the designer's
+target requires.
+
+The chained inequality $2^{-r} \le \fprate$ that the construction
+delivers is not an accident of the algorithm but a direct
+consequence of the choice $r = \lceil -\log_2 \fprate \rceil$. The
+ceiling rounding ensures $r \ge -\log_2 \fprate$, hence $2^{-r}
+\le \fprate$. The BHF over-achieves the target by the fractional
+part of $-\log_2 \fprate$ (between $0$ and $1$ bit), the same
+rounding gap \Cref{sec:space-analysis} measured on the space side.
+Accuracy and space pay the rounding cost together: one integer bit
+of fingerprint width buys one integer bit of FPR precision, and the
+real-valued target falls between two such bits in the generic case.
+
+\subsection*{Independence of the fingerprint hash}
+
+The proposition's hypothesis, that $g$ is uniformly distributed on
+$\{0, 1\}^r$ over the query point, deserves comment. In a worst-case
+analysis where the adversary chooses $x$ to maximize the
+fingerprint collision probability, the hypothesis can fail: an
+adversary who knows $g$ can construct $x$ with $g(x) = g(a^*)$ for
+some chosen $a^* \in A$, driving the per-query FPR to $1$. The
+uniformity assumption protects against the average case, not the
+adversarial case. The average-case framing is appropriate for
+applications where query points are drawn from a distribution
+independent of the implementation's choice of $g$, which covers
+most data-structure use cases.
+
+The hash-function literature has formalized the uniformity
+requirement under several names. \emph{Pairwise independence} (also
+called $2$-independence) of $g$ is sufficient for the proposition:
+if $g(a^*)$ and $g(x)$ are pairwise independent for any pair
+$(a^*, x)$, the collision probability is $2^{-r}$ by the standard
+hash-function argument. \emph{Universal hashing} in the sense of
+\textcite{carter-wegman-1979} delivers pairwise independence by
+construction: the universal-hash family contains hash functions
+$g$ such that for every pair $a^*, x$ with $a^* \neq x$,
+$\Prob{g(a^*) = g(x)} \le 1 / |\text{codomain}|$, where the
+probability is over the random choice of $g$ from the family. The
+BHF construction selects $g$ from a universal family at build time
+and treats the selection as fixed for the data structure's
+lifetime. The collision probability bound then applies pointwise
+over query points, recovering the proposition's $2^{-r}$ bound on
+the per-query FPR for any non-adversarial query distribution.
+
+In practice the fingerprint hash $g$ is implemented as a wide
+cryptographic hash (SHA-256, BLAKE3) truncated to $r$ bits, or as a
+high-quality non-cryptographic hash (MurmurHash3, xxHash) with
+similar uniformity properties. The uniformity assumption is
+empirically validated by the absence of detectable correlations in
+the truncated output across realistic input distributions. The
+adversarial case, in which the implementation's hash function is
+exposed to an attacker choosing queries to maximize the FPR, is
+handled by salting $g$ with a build-time-random secret, denying the
+attacker advance knowledge of which hash function is in use.
+\Cref{ch:not-bernoulli} returns to the adversarial setting in
+broader context; for the present chapter the non-adversarial
+uniformity assumption is the operating hypothesis.
+
+\subsection*{Worked verification at \texorpdfstring{$r = 7$}{r = 7}}
+
+The worked example of \Cref{sec:bhf-construction} chose $\fprate =
+0.01$ and computed $r = \lceil -\log_2 0.01 \rceil = 7$. The
+proposition predicts $\fprate_{\text{BHF}} \le 2^{-7}$. Computing,
+\[
+  2^{-7} \;=\; \frac{1}{128} \;=\; 0.0078125,
+\]
+which is strictly smaller than the target $\fprate = 0.01$ by a
+factor of $0.0078 / 0.01 \approx 0.78$, or about $22\%$ below the
+target. The BHF over-achieves the target by this fractional amount,
+the rounding slack identified above. The construction is correct
+for the target: every non-member query has at most a $0.78\%$ chance
+of returning a false positive, well under the $1\%$ target the
+designer set.
+
+The verification can be sharpened slightly by recognizing that the
+target $\fprate = 0.01$ is awkward in base $2$: $-\log_2 0.01 =
+6.644$, so $\lceil 6.644 \rceil = 7$ and the rounding loses about
+$0.36$ bits per element on the space side (the gap measured in
+\Cref{sec:space-analysis}) and gains about $0.22 \cdot \fprate$ on
+the FPR side. The two are related: the FPR over-achievement is
+$1 - 2^{-r} / \fprate = 1 - 2^{6.644 - 7} = 1 - 2^{-0.356} \approx
+0.219$, which matches the $22\%$ figure. The rounding behaves
+consistently on both sides of the trade-off, as the construction
+demands.
+
+If the target were chosen to land cleanly at an integer bit
+boundary, the rounding slack would vanish on both sides. For
+$\fprate = 2^{-7} = 0.0078125$, the BHF achieves exactly the target
+with $r = 7$, no slack on either FPR or space. For $\fprate =
+2^{-10} = 0.000976$, the BHF achieves exactly the target with
+$r = 10$. The construction is most economical at power-of-two FPR
+targets; awkward targets pay the rounding price, which is at most
+one bit per element and at most a factor of $2$ in FPR. Either
+price is small compared to the Bloom filter's multiplicative $\log_2
+e \approx 1.44$ overhead at the same target.
+
+The verification closes the loop opened in \Cref{sec:bhf-construction}.
+The construction works: it satisfies the FNR-zero guarantee
+unconditionally, and it satisfies the FPR-at-most-$\fprate$ target
+under the uniformity assumption on $g$ that universal hashing
+provides. The bit budget is $\lceil -\log_2 \fprate \rceil$ plus the
+sublinear perfect-hash overhead, matching the entropy floor up to
+the integer rounding both the FPR and the space share.
+\Cref{sec:construction-time} turns from accuracy and space to the
+remaining performance dimension, build time and query latency, and
+the static-versus-streaming trade-off that distinguishes the BHF
+from the Bloom filter as a deployable data structure.
