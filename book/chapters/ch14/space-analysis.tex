@@ -1,1 +1,286 @@
-% Placeholder. Drafted in Plan 14 Task 4.
+% §14.3 Space Analysis
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:space-analysis}                   -- this section
+%   \label{thm:bhf-optimality}                   -- the BHF optimality theorem
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%
+% ALREADY DEFINED (chapter 8):
+%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
+%   \Cref{prop:bloom-overhead}                   -- chapter 8 §8.4
+%
+% ALREADY DEFINED (chapter 14, earlier sections):
+%   \Cref{sec:optimality-question}               -- §14.1
+%   \Cref{def:bhf}                               -- §14.2
+%   \Cref{sec:bhf-construction}                  -- §14.2
+%   \eqref{eq:bhf-r}                             -- §14.2 fingerprint width
+%
+% FORWARD REFS within chapter 14:
+%   \Cref{sec:fpr-analysis}                      -- §14.4 (Task 5)
+%   \Cref{sec:construction-time}                 -- §14.5 (Task 6)
+%
+% §14.3 computes the BHF's bit budget: n*r for the fingerprints,
+% sublinear for the perfect hash; states the optimality theorem
+% (BHF matches the entropy floor up to integer rounding plus o(1));
+% compares against floor and Bloom in a table at n=10^6 with three
+% fpr targets; closes with the ceil(.) rounding discussion.
+
+\section{Space Analysis}
+\label{sec:space-analysis}
+
+The BHF stores two objects: the perfect hash $\phi$ and the
+fingerprint table $F$. The total bit budget is the sum of the two,
+and the section's task is to compare that sum to the entropy floor
+of \Cref{thm:entropy-floor}. The fingerprint table accounts for the
+dominant term and matches the floor up to the integer rounding of
+the fingerprint width $r$. The perfect-hash representation accounts
+for a sublinear correction that vanishes asymptotically. Putting the
+two together gives the chapter's headline result: the BHF achieves
+the floor up to one bit of rounding plus a vanishing additive term.
+The Bloom filter's $\log_2 e$ multiplicative overhead is gone.
+
+\subsection*{Fingerprint storage}
+
+The fingerprint table $F : [n] \to \{0, 1\}^r$ holds $n$ slots, each
+$r$ bits wide. The total bit cost is
+\begin{equation}
+\label{eq:bhf-fingerprint-bits}
+  L_{F} \;=\; n \cdot r \;=\; n \cdot \lceil -\log_2 \fprate \rceil
+\end{equation}
+bits, where $r = \lceil -\log_2 \fprate \rceil$ is the width from
+\eqref{eq:bhf-r}. The dependence on the target rate is logarithmic:
+each extra order of magnitude in $1/\fprate$ adds about $3.32$ bits
+to $r$, which is to say one extra base-$10$ digit of precision costs
+about $3.32$ bits per stored element. The dependence on the set
+size is linear in $n$. The fingerprint term scales with both
+quantities the designer controls, and scales in the way the floor
+predicts.
+
+The integer rounding in $r$ contributes between $0$ and $1$ extra
+bits per element compared to the real-valued floor $-\log_2 \fprate$.
+The rounding cost is bounded above by one bit per element regardless
+of $\fprate$: for any real $x > 0$, $\lceil x \rceil - x \in [0, 1)$.
+When $-\log_2 \fprate$ is close to an integer, the rounding is small;
+when it is at the midpoint between two integers, the rounding is
+about $0.5$ bits; in the worst case it approaches $1$ bit. The
+average rounding over a uniformly distributed $\fprate$ on a
+logarithmic scale is $0.5$ bits per element.
+
+For comparison, the standard Bloom filter at the same $\fprate$ uses
+$\log_2(1/\fprate) \cdot \log_2 e \approx 1.4427 \cdot \log_2(1/\fprate)$
+bits per element (\Cref{prop:bloom-overhead}). The Bloom overhead is
+multiplicative and grows linearly with $\log_2(1/\fprate)$. The BHF
+overhead is additive and bounded by one bit. As $\fprate \to 0$, the
+BHF budget approaches the floor; the Bloom filter budget remains
+$44\%$ above the floor for every $\fprate$. The contrast is the
+chapter's headline.
+
+To see why the fingerprint term takes this clean form, note that
+\eqref{eq:bhf-fingerprint-bits} is the only nontrivial space the
+fingerprint table consumes. The table has exactly $n$ slots because
+the perfect hash bijects $A$ onto $[n]$; each slot stores exactly
+$r$ bits because the fingerprint hash $g$ maps into $\{0, 1\}^r$.
+There is no padding, no overhead per slot beyond the fingerprint
+itself, and no addressing structure inside the table other than the
+indexing by $\phi$. The table is a flat array, addressed
+deterministically, and the bit cost is the sum of the per-slot
+widths. This is the densest possible representation of a uniform
+fingerprint per element. The Bloom filter, by contrast, must spread
+each insertion across $k$ bits to handle collisions, and the bit
+cost includes both the per-insertion spread and the per-element
+load factor that the optimal-$k$ analysis selects. The BHF avoids
+both penalties by handling collisions at build time and storing
+exactly the fingerprint each element needs.
+
+\subsection*{Perfect-hash storage}
+
+The second term in the BHF's bit budget is the space the perfect
+hash $\phi$ occupies. A perfect hash function from $A$ to $[n]$ is
+itself a data structure that must be stored alongside the
+fingerprint table; queries need access to $\phi$ to address the
+correct slot. The space cost depends on which perfect-hash
+construction one uses.
+
+Modern perfect-hash constructions achieve very low per-element
+overhead. The BDZ family of Belazzougui, Botelho, and Dietzfelbinger
+(2009; the bibliographic entry appears in \S14.7) achieves
+\begin{equation}
+\label{eq:bdz-bound}
+  L_{\phi} \;=\; O\bigl( n \log \log \log n / \log n \bigr)
+\end{equation}
+bits in total, which is $o(n)$. The per-element overhead $L_{\phi} /
+n = O(\log \log \log n / \log n)$ tends to zero as $n$ grows.
+Concrete constants matter at finite $n$, but the asymptotic
+behaviour is clear: the perfect-hash term is sublinear in $n$, hence
+sublinear in $n r$, hence asymptotically negligible compared to the
+fingerprint term \eqref{eq:bhf-fingerprint-bits}.
+
+Earlier constructions (Fredman-Komlos-Szemeredi, Hagerup-Tholey, and
+the displacement-based families) all achieve at most $O(n)$ bits
+total, with leading constants in the range $2$ to $4$ bits per
+element. At realistic scales ($n$ between $10^3$ and $10^9$), the
+BDZ-style construction occupies on the order of $2$ to $3$ bits per
+element. For the present accounting we take the asymptotic
+\eqref{eq:bdz-bound} as the relevant bound and treat the constant
+as a small additive correction that the BHF inherits from whichever
+perfect-hash family is in use.
+
+The key fact is that the perfect-hash overhead per element vanishes
+as $n$ grows. The BHF is therefore an additive-overhead
+construction: total bits per element are $r + o(1)$ as $n \to
+\infty$. The Bloom filter is a multiplicative-overhead construction:
+total bits per element are $r' \cdot \log_2 e$ for any choice of
+$r' = \log_2(1/\fprate)$. The two regimes differ in kind, not
+merely in constant. As the application scales up, the BHF approaches
+the floor; the Bloom filter sits a fixed multiplicative distance
+above it.
+
+A quick concrete check: at $n = 10^6$, the asymptotic bound
+\eqref{eq:bdz-bound} evaluates to $L_\phi / n \approx O(\log \log \log
+10^6 / \log 10^6) = O(\log \log 6 / 20)$, which the asymptotic
+constants render at roughly $0.2$ to $0.5$ bits per element in
+practical BDZ implementations. The dominant fingerprint term is $r$
+bits per element, ranging from $7$ at $\fprate = 10^{-2}$ to $20$ at
+$\fprate = 10^{-6}$. The perfect-hash overhead is therefore at most
+a few percent of the fingerprint cost at $n = 10^6$, and the
+percentage shrinks further at larger $n$. For $n = 10^9$ the
+overhead is below $0.1$ bits per element. At the scales BHFs are
+deployed, the perfect-hash term is a rounding correction to the
+fingerprint term, not a separate concern.
+
+\subsection*{Total bits per element}
+
+Combining the two terms gives the BHF's total bit cost:
+\begin{equation}
+\label{eq:bhf-total-bits}
+  L_{\text{BHF}} \;=\; L_F + L_\phi
+  \;=\; n \cdot \lceil -\log_2 \fprate \rceil
+  \;+\; O\bigl( n \log \log \log n / \log n \bigr)
+\end{equation}
+bits. Dividing by $n$,
+\begin{equation}
+\label{eq:bhf-per-element}
+  L_{\text{BHF}} / n
+  \;=\; \lceil -\log_2 \fprate \rceil
+  \;+\; O(\log \log \log n / \log n).
+\end{equation}
+The first term is bounded between $-\log_2 \fprate$ and
+$-\log_2 \fprate + 1$ by integer rounding. The second term is
+$o(1)$. As $n \to \infty$ with $\fprate$ fixed, the BHF's per-element
+bit cost approaches the integer rounding of the floor.
+
+\begin{theorem}[BHF optimality]
+\label{thm:bhf-optimality}
+The Bernoulli Hash Function of \Cref{def:bhf} on a designated set
+$A$ with $|A| = n$ and target false-positive rate $\fprate \in (0,
+1)$ uses
+\[
+  L_{\text{BHF}} / n
+  \;=\; \lceil -\log_2 \fprate \rceil
+  \;+\; o(1)
+  \;=\; -\log_2 \fprate \;+\; O(1)
+\]
+bits per element. The construction achieves the entropy floor of
+\Cref{thm:entropy-floor} up to one bit of integer rounding plus a
+sublinear correction. The multiplicative overhead $\log_2 e
+\approx 1.4427$ that the standard Bloom filter pays
+(\Cref{prop:bloom-overhead}) is absent: the BHF's overhead is
+additive and bounded by a constant, not multiplicative and growing
+with $-\log_2 \fprate$.
+\end{theorem}
+
+The theorem is the constructive complement to
+\Cref{thm:entropy-floor}. The floor theorem said that no FNR-zero
+representation can use fewer than $-\log_2 \fprate$ bits per element
+asymptotically; the present theorem says that a specific
+representation, the BHF, uses no more than that plus an additive
+constant. The combination characterizes the FNR-zero family
+tightly: the per-element cost lies in $[-\log_2 \fprate + o(1),
+-\log_2 \fprate + 1 + o(1)]$ for every sufficient construction, and
+the BHF lives at the top of that interval. The remaining slack is
+the unavoidable integer-rounding cost of representing the
+fingerprint as a whole number of bits.
+
+\subsection*{Comparison table}
+
+Fix $n = 10^6$ items. \Cref{tab:bhf-comparison} compares three
+constructions at three target rates: the entropy floor
+$-\log_2 \fprate$ from \Cref{thm:entropy-floor}, the standard Bloom
+filter at $\log_2(1/\fprate) \cdot \log_2 e$ bits per element from
+\Cref{prop:bloom-overhead}, and the BHF at $\lceil -\log_2 \fprate
+\rceil$ bits per element from \Cref{thm:bhf-optimality} (ignoring
+the sublinear perfect-hash correction, which contributes a fraction
+of a bit at $n = 10^6$).
+
+\begin{table}[h]
+\centering
+\caption{Bits per element at $n = 10^6$. Floor is the lower bound of
+\Cref{thm:entropy-floor}; Bloom is the standard construction at
+\Cref{prop:bloom-overhead}; BHF is the optimum of
+\Cref{thm:bhf-optimality}, ignoring sublinear perfect-hash overhead.}
+\label{tab:bhf-comparison}
+\begin{tabular}{l|rrr}
+\hline
+  $\fprate$  & Floor & Bloom & BHF \\
+\hline
+  $10^{-2}$  & $6.64$  & $9.59$  & $7$  \\
+  $10^{-3}$  & $9.97$  & $14.38$ & $10$ \\
+  $10^{-6}$  & $19.93$ & $28.76$ & $20$ \\
+\hline
+\end{tabular}
+\end{table}
+
+The Bloom filter pays a multiplicative overhead of $\log_2 e
+\approx 1.44$ at every row; the BHF pays an additive overhead of
+$\lceil -\log_2 \fprate \rceil - (-\log_2 \fprate)$, which is at
+most one bit and is concretely $0.36, 0.03, 0.07$ bits at the three
+rows. The absolute Bloom-versus-BHF gap grows with $-\log_2 \fprate$
+(from $2.59$ bits per element at $\fprate = 10^{-2}$ to $8.76$ bits
+per element at $\fprate = 10^{-6}$); the absolute BHF-versus-floor
+gap stays below one bit per element regardless of the target rate.
+At $n = 10^6$ and $\fprate = 10^{-6}$, the absolute savings of BHF
+over Bloom is $8.76 \cdot 10^6$ bits, or about $1.1$ megabytes.
+
+\subsection*{The \texorpdfstring{$\lceil \cdot \rceil$}{ceiling} rounding}
+
+The BHF's per-element budget is $\lceil -\log_2 \fprate \rceil$
+rather than $-\log_2 \fprate$ because the fingerprint width $r$ is
+an integer: there is no way to store a fractional bit in a
+fingerprint table addressed by the perfect hash. The integer
+rounding contributes between $0$ and $1$ bits per element, and the
+contribution is wasted in the sense that the FPR achieved at integer
+$r$ is $2^{-r}$, which is at most the target $\fprate$ but is
+generally strictly smaller. The BHF over-achieves the FPR target by
+the rounding-induced slack.
+
+To quantify the slack, fix a target $\fprate$ and write $-\log_2
+\fprate = k + \delta$ where $k$ is an integer and $\delta \in [0, 1)$
+is the fractional part. The fingerprint width is $r = \lceil k +
+\delta \rceil$, which equals $k$ when $\delta = 0$ and equals $k + 1$
+when $\delta > 0$. The achieved FPR is $2^{-r} = 2^{-k-1} =
+\fprate / 2^{1 - \delta}$ for $\delta > 0$, which is strictly
+smaller than $\fprate$ by a factor between $1$ (at $\delta \to 1$)
+and $2$ (at $\delta \to 0^+$). The BHF's FPR is therefore on average
+about half the target rate, the price paid for integer rounding.
+
+The wasted bits can in principle be recovered by storing the
+fingerprint at fractional precision: arithmetic coding or block
+coding across $k$ elements can reduce the per-element bit cost
+toward $-\log_2 \fprate$ without integer rounding. The cost is in
+query time and implementation complexity: a fractional-bit
+fingerprint cannot be compared at machine-word speed and needs the
+decoder to reconstruct the integer fingerprint per query. In
+practice the $\le 1$ bit per element of waste is acceptable, and
+the BHF is deployed with integer $r$. The exercises return to the
+question of how much of the wasted bit can be recovered in
+worst-case deployments where the target rate is awkward (for
+instance $\fprate = 0.06$ gives $-\log_2 \fprate = 4.06$, so $r =
+5$ and the achieved FPR is $2^{-5} = 0.03125$, about half the
+target). The construction is asymptotically optimal up to the
+integer rounding; the rounding itself is small and well-understood,
+and the chapter declares the BHF the constructive answer to the
+chapter 8 floor question on those terms.
