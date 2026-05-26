@@ -1,1 +1,305 @@
-% Placeholder. Drafted in Plan 14 Task 9.
+% §14 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch14-1} through \label{ex:ch14-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{def:bhf}                                -- §14.2 (Plan 14 Task 3)
+%   \Cref{sec:bhf-construction}                   -- §14.2 (Plan 14 Task 3)
+%   \Cref{thm:bhf-optimality}                     -- §14.3 (Plan 14 Task 4)
+%   \Cref{sec:space-analysis}                     -- §14.3 (Plan 14 Task 4)
+%   \Cref{prop:bhf-fpr}                           -- §14.4 (Plan 14 Task 5)
+%   \Cref{sec:fpr-analysis}                       -- §14.4 (Plan 14 Task 5)
+%   \Cref{sec:construction-time}                  -- §14.5 (Plan 14 Task 6)
+%   \Cref{def:bloom-filter}                       -- chapter 5 §5.2
+%   \Cref{prop:bloom-overhead}                    -- chapter 8 §8.4
+%   \Cref{thm:entropy-floor}                      -- chapter 8 §8.3
+%   \Cref{ch:perfect-hash-filters}                -- chapter 15 stub
+%
+% Difficulty-marker macros (matching chapters 1-13):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch14-1}
+\textbf{Fingerprint bits for target FPR.}
+For each target false-positive rate $\fprate \in \{0.01, 0.001,
+10^{-6}\}$, compute the BHF fingerprint width
+$r = \lceil -\log_2 \fprate \rceil$. Verify that $2^{-r} \le
+\fprate$ in each case, and report the over-achievement factor
+$2^{-r} / \fprate$. The construction of \Cref{sec:bhf-construction}
+predicts $r = 7, 10, 20$ for the three targets; report the
+corresponding $2^{-r}$ values and confirm.
+
+\item \exstar
+\label{ex:ch14-2}
+\textbf{BHF space at $n = 10^6, \fprate = 0.001$.}
+Compute the BHF's fingerprint-table space in bits and in megabytes
+for a designated set of size $n = 10^6$ at target $\fprate =
+0.001$. (Ignore the sublinear perfect-hash overhead.) Compare to
+the standard Bloom filter at the same $n$ and target, using the
+formula $m = n \cdot \log_2(1/\fprate) \cdot \log_2 e$ from
+\Cref{prop:bloom-overhead}. Report the absolute and relative
+savings.
+
+\item \exstar
+\label{ex:ch14-3}
+\textbf{Verify FNR = 0 in two sentences.}
+Explain in at most two sentences why the BHF of \Cref{def:bhf}
+cannot produce a false negative. The argument should refer to the
+build pass that populates $F[\phi(a)] = g(a)$ for every $a \in A$
+and to the fact that $\phi$ is a function, so $\phi(x)$ at query
+time is the same slot $\phi(x)$ at build time.
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch14-4}
+\textbf{Notebook-tied BHF build.}
+Use the chapter~14 Python notebook to build a BHF for $n = 10000$
+items at target $\fprate = 0.01$, giving $r = 7$ fingerprint bits
+per element.
+\begin{enumerate}
+  \item[(a)] Construct a designated set $A$ of $10000$ random
+    32-bit integers and build the BHF using the notebook's
+    perfect-hash construction.
+  \item[(b)] Generate $10^5$ random query points drawn from outside
+    $A$ (e.g., from a disjoint integer range) and count the number
+    of queries that return $\top$.
+  \item[(c)] Compute the empirical false-positive rate as
+    (positives) / (total queries) and verify it lies within
+    $\pm 0.001$ of the theoretical $2^{-7} \approx 0.00781$. State
+    whether the agreement is consistent with the uniformity
+    assumption of \Cref{prop:bhf-fpr}.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch14-5}
+\textbf{BHF vs Bloom space ratio.}
+Derive the asymptotic ratio of BHF space to Bloom space at any
+target $\fprate$, ignoring the sublinear perfect-hash overhead and
+the integer-rounding gap.
+\begin{enumerate}
+  \item[(a)] Write the BHF bits-per-element as $r =
+    \lceil -\log_2 \fprate \rceil \approx -\log_2 \fprate$ at small
+    $\fprate$.
+  \item[(b)] Write the Bloom bits-per-element as
+    $\log_2(1/\fprate) \cdot \log_2 e$ from
+    \Cref{prop:bloom-overhead}.
+  \item[(c)] Compute the ratio (BHF) / (Bloom) and show it tends
+    to $1 / \log_2 e \approx 0.693$ as $\fprate \to 0$. The BHF
+    uses about $69.3\%$ of the bits the Bloom filter uses at the
+    same target, the chapter's headline space saving.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch14-6}
+\textbf{Rounding gap.}
+The integer rounding in $r = \lceil -\log_2 \fprate \rceil$
+produces a worst case when $-\log_2 \fprate$ falls just above an
+integer. Take $\fprate = 0.06$, so $-\log_2 0.06 \approx 4.06$ and
+$r = 5$.
+\begin{enumerate}
+  \item[(a)] Compute the achieved FPR, $2^{-5} = 0.03125$, and the
+    over-achievement factor $2^{-5} / 0.06 \approx 0.52$. The
+    BHF over-achieves the target by approximately a factor of two
+    in this case.
+  \item[(b)] Quantify the wasted bits: the entropy floor is $4.06$
+    bits per element, the BHF uses $5$ bits per element, so $0.94$
+    bits per element are wasted to integer rounding. At $n = 10^6$,
+    this is $0.94 \cdot 10^6 = 940{,}000$ bits or roughly $115$
+    kilobytes of waste.
+  \item[(c)] Compare this to the rounding waste at $\fprate =
+    2^{-5} = 0.03125$ (where the target lands exactly on an integer
+    bit boundary). State which target the designer should choose
+    when the precise target is negotiable; the chapter's
+    recommendation in \Cref{sec:fpr-analysis} is to round the
+    target rate down to the nearest power of two when possible.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch14-7}
+\textbf{Perfect-hash overhead.}
+The space analysis of \Cref{sec:space-analysis} cited the
+Belazzougui-Botelho-Dietzfelbinger (BDZ, 2009) bound
+$L_\phi = O(n \log \log \log n / \log n)$ for the perfect-hash
+representation.
+\begin{enumerate}
+  \item[(a)] At $n = 10^6$, evaluate the formula. Take $\log n = 20$
+    in base $2$, $\log \log n \approx 4.32$, $\log \log \log n
+    \approx 2.11$. Compute the per-element overhead $L_\phi / n
+    \approx 2.11 / 20 \approx 0.1$ bits per element in the
+    asymptotic form. Practical BDZ implementations report between
+    $2$ and $3$ bits per element at $n = 10^6$ owing to the hidden
+    asymptotic constants. Report both the formula value and the
+    practical value.
+  \item[(b)] At $n = 10^9$, evaluate the same formula. Take $\log n
+    \approx 30$, $\log \log n \approx 4.91$, $\log \log \log n
+    \approx 2.29$. Compute $L_\phi / n \approx 2.29 / 30 \approx
+    0.076$ bits per element in the asymptotic form. Practical
+    implementations report between $1.5$ and $2.5$ bits per
+    element.
+  \item[(c)] State the per-element overhead's behavior as $n \to
+    \infty$ and explain why the BHF's total per-element cost is
+    asymptotically $r$ bits, the fingerprint width, with the
+    perfect-hash term vanishing.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch14-8}
+\textbf{Composition under BHF.}
+Two Bloom filters on disjoint sets $A_1$ and $A_2$ with the same
+parameters can be merged into a Bloom filter on $A_1 \cup A_2$ by
+bitwise OR of the bit arrays. Two BHFs on disjoint sets cannot be
+merged this way. Explain why.
+\begin{enumerate}
+  \item[(a)] Identify the structural reason: the perfect hash
+    $\phi_1$ for $A_1$ is a bijection $A_1 \to [|A_1|]$, and the
+    perfect hash $\phi_2$ for $A_2$ is a bijection $A_2 \to
+    [|A_2|]$. The two address spaces overlap on the integers
+    $\{1, \ldots, \min(|A_1|, |A_2|)\}$ but have no shared
+    semantics; slot $i$ in $\phi_1$'s table stores the fingerprint
+    of some $a_1 \in A_1$, while slot $i$ in $\phi_2$'s table
+    stores the fingerprint of a different element $a_2 \in A_2$.
+    A bitwise OR (or any pointwise combination) of the two
+    fingerprint tables produces an artifact that does not
+    correspond to any valid BHF on $A_1 \cup A_2$.
+  \item[(b)] Sketch the BHF's merge procedure: rebuild a new
+    perfect hash $\phi'$ on $A_1 \cup A_2$ and refill the
+    fingerprint table from scratch. The cost is $O(|A_1| +
+    |A_2|)$, the same as building a BHF on the merged set from
+    raw input.
+  \item[(c)] State the asymmetry's source: the Bloom filter's
+    address space is data-independent (the bit array is a
+    universal address space shared across all instances), so bit-OR
+    merges are valid. The BHF's address space is data-dependent
+    (the perfect hash is built from the designated set), so merges
+    require rebuilding the address space. The data-dependent
+    addressing is what gives the BHF its space optimality and what
+    prevents the cheap merge.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch14-9}
+\textbf{BHF FPR exact analysis.}
+The proposition \Cref{prop:bhf-fpr} bounds the BHF's false-positive
+rate by $2^{-r}$. Derive the exact FPR for a non-adversarial query
+$x$ drawn uniformly at random from $\Universe \setminus A$, taking
+into account the perfect-hash range-to-universe ratio.
+\begin{enumerate}
+  \item[(a)] Suppose the perfect hash $\phi$ is extended to
+    $\Universe$ by a uniform hash to $[n]$ on inputs outside $A$.
+    For a random $x \in \Universe \setminus A$, the probability
+    that $\phi(x) \in \phi(A) = [n]$ is exactly $1$ in this
+    extension (every slot is reached). Write the exact FPR as
+    $\fprate_{\text{BHF}} = 1 \cdot 2^{-r} = 2^{-r}$, recovering
+    the proposition.
+  \item[(b)] Alternatively suppose $\phi$ is extended by mapping
+    inputs outside $A$ to a sentinel slot $0 \notin [n]$, and the
+    query returns $\bot$ on the sentinel. For a random $x \in
+    \Universe \setminus A$ with universe size $|\Universe|$, the
+    probability that $\phi(x) \neq 0$ depends on the extension
+    rule's design. Suppose the extension routes a fraction
+    $\alpha \in [0, 1]$ of non-$A$ inputs to a non-sentinel slot;
+    write the exact FPR as $\fprate_{\text{BHF}} = \alpha \cdot
+    2^{-r}$.
+  \item[(c)] In a practical deployment with $|\Universe| \gg n$
+    and a uniform-extension $\phi$, the value of $\alpha$ is close
+    to $n / |\Universe|$ if the perfect-hash construction is
+    well-extended. Show that for $|\Universe| = 2^{64}$ and $n =
+    10^6$, $\alpha \approx 10^6 / 2^{64} \approx 5 \times 10^{-14}$,
+    making the exact FPR vanishingly small in the sentinel-aware
+    extension. Discuss why the proposition's upper bound $2^{-r}$
+    is the right design target despite the achievable FPR being
+    much smaller in practice: the upper bound is the adversarial
+    worst case and is what the designer must budget against.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch14-10}
+\textbf{Dynamic BHF.}
+The BHF of \Cref{def:bhf} is static: insertions require an $O(n)$
+rebuild. Sketch a dynamic variant that supports amortized cheaper
+insertions.
+\begin{enumerate}
+  \item[(a)] \emph{Tiered layout.} Maintain a static BHF on a
+    ``base'' set $A_0$ and a small auxiliary Bloom filter on a
+    ``delta'' set $\Delta$ of recent insertions. A query checks
+    both: $\top$ iff the BHF returns $\top$ or the Bloom filter
+    returns $\top$. The structure supports streaming insertions
+    into the Bloom-filter delta in $O(k)$ time and queries in
+    $O(1)$ time (BHF) plus $O(k)$ time (Bloom delta).
+  \item[(b)] \emph{Rebuild trigger.} When $|\Delta|$ exceeds a
+    threshold (say, $|\Delta| \ge 0.1 \cdot |A_0|$), rebuild the
+    BHF on $A_0 \cup \Delta$ and reset the delta to empty. The
+    rebuild costs $O(|A_0| + |\Delta|)$, amortized over the
+    inter-rebuild insertion volume. Derive the amortized cost per
+    insertion as $O(|A_0| / 0.1 |A_0|) = O(10) = O(1)$ in the
+    base case, plus the per-insertion Bloom cost $O(k)$. The
+    dynamic variant achieves amortized $O(k)$ insertion time.
+  \item[(c)] \emph{Space cost.} The dynamic variant pays an extra
+    $O(0.1 n \cdot \log_2(1/\fprate) \cdot \log_2 e)$ bits for the
+    Bloom delta, a $14\%$ space overhead over the pure BHF at the
+    $0.1$ rebuild threshold. Discuss the design trade-off between
+    rebuild frequency and space overhead: smaller thresholds give
+    smaller deltas (less space) at the cost of more frequent
+    rebuilds (more amortized work per insertion).
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch14-11}
+\textbf{Entropy-floor matching.}
+Prove that any FNR-zero approximate set using $r$ bits per
+fingerprint in a perfect-hash-addressed table achieves FPR
+$\le 2^{-r}$ at best, establishing that the BHF is asymptotically
+optimal among constructions of this form.
+\begin{enumerate}
+  \item[(a)] \emph{Setup.} Consider any FNR-zero data structure of
+    the form $(\phi, F)$ where $\phi : A \to [n]$ is a perfect
+    hash and $F : [n] \to \{0, 1\}^r$ is a fingerprint table. The
+    FNR-zero requirement forces $F[\phi(a)]$ to deterministically
+    indicate $a$'s membership for every $a \in A$; the only
+    freedom is in how the fingerprint $F[\phi(a)]$ is computed.
+  \item[(b)] \emph{The bound.} For a query $x \notin A$ mapped by
+    $\phi$ to a slot $i \in [n]$, the table value $F[i]$ takes one
+    of $2^r$ possible values, and the query's verdict is $\top$ iff
+    the value matches some $r$-bit string the query algorithm
+    derives from $x$. Under any non-adversarial query distribution
+    and any uniformly-distributed fingerprint-derivation function,
+    the match probability is $2^{-r}$. The bound is tight: the
+    BHF achieves it; any construction achieving less must violate
+    the uniformity of the fingerprint derivation or restrict the
+    query distribution.
+  \item[(c)] \emph{Combine with the entropy floor.} The bound $r
+    \ge -\log_2 \fprate$ from \Cref{thm:entropy-floor} and the
+    bound (FPR $\ge 2^{-r}$) from the present argument together
+    pin the achievable $(r, \fprate)$ region for FNR-zero
+    perfect-hash-addressed structures: $\fprate \ge 2^{-r}$ and
+    $r \ge \lceil -\log_2 \fprate \rceil$. The BHF lives at the
+    intersection: it uses exactly $r = \lceil -\log_2 \fprate
+    \rceil$ bits per fingerprint and achieves exactly the FPR
+    bound $2^{-r} \le \fprate$. State the optimality conclusion:
+    no FNR-zero perfect-hash-addressed structure can use fewer
+    bits per element than the BHF to meet the same FPR target,
+    asymptotically in $n$.
+\end{enumerate}
+
+\end{enumerate}
