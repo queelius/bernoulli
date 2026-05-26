@@ -1,1 +1,168 @@
-% Placeholder. Drafted in Plan 14 Task 2.
+% §14.1 The Optimality Question
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:optimality-question}              -- this section
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%
+% ALREADY DEFINED (chapter 8):
+%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3 headline lower bound
+%   \Cref{sec:entropy-floor}                     -- chapter 8 §8.3
+%   \Cref{prop:bloom-overhead}                   -- chapter 8 §8.4 the 1.44x overhead
+%   \Cref{sec:bloom-gap}                         -- chapter 8 §8.4
+%
+% FORWARD REFS within chapter 14 (resolve in later Plan 14 tasks):
+%   \Cref{sec:bhf-construction}                  -- §14.2 (Task 3)
+%   \Cref{def:bhf}                               -- §14.2 (Task 3)
+%   \Cref{sec:space-analysis}                    -- §14.3 (Task 4)
+%   \Cref{sec:fpr-analysis}                      -- §14.4 (Task 5)
+%   \Cref{sec:construction-time}                 -- §14.5 (Task 6)
+%   \Cref{sec:ch14-bridge}                       -- §14.6 (Task 7)
+%
+% §14.1 frames the chapter: recall the chapter 8 floor and Bloom gap,
+% pose the constructive question (can the gap be closed?), preview the
+% BHF answer in sketch form, and lay out the chapter roadmap.
+
+\section{The Optimality Question}
+\label{sec:optimality-question}
+
+Chapter~8 closed Part~II with a contrast: a lower bound that no
+FNR-zero approximate set can undercut, and an upper bound that the
+standard Bloom filter pays $44\%$ above the lower bound at every
+target error rate. The contrast was diagnostic, not constructive.
+\Cref{thm:entropy-floor} certified that some representation could in
+principle reach $-\log_2 \fprate$ bits per element, but it did not
+exhibit one. Chapter~5's Bloom filter sat above the floor by a fixed
+multiplicative factor and was the only concrete FNR-zero scheme on the
+table. The reader who finished chapter~8 was left with the question
+the present chapter answers: is the floor attainable by a real
+construction, or is the gap an unavoidable price for working in finite
+bit arrays?
+
+\subsection*{The gap, recalled}
+
+\Cref{thm:entropy-floor} of \Cref{sec:entropy-floor} states that any
+FNR-zero approximate-set representation with false-positive rate at
+most $\fprate$ requires at least
+\[
+  L / n \;\ge\; -\log_2 \fprate \;+\; o(1)
+\]
+bits per element in the asymptotic regime $N \gg n$ and $\fprate$
+fixed. The bound is a counting argument: $2^L$ possible bit strings
+must collectively cover $\binom{N}{n}$ possible target sets, and each
+representation can describe at most $\binom{|A_R|}{n}$ true sets
+inside its accepted set $A_R$. The pigeonhole step forces $L$ to
+grow linearly in $n \log_2(1/\fprate)$.
+
+\Cref{prop:bloom-overhead} of \Cref{sec:bloom-gap} computes the
+standard Bloom filter's bit budget from \Cref{def:bloom-filter}'s
+construction: at the optimal hash count $k^* = (m/n)\ln 2$, the bit
+budget per element is
+\[
+  m / n \;=\; \log_2(1/\fprate) \cdot \log_2 e,
+\]
+or $\log_2 e \approx 1.4427$ times the floor. The overhead is a
+single constant independent of $\fprate$. It comes from a structural
+choice in the Bloom design: $k$ independent hashes write into a flat
+bit array, and the analysis maximizes per-bit entropy by tuning the
+array to half occupancy. Half-occupancy is information-theoretically
+the wrong target. The right target is to spend bits on the
+discrimination the structure is supposed to perform, not on the
+encoding's internal balance.
+
+\subsection*{The open question}
+
+The gap between the floor and the Bloom budget is structural, but
+the structure is one specific design among many. \Cref{sec:bloom-gap}
+ended by isolating the three Bloom design choices, $k$ independent
+hashes, a flat shared bit array, and a conjunction query, and by
+remarking that abandoning at least one of the three is necessary to
+close the gap. The remark left the constructive question open: which
+choice should one abandon, and what replacement makes the construction
+work?
+
+A constructive answer needs four properties. First, FNR-zero by
+construction, so the new scheme stays on the same axis of the perfect
+filter line as the Bloom filter. Second, an FPR provably bounded by
+the target $\fprate$. Third, a per-element bit budget matching the
+$-\log_2 \fprate$ floor up to a sublinear correction. Fourth, a query
+algorithm that runs in time comparable to Bloom's, ideally constant
+per query. The first two are correctness; the third is the optimality
+the chapter promises; the fourth is what makes the construction
+deployable rather than merely an existence proof. The question is
+not whether some encoding meets all four (the floor theorem implies
+that one does asymptotically), but whether an explicit construction
+does, and what it looks like.
+
+\subsection*{The answer, in sketch}
+
+The Bernoulli Hash Function (BHF) closes the gap by abandoning the
+Bloom filter's flat shared bit array. In its place the BHF uses two
+ingredients. The first is a \emph{perfect hash function} $\phi : A
+\to [n]$ that bijects the designated set $A$ onto the index range
+$[n] = \{1, \ldots, n\}$. The second is a \emph{fingerprint table}
+$F : [n] \to \{0, 1\}^r$ that stores a short fingerprint
+$F[\phi(a)] = g(a)$ at the slot reserved for each $a \in A$, where
+$g : \Universe \to \{0, 1\}^r$ is a secondary hash function and
+$r = \lceil -\log_2 \fprate \rceil$ is the fingerprint width.
+
+A membership query for $x$ proceeds in two steps. Compute $\phi(x) \in
+[n]$, the slot the perfect hash assigns to $x$. Read the fingerprint
+$F[\phi(x)]$ stored there, and compare it to the fingerprint $g(x)$
+the query computes from $x$. If the two fingerprints match, return
+$\top$; otherwise return $\bot$. The intuition for why this works
+runs as follows. For $x \in A$, the perfect hash sends $x$ to the
+slot reserved for $x$ during construction, and the stored fingerprint
+is $g(x)$ by definition; the comparison succeeds and the query returns
+$\top$. No false negatives are possible. For $x \notin A$, the
+perfect hash sends $x$ to some slot, and the stored fingerprint at
+that slot is $g(a)$ for whatever $a \in A$ the perfect hash assigned
+there. The probability that $g(a) = g(x)$ is $2^{-r}$, since $g$ is
+a uniform hash onto $\{0, 1\}^r$. With $r = \lceil -\log_2 \fprate
+\rceil$, the false-positive probability is at most $\fprate$ by
+construction.
+
+The space cost is the sum of two terms: $n \cdot r$ bits for the
+fingerprint table and $O(n \log \log \log n / \log n)$ bits for a
+modern perfect-hash representation. The fingerprint term dominates;
+the perfect-hash overhead is sublinear in $n r$. The total bit
+budget per element is
+\[
+  r \;+\; O(\log \log \log n / \log n)
+  \;\longrightarrow\; \lceil -\log_2 \fprate \rceil
+  \;=\; -\log_2 \fprate \;+\; O(1),
+\]
+which matches the floor up to the integer rounding of $r$. The gap
+the standard Bloom filter pays is gone. The construction trades
+Bloom's flat shared bit array for a perfect-hash-addressed
+fingerprint table, and the per-element cost drops from $\log_2 e
+\cdot \log_2(1/\fprate)$ to $\log_2(1/\fprate)$ plus integer rounding.
+That is the answer in sketch; the rest of the chapter fills in the
+details.
+
+\subsection*{Chapter roadmap}
+
+\Cref{sec:bhf-construction} gives the construction in full: the
+perfect hash, the fingerprint table, the insert and query algorithms,
+and the worked example at $n = 1000, \fprate = 0.01$. The
+construction is short. \Cref{sec:space-analysis} computes the bit
+budget: $n r$ for the fingerprints, sublinear correction for the
+perfect hash, and a comparison table against the floor and the Bloom
+filter at $n = 10^6$ and three target $\fprate$ values. The headline
+theorem of the chapter, \Cref{thm:bhf-optimality}, sits there.
+\Cref{sec:fpr-analysis} proves the FPR bound: the fingerprint
+comparison succeeds with probability $2^{-r}$ for any $x \notin A$,
+provided $g$ is uniform on $\{0, 1\}^r$. The argument is short and
+the hash-function assumption is the only nontrivial input.
+\Cref{sec:construction-time} addresses the operational side: the
+perfect hash takes $O(n)$ expected time to build by modern
+algorithms; the fingerprint table takes one pass over $A$; the query
+is $O(1)$ in the bit count. The trade-off table contrasts BHF against
+Bloom on three axes: space, construction time, and insertion
+support. The BHF wins on space, loses on dynamic insertions,
+matches on query time. \Cref{sec:ch14-bridge} hands off to
+chapter~15, which constructs the FPR-zero counterpart on the other
+half of the perfect filter line.
