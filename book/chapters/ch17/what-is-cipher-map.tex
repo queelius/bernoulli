@@ -1,1 +1,221 @@
-% Placeholder. Drafted in Plan 17 Task 2.
+% §17.1 What is a Cipher Map?
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:what-is-cipher-map}            -- this section
+%   \label{def:cipher-map}                    -- the cipher-map definition
+%
+% ALREADY DEFINED (chapter 1):
+%   \Cref{sec:noisy-bit}                      -- chapter 1 §1.2 fprate/fnrate
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2 Bloom filter
+%
+% FORWARD refs within chapter 17:
+%   \Cref{sec:bernoulli-error-model}          -- §17.2 (Task 3)
+%   \Cref{sec:fhe-sidebar}                    -- §17.4 (Task 5)
+%
+% §17.1 introduces the cipher-map abstraction: a function that computes
+% faithfully on encrypted inputs up to bounded false-positive and
+% false-negative rates. Five items: (1) plaintext setup; (2) cipher-map
+% definition; (3) why approximate is acceptable; (4) the trapdoor key;
+% (5) three example cipher maps.
+
+\section{What is a Cipher Map?}
+\label{sec:what-is-cipher-map}
+
+The first sixteen chapters built a framework for noisy computation on
+unencrypted data. The Bloom filter of chapter 5 returns wrong answers
+because the structure is small; the classifier of chapter 9 returns
+wrong answers because the world is hard; the sketch of chapter 10
+returns wrong answers because the stream is large. In every case the
+error is a property of the structure, and the user accepts it for
+reasons of space or time.
+
+This chapter takes the same Bernoulli machinery and applies it to a
+different setting. The data is encrypted; the computation runs on the
+encrypted form; only a holder of a secret key can read the result.
+Bloom filters and noisy classifiers reappear, but now their false
+positives and false negatives serve a second purpose alongside their
+operational role: the bounded error is also what keeps the underlying
+plaintext hidden from the party doing the computation.
+
+\subsection*{The plaintext setting}
+
+Begin with a function on plaintext data. Let $X$ be a domain of
+plaintext values (records, sets, scalars, whatever the application
+requires), let $Y$ be a codomain, and let
+\[
+  f : X \to Y
+\]
+be the function the user wants to compute. In the cleartext setting
+the user holds an $x \in X$, applies $f$, and reads $f(x)$. Chapters
+1 through 16 sometimes replaced $f$ with an approximate $\tilde f$
+that occasionally returned the wrong $y$; the error analysis was
+operational.
+
+The cipher-map setting introduces a different actor. A holder of $x$
+(the \emph{client}) wants $f(x)$ but does not want to give $x$ to the
+machine doing the computation. Instead, the client encrypts $x$ under
+an encryption map $\mathsf{Enc}$, sends the ciphertext to a
+\emph{server}, and asks the server to compute something on
+$\mathsf{Enc}(x)$ that the client can decrypt to obtain (something
+close to) $f(x)$. The server never sees $x$. The server also never
+sees $f(x)$ directly; what the server returns is itself an encryption
+of an output, which the client decrypts using $\mathsf{Dec}$.
+
+The shape of the computation is therefore not $f$ itself but a
+companion map that operates on the encrypted representations. That
+companion map is the cipher map.
+
+\subsection*{The cipher-map abstraction}
+
+\begin{definition}[Cipher map]
+\label{def:cipher-map}
+Let $f : X \to Y$ be a plaintext function. Let $\mathsf{Enc} : X \to
+\mathsf{Enc}(X)$ be an encryption map onto an encrypted-domain space
+$\mathsf{Enc}(X)$, with corresponding decryption $\mathsf{Dec} :
+\mathsf{Enc}(Y) \to Y$. A \emph{cipher map} for $f$ is a function
+\[
+  \tilde f : \mathsf{Enc}(X) \to \mathsf{Enc}(Y)
+\]
+on the encrypted representations such that, for $x \in X$,
+\[
+  \Pr\left[\,\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = f(x)\,\right]
+  \;\ge\; 1 - \fnrate
+\]
+when $f(x)$ is a real positive output, and
+\[
+  \Pr\left[\,\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = y \text{ for some
+  spurious } y \ne f(x)\,\right] \;\le\; \fprate
+\]
+when $f(x)$ is the negative case. The pair $(\fprate, \fnrate)$ is
+the cipher map's \emph{error profile}, in the Bernoulli sense of
+chapter 1 \S\ref{sec:noisy-bit}.
+\end{definition}
+
+Three pieces of the definition deserve emphasis. The cipher map
+operates entirely on the encrypted domain: every step from
+$\mathsf{Enc}(x)$ through $\tilde f$ to $\mathsf{Enc}(y)$ leaves the
+ciphertext encrypted. The decryption happens on the client side,
+after the encrypted output has been returned. And the error rates
+$\fprate, \fnrate$ are exactly the rates that the framework has
+spent sixteen chapters analyzing: there is no new probabilistic
+machinery to introduce; the cipher-map error is a Bernoulli error.
+
+What is new is the second meaning carried by the error. A cipher map
+with $\fprate = 0$ and $\fnrate = 0$ behaves identically to $f$ from
+the client's view, but it also reveals more information about $x$ to
+any adversary that observes $\tilde f$'s behavior across many
+queries. A cipher map with positive error obscures $x$ in proportion
+to the error magnitude. \Cref{sec:bernoulli-error-model} makes this
+duality precise; \Cref{sec:trapdoor-paradigm} unpacks its
+operational consequences.
+
+\subsection*{Why approximate is acceptable}
+
+It is reasonable to ask why one would accept bounded error in a
+cryptographic setting. The cleartext approximate-set literature
+tolerates Bloom-filter false positives because the alternative
+(storing the full set with exact membership) costs too much memory;
+the cipher-map literature tolerates cipher-map false positives for
+an analogous reason in the cryptographic dimension.
+
+The exact alternative exists. Fully homomorphic encryption (FHE),
+introduced by Gentry in 2009 and refined by the BFV, BGV, and CKKS
+schemes since, provides an $\tilde f$ with $\fprate = \fnrate = 0$
+for any computable $f$. FHE is the cryptographer's answer to the
+question ``can we compute exactly on encrypted data?'' and the
+answer is yes. The catch is that FHE ciphertexts are large
+(kilobytes to megabytes per encrypted bit in practical schemes) and
+slow (seconds per encrypted bit operation). For workloads where the
+plaintext computation runs in microseconds, an FHE realization can
+run six orders of magnitude slower with three orders of magnitude
+more memory.
+
+Cipher maps trade error for practicality. A Bloom-filter-based
+cipher map for set membership uses on the order of
+$-\log_2 \fprate + \mu$ bits per inserted element (the optimal
+formula of chapter 14), runs in constant time per query, and gives
+a false-positive rate the client can tune. The trade-off is the
+familiar Bernoulli one: space and runtime are exchanged for
+controlled error. \Cref{sec:fhe-sidebar} returns to the
+FHE-versus-cipher-map comparison in detail.
+
+\subsection*{The trapdoor key}
+
+The key that distinguishes a cipher map from any other noisy
+function is the \emph{trapdoor key}: a secret that enables recovery
+of $f(x)$ from $\tilde f(\mathsf{Enc}(x))$. The client holds the
+trapdoor; the server does not. Without the trapdoor, the server
+sees only opaque bit patterns flowing through $\tilde f$ and cannot
+distinguish meaningful queries from filler, real outputs from noise,
+or one plaintext value from another. With the trapdoor, the client
+can decrypt the cipher-map output and recover the answer to within
+the cipher map's $\fprate, \fnrate$ bounds.
+
+Three properties make a trapdoor key worth its name. First, the
+trapdoor is short: a key of constant length, not a representation
+that grows with the data. Second, the trapdoor is necessary: no
+polynomial-time computation without it can recover plaintext from
+the cipher-map output. Third, the trapdoor is sufficient: a holder
+of the key can decrypt every cipher-map output with the same per-call
+cost as a plaintext function evaluation. These three properties
+distinguish a cipher map from a generic encryption (which lacks
+property three) and from a generic noisy function (which lacks
+properties one and two).
+
+\subsection*{Three example cipher maps}
+
+Three cipher maps surface repeatedly in this chapter and in
+chapter 18. Each is sketched here at the level needed to ground
+\Cref{sec:bernoulli-error-model}'s analysis.
+
+\textbf{Encrypted set membership.} Let $A \subset X$ be a plaintext
+set the client wants to query without revealing to the server. The
+function is the indicator $f_A(x) = \mathbf{1}[x \in A]$. The
+client builds a Bloom filter on $A$ using a keyed hash family (the
+key is the trapdoor), encrypts the resulting bit array under a
+suitable scheme, and gives it to the server. To query, the client
+encrypts the query element $x$, sends $\mathsf{Enc}(x)$ to the
+server, and asks the server to test the encrypted bits. The server
+returns a (possibly encrypted) bit. With probability at least
+$1 - \fprate$ the bit is correct on negative queries
+($x \notin A$); the bit is always correct on positive queries
+($\fnrate = 0$), reflecting the one-sided error of the Bloom
+construction.
+
+\textbf{Encrypted equality test.} Two parties want to know whether
+$x = y$ without revealing $x$ or $y$. The function is
+$f_=(x, y) = \mathbf{1}[x = y]$. Under deterministic encryption,
+identical plaintexts encrypt to identical ciphertexts, so equality
+on ciphertexts coincides with equality on plaintexts and the cipher
+map has $\fprate = \fnrate = 0$. The cost is a known information
+leak: an adversary observing many equality tests can build the
+distribution of plaintext values from ciphertext frequencies. This
+is a cipher map with no Bernoulli error but with non-zero
+information leak: a useful comparison case, since the framework's
+$\fprate, \fnrate$ are not the only confidentiality knob.
+
+\textbf{Encrypted ordering.} A client wants to know whether
+$x \le y$ on encrypted inputs (for sorting, ranged queries, or
+threshold tests). The function is $f_{\le}(x, y) =
+\mathbf{1}[x \le y]$. Under order-preserving encryption, the
+ciphertext encoding preserves the plaintext order, so the server
+can compare ciphertexts directly. The cipher map has $\fprate =
+\fnrate = 0$ on the comparison itself but leaks the entire
+ranking of the underlying plaintexts to the server: an even larger
+leak than the equality case. Order-preserving encryption is again
+a cipher map with no Bernoulli error and a tightly characterized
+leakage profile.
+
+These three examples span the rate landscape. The Bloom-based
+cipher map sits at the high-$\fprate$, zero-$\fnrate$ corner of the
+perfect-filter line of chapter 6; the equality and ordering cipher
+maps sit at the zero-zero corner but pay their confidentiality cost
+through structural leakage rather than rate. The chapter's main
+work is to show that the framework's $\fprate, \fnrate$ machinery
+gives a quantitative grip on the first case, and that the framework's
+PPV/NPV machinery (chapter 7 §7.4) gives a confidentiality measure
+that includes the second.
