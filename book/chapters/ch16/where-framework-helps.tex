@@ -1,1 +1,188 @@
-% Placeholder. Drafted in Plan 16 Task 6.
+% §16.5 Where the Framework Still Helps
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:where-framework-helps}         -- this section
+%
+% ALREADY DEFINED (chapter 4):
+%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
+%   \Cref{ax:block-rates-indep}               -- chapter 4 §4.3 Axiom 2
+%
+% ALREADY DEFINED (chapter 6):
+%   \Cref{sec:perfect-filter-line}            -- chapter 6 §6.4
+%   \Cref{def:perfect-filter-line}            -- chapter 6 §6.4
+%
+% ALREADY DEFINED (chapter 9):
+%   \Cref{sec:n-ary-channels}                 -- chapter 9 §9.2
+%   \Cref{def:n-ary-channel}                  -- chapter 9 §9.2
+%   \Cref{sec:n-ary-kronecker}                -- chapter 9 §9.3
+%   \Cref{thm:n-ary-kronecker}                -- chapter 9 §9.3
+%
+% ALREADY DEFINED (chapter 7):
+%   \Cref{def:ppv}                            -- chapter 7 §7.4 PPV definition
+%
+% ALREADY DEFINED (chapter 11):
+%   \Cref{thm:chernoff}                       -- chapter 11 §11.4 Chernoff bound
+%
+% INTERNAL refs (chapter 16):
+%   \Cref{sec:varying-rates}                  -- §16.2
+%   \Cref{sec:correlated-noise}               -- §16.3
+%   \Cref{sec:adversarial-inputs}             -- §16.4
+%   \Cref{prop:azuma-hoeffding}               -- §16.2
+%   \Cref{prop:mcdiarmid}                     -- §16.3
+%
+% §16.5 pushes back against pure relinquishment: even when Axiom 1
+% or Axiom 2 fails, the framework's geometric and channel-matrix
+% intuitions still apply, often with minor modifications. Catalogue
+% the perfect-filter line, the channel matrix as a sequence, the PPV
+% per-query formula, and close with a pragmatic rule about replacing
+% iid concentration tools with their non-iid counterparts.
+
+\section{Where the Framework Still Helps}
+\label{sec:where-framework-helps}
+
+The three preceding sections enumerated systems for which strict
+iid analysis breaks. A reasonable reading at this point might be
+that the Bernoulli framework, having been built atop two axioms,
+is useless once either axiom fails. The reading is too pessimistic.
+The framework's geometric and structural intuitions reach beyond
+their strict iid statement, and several of its constructs survive
+the failures of Axiom 1 or Axiom 2 with only minor accommodation.
+This section catalogues the partial successes.
+
+\subsection*{Geometric reach: the perfect-filter line}
+
+\Cref{sec:perfect-filter-line} introduced the perfect-filter line
+as the set of systems in $[0, 1]^2$ rate-plane that achieve either
+$\fprate = 0$ or $\fnrate = 0$ exactly, identified by their
+position on one of the two axes. The classification was set up for
+systems with stable rates; \Cref{def:perfect-filter-line} reads
+the perfect-filter property off a single channel matrix.
+
+The classification survives the failures of \Cref{sec:varying-rates}
+intact. A system whose rates drift over time still has a
+$(\fprate(t), \fnrate(t))$ point at each query, and the trajectory
+in $[0, 1]^2$ traces a curve. The perfect-filter line still
+classifies each individual point: a system whose
+$(\fprate(t), \fnrate(t))$ trajectory stays on the $\fprate = 0$
+axis throughout is one-sided in the same sense as before, even
+though its $\fnrate(t)$ is not constant. Bloom filters past
+capacity, for example, remain $\fprate = 0$ never (they have
+nonzero false-positive rate at every time) but stay on the
+$\fnrate = 0$ axis at every time (a Bloom filter never produces a
+false negative).
+
+The classification also survives \Cref{sec:correlated-noise}. The
+joint distribution between queries shifts away from the iid
+product, but the marginal at each query has a well-defined
+$(\fprate, \fnrate)$ point, and the perfect-filter classification
+applies per-query. A correlation between two filter queries does
+not move either filter's marginal rates off whichever axis they
+were on; it only changes how the joint behaves around those
+marginals.
+
+The geometric statement, then, is portable: the perfect-filter
+line classifies systems by per-query marginals, and per-query
+marginals are well-defined even when their iid-product
+extrapolation is not. A system designer can use the perfect-filter
+classification to reason about whether a noisy bit ever errs
+toward $\top$, ever errs toward $\bot$, or both, even in the face
+of drift or correlation. What disappears is the right to chain
+per-query rates into multi-query bounds without further work; the
+classification itself remains.
+
+\subsection*{Channel-matrix reach: $Q$ becomes a sequence $(Q_t)$}
+
+\Cref{sec:n-ary-channels} introduced the channel matrix $Q$ as
+the per-block error matrix; \Cref{def:n-ary-channel} fixed its
+entries as the conditional probabilities of observed labels given
+true labels. Under Axiom 2, $Q$ is a single matrix; under
+\Cref{sec:varying-rates}'s failure, $Q$ becomes a sequence
+$(Q_t)_{t = 1, \ldots, m}$, with one matrix per query.
+
+The channel-matrix framework absorbs this generalization with
+little friction. A sequence of matrices $(Q_t)$ still describes
+the per-query input-output behavior; what fails is the stability
+claim that lets one treat a sequence of queries as draws from a
+single matrix. Many derived properties survive at the per-query
+level. The eigenstructure of $Q_t$, the channel capacity at query
+$t$, and the Bayes-optimal decision rule given the matrix and a
+prior all read off $Q_t$ alone.
+
+\Cref{sec:n-ary-kronecker}'s Kronecker theorem
+(\Cref{thm:n-ary-kronecker}) factored independent channels into
+Kronecker products. The theorem also generalizes. When the
+component channels have time-varying or correlated rates, the
+Kronecker factorization applies conditionally on the structure of
+the dependence: for time-varying rates, factor channel matrices
+into Kronecker components at each time step, giving a sequence of
+Kronecker products $(Q_t^{(1)} \otimes \cdots \otimes Q_t^{(d)})$
+rather than a single product; for correlated channels, the
+factorization fails marginally but holds conditional on whatever
+shared randomness drives the correlation. The Kronecker geometry,
+in other words, applies sliced or conditioned rather than
+unconditionally.
+
+\subsection*{PPV/NPV reach: the per-query formula stands}
+
+\Cref{def:ppv} expressed PPV as a function of $\fprate$, $\fnrate$,
+and prevalence $\pi$. The formula is per-query: it took a single
+$(\fprate, \fnrate, \pi)$ triple and returned the conditional
+probability of a true positive given a positive report. Nothing in
+the derivation depended on iid sampling across queries; the
+identity is structural.
+
+Under any of the failure modes of \Cref{sec:varying-rates},
+\Cref{sec:correlated-noise}, or \Cref{sec:adversarial-inputs}, the
+PPV formula still holds at each individual query. What changes is
+that the triple $(\fprate, \fnrate, \pi)$ may itself be
+time-varying or query-dependent. Time-averaging PPV across queries
+requires care: the time-average PPV is not generally equal to the
+PPV evaluated at the time-average rates, because PPV is nonlinear
+in $\pi$. But at any single query, the formula gives the correct
+conditional probability given that query's rates and prevalence.
+
+The practical implication is that PPV and NPV remain useful
+diagnostic quantities even outside strict iid, provided one
+reports them per-query (or per-window) rather than as a single
+global summary. A system designer who notices drift in $\pi$ can
+plot PPV as a function of time and reason about its trajectory,
+without needing to commit to a fixed $\pi$ that the data would
+contradict.
+
+\subsection*{A pragmatic rule}
+
+The catalogue above suggests a working rule for analysts faced
+with non-iid Bernoulli data. The rule has two halves.
+
+First: keep the framework's geometry and channel-matrix view, even
+when Axioms 1 and 2 fail. The perfect-filter line classifies
+per-query, the channel matrix factorizes per-query (or per-block
+of independent channels), and the PPV/NPV formulas evaluate
+per-query. None of these per-query statements assumes iid; all
+remain useful diagnostic tools.
+
+Second: replace the iid analytical tools with their non-iid
+counterparts. Where \Cref{thm:chernoff} bounded sums of iid
+Bernoulli random variables, use \Cref{prop:azuma-hoeffding} for
+the martingale-difference setting of \Cref{sec:varying-rates} or
+\Cref{prop:mcdiarmid} for the bounded-differences setting of
+\Cref{sec:correlated-noise}. Where the binomial confidence
+interval gave a sampling-error bound under iid, use the
+bounded-difference concentration or the conditional bounds for
+the dependent case. Where neither iid nor a tractable dependence
+structure applies (\Cref{sec:adversarial-inputs}), drop the
+expectation and use worst-case bounds, then close the relevant
+side channels via cryptographic or oblivious primitives.
+
+The framework's affirmative content is per-query: a noisy bit
+with rates $(\fprate, \fnrate)$, a channel matrix $Q$, a derived
+quantity such as PPV computed from those rates. Strict iid
+extends this per-query content to multi-query bounds. When iid
+fails, the per-query content survives; only the cross-query
+machinery requires replacement. Treating the framework as a
+collection of per-query objects glued together with iid wrappers,
+rather than as an iid edifice, restores most of its utility in
+the non-iid setting. The wrappers change; the underlying
+geometry does not.
