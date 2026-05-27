@@ -119,14 +119,13 @@ true-negative rate is called \emph{specificity}.
 \subsection*{Notation sidebar}
 
 \begin{quote}
-\noindent\textbf{Rate symbols and macros.}
-The four rates used throughout this book have fixed Greek letters and fixed
-\texttt{alex.sty} macros.
+\noindent\textbf{Rate symbols.}
+The four rates used throughout this book have fixed Greek letters.
 \begin{description}
-  \item[$\fprate$ (\texttt{\textbackslash fprate})] false-positive rate. The rate at which a $\bot$-input is reported as $\top$.
-  \item[$\fnrate$ (\texttt{\textbackslash fnrate})] false-negative rate. The rate at which a $\top$-input is reported as $\bot$.
-  \item[$\tprate$ (\texttt{\textbackslash tprate})] true-positive rate, $= 1 - \fnrate$. Also called \emph{sensitivity} or \emph{recall}.
-  \item[$\tnrate$ (\texttt{\textbackslash tnrate})] true-negative rate, $= 1 - \fprate$. Also called \emph{specificity}.
+  \item[$\fprate$] false-positive rate. The rate at which a $\bot$-input is reported as $\top$.
+  \item[$\fnrate$] false-negative rate. The rate at which a $\top$-input is reported as $\bot$.
+  \item[$\tprate$] true-positive rate, $= 1 - \fnrate$. Also called \emph{sensitivity} or \emph{recall}.
+  \item[$\tnrate$] true-negative rate, $= 1 - \fprate$. Also called \emph{specificity}.
 \end{description}
 \noindent In the biased-coin vocabulary of \Cref{sec:three-faces}, $\tprate$
 was written $\tau$ and $\fprate$ was written $\epsilon$; here we adopt names
@@ -239,7 +238,7 @@ A noisy bit is characterized by two numbers, $\fprate$ and $\fnrate$, each a
 conditional rate read off the contingency table. The complementary rates
 $\tprate$ and $\tnrate$ are derived, as are the classifier metrics precision
 and recall. The symbols $\fprate, \fnrate, \tprate, \tnrate$ recur throughout
-the book and refer always to the macros listed in the notation sidebar.
+the book with the meanings fixed in the notation sidebar.
 
 \Cref{sec:boolean-universe-first-look} now walks the four-cell Boolean
 universe of joint truth-output pairs whose conditional rates this section has

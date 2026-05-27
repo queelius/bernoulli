@@ -318,11 +318,9 @@ Throughout chapters 2 and beyond, the following convention applies:
 \begin{itemize}
   \item $Q$ always denotes a channel transition matrix, with rows indexed
     by input block and columns indexed by output label.
-  \item $\fprate$ (macro: \texttt{\textbackslash fprate}, rendered as
-    $\fprate$) is the false-positive rate: the probability that a negative
+  \item $\fprate$ is the false-positive rate: the probability that a negative
     input is reported as positive.
-  \item $\fnrate$ (macro: \texttt{\textbackslash fnrate}, rendered as
-    $\fnrate$) is the false-negative rate: the probability that a positive
+  \item $\fnrate$ is the false-negative rate: the probability that a positive
     input is reported as negative.
   \item $\tprate = 1 - \fnrate$ is the true-positive rate, and
     $\tnrate = 1 - \fprate$ is the true-negative rate.
@@ -336,8 +334,7 @@ TPR $= 1 - \text{FNR}$ is a deterministic function, so any statement about
 one pair translates directly to the other.\footnote{Specifically,
 the companion paper \cite{towell-bernoulli-sets} uses (FPR, TPR) in places.
 In converting source material to this textbook, we have replaced that
-convention with (FPR, FNR) throughout, using the alex.sty macros
-$\fprate$ and $\fnrate$.}
+convention with $(\fprate, \fnrate)$ throughout.}
 
 \subsection*{Looking ahead}
 
