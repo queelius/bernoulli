@@ -1,1 +1,106 @@
-% Placeholder. Drafted in Plan 16 Task 7.
+% §16.6 What's Next
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:ch16-whats-next}                 -- this section
+%
+% RESOLVED (within chapter 16):
+%   \Cref{sec:varying-rates}                    -- §16.2
+%   \Cref{sec:correlated-noise}                 -- §16.3
+%   \Cref{sec:adversarial-inputs}               -- §16.4
+%   \Cref{sec:where-framework-helps}            -- §16.5
+%   \Cref{sec:bib-notes-ch16}                   -- §16.7 (Task 8)
+%
+% RESOLVED (chapter labels for forward references):
+%   \Cref{ch:not-bernoulli}                     -- chapter 16 (this chapter)
+%   Chapter 17 (cipher maps and trapdoor computing) -- Plan 0 stub
+%   Chapter 18 (encrypted search)               -- Plan 0 stub
+%
+% §16.6 closes the negative-space catalogue, signposts the
+% cryptographic applications of chapters 17-18, and forward-references
+% the bibliographic notes for the analytical alternatives the chapter
+% has named.
+
+\section{What's Next}
+\label{sec:ch16-whats-next}
+
+The chapter has completed the boundary cataloguing the framework
+called for at the outset of Part~V. The negative space around the
+two axioms is now mapped in three sections, each named by the
+mechanism that pushes a system off the iid regime: varying rates
+over time (\Cref{sec:varying-rates}), correlated noise across
+queries (\Cref{sec:correlated-noise}), and adversarial inputs
+(\Cref{sec:adversarial-inputs}). \Cref{sec:where-framework-helps}
+recovered the per-query content of the framework that survives
+each of these failures, leaving the practitioner with a working
+rule rather than a binary verdict: the geometric and channel-matrix
+machinery applies per-query; the multi-query bounds require
+replacement by their non-iid counterparts. With the boundary
+mapped, the book's remaining chapters can take up two threads that
+the boundary work has only signposted.
+
+\subsection*{Closing the negative space}
+
+\Cref{ch:not-bernoulli} has been a chapter of qualifications: a
+catalogue of what the framework does not cover and what to do
+instead. Its placement between the constructive culmination of
+Part~IV (the BHF and BPHF) and the cryptographic applications of
+Part~VI is structural. Part~IV sat inside the framework's domain
+of validity; Part~VI extends the framework into settings where
+clean iid analysis can no longer be relied on. The boundary
+chapter is the explicit bridge between the two. Without it, the
+applications would inherit the iid assumptions implicitly, and
+the guarantees they advertise would lean on hidden conditions.
+
+The chapter has also closed five deferrals seeded across the
+preceding parts: the time-varying-rate question from chapter~1
+on sampling, the correlated-witness question from chapter~3 and
+reopened in chapter~1's exercises, the adaptive-input question
+from chapter~5 on one-sided sets, the adversarial-stream question
+from chapter~10 on sketch composition, and the algebra-types
+question from the chapter~13 exercises. Each deferral now has a
+section assigned to it, with the violated axiom named and the
+analytical replacement identified. No further deferrals to this
+chapter remain open.
+
+\subsection*{Forward to chapters 17 and 18}
+
+The two chapters after this one apply the Bernoulli framework
+under cryptographic constraints, and both are direct heirs to the
+boundary work the present chapter has done. Chapter~17 develops
+cipher maps and trapdoor computing as the algebraic framework
+that recasts the BHF and BPHF architecture for settings where the
+underlying perfect hash is replaced by a trapdoor function: the
+forward direction is public and computable by anyone, the reverse
+direction is private and computable only with a secret key.
+Chapter~18 specializes the cipher-map machinery to encrypted
+search, showing how the FPR and FNR guarantees of Part~IV carry
+over into the cryptographic setting and what additional structure
+(oblivious access patterns, side-channel considerations) the
+cryptographic context demands.
+
+Both chapters live in territory that the present chapter has
+flagged as non-trivial. Encrypted-search queries are adversarial
+by construction: the server is curious and the queries are chosen
+by an attacker who has access to the encrypted index and may
+adapt to responses. Chapter~17 names the worst-case analysis
+tools as the replacement for iid expectations, and chapter~18
+shows how cryptographic hash families close the side channels
+\Cref{sec:adversarial-inputs} identified.
+
+\subsection*{The analytical alternatives}
+
+The chapter has named, but not bibliographically anchored, the
+analytical alternatives the non-iid regime requires. The Azuma-
+Hoeffding inequality of \Cref{sec:varying-rates}, McDiarmid's
+inequality of \Cref{sec:correlated-noise}, and the worst-case and
+cryptographic-hash-family tools of \Cref{sec:adversarial-inputs}
+all sit in literatures whose entry points the bibliographic notes
+of \Cref{sec:bib-notes-ch16} attach to the chapter. The notes are
+brief by design; the chapter's purpose has been to name the right
+tool for each failure mode and to give the reader a working
+intuition for when each applies. The notes point the reader to
+the foundational papers and to a standard textbook reference so
+that the practitioner can pick up the trail without having to
+triangulate from the chapter's prose alone.
