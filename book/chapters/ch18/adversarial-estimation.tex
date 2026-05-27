@@ -1,1 +1,232 @@
-% Placeholder. Drafted in Plan 18 Task 5.
+% §18.4 Estimation under Adversarial Queries
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:adversarial-estimation}        -- this section
+%
+% ALREADY DEFINED (chapter 7):
+%   \Cref{sec:binomial-estimator}             -- chapter 7 §7.2 (iid binomial estimator)
+%   \Cref{sec:confidence-intervals}           -- chapter 7 §7.3 (Wilson, Clopper-Pearson)
+%
+% ALREADY DEFINED (chapter 11):
+%   \Cref{thm:chernoff}                       -- chapter 11 §11.4 multiplicative Chernoff
+%   \Cref{sec:sample-complexity}              -- chapter 11 §11.4
+%
+% ALREADY DEFINED (chapter 16):
+%   \Cref{sec:adversarial-inputs}             -- chapter 16 §16.4 (adversarial inputs)
+%
+% INTERNAL (chapter 18):
+%   \Cref{sec:confidentiality-measures}       -- §18.3
+%   \Cref{sec:toy-system}                     -- §18.5 (forward)
+%
+% §18.4 develops the defender's estimation problem under adversarial
+% queries. Five items: (1) the estimation problem statement and why
+% iid sampling fails; (2) MAB framing with UCB and Thompson sampling;
+% (3) CI construction under adversarial sampling (Wilson/Clopper-
+% Pearson plus tighter MAB-aware CI of the towell-es-conf-mab paper);
+% (4) connection to chapter 11 Chernoff vs MAB and to chapter 16
+% adversarial inputs; (5) worked example: 100 queries/min over 1
+% hour, iid Chernoff CI vs MAB UCB CI compared.
+
+\section{Estimation under Adversarial Queries}
+\label{sec:adversarial-estimation}
+
+\Cref{sec:confidentiality-measures} priced confidentiality as a
+function of three parameters: the cipher map's $\fprate$ and
+$\fnrate$, and the workload prevalence $\pi$. The first two are
+design choices fixed at deployment time; the third is a property of
+how the system is used in the wild. A defender who runs the system
+in production and wants to know its actual leakage has to estimate
+$\pi$ (and through it, the PPV and the confidentiality margin) from
+live query traffic. The estimation problem looks elementary at first:
+each query either matches a document or it does not, the matches are
+Bernoulli, and the chapter~7 binomial machinery should price the
+estimate with a confidence interval to taste.
+
+The complication is the source of the queries. A benign workload
+sampled iid from a fixed distribution would be the textbook setting
+of \Cref{sec:binomial-estimator}, and the chapter~7 Wilson and
+Clopper-Pearson intervals of \Cref{sec:confidence-intervals} would
+deliver a defensible CI in one line. An adversarial workload, in
+which the attacker chooses each query to maximize leakage and
+adapts to the system's responses, is not iid. It is not even
+stationary. Each query the attacker issues is informed by every
+prior response, and the per-query match probability the defender
+observes is a function of the attacker's strategy, not a fixed
+parameter. Standard iid estimation gives a confidence interval, but
+the interval is for the wrong quantity: it bounds the empirical
+match rate the defender has just measured, not the worst-case rate
+the attacker can sustain.
+
+\subsection*{Why iid estimation fails on adversarial traffic}
+
+A binomial estimator $\hat\pi = (\text{matches})/(\text{queries})$
+gives a consistent estimate of $\pi$ under the iid assumption: each
+query is a Bernoulli trial with fixed success probability $\pi$, and
+the central limit theorem delivers a normal approximation with width
+$O(n^{-1/2})$. The Wilson and Clopper-Pearson CIs of
+\Cref{sec:confidence-intervals} turn the estimate into a defensible
+interval at any specified confidence level $1 - \delta$.
+
+Under an adversarial workload the iid assumption breaks at the
+first step. The attacker is free to query a high-prevalence keyword
+on every trial, or to alternate between high- and low-prevalence
+keywords in whatever pattern best exploits the server's response
+structure. The empirical match rate the defender measures is the
+average over the attacker's chosen mix; the iid CI bounds that
+average; the CI does not bound the leakage of any single keyword
+the attacker is actually interested in.
+
+The chapter~16 boundary section (\Cref{sec:adversarial-inputs})
+catalogued this failure mode in the abstract. The encrypted-search
+defender needs the same warning read constructively: the iid CI
+is not just imprecise on adversarial traffic, it is estimating the
+wrong quantity, and substituting it into the confidentiality
+formula returns a number the defender should not act on.
+
+\subsection*{Multi-armed bandit framing}
+
+The right framing borrows from the bandit literature. Treat each
+distinct query (or, more carefully, each distinct keyword the
+attacker might query) as an arm in a multi-armed bandit. Each pull
+of an arm is one query against the deployed system, and the reward
+is the leakage that query produces (in the framework, the per-query
+confidentiality drop $1 - \PPV$ for the matched keyword). The
+defender's goal is not to maximize reward, as in a standard bandit
+problem, but to bound the worst arm's reward: the defender wants a
+high-confidence statement that no keyword in the vocabulary
+exceeds a target leakage budget, with confidence $1 - \delta$ over
+all arms simultaneously.
+
+The upper confidence bound (UCB) family of bandit algorithms maps
+directly onto this problem. The defender maintains a per-arm
+estimate $\hat\pi_w$ and a per-arm uncertainty bound, and the UCB
+quantity $\hat\pi_w + \sqrt{2 \log(1/\delta)/n_w}$ is a
+high-confidence upper bound on the true per-arm rate. The bound is
+\emph{adversarially valid}: it holds simultaneously over all arms
+and over all attacker strategies, because the UCB formula does not
+assume the attacker's arm-selection rule is iid. The defender takes
+the maximum of the per-arm UCBs as the worst-case bound and feeds
+that into the confidentiality formula.
+
+Thompson sampling is the Bayesian counterpart. Each arm carries a
+$\mathrm{Beta}(\alpha_w, \beta_w)$ posterior over its match rate;
+the defender samples one rate per arm from the corresponding
+posteriors and reports the maximum as the worst-case estimate. The
+two algorithms agree on the qualitative claim: the worst arm is
+what the defender has to bound.
+
+\subsection*{CI construction under adversarial sampling}
+
+The chapter~7 Wilson and Clopper-Pearson CIs adapt to the bandit
+setting by a union bound over arms. Suppose the vocabulary has $K$
+arms and the defender wants confidence $1 - \delta$ that no arm's
+true rate exceeds the reported bound. Computing each per-arm CI at
+confidence $1 - \delta/K$ and taking the maximum gives a valid
+joint bound at $1 - \delta$, by the standard Bonferroni union
+inequality. The price of the union bound is a $\log K$ factor in
+the per-arm CI width: at vocabulary size $K = 10^5$ and joint
+confidence $1 - \delta = 0.95$, the per-arm CI is tightened by
+roughly $\log(2 \times 10^6) \approx 14.5$ standard deviations
+relative to the $\delta = 0.05$ marginal interval.
+
+A tighter alternative is what \textcite{towell-es-conf-mab}
+developed for the encrypted-search setting specifically. The
+construction observes that the defender is not estimating $K$
+independent quantities but a single quantity (the worst-case
+confidentiality) defined as the maximum of $K$ rate parameters,
+and applies an order-statistic-aware bound that is tighter than
+the naive union bound when the rates are concentrated. The
+construction is a moving-average bootstrap: the defender resamples
+the empirical match trace with a moving window and reports the
+worst-window rate as the bound, with the bootstrap quantile
+playing the role of the CI's tail probability. The bound is
+narrower than the union-bound CI at the same joint confidence
+when the per-arm rates are similar, and it degenerates to the
+union-bound CI when one arm dominates the rest.
+
+The operational reading is straightforward. The defender chooses
+the CI construction based on what is known about the attacker's
+strategy. Under a worst-case assumption (any keyword in the
+vocabulary could be the target), the union-bound CI is correct.
+Under a working assumption that the attacker concentrates on a
+small number of keywords (a common case when the attacker is
+exploiting a specific user's interest), the bootstrap CI is
+tighter and the defender can report a sharper bound.
+
+\subsection*{Connection to chapter~11 Chernoff and chapter~16
+adversarial inputs}
+
+The chapter~11 multiplicative Chernoff bound of
+\Cref{thm:chernoff} sharpened the iid CI to exponential decay in
+the deviation from the true rate. It is the right bound for an
+iid workload; it is the wrong bound for an adversarial workload
+exactly because its derivation invokes the iid moment generating
+function, which depends on the attacker's arm-selection rule being
+state-independent. The MAB UCB bound replaces the iid MGF with an
+adversarial concentration argument that survives state-dependent
+arm selection. The two bounds agree numerically on iid traffic
+(the UCB constant $\sqrt{2 \log(1/\delta)}$ matches the Chernoff
+exponent for moderate $\delta$) and diverge on adversarial
+traffic, where Chernoff under-bounds the true rate and UCB
+over-bounds it correctly.
+
+The chapter~16 \Cref{sec:adversarial-inputs} discussion of where
+the framework breaks under adversarial inputs reads here as a
+positive recipe: the framework still applies, but the estimator
+that turns observations into rate estimates has to be chosen for
+the actual input model. The Bernoulli model itself is correct
+(the per-query match indicator is still Bernoulli, conditionally
+on the queried keyword); what changes is the estimator that
+aggregates the per-query indicators into a confidentiality
+bound.
+
+\subsection*{A worked example}
+
+Consider a defender monitoring a deployed encrypted-search system
+at 100 queries per minute. Over one hour the system processes
+$n = 6000$ queries. The defender observes 540 matches across the
+hour, for an overall empirical match rate $\hat\pi = 0.09$. The
+defender wants to report a $95\%$ upper bound on the
+confidentiality leakage at this operating point.
+
+\emph{Naive iid Chernoff approach.} Treat the 6000 queries as iid
+Bernoulli with success probability $\pi$, and apply the chapter~11
+Chernoff bound at $\delta = 0.05$. The Wilson CI at the same
+confidence level gives roughly $\hat\pi \pm 1.96 \cdot
+\sqrt{0.09 \cdot 0.91 / 6000} \approx 0.09 \pm 0.0072$, i.e.
+$\pi \in [0.083, 0.097]$ at $95\%$ confidence. Substituting the
+upper-end $\pi^{\mathrm{iid}}_{\max} = 0.097$ into the
+confidentiality formula (with $\fprate = 0.01, \fnrate = 0$) gives
+$\PPV \approx 0.915$, $C \approx 0.085$. The defender concludes
+that confidentiality is at least $C \approx 0.085$ at the operating
+point.
+
+\emph{MAB UCB approach.} Suppose the vocabulary has $K = 1000$
+keywords actively queried over the hour. The union-bounded per-arm
+CI at joint confidence $1 - \delta = 0.95$ uses
+$\delta_{\mathrm{arm}} = 0.05/1000 = 5 \times 10^{-5}$. Each arm
+sees on average $n_w = 6$ queries, with substantial variance: some
+arms see hundreds of queries, others see only one. For an arm with
+$n_w = 6$ and $\hat\pi_w = 0.5$ (3 matches out of 6), the
+Clopper-Pearson upper bound at $\delta_{\mathrm{arm}} = 5 \times
+10^{-5}$ is roughly $\pi_w^{\mathrm{UCB}} \approx 0.95$, because
+the per-arm sample size is small and the joint-confidence
+correction further inflates the bound. Taking the maximum across
+arms, the defender's bound on the worst-case per-keyword rate is
+$\pi^{\mathrm{MAB}}_{\max} \approx 0.95$, substituting which gives
+$\PPV \approx 0.999$ and $C \approx 0.001$.
+
+The two bounds differ by nearly two orders of magnitude. The iid
+bound reports $C \ge 0.085$; the MAB UCB bound reports $C \ge
+0.001$. Both bounds are correct statements about their respective
+quantities, and only the MAB bound answers the question the
+defender actually has: how leaky is the worst-case keyword the
+attacker might target?
+
+The closure is the same warning the chapter has been issuing
+throughout. A framework guarantee is only as strong as the
+estimator that produced its parameters. The Bernoulli machinery is
+not at fault; the iid estimator misapplied to adversarial data is.
+The next section turns from estimation back to construction.
