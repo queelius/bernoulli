@@ -1,4 +1,37 @@
-\chapter{Perfect Hash Filters}
+\chapter{Perfect Hash Filters (BPHF)}
 \label{ch:perfect-hash-filters}
 
-\textit{Placeholder. Content drafted in Plan 4.}
+\begin{quote}
+\textsc{After this chapter you will be able to:}
+\begin{itemize}
+  \item State the Bernoulli Perfect Hash Filter (BPHF) construction
+    as the FPR-zero counterpart of chapter~14's BHF on the
+    perfect-filter line of \Cref{def:perfect-filter-line}.
+  \item Derive its space and time costs, and the false-negative-rate
+    structure that lets ranked search recover top-$k$ items at
+    bounded miss probability.
+  \item Apply BPHF to ranked retrieval and recognize when it is the
+    right tool versus standard membership filters.
+\end{itemize}
+\end{quote}
+
+% Section 15.1
+\input{chapters/ch15/bhf-to-bphf}
+
+% Section 15.2
+\input{chapters/ch15/bphf-construction}
+
+% Section 15.3
+\input{chapters/ch15/space-time-analysis}
+
+% Section 15.4
+\input{chapters/ch15/ranked-search}
+
+% Section 15.5
+\input{chapters/ch15/bridge-to-part5}
+
+% Section 15.6
+\input{chapters/ch15/bibliographic-notes}
+
+% Exercises
+\input{chapters/ch15/exercises}
