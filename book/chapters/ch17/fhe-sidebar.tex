@@ -1,1 +1,223 @@
-% Placeholder. Drafted in Plan 17 Task 5.
+% §17.4 Sidebar: Fully Homomorphic Encryption
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:fhe-sidebar}                   -- this section
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2 Bloom filter
+%
+% ALREADY DEFINED (chapter 14):
+%   \Cref{ch:optimal-bernoulli-sets}          -- chapter 14 BHF construction
+%
+% INTERNAL refs (chapter 17):
+%   \Cref{def:cipher-map}                     -- §17.1
+%   \Cref{sec:trapdoor-paradigm}              -- §17.3
+%
+% §17.4 is the FHE sidebar. Five items: (1) what FHE is, Gentry
+% (2009); (2) cipher maps as a weaker, fprate/fnrate abstraction;
+% (3) FHE cost (huge ciphertexts, slow operations); (4) when to use
+% each (FHE for absolute correctness; cipher maps for tolerable
+% error plus performance); (5) concrete comparison (Bloom cipher map
+% at epsilon=0.01 vs FHE equivalent, ~10^4 space factor).
+
+\section{Sidebar: Fully Homomorphic Encryption}
+\label{sec:fhe-sidebar}
+
+The previous sections built up cipher maps as approximate functions
+on encrypted data. The approximate qualifier is a deliberate
+weakening: a cipher map accepts bounded $\fprate$ and $\fnrate$ as
+the price for being practical. A natural question is what the
+unweakened version looks like. The answer is fully homomorphic
+encryption, the cryptographic abstraction that promises zero-error
+computation on ciphertexts. This sidebar steps off the main thread
+of the chapter to lay out what FHE is, where it sits relative to
+cipher maps, and when each abstraction is the right tool for the
+job.
+
+\subsection*{What fully homomorphic encryption is}
+
+Fully homomorphic encryption (FHE) is an encryption scheme in which
+the ciphertexts support exact arithmetic. Given $\mathsf{Enc}(x)$
+and $\mathsf{Enc}(y)$, an FHE scheme provides operations
+$\mathsf{Enc}(x) \oplus \mathsf{Enc}(y) = \mathsf{Enc}(x + y)$ and
+$\mathsf{Enc}(x) \otimes \mathsf{Enc}(y) = \mathsf{Enc}(x \cdot y)$,
+preserved exactly through any depth of composition. Because
+arbitrary Boolean and arithmetic circuits decompose into additions
+and multiplications, FHE supports the exact evaluation of any
+computable function on encrypted inputs: a server can compute $\tilde
+f(\mathsf{Enc}(x_1), \ldots, \mathsf{Enc}(x_n))$ and return
+$\mathsf{Enc}(f(x_1, \ldots, x_n))$ with zero error in the
+plaintext output.
+
+Gentry's 2009 thesis gave the first viable construction of an FHE
+scheme, resolving a question that had stood open since Rivest,
+Adleman, and Dertouzos posed it in 1978. Earlier schemes had been
+\emph{partially} homomorphic, supporting either addition (Paillier)
+or multiplication (RSA, ElGamal) but not both, and so could not
+evaluate arbitrary circuits. Gentry's construction allowed both
+operations and showed how to control the ciphertext noise that
+accumulates with depth. Subsequent schemes (BFV, BGV, CKKS, TFHE)
+have refined the construction, traded off different cost dimensions,
+and made FHE practical for a growing class of applications.
+
+For the present chapter the relevant fact is that FHE realizes a
+cipher map with $\fprate = \fnrate = 0$. The client recovers the
+exact plaintext output of $f$, with no error from the cipher
+construction itself. Whatever uncertainty the client has about the
+plaintext after decrypting an FHE result is uncertainty that was
+already present in the inputs, not uncertainty introduced by the
+computation.
+
+\subsection*{Cipher maps as a weaker abstraction}
+
+A cipher map in the sense of \Cref{def:cipher-map} is the
+strictly weaker abstraction. The cipher map admits a positive
+$\fprate$ and $\fnrate$, and the framework's job is to bound the
+error and propagate it through compositions. What the cipher map
+buys in exchange for accepting error is room to operate. The
+designer of a cipher map can choose representations (hash families,
+sketch data structures, Bloom filters) that are orders of magnitude
+smaller and faster than the polynomial-arithmetic representations
+FHE requires. The Bernoulli framework's space-accuracy duality,
+which has been the backbone of chapters 5 through 15, applies
+directly: a cipher map for set membership at $\fprate = 2^{-20}$
+uses about $20 + \mu$ bits per element by the optimal construction
+of \Cref{ch:optimal-bernoulli-sets}, while the corresponding FHE
+realization (an exact encrypted set) uses kilobytes per element.
+
+The two abstractions therefore occupy different rungs on the same
+ladder. FHE is the strongest abstraction the cryptographer can
+deliver and the most expensive to use. Cipher maps are weaker (they
+allow error) but cheaper in proportion to how much error the
+application tolerates. The framework's role is to make the trade-off
+quantitative: a cipher map with $\fprate = \epsilon$ uses about
+$-\log_2 \epsilon$ bits per element of useful information capacity,
+the cipher-map equivalent of FHE's exact-but-expensive guarantee.
+
+\subsection*{The cost of FHE}
+
+The price of FHE's zero-error guarantee is steep in three dimensions.
+
+\textbf{Ciphertext size.} An FHE ciphertext encrypts a single
+plaintext bit but occupies many kilobytes of memory. Early schemes
+ran in the megabyte-per-bit range; modern BFV, BGV, and CKKS
+ciphertexts pack tens to hundreds of plaintext bits into one
+ciphertext, but still cost on the order of kilobytes per encrypted
+bit at typical security parameters (128 to 256 bits of security
+against quantum or classical attack). For a database that would
+fit comfortably in a few gigabytes of plaintext, the FHE
+representation runs to terabytes.
+
+\textbf{Operation latency.} Each homomorphic addition or
+multiplication takes milliseconds on a modern processor; deeper
+circuits compound the cost. A simple lookup that takes nanoseconds
+on plaintext data can take seconds or minutes under FHE, even on
+the fastest available implementations. The slowdown is roughly six
+to nine orders of magnitude relative to the plaintext operation,
+depending on the scheme and the circuit depth.
+
+\textbf{Bootstrapping.} The ciphertext noise that accumulates with
+each homomorphic operation must periodically be reset; the
+\emph{bootstrapping} operation that performs this reset is by far
+the most expensive primitive in FHE, taking seconds even in the
+fastest current implementations. Practical FHE workloads either
+budget bootstrapping carefully (running only depth-bounded circuits
+between resets) or accept the bootstrapping cost as the dominant
+runtime component.
+
+The combined cost is why FHE has not displaced plaintext computation
+even for security-critical applications. The cryptographic community
+has made enormous progress since 2009 (the cost has dropped by many
+orders of magnitude), and FHE is now practical for narrow workloads
+(simple aggregations, fixed-circuit medical queries, contract
+evaluations on small data). But for the broad class of workloads
+that cipher maps address (approximate set membership, ranked
+retrieval, anonymity-preserving analytics over large datasets), FHE
+remains too slow and too large.
+
+\subsection*{When to use which}
+
+The choice between FHE and a cipher map is the choice between exact
+and approximate. Two questions decide it.
+
+\textit{Does the application tolerate error?} A contract evaluation
+on encrypted inputs is exact by definition: a single bit-flip in
+the output changes the meaning of the contract. A medical record
+lookup that returns whether a patient has a specific diagnosis is
+exact in the sense that a false positive could trigger a wrongful
+treatment. FHE is the right choice for these correctness-critical
+queries; cipher maps are not. A search query that returns the top
+ten matching documents from a million-document corpus tolerates a
+small false-positive rate (a few irrelevant documents in the top
+ten are an inconvenience, not a catastrophe). A trapdoor cipher
+map at $\fprate = 0.01$ is the right choice here.
+
+\textit{Does the application need to scale?} A handful of exact
+queries per day on a small encrypted dataset can run under FHE
+without difficulty: even at minutes per query, the throughput is
+adequate. A search index serving thousands of queries per second
+on a multi-gigabyte dataset cannot run under FHE at any realistic
+hardware budget. Cipher maps scale because they live in the same
+asymptotic regime as plaintext data structures: a Bloom-filter
+cipher map serves queries in constant time and uses space
+proportional to the dataset size, the same complexity as a
+cleartext Bloom filter.
+
+In practice the two abstractions often combine. A hybrid system
+might use a cipher map as the first-stage filter (rejecting most
+non-matches quickly with bounded error) and FHE as the second-stage
+verifier (exactly checking the cipher map's positive results). The
+cipher map keeps the per-query cost low; the FHE stage cleans up
+the false positives. The framework's composition theorem of
+\Cref{thm:cipher-composition} applies to this hybrid: the
+overall $(\fprate, \fnrate)$ is the matrix product of the two
+stages, and the FHE stage's exact channel (identity matrix) drops
+the false-positive rate to whatever the cipher map can verify.
+
+\subsection*{A concrete comparison}
+
+A worked example fixes the cost ratio. Take a set membership query
+on a plaintext set $A$ of $|A| = 10^6$ elements, each represented
+by a 64-bit integer.
+
+\textbf{Bloom-filter cipher map at $\fprate = 0.01$.} The optimal
+Bloom-filter construction of chapter 5 uses about $-\log_2(0.01)
+\approx 6.64$ bits per element on the underlying filter, plus a
+small constant overhead for hash-family parameters. The trapdoor
+adds a keyed seed (a few dozen bytes total) but does not change the
+per-element cost asymptotically. The total cipher-map representation
+is about $10^6 \times 6.64 \approx 6.64 \times 10^6$ bits, or
+roughly 830 kilobytes. Each membership query runs in constant time
+(a few hash computations and bit lookups), with no bootstrapping or
+ciphertext expansion overhead.
+
+\textbf{FHE-encrypted exact set.} An FHE realization of the same
+set membership query encrypts each element under a scheme like BFV
+or BGV. At a security parameter of 128 bits, each ciphertext
+occupies about $10^4$ to $10^5$ bits, or roughly 1 to 10 kilobytes
+per encrypted element. The total representation is about $10^6
+\times 10^4 = 10^{10}$ bits, or roughly 1 to 10 gigabytes for the
+same 1 million elements. Each membership query under FHE requires
+homomorphic comparisons against each ciphertext or against a
+homomorphic hash, taking seconds in either case.
+
+\textbf{The ratio.} The cipher map costs about 830 kilobytes; the
+FHE version costs about 1 to 10 gigabytes. The space ratio is on
+the order of $10^4$, with the cipher map four orders of magnitude
+smaller. The runtime ratio is roughly the same: nanoseconds for the
+cipher map, seconds for FHE, giving about $10^9$ in favor of the
+cipher map. The four-orders-of-magnitude space gap and nine-orders
+runtime gap are the price the cipher map pays in correctness (a
+$\fprate$ of 1 percent) for performance practical enough to serve a
+production search engine.
+
+This is the central trade-off the trapdoor computing paradigm
+exploits. FHE remains the abstraction of choice when error is
+intolerable. Cipher maps fill the much larger space of workloads
+where bounded error is acceptable, and the framework's job is to
+keep the error rates honest as the cipher maps compose. The next
+section returns to the cipher-map setting and asks how Boolean
+combinations of cipher maps behave under the framework's
+composition rules.
