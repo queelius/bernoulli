@@ -1,1 +1,156 @@
-% Placeholder. Drafted in Plan 15 Task 2.
+% §15.1 From BHF to BPHF
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bhf-to-bphf}                      -- this section
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
+%   \Cref{def:one-sided}                         -- chapter 5 §5.4
+%
+% ALREADY DEFINED (chapter 6):
+%   \Cref{def:perfect-filter-line}               -- chapter 6 §6.4
+%   \Cref{prop:fpr-zero-closure}                 -- chapter 6 §6.4
+%
+% ALREADY DEFINED (chapter 8):
+%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
+%
+% ALREADY DEFINED (chapter 14):
+%   \Cref{def:bhf}                               -- chapter 14 §14.2
+%   \Cref{sec:bhf-construction}                  -- chapter 14 §14.2
+%   \Cref{thm:bhf-optimality}                    -- chapter 14 §14.3
+%   \Cref{prop:bhf-fpr}                          -- chapter 14 §14.4
+%
+% FORWARD REFS within chapter 15 (resolve in later Plan 15 tasks):
+%   \Cref{sec:bphf-construction}                 -- §15.2 (Task 3)
+%   \Cref{def:bphf}                              -- §15.2 (Task 3)
+%   \Cref{sec:space-time-analysis}               -- §15.3 (Task 4)
+%   \Cref{sec:ranked-search}                     -- §15.4 (Task 5)
+%   \Cref{sec:bridge-to-part5}                   -- §15.5 (Task 6)
+%
+% §15.1 frames the chapter on the FPR-zero side of the perfect filter
+% line. Recall the BHF result (FNR-zero, FPR <= 2^{-r}); pose the
+% mirror question on the opposite axis (FPR = 0 at the cost of
+% FNR > 0); sketch the construction (perfect hash phi as before, but
+% with a per-element rank value rho(a) instead of a fingerprint);
+% lay out the chapter roadmap.
+
+\section{From BHF to BPHF}
+\label{sec:bhf-to-bphf}
+
+Chapter~14 settled the FNR-zero side of the perfect-filter line.
+This chapter turns the picture ninety degrees and settles the
+FPR-zero side. The same architectural template, a perfect hash
+addressing a per-element table, produces a structure with the dual
+error behavior: every report of membership is correct, and the only
+failure mode is silent omission. The two chapters together cover the
+constructive realization of both arms of \Cref{def:perfect-filter-line};
+neither arm is rhetorical and neither is structurally easier than the
+other.
+
+\subsection*{Recall the BHF}
+
+The Bernoulli Hash Function of \Cref{def:bhf} sits on the FNR-zero
+arm of the perfect-filter line: every $a \in A$ is reported as a
+member with certainty, and the only error mode is a non-member
+$x \notin A$ accepted by mistake. The construction uses a perfect
+hash $\phi : A \to [n]$ that bijects the designated set onto its
+addressing range, plus a fingerprint table $F : [n] \to \{0, 1\}^r$
+that stores an $r$-bit string per slot. A query for $x$ reads slot
+$\phi(x)$ and compares its contents to the fingerprint $g(x)$;
+equality returns $\top$, inequality returns $\bot$. The
+fingerprint-width parameter is $r = \lceil -\log_2 \fprate \rceil$,
+which buys $\fprate \le 2^{-r}$ by \Cref{prop:bhf-fpr} at a per-element
+cost of $r$ bits plus a sublinear perfect-hash correction.
+
+The result is space-optimal in the sense of \Cref{thm:bhf-optimality}:
+the BHF reaches the entropy floor of \Cref{thm:entropy-floor} up to
+the integer rounding the ceiling function introduces plus the
+sublinear correction from $\phi$. The standard Bloom filter of
+\Cref{def:bloom-filter} spends $\log_2 e \approx 1.4427$ times the
+floor at every $\fprate$; the BHF spends exactly the floor plus one
+bit of rounding. The closure properties of \Cref{prop:fpr-zero-closure}
+keep BHF compositions on the FNR-zero arm under union and intersection,
+so the optimality result is preserved under same-axis composition.
+Chapter~14 closed with the construction in hand, the analysis
+complete, and a single question deferred: what happens on the other
+axis?
+
+\subsection*{The opposite axis}
+
+The FNR-zero arm is the right home for applications that cannot
+tolerate a missed member: a routing table that must never drop a
+known destination, a security check that must never admit a denied
+identifier, a cache that must never miss a stored key. The price of
+the guarantee is a small admittance rate for genuine non-members,
+which the application designs around (a slow second-stage check
+verifies the report) or accepts as the cost of doing business (a few
+spurious admissions out of millions is below the noise floor of
+operational concern).
+
+A second class of applications inverts the trade-off. Top-$k$
+retrieval over a corpus must never surface an off-topic document as
+if it belonged in the top set, but can tolerate occasionally missing
+a document that should have been included. A precision-oriented
+search index must never claim a non-matching record as a match, but
+the system as a whole can recover from an undercount by relaxing the
+query and re-running. A deduplication layer must never declare two
+distinct items the same, but a few duplicates surviving is recoverable
+by a periodic second pass. In each setting, a false positive corrupts
+the output in a way the application cannot absorb, and a false
+negative is a tolerable miss that the surrounding system handles. The
+desired guarantee flips: $\fprate = 0$ exactly, with $\fnrate > 0$
+the controllable cost.
+
+\Cref{prop:fpr-zero-closure} of chapter~6 already established that
+the FPR-zero arm of the perfect-filter line is closed under union
+and intersection, mirroring the closure on the FNR-zero arm. The
+algebraic shape is symmetric. What chapter~6 deferred and the present
+chapter supplies is the constructive question: which data structure
+achieves $\fprate = 0$ at a controllable $\fnrate$, and what is the
+space cost compared to the FNR-zero alternative?
+
+\subsection*{Construction sketch}
+
+The construction reuses the perfect hash $\phi : A \to [n]$ from
+chapter~14. The first ingredient is identical: a bijection between
+the designated set and its addressing range, constructed at build
+time, behaving as a black-box function on the rest of the universe.
+The substitution happens in the second ingredient. Instead of a
+fingerprint table storing $g(a)$ for each $a$, the BPHF stores a
+\emph{rank value} $\rho(a)$ at the slot $\phi(a)$. The rank is an
+integer in $[0, n)$ that encodes $a$'s position in some
+build-time-determined ordering of $A$, derived from a secondary hash
+or from external metadata such as a document-relevance score. The
+table that holds the ranks is $R : [n] \to \{0, 1\}^r$ with
+$r = \lceil \log_2 n \rceil$ bits per slot, enough to distinguish
+the $n$ possible ranks.
+
+The query exploits the rank's structure to refuse false positives.
+For a query $x$, the BPHF computes $\phi(x) \in [n]$, reads
+$R[\phi(x)]$, and applies a consistency check: does the rank value at
+slot $\phi(x)$ agree with what $x$'s rank would be if $x \in A$? The
+check is a one-bit verdict. If $x \in A$, the check passes with high
+probability and the BPHF returns $\top$. If $x \notin A$, the check
+fails with certainty, and the BPHF returns $\bot$. The asymmetry in
+the two outcomes is the construction's central feature: the check is
+designed so that non-members cannot satisfy it, and members satisfy
+it almost always. The few members that fail the check are the
+controllable $\fnrate$; the absence of any non-member that passes
+the check is the $\fprate = 0$ guarantee.
+
+\subsection*{Chapter roadmap}
+
+\Cref{sec:bphf-construction} gives the construction in full, with
+the consistency-check pseudocode and the structural argument for
+$\fprate = 0$. \Cref{sec:space-time-analysis} computes the per-element
+bit budget ($\lceil \log_2 n \rceil$ rather than the BHF's
+$\lceil -\log_2 \fprate \rceil$) and the query and construction
+times. \Cref{sec:ranked-search} develops the BPHF's archetypal
+application, top-$k$ retrieval over a ranked corpus, where the
+$\fprate = 0$ guarantee is exactly the precision invariant the
+application needs. \Cref{sec:bridge-to-part5} closes Part~IV by
+pairing the two constructions of chapters~14 and~15 and pointing
+forward to Part~V's catalogue of structures that depart from the
+Bernoulli assumptions the present chapter still respects.
