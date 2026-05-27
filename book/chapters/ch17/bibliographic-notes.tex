@@ -1,1 +1,104 @@
-% Placeholder. Drafted in Plan 17 Task 9.
+% §17.8 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bib-notes-ch17}                -- this section
+%
+% INTERNAL refs (chapter 17):
+%   \Cref{sec:what-is-cipher-map}             -- §17.1
+%   \Cref{sec:fhe-sidebar}                    -- §17.4
+%   \Cref{sec:boolean-trapdoor}               -- §17.5
+%   \Cref{sec:maximizing-confidentiality}     -- §17.6
+%
+% Citations introduced here:
+%   \cite{towell-cipher-maps}                 -- new bib entry
+%   \cite{towell-boolean-trapdoor}            -- new bib entry
+%   \cite{towell-maximizing-confidentiality}  -- new bib entry
+%   \cite{gentry-2009}                        -- new bib entry
+%   \cite{naor-yung-1989}                     -- new bib entry
+%   \cite{goldreich-1996}                     -- already in bib from ch16
+%
+% Four paragraphs: cipher-maps manuscript; trapdoor-computing
+% series (Boolean algebra over trapdoor sets, maximizing
+% confidentiality, plus the algebraic cipher types thread);
+% FHE literature (Gentry 2009); oblivious-computing tradition
+% (Goldreich 1996, Naor-Yung 1989).
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch17}
+
+\paragraph{The cipher-maps manuscript.}
+The cipher-map abstraction of \Cref{sec:what-is-cipher-map} is
+developed at length in a companion manuscript,
+\textcite{towell-cipher-maps}, ``Cipher maps: a unified framework
+for oblivious function evaluation,'' which the present chapter
+summarizes. The manuscript treats the abstraction in its own right
+rather than as a special case of the Bernoulli framework, gives a
+classification of cipher-map families by their channel-matrix
+structure, and develops the cryptographic-side analysis (key
+schedules, side-channel considerations, computational hardness
+assumptions) that the present chapter has not entered. The
+chapter's contribution beyond the manuscript is the identification
+of cipher-map error rates with Bernoulli atoms and the lifting of
+chapter~4's Kronecker composition to cipher-map composition; the
+manuscript treats composition algebraically without anchoring it to
+the Bernoulli square.
+
+\paragraph{The trapdoor-computing series.}
+The trapdoor-computing paradigm is the subject of an ongoing series
+of which three drafts are directly relevant. The Boolean-algebra
+section (\Cref{sec:boolean-trapdoor}) draws on
+\textcite{towell-boolean-trapdoor}, ``Boolean algebra over trapdoor
+sets,'' which gives the full algebraic treatment of union,
+intersection, complement, and conditional operations over trapdoor
+representations, including the cancellation phenomena the
+present chapter alluded to. The maximizing-confidentiality section
+(\Cref{sec:maximizing-confidentiality}) draws on
+\textcite{towell-maximizing-confidentiality}, ``Maximizing
+confidentiality in encrypted search,'' which develops the
+PPV-as-confidentiality connection in the encrypted-search setting
+and extends the analysis to information-theoretic measures
+(observed-versus-maximum entropy ratios, compression-based entropy
+estimation) the present chapter has not discussed. A third strand,
+on algebraic cipher types, generalizes the chapter's set-and-map
+treatment to algebraic data types and remains in active drafting.
+
+\paragraph{Fully homomorphic encryption.}
+The FHE sidebar of \Cref{sec:fhe-sidebar} stands on
+\textcite{gentry-2009}, ``Fully Homomorphic Encryption Using Ideal
+Lattices,'' which gave the first plausibly-secure fully
+homomorphic scheme by combining a somewhat-homomorphic scheme with
+a bootstrapping construction that refreshes ciphertexts faster
+than the noise from homomorphic operations accumulates. The
+scheme is conceptually clean and operationally heavy; modern
+schemes (BFV, BGV, CKKS) reduce the per-operation cost by orders
+of magnitude but inherit Gentry's bootstrapping idea and remain
+several orders of magnitude slower than the cipher-map approach
+that the present chapter develops. The cryptographic standard
+references on FHE are surveys rather than primary sources, and
+the reader interested in modern schemes should follow the
+literature trail from Gentry's paper rather than from the
+chapter's prose.
+
+\paragraph{The oblivious-computing tradition.}
+The trapdoor-paradigm framing of \Cref{sec:fhe-sidebar} sits in a
+literature that goes back to early work on secure computation.
+\textcite{goldreich-1996}, ``Foundations of Cryptography:
+Fragments of a Book'' (already cited in chapter~16 for the
+oblivious-Turing-machine model), gives the foundational treatment
+of computation under cryptographic constraints, including the
+relation between oblivious computation and the secure-multiparty
+setting that cipher maps generalize. \textcite{naor-yung-1989},
+``Universal One-Way Hash Functions and their Cryptographic
+Applications,'' is the older entry point to the trapdoor-function
+line of work that the cipher-map abstraction inherits its name
+from. The chapter has used ``trapdoor'' in the colloquial sense
+rather than the strict cryptographic sense, but the connection to
+the formal trapdoor-function literature is real and the
+encrypted-search applications of chapter~18 will activate it more
+explicitly. The bibliographic-notes treatment is necessarily
+brief; the secure-multiparty-computation literature is enormous,
+and the reader seeking the full context should consult one of
+the standard textbook references in cryptography.
