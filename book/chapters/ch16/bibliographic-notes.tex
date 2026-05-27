@@ -1,1 +1,98 @@
-% Placeholder. Drafted in Plan 16 Task 8.
+% §16.7 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bib-notes-ch16}                  -- this section
+%
+% RESOLVED (within chapter 16):
+%   \Cref{sec:varying-rates}                    -- §16.2
+%   \Cref{sec:correlated-noise}                 -- §16.3
+%   \Cref{sec:adversarial-inputs}               -- §16.4
+%   \Cref{prop:azuma-hoeffding}                 -- §16.2
+%   \Cref{prop:mcdiarmid}                       -- §16.3
+%
+% Citations introduced here:
+%   \cite{azuma-1967}                           -- new bib entry
+%   \cite{hoeffding-1963}                       -- new bib entry
+%   \cite{mcdiarmid-1989}                       -- new bib entry
+%   \cite{devroye-lugosi-2001}                  -- new bib entry
+%   \cite{goodfellow-2015}                      -- new bib entry
+%   \cite{carlini-wagner-2017}                  -- new bib entry
+%   \cite{goldreich-1996}                       -- new bib entry
+%
+% Four paragraphs: martingale concentration (Azuma, Hoeffding,
+% McDiarmid); non-iid concentration in learning theory (Devroye-
+% Lugosi); adversarial ML (Goodfellow, Carlini-Wagner); oblivious
+% computing literature as the bridge to chapter 17. Section style
+% matches the precedent of chapters 14 and 15.
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch16}
+
+\paragraph{Martingale concentration.}
+The Azuma-Hoeffding inequality of \Cref{prop:azuma-hoeffding} has
+two parent papers. \textcite{azuma-1967}, ``Weighted Sums of
+Certain Dependent Random Variables,'' established the
+bounded-difference martingale bound in its modern form;
+\textcite{hoeffding-1963}, ``Probability Inequalities for Sums of
+Bounded Random Variables,'' gave the independent-case predecessor
+that the martingale version generalizes. The joint name reflects
+the shared exponential-moment generating-function proof technique
+and the historical fact that the modern statement combines the
+two contributions into a single inequality. The extension of the
+bounded-difference idea to non-martingale functions of dependent
+random variables is due to \textcite{mcdiarmid-1989}, ``On the
+Method of Bounded Differences,'' which is the right reference for
+\Cref{prop:mcdiarmid}. McDiarmid's survey also gives the clearest
+expository treatment of the technique, including the diameter-
+of-influence-set bound the chapter's prose alludes to.
+
+\paragraph{Non-iid concentration in learning theory.}
+The natural textbook reference for non-iid concentration as used
+in statistical learning theory is \textcite{devroye-lugosi-2001},
+\emph{Combinatorial Methods in Density Estimation}, which
+catalogues the martingale, bounded-difference, and chaining
+techniques the learning-theory literature has applied to empirical
+processes. The book is written for an audience comfortable with
+measure theory and empirical-process theory; the worked examples
+(kernel density estimators, histogram classifiers, nearest-
+neighbor rules) provide templates the practitioner can transcribe
+into the Bernoulli setting with minor modifications.
+
+\paragraph{Adversarial machine learning.}
+The adversarial-inputs catalogue of \Cref{sec:adversarial-inputs}
+draws on the adversarial-ML literature that has grown around
+neural-network classifiers since the mid-2010s. The two entry-
+point papers are \textcite{goodfellow-2015}, ``Explaining and
+Harnessing Adversarial Examples,'' which gave the fast-gradient-
+sign method and named the phenomenon of small input perturbations
+that flip a classifier's verdict, and
+\textcite{carlini-wagner-2017}, ``Towards Evaluating the
+Robustness of Neural Networks,'' which introduced the
+optimization-based attack methodology that became the standard
+benchmark for defenses. Between them the two papers set the
+modern adversarial-ML agenda: the former diagnosed the problem,
+the latter raised the bar by showing that ad-hoc defenses fail
+under a stronger attacker. The Bernoulli framework inherits the
+same exposure: an attacker with knowledge of the hash family can
+find a colliding input in expected $O(1 / \fprate)$ queries, and
+the only honest defenses are cryptographic hash families or
+oblivious primitives.
+
+\paragraph{Oblivious computing as the bridge to chapter 17.}
+The cryptographic primitives the chapter has pointed to as
+replacements for iid analysis in the adversarial regime are
+catalogued in the oblivious-computing and secure-computation
+literatures, the foundational treatment of which is
+\textcite{goldreich-1996}, ``Foundations of Cryptography:
+Fragments of a Book.'' The 1996 fragments draft (and the 2001
+and 2004 published volumes that grew from it) is the entry point
+for secure-multiparty computation, oblivious RAM, and the
+private-information-retrieval primitives chapter~17 will unpack
+into the cipher-map framework. Readers who want to anticipate
+the structure of chapters~17 and~18 should treat Goldreich's
+foundations as the prerequisite reading; the Bernoulli-framework
+specialization the book develops sits on top of the cryptographic
+infrastructure those volumes formalize.
