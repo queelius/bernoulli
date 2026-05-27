@@ -1,1 +1,238 @@
-% Placeholder. Drafted in Plan 16 Task 3.
+% §16.2 Varying Rates Over Time
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:varying-rates}                 -- this section
+%   \label{prop:azuma-hoeffding}              -- the Azuma-Hoeffding bound
+%
+% ALREADY DEFINED (chapter 4):
+%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
+%   \Cref{ax:block-rates-indep}               -- chapter 4 §4.3 Axiom 2
+%   \Cref{sec:axiom-1}                        -- chapter 4 §4.2
+%   \Cref{sec:axiom-2}                        -- chapter 4 §4.3
+%
+% ALREADY DEFINED (chapter 11):
+%   \Cref{thm:chernoff}                       -- chapter 11 §11.4
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2
+%
+% §16.2 covers the first failure mode: $\fprate(t)$ that varies with
+% query index, breaking Axiom 2's stability claim. Recap Axiom 2;
+% trace the consequences (chapter 3 composition theorem breaks;
+% chapter 7 PPV breaks; chapter 11 Chernoff for iid sums breaks);
+% state Azuma-Hoeffding as the right tool; work the Bloom-past-capacity
+% example; close with the diagnostic for spotting varying rates.
+
+\section{Varying Rates Over Time}
+\label{sec:varying-rates}
+
+The first failure mode is the simplest to describe and the one
+most commonly encountered in practice. The error rate is not a
+fixed property of the channel; it changes with the query index.
+Where chapters 1 through 15 wrote $\fprate$ as a scalar number,
+the present section writes $\fprate(t)$, a function of time, and
+asks what happens to the iid analysis when the scalar reading is
+no longer available.
+
+\subsection*{The phenomenon}
+
+Concrete examples set the scene. Each will recur in the chapter as
+a diagnostic case.
+
+\textbf{Classifier drift.} A machine-learning classifier was trained
+on data drawn from one distribution and is deployed on data drawn
+from another. As the deployment distribution drifts further from
+the training distribution, the classifier's per-query false-positive
+rate climbs. Early queries see $\fprate(t) \approx 0.02$; queries
+six months later see $\fprate(t) \approx 0.15$. The change is
+monotone in expectation but the individual per-query rates are
+themselves random, conditional on whatever drift trajectory the
+data actually follows.
+
+\textbf{Bloom filter past capacity.} A Bloom filter was sized for
+$n = 1000$ items with $m = 9585$ bits and $k = 7$ hash functions to
+achieve $\fprate \approx 0.01$. The application then inserts $5000$
+items into it. The fill ratio rises from $30\%$ to nearly $100\%$;
+the false-positive rate climbs from $0.01$ early to about $0.5$
+late. The formula from \Cref{sec:bloom-from-scratch} predicts
+$\fprate(t) \approx (1 - e^{-k t / m})^k$, where $t$ is the number
+of inserted items at the moment of the query; this is precisely a
+time-varying rate that depends on insertion history.
+
+\textbf{Hardware noise drift.} A sensor's error rate depends on its
+operating temperature. Over the course of a day, the temperature
+varies, and so does the error rate. The variation may be
+deterministic if the temperature is logged, or stochastic if the
+temperature is itself uncertain.
+
+What unites the three examples is structural: the rate associated
+with the channel is itself a non-constant function of the query
+index. Treating it as a constant produces analyses whose error
+bounds underestimate the actual error frequency, sometimes by
+large factors.
+
+\subsection*{Which axiom is violated}
+
+\Cref{sec:axiom-2} stated Axiom 2 in two equivalent forms: a
+conditional-independence claim on the per-block rates, and a
+stability claim on the channel matrix $Q$. The stability form is
+the one that breaks here. \Cref{ax:block-rates-indep} together
+with \Cref{ax:element-indep} implied (via the proposition on stable
+channel matrices) that the channel matrix row for any block $B_i$
+is the same for every query involving an element of $B_i$,
+regardless of query index. Translated to the Boolean-channel case
+that runs throughout the book: a single $\fprate$ and a single
+$\fnrate$ govern every query.
+
+Time-varying rates contradict this directly. The per-query rate at
+step $t$ is $\fprate(t)$, not $\fprate$, and the joint distribution
+over a sequence of queries no longer factors through a single $Q$.
+\Cref{ax:block-rates-indep} fails not because two different blocks
+are correlated (the conditional-independence form) but because the
+``block rates are stable across queries'' consequence fails. The
+practical signature is that the same query, repeated at different
+times, gets different rate parameters.
+
+A clarification matters here. Time-varying rates are compatible
+with \Cref{ax:element-indep} (Axiom 1) in many cases. If the
+classifier's drift is governed by an exogenous time variable and
+errors at distinct queries are still conditionally independent
+given the drift state, Axiom 1 still holds; only Axiom 2 fails.
+The two axioms are logically independent, and one can break
+without the other.
+
+\subsection*{Consequences for the iid tools}
+
+Three workhorses from earlier chapters break when Axiom 2 fails.
+
+\emph{The composition theorem of chapter 3 \S3.3.} The chained
+error rate $\eta_{\text{total}} = 1 - \prod_{i = 1}^k (1 - \eta_i)$
+assumed that each $\eta_i$ was a fixed per-stage rate. When the
+$\eta_i$ are themselves time-indexed and possibly random, the
+product expression is no longer the chained error rate; it is an
+average over a particular trajectory, and the actual error rate
+along the worst trajectory may exceed the product bound
+substantially.
+
+\emph{The PPV/NPV machinery of chapter 7 \S7.4.} The PPV formula
+$\PPV = \pi \tprate / (\pi \tprate + (1 - \pi) \fprate)$ assumed
+that $\fprate$, $\tprate$, and $\pi$ were all fixed. When any of
+these is time-varying, the formula still holds at any single query
+(this is the \Cref{sec:where-framework-helps} salvage), but the
+time-average PPV need not equal the PPV evaluated at the
+time-average rates. The averaging order matters.
+
+\emph{The Chernoff bound of chapter 11 \S11.4 (\Cref{thm:chernoff})}
+applied to iid Bernoulli sums. The hypothesis of iid is exactly what
+fails for $X_t \sim \mathrm{Bern}(\fprate(t))$ with varying
+$\fprate(t)$; the $X_t$ are independent but not identically
+distributed, and the multiplicative form of the Chernoff bound,
+which relied on a single $p$ value, no longer applies directly.
+What does still apply is the martingale generalization.
+
+\subsection*{The right tool: martingale concentration}
+
+The Azuma-Hoeffding inequality replaces the Chernoff bound in the
+non-iid setting. Where Chernoff bounded sums of iid Bernoulli
+random variables, Azuma-Hoeffding bounds martingale differences
+that are themselves bounded in size but otherwise unrestricted in
+distribution.
+
+\begin{proposition}[Azuma-Hoeffding]
+\label{prop:azuma-hoeffding}
+Let $\{Y_t\}_{t = 0, 1, \ldots, n}$ be a martingale on a probability
+space, with $Y_0 = \mathbb{E}[Y_n]$ and bounded differences
+$|Y_t - Y_{t - 1}| \le c_t$ for each $t \ge 1$. Then for any $a > 0$,
+\[
+  \Pr[|Y_n - Y_0| \ge a]
+  \;\le\;
+  2 \exp\!\left( -\frac{a^2}{2 \sum_{t = 1}^n c_t^2} \right).
+\]
+\end{proposition}
+
+The inequality is due to Hoeffding (1963), with the martingale
+form developed by Azuma (1967). No proof is given here; the
+standard MGF-plus-Markov argument from chapter 11 \S11.4 carries
+over to martingale differences once the per-step MGFs are bounded
+by the maximum of the per-step difference bounds. The key
+observation is that the proof does not need identical distributions;
+only the per-step ``how much can $Y_t$ jump?'' bound matters.
+
+Applied to time-varying false-positive rates, the recipe is direct.
+Let $X_t \in \{0, 1\}$ indicate a false positive at query $t$, with
+$\Pr[X_t = 1 \,|\, \mathcal{F}_{t - 1}] = \fprate(t)$ for some
+filtration $\mathcal{F}_{t - 1}$ representing the query history.
+Define $Y_t = \sum_{s = 1}^t (X_s - \fprate(s))$; this is a
+martingale with bounded differences $|Y_t - Y_{t - 1}| =
+|X_t - \fprate(t)| \le 1$. Azuma-Hoeffding with $c_t = 1$ gives
+\[
+  \Pr\!\left[\,\left|\,\sum_{t = 1}^n X_t - \sum_{t = 1}^n \fprate(t)\,\right| \ge a\,\right]
+  \;\le\;
+  2 \exp\!\left( -\frac{a^2}{2 n} \right).
+\]
+This is the non-iid generalization of the Chernoff bound: the total
+false-positive count concentrates around its expectation
+$\sum_t \fprate(t)$ with Gaussian-shaped tails of width $O(\sqrt{n})$,
+even when the per-step rate $\fprate(t)$ is not constant.
+
+\subsection*{Worked example: Bloom filter past capacity}
+
+Take the Bloom filter from the second example above: sized for
+$n = 1000$ items, used to hold $n = 5000$ items, with the
+per-query false-positive rate growing from about $0.01$ early to
+$0.5$ late as items are inserted. Suppose we query the filter
+$n = 1000$ times after the over-filling, with each query drawn
+from the non-member universe.
+
+Treating the rate as a fixed $\bar{\fprate} \approx 0.25$ (the
+midpoint of the trajectory) and applying the iid Chernoff bound to
+the expected total false-positive count $250$ would give a
+deviation bound of the form
+$\Pr[X \ge 1.1 \cdot 250] \le \exp(-250 \cdot 0.01 / 3)$, that is,
+$\Pr[X \ge 275] \le e^{-0.83} \approx 0.44$. The bound is uselessly
+loose because the constant-rate assumption is wrong.
+
+The Azuma-Hoeffding bound, in contrast, does not assume a constant
+rate; it bounds the deviation of $\sum_t X_t$ from
+$\sum_t \fprate(t)$, where the second sum is computed honestly
+along the trajectory. For our Bloom filter with $n = 1000$ post-fill
+queries and $c_t = 1$, the deviation bound is
+$\Pr[|\sum X_t - \sum \fprate(t)| \ge a] \le 2 \exp(-a^2 / 2000)$.
+Setting $a = 100$ gives a bound of $2 e^{-5} \approx 0.013$: the
+total false-positive count lies within $\pm 100$ of the trajectory
+expectation $\sum_t \fprate(t)$ with probability at least $0.987$.
+The trajectory expectation, computed from the Bloom formula at each
+insertion count, is around $\sum_t \fprate(t) \approx 230$.
+
+The contrast is that the iid analysis with a misspecified mean gave
+a vacuous bound, while the martingale analysis with the correct
+non-stationary trajectory gives a tight bound. The first analysis
+fails not because the bound is weak but because the modeling
+assumption (constant rate) does not match the actual channel
+behavior. The second analysis succeeds by acknowledging the
+non-stationarity and using the right tool.
+
+\subsection*{Pedagogical diagnostic}
+
+How does a practitioner know whether to use the iid Chernoff bound
+or the martingale Azuma-Hoeffding bound? The diagnostic is direct:
+sort the data by time and ask whether the empirical false-positive
+rate $\hat{\fprate}$ is stable across time-ordered partitions.
+
+Concretely: partition the query log into early, middle, and late
+buckets. Compute $\hat{\fprate}$ on each bucket. If the three
+estimates lie within their sampling intervals of each other, the
+iid assumption is consistent with the data, and the Chernoff bound
+applies. If the estimates differ by more than their sampling
+intervals, time-stationarity is broken; drop the iid assumption
+and use Azuma-Hoeffding along the realized trajectory.
+
+The diagnostic is a routine check, not a deep statistical test. It
+catches the failure mode that this section is about (rate drift in
+time) but says nothing about the correlated-noise failure mode of
+\Cref{sec:correlated-noise} or the adversarial-input failure mode of
+\Cref{sec:adversarial-inputs}. A full audit requires checking each
+axiom separately; the time-sorted partition test is the cheapest
+check for the Axiom 2 failure specifically.
