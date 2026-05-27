@@ -1,1 +1,273 @@
-% Placeholder. Drafted in Plan 17 Task 4.
+% §17.3 The Trapdoor Computing Paradigm
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:trapdoor-paradigm}             -- this section
+%
+% ALREADY DEFINED (chapter 4):
+%   \Cref{sec:kronecker}                      -- chapter 4 §4.4
+%   \Cref{thm:kronecker}                      -- chapter 4 §4.4 Kronecker theorem
+%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
+%
+% ALREADY DEFINED (chapter 6):
+%   \Cref{def:perfect-filter-line}            -- chapter 6 §6.4 definition
+%   \Cref{sec:perfect-filter-line}            -- chapter 6 §6.4
+%
+% ALREADY DEFINED (chapter 16):
+%   \Cref{sec:adversarial-inputs}             -- chapter 16 §16.4
+%
+% INTERNAL refs (chapter 17):
+%   \Cref{def:cipher-map}                     -- §17.1
+%   \Cref{sec:bernoulli-error-model}          -- §17.2
+%   \Cref{thm:cipher-composition}             -- §17.2
+%   \Cref{sec:fhe-sidebar}                    -- §17.4 (Task 5)
+%   \Cref{sec:maximizing-confidentiality}     -- §17.6 (Task 7)
+%
+% §17.3 introduces the trapdoor computing paradigm: the operational
+% setup in which cipher maps live. Five items: (1) the paradigm:
+% data encrypted, computation on encrypted form, only key-holder
+% decrypts; (2) two-party server/client setup; (3) confidentiality
+% versus correctness trade-off, with perfect-filter-line geometry;
+% (4) multiple-query setting with Kronecker leakage; (5) adaptive
+% adversary, citing chapter 16 §16.4, with worked example of an
+% adversary extracting O(log n) plaintext bits per query.
+
+\section{The Trapdoor Computing Paradigm}
+\label{sec:trapdoor-paradigm}
+
+The cipher map of \Cref{def:cipher-map} is the mathematical object;
+the trapdoor computing paradigm is the operational setting in which
+that object earns its keep. The setting has three commitments. The
+data is encrypted before it leaves the user's possession. The
+computation runs entirely on the encrypted form. And the result of
+the computation can be read only by a holder of a short secret key,
+the trapdoor. The cipher map carries out the computation; the
+trapdoor unlocks the answer. Everything else, including the
+plaintext records, the queries that select among them, and the
+intermediate results that the computation flows through, stays
+hidden from any party that lacks the key.
+
+\subsection*{The paradigm}
+
+The paradigm has a long lineage that predates the modern
+encryption-on-the-cloud framing. Goldreich's work on software
+protection in the late 1980s and 1990s asked how a program could
+run on an untrusted machine without revealing what it was computing.
+The same question, in different language, appears in oblivious
+RAM, secure multiparty computation, and private information
+retrieval. What unites these threads is the conviction that
+\emph{compute} and \emph{know} can be separated: a machine can do
+useful work on data whose meaning it cannot see.
+
+Trapdoor computing names this separation explicitly. The system has
+two distinguished resources: an encrypted dataset and a trapdoor
+key. Both are needed to read anything meaningful. The dataset
+without the key is opaque (a collection of ciphertexts that look
+uniform). The key without the dataset is useless (a string of bits
+with nothing to apply it to). Computation in the paradigm is the
+operation of cipher maps on the encrypted dataset, producing
+encrypted outputs that the key holder can decrypt and the rest of
+the world cannot. The cipher map is the verb; the trapdoor is the
+noun; the dataset is the object.
+
+The Bernoulli framework enters at the point where the cipher map's
+output is decrypted. Because the cipher map is approximate, with
+some controlled rate of false positives and false negatives, the
+decrypted output is not always the truth about the plaintext. The
+key holder reads a Bernoulli observation rather than a deterministic
+fact, and the chapter 4 axioms govern how that observation behaves
+across queries. The cryptographic side of the paradigm sets up the
+problem (compute without revealing); the Bernoulli side of the
+paradigm tracks the consequences (read with controlled error).
+
+\subsection*{Two-party setup}
+
+The cleanest instance of the paradigm has two parties: a server
+that holds the encrypted dataset and runs the cipher maps, and a
+client that holds the trapdoor key and issues queries. The server
+sees ciphertexts going in and ciphertexts coming out; nothing else.
+The client encrypts a query, sends it to the server, receives an
+encrypted answer, and decrypts to read the result. The encryption
+keeps the query private; the cipher map's bounded error keeps the
+plaintext dataset partially hidden even from a client who probes the
+server many times.
+
+Two roles, two trust models. The client trusts itself with the
+trapdoor and trusts its own decryption to be correct; the server is
+trusted only to run the cipher map honestly, not to know what it
+is computing. A faithful but inquisitive server (the
+\emph{honest-but-curious} model in the cryptographic literature)
+follows the protocol and computes what it is asked to compute, but
+records the encrypted queries and outputs for later analysis. The
+Bernoulli framework's job is to bound what such analysis can recover.
+A malicious server that deviates from the protocol is a different
+problem, one that calls for cryptographic integrity checks beyond
+the scope of this chapter.
+
+The client's recovery quality is governed by the cipher map's
+$(\fprate, \fnrate)$ profile. A cipher map with $\fnrate = 0$ never
+loses real positives, so the client receives the full set of
+plaintext matches up to the false positives the cipher map admits.
+A cipher map with $\fprate = 0$ misses some real positives but
+returns no false ones; the client trusts every positive answer but
+must accept that some real matches went unreported. The two
+parties' interests align around minimizing both rates, but the
+cipher map's design must trade rate against space and runtime in
+the manner that the framework has been quantifying since chapter 5.
+
+\subsection*{Confidentiality versus correctness}
+
+The trade-off that distinguishes the paradigm from cleartext
+computation is the trade-off between confidentiality and correctness.
+A cipher map with very tight error rates is highly correct: the
+client sees the truth with high probability on every query, and the
+recovery quality is excellent. But that same high correctness is a
+side channel for the server. Each query whose answer is nearly
+deterministic ties the encrypted query to the encrypted dataset
+record it matches; a server that watches many such queries can
+build a picture of the underlying plaintext distribution. Tight
+correctness is bought at the cost of loose confidentiality.
+
+Conversely, a cipher map with loose error rates is less correct on
+each query but more confidential in aggregate. The client receives
+noisier answers and may need more queries to be confident of a
+result; the server, however, sees individual queries whose
+encrypted-output distribution is closer to uniform across the
+dataset, and frequency analysis becomes harder. The framework's
+$(\fprate, \fnrate)$ is therefore a confidentiality knob as well as
+a correctness knob, and the same point on the rate plane that
+characterizes the cipher map's correctness also characterizes its
+confidentiality.
+
+The perfect-filter line of \Cref{def:perfect-filter-line} reads
+naturally in this light. A trapdoor cipher map with $\fnrate = 0$
+sits on the perfect-filter line and trades all its slack into
+$\fprate$. The client gets every real positive (no false negatives
+at all), and the cost in confidentiality is concentrated in the
+single parameter $\fprate$. A trapdoor cipher map with $\fprate = 0$
+sits on the opposite line and trades the slack into $\fnrate$:
+every positive answer is correct, but the client must tolerate
+missing real positives in exchange for the obfuscation. The two
+extremes are useful for different applications: the first for
+recall-sensitive retrieval (where missing a real positive is bad);
+the second for precision-sensitive contexts (where a false positive
+would be costly). \Cref{sec:maximizing-confidentiality} returns to
+this trade-off with a quantitative measure of confidentiality.
+
+\subsection*{Multiple queries: leakage accumulates}
+
+A single query reveals little. A million queries can reveal a great
+deal. The trapdoor paradigm operates over query streams, not
+isolated questions, and the confidentiality analysis must therefore
+track how leakage accumulates as queries pile up.
+
+Suppose a client issues $m$ independent queries against a trapdoor
+cipher map with per-query rates $(\fprate, \fnrate)$. Under
+\Cref{ax:element-indep} (Axiom 1) the queries' error events are
+mutually independent, and the joint distribution of the $m$
+encrypted observations factors as a product. Chapter 4
+\Cref{thm:kronecker} expressed this factorization as a Kronecker
+product of $m$ copies of the per-query channel matrix; the same
+algebra describes the trapdoor setting. The server's view of the
+encrypted stream is the joint distribution induced by this Kronecker
+product, and any confidentiality bound on a single query lifts
+through tensor algebra to a confidentiality bound on the stream.
+
+The unconditional independence cuts two ways. It is good for the
+client because the client's recovery quality grows in a predictable
+way (the framework's confidence intervals on aggregate observations
+sharpen as $m^{1/2}$, by standard concentration arguments). It is
+bad for the client's confidentiality because the server's
+information about the plaintext also grows in a predictable way:
+each independent query contributes an independent increment of
+information, and the total information after $m$ queries scales
+linearly in $m$ for any cipher map with positive single-query
+leakage. Mathematically the two scalings are the same scaling, read
+from opposite sides: the data-processing inequality in one direction
+is the client's correctness; the same inequality in the other
+direction is the server's posterior. The Kronecker structure makes
+this duality exact.
+
+The practical consequence is that a trapdoor system designed for a
+finite query budget can be analyzed by treating the budget as a
+fixed $m$ and applying the framework's per-query bounds to the
+$m$-fold Kronecker product. A system designed for an unbounded
+budget needs a different approach: either rotate the trapdoor key
+periodically (resetting the accumulated leakage), or accept that the
+asymptotic confidentiality goes to zero and design for the
+short-horizon regime.
+
+\subsection*{Adaptive adversaries}
+
+The independence assumption that the Kronecker analysis depends on
+fails when the query stream is adaptive: the adversary chooses each
+new query based on the encrypted outputs seen so far. Chapter 16
+\Cref{sec:adversarial-inputs} cataloged the ways the framework's
+axioms can break in this setting, and the trapdoor paradigm
+inherits those failure modes wholesale. An adaptive adversary
+issuing queries to the server is exactly the adversarial-input
+setting of chapter 16, with the additional structure that the
+encrypted outputs (rather than plaintext outputs) drive the
+adversary's strategy.
+
+The framework's tools still apply, but the bounds shift from
+average-case (iid Kronecker products) to worst-case (adversarial
+strategies). A trapdoor cipher map that achieves $\fprate = 0.01$
+on average over iid queries may achieve $\fprate$ arbitrarily close
+to $1$ on a query crafted by an adversary who has watched the
+preceding outputs. The framework's response, as in chapter 16, is
+to switch to worst-case accounting: bound the maximum number of
+plaintext bits any adversary can extract per query, and design the
+budget around that worst case rather than the average case.
+
+\subsubsection*{Worked example: extracting $O(\log n)$ plaintext bits per query}
+
+A concrete leaky cipher map illustrates the gap between iid and
+adaptive analysis. Consider a trapdoor cipher map for set membership
+on a plaintext set $A \subset \{0, 1\}^n$ of $|A|$ records. The
+cipher map has $\fprate = 2^{-k}$ for some integer $k$ chosen by
+the designer, and $\fnrate = 0$. The cipher map is realized by a
+Bloom-filter-style construction with $k$ keyed hash functions; the
+trapdoor is the seed for the hash family.
+
+Under iid queries the cipher map's behavior is benign. Each random
+query has independent probability $2^{-k}$ of returning a false
+positive; the server's posterior over the plaintext set $A$ shifts
+by a small additive increment per query, in the manner of
+\Cref{sec:bernoulli-error-model}. After $m$ random queries the
+server has gained $O(m)$ bits of information about $A$, but
+distributed uniformly enough that no single record is identified
+with high confidence.
+
+Under an adaptive adversary the picture changes. The adversary
+exploits the cipher map's structure rather than its average rate.
+The construction's $\fprate = 2^{-k}$ comes from $k$ hash bits all
+matching at random; the adversary crafts queries that probe the
+bits individually. Each crafted query targets a specific bit of the
+hash family's output and extracts roughly one bit of information
+about the trapdoor seed. After $k$ such queries the adversary has
+recovered the seed and can decrypt the entire dataset; after $\log
+|A|$ queries the adversary has localized the membership status of
+a specific record. Either way, the adversary extracts $O(\log n)$
+bits of plaintext per query, where $n = |A|$ is the dataset size,
+a rate enormously larger than the iid rate of $O(\fprate)$ bits per
+query.
+
+The gap between $O(\log n)$ and $O(\fprate)$ bits per query is the
+gap between worst-case and average-case analysis. The trapdoor
+cipher map that looked safe under iid queries is broken in $O(\log
+n)$ queries by an adaptive adversary. The fix, as chapter 16
+prescribed, is to design the cipher map so that the worst-case bit
+extraction rate is bounded by a constant rather than by $\log n$.
+Cryptographic hash families (pseudorandom functions) accomplish
+this: the worst-case query against a PRF leaks only one bit per
+query of best-effort guessing, matching the average case to a
+constant factor. The next section's FHE sidebar discusses an even
+stronger guarantee, where the worst-case leakage is exactly zero.
+The bridge from this section to the rest of the chapter is the
+recognition that the Bernoulli framework's worst-case story
+(chapter 16) and average-case story (chapters 4 through 14) are
+both needed in the trapdoor setting: the average case for system
+sizing under benign workloads, and the worst case for security
+against adversarial workloads.
