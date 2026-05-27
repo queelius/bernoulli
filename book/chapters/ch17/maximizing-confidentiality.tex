@@ -1,1 +1,229 @@
-% Placeholder. Drafted in Plan 17 Task 7.
+% §17.6 Maximizing Confidentiality
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:maximizing-confidentiality}    -- this section
+%
+% ALREADY DEFINED (chapter 6):
+%   \Cref{def:perfect-filter-line}            -- chapter 6 §6.4
+%
+% ALREADY DEFINED (chapter 7):
+%   \Cref{def:ppv}                            -- chapter 7 §7.4 PPV definition
+%   \Cref{def:npv}                            -- chapter 7 §7.4 NPV definition
+%
+% INTERNAL refs (chapter 17):
+%   \Cref{def:cipher-map}                     -- §17.1
+%   \Cref{sec:trapdoor-paradigm}              -- §17.3
+%   \Cref{sec:fhe-sidebar}                    -- §17.4
+%   \Cref{sec:boolean-trapdoor}               -- §17.5
+%
+% §17.6 develops confidentiality as a posterior over the plaintext.
+% Four items: (1) confidentiality as the PPV-style posterior bounded
+% by 1 - PPV; (2) the chapter 7 §7.4 PPV formula applies directly,
+% with the cipher map's fprate/fnrate and workload prevalence pi as
+% inputs; (3) maximizing confidentiality at fixed rate-budget on the
+% perfect-filter line is a one-dimensional trade-off; (4) worked
+% example at pi=0.01, fprate=0.05, fnrate=0: PPV ~ 0.168 and
+% confidentiality ~ 0.832, compared to FHE (PPV = 1, confidentiality
+% = 0).
+
+\section{Maximizing Confidentiality}
+\label{sec:maximizing-confidentiality}
+
+The trapdoor-computing paradigm of \Cref{sec:trapdoor-paradigm}
+named a duality the framework has not yet been asked to quantify:
+the cipher-map error rates $\fprate$ and $\fnrate$ govern both
+correctness and confidentiality. Looser rates make the server's
+output less faithful to the plaintext function $f$, but they also
+make the server's output less informative to an adversary who
+inspects it. The previous sections treated the first half of that
+duality; this section treats the second. The question is concrete:
+given a cipher map at fixed $(\fprate, \fnrate)$ on a workload with
+known prevalence $\pi$, how much information does the server's
+output reveal about the underlying plaintext? The chapter~7 PPV
+machinery answers the question without any further apparatus.
+
+\subsection*{Confidentiality as a posterior}
+
+The setting is the one \Cref{sec:trapdoor-paradigm} sketched. A
+server holds an encrypted representation of a plaintext object
+(say, a set $A$) and answers queries that pass through a cipher
+map. An adversary observes the server's outputs over many queries
+and tries to recover the plaintext. The adversary's recovery
+problem is a posterior-inference problem: each observed output is
+a noisy report about the plaintext, and Bayes' rule combines the
+observations with whatever prior knowledge the adversary has.
+
+For a single Boolean query of the form ``is $x \in A$?'' the
+adversary's posterior is the most basic of inferential targets:
+\[
+  \Pr\bigl[\,x \in A \;\big\vert\; \tilde f(x) = \top\,\bigr].
+\]
+The adversary asks: given that the server reported $\top$, how
+sure can I be that $x$ is actually in $A$? The reported $\top$
+might be a true positive (the server faithfully reported a real
+member) or a false positive (a non-member that the cipher map
+spuriously labelled as a member). The posterior weights the two
+possibilities by their likelihoods and by the prior probability
+$\pi = \Pr[x \in A]$ that the queried element is a member of $A$
+at all.
+
+Reading the posterior is straightforward. If the value is close to
+$1$, the server's report has effectively pinned down membership:
+the adversary has learned almost everything. If the value is close
+to $\pi$, the server's report has revealed nothing beyond the
+prior: the report and the prior agree. The confidentiality of the
+cipher map is the gap between the prior and the posterior, or,
+equivalently, the share of the posterior probability mass that
+remains \emph{outside} the adversary's claim. We take the formal
+confidentiality measure to be
+\[
+  C \;=\; 1 - \PPV,
+\]
+the probability that the server's $\top$-report is a false positive
+rather than a true positive. Confidentiality is high when most
+$\top$-reports do not actually identify members of $A$, and it is
+zero in the FHE limit, where every $\top$-report is correct and
+membership is fully exposed.
+
+\subsection*{The chapter~7 PPV formula is the confidentiality
+formula}
+
+The posterior $\Pr[\,x \in A \mid \tilde f(x) = \top\,]$ is exactly
+the positive predictive value of \Cref{def:ppv}. The chapter~7
+derivation took $\fprate$ and $\fnrate$ as the conditional error
+rates of a noisy bit and $\pi$ as the workload prevalence, and
+arrived at
+\[
+  \PPV
+  \;=\;
+  \frac{\pi (1 - \fnrate)}
+       {\pi (1 - \fnrate) + (1 - \pi)\,\fprate}.
+\]
+The cipher-map setting reads the same formula in a new way. The
+numerator $\pi(1 - \fnrate)$ is the rate at which the server
+correctly reports $\top$ on a true member; the denominator adds
+the rate $(1 - \pi)\fprate$ at which the server spuriously
+reports $\top$ on a non-member. The posterior is the fraction
+that is genuine. Confidentiality is the complementary fraction,
+\[
+  C
+  \;=\;
+  1 - \PPV
+  \;=\;
+  \frac{(1 - \pi)\,\fprate}
+       {\pi (1 - \fnrate) + (1 - \pi)\,\fprate},
+\]
+the share of $\top$-reports that protect the plaintext rather
+than reveal it. The expression is symmetric in the obvious way:
+zero false positives gives $C = 0$, and a cipher map that
+returns $\top$ unconditionally (informationally trivial) gives
+$C = 1 - \pi$. Everything in between is a quantitative trade-off
+that the framework already exposed in chapter~7.
+
+The same machinery handles the negative case. For a $\bot$-report
+the relevant measure is $\NPV$, and the confidentiality of a
+$\bot$-report is $1 - \NPV$, the share of $\bot$-reports that
+mistakenly hide a real member. In typical encrypted-search
+workloads $\pi$ is small (most queries are non-members of any
+given set), so the bulk of confidentiality comes from $\top$-side
+ambiguity. The $\bot$-side analysis is the mirror.
+
+\subsection*{Trading rate-budget for confidentiality}
+
+The cipher-map designer faces a one-dimensional trade-off on the
+perfect-filter line of \Cref{def:perfect-filter-line}. A cipher
+map with $\fnrate = 0$ (faithful when reporting $\bot$, but
+allowed false positives) sits on the $\fprate$-axis of the
+Bernoulli square; the design parameter is the false-positive rate.
+Increasing $\fprate$ raises the rate at which $(1 - \pi)\fprate$
+non-members produce $\top$-reports, and the confidentiality
+expression rises monotonically. Symmetrically, decreasing
+$\fprate$ tightens the cipher map's reports and lowers
+confidentiality. The geometric reading is that walking along the
+perfect-filter line away from the origin trades correctness for
+confidentiality, and walking back trades confidentiality for
+correctness.
+
+The trade-off is not free. Chapter~5's space formula gives the
+storage cost of a Bloom filter as a decreasing function of
+$\fprate$, so the more confidentiality the designer buys, the
+less storage the structure occupies. The relation runs the
+``wrong'' way from a naive intuition: \emph{lower-storage cipher
+maps are more confidential, not less}. That is one of the
+framework's small surprises, and it follows entirely from the
+chapter~7 PPV formula without any cryptographic argument. The
+explanation is that storage and accuracy are coupled through the
+entropy bound of chapter~8, and accuracy is coupled to
+confidentiality through chapter~7's posterior. The system has one
+parameter and three coupled costs; the designer picks a point on
+the perfect-filter line and reads off all three.
+
+The design question ``what point on the line maximizes
+confidentiality?'' has a degenerate answer in the abstract: walk
+to $\fprate = 1$ and the cipher map returns $\top$
+unconditionally, $\PPV = \pi$, $C = 1 - \pi$. The map is now
+informationally trivial and operationally useless. The right
+formulation constrains the operational error: maximize $C$
+subject to $\fprate \le \fprate^{*}$ for some application-imposed
+rate cap. The optimum is the cap itself, on the perfect-filter
+line. The cipher-map designer's job is to set $\fprate^{*}$ at
+the largest value the application can tolerate, and to read off
+the corresponding $C$ from the PPV formula.
+
+\subsection*{A worked example}
+
+Take a trapdoor set on a workload with prevalence $\pi = 0.01$:
+one query in a hundred is a real member of $A$. Set the cipher
+map's rates to $\fprate = 0.05$ and $\fnrate = 0$, which puts
+the map on the perfect-filter line at the $\fprate$-axis. The
+PPV formula gives
+\[
+  \PPV
+  \;=\;
+  \frac{0.01 \cdot 1}
+       {0.01 \cdot 1 + 0.99 \cdot 0.05}
+  \;=\;
+  \frac{0.01}{0.0595}
+  \;\approx\;
+  0.168.
+\]
+The corresponding confidentiality is $C \approx 0.832$. Read
+operationally: when the server reports ``$x \in A$,'' the
+adversary's posterior assigns $\sim 16.8\%$ probability to the
+hypothesis that $x$ is genuinely in $A$ and $\sim 83.2\%$ to the
+hypothesis that the report is a false positive. The membership
+question is far from settled by a single query.
+
+Compare with the FHE baseline of \Cref{sec:fhe-sidebar}. An FHE
+scheme reports membership with zero error: $\fprate = \fnrate =
+0$, so $\PPV = 1$ identically, and $C = 0$. Every report is
+correct, and every report fully reveals the underlying plaintext
+fact. The confidentiality contrast is stark: the cipher-map
+operator pays a $5\%$ per-query false-positive rate and receives
+in return an $83\%$ confidentiality margin. The FHE operator
+pays a $10{,}000\times$ space and time overhead and receives a
+zero confidentiality margin. Whether the trade is worth taking
+depends on the application, but the framework gives the design
+problem a quantitative shape.
+
+The example also makes the workload dependence concrete. Hold
+$(\fprate, \fnrate) = (0.05, 0)$ fixed and consider a different
+workload at $\pi = 0.5$. The PPV formula gives
+\[
+  \PPV
+  \;=\;
+  \frac{0.5}{0.5 + 0.5 \cdot 0.05}
+  \;=\;
+  \frac{0.5}{0.525}
+  \;\approx\;
+  0.952,
+\]
+and the confidentiality drops to $C \approx 0.048$. The same
+cipher map is confidential on a rare-positive workload and
+revealing on a balanced workload. The framework keeps the
+parameters separate: the cipher map carries $(\fprate, \fnrate)$;
+the workload carries $\pi$; the confidentiality $C(\fprate,
+\fnrate, \pi)$ is a single function the designer can plot and
+read. Chapter~7 did the algebra; chapter~17 inherits it.
