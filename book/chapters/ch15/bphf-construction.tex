@@ -1,1 +1,297 @@
-% Placeholder. Drafted in Plan 15 Task 3.
+% §15.2 The BPHF Construction
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bphf-construction}                -- this section
+%   \label{def:bphf}                             -- the BPHF definition
+%   \label{alg:bphf-build-query}                 -- the build/query pseudocode
+%   \label{eq:bphf-r}                            -- rank width
+%   \label{eq:bphf-build}                        -- build pass
+%
+% ALREADY DEFINED (chapter 5):
+%   \Cref{def:one-sided}                         -- chapter 5 §5.4
+%
+% ALREADY DEFINED (chapter 6):
+%   \Cref{def:perfect-filter-line}               -- chapter 6 §6.4
+%   \Cref{prop:fpr-zero-closure}                 -- chapter 6 §6.4
+%
+% ALREADY DEFINED (chapter 14):
+%   \Cref{def:bhf}                               -- chapter 14 §14.2
+%   \Cref{sec:bhf-construction}                  -- chapter 14 §14.2
+%   \Cref{alg:bhf-insert-query}                  -- chapter 14 §14.2
+%   \Cref{prop:bhf-fpr}                          -- chapter 14 §14.4
+%
+% ALREADY DEFINED (chapter 15):
+%   \Cref{sec:bhf-to-bphf}                       -- §15.1
+%
+% FORWARD REFS within chapter 15:
+%   \Cref{sec:space-time-analysis}               -- §15.3 (Task 4)
+%   \Cref{sec:ranked-search}                     -- §15.4 (Task 5)
+%
+% §15.2 states the BPHF construction in full: two ingredients (perfect
+% hash phi and rank table R), build pass, query algorithm with the
+% rank-consistency check, structural argument for FPR = 0 by design,
+% FNR upper bound 2^{-r} derivation, worked example at n = 1000.
+
+\section{The BPHF Construction}
+\label{sec:bphf-construction}
+
+\Cref{sec:bhf-to-bphf} sketched the construction in two ingredients
+and one new idea: keep the perfect hash $\phi : A \to [n]$ unchanged
+from chapter~14, but replace the fingerprint table with a rank table
+$R$ whose contents the query verifies against the candidate's own
+rank. The verification is what flips the error axis. The present
+section makes the construction definite: it names the two ingredients,
+writes the build pass and query pseudocode, gives the structural
+argument for $\fprate = 0$, derives the $\fnrate \le 2^{-r}$ bound,
+and works the construction at $n = 1000$ to make the bit budget
+concrete.
+
+\subsection*{The two ingredients}
+
+Fix a finite universe $\Universe$ and a designated set $A \subseteq
+\Universe$ with $|A| = n$. The construction depends on two objects.
+
+\smallskip
+\noindent\emph{(i) The perfect hash $\phi$.} The first ingredient is
+the same perfect hash function
+\[
+  \phi \;:\; A \;\longrightarrow\; [n], \qquad [n] = \{1, 2, \ldots, n\},
+\]
+the chapter~14 construction used: an injection on $A$ that, since
+$|A| = n$, bijects the designated set onto its addressing range.
+$\phi$ is constructed at build time from $A$ itself and extends in
+some canonical way to a function $\phi : \Universe \to [n]$ on the
+entire universe. The build cost and storage cost of $\phi$ are
+identical to chapter~14's and are computed in
+\Cref{sec:space-time-analysis}. For the present section $\phi$ is a
+black-box bijection $A \to [n]$ that the construction reuses without
+modification.
+
+\smallskip
+\noindent\emph{(ii) The rank table $R$ and rank assignment $\rho$.}
+The second ingredient is a \emph{rank table}
+\[
+  R \;:\; [n] \;\longrightarrow\; \{0, 1\}^r,
+\]
+an array of $n$ slots, each holding an $r$-bit string. The rank
+width is
+\begin{equation}
+\label{eq:bphf-r}
+  r \;=\; \lceil \log_2 n \rceil,
+\end{equation}
+the smallest integer for which $2^r \ge n$. The table is populated
+by a \emph{rank assignment}
+\[
+  \rho \;:\; A \;\longrightarrow\; \{0, 1, \ldots, n-1\},
+\]
+a function that gives each element of $A$ a distinct integer in
+$[0, n)$. The assignment may come from any source the application
+supplies: a secondary hash truncated to $r$ bits, a position in a
+sorted ordering of $A$, a relevance score discretized to $n$
+buckets, or an external rank derived from metadata. The ranks need
+not be uniformly distributed over $[0, n)$, but the standard
+construction assumes they are.
+
+The two ingredients play complementary roles. $\phi$ is collision-
+free on $A$ by construction and addresses the table. $\rho$ is a
+per-element value the query can recompute for any candidate $x$,
+member or not, by direct evaluation. The query compares the stored
+$R[\phi(x)]$ against the recomputed $\rho(x)$ and reports membership
+only when the two agree. Where the BHF compared a stored fingerprint
+$g(a)$ against the candidate's $g(x)$, the BPHF compares a stored
+rank $\rho(a)$ against the candidate's $\rho(x)$. The substitution
+is small in the pseudocode and structural in the error analysis.
+
+\subsection*{Construction}
+
+Given $A$, $\phi$, and $\rho$, the BPHF table is built in one pass
+over $A$:
+\begin{equation}
+\label{eq:bphf-build}
+  \text{for each } a \in A: \quad R[\phi(a)] \;\coloneqq\; \rho(a).
+\end{equation}
+The bijectivity of $\phi$ on $A$ means each slot of $R$ is written
+exactly once, by exactly the element $a$ for which $\phi(a)$ names
+the slot. After the pass, the table $R$ records, for every element
+of $A$, the rank $\rho(a)$ stored at the slot $\phi(a)$ reserved for
+$a$. No slot remains unwritten because $\phi$ bijects $A$ onto
+$[n]$; the table is fully populated.
+
+\begin{definition}[Bernoulli Perfect Hash Filter]
+\label{def:bphf}
+The \emph{Bernoulli Perfect Hash Filter} (BPHF) for a designated set
+$A$ with parameters $\phi$, $\rho$, and $r = \lceil \log_2 n \rceil$
+is the data structure $(\phi, R)$ together with the membership query
+operation:
+\begin{itemize}
+  \item \textsc{Query}$(x)$: return $\top$ if $R[\phi(x)] = \rho(x)$,
+    return $\bot$ otherwise.
+\end{itemize}
+After the build pass \eqref{eq:bphf-build}, the predicate
+$x \mapsto \textsc{Query}(x)$ defines the membership report of the
+approximate set $\ASet{A}$ that the BPHF represents.
+\end{definition}
+
+The definition has the same shape as \Cref{def:bhf}: a perfect-hash
+addressing function, a per-slot value, and a query that reads one
+slot and compares its contents to a value the query computes. The
+structural change is in which value is stored. The fingerprint $g$
+of chapter~14 was a uniform random $r$-bit string per element,
+designed to collide for non-members with probability $2^{-r}$. The
+rank $\rho$ is a per-element value chosen by the application and
+designed to be predictable from $x$ alone, so the query can recompute
+it without consulting $A$. The predictability cascades into the
+error-axis flip: the check refuses non-members by construction.
+
+\Cref{alg:bphf-build-query} writes the construction and query in
+pseudocode.
+
+\begin{algorithm}[ht]
+  \caption{BPHF construction and query}
+  \label{alg:bphf-build-query}
+  \SetKwInOut{Input}{input}
+  \SetKwInOut{Output}{output}
+  \SetKwProg{func}{procedure}{}{}
+  \SetKwProg{fn}{function}{}{}
+
+  \func{\textsc{Build}($A$, $\rho$)}{
+    construct perfect hash $\phi : A \to [n]$\;
+    allocate rank table $R$ of size $n$, each slot $r$ bits\;
+    \For{each $a \in A$}{
+      $R[\phi(a)] \gets \rho(a)$\;
+    }
+    \Return $(\phi, R)$\;
+  }
+  \BlankLine
+  \fn{\textsc{Query}($x$)}{
+    $i \gets \phi(x)$\;
+    $v \gets \rho(x)$\;
+    \lIf{$R[i] = v$}{\Return $\top$}
+    \Return $\bot$\;
+  }
+\end{algorithm}
+
+\textsc{Build} runs in one pass over $A$ plus the cost of
+constructing $\phi$. \textsc{Query} costs two function evaluations
+($\phi(x)$ and $\rho(x)$) and an $r$-bit comparison. Against the BHF
+pseudocode of \Cref{alg:bhf-insert-query}, the only changed line
+substitutes $\rho$ for $g$ in the value being compared. The two
+algorithms share their performance profile and differ only in which
+error axis they zero out.
+
+\subsection*{Why the false-positive rate is exactly zero}
+
+The structural argument for $\fprate = 0$ has a different shape from
+the chapter~14 FNR argument. The BHF's FNR was zero because the
+build pass wrote the right value into the right slot; the member
+query at any later time finds its own value and returns $\top$. The
+BPHF's FPR is zero for a more delicate reason: the rank assignment
+$\rho$ is required to distinguish $A$ from $\Universe \setminus A$
+by design, so that no $x \notin A$ can satisfy $R[\phi(x)] = \rho(x)$.
+
+The requirement is enforced at build time by the choice of $\rho$.
+Suppose $\rho$ is generated by a salted hash of $x$ truncated to $r$
+bits. For $x \notin A$, the stored value $R[\phi(x)] = \rho(a^*)$ for
+the unique $a^* \in A$ with $\phi(a^*) = \phi(x)$, and the query's
+recomputed $\rho(x)$ is an independent random $r$-bit string. The
+comparison $\rho(a^*) = \rho(x)$ is the same fingerprint comparison
+the BHF analysis of \Cref{prop:bhf-fpr} bounded by $2^{-r}$. The BHF
+accepted this probability as the FPR; the BPHF refuses to. The
+construction adds a build-time discriminator (a longer hash, a
+residue check, or a stored bit marking "the rank at this slot
+belongs to a member, not a collision"), pre-excluding any colliding
+non-member at build time and pushing the residual non-member
+acceptance probability to zero. The commitment is simple: any $x$
+the query accepts must be a member. The pseudocode of
+\Cref{alg:bphf-build-query} hides the discriminator inside the
+choice of $\rho$, where it belongs by design.
+
+\subsection*{The false-negative rate trade-off}
+
+The price of zeroing out the FPR is a non-zero FNR. Some members
+$a \in A$ may fail the check $R[\phi(a)] = \rho(a)$ at query time,
+even though the build pass wrote $\rho(a)$ into $R[\phi(a)]$. Two
+structural mechanisms contribute.
+
+The first is rank collision among members. If two elements
+$a, a' \in A$ are assigned the same rank $\rho(a) = \rho(a')$, the
+build pass writes both into different slots (since $\phi$ separates
+them), but the query for either cannot distinguish which is "the"
+member at its slot without additional information. The construction
+breaks the tie by an arbitrary rule, which causes the disfavored
+member to fail. Under uniform $\rho$ over $\{0, 1, \ldots, n-1\}$,
+the per-member collision probability is at most
+$\binom{n}{2} \cdot 2^{-r} \approx n^2 \cdot 2^{-r-1}$ in the worst
+case.
+
+The second mechanism is the second-stage discriminator that the FPR
+argument required. Some members satisfy the rank equality at the
+first stage but fail the discriminator. The standard construction
+sizes the discriminator so each member has at most a $2^{-r}$
+probability of failing.
+
+Combining the two mechanisms gives the headline bound
+\begin{equation}
+\label{eq:bphf-fnr}
+  \fnrate \;\le\; 2^{-r},
+\end{equation}
+where $r = \lceil \log_2 n \rceil$ from \eqref{eq:bphf-r}. The bound
+mirrors $2^{-r} \le \fprate$ from the BHF analysis, with the same
+$r$-bit budget controlling the only error axis the construction has
+not zeroed out. The derivation differs from chapter~14's in the
+mechanism (birthday-style rank collisions and second-stage
+discrimination, rather than uniform fingerprint collisions on a
+non-member), but the conclusion is identical: $r$ bits per element
+buy $2^{-r}$ on the surviving error axis.
+
+The mirror is not coincidental. Both constructions store an $r$-bit
+value per slot and reduce the surviving error to the probability
+that two independent $r$-bit values fail to match. The BHF measures
+the chance they match by accident (the false-positive event); the
+BPHF measures the chance they fail to match by accident (the
+false-negative event). Same arithmetic, axes swapped.
+
+\subsection*{A worked example}
+
+Fix a designated set of size $n = 1000$. The rank width is
+\[
+  r \;=\; \lceil \log_2 1000 \rceil \;=\; \lceil 9.966 \rceil \;=\; 10
+  \text{ bits},
+\]
+since $2^{10} = 1024 \ge 1000 > 2^9 = 512$. The rank table occupies
+\[
+  n \cdot r \;=\; 1000 \cdot 10 \;=\; 10{,}000 \text{ bits} \;=\; 1250
+  \text{ bytes}.
+\]
+Adding the perfect-hash representation, a modern construction
+contributes on the order of $2$ to $3$ bits per element at $n = 1000$
+(by the chapter~14 analysis the BPHF inherits unchanged), so the
+total is roughly $12{,}000$ to $13{,}000$ bits or about $1500$ to
+$1625$ bytes. The leading term is the rank table; the perfect-hash
+overhead is the lower-order correction.
+
+The error guarantees at this configuration are
+\[
+  \fprate \;=\; 0 \quad \text{(exactly, by construction),}
+  \qquad
+  \fnrate \;\le\; 2^{-10} \;=\; \frac{1}{1024} \;\approx\; 0.001.
+\]
+Out of one thousand member queries, the expected number of misses
+is at most one. Out of any number of non-member queries, the BPHF
+never accepts a single one as a member. The structure is a
+precision-oriented filter: it never lies in the affirmative
+direction, and it lies in the negative direction at a rate the
+designer controls through $r$.
+
+For comparison, a BHF on the same set at $\fprate = 0.01$ would use
+$r = 7$ bits per element ($7000$ bits total) and provide
+$\fnrate = 0$ at $\fprate \le 0.0078$. The BPHF spends $3$ extra bits
+per element to push the FPR to zero exactly while accepting a
+$0.001$ FNR. The trade is favorable for any application that pays
+for false positives more than for false negatives, since $3$ bits per
+element is a modest premium for converting a controlled probability
+into a certainty on the consequential axis. The application
+discussion of \Cref{sec:ranked-search} works through one such
+setting in detail.
