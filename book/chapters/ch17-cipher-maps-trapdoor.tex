@@ -1,4 +1,44 @@
 \chapter{Cipher Maps and Trapdoor Computing}
 \label{ch:cipher-maps-trapdoor}
 
-\textit{Placeholder. Content drafted in Plan 4.}
+\begin{quote}
+\textsc{After this chapter you will be able to:}
+\begin{itemize}
+  \item State the cipher-map abstraction: a function that computes
+    faithfully on encrypted inputs up to bounded $\fprate$ and
+    $\fnrate$.
+  \item Recognize the Bernoulli framework as the error model for
+    cipher maps; identify the chapter~4 Kronecker theorem as the
+    composition law for chained cipher-map evaluations.
+  \item Apply the chapter~7 PPV / NPV framework to confidentiality
+    analysis: every cipher-map output has a posterior over plaintext
+    truth, and that posterior is the confidentiality measure.
+\end{itemize}
+\end{quote}
+
+% Section 17.1
+\input{chapters/ch17/what-is-cipher-map}
+
+% Section 17.2
+\input{chapters/ch17/bernoulli-error-model}
+
+% Section 17.3
+\input{chapters/ch17/trapdoor-paradigm}
+
+% Section 17.4
+\input{chapters/ch17/fhe-sidebar}
+
+% Section 17.5
+\input{chapters/ch17/boolean-trapdoor}
+
+% Section 17.6
+\input{chapters/ch17/maximizing-confidentiality}
+
+% Section 17.7
+\input{chapters/ch17/bridge}
+
+% Section 17.8
+\input{chapters/ch17/bibliographic-notes}
+
+% Exercises
+\input{chapters/ch17/exercises}
