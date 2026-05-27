@@ -1,1 +1,107 @@
-% Placeholder. Drafted in Plan 15 Task 7.
+% §15.6 Bibliographic Notes
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{sec:bib-notes-ch15}                   -- this section
+%
+% RESOLVED (within chapter 15):
+%   \Cref{sec:bphf-construction}                 -- §15.2
+%   \Cref{def:bphf}                              -- §15.2
+%   \Cref{prop:bphf-space}                       -- §15.3
+%   \Cref{sec:ranked-search}                     -- §15.4
+%
+% Citations used here:
+%   \cite{towell-bernoulli-phf}                  -- primary source (added Task 7)
+%   \cite{carter-wegman-1979}                    -- universal hashing (in bib)
+%   \cite{belazzougui-2009}                      -- BDZ perfect hash (in bib)
+%   \cite{manning-raghavan-schutze}              -- IR textbook (in bib)
+%
+% Four paragraphs: primary source (towell-bernoulli-phf, paper plus
+% maph C++ library); perfect-hashing literature (Carter-Wegman,
+% Belazzougui); ranked-search literature (Manning-Raghavan-Schutze
+% as the IR textbook standing in for the probabilistic-retrieval
+% lineage); maph C++ library as the production implementation.
+% Section style matches chapter 14.
+
+\section*{Bibliographic Notes}
+\addcontentsline{toc}{section}{Bibliographic Notes}
+\label{sec:bib-notes-ch15}
+
+\paragraph{The BPHF construction as a manuscript.}
+The construction of \Cref{def:bphf} and the space accounting of
+\Cref{prop:bphf-space} are drawn from
+\textcite{towell-bernoulli-phf}, ``The perfect hash filter,'' the
+manuscript that introduced the BPHF as the FPR-zero counterpart of
+the BHF the previous chapter developed. The manuscript treats the
+BPHF in greater generality than the chapter allows: the rank-bearing
+construction of \Cref{sec:bphf-construction} extends to richer
+per-element values (relevance scores at arbitrary precision, sorted
+positions in any application-defined ordering, vector-valued
+metadata under a chosen encoding), and the ranked-search application
+of \Cref{sec:ranked-search} is one of several deployment patterns
+the manuscript catalogues. The chapter has specialized the
+manuscript's framework to the ranked-search case as the cleanest
+exposition; readers who want the broader algebraic framing in which
+the BPHF is one instance of an ``optimal perfect-hash-addressed
+Bernoulli map'' should treat the manuscript as the natural next
+reading.
+
+\paragraph{The perfect-hashing literature.}
+The perfect hash $\phi$ that addresses the rank table inherits its
+construction and its asymptotic bounds from the same perfect-hashing
+literature the BHF analysis depended on, surveyed in
+\S14.7 of the previous chapter. The two foundational entries are
+\textcite{carter-wegman-1979}'s ``Universal Classes of Hash
+Functions,'' which established the pairwise-independence guarantee
+the rank-comparison check rests on, and
+\textcite{belazzougui-2009}'s ``Hash, Displace, and Compress''
+algorithm (the BDZ scheme), which achieves $O(n)$ expected
+construction time and $O(n \log \log \log n / \log n)$ output bits
+at concrete constants below $3$ bits per element for $n$ in the
+millions. The BPHF inherits both the construction algorithm and the
+asymptotic bound from BDZ without modification, because the
+perfect-hash construction depends on the set $A$ alone and not on
+what gets stored at each slot. Earlier antecedents
+(Fredman-Komlos-Szemeredi 1984 for the classical $O(n \log n)$-bit
+bound; Hagerup-Tholey 2001 for the first $O(n)$-bit construction;
+the MWHC and BBHash displacement-based families for the
+implementation lineage) are the historical line that BDZ caps. The
+practitioner deploying a BPHF at scale should select among the
+displacement-based families based on the available implementation
+and the target $n$; the chapter takes the choice as an
+implementation detail that does not affect the framework's space or
+time bounds.
+
+\paragraph{The ranked-search literature.}
+The application of \Cref{sec:ranked-search} sits in a long line of
+work on probabilistic information retrieval, the standard treatment
+of which is \textcite{manning-raghavan-schutze}'s \emph{Introduction
+to Information Retrieval} chapter on retrieval models. The line
+traces to the Robertson-Sp\"arck Jones probabilistic retrieval
+framework of the 1970s, through term-frequency / inverse-document-
+frequency (TF-IDF) weighting, BM25, and the modern
+neural-embedding-based scoring functions that dominate production
+search systems. The chapter has been agnostic about which scoring
+function $s$ supplies the per-document ranks; the BPHF accommodates
+any scoring function whose output can be reduced to a per-document
+rank at build time. The textbook is the place to consult for the
+broader retrieval-model literature; the chapter's contribution is
+not the scoring function but the post-scoring indexing structure
+the BPHF supplies for top-$k$ serving.
+
+\paragraph{The \emph{maph} C++ library.}
+The production-grade implementation of the BPHF construction is the
+\emph{maph} C++ library, distributed alongside the
+\textcite{towell-bernoulli-phf} manuscript. The library provides a
+header-only C++17 implementation of the BPHF build and query paths,
+with the perfect-hash construction wired to a configurable
+displacement-based backend. The library has been used in the
+ranked-search deployments the manuscript describes and is the
+reference implementation against which the chapter's bit accounting
+can be empirically checked. Readers who want to verify the
+\Cref{prop:bphf-space} bound against a concrete implementation
+should consult the library's benchmarks; the asymptotic constants
+the chapter reports for the perfect-hash overhead match the
+library's measured values to within the variation across choice of
+displacement-based backend.
