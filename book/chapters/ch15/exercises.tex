@@ -1,1 +1,311 @@
-% Placeholder. Drafted in Plan 15 Task 8.
+% §15 Exercises
+%
+% Cross-reference resolution status:
+%
+% DEFINED here:
+%   \label{ex:ch15-1} through \label{ex:ch15-11}
+%
+% RESOLVED (used here, defined elsewhere):
+%   \Cref{def:bphf}                              -- §15.2
+%   \Cref{sec:bphf-construction}                 -- §15.2
+%   \Cref{alg:bphf-build-query}                  -- §15.2
+%   \Cref{prop:bphf-space}                       -- §15.3
+%   \Cref{sec:space-time-analysis}               -- §15.3
+%   \Cref{prop:bphf-ranked-search}               -- §15.4
+%   \Cref{sec:ranked-search}                     -- §15.4
+%   \eqref{eq:bphf-fnr}                          -- §15.2
+%   \eqref{eq:bphf-r}                            -- §15.2
+%   \Cref{def:bhf}                               -- chapter 14 §14.2
+%   \Cref{prop:bhf-fpr}                          -- chapter 14 §14.4
+%   \Cref{thm:bhf-optimality}                    -- chapter 14 §14.3
+%   \Cref{ch:bhf}                                -- chapter 14
+%
+% Difficulty-marker macros (matching chapters 1-14):
+\providecommand{\exstar}{$\star$}
+\providecommand{\exstarstar}{$\star\star$}
+\providecommand{\exstarstarstar}{$\star\star\star$}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{enumerate}
+
+% -----------------------------------------------------------------------
+% WARM-UP  (★ × 3): exercises 1, 2, 3
+% -----------------------------------------------------------------------
+
+\item \exstar
+\label{ex:ch15-1}
+\textbf{BPHF space for $n = 10^6$.}
+For a designated set of size $n = 10^6$, compute the rank width
+$r = \lceil \log_2 n \rceil$ and the per-element bit cost the BPHF
+of \Cref{def:bphf} pays for the rank table. Multiply through to
+report the total rank-table cost in bits and in megabytes. Compare
+the result to \Cref{prop:bphf-space} and state the order of
+magnitude of the sublinear perfect-hash correction the construction
+inherits from chapter~14 at this $n$.
+
+\item \exstar
+\label{ex:ch15-2}
+\textbf{FNR computation at $r = 10$.}
+For rank width $r = 10$ bits per slot, compute the BPHF's FNR upper
+bound from \eqref{eq:bphf-fnr}. Express the result as a fraction,
+as a decimal, and as a count per ten thousand member queries. State
+in one sentence why \eqref{eq:bphf-fnr} is an upper bound rather
+than an equality (the per-member miss probability accounts for both
+rank-collision and second-stage-discrimination contributions).
+
+\item \exstar
+\label{ex:ch15-3}
+\textbf{BHF vs BPHF: when to use which.}
+Write one paragraph each (three to five sentences) for the two
+filter families.
+\begin{enumerate}
+  \item[(a)] When to use the BHF of \Cref{def:bhf}. Address the
+    error structure (FNR = 0, controllable FPR), the bit-budget
+    formula ($\lceil -\log_2 \fprate \rceil$ bits per element from
+    \Cref{thm:bhf-optimality}), and one representative application.
+  \item[(b)] When to use the BPHF of \Cref{def:bphf}. Address the
+    error structure (FPR = 0, controllable FNR), the bit-budget
+    formula ($\lceil \log_2 n \rceil$ bits per element from
+    \Cref{prop:bphf-space}), and one representative application from
+    \Cref{sec:ranked-search}.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% MEDIUM  (★★ × 5): exercises 4, 5, 6, 7, 8
+% -----------------------------------------------------------------------
+
+\item \exstarstar
+\label{ex:ch15-4}
+\textbf{Notebook-tied BPHF build.}
+Use the chapter~15 Python notebook to build a BPHF for $n = 10000$
+items with rank width $r = \lceil \log_2 10000 \rceil = 14$ bits per
+slot.
+\begin{enumerate}
+  \item[(a)] Construct a designated set $A$ of $10000$ random
+    $32$-bit integers and assign each a distinct rank in $[0, n)$
+    using the notebook's rank-assignment helper. Build the BPHF.
+  \item[(b)] Generate $10^5$ random query points drawn from outside
+    $A$ (e.g., from a disjoint integer range) and count the number
+    of queries that return $\top$. Verify the count is exactly $0$,
+    confirming the $\fprate = 0$ guarantee of \Cref{def:bphf}
+    holds empirically.
+  \item[(c)] Query each $a \in A$ once, count the misses (queries
+    returning $\bot$ for known members), and compute the empirical
+    FNR. Compare to the upper bound $2^{-14} \approx 6.1 \times
+    10^{-5}$ from \eqref{eq:bphf-fnr}, and state whether the
+    agreement is within an order of magnitude.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch15-5}
+\textbf{Top-$k$ miss rate at $k = 50, n = 10^6, r = 16$.}
+For a top-$k = 50$ retrieval over a corpus of $n = 10^6$ documents
+with a BPHF at $r = 16$ bits per slot (a lower-resolution
+configuration than the chapter's worked example, illustrating the
+trade between rank precision and miss rate), apply the bound of
+\Cref{prop:bphf-ranked-search}.
+\begin{enumerate}
+  \item[(a)] Compute $2^{-r} = 2^{-16}$ and report the per-document
+    miss probability bound.
+  \item[(b)] Compute the expected number of misses per top-$k$
+    query, $k \cdot 2^{-r}$.
+  \item[(c)] State the operational interpretation: out of how many
+    queries does the BPHF expect to miss at least one top-$k$
+    document, on average? (Use the Poisson approximation: for small
+    expected count $\mu$, the probability of at least one miss per
+    query is approximately $\mu$.)
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch15-6}
+\textbf{BPHF storage vs full sorted index.}
+For $n = 10^6$ documents at rank width $r = \lceil \log_2 n \rceil =
+20$ bits per slot, the BPHF rank-table cost is $n \cdot r$ bits.
+\begin{enumerate}
+  \item[(a)] Compute the BPHF rank-table cost in megabytes.
+  \item[(b)] Compute the cost of a full sorted index that stores
+    each document's rank explicitly: this is also $n \log_2 n$ bits
+    for the ranks, plus addressing overhead for an associative
+    structure (a hash table or balanced tree) that maps document IDs
+    to ranks. State the per-document associative-structure overhead
+    as roughly $32$ to $64$ bits (a pointer and a load-factor
+    correction) and add it to the rank cost. Compute the total
+    sorted-index cost in megabytes.
+  \item[(c)] Compute the ratio of BPHF cost to sorted-index cost.
+    Discuss what the BPHF buys at the same dominant-term cost: the
+    $\fprate = 0$ membership check is folded into the rank lookup,
+    avoiding the explicit ID-key storage that the sorted index pays
+    for. The BPHF's space saving is the associative-structure
+    overhead, on the order of a factor of $2$ to $4$ at $n = 10^6$.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch15-7}
+\textbf{Compose BPHF with BHF for $x \in A \cap B$.}
+Can a BPHF on a set $A$ and a BHF on a set $B$ be composed to test
+the membership predicate $x \in A \cap B$, that is, ``$x$ is in
+$A$ and in $B$''?
+\begin{enumerate}
+  \item[(a)] Sketch the construction: a query for $x$ runs the BPHF
+    on $A$ and the BHF on $B$ independently, and returns $\top$ if
+    and only if both filters return $\top$. State the per-query
+    cost as the sum of the two underlying costs ($O(1) + O(1) =
+    O(1)$).
+  \item[(b)] Derive the combined error rates. The composed
+    filter's FPR is the probability that $x \notin A \cap B$ but
+    both filters return $\top$. Case-split: if $x \in A$ and $x
+    \notin B$, the FPR contribution is the BHF's FPR ($\le 2^{-r_B}$
+    where $r_B$ is the BHF's width). If $x \notin A$, the BPHF
+    returns $\bot$ with certainty (its FPR is $0$ from
+    \Cref{def:bphf}), so this case contributes nothing. Conclude
+    the composed FPR is at most $2^{-r_B}$.
+  \item[(c)] Derive the composed FNR. For $x \in A \cap B$, the
+    composed query returns $\top$ only if both filters return
+    $\top$; the BHF returns $\top$ with certainty (FNR $= 0$), so
+    the composed miss probability is the BPHF's miss probability
+    on $A$, bounded by $2^{-r_A}$ from \eqref{eq:bphf-fnr}.
+    Conclude the composed filter inherits BPHF FNR and BHF FPR, the
+    weaker of the two on each axis.
+\end{enumerate}
+
+\item \exstarstar
+\label{ex:ch15-8}
+\textbf{Update cost for a dynamic ranked corpus.}
+The BPHF of \Cref{def:bphf} is built once on a static $A$ with a
+fixed rank assignment $\rho$. For an application where the corpus
+evolves (new documents arrive, old documents are deleted, scores
+get re-computed), the rank assignment changes and the BPHF must be
+rebuilt or updated.
+\begin{enumerate}
+  \item[(a)] Identify the structural reason a single-document
+    insertion forces a $\Theta(n)$ rebuild in the worst case: the
+    insertion changes the rank assignment for the documents whose
+    scores are below the inserted document's score, shifting all
+    such ranks down by one. The BPHF's rank table must be updated
+    at every affected slot, plus the perfect hash $\phi$ must be
+    rebuilt to accommodate the new element.
+  \item[(b)] Sketch a tiered amortization scheme: maintain a static
+    BPHF on the base corpus $A_0$ and a smaller auxiliary structure
+    (a hash table mapping new document IDs to their current ranks)
+    on the delta $\Delta$ of recent insertions. Queries check both;
+    rebuilds happen when $|\Delta|$ exceeds a threshold (say, $0.1
+    n$). Estimate the amortized cost per insertion as $O(n /
+    \text{threshold}) = O(10)$, plus the per-insertion auxiliary
+    cost $O(1)$.
+  \item[(c)] Discuss the trade-off between rebuild frequency and
+    auxiliary-structure size: smaller thresholds mean smaller
+    auxiliary structures (less space) but more frequent rebuilds
+    (more amortized work per insertion). State the analogue of the
+    chapter~14 exercise on dynamic BHF: the BPHF and BHF have the
+    same dynamic-update profile because both rest on the same
+    perfect-hash machinery.
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+% CHALLENGING / EXTENSION  (★★★ × 3): exercises 9, 10, 11
+% -----------------------------------------------------------------------
+
+\item \exstarstarstar
+\label{ex:ch15-9}
+\textbf{BPHF FNR exact derivation.}
+The bound \eqref{eq:bphf-fnr} states $\fnrate \le 2^{-r}$ as an
+upper bound. Derive the exact FNR, accounting for the rank-collision
+structure the proof in \Cref{sec:bphf-construction} sketched but did
+not fully unpack.
+\begin{enumerate}
+  \item[(a)] \emph{Rank-collision contribution.} Suppose the rank
+    assignment $\rho$ is uniform over $\{0, 1, \ldots, n - 1\}$ and
+    independent across members. For a fixed member $a \in A$, the
+    probability that some other member $a' \in A \setminus \{a\}$
+    has rank $\rho(a') = \rho(a)$ is approximately $(n - 1) \cdot
+    2^{-r}$ for $n \ll 2^r$ (the birthday-type estimate). For $n
+    \approx 2^r$, the probability is closer to $1 - e^{-n / 2^r}
+    \approx 1 - e^{-1} \approx 0.63$.
+  \item[(b)] \emph{Tie-breaking contribution.} When two members
+    collide, the construction's tie-breaking rule favors one over
+    the other, causing the disfavored member to miss. The
+    per-collision miss contribution is $1/2$ under a fair tie-break
+    or $1$ under an unfair rule (always favoring one member).
+  \item[(c)] Combine the two contributions to write the exact FNR
+    as a function of $n$ and $r$. Show that for $r = \lceil \log_2 n
+    \rceil$ (the chapter's standard choice), the exact FNR is
+    approximately $0.5 \cdot (1 - e^{-n / 2^r}) \approx 0.5 \cdot
+    (1 - e^{-1}) \approx 0.32$, much larger than the headline upper
+    bound $2^{-r} \approx 1/n$ would suggest, unless a second-stage
+    discriminator is added. Discuss the role the second-stage
+    discriminator plays in pushing the exact FNR down toward the
+    headline bound.
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch15-10}
+\textbf{Adversarial rank assignment.}
+The rank assignment $\rho$ in \Cref{sec:bphf-construction} is
+chosen by the application from a uniform distribution over $\{0, 1,
+\ldots, n - 1\}^A$. Suppose an adversary controls $\rho$ instead.
+Can the adversary force $\fnrate$ above the bound $2^{-r}$ of
+\eqref{eq:bphf-fnr}?
+\begin{enumerate}
+  \item[(a)] \emph{Attack one.} Choose $\rho$ to maximize
+    rank-collisions: assign every member the same rank $\rho(a) = 0$
+    for all $a \in A$. The build pass then writes $0$ into every
+    slot of $R$; the query for any $a \in A$ reads $R[\phi(a)] = 0$
+    and compares to $\rho(a) = 0$, getting equality, so the query
+    returns $\top$. The FNR is $0$ in this attack (every member
+    passes the check), but every non-member $x$ with $\rho(x) = 0$
+    also passes, breaking the FPR $= 0$ guarantee.
+  \item[(b)] \emph{Attack two.} Choose $\rho$ so that some specific
+    members have ranks coinciding with the chosen ranks of other
+    members at the same slot, maximizing collision-induced
+    tie-break misses. Estimate the FNR under this attack as a
+    function of the fraction of $A$ targeted.
+  \item[(c)] Conclude: adversarial $\rho$ can violate either the
+    FNR bound or the FPR guarantee, depending on which the adversary
+    optimizes. The chapter's analysis assumes $\rho$ is supplied by
+    a non-adversarial source (an application-specified scoring
+    function); the FNR bound holds under that assumption. Discuss
+    what changes when $\rho$ comes from a salted hash (a
+    cryptographic source) versus from an external metadata table
+    (a non-adversarial but potentially correlated source).
+\end{enumerate}
+
+\item \exstarstarstar
+\label{ex:ch15-11}
+\textbf{Hybrid filter on the $(\fprate, \fnrate)$ plane.}
+The BHF lives at $(\fprate, \fnrate) = (\fprate_0, 0)$ for some
+target $\fprate_0$; the BPHF lives at $(0, \fnrate_0)$ for some
+target $\fnrate_0$. Design a hybrid filter that interpolates between
+the two extremes, achieving any operating point
+$(\fprate, \fnrate)$ on a controlled curve in the $(\fprate,
+\fnrate)$ plane.
+\begin{enumerate}
+  \item[(a)] \emph{Construction.} Build a BPHF on $A$ at rank width
+    $r_{\text{BPHF}}$ (giving $\fnrate \le 2^{-r_{\text{BPHF}}}$
+    and $\fprate = 0$), then post-process its $\top$ verdicts by
+    a probabilistic filter that admits a fraction $p$ of $\top$
+    verdicts to a secondary check that may admit some
+    non-members. The secondary check is a BHF on a related set
+    (say, $A$ extended with some non-members the application
+    has labeled as ``acceptable false positives''). Adjust $p$ and
+    the secondary check's parameters to slide the operating
+    point.
+  \item[(b)] \emph{The operating curve.} For each setting of $p$,
+    the hybrid filter's $(\fprate, \fnrate)$ lies on a curve
+    parameterized by $p \in [0, 1]$. At $p = 0$ the hybrid is the
+    pure BPHF; at $p = 1$ the hybrid is the pure BHF (with the
+    BPHF's pre-filter acting as a no-op). For intermediate $p$ the
+    operating point traces a continuous curve interpolating the
+    two extremes.
+  \item[(c)] \emph{Cost.} Compute the bit cost of the hybrid as the
+    sum of the BPHF rank table and the BHF fingerprint table, plus
+    one bit per element for the routing decision (whether the
+    secondary check is consulted). Compare to the cost of a pure
+    BPHF and a pure BHF at the same operating point. Discuss when
+    the hybrid is worth the extra bits (when the application's
+    quality metric depends on a balanced combination of FPR and
+    FNR rather than dominantly on one or the other).
+\end{enumerate}
+
+\end{enumerate}
