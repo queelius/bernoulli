@@ -1,0 +1,114 @@
+# Bookwright project configuration
+# This file records project-level settings that bookwright commands and agents read.
+# Authoritative location: docs/superpowers/bookwright.config.yaml (relative to repo root).
+#
+# This project was scaffolded by hand BEFORE bookwright existed, then retrofitted
+# to be bookwright-aware via /bookwright:init in retrofit-only mode. See README.md
+# §"Bookwright plugin" for the retrofit notes.
+
+# ---------------------------------------------------------------------------
+# Project identity
+# ---------------------------------------------------------------------------
+
+project:
+  name: bernoulli-textbook
+  title: "Bernoulli Types: An Algebra of Approximate Computation"
+  author: Alexander Towell
+  status: draft-complete
+  repo: https://github.com/queelius/bernoulli
+
+# ---------------------------------------------------------------------------
+# Notebook stack (the load-bearing config key)
+# ---------------------------------------------------------------------------
+# One of: python-uv | r-renv | quarto | none
+# Determines which execution command notebook-author and integration checks use.
+
+notebook_stack: python-uv
+
+notebook_dir: python/notebooks
+notebook_execute_command: "cd python && uv run jupyter nbconvert --to notebook --execute notebooks/{name}.ipynb --output {name}.ipynb"
+
+# ---------------------------------------------------------------------------
+# Directory layout (paths relative to repo root)
+# ---------------------------------------------------------------------------
+
+paths:
+  book: book
+  chapters: book/chapters
+  frontmatter: book/frontmatter
+  appendices: book/appendices
+  parts: book/parts
+  preamble: book/preamble.tex
+  notation_package: book/alex.sty
+  references: book/references.bib
+  build_target: book/book.pdf
+  makefile: book/Makefile
+  specs: docs/superpowers/specs
+  plans: docs/superpowers/plans
+  papers: papers
+
+# ---------------------------------------------------------------------------
+# Notation package
+# ---------------------------------------------------------------------------
+# alex.sty is shared with the papers in papers/; the book extends it via
+# preamble.tex with book-specific \providecommand blocks. The macro-leak hook
+# (bookwright-shipped) and the soul-voice hook (soul plugin) enforce
+# reader-facing prose discipline.
+
+notation_package: alex
+macro_leak_hook: enabled
+soul_voice_hook: enabled  # provided by the soul plugin
+
+# ---------------------------------------------------------------------------
+# Parts and chapters
+# ---------------------------------------------------------------------------
+
+parts:
+  - id: part1
+    title: "The Atom"
+    chapters: [1, 2, 3, 4]
+    spec: docs/superpowers/specs/2026-05-02-bernoulli-textbook-part1-design.md
+  - id: part2
+    title: "From Bits to Sets"
+    chapters: [5, 6, 7, 8]
+    spec: docs/superpowers/specs/2026-05-17-bernoulli-textbook-part2-design.md
+  - id: part3
+    title: "From Sets to Maps"
+    chapters: [9, 10, 11, 12, 13]
+    spec: docs/superpowers/specs/2026-05-23-bernoulli-textbook-part3-design.md
+  - id: part4
+    title: "Optimality and Construction"
+    chapters: [14, 15]
+    spec: docs/superpowers/specs/2026-05-25-bernoulli-textbook-part4-design.md
+  - id: part5
+    title: "The Boundary and Beyond"
+    chapters: [16, 17, 18]
+    spec: docs/superpowers/specs/2026-05-27-bernoulli-textbook-part5-design.md
+
+master_spec: docs/superpowers/specs/2026-04-29-bernoulli-textbook-design.md
+
+# ---------------------------------------------------------------------------
+# Per-Part integration-pass records (written by /bookwright:integrate)
+# ---------------------------------------------------------------------------
+
+integration_records:
+  part1: docs/superpowers/plans/2026-05-13-bernoulli-textbook-ch01-noisy-bit-integration-pass.md
+  part2: docs/superpowers/plans/2026-05-22-bernoulli-textbook-ch08-information-bounds-integration-pass.md
+  part3: docs/superpowers/plans/2026-05-24-bernoulli-textbook-ch13-algebra-types-integration-pass.md
+  part4: docs/superpowers/plans/2026-05-26-bernoulli-textbook-ch15-bphf-integration-pass.md
+  full_book: docs/superpowers/plans/2026-05-28-bernoulli-textbook-ch18-encrypted-search-integration-pass.md
+
+# ---------------------------------------------------------------------------
+# Bookwright init metadata
+# ---------------------------------------------------------------------------
+
+bookwright:
+  plugin_version: "0.1.0"
+  init_mode: retrofit-only
+  init_date: 2026-05-28
+  notes: |
+    The project was drafted by hand following the bookwright methodology
+    BEFORE the plugin existed. Init was run in retrofit-only mode: the
+    config file (this file) was the only artifact written. Existing
+    book.tex, Makefile, alex.sty, preamble.tex, chapters, specs, plans,
+    notebooks all pre-date the plugin and are not overwritten.

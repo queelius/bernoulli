@@ -4,7 +4,7 @@ A pedagogical monograph unifying probabilistic data structures, randomized
 algorithms, noisy channels, and approximate functions under the Bernoulli
 type framework.
 
-> **Status:** scaffolding complete; chapter content in progress.
+> **Status:** draft complete (chapters 1-18, 528 body pages, 15 paired notebooks); polish phase pending.
 
 ## Build
 
@@ -39,6 +39,16 @@ installation and notebook conventions.
 
 - Book sources: `https://github.com/queelius/bernoulli-book` (subtree push planned)
 - Underlying papers: `https://github.com/queelius/bernoulli` (this monorepo)
+
+## Bookwright plugin
+
+This project is managed with the [bookwright](https://github.com/queelius/alex-claude-plugins) Claude Code plugin (`queelius-plugins`). Project-level settings live at `../docs/superpowers/bookwright.config.yaml`. The bookwright commands relevant for the polish phase:
+
+- `/bookwright:check [scope]` for fast mechanical diagnostics (build, labels, page counts, threads, soul-voice, macro-leak).
+- `/bookwright:review [scope]` for the multi-agent editorial review (spec / quality / math / cross-ref auditors in parallel).
+- `/bookwright:integrate [scope]` for per-Part or full-book integration check plus an integration-pass record.
+
+The project was drafted by hand following the bookwright methodology before the plugin existed; `/bookwright:init` was run in `retrofit-only` mode to add the config file without touching any existing artifacts.
 
 ## License
 
