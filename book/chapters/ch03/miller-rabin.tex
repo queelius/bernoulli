@@ -182,14 +182,16 @@ subsequent rounds with $\fnrate = 0$ correctly pass $\top$ inputs through.
 The $k$-round false-positive rate satisfies:
 \begin{equation}
   \fprate_k
-  \;\leq\; \fprate^k
+  \;=\; \prod_{i=1}^k \fprate_i
   \;\leq\; \left(\frac{1}{4}\right)^k.
   \label{eq:mr-k-round}
 \end{equation}
-Here the first inequality uses the fact that, when $\fnrate_i = 0$, the
-composition theorem's ``at least one error'' formula for the false-positive
-rate reduces to the product $\prod_{i=1}^k \fprate_i$, since each round
-making a false positive is the only way the chain can make a false positive.
+Here the equality uses the fact that, when $\fnrate_i = 0$, the composition
+theorem's ``at least one error'' formula for the false-positive rate reduces
+to the product $\prod_{i=1}^k \fprate_i$, since each round making a false
+positive is the only way the chain can make a false positive. The inequality
+then bounds each per-round rate by the worst-case value $\fprate_i \leq 1/4$
+that Miller-Rabin guarantees for every composite.
 
 To see this: the $k$-round AND declares ``probably prime'' if and only if every
 round declares ``probably prime''. For a composite $n$, this happens if and
