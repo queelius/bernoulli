@@ -148,10 +148,13 @@ cancel an earlier false positive, the false-positive rate of the chain
 reduces to the product
 \[
   \fprate^{(k)}
-  \;\le\; \prod_{i=1}^{k} \fprate_i
+  \;=\; \prod_{i=1}^{k} \fprate_i
   \;\le\; \left(\frac{1}{4}\right)^{\!k},
 \]
-which is equation~\eqref{eq:mr-formal-k-round}. The bound is uniform over
+which is equation~\eqref{eq:mr-formal-k-round}. The equality is the
+same reduction to the product that \Cref{sec:miller-rabin} states for
+the $k$-round test, and the inequality bounds each per-round rate by
+the Monier-Rabin value $\fprate_i \le 1/4$. The bound is uniform over
 all odd composite $n > 3$, since the per-round bound was.
 \qedhere
 \end{proof}

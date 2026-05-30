@@ -70,6 +70,17 @@ certainty in exactly one direction of report; its origin neighbor
 achieves certainty in both, at the cost of the space savings that
 motivated approximate sets in the first place.
 
+A note on orientation, fixed once for the rest of the book. The rate
+plane is drawn with the false-positive rate $\fprate$ on the
+horizontal axis and the false-negative rate $\fnrate$ on the vertical
+axis, matching the rate point $(\fprate, \fnrate)$ of the definition.
+The FNR-zero axis $\mathcal{L}_{\fnrate}$ is then the horizontal arm
+(every point has $\fnrate = 0$), and the FPR-zero axis
+$\mathcal{L}_{\fprate}$ is the vertical arm (every point has
+$\fprate = 0$). \Cref{ch:optimal-bernoulli-sets} builds on the
+horizontal arm and \Cref{ch:perfect-hash-filters} on the vertical
+one.
+
 \subsection*{Closure properties of the FNR-zero axis}
 
 The composition results of the previous sections specialize cleanly

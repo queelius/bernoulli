@@ -182,14 +182,17 @@ A worked example fixes the cost ratio. Take a set membership query
 on a plaintext set $A$ of $|A| = 10^6$ elements, each represented
 by a 64-bit integer.
 
-\textbf{Bloom-filter cipher map at $\fprate = 0.01$.} The optimal
-Bloom-filter construction of chapter 5 uses about $-\log_2(0.01)
-\approx 6.64$ bits per element on the underlying filter, plus a
-small constant overhead for hash-family parameters. The trapdoor
-adds a keyed seed (a few dozen bytes total) but does not change the
-per-element cost asymptotically. The total cipher-map representation
-is about $10^6 \times 6.64 \approx 6.64 \times 10^6$ bits, or
-roughly 830 kilobytes. Each membership query runs in constant time
+\textbf{Optimal Bernoulli filter cipher map at $\fprate = 0.01$.} The
+space-optimal construction of \Cref{ch:optimal-bernoulli-sets} (the
+Bernoulli hash filter) uses about $-\log_2(0.01) \approx 6.64$ bits
+per element on the underlying filter, plus a small constant overhead
+for hash-family parameters. A standard Bloom filter of chapter 5
+would spend $\log_2 e \approx 1.44$ times as much, about $9.6$ bits
+per element, so the figures below are the optimal-construction case.
+The trapdoor adds a keyed seed (a few dozen bytes total) but does not
+change the per-element cost asymptotically. The total cipher-map
+representation is about $10^6 \times 6.64 \approx 6.64 \times 10^6$
+bits, or roughly 830 kilobytes. Each membership query runs in constant time
 (a few hash computations and bit lookups), with no bootstrapping or
 ciphertext expansion overhead.
 

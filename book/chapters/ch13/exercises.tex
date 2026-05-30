@@ -37,15 +37,18 @@
 Let $\tilde b_1, \tilde b_2$ be two independent
 $\Bernoulli{\BoolType}$ instances with channel matrices
 \[
-  Q_1 = \begin{pmatrix} 1 - \fprate_1 & \fprate_1 \\
-                        \fnrate_1 & 1 - \fnrate_1 \end{pmatrix},
+  Q_1 = \begin{pmatrix} 1 - \fnrate_1 & \fnrate_1 \\
+                        \fprate_1 & 1 - \fprate_1 \end{pmatrix},
   \qquad
-  Q_2 = \begin{pmatrix} 1 - \fprate_2 & \fprate_2 \\
-                        \fnrate_2 & 1 - \fnrate_2 \end{pmatrix}.
+  Q_2 = \begin{pmatrix} 1 - \fnrate_2 & \fnrate_2 \\
+                        \fprate_2 & 1 - \fprate_2 \end{pmatrix}.
 \]
-The pair $(\tilde b_1, \tilde b_2)$ is a
-$\Bernoulli{\BoolType \times \BoolType}$ instance on the $4$-element
-type $\{(\bot, \bot), (\bot, \top), (\top, \bot), (\top, \top)\}$.
+Each $Q_i$ follows the positives-first convention of
+\Cref{def:bernoulli-bool}: row $1$ governs the positive input $\top$,
+row $2$ the negative input $\bot$. The pair $(\tilde b_1, \tilde b_2)$
+is a $\Bernoulli{\BoolType \times \BoolType}$ instance on the
+$4$-element type, ordered positives-first to match:
+$\{(\top, \top), (\top, \bot), (\bot, \top), (\bot, \bot)\}$.
 Write the $4 \times 4$ joint channel matrix as the Kronecker product
 $Q_1 \otimes Q_2$, with rows and columns indexed in the order above.
 Verify by direct computation that the $(\top, \top) \to (\top, \top)$
