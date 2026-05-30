@@ -44,11 +44,12 @@
 
 The chapter has assembled the constructive answer to the FPR-zero
 arm of the perfect-filter line. The BPHF of \Cref{def:bphf} reaches
-$\fprate = 0$ by construction, pays $\fnrate \le 2^{-r}$ as the
-controllable cost, spends $\lceil \log_2 n \rceil + o(1)$ bits per
-element from \Cref{prop:bphf-space}, and applies cleanly to ranked
-retrieval through the construction \Cref{sec:ranked-search} worked
-out. The chapter's bridge has two threads to tie before Part~V opens:
+$\fprate = 0$ in the witness query model, is exact at full resolution
+with a true perfect hash, and trades a controlled $\fnrate \approx
+1 - m/n$ for a smaller table through a $k$-perfect hash of $m$ slots.
+It spends $\lceil \log_2 n \rceil + o(1)$ bits per element from
+\Cref{prop:bphf-space}, and applies cleanly to ranked retrieval
+through the construction \Cref{sec:ranked-search} worked out. The chapter's bridge has two threads to tie before Part~V opens:
 the place of chapters~14 and~15 in Part~IV's larger architecture,
 and the new questions Part~V picks up that the present part does not
 address.

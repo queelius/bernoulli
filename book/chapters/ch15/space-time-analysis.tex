@@ -188,11 +188,18 @@ other. The two filters give different guarantees, and the bit costs
 reflect what each guarantee requires. The BHF guarantees $\fnrate =
 0$ at the cost of $\fprate \le 2^{-r}$, and pays $r = \lceil -\log_2
 \fprate \rceil$ bits per element to make the false-positive
-probability small enough. The BPHF guarantees $\fprate = 0$ at the
-cost of $\fnrate \le 2^{-r}$, and pays $r = \lceil \log_2 n \rceil$
-bits per element so the rank assignment can distinguish all $n$
-elements unambiguously. Each construction's bit budget is the minimum
-needed for its target guarantee.
+probability small enough. The BPHF guarantees $\fprate = 0$ in the
+witness query model and pays $r = \lceil \log_2 n \rceil$ bits per
+element so the rank assignment can name all $n$ elements apart. At
+full resolution with a true perfect hash the BPHF is exact (the
+$\fnrate = 0$ corner of the perfect-filter line); the per-element
+budget of \Cref{prop:bphf-space} is the cost of that exact corner.
+The dial that buys a smaller table is the $k$-perfect hash of
+\Cref{sec:bphf-construction}, which shrinks the slot count to $m < n$
+and trades a controlled $\fnrate \approx 1 - m/n$ for the saved
+space. Each construction's bit budget is the minimum needed for its
+guarantee, and each spends extra bits, on its own axis, only to drive
+the controlled error rate down.
 
 \subsection*{Build time}
 

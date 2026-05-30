@@ -8,6 +8,7 @@
 %   \label{alg:bphf-build-query}                 -- the build/query pseudocode
 %   \label{eq:bphf-r}                            -- rank width
 %   \label{eq:bphf-build}                        -- build pass
+%   \label{eq:bphf-fnr}                          -- k-perfect FNR law
 %
 % ALREADY DEFINED (chapter 5):
 %   \Cref{def:one-sided}                         -- chapter 5 §5.4
@@ -31,22 +32,25 @@
 %
 % §15.2 states the BPHF construction in full: two ingredients (perfect
 % hash phi and rank table R), build pass, query algorithm with the
-% rank-consistency check, structural argument for FPR = 0 by design,
-% FNR upper bound 2^{-r} derivation, worked example at n = 1000.
+% rank-consistency check. It then states honestly what the bare
+% construction delivers (it equals the BHF in the general query model),
+% identifies the restricted witness model that delivers FPR = 0, and
+% introduces k-perfect hashing as the dial that buys a controlled FNR
+% on the FPR-zero axis. Worked example at n = 1000.
 
 \section{The BPHF Construction}
 \label{sec:bphf-construction}
 
-\Cref{sec:bhf-to-bphf} sketched the construction in two ingredients
-and one new idea: keep the perfect hash $\phi : A \to [n]$ unchanged
-from chapter~14, but replace the fingerprint table with a rank table
-$R$ whose contents the query verifies against the candidate's own
-rank. The verification is what flips the error axis. The present
-section makes the construction definite: it names the two ingredients,
-writes the build pass and query pseudocode, gives the structural
-argument for $\fprate = 0$, derives the $\fnrate \le 2^{-r}$ bound,
-and works the construction at $n = 1000$ to make the bit budget
-concrete.
+\Cref{sec:bhf-to-bphf} set the goal: a structure on the FPR-zero axis
+of the perfect-filter line, mirroring the way the Bernoulli Hash Filter
+sits on the FNR-zero axis. The plan keeps the perfect hash
+$\phi : A \to [n]$ from chapter~14 and replaces the fingerprint table
+with a \emph{rank table} whose contents the query verifies against the
+candidate's own rank. The present section makes the construction
+definite, then states plainly what it does and does not deliver. The
+honest accounting is the heart of the chapter: the rank table alone
+does not flip the error axis, and seeing exactly why is what reveals
+the asymmetry between the two halves of the perfect-filter line.
 
 \subsection*{The two ingredients}
 
@@ -88,21 +92,22 @@ by a \emph{rank assignment}
 \]
 a function that gives each element of $A$ a distinct integer in
 $[0, n)$. The assignment may come from any source the application
-supplies: a secondary hash truncated to $r$ bits, a position in a
-sorted ordering of $A$, a relevance score discretized to $n$
-buckets, or an external rank derived from metadata. The ranks need
-not be uniformly distributed over $[0, n)$, but the standard
-construction assumes they are.
+supplies: a position in a sorted ordering of $A$, a relevance score
+discretized to $n$ buckets, or an external rank derived from
+metadata. The distinctness of the ranks is what fixes $r$ at
+$\lceil \log_2 n \rceil$: it takes that many bits to label $n$
+elements apart.
 
-The two ingredients play complementary roles. $\phi$ is collision-
-free on $A$ by construction and addresses the table. $\rho$ is a
-per-element value the query can recompute for any candidate $x$,
-member or not, by direct evaluation. The query compares the stored
-$R[\phi(x)]$ against the recomputed $\rho(x)$ and reports membership
-only when the two agree. Where the BHF compared a stored fingerprint
-$g(a)$ against the candidate's $g(x)$, the BPHF compares a stored
-rank $\rho(a)$ against the candidate's $\rho(x)$. The substitution
-is small in the pseudocode and structural in the error analysis.
+The two ingredients play complementary roles. $\phi$ is collision-free
+on $A$ by construction and addresses the table. $\rho$ is a per-element
+value the query can evaluate for any candidate $x$, member or not. The
+query compares the stored $R[\phi(x)]$ against the evaluated $\rho(x)$
+and reports membership only when the two agree. Where the BHF compared
+a stored fingerprint $g(a)$ against the candidate's $g(x)$, the BPHF
+compares a stored rank $\rho(a)$ against the candidate's $\rho(x)$. The
+substitution is small in the pseudocode. Whether it changes anything in
+the error analysis is the question the rest of the section answers, and
+the answer is more subtle than the symmetry of the picture suggests.
 
 \subsection*{Construction}
 
@@ -137,13 +142,11 @@ approximate set $\ASet{A}$ that the BPHF represents.
 The definition has the same shape as \Cref{def:bhf}: a perfect-hash
 addressing function, a per-slot value, and a query that reads one
 slot and compares its contents to a value the query computes. The
-structural change is in which value is stored. The fingerprint $g$
-of chapter~14 was a uniform random $r$-bit string per element,
-designed to collide for non-members with probability $2^{-r}$. The
-rank $\rho$ is a per-element value chosen by the application and
-designed to be predictable from $x$ alone, so the query can recompute
-it without consulting $A$. The predictability cascades into the
-error-axis flip: the check refuses non-members by construction.
+only structural change is which value is stored. The fingerprint $g$
+of chapter~14 was a uniform random $r$-bit string per element. The
+rank $\rho$ is a per-element value chosen by the application. The
+shapes match; the consequences, as the next subsection shows, do not
+match the way the picture promises.
 
 \Cref{alg:bphf-build-query} writes the construction and query in
 pseudocode.
@@ -178,80 +181,138 @@ constructing $\phi$. \textsc{Query} costs two function evaluations
 ($\phi(x)$ and $\rho(x)$) and an $r$-bit comparison. Against the BHF
 pseudocode of \Cref{alg:bhf-insert-query}, the only changed line
 substitutes $\rho$ for $g$ in the value being compared. The two
-algorithms share their performance profile and differ only in which
-error axis they zero out.
+algorithms share their performance profile. The interesting question
+is whether they share their error profile, and the answer requires
+care.
 
-\subsection*{Why the false-positive rate is exactly zero}
+\subsection*{What the bare construction delivers}
 
-The structural argument for $\fprate = 0$ has a different shape from
-the chapter~14 FNR argument. The BHF's FNR was zero because the
-build pass wrote the right value into the right slot; the member
-query at any later time finds its own value and returns $\top$. The
-BPHF's FPR is zero for a more delicate reason: the rank assignment
-$\rho$ is required to distinguish $A$ from $\Universe \setminus A$
-by design, so that no $x \notin A$ can satisfy $R[\phi(x)] = \rho(x)$.
+Read the algorithm directly. Take a member $a \in A$. Because $\phi$
+bijects $A$ onto $[n]$, the slot $\phi(a)$ was written by exactly one
+element, namely $a$ itself, and the build pass stored $R[\phi(a)] =
+\rho(a)$. At query time the member recomputes $\phi(a)$ and $\rho(a)$,
+reads its own slot, and finds the stored value equal to the recomputed
+one. The match always succeeds. A member is never missed:
+\[
+  \fnrate \;=\; 0.
+\]
+Two members assigned the same rank do not interfere, because $\phi$
+sends them to different slots, and each reads back the rank it wrote.
+The rank-collision worry that the symmetry argument might suggest does
+not arise: a perfect hash gives every member its own slot.
 
-The requirement is enforced at build time by the choice of $\rho$.
-Suppose $\rho$ is generated by a salted hash of $x$ truncated to $r$
-bits. For $x \notin A$, the stored value $R[\phi(x)] = \rho(a^*)$ for
-the unique $a^* \in A$ with $\phi(a^*) = \phi(x)$, and the query's
-recomputed $\rho(x)$ is an independent random $r$-bit string. The
-comparison $\rho(a^*) = \rho(x)$ is the same fingerprint comparison
-the BHF analysis of \Cref{prop:bhf-fpr} bounded by $2^{-r}$. The BHF
-accepted this probability as the FPR; the BPHF refuses to. The
-construction adds a build-time discriminator (a longer hash, a
-residue check, or a stored bit marking "the rank at this slot
-belongs to a member, not a collision"), pre-excluding any colliding
-non-member at build time and pushing the residual non-member
-acceptance probability to zero. The commitment is simple: any $x$
-the query accepts must be a member. The pseudocode of
-\Cref{alg:bphf-build-query} hides the discriminator inside the
-choice of $\rho$, where it belongs by design.
+Now take a non-member $x \notin A$. The extended hash sends $x$ to some
+slot $\phi(x) = \phi(a^{*})$ owned by a member $a^{*}$, and that slot
+holds $\rho(a^{*})$. The query accepts $x$ exactly when the recomputed
+$\rho(x)$ equals the stored $\rho(a^{*})$. If $\rho$ behaves like a
+uniform $r$-bit hash on the universe, then $\rho(x)$ is an $r$-bit value
+independent of $\rho(a^{*})$, and the two agree with probability
+$2^{-r}$. So
+\[
+  \fprate \;=\; 2^{-r}.
+\]
+This is exactly the fingerprint-collision probability the BHF analysis
+of \Cref{prop:bhf-fpr} bounded. The bare BPHF, queried on the full
+universe with a recomputable rank, is the BHF wearing a different
+label: zero false negatives, false positives at the floor $2^{-r}$. The
+rank table alone does not flip the error axis. Renaming a fingerprint a
+rank changes nothing the query can observe.
 
-\subsection*{The false-negative rate trade-off}
+This is the asymmetry \Cref{sec:bhf-to-bphf} promised, made concrete. A
+false positive is a coincidence: one stored value collides with one
+recomputed value, and a single $r$-bit slot makes the coincidence rare.
+A false-negative-free filter is therefore cheap, and the BHF buys it
+for $r$ bits per element. The FPR-zero axis asks for the opposite
+guarantee, that no non-member is ever accepted, and that is not a
+coincidence to make rare. It is a certificate to enforce against every
+one of the $|\Universe| - n$ non-members at once. Certifying a subset
+exactly is the expensive direction. The next two subsections show the
+two honest routes to it.
 
-The price of zeroing out the FPR is a non-zero FNR. Some members
-$a \in A$ may fail the check $R[\phi(a)] = \rho(a)$ at query time,
-even though the build pass wrote $\rho(a)$ into $R[\phi(a)]$. Two
-structural mechanisms contribute.
+\subsection*{How the false-positive rate becomes zero}
 
-The first is rank collision among members. If two elements
-$a, a' \in A$ are assigned the same rank $\rho(a) = \rho(a')$, the
-build pass writes both into different slots (since $\phi$ separates
-them), but the query for either cannot distinguish which is "the"
-member at its slot without additional information. The construction
-breaks the tie by an arbitrary rule, which causes the disfavored
-member to fail. Under uniform $\rho$ over $\{0, 1, \ldots, n-1\}$,
-the per-member collision probability is at most
-$\binom{n}{2} \cdot 2^{-r} \approx n^2 \cdot 2^{-r-1}$ in the worst
-case.
+The bare construction admits a non-member only when the non-member's
+recomputed rank happens to equal the rank stored at the slot it lands
+in. Close that gap and the FPR is zero. There is exactly one way to
+close it without storing a universe's worth of information: arrange the
+query so that a non-member never presents a matching rank in the first
+place.
 
-The second mechanism is the second-stage discriminator that the FPR
-argument required. Some members satisfy the rank equality at the
-first stage but fail the discriminator. The standard construction
-sizes the discriminator so each member has at most a $2^{-r}$
-probability of failing.
+Call $\rho$ a \emph{witness} for $A$ when $\rho$ is defined and
+verifiable only for genuine members, in the precise sense that the
+recomputed $\rho(x)$ equals the stored rank at slot $\phi(x)$ if and
+only if $x$ is the member that claimed that slot. Under a witness, the
+acceptance condition $R[\phi(x)] = \rho(x)$ holds only for members, so
+\[
+  \fprate \;=\; 0
+\]
+holds exactly, by construction, not in expectation. The relevance
+ranking of a search corpus is the standard example, worked in
+\Cref{sec:ranked-search}: a query is posed only for a document that
+already carries its corpus rank, a document outside the corpus has no
+such rank to present, and the witness condition is met.
 
-Combining the two mechanisms gives the headline bound
+The witness model is not a free upgrade over the bare construction. It
+restricts the query domain to candidates that arrive with a verifiable
+rank, and it pays for the FPR-zero guarantee in the only currency that
+buys it: the rank table now stores, in its $n$ slots of
+$\lceil \log_2 n \rceil$ bits, enough to name every member apart and to
+certify any presented witness against the right slot. That is the cost
+of certifying a subset exactly, and it is the same counting argument
+that set the space lower bounds earlier in the book. There is no
+sub-logarithmic shortcut: a structure that accepts no non-member must,
+in effect, encode which elements it does accept, and encoding a
+designated subset of an arbitrary universe costs on the order of
+$\log_2 n$ bits per element once the query domain is the corpus itself.
+A genuinely universe-wide FPR-zero filter, one that rejects every one
+of the $|\Universe| - n$ outsiders by recomputation alone, would have
+to store on the order of $\log_2 |\Universe|$ bits per element, and at
+that price it is a dictionary, not a compact filter.
+
+With distinct ranks and a true perfect hash, the witness model places
+the BPHF at the \emph{corner} of the perfect-filter line: both error
+rates are zero on the query domain, since members always match and
+non-members cannot present a witness. The structure is exact there. The
+corner is the cleanest point of the FPR-zero axis, and it is also the
+least interesting one, because it is not yet an approximate set. The
+mirror of the BHF, a tunable structure that trades a controlled error
+for space, comes from relaxing the perfect hash.
+
+\subsection*{A controlled false-negative rate via k-perfect hashing}
+
+The BHF moves along its axis by changing the fingerprint width: more
+bits per element drive the FPR down toward zero, fewer bits trade
+accuracy for space. The BPHF needs the matching dial on its own axis, a
+way to spend less space in exchange for a controlled, nonzero FNR while
+holding $\fprate = 0$. The dial is the perfect hash itself.
+
+A \emph{$k$-perfect hash} relaxes the injectivity requirement, allowing
+up to $k$ elements of $A$ to share a slot. The construction is cheaper
+to find and uses fewer slots, but a shared slot can hold only one
+member's rank. The members that lose the contention for their slot are
+no longer retrievable: each reads a slot holding a different member's
+rank, the comparison fails, and they are reported as non-members. These
+lost members are the false negatives, and they are the only error the
+$k$-perfect BPHF makes. A non-member still cannot present a witness, so
+the FPR stays exactly zero.
+
+The false-negative rate is the fraction of members that lose their
+slot. With $m$ slots holding $n$ members under a balanced $k$-perfect
+construction, roughly $n - m$ members are crowded out, so
 \begin{equation}
 \label{eq:bphf-fnr}
-  \fnrate \;\le\; 2^{-r},
+  \fnrate \;\approx\; 1 - \frac{m}{n},
 \end{equation}
-where $r = \lceil \log_2 n \rceil$ from \eqref{eq:bphf-r}. The bound
-mirrors $2^{-r} \le \fprate$ from the BHF analysis, with the same
-$r$-bit budget controlling the only error axis the construction has
-not zeroed out. The derivation differs from chapter~14's in the
-mechanism (birthday-style rank collisions and second-stage
-discrimination, rather than uniform fingerprint collisions on a
-non-member), but the conclusion is identical: $r$ bits per element
-buy $2^{-r}$ on the surviving error axis.
-
-The mirror is not coincidental. Both constructions store an $r$-bit
-value per slot and reduce the surviving error to the probability
-that two independent $r$-bit values fail to match. The BHF measures
-the chance they match by accident (the false-positive event); the
-BPHF measures the chance they fail to match by accident (the
-false-negative event). Same arithmetic, axes swapped.
+which is zero when $m = n$ (the true perfect hash, the exact corner of
+the previous subsection) and grows as the table shrinks. A table at
+ninety percent of full size, $m = 0.9\,n$, misses about one member in
+ten while admitting no non-member at all. This is the mirror of the BHF
+made precise: the BHF holds $\fnrate = 0$ and dials $\fprate$ down by
+adding fingerprint bits; the BPHF holds $\fprate = 0$ and dials
+$\fnrate$ down by adding slots. Each construction lives on its own axis
+of the perfect-filter line of \Cref{def:perfect-filter-line}, and each
+pays for accuracy in space, on opposite axes, by
+\Cref{prop:fpr-zero-closure}.
 
 \subsection*{A worked example}
 
@@ -260,38 +321,50 @@ Fix a designated set of size $n = 1000$. The rank width is
   r \;=\; \lceil \log_2 1000 \rceil \;=\; \lceil 9.966 \rceil \;=\; 10
   \text{ bits},
 \]
-since $2^{10} = 1024 \ge 1000 > 2^9 = 512$. The rank table occupies
+since $2^{10} = 1024 \ge 1000 > 2^9 = 512$. Ten bits per slot label one
+thousand members apart. The rank table occupies
 \[
   n \cdot r \;=\; 1000 \cdot 10 \;=\; 10{,}000 \text{ bits} \;=\; 1250
-  \text{ bytes}.
+  \text{ bytes},
 \]
-Adding the perfect-hash representation, a modern construction
-contributes on the order of $2$ to $3$ bits per element at $n = 1000$
-(by the chapter~14 analysis the BPHF inherits unchanged), so the
-total is roughly $12{,}000$ to $13{,}000$ bits or about $1500$ to
-$1625$ bytes. The leading term is the rank table; the perfect-hash
-overhead is the lower-order correction.
+plus the perfect-hash representation, on the order of $2$ to $3$ bits
+per element at $n = 1000$ by the chapter~14 analysis, for a total near
+$12{,}000$ to $13{,}000$ bits, about $1500$ to $1625$ bytes.
 
-The error guarantees at this configuration are
+At the exact corner, a true perfect hash with distinct ranks queried in
+the witness model, the error guarantees are
 \[
-  \fprate \;=\; 0 \quad \text{(exactly, by construction),}
+  \fprate \;=\; 0 \quad \text{(by construction, in the witness model),}
   \qquad
-  \fnrate \;\le\; 2^{-10} \;=\; \frac{1}{1024} \;\approx\; 0.001.
+  \fnrate \;=\; 0 \quad \text{(every member owns a slot).}
 \]
-Out of one thousand member queries, the expected number of misses
-is at most one. Out of any number of non-member queries, the BPHF
-never accepts a single one as a member. The structure is a
-precision-oriented filter: it never lies in the affirmative
-direction, and it lies in the negative direction at a rate the
-designer controls through $r$.
+The structure is exact on its query domain: it never accepts a
+non-corpus candidate and never misses a corpus member. It is a
+perfect-hash dictionary viewed as the corner of the perfect-filter
+line.
 
-For comparison, a BHF on the same set at $\fprate = 0.01$ would use
-$r = 7$ bits per element ($7000$ bits total) and provide
-$\fnrate = 0$ at $\fprate \le 0.0078$. The BPHF spends $3$ extra bits
-per element to push the FPR to zero exactly while accepting a
-$0.001$ FNR. The trade is favorable for any application that pays
-for false positives more than for false negatives, since $3$ bits per
-element is a modest premium for converting a controlled probability
-into a certainty on the consequential axis. The application
-discussion of \Cref{sec:ranked-search} works through one such
-setting in detail.
+To turn it into a tunable approximate set on the FPR-zero axis, shrink
+the table with a $k$-perfect hash. Take $m = 900$ slots for the same
+$n = 1000$ members. By \eqref{eq:bphf-fnr} the false-negative rate is
+about
+\[
+  \fnrate \;\approx\; 1 - \frac{900}{1000} \;=\; 0.10,
+\]
+so roughly one corpus member in ten is crowded out and missed, while
+\[
+  \fprate \;=\; 0
+\]
+holds exactly: no candidate from outside the corpus is ever accepted.
+The ten percent smaller table is the price of the ten percent miss
+rate, and the affirmative guarantee is untouched.
+
+For comparison, a BHF on the same set at $\fprate = 0.01$ uses $r = 7$
+bits per element ($7000$ bits total) and provides $\fnrate = 0$ at
+$\fprate \le 0.0078$. The BHF and the BPHF answer opposite needs. The
+BHF never misses a member and rarely admits a stranger; the BPHF never
+admits a stranger and occasionally misses a member. The choice between
+them is the choice of which error an application can tolerate, and the
+perfect-filter line says an application that can tolerate neither must
+pay the dictionary price for both. The application discussion of
+\Cref{sec:ranked-search} works through one setting where the BPHF's
+profile is exactly the one the problem wants.

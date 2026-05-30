@@ -41,11 +41,14 @@
 
 The chapter has so far developed the BPHF as a membership filter
 on the FPR-zero arm of the perfect-filter line. The structural
-features (zero false positives by construction, controlled false
-negatives at $\fnrate \le 2^{-r}$, per-element cost $\lceil \log_2 n
-\rceil$ bits from \Cref{prop:bphf-space}) describe the filter in the
-abstract; the present section places it in its archetypal
-application. The setting is ranked search: given a corpus and a
+features (zero false positives in the witness query model, exact at
+full resolution with a true perfect hash, and a controlled false
+negative rate $\fnrate \approx 1 - m/n$ bought by a $k$-perfect hash
+with $m$ slots, at per-element cost $\lceil \log_2 n \rceil$ bits from
+\Cref{prop:bphf-space}) describe the filter in the abstract; the
+present section places it in its archetypal application, which is also
+the setting that supplies the witness model the FPR-zero guarantee
+needs. The setting is ranked search: given a corpus and a
 query, return the top-$k$ most relevant documents. The exact
 solution scores every document and sorts; the BPHF accelerates the
 solution by storing each document's pre-computed rank in a perfect-
@@ -179,41 +182,46 @@ discussion that follows.
 
 \subsection*{The false-negative cost}
 
-The BPHF's false-negative rate is bounded by $\fnrate \le 2^{-r}$
-from \eqref{eq:bphf-fnr}. In the top-$k$ setting this translates to
-a bound on the expected number of top-$k$ documents the retrieval
-misses. The expected count is the sum over the $k$ true top
-documents of the per-document miss probability:
+Ranked search is the witness model: a query is posed for a document
+that already carries its corpus rank, and a non-corpus candidate has
+no such rank to present. The BPHF therefore returns no off-corpus
+document, $\fprate = 0$. The false negatives come entirely from the
+$k$-perfect hash. At full resolution, $m = n$ slots and a true
+perfect hash, every corpus document owns its slot and the retrieval
+is exact: no top-$k$ document is missed. Shrinking the table to
+$m < n$ slots crowds out a fraction $1 - m/n$ of the corpus, and the
+expected number of top-$k$ documents missed is that fraction of the
+$k$ retrieved:
 \begin{equation}
 \label{eq:bphf-ranked-misses}
   \mathbb{E}[\text{misses}]
-  \;=\; \sum_{i = 1}^{k} \mathbb{P}[\text{document } i \text{ missed}]
-  \;\le\; k \cdot 2^{-r}.
+  \;\approx\; k \cdot \fnrate
+  \;\approx\; k \left( 1 - \frac{m}{n} \right),
 \end{equation}
-The bound assumes the per-document miss events are individually
-bounded by $\fnrate$, which the BPHF guarantees, and sums the
-bounds by linearity of expectation. The result states the
-expected-miss count in terms of $k$ (the retrieval depth) and $r$
-(the rank-table width), independent of the corpus size $n$ except
-through $r = \lceil \log_2 n \rceil$.
+using $\fnrate \approx 1 - m/n$ from \eqref{eq:bphf-fnr} and
+linearity of expectation over the $k$ true top documents. The miss
+count is set by the retrieval depth $k$ and the table-size ratio
+$m/n$, the designer's space-versus-recall dial, and is independent of
+the rank width $r$, which is fixed at $\lceil \log_2 n \rceil$ by the
+need for distinct ranks.
 
 \begin{proposition}[BPHF top-$k$ expected misses]
 \label{prop:bphf-ranked-search}
 Let the BPHF of \Cref{def:bphf} be built on a corpus of $n$
-documents with rank table width $r = \lceil \log_2 n \rceil$.
-For a top-$k$ retrieval query against this BPHF, the expected
-number of top-$k$ documents missed is at most $k \cdot 2^{-r}$.
+documents in the witness model, with a $k$-perfect hash of $m \le n$
+slots. A top-$k$ retrieval query against this BPHF surfaces no
+off-corpus document ($\fprate = 0$) and misses, in expectation, at
+most $k\,(1 - m/n)$ of the true top-$k$ documents. At full
+resolution $m = n$ the retrieval is exact.
 \end{proposition}
 
-The proposition's bound is tight up to constants and matches the
-intuition that smaller $r$ admits more misses, larger $k$ exposes
-more documents to potential misses, and larger $n$ (through the
-ceiling) reduces the per-document miss rate. The bound is
-multiplicative in $k$ and exponential in $r$. Doubling $k$ doubles
-the expected misses; adding one bit to $r$ halves the expected
-misses. Designers tune $r$ to make the per-query miss expectation
-small enough that the user-facing experience is indistinguishable
-from exact top-$k$ retrieval.
+The proposition matches the intuition that a fuller table misses
+fewer documents and a deeper retrieval exposes more documents to the
+miss rate. Halving the spare capacity $1 - m/n$ halves the expected
+misses; setting $m = n$ removes them entirely. The designer picks the
+table size to make the per-query miss expectation small enough that
+the user-facing experience is indistinguishable from exact top-$k$
+retrieval, paying in slots for the recall it wants.
 
 \subsection*{A worked example}
 
@@ -239,25 +247,34 @@ fits comfortably in the L3 cache of a modern server CPU, and the
 per-query work is a handful of memory accesses entirely served from
 cache.
 
-The error guarantees at this configuration are
+At full resolution, $m = n = 10^6$ slots with a true perfect hash,
+the error guarantees are
 \[
   \fprate \;=\; 0
   \qquad \text{and} \qquad
-  \fnrate \;\le\; 2^{-20} \;=\; \frac{1}{1{,}048{,}576}
-  \;\approx\; 9.5 \times 10^{-7}.
+  \fnrate \;=\; 0,
 \]
-The expected miss count from \eqref{eq:bphf-ranked-misses} is
+and the retrieval is exact: every query returns the right $100$
+documents, never an off-corpus one. To trade table space for the
+usual reason, shrink to a $k$-perfect hash with $m = 0.99\,n$ slots.
+By \eqref{eq:bphf-ranked-misses} the expected miss count is
 \[
   \mathbb{E}[\text{misses}]
-  \;\le\; 100 \cdot 9.5 \times 10^{-7}
-  \;\approx\; 9.5 \times 10^{-5}.
+  \;\approx\; 100 \left( 1 - \frac{0.99\,n}{n} \right)
+  \;=\; 100 \cdot 0.01 \;=\; 1,
 \]
-Out of every $10{,}000$ top-$100$ queries the BPHF serves, the
-expected total number of missed top-ranked documents is less than
-one. From the user's perspective the retrieval is indistinguishable
-from exact top-$k$: the user sees the right $100$ documents on every
-query, almost always all $100$, occasionally $99$ with one missing
-entry the user rarely notices.
+so a typical top-$100$ query returns about $99$ of the true top
+documents, while
+\[
+  \fprate \;=\; 0
+\]
+still holds exactly: not one of the roughly $|\Universe| - n$
+off-corpus candidates is ever surfaced. The one-percent table saving
+costs about one missed result in a hundred, and the affirmative
+guarantee, never showing an irrelevant document, is untouched. From
+the user's perspective the retrieval is indistinguishable from exact
+top-$k$: the missing entry is rarely noticed, and a wrong entry never
+appears.
 
 The bit cost matches the application's needs. A baseline solution
 that stores the full sorted index would need $n \log_2 n = 10^6

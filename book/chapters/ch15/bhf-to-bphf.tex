@@ -127,18 +127,20 @@ table that holds the ranks is $R : [n] \to \{0, 1\}^r$ with
 $r = \lceil \log_2 n \rceil$ bits per slot, enough to distinguish
 the $n$ possible ranks.
 
-The query exploits the rank's structure to refuse false positives.
+The query compares the stored rank against the candidate's own rank.
 For a query $x$, the BPHF computes $\phi(x) \in [n]$, reads
-$R[\phi(x)]$, and applies a consistency check: does the rank value at
-slot $\phi(x)$ agree with what $x$'s rank would be if $x \in A$? The
-check is a one-bit verdict. If $x \in A$, the check passes with high
-probability and the BPHF returns $\top$. If $x \notin A$, the check
-fails with certainty, and the BPHF returns $\bot$. The asymmetry in
-the two outcomes is the construction's central feature: the check is
-designed so that non-members cannot satisfy it, and members satisfy
-it almost always. The few members that fail the check are the
-controllable $\fnrate$; the absence of any non-member that passes
-the check is the $\fprate = 0$ guarantee.
+$R[\phi(x)]$, and returns $\top$ when the stored value equals
+$\rho(x)$. The next section shows that this comparison, taken at face
+value over the whole universe, reproduces the BHF rather than flipping
+its axis: a non-member still collides with the stored rank with
+probability $2^{-r}$. The $\fprate = 0$ guarantee appears only in a
+restricted query model, where $\rho$ is a verifiable rank that genuine
+members carry and non-members cannot present, so that the comparison
+succeeds only for members. Ranked search is the standard instance of
+that model. In it the bare construction with a true perfect hash is
+exact, and a controlled $\fnrate$ is bought by relaxing the perfect
+hash, not by the rank comparison alone. The next section makes each of
+these claims precise.
 
 \subsection*{Chapter roadmap}
 

@@ -47,13 +47,17 @@ inherits from chapter~14 at this $n$.
 
 \item \exstar
 \label{ex:ch15-2}
-\textbf{FNR computation at $r = 10$.}
-For rank width $r = 10$ bits per slot, compute the BPHF's FNR upper
-bound from \eqref{eq:bphf-fnr}. Express the result as a fraction,
-as a decimal, and as a count per ten thousand member queries. State
-in one sentence why \eqref{eq:bphf-fnr} is an upper bound rather
-than an equality (the per-member miss probability accounts for both
-rank-collision and second-stage-discrimination contributions).
+\textbf{FNR from the $k$-perfect dial.}
+The full-resolution BPHF of \Cref{def:bphf} is exact in the witness
+model: with a true perfect hash, $\fnrate = 0$. The controllable
+false negative rate comes from a $k$-perfect hash with $m < n$ slots,
+through \eqref{eq:bphf-fnr}. For a corpus of $n = 10^6$ members,
+compute the expected $\fnrate \approx 1 - m/n$ at table sizes
+$m = 0.99\,n$, $m = 0.9\,n$, and $m = 0.5\,n$. Express each as a
+decimal and as a count of missed members per ten thousand. State in
+one sentence why a true perfect hash ($m = n$) makes the false
+negative rate exactly zero: each member owns its own slot and reads
+back the rank it wrote.
 
 \item \exstar
 \label{ex:ch15-3}
@@ -86,36 +90,39 @@ slot.
   \item[(a)] Construct a designated set $A$ of $10000$ random
     $32$-bit integers and assign each a distinct rank in $[0, n)$
     using the notebook's rank-assignment helper. Build the BPHF.
-  \item[(b)] Generate $10^5$ random query points drawn from outside
-    $A$ (e.g., from a disjoint integer range) and count the number
-    of queries that return $\top$. Verify the count is exactly $0$,
-    confirming the $\fprate = 0$ guarantee of \Cref{def:bphf}
-    holds empirically.
-  \item[(c)] Query each $a \in A$ once, count the misses (queries
-    returning $\bot$ for known members), and compute the empirical
-    FNR. Compare to the upper bound $2^{-14} \approx 6.1 \times
-    10^{-5}$ from \eqref{eq:bphf-fnr}, and state whether the
-    agreement is within an order of magnitude.
+  \item[(b)] Generate $10^5$ query points drawn from outside $A$.
+    In the witness model (a non-member presents no valid rank, so the
+    comparison can never succeed) count the queries returning $\top$
+    and verify it is exactly $0$, confirming the $\fprate = 0$
+    guarantee of \Cref{def:bphf}. Then repeat in the general model (a
+    non-member presents a hash-based rank in $[0, n)$) and confirm the
+    count is near $10^5 / n$, the BHF false-positive rate, showing
+    that the rank relabel alone does not flip the error axis.
+  \item[(c)] Query each $a \in A$ once and count the misses (queries
+    returning $\bot$ for known members). With a true perfect hash the
+    count is $0$. Then rebuild with a $k$-perfect hash at $m = 0.9\,n$
+    slots, repeat, and confirm the empirical FNR is near
+    $1 - m/n = 0.1$ from \eqref{eq:bphf-fnr}.
 \end{enumerate}
 
 \item \exstarstar
 \label{ex:ch15-5}
-\textbf{Top-$k$ miss rate at $k = 50, n = 10^6, r = 16$.}
+\textbf{Top-$k$ miss rate at $k = 50, n = 10^6, m = 0.98\,n$.}
 For a top-$k = 50$ retrieval over a corpus of $n = 10^6$ documents
-with a BPHF at $r = 16$ bits per slot (a lower-resolution
-configuration than the chapter's worked example, illustrating the
-trade between rank precision and miss rate), apply the bound of
-\Cref{prop:bphf-ranked-search}.
+with a BPHF whose $k$-perfect hash uses $m = 0.98\,n$ slots (a
+space-saving configuration that trades a little recall for a smaller
+table), apply the bound of \Cref{prop:bphf-ranked-search}.
 \begin{enumerate}
-  \item[(a)] Compute $2^{-r} = 2^{-16}$ and report the per-document
-    miss probability bound.
+  \item[(a)] Compute the member false-negative rate $1 - m/n$ and
+    report it as a decimal.
   \item[(b)] Compute the expected number of misses per top-$k$
-    query, $k \cdot 2^{-r}$.
+    query, $k\,(1 - m/n)$.
   \item[(c)] State the operational interpretation: out of how many
     queries does the BPHF expect to miss at least one top-$k$
     document, on average? (Use the Poisson approximation: for small
     expected count $\mu$, the probability of at least one miss per
-    query is approximately $\mu$.)
+    query is approximately $\mu$.) Confirm that setting $m = n$ (a
+    true perfect hash) drives the expected misses to zero.
 \end{enumerate}
 
 \item \exstarstar
@@ -165,9 +172,11 @@ $A$ and in $B$''?
     composed query returns $\top$ only if both filters return
     $\top$; the BHF returns $\top$ with certainty (FNR $= 0$), so
     the composed miss probability is the BPHF's miss probability
-    on $A$, bounded by $2^{-r_A}$ from \eqref{eq:bphf-fnr}.
-    Conclude the composed filter inherits BPHF FNR and BHF FPR, the
-    weaker of the two on each axis.
+    on $A$. With a true perfect hash on $A$ that is $0$ (exact);
+    under a $k$-perfect hash with $m_A$ slots it is
+    $\approx 1 - m_A / |A|$ from \eqref{eq:bphf-fnr}. Conclude the
+    composed filter inherits BPHF FNR and BHF FPR, the weaker of the
+    two on each axis.
 \end{enumerate}
 
 \item \exstarstar
@@ -209,66 +218,67 @@ rebuilt or updated.
 
 \item \exstarstarstar
 \label{ex:ch15-9}
-\textbf{BPHF FNR exact derivation.}
-The bound \eqref{eq:bphf-fnr} states $\fnrate \le 2^{-r}$ as an
-upper bound. Derive the exact FNR, accounting for the rank-collision
-structure the proof in \Cref{sec:bphf-construction} sketched but did
-not fully unpack.
+\textbf{Why rank collisions do not cause false negatives.}
+A natural worry is that two members $a, a' \in A$ assigned the same
+rank $\rho(a) = \rho(a')$ produce a false negative. Show the worry is
+unfounded for a true perfect hash, then locate the real source of the
+false negative rate.
 \begin{enumerate}
-  \item[(a)] \emph{Rank-collision contribution.} Suppose the rank
-    assignment $\rho$ is uniform over $\{0, 1, \ldots, n - 1\}$ and
-    independent across members. For a fixed member $a \in A$, the
-    probability that some other member $a' \in A \setminus \{a\}$
-    has rank $\rho(a') = \rho(a)$ is approximately $(n - 1) \cdot
-    2^{-r}$ for $n \ll 2^r$ (the birthday-type estimate). For $n
-    \approx 2^r$, the probability is closer to $1 - e^{-n / 2^r}
-    \approx 1 - e^{-1} \approx 0.63$.
-  \item[(b)] \emph{Tie-breaking contribution.} When two members
-    collide, the construction's tie-breaking rule favors one over
-    the other, causing the disfavored member to miss. The
-    per-collision miss contribution is $1/2$ under a fair tie-break
-    or $1$ under an unfair rule (always favoring one member).
-  \item[(c)] Combine the two contributions to write the exact FNR
-    as a function of $n$ and $r$. Show that for $r = \lceil \log_2 n
-    \rceil$ (the chapter's standard choice), the exact FNR is
-    approximately $0.5 \cdot (1 - e^{-n / 2^r}) \approx 0.5 \cdot
-    (1 - e^{-1}) \approx 0.32$, much larger than the headline upper
-    bound $2^{-r} \approx 1/n$ would suggest, unless a second-stage
-    discriminator is added. Discuss the role the second-stage
-    discriminator plays in pushing the exact FNR down toward the
-    headline bound.
+  \item[(a)] \emph{The rank-collision red herring.} Argue that under
+    a perfect hash $\phi$, members $a$ and $a'$ occupy distinct slots
+    $\phi(a) \ne \phi(a')$ even when $\rho(a) = \rho(a')$, so each
+    reads back the rank it wrote and both pass the query. Conclude
+    that rank collisions contribute nothing to the false negative
+    rate, however many occur. (A uniform $\rho$ over
+    $\{0, \ldots, n - 1\}$ makes about $1 - e^{-1} \approx 0.63$ of
+    members share a rank with someone, and none of them is missed.)
+  \item[(b)] \emph{The real source.} Replace $\phi$ with a
+    $k$-perfect hash that sends up to $k$ members to one slot and
+    keeps a single rank per slot. Argue that the members crowded out
+    of a shared slot are exactly the false negatives, and that for a
+    balanced construction with $m$ slots the missed fraction is
+    $\approx 1 - m/n$, matching \eqref{eq:bphf-fnr}. Confirm
+    $\fnrate = 0$ when $m = n$.
+  \item[(c)] \emph{The other axis.} Show that the bare construction
+    in the general query model (a non-member presents a recomputable
+    hash-based rank) has $\fnrate = 0$ but $\fprate = 2^{-r}$,
+    identical to the BHF, and that the witness model is what converts
+    the false-positive rate to zero. State in one sentence the
+    asymmetry this reveals: a false-negative-free filter is cheap (a
+    superset encoded loosely), while a false-positive-free filter
+    over an arbitrary universe is the dictionary-priced direction.
 \end{enumerate}
 
 \item \exstarstarstar
 \label{ex:ch15-10}
 \textbf{Adversarial rank assignment.}
-The rank assignment $\rho$ in \Cref{sec:bphf-construction} is
-chosen by the application from a uniform distribution over $\{0, 1,
-\ldots, n - 1\}^A$. Suppose an adversary controls $\rho$ instead.
-Can the adversary force $\fnrate$ above the bound $2^{-r}$ of
-\eqref{eq:bphf-fnr}?
+The $\fprate = 0$ guarantee of \Cref{def:bphf} rests on $\rho$ being
+a genuine witness: members carry a verifiable rank and non-members
+cannot present a matching one. Suppose an adversary controls $\rho$,
+or the queries, and aims to break that guarantee.
 \begin{enumerate}
-  \item[(a)] \emph{Attack one.} Choose $\rho$ to maximize
-    rank-collisions: assign every member the same rank $\rho(a) = 0$
-    for all $a \in A$. The build pass then writes $0$ into every
-    slot of $R$; the query for any $a \in A$ reads $R[\phi(a)] = 0$
-    and compares to $\rho(a) = 0$, getting equality, so the query
-    returns $\top$. The FNR is $0$ in this attack (every member
-    passes the check), but every non-member $x$ with $\rho(x) = 0$
-    also passes, breaking the FPR $= 0$ guarantee.
-  \item[(b)] \emph{Attack two.} Choose $\rho$ so that some specific
-    members have ranks coinciding with the chosen ranks of other
-    members at the same slot, maximizing collision-induced
-    tie-break misses. Estimate the FNR under this attack as a
-    function of the fraction of $A$ targeted.
-  \item[(c)] Conclude: adversarial $\rho$ can violate either the
-    FNR bound or the FPR guarantee, depending on which the adversary
-    optimizes. The chapter's analysis assumes $\rho$ is supplied by
-    a non-adversarial source (an application-specified scoring
-    function); the FNR bound holds under that assumption. Discuss
-    what changes when $\rho$ comes from a salted hash (a
-    cryptographic source) versus from an external metadata table
-    (a non-adversarial but potentially correlated source).
+  \item[(a)] \emph{Degenerate witness.} Choose $\rho(a) = 0$ for all
+    $a \in A$. The build pass writes $0$ into every slot, so every
+    member passes ($\fnrate = 0$ still), but a non-member $x$ whose
+    presented rank is $0$ also passes. Show this drives the false
+    positive rate up to the fraction of queried non-members that
+    present rank $0$, defeating the $\fprate = 0$ guarantee. A
+    constant $\rho$ is not a witness.
+  \item[(b)] \emph{Forgeable witness.} Suppose $\rho$ is a public,
+    low-entropy function an adversary can evaluate on any candidate
+    (for example, a document length bucketed into a few values).
+    Show a non-member can present a rank that matches the slot it
+    lands in with non-negligible probability, again breaking
+    $\fprate = 0$. Contrast with a witness the adversary cannot
+    evaluate for non-members (a corpus sort position, or a salted
+    hash of corpus-only metadata).
+  \item[(c)] Conclude: the FPR-zero guarantee is a property of the
+    query model, not of the table. It holds when $\rho$ is a witness
+    that members possess and non-members cannot forge, and fails
+    otherwise. Discuss what the witness condition requires of a
+    cryptographic $\rho$ (a salted hash keyed to corpus membership)
+    versus an external-metadata $\rho$ (which must not be
+    recomputable for off-corpus candidates).
 \end{enumerate}
 
 \item \exstarstarstar
@@ -281,11 +291,11 @@ the two extremes, achieving any operating point
 $(\fprate, \fnrate)$ on a controlled curve in the $(\fprate,
 \fnrate)$ plane.
 \begin{enumerate}
-  \item[(a)] \emph{Construction.} Build a BPHF on $A$ at rank width
-    $r_{\text{BPHF}}$ (giving $\fnrate \le 2^{-r_{\text{BPHF}}}$
-    and $\fprate = 0$), then post-process its $\top$ verdicts by
-    a probabilistic filter that admits a fraction $p$ of $\top$
-    verdicts to a secondary check that may admit some
+  \item[(a)] \emph{Construction.} Build a BPHF on $A$ with a
+    $k$-perfect hash of $m$ slots (giving $\fnrate \approx 1 - m/n$
+    and $\fprate = 0$ in the witness model), then post-process its
+    $\top$ verdicts by a probabilistic filter that admits a fraction
+    $p$ of $\top$ verdicts to a secondary check that may admit some
     non-members. The secondary check is a BHF on a related set
     (say, $A$ extended with some non-members the application
     has labeled as ``acceptable false positives''). Adjust $p$ and
