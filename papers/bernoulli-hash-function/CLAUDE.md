@@ -57,7 +57,7 @@ make clean    # remove build artifacts
 | 6 | `sections/entropy.tex` | Max entropy, salt bit-length PMF, cardinality estimation, entropy-space tradeoff |
 | 7 | `sections/prob_model.tex` | FP/FN distributions (cites companions for full treatment) |
 | 8 | `sections/operations.tex` | Intersection/union convergence on BHF instances |
-| 9 | `sections/discussion.tex` | Obliviousness, comparison with Bloom/PHF, encrypted search |
+| 9 | `sections/discussion.tex` | Trapdoor properties, comparison with Bloom/PHF, encrypted search |
 | A | `sections/appendix.tex` | Bit-length sampler, PMF derivation details |
 
 ## Notation

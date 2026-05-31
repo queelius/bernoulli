@@ -1,26 +1,26 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Obliviousness and confidentiality}
+\subsection{Trapdoor properties and confidentiality}
 
-The BHF was originally motivated by \emph{oblivious} data structures for
+The BHF was originally motivated by \emph{trapdoor} data structures for
 encrypted search~\cite{es}.
-An oblivious set (or map) is one whose binary representation reveals minimal
+A cipher set (or map) is one whose binary representation reveals minimal
 information about the underlying data beyond what is accessible through the
 defined interface.
 
-The maximum entropy property (\cref{thm:max_entropy}) is central to
-obliviousness: the BHF encoding is incompressible (conditioned on its length),
+The maximum entropy property (\cref{thm:max_entropy}) is central to the
+trapdoor property: the BHF encoding is incompressible (conditioned on its length),
 so no side-channel information beyond the encoding length is available to an
 adversary.
 The encoding length itself reveals only an estimate of the cardinality, and
 this leakage can be controlled via the entropy--space tradeoff
 (\cref{sec:entropy}).
 
-For Bernoulli maps, the choice of value encoder affects obliviousness.
+For Bernoulli maps, the choice of value encoder affects the trapdoor property.
 An optimal (e.g., Huffman) encoder minimizes space but reveals distributional
 information about the values.
-A uniform-length encoder preserves obliviousness at the cost of higher $\mu$.
+A uniform-length encoder preserves the trapdoor property at the cost of higher $\mu$.
 
 \subsection{Comparison with existing data structures}
 
@@ -109,5 +109,5 @@ tests membership in each BHF without learning the document contents.
 The Bernoulli map variant enables rank-ordered search: each key (term) maps
 to a relevance score, and the server can retrieve approximate scores for
 query terms.
-The maximum entropy and obliviousness properties ensure that the server learns
+The maximum entropy and trapdoor properties ensure that the server learns
 only what is revealed by the query results.

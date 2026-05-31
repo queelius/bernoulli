@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Research paper: **"The abstract data type of the approximate relation"** by Alexander Towell. Defines the semantics of *approximate relations* — probabilistic relations that approximate objective relations with false correspondences and false complementary correspondences. Derives entropy lower bounds, error propagation through relational operators (join, project), partial function composition, and demonstrates applications to oblivious databases and Encrypted Search.
+Research paper: **"The abstract data type of the approximate relation"** by Alexander Towell. Defines the semantics of *approximate relations* — probabilistic relations that approximate objective relations with false correspondences and false complementary correspondences. Derives entropy lower bounds, error propagation through relational operators (join, project), partial function composition, and demonstrates applications to trapdoor databases and Encrypted Search.
 
 ## Build
 
@@ -24,7 +24,7 @@ Uses modular `sty/` packages from local `sty/` directory (self-contained, no ext
   - `predicates.tex` — Approximate predicates
   - `test.tex` — Testing framework
   - `unused/optimality.tex` — Entropy/optimality bounds (included but in unused/)
-  - `unused/oblivious_rel_model.tex` — Oblivious relation model (included but in unused/)
+  - `unused/oblivious_rel_model.tex`: Trapdoor relation model (filename retains historical 'oblivious')
 
 ## Key Notation
 

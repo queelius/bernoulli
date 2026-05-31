@@ -164,11 +164,11 @@ where the operators are \emph{bit-wise} operators.
 The values of $n$ bits are \emph{isomorphic} to any value type that has a cardinality of $2^n$ and as a Boolean algebra.
 For instance, we could implement approximate sets with a complete implementation of set-theoretic operations on them over any universe of $n$ elements.
 	
-An exponential type $X \mapsto Y$ is the set of functions from domain $X$ to codomain $Y$. If we replace $X$ and $Y$ by $\OT{X}$ and $\OT{Y}$, we have an oblivious exponential type $\OT{X} \mapsto \OT{Y}$, e.g., if $\Fun{f} \colon X \mapsto Y$, then an approximate representation of $\Fun{f}$ is $\APFun{f} \colon \AT{X} \mapsto \AT{Y}$.
+An exponential type $X \mapsto Y$ is the set of functions from domain $X$ to codomain $Y$. If we replace $X$ and $Y$ by $\OT{X}$ and $\OT{Y}$, we have a cipher exponential type $\OT{X} \mapsto \OT{Y}$, e.g., if $\Fun{f} \colon X \mapsto Y$, then an approximate representation of $\Fun{f}$ is $\APFun{f} \colon \AT{X} \mapsto \AT{Y}$.
 
 TODO: make an approximate value monad! Carry the approximation error information, make it a simple wrapper with some additional info.
 	
-If it is not important that $X$ or $Y$ be themselves oblivious types, then we have the \emph{represntation} of the functions as oblivious, but the inputs and outputs can be \emph{plain}.
+If it is not important that $X$ or $Y$ be themselves cipher types, then we have the \emph{represntation} of the functions as cipher, but the inputs and outputs can be \emph{plain}.
 	
 NOTE: this is the case for many things not just exponential types. Still need to grapple with this, maybe still dealing with the approximation over elements rather than the approximation of universe thing.
 	
@@ -186,15 +186,15 @@ NOTE: this is the case for many things not just exponential types. Still need to
 	
 	One way $\PFun{f}$ \emph{leaks} information is through its domain.
 	The best-case scenario is when $\PFun{f}$ only needs to perform \emph{membership} tests on $\OT{\Set{X}}$.
-	In this case, we may replace $\Set{X}$ with an object that models the \emph{oblivious set} $\OT{\Set{X}}$.
+	In this case, we may replace $\Set{X}$ with an object that models the \emph{cipher set} $\OT{\Set{X}}$.
 	\footnote{Note that we may still gain insight into what $\PFun{f}$ is doing by how it is defined and used.}
 	
 	More generally, $\PFun{f}$ depends on $\Set{X}$ in more complicated ways, e.g., some order relation or binary operation on $\Set{X}$ must be supported.
-	For instance, a partial order on $\Set{X}$ may be implemented by an \emph{oblivious binary relation} and binary operations may be implemented by an \emph{oblivious ternary relation}, i.e., $z=x+y$, with the caveat that this relation is itself an \emph{oblivious map}.
+	For instance, a partial order on $\Set{X}$ may be implemented by a \emph{cipher binary relation} and binary operations may be implemented by a \emph{cipher ternary relation}, i.e., $z=x+y$, with the caveat that this relation is itself a \emph{cipher map}.
 	
 	Partial functions may, of course, be constructed from relations such that if $\Pair{x}{y} \in \operatorname{f}$ then we say that $\operatorname{f}$ maps $x$ to $y$, where $y$ may be denoted by $\operatorname{f}(x)$.
 	
-Consider a partial function $\PFun{f} \colon X_1 \times \cdots \times X_n \mapsto Y_1 \times \cdots \times Y_m$ and suppose we replace $X_1$ by $\OT{X}_1$, an oblivious type that implements the same behavior as $X_1$ when applied to $\PFun{f}$.
+Consider a partial function $\PFun{f} \colon X_1 \times \cdots \times X_n \mapsto Y_1 \times \cdots \times Y_m$ and suppose we replace $X_1$ by $\OT{X}_1$, a cipher type that implements the same behavior as $X_1$ when applied to $\PFun{f}$.
 	
 	There are two approaches to this.
 	If the function $\PFun{f}$ depends on a set of functions whose output depends on the state of $X_1$, then $\OT{X}_1$ needs to \emph{expose} those properties through the well-defined interface.
@@ -295,7 +295,7 @@ Consider a partial function $\PFun{f} \colon X_1 \times \cdots \times X_n \mapst
 	The invariants may not be easy to satisfy, and so a random approximation relation of the corresponding type may not be practical.
 	However, when the invariants can be satisfied, we may implement \emph{random approximate algebraic data types} of the \emph{algebraic data types}, e.g., we can compose random approximate algebraic data types as before to construct compound random approximate data types of the corresponding compound algebraic data type.
 	
-	This may not seem particularly useful, but it permits space-efficient representations and, moreover, concepts like \emph{oblivious algebraic data types} may be based on it with some notion of closure.
+	This may not seem particularly useful, but it permits space-efficient representations and, moreover, concepts like \emph{cipher algebraic data types} may be based on it with some notion of closure.
 	
 \subsubsection{Type-erasure}
 The fact that we are dealing with specific approximate types may be erased into some approximate type abstract data type that hides the concrete data type.
