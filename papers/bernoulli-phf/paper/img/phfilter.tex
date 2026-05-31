@@ -1,0 +1,13 @@
+% Placeholder figure, created 2026-05-29 (build-repair).
+% rd_ph_filter.tex \input's this file, but the original img/phfilter.tex was never committed
+% (absent from disk and git history), so pdflatex aborted with a fatal "file not found" and
+% produced no PDF. This tabular stub restores the build and conveys the intended schematic:
+% a 5-slot perfect-hash array storing 3-bit fingerprints for {x1, x2, x3}
+% (load factor 3/5, false positive rate 2^{-3}). Replace with the intended TikZ diagram.
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+slot $0$ & slot $1$ & slot $2$ & slot $3$ & slot $4$ \\
+\hline
+$\mathtt{101}$ & $\varnothing$ & $\mathtt{011}$ & $\mathtt{110}$ & $\varnothing$ \\
+\hline
+\end{tabular}

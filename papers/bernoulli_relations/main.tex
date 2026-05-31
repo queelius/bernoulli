@@ -91,7 +91,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We define the semantics of \emph{approximate relation}, which follows naturally from the \emph{approximate set}. It is a \emph{probabilistic} relation that \emph{approximates} another relation of objective interest with the possibility of \emph{false correspondences} and \emph{false complementary correspondences}. A special-case of the approximate relation is the approximate partial function (unary partial functions are more widely known as dictionaries). Given specified error rates of these kind, we derive the expected lower-bound on the bits per relation. Furthermore, we consider how these errors \emph{propagate} through relational operators like \emph{join} and \emph{project}, and consider the special case of partial function \emph{composition}. Following from that, we consider an implementation of the approximate relation based on approximate sets. Following from that, we consider an implemention which efficiently permits projections on the relations down to specific attributes based on perfect hash functions, denoted the \emph{perfect hash map}, which is especially useful for implementing approximate unary approximate partial functions. Finally, we demonstrate an application, \emph{oblivious databases}, which we use to implement rank-ordered Encrypted Search with extensions for the fuzzy set-theoretic model.
+We define the semantics of \emph{approximate relation}, which follows naturally from the \emph{approximate set}. It is a \emph{probabilistic} relation that \emph{approximates} another relation of objective interest with the possibility of \emph{false correspondences} and \emph{false complementary correspondences}. A special-case of the approximate relation is the approximate partial function (unary partial functions are more widely known as dictionaries). Given specified error rates of these kind, we derive the expected lower-bound on the bits per relation. Furthermore, we consider how these errors \emph{propagate} through relational operators like \emph{join} and \emph{project}, and consider the special case of partial function \emph{composition}. Following from that, we consider an implementation of the approximate relation based on approximate sets. Following from that, we consider an implemention which efficiently permits projections on the relations down to specific attributes based on perfect hash functions, denoted the \emph{perfect hash map}, which is especially useful for implementing approximate unary approximate partial functions. Finally, we demonstrate an application, \emph{trapdoor databases}, which we use to implement rank-ordered Encrypted Search with extensions for the fuzzy set-theoretic model.
 \end{abstract}
 
 
@@ -101,21 +101,33 @@ We define the semantics of \emph{approximate relation}, which follows naturally 
 
 
 \newcommand{\ExactMap}[1]{M(#1)}
+% Added 2026-05-29 (build-repair): \tsr is defined in sections/predicates.tex's subfile
+% PREAMBLE, which the subfiles package ignores when building through main.tex, so every use
+% (predicates.tex, ~11x) errored as "Undefined control sequence". Lift the author's own
+% definition here so it exists in the full build. (The standalone predicates build is
+% unaffected; it still uses its local copy.)
+\newcommand{\tsr}{\gamma}
 
 
 %\listoffigures
 %\listofalgorithms
 
 
-\subfile{sections/intro}
+% TODO(2026-05-29 build-repair): sections/intro.tex is referenced but was never written
+% (absent from disk and git history). Excluded so the paper compiles; author the intro.
+%\subfile{sections/intro}
 \subfile{sections/relations}
 \subfile{sections/approx_rel_model}
-\subfile{sections/rel_algebra}
+% TODO(2026-05-29 build-repair): sections/rel_algebra.tex referenced but never written. Excluded.
+%\subfile{sections/rel_algebra}
 \subfile{sections/properties}
 \subfile{sections/predicates}
-\subfile{sections/test}
-\subfile{sections/unused/optimality}
-\subfile{sections/unused/oblivious_rel_model}
+% TODO(2026-05-29 build-repair): sections/test.tex referenced but never written. Excluded.
+%\subfile{sections/test}
+% TODO(2026-05-29 build-repair): sections/unused/optimality.tex does not exist (no unused/ dir). Excluded.
+%\subfile{sections/unused/optimality}
+% Fixed path 2026-05-29: the file lives at sections/oblivious_rel_model.tex, not sections/unused/.
+\subfile{sections/oblivious_rel_model}
 %\subfile{sections/appendix}
 \printglossary
 \bibliography{references}

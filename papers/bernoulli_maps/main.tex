@@ -36,8 +36,9 @@
 \usepackage{siunitx}
 \usepackage[section]{placeins}
 \usepackage{amssymb}
-\usepackage{minted}
-\usepackage{multicol}
+% minted and multicol removed 2026-05-29: used only in sections/unused/, never in
+% active sections, and minted forced -shell-escape (build failed under the documented
+% command). Re-add both if those archived sections are reactivated.
 \usepackage{stmaryrd}
 
 \newcommand{\COMMENT}[1]{}
