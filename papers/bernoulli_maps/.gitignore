@@ -3,6 +3,9 @@
 # except do not ignore .gitignore. note: may omit if .gitignore is explicitly
 # tracked
 !/.gitignore
+# do not ignore papermill state and reviews (tracked alongside the paper)
+# unanchored so it also covers any nested paper dirs
+!.papermill/
 
 /build* 
 main.pdf

@@ -85,6 +85,10 @@
 - Clean: `make clean` (keep PDF) or `make cleanall` (remove PDF)
 - Word count: `make wc`
 
+## Review History
+
+- **2026-05-29** (multi-agent-review): **minor-revision**. Critical 0, Major 3, Minor 11, Suggestions 2. Builds clean via `make` (27 pp). Reconciled against the 2026-02-26 review: 3 of 3 prior criticals and 5 of 8 prior majors resolved, no regressions. New major: `MakeBHF-Adaptive` returns `(N, t)` but `Find` recomputes `h(1 || x || b)`, so the adaptive MAP path stores no salt and is not decodable (fix: store `(N, t, b)` for maps; sets are fine with `b=eps`). Contribution 3 overclaims optimality (credit Pagh-Pagh-Rao for efficient achievability; the genuine novelty is the maximum-entropy encoder and the adaptive trade-off). Missing closest map prior art (Bloomier filter, Dietzfelbinger-Pagh retrieval). Two printed closed-form identities in `space.tex` (Thm 5.2 `E[log2 Q]`, Remark `H(Q)`) are false as exact equalities, though their `O(1)` consequences hold. Report: `.papermill/reviews/2026-05-29/review.md`.
+
 ## Last Updated
 
-2026-02-26 — initial papermill init
+2026-05-29 (multi-agent review; prior entry: 2026-02-26 papermill init)

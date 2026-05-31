@@ -85,7 +85,7 @@ This paper is part of a 4-paper family:
 - **candidates**: to be evaluated
 
 ## Reviews
-- None yet
+- **2026-05-29** (multi-agent-review): **minor-revision**. Critical 0, Major 3, Minor 8, Suggestions 9. Mathematics fully correct: E and Var for PPV, NPV, accuracy, Youden's J, and F1 all match Monte Carlo (2M trials). Major items: the headline prevalence-sensitivity result is the classical PPV-vs-prevalence relation from diagnostic testing and needs a citation plus explicit differentiation for data structures; closest distributional prior art (Goutte and Gaussier 2005) is unaddressed; only `code/f1_sim.py` is committed, so the PPV theory-vs-sim figure and the three prevalence curves have no generating script. Minor (genuine contradiction): Prop 2.1 sets E[beta]=tau while Cor 2.5 uses TPR=1-beta, which needs E[beta]=omega; no downstream theorem inherits the error. Report: `.papermill/reviews/2026-05-29/review.md`.
 
 ## Open Problems (from conclusion)
 1. Matthews correlation coefficient (MCC) under Bernoulli model: more complex ratio of binomials

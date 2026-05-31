@@ -6,21 +6,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Collection of related research papers by Alexander Towell on **random approximate sets** (Bernoulli sets): a probabilistic framework for modeling sets with quantifiable false positive/negative error rates. Applications include Bloom filters, perfect hash filters, encrypted search, and approximate relational algebra.
 
+## Where to Start
+
+- **"Work on paper X"**: read this file for cross-paper context (notation, topic placement, layering), then read that paper's own `CLAUDE.md` if it has one (7 of 9 do; see the table below). The per-paper file is more specific about section order, current draft state, and section-by-section purpose.
+- **"What is the status of paper X?"**: read `papers/.papermill/state.md` (collection-level: thesis, phase, venue per paper) and `<paper>/.papermill/state.md` if it exists (per-paper detail). Do not infer status from git log or by reading the LaTeX.
+- **"Where does topic Y belong?"**: use the **Cross-Paper Topic Placement** table below. It is authoritative; do not duplicate content across papers.
+- **"How does paper X build?"**: see **Build Commands** below. Most papers use the standard `pdflatex && bibtex && pdflatex && pdflatex` triple. Three deviate (Makefile, shell-escape, sub-paper layout), as noted in the table.
+- **"Push paper X upstream"** or subtree workflow: see `../CLAUDE.md` (the parent monorepo file) for the remote-name table and `git subtree push` commands. Do not duplicate that here.
+
 ## Papers
 
-| Directory | Title | Status | Notation | Build |
-|---|---|---|---|---|
-| `bernoulli_sets/` | Bernoulli sets: a model for random approximate sets | **Primary, actively maintained** | `alex.sty` (unified) | `pdflatex` manual |
-| `bernoulli_composition/` | Composition of Bernoulli sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
-| `bernoulli_classification_measures/` | Binary classification measures for random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
-| `bernoulli_entropy/` | Entropy and space complexity of random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual |
-| `bernoulli-hash-function/` | The Bernoulli Hash Function: Optimal Bernoulli Sets and Maps | Standalone (~95% complete) | `alex.sty` (unified) | `make` |
-| `bernoulli-phf/` | The Perfect Hash Filter | Standalone (early, ~25%) | Modular `sty/` packages | `pdflatex` manual (shell-escape) |
-| `bernoulli_maps/` | The algebra of the random approximate map model | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
-| `bernoulli_relations/` | The abstract data type of the approximate relation | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
-| `bernoulli_data_type/` | Random approximate values over algebraic types | Standalone (early) | Modular `.sty` packages | `pdflatex` manual |
+| Directory | Title | Status | Notation | Build | CLAUDE.md |
+|---|---|---|---|---|---|
+| `bernoulli_sets/` | Bernoulli sets: a model for random approximate sets | **Primary, actively maintained** | `alex.sty` (unified) | `pdflatex` manual | yes |
+| `bernoulli_composition/` | Composition of Bernoulli sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual | yes |
+| `bernoulli_classification_measures/` | Binary classification measures for random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual | no |
+| `bernoulli_entropy/` | Entropy and space complexity of random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual | no |
+| `bernoulli-hash-function/` | The Bernoulli Hash Function: Optimal Bernoulli Sets and Maps | Standalone (~95% complete) | `alex.sty` (unified) | `make` | yes |
+| `bernoulli-phf/` | The Perfect Hash Filter | Standalone (early, ~25%) | Modular `sty/` packages | `pdflatex` manual (shell-escape); LaTeX is in `paper/` subdir, not at top level | yes |
+| `bernoulli_maps/` | The algebra of the random approximate map model | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
+| `bernoulli_relations/` | The abstract data type of the approximate relation | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
+| `bernoulli_data_type/` | Random approximate values over algebraic types | Standalone (early) | Modular `.sty` packages | two sub-papers, build each separately | yes |
 
-**Note:** `bernoulli_data_type/` contains two sub-papers with separate `main.tex` files: `bernoulli_model/` (foundational framework) and `algebraic_types/` (type-theoretic extension).
+**Structural deviations from the standard layout** (assume the standard pattern and you will look in the wrong place):
+- `bernoulli-phf/` is a C++ project that *contains* the paper at `bernoulli-phf/paper/main.tex`. The top-level directory has `include/`, `src/`, `tests/`, `CMakeLists.txt`, etc.
+- `bernoulli_data_type/` has no top-level `main.tex`. It contains **two parallel sub-papers**, each a complete LaTeX project: `bernoulli_model/` (foundational framework) and `algebraic_types/` (type-theoretic extension).
 
 ### Consolidation History
 
@@ -74,7 +84,7 @@ Core notation is consistent across both: `\Set{A}` for sets, `\ASet{A}` for appr
 
 ## Architecture Pattern
 
-Each paper follows the same structure:
+Each paper follows the same structure (see "Structural deviations" above for the two papers that break it):
 - `main.tex`: Document root with preamble, package loading, section includes
 - `sections/`: One `.tex` file per section (included via `\input{}` or `\subfile{}`)
 - `references.bib`: Bibliography
@@ -82,6 +92,16 @@ Each paper follows the same structure:
 - `data/`: CSV datasets for plots
 - `research/`: Computational artifacts (Mathematica `.nb`, Maxima `.mac`, R `.Rmd`)
 - `code/`: Monte Carlo simulations (C++)
+
+## Papermill State
+
+The collection is managed with the **papermill** plugin (state-tracked paper drafting). State files are the source-of-truth for paper status; prefer reading them over inferring from git log or LaTeX content.
+
+- `papers/.papermill/state.md`: collection-level dashboard. Per-paper thesis, root file, build command, sections, bibliography status, phase, and venue. Read this first when asked about paper status.
+- `<paper>/.papermill/state.md`: per-paper detail (currently present for `bernoulli_sets/`, `bernoulli_classification_measures/`, `bernoulli-hash-function/`, `bernoulli-phf/`).
+- `<paper>/.papermill/reviews/YYYY-MM-DD/`: multi-agent editorial review output (specialist reports plus a unified `review.md`). Example: `bernoulli_sets/.papermill/reviews/2026-05-23/` contains the most recent review pass on the primary paper.
+
+The papermill skills (`papermill:status`, `papermill:review`, `papermill:draft`, etc.) read and write these files. When editing manually, keep the relevant `state.md` in sync.
 
 ## Conceptual Layering
 
@@ -143,6 +163,12 @@ Each paper owns a specific domain. When deciding where new content belongs:
 
 The Bernoulli framework provides the error model for the trapdoor computing paradigm (`~/github/trapdoor-computing/`). Bernoulli maps ARE cipher maps at the mathematical level: the BHF salt is the trapdoor key, the acceptance predicate implements the cipher map, and the space formula -log2(epsilon) + mu governs both. The composition theorem is Property 4 of cipher maps. The Bernoulli Boolean algebra is the trapdoor Boolean algebra.
 
+## Things Not To Edit
+
+- `pdf-archive/`: compiled PDFs of superseded drafts (e.g., `bernoulli_sets_higher_order.pdf`, `bernoulli-sets.pdf`). Read for reference, do not regenerate, do not delete.
+- LaTeX build artifacts inside paper directories (`main.aux`, `main.log`, `main.bbl`, `main.pdf`, `_minted-*/`, `main.synctex.gz`). Covered by per-paper `.gitignore` files; never `git add` them by hand.
+- `bernoulli_sets/sections/unused/`: archived content from earlier paper splits. Useful as a reference for what was moved where, but not part of the current build.
+
 ## Repository Structure
 
-The `papers/` directory contains git subtrees, each with its own GitHub remote. The parent `bernoulli` repo tracks shared infrastructure (notation packages, build patterns) plus all papers in a single working tree.
+The `papers/` directory contains one git subtree per paper, each with its own GitHub remote. The parent `bernoulli` repo tracks shared infrastructure (notation packages, build patterns) plus all papers in a single working tree. The full remote-name table and `git subtree push/pull` commands live in `../CLAUDE.md` to avoid duplication.
