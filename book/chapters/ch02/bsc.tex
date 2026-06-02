@@ -222,27 +222,35 @@ $0.05$ has $95\%$ accuracy under a uniform input distribution.
 
 \subsection*{The BSC as the symmetric special case of order 2}
 
-The source papers in the Bernoulli framework use two conventions that are
-worth aligning before proceeding. Some sections call the BSC a
-``first-order'' model (one free parameter), while \Cref{ch:axioms-kronecker}
-calls it the \emph{symmetric special case of the order-2 model}. These
-are both correct, depending on what is being counted.
+The source papers in the Bernoulli framework use two phrases for the BSC
+that are worth aligning before proceeding. Some sections call the BSC a
+``first-order'' model, while \Cref{ch:axioms-kronecker} calls it the
+\emph{symmetric special case of the order-2 model}. Both are correct, but
+they refer to different things: the BSC's model order, and the family we
+embed it in.
 
-Model order, formalized in \Cref{sec:model-order}, counts the number of
-distinct partition blocks in the input domain, not the number of free
-parameters. The Boolean input domain $\{\top, \bot\}$ has two elements,
-and in the order-2 model these form two blocks: $B_1 = \{\top\}$
-(positives) and $B_2 = \{\bot\}$ (negatives). The model has two blocks
-and therefore model order 2, regardless of whether the BSC's symmetry
-constraint $\fprate = \fnrate$ further reduces the free parameter count
-from 2 to 1.
+Model order, formalized in \Cref{sec:model-order}, counts the blocks in
+the partition of the input domain that groups together exactly those
+inputs sharing a common error rate. For the BSC both inputs share the
+single crossover rate $\fprate$, since $\Pr\{\phi(\top) \neq \top\} =
+\Pr\{\phi(\bot) \neq \bot\} = \fprate$; the two inputs therefore fall in
+one block, and the BSC has \emph{model order 1}. The general asymmetric
+channel of \Cref{sec:asymmetric-channel}, with $\fprate \neq \fnrate$,
+keeps the two inputs in separate blocks and has model order 2.
 
-Put differently: model order is about the partition of the input domain
-(how many distinct error regimes exist), while parameter count is about
-how many numbers you need to write down (which may be less than the
-model order, if the channel is symmetric or otherwise constrained). The
-BSC is order 2 with one free parameter; the general asymmetric channel of
-\Cref{sec:asymmetric-channel} is order 2 with two free parameters.
+Calling the BSC ``the symmetric special case of the order-2 model'' refers
+not to its model order but to the family we work in. We can always write
+the BSC with the two-block discrete partition $B_1 = \{\top\}$, $B_2 =
+\{\bot\}$ and then impose the constraint $\fprate = \fnrate$; chapters
+2--4 work in this two-block frame throughout, because it is the natural
+one for the Boolean domain. So the BSC is genuinely model order 1, studied
+as a constrained member of the order-2 family.
+
+Model order and parameter count are nonetheless distinct in general, and
+\Cref{sec:model-order} separates them carefully: the Z-channel, with
+$\fnrate = 0 \neq \fprate$, has model order 2 (two blocks at different
+rates) yet only one free parameter. For the BSC the two counts happen to
+coincide at 1; for the general asymmetric channel they coincide at 2.
 
 \Cref{sec:axiom-2} makes the connection to partition blocks explicit in
 the context of Axiom 2. The convention $B_1 = \{\top\}$, $B_2 =
