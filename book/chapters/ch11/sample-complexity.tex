@@ -201,8 +201,12 @@ simplifies to
   \exp\!\left(-\frac{k \epsilon_0^2}{2(1/2 + \epsilon_0)}\right)
   \;\le\; \exp\!\left(-\frac{2 k \epsilon_0^2}{3}\right)
 \]
-when $\epsilon_0 \le 1/2$. Loosening the constant to a clean
-$\exp(-k \epsilon_0^2 / 3)$ and asking that this be at most $\delta$,
+when $\epsilon_0 \le 1/4$ (the threshold where the exponent coefficient
+$1/[2(1/2 + \epsilon_0)]$ equals $2/3$). Over the full BPP range
+$\epsilon_0 < 1/2$ the same Chernoff exponent gives the looser but
+always-valid clean bound $\exp(-k \epsilon_0^2 / 3)$, since
+$1/[2(1/2 + \epsilon_0)] \ge 1/3$ for every $\epsilon_0 \le 1$. Asking
+that this clean bound be at most $\delta$,
 \[
   k \;\ge\; \frac{3 \ln(1/\delta)}{\epsilon_0^2}.
 \]
