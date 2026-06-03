@@ -1,227 +1,74 @@
-% §3.4 Miller-Rabin: A Worked Walkthrough
-%
-% This is PART I CLIMAX 1 of the textbook.
-% The unification thesis: primality testing is not a separate technique;
-% it is the Bernoulli[bool] framework applied.
-%
-% Five-step structure:
-%   Step 1 -- state the witness predicate
-%   Step 2 -- characterize as Bernoulli[bool] with FNR=0, FPR <= 1/4
-%   Step 3 -- apply the composition theorem for k rounds
-%   Step 4 -- pseudocode + numerical example (n = 341)
-%   Step 5 -- pedagogical reframe (unification thesis)
+% §3.4 Miller-Rabin
 %
 % Cross-reference resolution status:
 %
-% RESOLVED (chapters 3 and 4, drafted in Plans 1-3):
-%   \Cref{sec:and-under-noise}      -- chapter 3 §3.1
-%   \Cref{sec:composition-theorem}  -- chapter 3 §3.3
-%   \Cref{sec:axiom-1}              -- chapter 4 §4.2
-%   \Cref{ax:element-indep}         -- Axiom 1 formal statement (chapter 4)
-%   \Cref{def:bernoulli-bool}       -- chapter 4 §4.5
+% RESOLVED:
+%   \Cref{sec:and-under-noise}, \Cref{sec:composition-theorem},
+%   \Cref{eq:composition-theorem}  -- chapter 3
+%   \Cref{sec:axiom-1}, \Cref{ax:element-indep}, \Cref{def:bernoulli-bool} -- chapter 4
+%   \Cref{sec:bridge-to-sets}      -- chapter 3 §3.5
+%   \Cref{ch:randomized-algorithms}-- chapter 11
 %
-% EXPECTED UNRESOLVED (forward refs that resolve in later Tasks/Plans):
-%   \Cref{sec:bridge-to-sets}       -- chapter 3 §3.5 (resolves in Plan 3 Task 6)
-%   \Cref{ch:randomized-algorithms} -- chapter 11 (resolves in a later Plan)
+% DEFINED here: \label{sec:miller-rabin}, \label{eq:mr-fpr},
+%   \label{eq:mr-k-round}, \label{alg:miller-rabin}
 %
-% Build warnings for the two unresolved labels above are expected at this stage.
+% Monograph register: Miller-Rabin as a k-fold one-sided Bernoulli[Bool]
+% conjunction. PRESERVE the B1 fix: the k-round FPR is the product
+% prod(eps_i) <= (1/4)^k, with the equality stated as the all-negative dual
+% of the composition theorem.
 
-\section{Miller-Rabin: A Worked Walkthrough}
+\section{Miller-Rabin}
 \label{sec:miller-rabin}
 
-Part I has built up a small but complete toolkit: $\Bernoulli{\BoolType}$
-instances with error rates $(\fprate, \fnrate)$, the Boolean algebra over
-noisy bits (\Cref{sec:and-under-noise}), and the composition theorem that
-governs how error rates accumulate when instances are combined
-(\Cref{sec:composition-theorem}). This section deploys that toolkit in full
-against a canonical example from number theory.
+Miller-Rabin primality testing is a $k$-fold one-sided $\Bernoulli{\BoolType}$
+conjunction. Number theory contributes one fact, the per-round bound $\fprate
+\le 1/4$; everything else is the composition machinery of \S\S3.1--3.3.
 
-The Miller-Rabin primality test is one of the most widely used randomized
-algorithms in practice. It decides, with adjustable confidence, whether an
-integer $n$ is prime. We will show that the algorithm IS a $k$-fold
-$\Bernoulli{\BoolType}$ composition. Every formula in the Miller-Rabin
-analysis---the per-round false-positive bound $\fprate \leq 1/4$, the
-$k$-round bound $\fprate_k \leq (1/4)^k$, and the design rule ``choose $k$
-large enough''---falls directly out of the framework developed in §§3.1--3.3.
-The algorithm contributes one non-trivial mathematical fact; everything else
-is the composition theorem applied.
+\subsection*{The witness test as a noisy bit}
 
-%---------------------------------------------------------------------------
-\subsection*{Step 1: The witness predicate}
-
-Fix a positive odd integer $n > 3$ whose primality we wish to decide. A
-single \emph{Miller-Rabin witness test} proceeds as follows.
-
-Write $n - 1 = 2^r \cdot d$ with $d$ odd and $r \geq 1$. Choose a witness
-$a \in \{2, 3, \ldots, n-2\}$ uniformly at random. Compute the sequence
-\[
-  a^d \bmod n,\quad a^{2d} \bmod n,\quad a^{4d} \bmod n,\quad \ldots,
-  \quad a^{2^r d} \bmod n.
-\]
-Declare $n$ \textbf{composite} (the definitive outcome) if none of these
-values equals $\pm 1 \pmod{n}$, or more precisely: if $a^d \not\equiv \pm 1$
-and $a^{2^j d} \not\equiv -1$ for all $j \in \{1, \ldots, r-1\}$.
-Declare $n$ \textbf{probably prime} (the uncertain outcome) otherwise.
-
-The test returns one of two verdicts:
-\begin{itemize}
-  \item \textbf{``composite'':} $n$ is definitely not prime. No false negatives
-    here---a prime number always passes the test (Fermat's little theorem
-    guarantees $a^{n-1} \equiv 1 \pmod{n}$ for any $a$ coprime to $n$, and
-    the sequence of square roots must eventually exhibit a trivial square root
-    of 1).
-  \item \textbf{``probably prime'':} $n$ might be prime, or might be a
-    composite that ``fooled'' witness $a$. The latter is possible for
-    composites with large \emph{strong-liar sets}.
-\end{itemize}
-
-This is already the shape of a $\Bernoulli{\BoolType}$ instance, as we make
-precise next.
-
-%---------------------------------------------------------------------------
-\subsection*{Step 2: Characterizing the test as $\Bernoulli{\BoolType}$ with
-FNR${}=0$, FPR${}\leq 1/4$}
-
-The witness test is a predicate on an integer $n$:
-\[
-  W_a(n) \;=\;
-  \begin{cases}
-    \text{composite} & \text{if } a \text{ certifies compositeness,} \\
-    \text{probably prime} & \text{otherwise.}
-  \end{cases}
-\]
-Identify ``composite'' with $\bot$ (false, $n$ is not prime) and ``probably
-prime'' with $\top$ (positive result, $n$ might be prime). The true value of
-the predicate is whether $n$ is actually prime.
-
-In these terms, two error events are possible:
-\begin{itemize}
-  \item \textbf{False negative ($\fnrate$):} $n$ is prime but $W_a(n) =
-    \text{composite}$. This cannot happen: if $n$ is prime, then $a^d \equiv
-    \pm 1 \pmod{n}$ or some $a^{2^j d} \equiv -1 \pmod{n}$, and the test
-    correctly declares $n$ probably prime. So $\fnrate = 0$.
-  \item \textbf{False positive ($\fprate$):} $n$ is composite but $W_a(n) =
-    \text{probably prime}$. This can happen when $a$ is a \emph{strong liar}
-    for $n$: an element of $\{2, \ldots, n-2\}$ that passes the Miller-Rabin
-    test even though $n$ is composite.
-\end{itemize}
-
-The Miller-Rabin theorem states that for any composite $n$, the number of
-strong liars in $\{2, \ldots, n-2\}$ is at most $(n-3)/4$. A uniformly
-random witness therefore satisfies:
+Fix an odd $n > 3$ and write $n - 1 = 2^r d$ with $d$ odd. A witness $a \in
+\{2, \ldots, n-2\}$ certifies compositeness if the sequence $a^d, a^{2d},
+\ldots, a^{2^r d} \pmod{n}$ reaches $1$ without passing through $-1$ and
+without starting at $\pm 1$; otherwise the test reports ``probably prime.''
+Identify ``probably prime'' with $\top$ and ``composite'' with $\bot$, and let
+the true value be whether $n$ is prime. Then a prime always passes (by Fermat's
+little theorem and the fact that the only square roots of $1$ modulo a prime
+are $\pm 1$), so the test has no false negatives, $\fnrate = 0$. A composite
+passes only when $a$ lies in its \emph{strong-liar set}, and Rabin's theorem
+bounds that set at $(n-3)/4$, so a uniform witness gives
 \begin{equation}
-  \fprate \;\leq\; \frac{1}{4}.
-  \label{eq:mr-fpr}
+\label{eq:mr-fpr}
+  \fprate \;\le\; \frac{1}{4}.
 \end{equation}
-The $1/4$ bound is sharp: some composites (products of two primes of similar
-size) come close to having $(n-3)/4$ strong liars.
+A single round is therefore a $\Bernoulli{\BoolType}$ instance with $\fnrate =
+0$ and $\fprate \le 1/4$.
 
-The single-round witness test is therefore a $\Bernoulli{\BoolType}$ instance
-with $\fnrate = 0$ and $\fprate \leq 1/4$ (see \Cref{def:bernoulli-bool}
-for the formal type).
+To bring the $k$-round test under Axiom~1 (\Cref{ax:element-indep}), recast it
+as a predicate on the witness pool: $\tilde{P}(a)$ is the verdict for witness
+$a$, the pool $\{2, \ldots, n-2\}$ is the universe, and distinct witnesses are
+distinct input elements. The $k$-round test is the conjunction $\tilde{P}(a_1)
+\wedge \cdots \wedge \tilde{P}(a_k)$ over $k$ independently drawn witnesses,
+exactly the operation of \Cref{sec:and-under-noise}.
 
-\medskip
-\noindent\textbf{Predicate recasting: fitting Axiom 1.}
-There is a subtle point here that deserves explicit attention, foreshadowed in
-\Cref{sec:axiom-1} and \Cref{ax:element-indep}.
+\subsection*{The k-round bound}
 
-The natural description of the Miller-Rabin test is: fix a single candidate
-$n$, and draw $k$ independent random witnesses $a_1, a_2, \ldots, a_k \in
-\{2, \ldots, n-2\}$. In this framing, randomness enters via the witness
-draw, not via the input. The input $n$ is \emph{fixed} across all rounds.
-But Axiom 1 is a statement about distinct \emph{input elements} to a single
-predicate: the error events at distinct inputs are independent.
-
-To apply Axiom 1 cleanly, we recast the test. Define a new predicate
-\[
-  \tilde{P}\colon \{2, \ldots, n-2\} \;\to\; \{\text{composite},\,
-  \text{probably prime}\}
-\]
-where $\tilde{P}(a)$ is the verdict of the witness test applied to $n$ with
-witness $a$. Now the witness pool $\{2, \ldots, n-2\}$ plays the role of the
-\emph{universe}, and distinct witnesses $a_i \neq a_j$ are distinct input
-elements. Axiom 1 is the claim that the error event at $a_i$ (the event ``$a_i$
-is a strong liar for $n$'') is independent of the error event at $a_j$ (the
-event ``$a_j$ is a strong liar for $n$''). Whether this independence actually
-holds for a given composite $n$ is a fact about the structure of $n$'s
-strong-liar set, not something that Axiom 1 grants by fiat. We return to this
-point in Step 5. What the recasting achieves is structural: distinct witnesses
-are now distinct input elements, and the Axiom 1 framework applies to the
-recast predicate $\tilde{P}$ in the same way it applies to any other
-$\Bernoulli{\BoolType}$ predicate.
-
-The $k$-round Miller-Rabin test is then the AND of $k$ evaluations of
-$\tilde{P}$: declare ``probably prime'' only if all $k$ witnesses return
-``probably prime''. This is a $k$-fold AND of $\Bernoulli{\BoolType}$
-instances, exactly the operation analyzed in \Cref{sec:and-under-noise}.
-
-%---------------------------------------------------------------------------
-\subsection*{Step 3: Applying the composition theorem for $k$ rounds}
-
-With the predicate recasting in place, the composition theorem
-(\Cref{sec:composition-theorem}, \Cref{thm:composition}) applies directly.
-
-Each round is a $\Bernoulli{\BoolType}$ instance with $\fnrate_i = 0$ and
-$\fprate_i \leq 1/4$. The $k$-fold AND has:
-
-\medskip
-\noindent\textbf{False-negative rate of the $k$-round test.}
-Since $\fnrate_i = 0$ for all rounds, any prime will pass every round
-correctly. The AND of zero-false-negative stages has zero false-negative rate:
-\[
-  \fnrate_k \;=\; 1 - \prod_{i=1}^k (1 - \fnrate_i) \;=\; 1 - 1^k \;=\; 0.
-\]
-The $k$-round test never misidentifies a prime as composite, regardless of $k$.
-
-\medskip
-\noindent\textbf{False-positive rate of the $k$-round test.}
-For the FNR${}=0$ (one-sided error) case, the composition theorem applies
-without the BSC cancellation caveat noted in \Cref{sec:composition-theorem}:
-a false positive at any round cannot be ``corrected'' by a later round, because
-subsequent rounds with $\fnrate = 0$ correctly pass $\top$ inputs through.
-The $k$-round false-positive rate satisfies:
+Each round is one-sided with $\fnrate_i = 0$, so the conjunction has
+$\fnrate_k = 0$: the test never calls a prime composite. All $k$ rounds test
+the same $n$, so the only true input is $\bot$ (for a composite), and the
+false-positive rate is the all-negative dual of the composition theorem,
+\eqref{eq:composition-theorem}: the conjunction false-positives only if every
+witness is a strong liar, so
 \begin{equation}
-  \fprate_k
-  \;=\; \prod_{i=1}^k \fprate_i
-  \;\leq\; \left(\frac{1}{4}\right)^k.
-  \label{eq:mr-k-round}
+\label{eq:mr-k-round}
+  \fprate_k \;=\; \prod_{i=1}^{k} \fprate_i \;\le\; \left(\frac{1}{4}\right)^k.
 \end{equation}
-Here the equality uses the fact that, when $\fnrate_i = 0$, the composition
-theorem's ``at least one error'' formula for the false-positive rate reduces
-to the product $\prod_{i=1}^k \fprate_i$, since each round making a false
-positive is the only way the chain can make a false positive. The inequality
-then bounds each per-round rate by the worst-case value $\fprate_i \leq 1/4$
-that Miller-Rabin guarantees for every composite.
-
-To see this: the $k$-round AND declares ``probably prime'' if and only if every
-round declares ``probably prime''. For a composite $n$, this happens if and
-only if every witness $a_i$ is a strong liar. By the Axiom 1 recasting, the
-events ``$a_i$ is a strong liar'' are independent (under the worst-case
-assumption over $n$). The probability that all $k$ witnesses are strong liars
-is at most $(1/4)^k$.
-
-Equivalently: the correctness probability of the $k$-round test (the
-probability of correctly declaring a composite as composite) is at least
-$1 - (1/4)^k$, and the correctness probability of correctly identifying a
-prime as probably prime is exactly 1.
-
-The three key error bounds for standard choices of $k$:
-\begin{center}
-\begin{tabular}{ccc}
-\hline
-$k$ & $\fprate_k \leq (1/4)^k$ & Approximate \\
-\hline
-$1$ & $1/4$         & $0.250$ \\
-$5$ & $(1/4)^5$     & $\approx 9.8 \times 10^{-4}$ \\
-$20$ & $(1/4)^{20}$ & $\approx 9.1 \times 10^{-13}$ \\
-\hline
-\end{tabular}
-\end{center}
-At $k = 20$ rounds, the probability of a false positive is below
-$10^{-12}$: for practical purposes, the test is definitive.
-
-%---------------------------------------------------------------------------
-\subsection*{Step 4: Pseudocode and numerical example}
+The equality is the product over the independently drawn witnesses (membership
+of a uniform draw in the strong-liar set is independent across draws); the
+inequality bounds each round by the Monier-Rabin value $\fprate_i \le 1/4$.
+Both ingredients are needed: the size bound $|L_n| \le (n-3)/4$ from number
+theory and the independent sampling that makes Axiom~1 apply. At $k = 5$ the
+bound is below $10^{-3}$, and at $k = 20$ below $10^{-12}$, effectively
+definitive.
 
 \begin{algorithm}[ht]
   \caption{Miller-Rabin primality test ($k$ rounds)}
@@ -229,26 +76,17 @@ $10^{-12}$: for practical purposes, the test is definitive.
   \SetKwInOut{Input}{input}
   \SetKwInOut{Output}{output}
   \SetKwProg{func}{function}{}{}
-  \Input{%
-    $n$: odd integer $> 3$; \quad
-    $k$: number of rounds ($k \geq 1$)%
-  }
-  \Output{%
-    \textsc{composite} (definitive) or \textsc{probably-prime} (with FPR $\leq (1/4)^k$)%
-  }
+  \Input{$n$: odd integer $> 3$; \quad $k$: number of rounds}
+  \Output{\textsc{composite} (definitive), or \textsc{probably-prime} (FPR $\le (1/4)^k$)}
   \func{\textsc{MillerRabin}($n$, $k$)}{
-    write $n - 1 = 2^r \cdot d$ with $d$ odd\;
+    write $n - 1 = 2^r d$ with $d$ odd\;
     \For{$i \gets 1$ \KwTo $k$}{
-      choose $a$ uniformly at random from $\{2, \ldots, n-2\}$\;
+      choose $a$ uniformly from $\{2, \ldots, n-2\}$\;
       $x \gets a^d \bmod n$\;
-      \If{$x = 1$ \textbf{or} $x = n-1$}{
-        \textbf{continue} \tcp*{witness $a$ passes; try next}
-      }
+      \lIf{$x = 1$ \textbf{or} $x = n-1$}{\textbf{continue}}
       \For{$j \gets 1$ \KwTo $r - 1$}{
         $x \gets x^2 \bmod n$\;
-        \If{$x = n - 1$}{
-          \textbf{break} \tcp*{found $-1$; witness passes}
-        }
+        \lIf{$x = n - 1$}{\textbf{break}}
       }
       \lIf{$x \neq n - 1$}{\Return \textsc{composite}}
     }
@@ -256,143 +94,26 @@ $10^{-12}$: for practical purposes, the test is definitive.
   }
 \end{algorithm}
 
-\noindent\textbf{Worked example: $n = 341 = 11 \times 31$.}
+\subsection*{A worked composite: \texorpdfstring{$n = 341$}{n = 341}}
 
-We choose $n = 341$ because it is a pedagogically useful case: $341$ is
-a \emph{Fermat pseudoprime to base 2}, meaning the naive Fermat test
-($2^{n-1} \equiv 1 \pmod{n}$?) would incorrectly pass it. Indeed,
-$2^{340} \equiv 1 \pmod{341}$, so Fermat fails. Miller-Rabin does not.
+The number $341 = 11 \times 31$ is a Fermat pseudoprime to base $2$ ($2^{340}
+\equiv 1 \pmod{341}$), so the Fermat test passes it, but Miller-Rabin does not.
+With $n - 1 = 2^2 \cdot 85$, take $a = 2$: $2^{85} \equiv 32 \pmod{341}$ with
+$32 \neq \pm 1$, and $32^2 \equiv 1 \pmod{341}$. A non-trivial square root of
+$1$ has appeared, which a prime modulus forbids, so the witness $a = 2$
+certifies $341$ composite. Miller-Rabin is stronger than Fermat precisely
+because it inspects the square roots of $1$ along the way to $a^{n-1}$, not
+just the endpoint.
 
-\medskip
-\noindent\textit{Setup.} We have $n - 1 = 340$. Factoring out powers of 2:
-$340 = 4 \times 85 = 2^2 \times 85$. So $r = 2$ and $d = 85$.
+\subsection*{The unification}
 
-\medskip
-\noindent\textit{Witness $a = 2$.} Compute the sequence:
-\begin{align*}
-  a^d \bmod n &= 2^{85} \bmod 341 = 32. \\
-  a^{2d} \bmod n &= 32^2 \bmod 341 = 1024 \bmod 341 = 1.
-\end{align*}
-The test checks: is $a^d \equiv \pm 1 \pmod{n}$? We have $32 \not\equiv 1$
-and $32 \not\equiv 340 \equiv -1 \pmod{341}$. So we proceed to squaring.
-
-Next, is $a^{2d} \equiv -1 \pmod{n}$? We have $1 \not\equiv 340 \pmod{341}$.
-We have exhausted all $r - 1 = 1$ squarings without finding $-1$.
-
-Therefore, $2^{85} \equiv 32 \pmod{341}$ with $32 \neq \pm 1$, and
-$32^2 \equiv 1 \pmod{341}$. This is a \emph{non-trivial square root of 1}
-modulo $341$: a value $x \neq \pm 1$ with $x^2 \equiv 1$. The existence
-of a non-trivial square root of 1 is a certificate of compositeness (if
-$n$ were prime, the only square roots of 1 in $\mathbb{Z}/n\mathbb{Z}$
-would be $\pm 1$). The algorithm returns \textsc{composite}.
-
-\medskip
-Why does $341$ fool Fermat but not Miller-Rabin? The Fermat test checks
-$2^{340} \equiv 1 \pmod{341}$, which holds---$341$ is a Fermat
-pseudoprime. Miller-Rabin is stronger: it checks not just $a^{n-1} \equiv
-1$, but whether the sequence of square roots leading to 1 goes through
-$-1$ at some point. For a prime $p$, every square root of 1 in
-$\mathbb{Z}/p\mathbb{Z}$ is $\pm 1$. For the composite $341$, the Chinese
-Remainder Theorem produces elements that square to 1 without being $\pm 1$
-modulo $341$; witness $a = 2$ exposes one of them.
-
-\medskip
-\noindent\textit{Error bounds for $n = 341$.} For a composite with $r=2$,
-$d=85$, and $k$ rounds:
-
-\begin{center}
-\begin{tabular}{ccc}
-\hline
-$k$ & $\fprate_k \leq (1/4)^k$ & Interpretation \\
-\hline
-$1$ & $0.250$ & 1-in-4 chance of passing a random witness \\
-$5$ & $\approx 9.8 \times 10^{-4}$ & Better than 1-in-1000 \\
-$20$ & $\approx 9.1 \times 10^{-13}$ & Effectively certain \\
-\hline
-\end{tabular}
-\end{center}
-
-In practice, $k = 20$ is the standard for cryptographic applications. At
-that level the false-positive probability is negligible compared to hardware
-error rates.
-
-%---------------------------------------------------------------------------
-\subsection*{Step 5: The unification thesis}
-
-We are now in a position to state plainly what this section has shown.
-
-Miller-Rabin primality testing is not a separate technique that happens to use
-randomness. It is an instance of the Bernoulli framework applied to a specific
-mathematical predicate.
-
-\begin{itemize}
-  \item The single-round witness test is a $\Bernoulli{\BoolType}$ instance
-    with $\fnrate = 0$ and $\fprate \leq 1/4$. This follows from the
-    Miller-Rabin theorem about strong-liar counts, not from the framework
-    itself.
-
-  \item The $k$-round test is the $k$-fold AND of $\Bernoulli{\BoolType}$
-    witnesses. This is the composition of \Cref{sec:and-under-noise}.
-
-  \item The bound $\fprate_k \leq (1/4)^k$ is the composition theorem
-    (\Cref{thm:composition}) applied to the one-sided-error (FNR${}= 0$)
-    special case.
-
-  \item The design rule ``choose $k$ large enough to drive $\fprate_k$ below a
-    target $\epsilon$'' is the composition theorem solved for $k$:
-    $k \geq \log_{1/4}(\epsilon) = -2\log_2(\epsilon)$.
-
-  \item The correctness of this design rule is guaranteed by the framework
-    given one input from the number theory: $\fprate \leq 1/4$ per round.
-\end{itemize}
-
-Every structural step above was a consequence of the framework. The only
-fact that Miller-Rabin contributes is the $1/4$ bound on the per-round
-false-positive rate---that is the mathematical content of the Miller-Rabin
-theorem. The rest is Boolean algebra over noisy bits.
-
-\medskip
-\noindent\textbf{On the independence assumption.}
-The analysis in Step 3 applied Axiom 1 to the recast predicate $\tilde{P}$,
-treating the error events at distinct witnesses as independent. It is worth
-being precise about what this means.
-
-The $(1/4)^k$ bound is a \emph{worst-case} bound over all composites $n$. It
-says: for any composite $n$, at most $1/4$ of witnesses are strong liars.
-Therefore, if we sample witnesses uniformly and independently, the probability
-that all $k$ land in the strong-liar set is at most $(1/4)^k$.
-
-The independence here is \emph{over the uniform random draw of witnesses}, not
-a statement about the structure of the strong-liar set itself. For a given
-composite $n$ with a fixed strong-liar set $L_n \subseteq \{2, \ldots, n-2\}$,
-the event ``$a_i \in L_n$'' and the event ``$a_j \in L_n$'' are independent
-when $a_i$ and $a_j$ are drawn independently and uniformly from
-$\{2, \ldots, n-2\}$, because membership of a uniform random element in $L_n$
-is independent across draws. This is sampling-with-replacement independence,
-which holds by construction, not by any special property of $L_n$.
-
-So the application of Axiom 1 here is clean: we draw distinct witnesses, and
-the error events are independent by the uniform sampling protocol. The bound
-$(1/4)^k$ uses both the $|L_n| \leq (n-3)/4$ size bound (the mathematical
-content of Miller-Rabin) and the uniform independent sampling (the protocol
-that makes Axiom 1 applicable to the recast predicate $\tilde{P}$). Neither
-alone is sufficient; both are needed.
-
-\medskip
-\noindent\textbf{What this section was not.}
-We have not given the most general treatment of randomized primality tests.
-The Las Vegas versus Monte Carlo distinction---and the question of what a
-\emph{zero-error} primality test would require---belongs to chapter 11
-(\Cref{ch:randomized-algorithms}), where the Bernoulli framework connects to
-the full theory of randomized algorithms. The present section had one goal:
-to show that the core of Miller-Rabin is the composition theorem, nothing more.
-
-\subsection*{Looking ahead}
-
-The Miller-Rabin example sits at one end of a spectrum. At the other end
-sits the Bloom filter: also a $k$-fold $\Bernoulli{\BoolType}$ composition,
-also with a per-round false-positive rate that the composition theorem drives
-down, but drawn from a different application domain (approximate set
-membership rather than primality). \Cref{sec:bridge-to-sets} will make this
-connection explicit and show how the Boolean algebra of this chapter
-generalizes, in a single structural step, to the algebra of approximate sets.
+Miller-Rabin is not a separate technique. The single round is a
+$\Bernoulli{\BoolType}$ instance with $\fnrate = 0$ and $\fprate \le 1/4$; the
+$k$-round test is the conjunction of \Cref{sec:and-under-noise}; the bound
+$\fprate_k \le (1/4)^k$ is \eqref{eq:mr-k-round}; and the design rule, choose $k
+\ge -2 \log_2 \epsilon$ to reach false-positive target $\epsilon$, is that
+bound solved for $k$. The number theory supplies the per-round $1/4$; the rest
+is Boolean algebra over noisy bits. The broader theory of randomized
+algorithms, including the Las Vegas versus Monte Carlo distinction, is
+\Cref{ch:randomized-algorithms}; the companion one-sided example, the Bloom
+filter, is \Cref{sec:bridge-to-sets}.

@@ -1,23 +1,6 @@
 \chapter{Boolean Algebra Under Noise}
 \label{ch:boolean-algebra}
 
-\begin{quote}
-\textsc{After this chapter you will be able to:}
-\begin{itemize}
-  \item Derive AND, OR, and NOT under noise from first principles, using
-    the per-block rate parameters of the input $\Bernoulli{\BoolType}$
-    instances.
-  \item State and apply the composition theorem
-    $\eta_{\mathrm{total}} = 1 - \prod_{i=1}^k (1 - \eta_i)$ for chained
-    identities-with-error.
-  \item Analyze Miller-Rabin's $k$-round error from first principles by
-    treating one witness as a $\Bernoulli{\BoolType}$ instance and
-    composing.
-  \item Locate the hidden independence assumption that
-    \Cref{ch:axioms-kronecker} will make explicit.
-\end{itemize}
-\end{quote}
-
 % Section 3.1
 \input{chapters/ch03/and-under-noise}
 
@@ -35,6 +18,3 @@
 
 % Section 3.6
 \input{chapters/ch03/bibliographic-notes}
-
-% Exercises
-\input{chapters/ch03/exercises}
