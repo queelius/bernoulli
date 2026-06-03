@@ -45,7 +45,7 @@ for a precise account of what is new in this text and what descends from the
 companion papers.
 
 The model-order treatment of \Cref{sec:model-order}, and in particular the
-definition of model order as the number of partition blocks in the finest
+definition of model order as the number of partition blocks in the coarsest
 compatible partition of the input domain (\Cref{def:model-order}), follows
 \textcite{towell-bernoulli-data-type}. That paper extends the Bernoulli
 framework from Boolean sets to approximate values over arbitrary algebraic
@@ -63,9 +63,7 @@ the heading ``Model order vs.\ parameter count.'' This distinction is easy
 to miss in the source papers, because for a single Boolean query the two
 quantities agree: an $n$-th order channel on one Boolean input has $n$
 partition blocks and also $n$ free parameters, one per block. The difference
-surfaces in the multi-query setting and is worth recording here, as it is
-flagged as a source of confusion in the companion repository's planning
-notes (\texttt{papers/CLAUDE.md}, Terminology section). When $m$ queries
+surfaces in the multi-query setting. When $m$ queries
 are issued jointly, a general order-$n$ channel on $m$ inputs has
 $n(2^m - 1)$ parameters in the per-source-block convention, but the
 independence axioms (Axioms~1 and~2) force a Kronecker factorization that

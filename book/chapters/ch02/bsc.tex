@@ -2,109 +2,56 @@
 %
 % Cross-reference resolution status:
 %
-% EXPECTED UNRESOLVED (forward refs that will resolve in later Plans):
-%   \Cref{sec:three-faces}       -- chapter 1 §1.1 (will resolve in Plan 4)
-%   \Cref{sec:asymmetric-channel}-- chapter 2 §2.2 (will resolve in Task 3 of Plan 2)
-%   \Cref{sec:channel-composition}-- chapter 2 §2.3 (will resolve in Task 4 of Plan 2)
-%   \Cref{sec:model-order}       -- chapter 2 §2.4 (will resolve in Task 5 of Plan 2)
-%   \ref{ex:bsc-capacity}        -- §2.1 exercise on BSC capacity (will resolve in Task 7)
-%
-% ALREADY RESOLVED (chapter 4, drafted in Plan 1):
-%   \Cref{ch:axioms-kronecker}   -- chapter 4 label
+% RESOLVED:
+%   \Cref{sec:three-faces}       -- chapter 1 §1.1
+%   \Cref{sec:asymmetric-channel}-- chapter 2 §2.2
+%   \Cref{sec:channel-composition}-- chapter 2 §2.3
+%   \Cref{sec:model-order}       -- chapter 2 §2.4
+%   \Cref{ch:axioms-kronecker}   -- chapter 4
 %   \Cref{sec:kronecker}         -- chapter 4 §4.4
 %   \Cref{sec:axiom-2}           -- chapter 4 §4.3
 %
-% Build warnings for the unresolved labels are expected at this stage.
-% They will be resolved when Plan 2 Tasks 3-5 and Task 7 land and Plan 4 runs.
+% Monograph register: defines the BSC and its channel matrix, fixes the
+% matrix convention used through chapters 2-4, states capacity inline
+% (former exercise), and reconciles the BSC's model order (1) with the
+% order-2 family it is studied in (consistent with §2.4).
 
 \section{The Binary Symmetric Channel}
 \label{sec:bsc}
 
-\subsection*{One bit, one channel}
-
-\Cref{sec:three-faces} introduced three framings of the noisy bit: a biased
-coin, a noisy communication channel, and a classifier's verdict. All three
-share a common structure that deserves a name and a precise description.
-The \emph{binary symmetric channel} is that common structure, stripped to
-its essentials.
-
-The input is a single Boolean value: $\top$ (``in the set'', ``heads'',
-``positive'') or $\bot$ (``not in the set'', ``tails'', ``negative''). The
-output is also Boolean. The channel transmits the input faithfully most of
-the time, but occasionally flips it. The defining property of the
-\emph{symmetric} channel is that the flip probability is the same
-regardless of which input is being transmitted: a positive is
-misreported as negative with the same probability that a negative is
-misreported as positive.
-
-This symmetry is a genuine constraint. Most real noisy Boolean systems
-do not satisfy it: a spam filter is far more likely to mis-classify
-legitimate mail as spam (false positive) than to miss actual spam (false
-negative). The BSC is the ideal symmetric case, and understanding it
-precisely is the right starting point before the asymmetric generalization
-of \Cref{sec:asymmetric-channel}.
+The three framings of \Cref{sec:three-faces} share a common structure, and the
+binary symmetric channel is that structure stripped to its essentials: a single
+Boolean input, a single Boolean output, and one crossover probability that the
+output disagrees with the input.
 
 \begin{definition}[Binary Symmetric Channel]
 \label{def:bsc}
-A \emph{binary symmetric channel} with crossover probability $\fprate
-\in (0, 1)$ is a random map $\phi : \{\top, \bot\} \to \{\top, \bot\}$
-satisfying
+A \emph{binary symmetric channel} (BSC) with crossover probability $\fprate \in
+(0, 1)$ is a random map $\phi : \{\top, \bot\} \to \{\top, \bot\}$ with
 \[
   \Pr\{\phi(x) \neq x\} \;=\; \fprate
   \quad \text{for every } x \in \{\top, \bot\}.
 \]
-The parameter $\fprate$ is the \emph{crossover probability}: the
-probability that the output differs from the input.
 \end{definition}
 
-Two things are worth noting immediately. First, the crossover probability
-is the same for both inputs: $\Pr\{\phi(\top) \neq \top\} =
-\Pr\{\phi(\bot) \neq \bot\} = \fprate$. This is the symmetry. Second,
-$\fprate$ plays the role of both the false-positive rate and the
-false-negative rate simultaneously: in the Bernoulli framework's
-notation from \Cref{sec:three-faces}, the BSC has $\fprate = \fnrate$
-(using the convention that $\fprate$ is the rate of misreporting a
-negative as positive and $\fnrate$ is the rate of misreporting a positive
-as negative). The BSC is the special case where these two rates collapse
-to a single parameter.
+The defining property is that the crossover is the same for both inputs:
+$\Pr\{\phi(\top) \neq \top\} = \Pr\{\phi(\bot) \neq \bot\} = \fprate$, so a
+single parameter plays the role of both the false-positive and the
+false-negative rate, $\fprate = \fnrate$. The symmetry is a genuine constraint,
+and most real systems lack it: a spam filter flags legitimate mail far more
+often than it leaks spam. The BSC is the clean starting point precisely because
+it isolates bit-flip noise from any question of which direction is noisier; the
+asymmetric generalization is \Cref{sec:asymmetric-channel}.
 
 \subsection*{The channel matrix}
 
-A single parameter and a prose definition are useful, but a matrix
-representation is more useful still. It displays all four input-output
-probabilities at once, supports direct computation, and generalizes
-cleanly to the asymmetric case in \Cref{sec:asymmetric-channel} and to
-multi-query systems in \Cref{ch:axioms-kronecker}.
-
-We organize the channel as a $2 \times 2$ matrix $Q$, called the
-\emph{channel transition matrix} or simply the \emph{channel matrix}. The
-convention throughout this book is:
-
-\begin{notation}
-The channel matrix $Q$ for a binary channel is a $2 \times 2$ stochastic
-matrix. \textbf{Rows} are indexed by the input block: row 1 corresponds to
-block $B_1 = \{\top\}$ (positives), row 2 to block $B_2 = \{\bot\}$
-(negatives). \textbf{Columns} are indexed by the output label: column 1
-corresponds to output $\top$ (reported positive), column 2 to output
-$\bot$ (reported negative). The $(i,j)$-entry of $Q$ is the probability
-of observing output $j$ given that the input belongs to block $B_i$. Each
-row sums to 1: $Q$ is \emph{row-stochastic}.
-\end{notation}
-
-Under this convention, the four entries of $Q$ have specific names in the
-confusion-table vocabulary. For the order-2 Boolean model with $B_1 =
-\{\top\}$ and $B_2 = \{\bot\}$:
-
-\begin{center}
-\begin{tabular}{l|cc}
-          & output $\top$ & output $\bot$ \\
-\hline
-input $\top$ ($B_1$) & $\tprate$ (true-positive rate) & $\fnrate$ (false-negative rate) \\
-input $\bot$ ($B_2$) & $\fprate$ (false-positive rate) & $\tnrate$ (true-negative rate) \\
-\end{tabular}
-\end{center}
-
-So the general order-2 channel matrix is
+We record a binary channel as a $2 \times 2$ row-stochastic matrix $Q$, the
+\emph{channel matrix}. The convention, fixed for the rest of the book: rows are
+indexed by the input block, row 1 for $B_1 = \{\top\}$ (positives) and row 2
+for $B_2 = \{\bot\}$ (negatives); columns by the output label, $\top$ then
+$\bot$; and the $(i,j)$ entry is the probability of output $j$ given an input in
+block $B_i$. The four entries name the confusion-table rates, so the general
+order-2 channel and the BSC special case are
 \[
   Q \;=\;
   \begin{pmatrix}
@@ -116,245 +63,70 @@ So the general order-2 channel matrix is
     1 - \fnrate & \fnrate \\
     \fprate & 1 - \fprate
   \end{pmatrix},
-\]
-where we use $\tprate = 1 - \fnrate$ and $\tnrate = 1 - \fprate$ from the
-row-stochastic constraint.
-
-For the BSC, the symmetry constraint $\fprate = \fnrate$ collapses this
-to a single parameter:
-\[
+  \qquad
   Q_{\mathrm{BSC}} \;=\;
   \begin{pmatrix}
     1 - \fprate & \fprate \\
     \fprate & 1 - \fprate
   \end{pmatrix}.
 \]
-Both rows sum to 1. Both diagonal entries equal $1 - \fprate$ (correct
-output). Both off-diagonal entries equal $\fprate$ (flip). The two rows
-are simply permutations of each other, which is the matrix expression of
-symmetry. The BSC has a single free parameter; the general order-2 channel
-has two. We return to this reduction in \Cref{sec:model-order}.
+The BSC matrix is \emph{circulant}: its two rows are permutations of each
+other, the matrix expression of symmetry. At $\fprate = 0.05$, for instance, a
+positive input reads back correctly with probability $0.95$ and flips with
+probability $0.05$, and likewise for a negative input; under a uniform input
+prior the marginal error rate is exactly $\fprate$, independent of the prior
+because the channel is symmetric.
 
-\subsection*{Reading the matrix}
+\subsection*{Capacity}
 
-Before computing with $Q$, it is worth reading it carefully for a small
-$\fprate$. Take $\fprate = 0.05$ as a concrete case.
-
+The BSC's \emph{capacity}, the maximum mutual information $I(X; Y)$ over input
+priors, is
 \[
-  Q \;=\;
-  \begin{pmatrix}
-    0.95 & 0.05 \\
-    0.05 & 0.95
-  \end{pmatrix}.
+  C \;=\; 1 - H_2(\fprate),
+  \qquad
+  H_2(\fprate) = -\fprate \log_2 \fprate - (1 - \fprate)\log_2(1 - \fprate),
 \]
+attained at the uniform prior $p = 1/2$. The derivation is short: $H(Y \mid X) =
+H_2(\fprate)$ for every prior, while $H(Y)$ is maximized at $p = 1/2$, so
+$C = \max_p H(Y) - H_2(\fprate) = 1 - H_2(\fprate)$. Capacity is one bit per use
+at $\fprate = 0$ (a perfect channel) and zero at $\fprate = 1/2$, where the
+output is independent of the input. The $\fprate = 1/2$ point is the
+zero-information case met in \Cref{sec:quantifying-noise}; for the BSC it
+coincides with the symmetric crossover, whereas for an asymmetric channel the
+zero-information locus is $\fprate + \fnrate = 1$.
 
-Reading row 1: a positive input ($\top$) is correctly reported as positive
-($\top$) with probability $0.95$ and incorrectly reported as negative
-($\bot$) with probability $0.05$. Reading row 2: a negative input ($\bot$)
-is incorrectly reported as positive ($\top$) with probability $0.05$
-(a false positive) and correctly reported as negative ($\bot$) with
-probability $0.95$. The channel is ``mostly right'' with a small error
-floor.
+\subsection*{The three faces in matrix form}
 
-The channel matrix carries more information than the crossover
-probability alone: it tells you the probability of every input-output
-pair simultaneously, without requiring you to remember which rate is
-which or convert between TPR and FNR in your head. Once we introduce
-multiple queries in \Cref{sec:channel-composition} and \Cref{sec:kronecker},
-the matrix form pays for itself many times over.
+The framings of \Cref{sec:three-faces} are the same matrix $Q_{\mathrm{BSC}}$
+with different labels. The biased coin is a coin with one flip probability
+$\fprate$ for both faces; the noisy line is Shannon's original BSC
+\cite{shannon-1948}, a bit flipped independently with probability $\fprate$;
+the classifier with equal false-positive and false-negative rates is a BSC,
+though real classifiers rarely satisfy $\fprate = \fnrate$ and are better
+modeled by the asymmetric channel of \Cref{sec:asymmetric-channel}. Composing a
+BSC with itself makes matters worse, not better: two crossover-$\fprate$
+channels in series give crossover $2\fprate(1 - \fprate) > \fprate$ for
+$0 < \fprate < 1/2$, derived in \Cref{sec:channel-composition}.
 
-\subsection*{Worked example: BSC with $\fprate = 0.05$}
+\subsection*{Model order of the BSC}
 
-We verify all four probabilities and three derived quantities for
-$\fprate = 0.05$.
+The source literature uses two phrases for the BSC, ``first-order'' and ``the
+symmetric special case of the order-2 model,'' and they refer to different
+things. Model order, formalized in \Cref{sec:model-order}, counts the blocks in
+the partition of the input domain that groups inputs sharing a common error
+rate. For the BSC both inputs share the crossover $\fprate$, so they form a
+single block and the BSC has \emph{model order 1}; the asymmetric channel, with
+$\fprate \neq \fnrate$, keeps them in separate blocks at model order 2. Calling
+the BSC ``the symmetric special case of the order-2 model'' refers not to its
+order but to the family it is embedded in: one may always write the BSC with
+the two-block discrete partition and impose $\fprate = \fnrate$, the working
+frame for chapters 2 through 4. The BSC is genuinely model order 1, studied as a
+constrained member of the order-2 family; \Cref{sec:model-order} separates model
+order from parameter count and proves that no binary channel exceeds order 2.
 
-\medskip
-\noindent\textbf{The matrix.}
-\[
-  Q \;=\;
-  \begin{pmatrix}
-    1 - \fprate & \fprate \\
-    \fprate & 1 - \fprate
-  \end{pmatrix}
-  \;=\;
-  \begin{pmatrix}
-    0.95 & 0.05 \\
-    0.05 & 0.95
-  \end{pmatrix}.
-\]
-
-\medskip
-\noindent\textbf{Row sums.}
-Row 1: $0.95 + 0.05 = 1.00$. Row 2: $0.05 + 0.95 = 1.00$. Both rows
-sum to 1, confirming that $Q$ is row-stochastic.
-
-\medskip
-\noindent\textbf{Single-query error probability.}
-If the input is drawn uniformly from $\{\top, \bot\}$, each with
-probability $1/2$, the probability of an incorrect output is
-\[
-  \Pr\{\text{error}\}
-  \;=\; \tfrac{1}{2} \cdot \Pr\{\phi(\top) \neq \top\}
-       + \tfrac{1}{2} \cdot \Pr\{\phi(\bot) \neq \bot\}
-  \;=\; \tfrac{1}{2} \cdot 0.05 + \tfrac{1}{2} \cdot 0.05
-  \;=\; 0.05.
-\]
-Under a uniform prior on the input, the error probability equals the
-crossover probability $\fprate$. This is not a coincidence: symmetry
-means the marginal error rate does not depend on the input distribution,
-as long as $\fprate = \fnrate$.
-
-\medskip
-\noindent\textbf{Two specific joint probabilities.}
-Suppose the input is positive ($\top$). The probability of a correct
-positive output is $Q_{11} = 0.95$. The probability of a false-negative
-output is $Q_{12} = 0.05$.
-
-Now suppose the input is negative ($\bot$). The probability of a false
-positive is $Q_{21} = 0.05$. The probability of a correct negative is
-$Q_{22} = 0.95$.
-
-\medskip
-\noindent\textbf{Accuracy.}
-For a uniform prior, accuracy $= \frac{1}{2} \cdot 0.95 + \frac{1}{2}
-\cdot 0.95 = 0.95 = 1 - \fprate$. As expected, the BSC with crossover
-$0.05$ has $95\%$ accuracy under a uniform input distribution.
-
-\subsection*{The BSC as the symmetric special case of order 2}
-
-The source papers in the Bernoulli framework use two phrases for the BSC
-that are worth aligning before proceeding. Some sections call the BSC a
-``first-order'' model, while \Cref{ch:axioms-kronecker} calls it the
-\emph{symmetric special case of the order-2 model}. Both are correct, but
-they refer to different things: the BSC's model order, and the family we
-embed it in.
-
-Model order, formalized in \Cref{sec:model-order}, counts the blocks in
-the partition of the input domain that groups together exactly those
-inputs sharing a common error rate. For the BSC both inputs share the
-single crossover rate $\fprate$, since $\Pr\{\phi(\top) \neq \top\} =
-\Pr\{\phi(\bot) \neq \bot\} = \fprate$; the two inputs therefore fall in
-one block, and the BSC has \emph{model order 1}. The general asymmetric
-channel of \Cref{sec:asymmetric-channel}, with $\fprate \neq \fnrate$,
-keeps the two inputs in separate blocks and has model order 2.
-
-Calling the BSC ``the symmetric special case of the order-2 model'' refers
-not to its model order but to the family we work in. We can always write
-the BSC with the two-block discrete partition $B_1 = \{\top\}$, $B_2 =
-\{\bot\}$ and then impose the constraint $\fprate = \fnrate$; chapters
-2--4 work in this two-block frame throughout, because it is the natural
-one for the Boolean domain. So the BSC is genuinely model order 1, studied
-as a constrained member of the order-2 family.
-
-Model order and parameter count are nonetheless distinct in general, and
-\Cref{sec:model-order} separates them carefully: the Z-channel, with
-$\fnrate = 0 \neq \fprate$, has model order 2 (two blocks at different
-rates) yet only one free parameter. For the BSC the two counts happen to
-coincide at 1; for the general asymmetric channel they coincide at 2.
-
-\Cref{sec:axiom-2} makes the connection to partition blocks explicit in
-the context of Axiom 2. The convention $B_1 = \{\top\}$, $B_2 =
-\{\bot\}$ used there matches the row labeling of $Q$ throughout this
-chapter and in \Cref{ch:axioms-kronecker}.
-
-\subsection*{Connection to chapter 1: the three faces revisited}
-
-\Cref{sec:three-faces} presented three framings of the same abstract
-object. We can now describe each one precisely using the BSC channel
-matrix.
-
-\medskip
-\noindent\textbf{The biased coin.} A coin with heads probability
-$1 - \fprate$ and tails probability $\fprate$, where ``heads'' is the
-correct output, is a BSC. The two sides of the coin are the two elements
-of $\{\top, \bot\}$; the flip probability is $\fprate$ for both sides,
-because the coin is symmetric. The channel matrix is exactly
-$Q_{\mathrm{BSC}}$ above. We generalize to an asymmetric coin, with
-different head-bias and tail-bias, in \Cref{sec:asymmetric-channel}.
-
-\medskip
-\noindent\textbf{The noisy communication channel.} This is Shannon's BSC
-in its original form \cite{shannon-1948}: a bit sent over a channel where
-each transmitted bit is flipped independently with probability $\fprate$.
-The input alphabet is $\{0, 1\}$ and the channel matrix is $Q_{\mathrm{BSC}}$
-with the mapping $1 \leftrightarrow \top$ and $0 \leftrightarrow \bot$.
-
-\medskip
-\noindent\textbf{The classifier verdict.} A binary classifier with equal
-false-positive and false-negative rates is a BSC. In practice, classifiers
-rarely have $\fprate = \fnrate$; the symmetric case is a simplifying
-assumption. When the two rates are unequal, the classifier is better
-modeled as an asymmetric binary channel, the subject of
-\Cref{sec:asymmetric-channel}.
-
-The unifying point: all three framings share the same channel matrix
-$Q_{\mathrm{BSC}}$ with the same single crossover parameter $\fprate$.
-The names differ; the probability model is identical.
-
-\subsection*{What makes symmetry a strong constraint}
-
-The BSC's symmetry constraint, $\fprate = \fnrate$, is restrictive but
-often useful as a first approximation. Three properties follow from it.
-
-First, the channel matrix $Q_{\mathrm{BSC}}$ is a \emph{circulant}
-matrix: its rows are cyclic permutations of each other. This makes
-the algebra of composing BSCs, discussed in \Cref{sec:channel-composition},
-particularly clean.
-
-Second, the \emph{capacity} of the BSC, defined as the maximum
-mutual information between input and output, is $1 - H_2(\fprate)$ bits
-per use, where $H_2(\fprate) = -\fprate \log_2 \fprate - (1-\fprate)
-\log_2(1-\fprate)$ is the binary entropy function. Capacity is maximized
-at $\fprate = 0$ (a perfect channel, transmitting one bit per use without
-error) and at $\fprate = 1$ (a perfectly anti-correlated channel, which
-also transmits one bit per use after relabeling outputs); it is minimized
-at $\fprate = 1/2$, where the output is statistically independent of the
-input and no information is transmitted. Exercise~\ref{ex:bsc-capacity}
-works through the derivation.
-
-Third, the BSC is its own \emph{inverse channel} in the following sense:
-composing a BSC with crossover $\fprate$ with another BSC with the same
-crossover $\fprate$ yields a BSC with crossover $2\fprate(1-\fprate)$,
-which is strictly greater than $\fprate$ for $0 < \fprate < 1/2$. Two
-imperfect copies of the same symmetric channel make things worse, not
-better. The formula for composed BSC crossovers is derived in full in
-\Cref{sec:channel-composition}.
-
-\subsection*{Notation in this chapter}
-
-Throughout chapters 2 and beyond, the following convention applies:
-\begin{itemize}
-  \item $Q$ always denotes a channel transition matrix, with rows indexed
-    by input block and columns indexed by output label.
-  \item $\fprate$ is the false-positive rate: the probability that a negative
-    input is reported as positive.
-  \item $\fnrate$ is the false-negative rate: the probability that a positive
-    input is reported as negative.
-  \item $\tprate = 1 - \fnrate$ is the true-positive rate, and
-    $\tnrate = 1 - \fprate$ is the true-negative rate.
-  \item For the BSC, $\fprate = \fnrate$, and we use $\fprate$ for the
-    single crossover parameter throughout.
-\end{itemize}
-
-The source papers in this research program sometimes use (FPR, TPR) rather
-than (FPR, FNR) as the parameter pair. The two choices are equivalent:
-TPR $= 1 - \text{FNR}$ is a deterministic function, so any statement about
-one pair translates directly to the other.\footnote{Specifically,
-the companion paper \cite{towell-bernoulli-sets} uses (FPR, TPR) in places.
-In converting source material to this textbook, we have replaced that
-convention with $(\fprate, \fnrate)$ throughout.}
-
-\subsection*{Looking ahead}
-
-The BSC is the symmetric special case of a more general object. In
-\Cref{sec:asymmetric-channel} we lift the constraint $\fprate = \fnrate$
-and allow the two error rates to be independent: the resulting
-\emph{asymmetric binary channel} covers Bloom filters (where $\fnrate = 0$
-by construction) and medical tests (where FPR and FNR can be tuned
-independently by adjusting a threshold). In \Cref{sec:channel-composition}
-we ask what happens when two channels are applied in sequence, and derive
-the composed channel's matrix from the two input matrices via matrix
-multiplication. In \Cref{sec:model-order} we formalize what we have been
-calling ``order 2'' and prove the Boolean ceiling theorem: because the
-Boolean domain has exactly two elements, every binary channel has model
-order at most 2.
+Throughout, $\fprate$ is the false-positive rate, $\fnrate$ the false-negative
+rate, with $\tprate = 1 - \fnrate$ and $\tnrate = 1 - \fprate$ the
+complementary rates, and for the BSC the single crossover $\fprate = \fnrate$.
+The source papers sometimes pair (FPR, TPR) rather than (FPR, FNR); since
+$\mathrm{TPR} = 1 - \mathrm{FNR}$ the choice is cosmetic, and this book uses
+$(\fprate, \fnrate)$.

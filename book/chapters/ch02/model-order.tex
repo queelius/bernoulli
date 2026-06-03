@@ -2,396 +2,126 @@
 %
 % Cross-reference resolution status:
 %
-% EXPECTED UNRESOLVED (forward refs that will resolve in later Plans):
-%   \Cref{sec:three-faces}            -- chapter 1 §1.1 (will resolve in Plan 4)
-%   \Cref{ch:approximate-functions}   -- chapter 9 Part III (will resolve in a later plan)
+% RESOLVED:
+%   \Cref{sec:bsc}, \Cref{def:bsc}                 -- chapter 2 §2.1
+%   \Cref{sec:asymmetric-channel},
+%   \Cref{def:asymmetric-channel}, \Cref{def:z-channel} -- §2.2
+%   \Cref{sec:channel-composition}                 -- §2.3
+%   \Cref{sec:axiom-2}, \Cref{ax:block-rates-indep},
+%   \Cref{cor:parameter-reduction}                 -- chapter 4
+%   \Cref{ch:approximate-functions}                -- chapter 9
 %
-% ALREADY RESOLVED (within this chapter, drafted in Tasks 2-4 of Plan 2):
-%   \Cref{sec:bsc}                 -- chapter 2 §2.1
-%   \Cref{def:bsc}                 -- chapter 2 §2.1 BSC definition
-%   \Cref{sec:asymmetric-channel}  -- chapter 2 §2.2
-%   \Cref{def:asymmetric-channel}  -- chapter 2 §2.2 asymmetric channel definition
-%   \Cref{def:z-channel}           -- chapter 2 §2.2 Z-channel definition
-%   \Cref{sec:channel-composition} -- chapter 2 §2.3
+% DEFINED here:
+%   \label{sec:model-order}, \label{def:model-order},
+%   \label{thm:boolean-ceiling}
 %
-% ALREADY RESOLVED (chapter 4, drafted in Plan 1):
-%   \Cref{sec:axiom-2}             -- chapter 4 §4.3
-%   \Cref{ax:block-rates-indep}    -- chapter 4 §4.3 Axiom 2 formal statement
-%   \Cref{cor:parameter-reduction} -- chapter 4 §4.4 Corollary (parameter reduction)
-%
-% Build warnings for the unresolved labels are expected at this stage.
-% They will be resolved when Plan 3, Plan 4, and later plans run.
+% Monograph register: definition (coarsest compatible partition; BSC is
+% order 1), Boolean ceiling theorem with proof, the order-vs-parameter
+% distinction with the Z-channel example and a comparison table, and the
+% Axiom-2 and n-ary connections. Correctness: the partition that groups
+% same-rate inputs is the COARSEST compatible one, not the "finest".
 
 \section{Model Order}
 \label{sec:model-order}
 
-\subsection*{Two channels, one question}
-
-We have now seen two versions of the binary channel. The Binary Symmetric
-Channel of \Cref{sec:bsc} has a single crossover parameter $\fprate$,
-constrained so that both inputs flip with the same probability. The
-asymmetric binary channel of \Cref{sec:asymmetric-channel} lifts that
-constraint and allows two independent parameters $\fprate$ and $\fnrate$,
-one for each input block. When we compose two such channels in series
-(\Cref{sec:channel-composition}), the resulting channel inherits the two-block
-structure, regardless of how many parameters either constituent channel
-carries.
-
-Why exactly two blocks? And could a binary channel have more? These
-questions are not about specific channels; they are about the structure
-of the input domain. The answer is given by the concept of \emph{model
-order}, which we define in this section, connect to the channels developed
-in §§2.1--2.3, and cap with a theorem.
+The BSC carries one crossover parameter and the asymmetric channel two, one per
+input. Whether a binary channel could carry more is a question about the input
+domain, answered by \emph{model order}.
 
 \subsection*{Partitions and blocks}
 
-A \emph{partition} of a set $S$ is a collection of non-empty, pairwise
-disjoint subsets $B_1, \ldots, B_n \subseteq S$ whose union is $S$:
-\[
-  B_i \cap B_j = \emptyset \text{ for } i \neq j,
-  \qquad
-  B_1 \cup B_2 \cup \cdots \cup B_n = S.
-\]
-Each subset $B_i$ is called a \emph{block}. A partition tells us which
-elements are ``the same'' for the purpose of the model: elements in the
-same block are treated identically.
-
-In the Bernoulli framework, a partition of the input domain is central to
-the channel model. An element $x$ in block $B_i$ uses the per-block error
-rate assigned to $B_i$; elements in different blocks may use different
-rates. This is precisely the structure of Axiom~2 in
-\Cref{sec:axiom-2}: the per-block rates $\{\alpha_1, \ldots, \alpha_n\}$
-are conditionally independent given the objective set, one rate per block
-$B_i$.
+A \emph{partition} of a set $S$ is a collection of non-empty, pairwise disjoint
+blocks $B_1, \ldots, B_n$ whose union is $S$. In the channel model the relevant
+partition is of the input domain: elements of one block share a per-block error
+rate, and Axiom~2 (\Cref{sec:axiom-2}) treats the per-block rates $\{\alpha_1,
+\ldots, \alpha_n\}$ as the channel's free parameters.
 
 \begin{definition}[Model order]
 \label{def:model-order}
-Let $\phi : D \to D$ be a binary channel with input domain $D$. A
-\emph{partition of $D$ compatible with $\phi$} is a partition
-$\{B_1, \ldots, B_n\}$ of $D$ such that every element within the same
-block $B_i$ has the same conditional error probability:
+Let $\phi : D \to D$ be a binary channel on input domain $D$. A partition
+$\{B_1, \ldots, B_n\}$ of $D$ is \emph{compatible} with $\phi$ when every
+element of a block shares one error probability,
 \[
-  \Pr\{\phi(x) \neq x\} = \alpha_i
-  \quad\text{for all } x \in B_i.
+  \Pr\{\phi(x) \neq x\} = \alpha_i \quad \text{for all } x \in B_i.
 \]
-The \emph{model order} of $\phi$ is the number of blocks in the finest
-compatible partition of $D$: the partition that assigns distinct blocks to
-elements with distinct error probabilities and groups together only those
-elements that genuinely share a common rate. We denote the model order by $n$.
+The \emph{model order} of $\phi$ is the number of blocks in the \emph{coarsest}
+compatible partition: distinct error probabilities are placed in distinct
+blocks, and elements are grouped only when they genuinely share a rate. Model
+order is a property of the channel, the number of distinct error regimes its
+input domain carries, independent of any particular parameterization.
 \end{definition}
 
-Two remarks on this definition. First, the finest compatible partition is
-well-defined: we can always take the coarsest partition (all of $D$ as one
-block) if the error probability is the same for every input, or refine to
-singletons if every input has its own distinct rate. The model order is the
-count of blocks in the finest such partition. Second, model order is a
-property of the channel as a whole, not of any particular parameterization:
-it reflects the true number of distinct error regimes in the input domain,
-regardless of how the channel is described.
+\subsection*{The Boolean ceiling}
 
-\subsection*{Model order 2 for the Boolean domain}
-
-The Boolean input domain is $D = \{\top, \bot\}$. There are exactly two
-elements. The possible partitions of $D$ are:
-\begin{enumerate}
-  \item The \emph{trivial partition}: one block $\{B_1\} = \{\top, \bot\}$,
-    both inputs in a single block. This means $\Pr\{\phi(\top) \neq \top\}
-    = \Pr\{\phi(\bot) \neq \bot\}$: the same error rate for both inputs.
-
-  \item The \emph{discrete partition}: two blocks $B_1 = \{\top\}$ and
-    $B_2 = \{\bot\}$, each input in its own block. This means each input
-    has its own error rate, which need not be equal.
-\end{enumerate}
-
-No other partition exists. The input domain has two elements, and a
-partition of a 2-element set has at most two blocks. The model order of
-any binary channel is therefore at most 2.
-
-The two channels from §§2.1--2.2 correspond exactly to these two
-partitions.
-
-\medskip
-\noindent\textbf{Model order 1: the trivial partition.}
-When a binary channel assigns the same error rate $\fprate$ to both inputs,
-only one block is needed: $\{B_1\} = \{\top, \bot\}$. The channel matrix is
-\[
-  Q =
-  \begin{pmatrix}
-    1 - \fprate & \fprate \\
-    \fprate & 1 - \fprate
-  \end{pmatrix},
-\]
-which is exactly the BSC of \Cref{def:bsc}. A single shared rate $\fprate$
-describes the channel; the model order is 1.
-
-\medskip
-\noindent\textbf{Model order 2: the discrete partition.}
-When the two inputs have distinct error rates $\fprate \neq \fnrate$, no
-single block can cover both; the finest compatible partition has two blocks,
-$B_1 = \{\top\}$ and $B_2 = \{\bot\}$, and the model order is 2. The
-channel matrix is
-\[
-  Q =
-  \begin{pmatrix}
-    1 - \fnrate & \fnrate \\
-    \fprate     & 1 - \fprate
-  \end{pmatrix},
-\]
-which is the general asymmetric channel of \Cref{def:asymmetric-channel}.
-Two parameters, $\fprate$ and $\fnrate$, are required.
-
-\medskip
-\noindent\textbf{The BSC as the symmetric special case of order 2.}
-There is a subtlety that is easy to overlook. The BSC has model order 1:
-its finest compatible partition has a single block because both inputs
-have the same error rate $\fprate$. We can, however, always embed a
-model-order-1 channel into the order-2 framework by using the discrete
-partition $B_1 = \{\top\}$, $B_2 = \{\bot\}$ and then imposing the
-additional constraint $\fprate = \fnrate$. This is exactly how
-\Cref{sec:bsc} described the BSC: as an order-2 channel with the symmetry
-constraint. Saying ``the BSC is the symmetric special case of the order-2
-model'' means that we work in the order-2 channel family (two blocks, two
-parameters) and then restrict to the symmetric subcase where the two
-parameters are equal.
-
-Both descriptions are correct: the BSC's finest compatible partition has
-one block (model order 1 by the definition above), but it is also a
-degenerate member of the two-parameter, two-block family (the symmetric
-special case of order 2). The distinction matters primarily when comparing
-channels across families: the BSC genuinely lives in the order-1 class by
-partition count, and the asymmetric channel genuinely requires order 2.
-Practically, we will work in the order-2 framework throughout chapters
-2--4, treating the BSC as a constrained member of that family, because
-the two-block partition is the natural one for the Boolean domain.
-
-\subsection*{The Boolean ceiling theorem}
-
-The preceding analysis leads immediately to the central theorem of this section.
+The Boolean domain $D = \{\top, \bot\}$ admits exactly two partitions: the
+\emph{trivial} one, $\{\{\top, \bot\}\}$, with both inputs in a single block
+sharing one rate; and the \emph{discrete} one, $\{\{\top\}, \{\bot\}\}$, with
+each input carrying its own rate.
 
 \begin{theorem}[Boolean ceiling]
 \label{thm:boolean-ceiling}
-Any binary channel with input domain $\{\top, \bot\}$ has model order at
-most $2$.
+Any binary channel with input domain $\{\top, \bot\}$ has model order at most
+$2$.
 \end{theorem}
 
 \begin{proof}
-Let $\phi : \{\top, \bot\} \to \{\top, \bot\}$ be any binary channel. We
-must show that every compatible partition of the input domain $D = \{\top,
-\bot\}$ has at most $2$ blocks.
-
-A partition of $D$ is a collection of non-empty, pairwise disjoint subsets
-whose union is $D = \{\top, \bot\}$. Since $|D| = 2$, any partition can
-have at most $|D| = 2$ blocks: a partition with more than $2$ blocks would
-require more than $2$ elements in the union, but $|D| = 2$. Concretely,
-the partitions of a $2$-element set are:
-\begin{enumerate}
-  \item $\big\{\{\top, \bot\}\big\}$: the trivial partition, one block.
-  \item $\big\{\{\top\},\; \{\bot\}\big\}$: the discrete partition, two blocks.
-\end{enumerate}
-No other partition exists. The model order, defined as the number of blocks
-in the finest compatible partition, is therefore either $1$ or $2$, and in
-particular is at most $2$.
+A partition of a set of cardinality $k$ has at most $k$ blocks, since each block
+is non-empty and the blocks are disjoint. For $D = \{\top, \bot\}$ the only
+partitions are the trivial (one block) and the discrete (two blocks), so the
+coarsest compatible partition has one or two blocks.
 \end{proof}
 
-The proof is elementary because the claim is a direct consequence of the
-input domain's cardinality. A partition of any $k$-element set has at most
-$k$ blocks; for the Boolean domain, $k = 2$, giving the ceiling of $2$. The
-real content of the theorem is that this ceiling is achieved: the
-asymmetric channel of \Cref{sec:asymmetric-channel} is a binary channel
-with model order exactly $2$, so the bound is tight. And the BSC shows that
-the ceiling need not be reached: a binary channel can have model order $1$
-when the two inputs happen to share a common error rate.
+The BSC realizes order 1: both inputs share the crossover $\fprate$, so the
+trivial partition is compatible and is the coarsest such, with channel matrix
+$Q_{\mathrm{BSC}}$ from \Cref{def:bsc}. The asymmetric channel of
+\Cref{def:asymmetric-channel} realizes order 2: with $\fprate \neq \fnrate$ the
+two inputs cannot share a block. The ceiling is tight (order 2 is attained) but
+not forced (the BSC sits at order 1). Serial composition stays within it:
+composing binary channels (\Cref{sec:channel-composition}) yields a binary
+channel, still of model order at most 2.
 
-\subsection*{Model order vs.\ parameter count}
+\subsection*{Model order versus parameter count}
 
-Model order and parameter count are related but distinct, and conflating
-them is one of the most common sources of confusion in this framework. It
-is worth being explicit.
+Model order is not the same as the number of free parameters, and conflating
+them is a common error. Model order counts partition blocks; parameter count
+counts the real numbers needed to specify the channel. For a single Boolean
+query an $n$-th order channel has $n$ free parameters, one per block, so the two
+agree, but they part company in two ways. First, a constraint can reduce the
+parameter count below the order: the Z-channel of \Cref{def:z-channel} has model
+order 2 (its blocks carry the distinct rates $0$ and $\fprate$) yet only one
+free parameter, since $\fnrate = 0$ is fixed. Second, in the multi-query setting
+the parameter count grows with the number of queries while the model order does
+not: a general order-$n$ channel on $m$ joint inputs carries $n(2^m - 1)$
+parameters in the per-source-block convention, which the independence axioms
+collapse to $nm$ by Kronecker factorization (\Cref{cor:parameter-reduction}),
+all while the model order stays $n$.
 
-\begin{itemize}
-  \item \textbf{Model order} is the number of partition blocks in the finest
-    compatible partition of the input domain. It is a structural property
-    of the channel, determined by how many distinct error regimes actually
-    exist in $D$. For the Boolean domain, model order is at most $2$ by
-    the Boolean ceiling theorem.
-
-  \item \textbf{Parameter count} is the number of free real numbers
-    required to specify the channel. For a single Boolean channel, an
-    $n$-th order model has $n$ free parameters (one per block), but the
-    total parameter count for $m$ joint queries grows with $m$: under
-    Axioms~1 and~2, the per-source-block convention gives $n(2^m - 1)$
-    parameters in general, reduced by Kronecker factorization to $nm$
-    (\Cref{cor:parameter-reduction}).
-\end{itemize}
-
-The key distinction: model order is about partition granularity (how many
-distinct error regimes), while parameter count is about how many numbers
-are needed to specify the model (which depends on the axioms and the query
-structure). Confusion matrices and model order are orthogonal concepts:
-model order constrains which rows of $Q$ are identical (or more precisely,
-which inputs can be put in the same block), while the independence axioms
-constrain the internal structure of each row and how rows interact across
-multiple queries.
-
-Three examples make the distinction concrete.
-
-\medskip
-\noindent\textbf{Example 1: BSC, single query.}
-Model order 1 (one block, $\fprate = \fnrate$). Parameter count: 1.
-
-\medskip
-\noindent\textbf{Example 2: Asymmetric channel, single query.}
-Model order 2 (two blocks, $\fprate \neq \fnrate$). Parameter count: 2.
-
-\medskip
-\noindent\textbf{Example 3: Asymmetric channel, $m$ queries under Axioms 1 and 2.}
-Model order 2. Parameter count under axioms: $2m$ (two parameters per
-query, by \Cref{cor:parameter-reduction}). Parameter count without axioms,
-per-source-block convention: $2(2^m - 1)$.
-
-In Example~3, model order does not change with $m$: the channel is still
-order 2, with two blocks, regardless of the query count. What changes with
-$m$ is the parameter count. The axioms drive the dramatic reduction from
-$2(2^m - 1)$ to $2m$: without Axiom~1 (element-wise independence) and
-Axiom~2 (cross-block rate independence, \Cref{ax:block-rates-indep}),
-the Kronecker factorization of \Cref{cor:parameter-reduction} would not
-hold. The axioms are doing all the work; model order is not.
-
-This clarification matters for reading the companion papers correctly.
-Some sections of the source papers use ``order'' loosely to refer to the
-number of free parameters in the single-query setting, where both
-quantities agree (an $n$-th order model on one Boolean query has $n$
-parameters). In the multi-query setting, or whenever the independence
-axioms are in view, it is essential to keep the two concepts separate.
-Throughout this book, \emph{model order} always means the number of
-partition blocks, as in \Cref{def:model-order}.
-
-\subsection*{How the channels of §§2.1--2.3 fit}
-
-We can now locate every channel of this chapter within the model-order
-framework.
-
-\medskip
-\noindent\textbf{The BSC (\Cref{sec:bsc}).}
-Model order 1 by finest-partition count, but studied in the order-2
-framework (as the symmetric special case). Channel matrix:
-$Q_{\mathrm{BSC}}$ with $\fprate = \fnrate$. Free parameters in $Q$: 1.
-
-\medskip
-\noindent\textbf{The asymmetric binary channel (\Cref{sec:asymmetric-channel}).}
-Model order 2. Channel matrix: general $Q$ with independent $\fprate$ and
-$\fnrate$. Free parameters in $Q$: 2.
-
-\medskip
-\noindent\textbf{The Z-channel (\Cref{def:z-channel}).}
-Model order 2 (the two blocks have genuinely different rates: $\fnrate = 0$
-for $B_1 = \{\top\}$ and $\fprate > 0$ for $B_2 = \{\bot\}$). Free parameters
-in $Q$: 1 (only $\fprate$, since $\fnrate$ is known to be $0$). This
-illustrates that model order and free parameter count are independent:
-the Z-channel has model order 2 but only one free parameter.
-
-\medskip
-\noindent\textbf{Composed channels (\Cref{sec:channel-composition}).}
-Composing two binary channels produces a binary channel. The model order
-of the composed channel is at most 2 (by the Boolean ceiling theorem,
-since the output is still a binary channel over the same domain $\{\top,
-\bot\}$). The parameter count of the composed channel depends on the input
-channels' rates: the BSC-BSC composition gives one parameter
-($\fprate_{\mathrm{total}}$), while the asymmetric-asymmetric composition
-generally gives two.
-
-\subsection*{Worked illustration: ordering by blocks}
-
-The following table organizes the four channels of this chapter by their
-block structure under the discrete partition $\{B_1, B_2\} = \{\{\top\},
-\{\bot\}\}$:
-
-\medskip
 \begin{center}
 \begin{tabular}{l|c|c|c}
-  Channel & $\alpha_1$ (rate for $B_1 = \{\top\}$) & $\alpha_2$ (rate for $B_2 = \{\bot\}$) & Model order \\
+  Channel & $\alpha_1$ ($B_1 = \{\top\}$) & $\alpha_2$ ($B_2 = \{\bot\}$) & order \\
   \hline
-  BSC          & $\fprate$    & $\fprate$ (= $\alpha_1$) & 1 \\
-  Z-channel    & $0$          & $\fprate$ ($\neq 0$)     & 2 \\
-  Asymmetric   & $\fnrate$    & $\fprate$ (free)         & 2 \\
-  Perfect channel & $0$      & $0$                       & 1 \\
+  BSC             & $\fprate$ & $\fprate$ ($= \alpha_1$) & 1 \\
+  Z-channel       & $0$       & $\fprate \neq 0$          & 2 \\
+  Asymmetric      & $\fnrate$ & $\fprate$ (free)          & 2 \\
+  Perfect channel & $0$       & $0$                        & 1 \\
 \end{tabular}
 \end{center}
-\medskip
 
-Reading the table: the BSC's two blocks share the same rate $\fprate$, so
-the finest compatible partition merges them into one block, giving model
-order 1. The perfect channel (zero error everywhere) likewise merges both
-blocks, giving model order 1. The Z-channel and asymmetric channel have
-$\alpha_1 \neq \alpha_2$, so the finest compatible partition has two blocks,
-giving model order 2.
+The BSC and the perfect channel merge their two blocks (equal rates) and sit at
+order 1; the Z-channel and the asymmetric channel keep distinct rates and sit at
+order 2. The Z-channel row is the clean separation of the two counts: order 2,
+one parameter.
 
-The table also makes visible why the Z-channel has model order 2 despite
-having only one free parameter ($\fprate$): the two blocks have different
-rates ($0$ and $\fprate > 0$), so the finest partition must keep them
-separate. Parameter count reflects how many numbers we write down;
-model order reflects how many blocks are needed.
+\subsection*{Axiom 2 and the n-ary ceiling}
 
-\subsection*{Axiom 2 and the per-block structure}
-
-The partition-block structure of model order connects directly to the
-formal treatment in \Cref{sec:axiom-2}. Axiom~2 (\Cref{ax:block-rates-indep})
-asserts that the per-block error rates $\alpha_1, \ldots, \alpha_n$ are
-conditionally independent given the objective set. In the order-2 Boolean
-case, this reduces to:
-\[
-  f(\fprate, \fnrate \Given A) = f(\fprate \Given A) \cdot f(\fnrate \Given A),
-\]
-the independence of the false-positive rate (rate for block $B_2 = \{\bot\}$)
-and the false-negative rate (rate for block $B_1 = \{\top\}$). The model
-order is what determines the dimension of this independence claim: order-2
-gives a two-factor joint density; order-$n$ gives an $n$-factor joint density.
-
-The Boolean ceiling theorem limits this: because the Boolean domain has
-model order at most 2, the Axiom~2 independence claim for Boolean channels
-involves at most two independent rates. This makes the framework
-particularly tractable: every Boolean channel can be described by at most
-two parameters, and the Kronecker factorization of \Cref{cor:parameter-reduction}
-reduces the multi-query parameter count to $2m$ rather than $2(2^m - 1)$.
-
-\subsection*{Why the ceiling matters}
-
-The Boolean ceiling theorem is not a limitation of the framework; it is a
-feature. Any predicate over $\{\top, \bot\}$ lives in a world with exactly
-two possible error regimes: one for each element of the domain. No matter
-how complex the underlying computation, no matter how many intermediate
-steps a channel goes through, the final Boolean predicate has model order
-at most 2. The two-block partition $\{B_1, B_2\} = \{\{\top\}, \{\bot\}\}$
-is the universal structure for Boolean channels.
-
-This has a practical consequence. When we apply the Bernoulli framework
-to a new Boolean predicate---a membership test, a primality check, a
-classifier's verdict---we know in advance that the predicate is either
-order 1 (if the error probability is the same for all inputs) or order 2
-(if the error probabilities differ by input sign). There are no other cases.
-The Boolean ceiling closes off the space of possible structures and reduces
-the question of model identification to a single binary choice.
-
-\Cref{ch:approximate-functions} will revisit the model-order concept for input
-domains with more than two elements: when $|D| = k$ for $k > 2$, the same
-partition-block machinery applies and the ceiling rises to $k$, but the
-analysis of channels, parameter counts, and independence axioms remains
-structurally the same.
-
-\subsection*{Looking ahead}
-
-\Cref{sec:axiom-2} placed the partition-block structure at the center of
-Axiom~2. \Cref{cor:parameter-reduction} showed how the Kronecker
-factorization drives the parameter count from $2(2^m - 1)$ down to $2m$
-for order-2 Boolean predicates under the axioms. In Part~II we will see
-how the order-2 Boolean case interacts with the Bernoulli set operations:
-union, intersection, and complement all produce channels whose model order
-is at most 2 (because they remain binary channels over the Boolean domain).
-The Boolean ceiling theorem is why the entire Boolean algebra of Bernoulli
-sets remains tractable.
-
-The broader setting, where the input domain has cardinality greater than 2,
-belongs to Part~III. A single sentence is enough for now: the same
-partition-block machinery that gives the Boolean ceiling at order~2
-generalizes to $n$-ary channels with model order at most $|D|$, covered
-in \Cref{ch:approximate-functions}.
+The partition-block structure is exactly what Axiom~2
+(\Cref{ax:block-rates-indep}) acts on: it asserts that the per-block rates are
+conditionally independent given the objective set, and the model order is the
+dimension of that independence claim. In the order-2 Boolean case this is the
+independence of $\fprate$ and $\fnrate$. The Boolean ceiling bounds the claim at
+two factors, which is what keeps the framework tractable: every Boolean channel
+is at most two parameters per query, and the Kronecker factorization reduces the
+$m$-query count to $2m$. The machinery is not special to Booleans. For an input
+domain of cardinality $k$ the same partition argument gives a ceiling of $k$,
+the subject of \Cref{ch:approximate-functions}; Part~I develops the order-2
+Boolean case, from which the general theory is the natural lift.
