@@ -1,70 +1,42 @@
 % §4.7 Bibliographic Notes
 %
-% Cross-references in this section and their resolution status:
-%
-% Already resolved (within chapter 4):
-%   \Cref{sec:kronecker}      -- section 4.4 (Kronecker theorem)
-%   \Cref{sec:axiom-1}        -- section 4.2 (Axiom 1)
-%   \Cref{sec:axiom-2}        -- section 4.3 (Axiom 2)
-%
-% Citations resolved by new references.bib entries (Task 8, Step 1):
-%   \cite{horn-johnson-matrix}       -- Horn and Johnson 1991
-%   \cite{cover-thomas}              -- Cover and Thomas 2006
-%   \cite{towell-bernoulli-sets}     -- already in references.bib from Plan 0
-%   \cite{towell-bernoulli-data-type} -- new entry added in Task 8
+% Monograph register: Kronecker product, information-theoretic channels,
+% the Bernoulli papers. Cross-refs sec:kronecker, sec:axiom-1, sec:axiom-2,
+% thm:kronecker, cor:kronecker-unconditional. DEFINED: sec:bib-notes-ch4.
+% Citations: horn-johnson-matrix, cover-thomas, towell-bernoulli-sets,
+% towell-bernoulli-data-type.
 
 \section*{Bibliographic Notes}
 \addcontentsline{toc}{section}{Bibliographic Notes}
 \label{sec:bib-notes-ch4}
 
-The material in this chapter draws on three streams of literature.
-
 \paragraph{The Kronecker product.}
-The product that carries Leopold Kronecker's name appears in his 1866 work on
-bilinear forms, though its use in matrix algebra spread gradually through the
-following century. Kronecker himself was interested in the algebraic structure
-of determinants and quadratic forms; the representation-theoretic and
-probabilistic uses of the product came later. For a modern treatment of the
-Kronecker product's algebraic properties---including the mixed-product
-property, vectorization identities, and spectral structure---see
-\textcite{horn-johnson-matrix}, whose Chapter~4 is the standard graduate
-reference. The formal theorem statement in \Cref{sec:kronecker} of this
-textbook---that under Axioms~1 and~2 the joint confusion matrix factors as a
-Kronecker product of per-query matrices---is a new contribution; see the
-honesty note at the end of \Cref{sec:kronecker} for a precise account of what
-is new and what descends from the companion papers.
+The product carrying Kronecker's name spread through matrix algebra over the
+century after his 1866 work on bilinear forms; the standard graduate reference
+for its algebraic properties, including the mixed-product and vectorization
+identities, is \textcite[Ch.~4]{horn-johnson-matrix}. The theorem of
+\Cref{sec:kronecker}, that under Axioms~1 and~2 the joint confusion matrix
+factors as a Kronecker product of per-query matrices, is this work's
+contribution; the honesty note in that section separates what is new from what
+descends from the companion papers.
 
 \paragraph{Information-theoretic channels.}
-Chapter~4's proof of the Kronecker factorization uses the language of channels
-and conditional distributions but does not develop information theory from
-scratch. Readers who want the theoretical background---binary symmetric
-channels, channel capacity, and the source-channel coding theorem---should
-consult \textcite{cover-thomas}. Chapters~7 and~8 of that work cover binary
-channels at the depth Part~I uses; Chapter~10 covers channel capacity. We
-borrow the channel-matrix vocabulary and the notion of a memoryless channel
-(which is, in the Bernoulli setting, precisely what Axioms~1 and~2 enforce),
-but we do not reproduce Cover and Thomas's development here.
+The proof uses the language of channels and conditional distributions without
+developing information theory; \textcite[Ch.~7--8, 10]{cover-thomas} covers
+binary channels, capacity, and the coding theorems at the depth Part~I borrows.
+The Bernoulli axioms are exactly what make the channel memoryless in that
+vocabulary.
 
 \paragraph{The Bernoulli papers.}
-The two-axiom framework that organizes this chapter comes from
-\textcite{towell-bernoulli-sets}. Axioms~1 and~2, as formally stated in
-\Cref{sec:axiom-1,sec:axiom-2}, are reformulations of the axioms in that
-paper; the textbook's contribution is to separate them into named sections,
-give each its own worked examples, and prove the Kronecker factorization
-theorem as an explicit consequence rather than treating it as a remark. The
-companion paper presents the factorization in a regime where rates are
-deterministic or implicitly conditioned upon; the textbook makes the
-conditional and unconditional forms explicit (\Cref{thm:kronecker} and
-\Cref{cor:kronecker-unconditional}), noting that the unconditional form
-requires either deterministic rates or pairwise-distinct queried blocks.
-The model-order analysis---the idea that the partition of the input domain
-into blocks is what governs the parameter count---appears in
-\textcite{towell-bernoulli-data-type}, which extends the Bernoulli framework
-from Boolean sets to approximate values over arbitrary algebraic types. The
-order-2 Boolean case treated in this chapter is the simplest instance of that
-general theory.
-
-This textbook reformulates and extends both papers. The formal theorem
-statement in \Cref{sec:kronecker}, the full constructive proof, and the
-explicit connection between model order and the Kronecker product's parameter
-count are contributions of this text.
+The two-axiom framework comes from \textcite{towell-bernoulli-sets}; Axioms~1
+and~2 here are reformulations separated into named sections, each with its own
+examples, with the Kronecker factorization proved as an explicit consequence
+rather than a remark. That paper presents the factorization for deterministic or
+implicitly conditioned rates; this work makes the conditional and unconditional
+forms explicit (\Cref{thm:kronecker}, \Cref{cor:kronecker-unconditional}),
+noting that the unconditional form needs deterministic rates or distinct queried
+blocks. The model-order analysis, that the input-domain partition governs the
+parameter count, is from \textcite{towell-bernoulli-data-type}, whose general
+algebraic-type theory has the order-2 Boolean case as its simplest instance. The
+explicit theorem statement, the constructive proof, and the model-order-to-
+parameter-count connection are contributions of this monograph.

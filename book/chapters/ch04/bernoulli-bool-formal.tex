@@ -1,177 +1,27 @@
 % §4.5 The Bernoulli[bool] Type, Formally
 %
-% Cross-references in this section and their resolution status:
-%
-% Already resolved (within chapter 4):
-%   \Cref{sec:axiom-1}           -- section 4.2 (Axiom 1)
-%   \Cref{ax:element-indep}      -- Axiom 1 formal statement
-%   \Cref{sec:axiom-2}           -- section 4.3 (Axiom 2)
-%   \Cref{ax:block-rates-indep}  -- Axiom 2 formal statement
-%   \Cref{sec:kronecker}         -- section 4.4 (Kronecker theorem)
-%   \Cref{thm:kronecker}         -- Kronecker Factorization Theorem
-%   \Cref{cor:parameter-reduction} -- parameter reduction corollary
-%   \Cref{sec:what-comes-next}   -- section 4.6 (drafted in Task 7)
-%
-% Unresolved forward refs (will resolve in Plans 2-4, Part I integration):
-%   \Cref{sec:three-faces}              -- chapter 1, section 1.1
-%   \Cref{sec:boolean-universe-first-look} -- chapter 1, section 1.3
-%   \Cref{sec:bsc}                      -- chapter 2, section 2.1
-%   \Cref{sec:asymmetric-channel}       -- chapter 2, section 2.2
-%   \Cref{sec:and-under-noise}          -- chapter 3, section 3.1
-%   \Cref{sec:or-not}                   -- chapter 3, section 3.2
-%   \Cref{sec:composition-theorem}      -- chapter 3, section 3.3
-%
-% These produce "Reference X undefined" warnings during ch 4 drafting.
-% This is expected; Plan 4's Part I integration check resolves them all.
+% Monograph register: the formal definition, the biased-coin instance, and
+% the recognition of chapters 1-3 as instances. Correctness: AND's output
+% has a prior-free FNR and a prior-dependent FPR (consistent with §3.1);
+% serial composition (matrix product) and Kronecker (tensor) are sisters,
+% not one a special case of the other. Cross-refs sec:axiom-1,
+% ax:element-indep, sec:axiom-2, ax:block-rates-indep, sec:kronecker,
+% thm:kronecker, cor:parameter-reduction, sec:three-faces, sec:bsc,
+% sec:asymmetric-channel, sec:and-under-noise, sec:or-not,
+% sec:composition-theorem. DEFINED: sec:bernoulli-bool-formal,
+% def:bernoulli-bool, ex:biased-coin-formal.
 
-\section{The \texorpdfstring{$\Bernoulli{\BoolType}$}{Bernoulli[bool]} Type,
-  Formally}
+\section{The \texorpdfstring{$\Bernoulli{\BoolType}$}{Bernoulli[bool]} Type, Formally}
 \label{sec:bernoulli-bool-formal}
 
-We have arrived at the formal definition. Four sections of scaffolding
-have built up to this moment: \Cref{sec:why-axioms} explained why axioms
-matter, \Cref{sec:axiom-1} stated that error events at distinct inputs are
-mutually independent, \Cref{sec:axiom-2} stated that per-block error rates
-are mutually independent across blocks, and \Cref{sec:kronecker} proved
-that those two axioms together force the joint confusion matrix to factor
-as a Kronecker product. The formal definition is not an assertion; it is
-a synthesis of what the preceding chapters have earned.
-
-\subsection*{The definition}
+The two axioms and the Kronecker theorem earn the formal definition the first
+three chapters circled.
 
 \begin{definition}[$\Bernoulli{\BoolType}$]
 \label{def:bernoulli-bool}
-A \emph{$\Bernoulli{\BoolType}$ instance} is a triple $(X, Y, Q)$ where:
-\begin{enumerate}
-  \item $X = \{\top, \bot\}$ is the \emph{input domain} (the Boolean universe),
-    with $B_1 = \{\top\}$ and $B_2 = \{\bot\}$ as the two partition blocks.
-  \item $Y = \{\top, \bot\}$ is the \emph{output domain} (the observed report).
-  \item $Q$ is a $2 \times 2$ row-stochastic matrix
-    \[
-      Q \;=\;
-      \begin{pmatrix}
-        \tprate & \fnrate \\
-        \fprate & \tnrate
-      \end{pmatrix}
-      \;=\;
-      \begin{pmatrix}
-        1 - \fnrate & \fnrate \\
-        \fprate & 1 - \fprate
-      \end{pmatrix},
-    \]
-    where row 1 governs elements in $B_1 = \{\top\}$ (positives) and
-    row 2 governs elements in $B_2 = \{\bot\}$ (negatives), with
-    \begin{itemize}
-      \item $\tprate \in [0,1]$: the true-positive rate
-        ($\Prob{\text{reported}\;\top \Given \text{true value}\;\top}$),
-      \item $\fnrate = 1 - \tprate$: the false-negative rate
-        ($\Prob{\text{reported}\;\bot \Given \text{true value}\;\top}$),
-      \item $\fprate \in [0,1]$: the false-positive rate
-        ($\Prob{\text{reported}\;\top \Given \text{true value}\;\bot}$),
-      \item $\tnrate = 1 - \fprate$: the true-negative rate
-        ($\Prob{\text{reported}\;\bot \Given \text{true value}\;\bot}$).
-    \end{itemize}
-  The triple satisfies \Cref{ax:element-indep} (Axiom~1: error events at
-  distinct inputs are mutually independent) and \Cref{ax:block-rates-indep}
-  (Axiom~2: per-block error rates $\fprate$ and $\fnrate$ are conditionally
-  independent of each other given the objective set).
-\end{enumerate}
-\end{definition}
-
-\begin{notation}
-We write $\Bernoulli{\BoolType}$ for the \emph{type}: the collection of all
-triples $(X, Y, Q)$ satisfying the definition above. An individual predicate
-or data structure is an \emph{instance} of $\Bernoulli{\BoolType}$ when
-its behavior matches Definition~\ref{def:bernoulli-bool}. The two
-parameters $(\fprate, \fnrate)$---or equivalently $(\fprate, \tprate)$---
-uniquely identify the channel matrix $Q$ within the type.
-\end{notation}
-
-Several remarks on what the definition does and does not say.
-
-\medskip
-\noindent\textbf{Scope.} This definition is for the Boolean special case:
-the input and output domains are both $\{\top, \bot\}$, giving a $2 \times 2$
-channel matrix with two free parameters. The Bernoulli framework extends
-to arbitrary algebraic types---$\Bernoulli{T}$ for general $T$---but that
-extension is Part~III material and does not appear here. For now, all
-instances are Boolean.
-
-\medskip
-\noindent\textbf{The role of the two axioms.} The definition invokes both
-axioms explicitly because both are load-bearing.
-\Cref{ax:element-indep} (Axiom~1) is what licenses the factored-product
-form of joint distributions: queries on distinct Boolean inputs produce
-independent error events. Without it, the channel matrix $Q$ could not
-be read as a per-element description; correlation structure across inputs
-would require a far richer representation.
-\Cref{ax:block-rates-indep} (Axiom~2) is what makes $Q$ time-invariant:
-the false-positive rate $\fprate$ and false-negative rate $\fnrate$ are
-jointly independent, so knowing one tells you nothing about the other, and
-neither varies with query history.
-Both axioms together are what makes $Q$ a compact, two-parameter object
-sufficient to characterize an entire predicate's behavior---the content
-of \Cref{cor:parameter-reduction}.
-
-\medskip
-\noindent\textbf{The $Q$ convention.} Row 1 of $Q$ corresponds to
-$B_1 = \{\top\}$ (positives); row 2 corresponds to $B_2 = \{\bot\}$
-(negatives). Column 1 is the ``report $\top$'' output; column 2 is the
-``report $\bot$'' output. This convention was introduced in
-\Cref{sec:axiom-2} and used throughout \Cref{sec:kronecker}; it is
-consistent across the entire book.
-
-\subsection*{Biased-coin worked example}
-
-The biased-coin example has threaded through this book since
-\Cref{sec:three-faces}. We introduced it there as one of the three
-faces of a noisy bit---a coin with bias $p$ for heads, where the
-observation itself may be noisy. In \Cref{sec:boolean-universe-first-look}
-we looked at the Boolean universe qualitatively. We deferred the full
-joint-probability treatment to this section. Here it lands.
-
-\medskip
-\noindent\textbf{Setup.} Let the coin have bias $p$: heads ($\top$)
-with probability $p$, tails ($\bot$) with probability $1 - p$.
-The observation is noisy: it reports correctly for positives with
-probability $\tprate = 1 - \fnrate$ and correctly for negatives with
-probability $\tnrate = 1 - \fprate$.
-
-\begin{example}[Biased coin as a $\Bernoulli{\BoolType}$ instance]
-\label{ex:biased-coin-formal}
-Let $U = \{\top, \bot\}$, with $A = \{\top\}$ the objective set (the event
-``coin lands heads'') and $A^c = \{\bot\}$ the complement (the event ``coin
-lands tails''). Define:
-\begin{itemize}
-  \item Coin bias: $p = \Prob{\text{true value} = \top}$.
-  \item Channel: false-positive rate $\fprate$ (probability of reporting
-    heads when the coin actually landed tails), false-negative rate $\fnrate$
-    (probability of reporting tails when the coin actually landed heads).
-\end{itemize}
-
-The joint PMF over all four (true value, observed report) pairs is:\footnote{This formulation differs from the companion paper's Example~3.5, which gives the PMF over the realized approximate-set value rather than the joint distribution over true-vs-observed pairs; the two are equivalent but suit different purposes.}
-
-\begin{center}
-\begin{tabular}{llll}
-\hline
-Outcome & True value & Observed report & Probability \\
-\hline
-True positive (TP) & $\top$ & $\top$ & $p\,(1 - \fnrate) = p\,\tprate$ \\
-False negative (FN) & $\top$ & $\bot$ & $p\,\fnrate$ \\
-False positive (FP) & $\bot$ & $\top$ & $(1-p)\,\fprate$ \\
-True negative (TN) & $\bot$ & $\bot$ & $(1-p)\,(1-\fprate) = (1-p)\,\tnrate$ \\
-\hline
-\end{tabular}
-\end{center}
-
-Sanity check:
-\begin{align*}
-  p\,\tprate + p\,\fnrate + (1-p)\,\fprate + (1-p)\,\tnrate
-  &\;=\; p(\tprate + \fnrate) + (1-p)(\fprate + \tnrate) \\
-  &\;=\; p \cdot 1 + (1-p) \cdot 1 \;=\; 1. \quad \checkmark
-\end{align*}
-
-The channel matrix is:
+A \emph{$\Bernoulli{\BoolType}$ instance} is a triple $(X, Y, Q)$ with input and
+output domains $X = Y = \{\top, \bot\}$, blocks $B_1 = \{\top\}$ and
+$B_2 = \{\bot\}$, and a $2 \times 2$ row-stochastic channel matrix
 \[
   Q \;=\;
   \begin{pmatrix}
@@ -182,189 +32,63 @@ The channel matrix is:
   \begin{pmatrix}
     1 - \fnrate & \fnrate \\
     \fprate & 1 - \fprate
-  \end{pmatrix}.
+  \end{pmatrix},
 \]
-The triple $(\{\top,\bot\},\, \{\top,\bot\},\, Q)$ is a
-$\Bernoulli{\BoolType}$ instance whenever $\fprate$ and $\fnrate$ are
-conditionally independent given the coin's objective set $A = \{\top\}$,
-which holds when the observation mechanism operates independently on
-each side of the partition. The prior $p$ over the input is not part of
-the $\Bernoulli{\BoolType}$ type itself---the type characterizes the
-\emph{channel}, not the \emph{source}---but $p$ enters when we compute
-the joint or marginal distribution over outcomes.
+row $i$ governing block $B_i$, with $\fprate$ the false-positive rate, $\fnrate$
+the false-negative rate, and $\tprate = 1 - \fnrate$, $\tnrate = 1 - \fprate$.
+The triple satisfies \Cref{ax:element-indep} (Axiom~1) and
+\Cref{ax:block-rates-indep} (Axiom~2).
+\end{definition}
 
-For a concrete instance, take $p = 0.6$, $\fprate = 0.05$, $\fnrate = 0.10$
-(so $\tprate = 0.90$, $\tnrate = 0.95$). The four outcome probabilities are:
+We write $\Bernoulli{\BoolType}$ for the type, the collection of all such
+triples; a predicate or data structure is an \emph{instance} when its behavior
+matches the definition. The pair $(\fprate, \fnrate)$ identifies $Q$ within the
+type. Axiom~1 is what lets $Q$ be read as a per-element description (without it,
+cross-input correlation needs a richer object), and Axiom~2 is what makes $Q$
+time-invariant; together they are the content of
+\Cref{cor:parameter-reduction}. The definition is for the Boolean case; the
+extension to $\Bernoulli{T}$ for general $T$ is Part~III.
 
-\begin{center}
-\begin{tabular}{lll}
-\hline
-Outcome & Formula & Value \\
-\hline
-TP & $0.6 \times 0.90$ & $0.540$ \\
-FN & $0.6 \times 0.10$ & $0.060$ \\
-FP & $0.4 \times 0.05$ & $0.020$ \\
-TN & $0.4 \times 0.95$ & $0.380$ \\
-\hline
-Total & & $1.000$ \\
-\hline
-\end{tabular}
-\end{center}
-
-The channel matrix for this instance is:
-\[
-  Q \;=\;
-  \begin{pmatrix}
-    0.90 & 0.10 \\
-    0.05 & 0.95
-  \end{pmatrix}.
-\]
-Axiom~1 is vacuously satisfied for this single-query example: there is only
-one input element, so ``independence across distinct inputs'' has no content.
-Axiom~1's operational role appears only with multi-query joint distributions
-(the setup of \Cref{thm:kronecker}), where it justifies the factored joint
-matrix. Here we are checking that the per-instance type structure does not
-violate Axiom~1, not that we exercise it.
-
-Axiom~2 governs the joint distribution over random per-block rates; this
-concrete instance fixes a single realization $(\fprate, \fnrate) = (0.05,
-0.10)$. The choice of these two values without coupling between them is
-consistent with Axiom~2's cross-block independence. The full content of
-Axiom~2 emerges when we consider rates as random variables drawn from a
-joint distribution; see \Cref{prop:stable-Q} and the closing summary of
-\Cref{sec:axiom-2}.
-
-This triple is a well-formed $\Bernoulli{\BoolType}$ instance.
+\begin{example}[Biased coin]
+\label{ex:biased-coin-formal}
+A coin lands heads ($\top$) with prior $p$, observed through a channel with
+rates $(\fprate, \fnrate)$. The joint distribution over (truth, report) pairs is
+$p\,\tprate$, $p\,\fnrate$, $(1-p)\,\fprate$, $(1-p)\,\tnrate$ for TP, FN, FP,
+TN, summing to one. The type characterizes the channel, not the source: the
+prior $p$ is not part of $(X, Y, Q)$, though it enters when computing outcome
+probabilities. At $p = 0.6$, $\fprate = 0.05$, $\fnrate = 0.10$ the four
+outcomes are $0.540, 0.060, 0.020, 0.380$, and $Q = \left(\begin{smallmatrix}
+0.90 & 0.10 \\ 0.05 & 0.95 \end{smallmatrix}\right)$ is a well-formed
+$\Bernoulli{\BoolType}$ instance. Axiom~1 is vacuous for a single query;
+Axiom~2 is consistent with choosing $\fprate$ and $\fnrate$ without coupling.
 \end{example}
-
-The biased-coin example is the simplest general (asymmetric) instance of the type.
-It has one free parameter in the source ($p$) and two in the channel
-($\fprate$, $\fnrate$). The source prior $p$ controls how often each block
-is queried; the channel parameters control how reliably each query is
-reported. The formal $\Bernoulli{\BoolType}$ type isolates the channel:
-it says exactly what can go wrong (and how often) for each kind of input,
-independently of how often that input arises.
 
 \subsection*{Chapters 1 through 3 as instances}
 
-The formal definition gives us a vocabulary for what we have been doing
-all along. We can now look back at every example in chapters 1--3 and
-say, precisely, what type each object was.
+The definition names what the first three chapters were doing. The three faces
+of \Cref{sec:three-faces} are all $\Bernoulli{\BoolType}$: the biased coin
+above, the binary symmetric channel of \Cref{sec:bsc} with $\fprate = \fnrate$,
+and the classifier verdict with rates set by its decision boundary. The
+asymmetric channel of \Cref{sec:asymmetric-channel} is the general $Q$; the
+Z-channel and the Bloom filter are the one-sided instance $\fnrate = 0$.
 
-\medskip
-\noindent\textbf{Chapter 1: the noisy bit (\Cref{sec:three-faces}).}
-The three faces introduced in \Cref{sec:three-faces}---biased coin, binary
-symmetric channel, classifier verdict---are all $\Bernoulli{\BoolType}$
-instances. The biased coin appears above as Example~\ref{ex:biased-coin-formal}.
-The binary symmetric channel has $\fprate = \fnrate$ (symmetric noise), so its
-channel matrix is $Q = \left[\begin{smallmatrix} 1-\fprate & \fprate \\
-\fprate & 1-\fprate \end{smallmatrix}\right]$, a special case of the general
-$Q$ above. The classifier verdict has $\fprate$ and $\fnrate$ determined by
-the classifier's decision boundary and the data distribution---arbitrary
-in general, but still a $\Bernoulli{\BoolType}$ instance whenever
-Axioms~1 and~2 hold.
+The gates of chapter~3 are operations on the type. NOT is the unary
+$\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$ that swaps $(\fprate,
+\fnrate)$. AND and OR take two instances to one, but with a caveat the formal
+definition makes precise: the AND output's false-negative rate $1 - (1 -
+\fnrate_1)(1 - \fnrate_2)$ is prior-free, a fixed type parameter, while its
+false-positive rate is prior-dependent (the product $\fprate_1 \fprate_2$ in the
+all-negative regime, boundary-dependent otherwise, \Cref{sec:and-under-noise}).
+AND is therefore a clean $\Bernoulli{\BoolType}$-valued operation on its
+prior-free axis and is type-valued on its prior-dependent axis only relative to
+a fixed input distribution, the one-sided and Miller-Rabin regimes being where
+the product holds exactly; OR is dual. The composition theorem of
+\Cref{sec:composition-theorem} (serial, matrix product) and the Kronecker
+factorization (parallel, tensor product) are the two faces of the same
+independence structure, sister consequences of the axioms rather than one a case
+of the other.
 
-In \Cref{sec:boolean-universe-first-look} we walked through the Boolean
-universe qualitatively, deferring the full PMF treatment to here. That
-deferral has now paid off: Example~\ref{ex:biased-coin-formal} gives the
-PMF table, and Definition~\ref{def:bernoulli-bool} gives the formal type.
-
-\medskip
-\noindent\textbf{Chapter 2: binary channels (\Cref{sec:bsc},
-\Cref{sec:asymmetric-channel}).}
-The binary symmetric channel of \Cref{sec:bsc} is exactly
-$\Bernoulli{\BoolType}$ with $Q$ symmetric: $\fprate = \fnrate$ reduces the
-two free parameters of the general $Q$ to one. The formal $\Bernoulli{\BoolType}$
-type is strictly more general; the BSC lives as a one-parameter subfamily.
-
-The asymmetric binary channel of \Cref{sec:asymmetric-channel} is
-$\Bernoulli{\BoolType}$ with $Q$ general: $\fprate$ and $\fnrate$ may differ
-freely. The Z-channel (one-sided error) is the extreme case $\fnrate = 0$
-or $\fprate = 0$. The Bloom filter, which reports false positives but never
-false negatives, is the $\fnrate = 0$ instance: a row-1 channel that always
-reports $\top$ correctly and a row-2 channel that reports $\top$ with
-probability $\fprate > 0$.
-
-\medskip
-\noindent\textbf{Chapter 3: AND, OR, NOT under noise (\Cref{sec:and-under-noise},
-\Cref{sec:or-not}, \Cref{sec:composition-theorem}).}
-The gate-level operations of chapter 3 are operations on
-$\Bernoulli{\BoolType}$ instances that produce new $\Bernoulli{\BoolType}$
-instances.
-
-AND: if $\tilde{b}_1$ has rates $(\fprate_1, \fnrate_1)$ and $\tilde{b}_2$
-has rates $(\fprate_2, \fnrate_2)$, the AND of two noisy bits derived in
-\Cref{sec:and-under-noise} produces a new $\Bernoulli{\BoolType}$ instance
-with closed-form $\fprate_{\mathrm{AND}}$ and $\fnrate_{\mathrm{AND}}$. The
-derivation in \Cref{sec:and-under-noise} implicitly invoked Axiom~1 (the
-two error events are independent) and Axiom~2 (the rates are stable across
-the joint computation). Now that both axioms are named, we can say it
-precisely: AND is a binary operation $\Bernoulli{\BoolType} \times
-\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
-
-OR: by De Morgan's duality, the OR of two $\Bernoulli{\BoolType}$ instances
-is also a $\Bernoulli{\BoolType}$ instance. Its rates can be derived from
-AND via De Morgan or computed directly from the truth table of the noisy OR
-(\Cref{sec:or-not}); either way, the operation has type signature
-$\Bernoulli{\BoolType} \times \Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
-AND and OR together generate the rest of Boolean algebra under noise.
-
-NOT: complement swaps the block labels, exchanging $\fprate$ and $\fnrate$.
-Let $\fprate' = \fnrate$ and $\fnrate' = \fprate$ denote the effective rates
-of the complemented instance. The result is a $\Bernoulli{\BoolType}$
-instance with
-\[
-  Q_{\mathrm{NOT}} \;=\;
-  \begin{pmatrix}
-    1 - \fnrate' & \fnrate' \\
-    \fprate' & 1 - \fprate'
-  \end{pmatrix}
-  \;=\;
-  \begin{pmatrix}
-    1 - \fprate & \fprate \\
-    \fnrate & 1 - \fnrate
-  \end{pmatrix}.
-\]
-Here the new instance's effective false-positive rate is the original
-$\fnrate$ and its effective false-negative rate is the original $\fprate$.
-NOT is a unary operation $\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$.
-
-The composition theorem of \Cref{sec:composition-theorem}---that error
-rates compose multiplicatively in series---is the special case of
-\Cref{thm:kronecker} (the Kronecker factorization) applied to chained
-$\Bernoulli{\BoolType}$ instances. Each stage of the chain is one factor
-in the Kronecker product; the total joint distribution is the
-$m$-fold tensor $Q_1 \otimes \cdots \otimes Q_m$. This is not a
-coincidence: both rest on the independence structure that the two axioms
-supply. The composition theorem (matrix product, serial composition) and the
-Kronecker theorem (tensor product, parallel composition) are sister
-consequences of the same axiomatic foundation operating in different
-geometries.
-
-\subsection*{What the formal definition earned}
-
-A pedagogy that opens with a formal definition and then works out examples
-is a different kind of book. This book chose the other order: examples
-first, patterns second, formal definition last. The benefit is that the
-definition arrives already supported by intuition---the reader knows what
-$\Bernoulli{\BoolType}$ means before reading the words.
-
-The cost of that ordering is the distance the reader must carry intuition
-before it is formalized. In \Cref{sec:boolean-universe-first-look}, we
-described the Boolean universe qualitatively and said the full treatment
-would come later. That deferred a cognitive debt. This section retires it.
-
-Chapters 1--3 built the intuition. \Cref{sec:axiom-1} and \Cref{sec:axiom-2}
-named the independence assumptions those chapters were silently invoking.
-\Cref{sec:kronecker} showed what those assumptions buy in terms of
-factorization and parameter reduction. Definition~\ref{def:bernoulli-bool}
-collects all of that into a single, precise statement.
-
-This is the atom-outward trajectory: intuition-first, formalism at
-the end of Part~I rather than the beginning. The formal definition was not
-asserted; it was discovered, step by step, over four chapters. The reader
-who has followed those chapters does not need to be persuaded that the
-definition is the right one. They have seen it emerge.
-
-In \Cref{sec:what-comes-next}, we look ahead at where this definition
-leads.
+The atom-outward order was deliberate: examples first, axioms next, the formal
+definition last, so that it arrives already supported by intuition. The reader
+who followed chapters 1 through 3 has watched it emerge. \Cref{sec:what-comes-next}
+looks ahead to Part~II.

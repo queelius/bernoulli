@@ -1,141 +1,37 @@
+% §4.1 Why Axioms?
+%
+% Monograph register: the two independence assumptions ch1-3 used silently,
+% named here; their payoff is the Kronecker theorem and the formal
+% definition. Cross-refs sec:and-under-noise, sec:composition-theorem,
+% sec:miller-rabin (ch3), sec:axiom-1, sec:axiom-2, sec:kronecker,
+% sec:bernoulli-bool-formal.
+
 \section{Why Axioms?}
 \label{sec:why-axioms}
 
-% Cross-references to chapters 1-3 (sec:and-under-noise, sec:composition-theorem)
-% will resolve when those chapters are drafted in Plans 2-4. Cross-references
-% to sibling sections sec:axiom-1, sec:axiom-2, sec:kronecker, and
-% sec:bernoulli-bool-formal will resolve as Tasks 3-6 of this plan land.
-% The forward reference \Cref{ch:composition} (framing note, axiom-1.tex) and
-% \Cref{ch:approximate-sets} (axiom-1.tex example) will also be unresolved
-% until Part I integration. Build warnings ("Reference X undefined") for
-% sec:miller-rabin, ch:approximate-sets, and ch:composition are expected
-% during ch 4 drafting and will be resolved by Plan 4's Part I integration
-% check.
+Chapters 1 through 3 derived the gate rates, the composition theorem
+(\Cref{sec:composition-theorem}), and the Miller-Rabin bound, and at two points
+they used independence without naming it. This chapter names the two
+assumptions, states them precisely, and proves what their conjunction buys: the
+Kronecker factorization that collapses the parameter count of an $m$-query
+analysis from exponential to linear, and the formal definition of the type the
+first three chapters circled.
 
-The three chapters behind us built something real. We derived the error
-rates for AND and OR gates operating on noisy bits
-(\Cref{sec:and-under-noise}), showed that composition of
-channels produces predictable compound rates, and in \Cref{sec:composition-theorem}
-proved the composition theorem: when $k$ independent noisy channels
-are chained in series, their true-positive rates compose multiplicatively.
-We then applied that theorem immediately to Miller--Rabin primality testing,
-watching a per-round false-positive rate of at most $1/4$ collapse to
-$(1/4)^k$ after $k$ rounds. The derivations were concrete and the results
-were correct.
+The first assumption is element-wise independence: error events at distinct
+inputs are independent. Every product of probabilities in chapters 1 through 3,
+the composition theorem's chain, Miller-Rabin's $k$ independent witnesses
+(\Cref{sec:miller-rabin}), the AND and OR truth tables of
+\Cref{sec:and-under-noise}, rested on it. When it fails, as for two classifiers
+trained on shared data whose errors correlate, the product formulas become
+bounds at best. We call it Axiom~1 (\Cref{sec:axiom-1}).
 
-But correct derivations can hide assumptions. Chapters 1--3 made
-\emph{two} independence assumptions so naturally that we did not pause
-to name them. This chapter names them, states them precisely, and then
-shows exactly what mathematical structure they license. That structure
-is a precise structural theorem showing what those assumptions cost and
-what they buy; it is the formal payoff for the care we are about to take.
-
-\subsection*{The first hidden assumption: element-wise independence}
-
-Recall the composition theorem from \Cref{sec:composition-theorem}.
-When we wrote the true-negative rate for $k$ channels chained in series
-as $\tnrate_{\mathrm{total}} = 1 - \prod_{i=1}^k (1 - \tnrate_i)$, we
-were treating each channel's contribution to the end-to-end error as
-independent of every other channel's contribution. One query enters the
-chain; it passes through channel 1, whose output feeds channel 2, and so
-on; the overall error rate is a product of independent per-stage terms.
-No correlation across stages was allowed, and the product formula relied
-on that fact throughout.
-
-A different scenario where Axiom 1 matters: two classifiers trained on
-overlapping data from the same source. Their errors on a new input $x$
-will tend to correlate: when one misclassifies $x$, the other is more
-likely to as well. The product formula breaks. The effective error rate
-is worse than the product formula predicts, because the errors reinforce
-rather than cancel.
-
-We will call the assumption that justifies the product formula
-\emph{Axiom 1}. Roughly, Axiom 1 asserts independence of error events
-across distinct input elements; the precise statement and its scope
-appear in \Cref{sec:axiom-1}. The practical effect is that joint error
-distributions factor across distinct queries, which is what made the
-composition theorem's product form possible. When Axiom 1 holds, every
-formula in chapters 1--3 that relies on independence is automatically
-justified. When Axiom 1 fails, those formulas become bounds at best and
-misleading at worst. Chapter 3's Miller--Rabin analysis, for instance,
-requires Axiom 1: the $k$ witness tests must be independent for the
-per-round bound to compound as $(1/4)^k$. If the witnesses were
-correlated, the product would underestimate the true composite error
-rate.
-
-\subsection*{The second hidden assumption: stable block error rates}
-
-The derivation of AND under noise in \Cref{sec:and-under-noise} used
-specific values $\fprate$ and $\fnrate$, the false-positive and
-false-negative rates, treating them as fixed properties of each input.
-We implicitly assumed that querying an input repeatedly would yield the
-same error behavior each time: that $\fprate$ does not drift from query
-to query, that the channel is stationary across uses.
-
-This is not the only conceivable behavior. A Markov-correlated channel,
-for instance, lets the error rate on query $t+1$ depend on what
-happened at query $t$. If the channel just made a false positive, it
-might be more likely to make another. The rates are not stable; they are
-history-dependent. We did not model this, and for good reason: the
-stationary case is the tractable and practically important one. But
-we should say we are assuming it.
-
-We have been assuming Axiom 2 since \Cref{sec:and-under-noise}; let us
-make it explicit. Axiom 2 says: the error rates within each partition
-block of the input domain are the same for every query, unconditionally.
-There is one channel matrix $Q$ per input-block-pair, and it does not
-depend on which query in a sequence we are currently processing.
-Under Axiom 2, the channel is genuinely memoryless within each block:
-its statistical behavior is the same on the hundredth query as on the
-first.
-
-This is a meaningful restriction, not a triviality. It rules out
-fatigue, warm-up effects, adversarial adaptation, and history
-dependence. It also makes the math work cleanly. We formalize Axiom 2
-in \Cref{sec:axiom-2}.
-
-\subsection*{What the axioms buy}
-
-Once both axioms are in place, something striking follows. The joint
-confusion matrix describing $m$ independent queries on the channel is
-not a free matrix with exponentially many parameters. Under Axioms 1
-and 2, it \emph{must} factor into a product of $m$ small per-query
-matrices, one factor per query. The exponential-to-linear collapse in
-parameter count, made precise in \Cref{sec:kronecker}, is the formal
-payoff of this chapter.
-
-This is not merely an algebraic convenience. It is the theorem that
-makes the Bernoulli framework useful in practice. Without it, a
-fifty-query analysis would require specifying an astronomically large
-matrix. With it, you need fifty pairs of numbers. The saving is
-exponential.
-
-We prove this Kronecker factorization theorem, derive the parameter
-count corollary, and work through explicit examples in
-\Cref{sec:kronecker}. The theorem is the chapter's climax and the
-formal vindication of every computation in chapters 1--3.
-
-\subsection*{The formal definition}
-
-Once the axioms and the Kronecker theorem are in hand, we can at last
-write down the formal definition of the type $\Bernoulli{\BoolType}$
-without fear of circularity. Chapter 1 named the noisy bit informally.
-Chapter 2 gave it a channel matrix. Chapter 3 showed how to compose
-these objects. Chapter 4 closes by showing that all of those things
-are instances of a single precise definition: a triple $(X, Y, Q)$
-where $X$ and $Y$ are the input and output domains $\{\top, \bot\}$,
-$Q$ is a $2 \times 2$ stochastic matrix, and the whole structure
-satisfies Axioms 1 and 2. We work this out in \Cref{sec:bernoulli-bool-formal},
-including the biased-coin example, introduced in \Cref{sec:three-faces}
-and deliberately left without a full PMF in
-\Cref{sec:boolean-universe-first-look} until we had the formal machinery
-to handle it.
-
-The trajectory of this chapter, then, is: axioms first
-(\Cref{sec:axiom-1,sec:axiom-2}), then the theorem they make possible
-(\Cref{sec:kronecker}), then the definition the theorem earns us
-(\Cref{sec:bernoulli-bool-formal}).
-
-By the end, the reader who worked through chapters 1--3 will recognize
-every example, every formula, and every derivation as an instance of
-one coherent definition. That is the point.
+The second is rate stability: each block's error rate is a fixed property, the
+same on the hundredth query as the first. The AND derivation treated $\fprate$
+and $\fnrate$ as constants, assuming the channel does not drift, warm up, or
+adapt. We call it Axiom~2 (\Cref{sec:axiom-2}). It rules out fatigue,
+history-dependence, and adversarial adaptation, and it is a real restriction,
+not a triviality. Together the two axioms force the joint confusion matrix of
+$m$ queries to factor as a Kronecker product of $m$ small per-query matrices
+(\Cref{sec:kronecker}), after which the formal definition of
+\Cref{sec:bernoulli-bool-formal} writes itself: a triple $(X, Y, Q)$ satisfying
+the two axioms, of which every example in chapters 1 through 3 is an instance.
