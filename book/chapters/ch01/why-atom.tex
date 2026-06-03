@@ -5,186 +5,65 @@
 % ALREADY DEFINED (within chapter 1, by this section):
 %   \label{sec:why-atom}                    -- this section
 %
-% RESOLVED (already in source tree at Plan 4 Task 6 HEAD):
-%   \Cref{sec:three-faces}                  -- §1.1 (drafted)
-%   \Cref{sec:quantifying-noise}            -- §1.2 (drafted)
-%   \Cref{sec:boolean-universe-first-look}  -- §1.3 (drafted)
-%   \Cref{sec:sampling-rates}               -- §1.4 (drafted)
-%   \Cref{ch:binary-channels}               -- chapter 2 (scaffolded)
-%   \Cref{ch:boolean-algebra}               -- chapter 3 (scaffolded)
-%   \Cref{sec:composition-theorem}          -- chapter 3 §3.3
-%   \Cref{sec:miller-rabin}                 -- chapter 3 §3.4
-%   \Cref{ch:axioms-kronecker}              -- chapter 4 (scaffolded)
-%   \Cref{sec:axiom-1}                      -- chapter 4 §4.2
-%   \Cref{sec:axiom-2}                      -- chapter 4 §4.3
-%   \Cref{sec:kronecker}                    -- chapter 4 §4.4
-%   \Cref{sec:bernoulli-bool-formal}        -- chapter 4 §4.5
+% RESOLVED:
+%   \Cref{sec:three-faces}, \Cref{sec:quantifying-noise},
+%   \Cref{sec:boolean-universe-first-look}, \Cref{sec:sampling-rates} -- ch.1
+%   \Cref{ch:binary-channels}, \Cref{sec:model-order}                 -- ch.2
+%   \Cref{ch:boolean-algebra}, \Cref{sec:composition-theorem},
+%   \Cref{sec:miller-rabin}                                           -- ch.3
+%   \Cref{ch:axioms-kronecker}, \Cref{sec:axiom-1}, \Cref{sec:axiom-2},
+%   \Cref{sec:kronecker}, \Cref{sec:bernoulli-bool-formal}            -- ch.4
 %
-% This section closes chapter 1 by stepping back from mechanics to motivation.
-% It does not introduce new technical content; it explains the trajectory.
-% The Miller-Rabin tease is ONE paragraph, by design: it sets up the §3.4
-% climax without spoiling it. The Part II and Part III previews are short
-% and DELIBERATELY framed from chapter 1's vantage, not chapter 4's. §4.6
-% will return to the Part II preview from a different angle.
-%
-% This section also marks the first place in chapter 1 where the formal type
-% name $\Bernoulli{\BoolType}$ may appear, but only in the trajectory-preview
-% sentence about chapter 4. Chapter 1's body has so far called the object
-% by its plain-English name, the noisy bit; we keep that habit here except
-% for the one formal-naming sentence.
+% Monograph register: justifies "atom" (two senses of atomicity) and
+% states the trajectory of Part I and the rest of the book compactly. The
+% formal type name first appears in the chapter-4 preview sentence.
 
 \section{Why ``Atom''?}
 \label{sec:why-atom}
 
-The noisy bit has been built up carefully over four sections. We have seen
-its three faces (\Cref{sec:three-faces}), named its two rates
-(\Cref{sec:quantifying-noise}), walked its joint structure
-(\Cref{sec:boolean-universe-first-look}), and shown how to estimate the
-rates from finite samples (\Cref{sec:sampling-rates}). The opening
-overview of the chapter promised something more: the noisy bit would be
-the framework's \emph{atom}, not merely its first example. It is worth
-pausing on what that word is doing here, because the rest of the book
-takes the claim as a working hypothesis.
+The noisy bit is atomic in two senses. First, it has no internal Bernoulli
+structure to decompose: the input is one Boolean value, the output is one
+Boolean value, and the entire behavior is two numbers, $\fprate$ and $\fnrate$.
+A smaller part would require a sub-Boolean input or output, and there is
+nothing below a Boolean. The atom is where internal accounting stops and
+external accounting begins, and every larger object in the book, chained
+channels, noisy logic gates, randomized algorithms, approximate sets, general
+algebraic types, is assembled from noisy bits by a specific composition rule.
+Second, the noisy bit sits at the minimum of the model-order ladder that
+\Cref{sec:model-order} defines, the number of distinct error regimes an input
+domain splits into. A general noisy bit has model order two, the blocks
+$\{\top\}$ and $\{\bot\}$ carrying independent rates; the symmetric case
+collapses to order one. No noisy system over a Boolean domain has a smaller
+non-trivial channel matrix.
 
-A noisy bit is atomic in a precise sense. It has no internal Bernoulli
-structure to peel back. The input is a single Boolean value, the output
-is a single Boolean value, and the entire behavior is captured by two
-numbers, the false-positive rate $\fprate$ and the false-negative rate
-$\fnrate$. You cannot decompose a noisy bit into smaller noisy parts,
-because a smaller part would have a sub-Boolean input or output, and
-there is nothing below a Boolean. The atom is the place where the
-internal accounting stops and the external accounting begins. Every
-larger object the book builds, from chained channels to noisy AND
-gates to randomized algorithms to approximate sets to general
-algebraic types, will turn out to be assembled, by some specific
-composition rule, from noisy bits. The atom is the smallest object
-that the framework's machinery applies to without itself invoking the
-machinery.
+The claim is a working hypothesis until discharged, and chapters 2 through 4 do
+so in three directions. \Cref{ch:binary-channels} gives the noisy bit a
+$2 \times 2$ row-stochastic matrix $Q$, places the symmetric, asymmetric, and
+Z-channel cases on the model-order ladder, and shows the atom closed under
+serial composition (the matrix product of row-stochastic matrices is
+row-stochastic). \Cref{ch:boolean-algebra} asks what AND, OR, and NOT do to
+noisy bits and answers with the composition theorem
+(\Cref{sec:composition-theorem}): the result is again a noisy bit, its rates
+closed-form in the operands'. One round of the Miller-Rabin primality test is a
+noisy bit with $\fnrate = 0$ and $\fprate \le 1/4$, and the $k$-round bound
+$\fprate^{(k)} \le (1/4)^k$ is the composition theorem applied $k$ times rather
+than a separate analysis (\Cref{sec:miller-rabin}). \Cref{ch:axioms-kronecker}
+names the two independence assumptions used silently until then, element-wise
+independence (\Cref{sec:axiom-1}) and conditional independence of per-block
+rates (\Cref{sec:axiom-2}); proves the Kronecker factorization they purchase
+(\Cref{sec:kronecker}), which is what makes the per-element description
+sufficient; and writes the formal definition $\Bernoulli{\BoolType} = (X, Y,
+Q)$ (\Cref{sec:bernoulli-bool-formal}), of which every concrete object in
+chapters 1 through 3 is an instance.
 
-A second sense of atomicity is worth flagging now.
-\Cref{sec:model-order} will define the \emph{model order} of a noisy
-system: the number of equivalence classes the input domain splits
-into. A noisy bit has model order two ($B_1 = \{\top\}$, $B_2 =
-\{\bot\}$), the smallest non-trivial value; everything richer is built
-by composition from objects whose model order is exactly two. The
-noisy bit is atomic not only because Booleans are indivisible but
-because its channel matrix has the smallest non-trivial structure any
-noisy system can have.
-
-That commitment is empty until we discharge it. The next three
-chapters do the discharging in three different directions.
-
-\subsection*{Chapters 2 through 4: the algebra of the atom}
-
-Chapter 2 (\Cref{ch:binary-channels}) gives the noisy bit a formal
-shape. The two-rate description of \Cref{sec:quantifying-noise} becomes
-a $2 \times 2$ row-stochastic matrix $Q$. The binary symmetric channel,
-where $\fprate = \fnrate$, is one specialization; the asymmetric binary
-channel, where the two rates may differ, is the general case; the
-Z-channel, where one rate is forced to zero, is a useful boundary. The
-chapter introduces \emph{model order} as a way to talk about how many
-distinct rates a channel actually has, and shows that the noisy bit
-sits at model order two, the minimum non-trivial value. Chapter 2 also
-takes the first step in composition: channels can be chained, and the
-matrix product of two row-stochastic matrices is another row-stochastic
-matrix, so a chain of channels is itself a channel. The atom is closed
-under serial composition.
-
-Chapter 3 (\Cref{ch:boolean-algebra}) raises the question that classical
-logic forgot to ask. AND, OR, and NOT are familiar operations on
-Boolean values. What do they do to noisy bits? If the two operands of
-an AND each carry their own $\fprate$ and $\fnrate$, what are the
-effective rates of the result? The answer is the composition theorem
-(\Cref{sec:composition-theorem}): the output is itself a noisy bit,
-with rates computable in closed form from the rates of the operands.
-The Boolean operations stay closed when their operands stop being
-exact. The chapter develops the closed-form rules and applies them to
-several worked examples. The atom is closed under the operations of
-Boolean algebra.
-
-Chapter 4 (\Cref{ch:axioms-kronecker}) axiomatizes. Chapters 1 through 3
-silently assume that error events at distinct inputs are independent,
-and that the rates themselves do not drift across the universe of
-inputs. Chapter 4 names these as Axiom 1 (\Cref{sec:axiom-1}, element-wise
-independence) and Axiom 2 (\Cref{sec:axiom-2}, conditional independence
-of per-block rates). The Kronecker factorization theorem
-(\Cref{sec:kronecker}) shows what those two axioms purchase: the joint
-distribution over a block of inputs factors as a tensor product of the
-per-element channel matrices, which is what makes the per-element
-description sufficient. Chapter 4 then writes the formal definition
-$\Bernoulli{\BoolType} = (X, Y, Q)$
-(\Cref{sec:bernoulli-bool-formal}), where $X$ is the input domain, $Y$
-is the output report, and $Q$ is the channel matrix that chapter 2
-will introduce. The triple ties the chapter 1, chapter 2, and chapter 4
-threads together in a single object, and chapter 4 shows that every
-concrete object chapters 1 through 3 worked with is an instance of it.
-The atom is characterized axiomatically, not just by example.
-
-\subsection*{Miller-Rabin: a familiar algorithm in unfamiliar dress}
-
-One example deserves its own preview because it is the first place the
-framework will pay an unfamiliar dividend. The Miller-Rabin primality
-test is among the most widely deployed randomized algorithms in
-computer science; every cryptographic library uses it. The standard
-treatment presents Miller-Rabin as a clever piece of number theory
-attached to a clever piece of probability. \Cref{sec:miller-rabin}
-takes a different view. One round of Miller-Rabin is exactly a noisy
-bit, with $\fnrate = 0$ (a prime never fails a witness test) and
-$\fprate \le 1/4$ (the strong-liar count for any composite is at most a
-quarter of the witness pool). The $k$-round test is the AND of $k$
-such noisy bits, and the famous bound $\fprate_k \le (1/4)^k$ is not
-a separate piece of analysis but a direct application of the
-composition theorem of \Cref{sec:composition-theorem}. The number
-theory contributes the per-round $1/4$ bound; everything else is the
-algebra of the atom. We will see the calculation in full in chapter 3.
-
-\subsection*{Part II: sets out of atoms}
-
-Chapter 1 has shown what a single noisy bit looks like. A natural next
-question is what happens when many of them are arranged into a
-structure. Part II asks the version of this question that
-membership-test data structures invite. A set $S$ over a universe $U$
-induces, for each element $u \in U$, a Boolean query, namely ``is $u$
-in $S$?''. An approximate set is one in which each such query is a
-noisy bit. Bloom filters, the canonical example, are a recipe for
-producing a noisy-bit instance per universe element with one-sided
-error ($\fnrate = 0$) and a tunable $\fprate$. The atom becomes a
-building block, and the project of Part II is the algebra of the
-resulting structures: how set operations propagate error rates, how
-classification measures quantify quality, and how much space an
-approximate set must consume to hit a given accuracy target. Each of
-these threads is grounded in the atom but is not reducible to it; the
-atom is the unit, not the whole story.
-
-\subsection*{Part III: lifting the atom past Boolean}
-
-The Boolean domain is convenient but not fundamental. Once the
-machinery of Part II is in place, the natural question is whether the
-same construction works for richer codomains. Part III replaces
-$\{\top, \bot\}$ with an arbitrary algebraic type $T$. Approximate
-maps, approximate relations, and approximate values of structured
-types all become available. The two-element model order of chapter 2
-ceases to be a ceiling. The atom of chapter 1 is the simplest
-non-trivial special case of a much larger family of atoms, one for each
-algebraic type, and the closures and composition rules of Part I
-generalize accordingly. Where Part II takes the atom and builds a
-collection out of it, Part III takes the atom and changes the alphabet
-it works in.
-
-\subsection*{Closing}
-
-This has been a forward glance. The chapter ahead, namely
-\Cref{ch:binary-channels}, picks up where \Cref{sec:sampling-rates}
-left off and gives the noisy bit its first formal vocabulary. Before
-that, the next and final section of this chapter, the bibliographic
-notes, names the antecedents of what we have just done: Shannon's
-channel framing, the contingency-table tradition from medical
-statistics, the precision-and-recall vocabulary from information
-retrieval, and the original Miller and Rabin papers on primality
-testing. The historical record will tell us that almost every
-component of chapter 1 was already in use somewhere; what is new is
-the decision to treat them all as one object and to call that object
-an atom. Chapter 1 has done what chapter 1 should do, namely shown
-the framework's atom, named it, and pointed at the algebra the rest
-of Part~I unfolds; everything that follows is composition, and the
-atom is what gets composed.
+Beyond Part~I the atom is held fixed and its surroundings vary. Part~II keeps
+the Boolean codomain and arranges many noisy bits into a structure: a set $S$
+over a universe induces a membership query per element, an approximate set
+makes each query a noisy bit (the Bloom filter being the canonical one-sided
+instance, $\fnrate = 0$ with tunable $\fprate$), and the development is the
+algebra of how set operations propagate error, how classification measures
+quantify quality, and how much space a target accuracy demands. Part~III
+replaces the Boolean codomain with an arbitrary algebraic type, lifting the
+atom to approximate maps, relations, and structured values, where the
+two-element model order ceases to be a ceiling. The atom is the unit that gets
+composed; everything that follows is composition.

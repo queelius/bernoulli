@@ -5,33 +5,27 @@
 % ALREADY DEFINED (within chapter 1, by this section):
 %   \label{sec:boolean-universe-first-look}  -- this section
 %
-% RESOLVED (already in source tree at Plan 4 Task 4 HEAD):
-%   \Cref{sec:three-faces}              -- §1.1 (drafted)
-%   \Cref{sec:quantifying-noise}        -- §1.2 (drafted)
-%   \Cref{sec:bernoulli-bool-formal}    -- chapter 4 §4.5 (drafted)
-%   \Cref{def:bernoulli-bool}           -- chapter 4 §4.5 (drafted)
+% RESOLVED:
+%   \Cref{sec:three-faces}              -- §1.1
+%   \Cref{sec:quantifying-noise}        -- §1.2
+%   \Cref{sec:bernoulli-bool-formal}    -- chapter 4 §4.5
+%   \Cref{def:bernoulli-bool}           -- chapter 4 §4.5
 %
-% FORWARD REFS to later chapter 1 sections (resolve in Plan 4 Task 5):
-%   \Cref{sec:sampling-rates}           -- §1.4 (Task 5)
+% FORWARD REFS to later chapter 1 sections:
+%   \Cref{sec:sampling-rates}           -- §1.4
 %
-% This section walks the four-cell 2x2 outcome matrix of a noisy bit
-% qualitatively, names the smallest non-trivial universe, and defers the
-% joint PMF and channel matrix to §4.5. Defining this label retires the
-% two outstanding forward references in ch04/bernoulli-bool-formal.tex
-% lines 129 and 267 (and the one in the closing paragraph at line 353).
+% Monograph register: names the four-cell outcome matrix as the four
+% contingency cells abstracted from any run, names the Boolean universe as
+% the atom's domain, and defers the joint PMF and channel matrix to §4.5.
 
 \section{A First Look at the Boolean Universe}
 \label{sec:boolean-universe-first-look}
 
-A noisy bit has two possible inputs and two possible outputs. The truth on
-any given trial is either $\top$ or $\bot$, and the reported value is also
-either $\top$ or $\bot$. Cross those two binary choices and four
-input-output combinations exhaust the joint behavior of the device. You
-have already seen this $2 \times 2$ grid in \Cref{sec:quantifying-noise},
-but as a table of counts; here we look at it as a table of \emph{outcome
-types}, the four ways a noisy bit's trial can turn out. We
-arrange the combinations in a $2 \times 2$ outcome matrix indexed by the
-true input (rows) and the observed report (columns):
+A noisy bit has two inputs and two outputs, so its single-trial behavior is
+exhausted by four input-output combinations. \Cref{sec:quantifying-noise}
+arranged these as a table of counts; abstracted from any particular run they
+are a table of outcome types, indexed by true input (rows) and observed report
+(columns):
 
 \begin{center}
 \begin{tabular}{l|cc}
@@ -44,137 +38,46 @@ true input (rows) and the observed report (columns):
 \end{tabular}
 \end{center}
 
-\noindent The four cells are the universe of joint behavior. Anything the
-noisy bit can do on a single trial is one of these four outcomes; there
-are no others. The chapter from here on is about the structure of these
-four cells, what populates each one, how the populations move when the
-device is composed with another, and how the rates of \Cref{sec:quantifying-noise} fit on top of them.
+\noindent
+The four cells carry the same labels as the contingency table of
+\Cref{sec:quantifying-noise}, TP, FN, FP, TN, seen from a different angle: the
+contingency table counts how many of $n$ trials land in each cell, while the
+outcome matrix names the cells themselves. The empirical table is a sample from
+the joint distribution over these cells.
 
-\subsection*{The four cells, narratively}
+\subsection*{The smallest non-trivial universe}
 
-Take the cells one at a time.
-
-\emph{Truth $\top$, report $\top$.} The input was $\top$ and the device
-reported $\top$. Call this a \emph{correct positive}: the noisy bit got
-it right on a $\top$-input. In the spam-filter vocabulary of
-\Cref{sec:three-faces} this is a spam message correctly flagged. In the
-biased-coin face this is the in-handheld trial that came up heads as it
-usually does. In the binary-channel face this is the bit that traveled
-the wire without flipping.
-
-\emph{Truth $\top$, report $\bot$.} The input was $\top$ and the device
-reported $\bot$. This is the \emph{false negative}: the noisy bit
-missed. The spam filter dropped a spam message into the inbox. The
-coin came up tails on a trial that should usually have produced heads.
-The wire flipped a transmitted $\top$ into a $\bot$. Whatever the
-mechanism, the system replied with the wrong answer in the
-$\top$-to-$\bot$ direction.
-
-\emph{Truth $\bot$, report $\top$.} The input was $\bot$ and the device
-reported $\top$. This is the \emph{false positive}: the noisy bit
-fired when it should have stayed silent. The spam filter flagged a
-legitimate message. The coin came up heads on a trial when heads was
-unlikely. The wire flipped a $\bot$ into a $\top$.
-
-\emph{Truth $\bot$, report $\bot$.} The input was $\bot$ and the device
-reported $\bot$. The \emph{correct negative}: the noisy bit stayed
-silent when it should have. The ham message passed through, the
-unlikely-heads trial produced tails as expected, the $\bot$-bit
-traveled the wire unchanged.
-
-Those are the four cells. Their names are exactly the four labels of
-the contingency table in \Cref{sec:quantifying-noise}: TP, FN, FP, TN.
-This is not a coincidence; it is the same four-way split seen from a
-different angle. The contingency table of \Cref{sec:quantifying-noise}
-records what happens when we run the noisy bit $n$ times and \emph{count}
-how many trials land in each cell. The outcome matrix above records the
-\emph{cells themselves}, abstracted from any particular run. The four
-cells of the joint distribution and the four cells of the empirical
-contingency table are the same four cells. The empirical table is a
-sample drawn from the joint distribution over those cells.
-
-\subsection*{Why this is a ``universe''}
-
-The input domain $\{\top, \bot\}$ has exactly two elements. We will call
-this set the \emph{Boolean universe} and write it $U = \{\top, \bot\}$.
-The word \emph{universe} is borrowed from set-theoretic usage: it is the
-ambient set out of which subsets are formed and over which predicates are
-evaluated. For our purposes the Boolean universe is the smallest
-non-trivial universe of interest. With one element, no nontrivial
-predicate exists. With two, we can already ask whether an input is one
-specific value or the other, which is the simplest discrimination a
-classifier can perform.
-
-The smallness is the point. Part~I of this book develops the algebra of
-this universe and nothing larger. Every result, every composition rule,
-every error-rate formula in the chapters that follow is a statement
-about predicates whose input is a single Boolean. The reason for that
-restriction is pedagogical and structural: the Boolean universe is the
-\emph{atom} of the framework, and every richer universe (multi-bit
-inputs, finite enumerations, arbitrary algebraic types) is built up
-from Booleans by Kronecker products in Part~II and beyond. If we
-understand the algebra of the four cells, we understand a great deal
-about systems that look more complicated on the surface but reduce, on
+The input domain $\{\top, \bot\}$ has exactly two elements. We call this set
+the \emph{Boolean universe} and write it $\Universe = \{\top, \bot\}$, borrowing
+\emph{universe} from set-theoretic usage as the ambient set over which subsets
+are formed and predicates evaluated. It is the smallest universe that supports
+a non-trivial predicate: one element admits no discrimination, two already
+admit the question whether an input is one value or the other. Part~I develops
+the algebra of this universe and nothing larger. Every richer universe (multi-
+bit inputs, finite enumerations, arbitrary algebraic types) is assembled from
+Booleans by the Kronecker products of Part~II and beyond, so the algebra of
+these four cells governs systems that look more complicated but reduce, on
 inspection, to compositions of noisy bits.
 
-\subsection*{The deferral}
+\subsection*{The deferred joint distribution}
 
-A fully formal description of the four cells would assign each one a
-probability mass. Given the rates of \Cref{sec:quantifying-noise} and
-the prevalence of $\top$ in the input stream, the four cells receive
-four numbers that sum to one. The resulting object is a joint
-distribution over the four pairs (truth, report). Multiplying it out
-involves the rates $\fprate$, $\fnrate$, $\tprate$, $\tnrate$, and the
-prior probability of a $\top$-input. We will not write that joint
-distribution here.
+A fully formal description assigns the four cells a joint distribution: given
+the rates of \Cref{sec:quantifying-noise} and the prevalence of $\top$ in the
+input stream, the cells receive four probabilities summing to one. We defer
+that step. The formal object whose instances are exactly the noisy bits with
+two free rate parameters is defined in \Cref{sec:bernoulli-bool-formal}, which
+earns the joint distribution by first stating the two independence axioms that
+make the type well-posed and then proving the Kronecker factorization that
+justifies the parameter economy. Writing the joint mass here would either
+duplicate that machinery or assert it without support. \Cref{def:bernoulli-bool}
+gives the joint table, the channel matrix, and the worked biased-coin instance.
 
-The reason for the deferral is structural, not coy. The formal definition
-of the object we are circling, the type whose instances are exactly the
-noisy bits with two free rate parameters, lives in
-\Cref{sec:bernoulli-bool-formal}. That section earns the formal step by
-first introducing the two axioms that make the type well-posed (in
-chapter~4 \S\S4.2 and 4.3) and then proving the Kronecker factorization
-that justifies the parameter economy (chapter~4 \S4.4). Writing the joint
-PMF in §1.3 would either repeat that machinery or assert it without
-support. Both are bad pedagogy. The honest path is to acknowledge that
-the four cells admit a joint distribution, name where that distribution
-gets written down, and continue. \Cref{sec:bernoulli-bool-formal}
-returns to this picture with the formal definition; the table of joint
-probabilities, the channel matrix, and the worked biased-coin instance
-all appear there.
-
-\subsection*{A qualitative example: the biased coin}
-
-The biased coin from \Cref{sec:three-faces} runs through the book, and it
-is worth seeing what the four cells look like for a specific instance.
-Take $\fprate = 0.1$ and $\fnrate = 0.2$: the coin reports a $\top$ when
-the truth is $\bot$ one trial in ten on average, and reports a $\bot$
-when the truth is $\top$ one trial in five on average.
-
-In the outcome matrix this means the following. Of every five
-$\top$-trials, roughly four land in the \emph{correct positive} cell and
-roughly one lands in the \emph{false negative} cell: the true-positive
-rate is $\tprate = 1 - \fnrate = 0.8$ and the false-negative rate is
-$\fnrate = 0.2$. Of every ten $\bot$-trials, nine land in the \emph{correct
-negative} cell and one lands in the \emph{false positive} cell:
-$\tnrate = 1 - \fprate = 0.9$ and $\fprate = 0.1$.
-
-These four conditional shares (four-fifths, one-fifth, one-tenth,
-nine-tenths) say what fraction of each \emph{row} the noisy bit places in
-each \emph{column}. They do not say what fraction of all trials lands in
-each cell, because that fraction also depends on how many trials had
-truth $\top$ versus truth $\bot$ in the first place. The bridge from
-row-conditional rates to outright cell probabilities is exactly the
-joint distribution we are deferring. \Cref{sec:bernoulli-bool-formal}
-takes the bridge.
-
-\subsection*{Where the chapter goes from here}
-
-This section has named four cells of the joint distribution but refused
-to write down the joint distribution itself. \Cref{sec:sampling-rates}
-takes the next concrete step: you can \emph{measure} what is in those
-cells, by sampling, even before \Cref{sec:bernoulli-bool-formal} writes
-the joint formula. Estimation and formalization meet later; in
-\Cref{sec:sampling-rates} we start estimating. That returns the chapter
-to concrete arithmetic and sets up the question, picked up by chapters 2
-through 4, of what an algebra of these noisy bits looks like.
+For one concrete instance, take the biased coin with $\fprate = 0.1$ and
+$\fnrate = 0.2$. Of its $\top$-trials a fraction $\tprate = 0.8$ land in the
+correct-positive cell and $\fnrate = 0.2$ in the false-negative cell; of its
+$\bot$-trials a fraction $\tnrate = 0.9$ land in the correct-negative cell and
+$\fprate = 0.1$ in the false-positive cell. These are conditional shares within
+each row; converting them to outright cell probabilities requires the prevalence
+of $\top$, which is exactly the joint distribution deferred to
+\Cref{sec:bernoulli-bool-formal}. The next section estimates the rates from
+data without waiting for that formalization.

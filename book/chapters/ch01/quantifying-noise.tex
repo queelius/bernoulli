@@ -6,59 +6,39 @@
 %   \label{sec:quantifying-noise}           -- this section
 %   \label{tab:contingency}                 -- 2x2 contingency table
 %
-% RESOLVED (already in source tree at Plan 3 HEAD):
-%   \Cref{sec:three-faces}                  -- §1.1 (drafted)
-%   \Cref{app:five-principles}              -- Appendix B (scaffolded; content in Plan 5)
+% RESOLVED:
+%   \Cref{sec:three-faces}                  -- §1.1
+%   \Cref{prop:complement-swap}             -- chapter 6 §6.2 (set-level complement)
 %   \Cref{sec:bsc}                          -- chapter 2 §2.1
-%   \Cref{ch:axioms-kronecker}              -- chapter 4
+%   \Cref{ch:classification-measures}       -- chapter 7
 %
-% FORWARD REFS to later chapter 1 sections (resolve in Plan 4 Tasks 4-7):
-%   \Cref{sec:boolean-universe-first-look}  -- §1.3 (Task 4)
-%   \Cref{sec:sampling-rates}               -- §1.4 (Task 5)
+% FORWARD REFS to later chapter 1 sections:
+%   \Cref{sec:boolean-universe-first-look}  -- §1.3
+%   \Cref{sec:sampling-rates}               -- §1.4
 %
-% This section fixes the contingency-table vocabulary that the rest of
-% Part~I uses. The notation sidebar names the four alex.sty rate macros
-% ($\fprate$, $\fnrate$, $\tprate$, $\tnrate$) and forward-references the
-% consolidated cheat sheet in Appendix~B. The precision/recall cross-walk
-% does pedagogical work on the spam-filter thread from §1.1.
+% Monograph register: fixes the contingency-table vocabulary used through
+% Part I; the precision/recall cross-walk carries the prevalence point.
+% Two remarks salvage former exercises (NOT swaps the rate pair; the
+% constant noisy bit and the zero-information line).
 
 \section{Quantifying the Noise}
 \label{sec:quantifying-noise}
 
-The closing observation of \Cref{sec:three-faces} was that every noisy bit, biased
-coin, binary symmetric channel, classifier verdict, is characterized by at most
-two error rates: the rate of reporting $\top$ when the truth is $\bot$, and the
-rate of reporting $\bot$ when the truth is $\top$. That phrasing is suggestive
-but informal. What does ``rate'' mean precisely, what is the denominator, and how
-do we measure these numbers from data? Those are the questions of this section.
-
-The path is short. We will introduce the $2 \times 2$ contingency table that
-records the outcome of $n$ observations of a noisy bit, name the four rates one
-can compute from that table, and connect those rates to the precision and recall
-that practitioners of binary classification already know. By the end of this
-section the reader can read off the error rates of any noisy bit from a confusion
-matrix, and can move freely between $(\fprate, \fnrate)$ on the one hand and
-$(\textnormal{precision}, \textnormal{recall})$ on the other.
+A noisy bit is fixed by two conditional error rates. We make ``rate'' precise
+through the $2 \times 2$ contingency table, name the four rates it yields, and
+relate them to the precision and recall of binary classification.
 
 \subsection*{The contingency table}
 
-Suppose we run a noisy bit $n$ times. On each trial we know the true input,
-either $\top$ or $\bot$, and we observe an output, also either $\top$ or $\bot$.
-The result of $n$ trials is a list of $n$ ordered pairs $(\text{truth},
-\text{output})$, and each pair falls into exactly one of four joint states.
-A pair where the truth is $\top$ and the output is $\top$ is a \emph{true
-positive}. A pair where the truth is $\top$ but the output is $\bot$ is a
-\emph{false negative}, the noisy bit reported a $\bot$ when it should have
-reported $\top$. A pair where the truth is $\bot$ but the output is $\top$ is a
-\emph{false positive}. A pair where the truth is $\bot$ and the output is $\bot$
-is a \emph{true negative}. A standing source of student confusion is that
-``false negative'' names the \emph{system output}, not the truth: a false
-negative is a $\bot$ output produced when the truth was $\top$.
-
-Let TP, FN, FP, and TN denote the counts of each joint state across the $n$
-trials. By construction $\textnormal{TP} + \textnormal{FN} + \textnormal{FP} +
-\textnormal{TN} = n$. We arrange these four counts in a $2 \times 2$ table
-indexed by truth (rows) and observed output (columns):
+Run a noisy bit $n$ times. Each trial has a known true input, $\top$ or $\bot$,
+and an observed output, so the $n$ trials are ordered pairs (truth, output),
+each falling into one of four joint states: a \emph{true positive} (truth
+$\top$, output $\top$), a \emph{false negative} (truth $\top$, output $\bot$),
+a \emph{false positive} (truth $\bot$, output $\top$), and a \emph{true
+negative} (truth $\bot$, output $\bot$). The term ``false negative'' names the
+output, not the truth: a $\bot$ reported when the truth was $\top$. Writing TP,
+FN, FP, TN for the counts, so that $\mathrm{TP} + \mathrm{FN} + \mathrm{FP} +
+\mathrm{TN} = n$, arrange them by truth (rows) and observed output (columns):
 
 \begin{table}[ht]
 \centering
@@ -72,122 +52,75 @@ indexed by truth (rows) and observed output (columns):
 total         & TP + FP & FN + TN & $n$ \\
 \hline
 \end{tabular}
-\caption{The $2 \times 2$ contingency table for $n$ observations of a noisy bit.
-Each of the $n$ trials contributes one count to exactly one cell. The row totals
-record how many trials had each truth value; the column totals record how many
-trials had each observed output.}
+\caption{The $2 \times 2$ contingency table for $n$ observations of a noisy
+bit. Rows condition on truth; the diagonal cells record agreement and the
+off-diagonal cells disagreement.}
 \label{tab:contingency}
 \end{table}
 
-\Cref{tab:contingency} is the empirical record of one experiment. Two
-conventions matter for reading it. First, rows are conditioned on truth: the
-top row holds only those trials whose true input was $\top$, and the bottom row
-holds only those trials whose true input was $\bot$. Second, the diagonal cells
-(TP and TN) record agreement between truth and output, and the off-diagonal
-cells (FN and FP) record disagreement. A perfectly accurate noisy bit produces
-all of its mass on the diagonal; a maximally noisy one produces it all off the
-diagonal.
+\subsection*{Rates}
 
-\subsection*{From counts to rates}
-
-The two error rates of a noisy bit are conditional: each is normalized by the
-row total of the truth on which it is conditioned. The
-\emph{false-positive rate} is the fraction of $\bot$-inputs that produce a
-$\top$-output,
+The two error rates are conditional, each normalized by its truth row:
 \[
-  \fprate \;=\; \frac{\textnormal{FP}}{\textnormal{TN} + \textnormal{FP}},
-\]
-and the \emph{false-negative rate} is the fraction of $\top$-inputs that produce
-a $\bot$-output,
-\[
-  \fnrate \;=\; \frac{\textnormal{FN}}{\textnormal{TP} + \textnormal{FN}}.
-\]
-Each rate divides one off-diagonal cell by its row total, not by $n$. The
-denominator FP + TN counts only the trials whose true input was $\bot$, and FN +
-TP counts only the trials whose true input was $\top$. The conditioning matters:
-it makes $\fprate$ and $\fnrate$ properties of the noisy bit itself, not of the
-particular mixture of inputs we happen to have observed.
-
-The two complementary rates are the \emph{true-negative rate}
-$\tnrate \;=\; 1 - \fprate$ and the \emph{true-positive rate}
-$\tprate \;=\; 1 - \fnrate$. The true-negative rate is the fraction of
-$\bot$-inputs reported correctly; the true-positive rate is the fraction of
-$\top$-inputs reported correctly. The true-positive rate is also called
-\emph{sensitivity} in clinical and classification settings, and the
-true-negative rate is called \emph{specificity}.
-
-\subsection*{Notation sidebar}
-
-\begin{quote}
-\noindent\textbf{Rate symbols.}
-The four rates used throughout this book have fixed Greek letters.
-\begin{description}
-  \item[$\fprate$] false-positive rate. The rate at which a $\bot$-input is reported as $\top$.
-  \item[$\fnrate$] false-negative rate. The rate at which a $\top$-input is reported as $\bot$.
-  \item[$\tprate$] true-positive rate, $= 1 - \fnrate$. Also called \emph{sensitivity} or \emph{recall}.
-  \item[$\tnrate$] true-negative rate, $= 1 - \fprate$. Also called \emph{specificity}.
-\end{description}
-\noindent In the biased-coin vocabulary of \Cref{sec:three-faces}, $\tprate$
-was written $\tau$ and $\fprate$ was written $\epsilon$; here we adopt names
-that emphasize what each rate measures.
-
-\noindent The two free parameters of a generic noisy bit are $\fprate$ and
-$\fnrate$; the other two are derived. The binary symmetric channel of
-\Cref{sec:bsc} is the constrained case in which $\fprate = \fnrate$, and one
-parameter suffices. A consolidated cheat sheet, including how these symbols
-connect to the five core principles of the framework, appears in
-\Cref{app:five-principles}.
-\end{quote}
-
-\subsection*{Cross-walk to precision and recall}
-
-A practitioner of binary classification looks at \Cref{tab:contingency} with a
-different vocabulary in mind. The standard metrics for a classifier are
-\emph{precision} and \emph{recall}:
-\[
-  \textnormal{precision} \;=\; \frac{\textnormal{TP}}{\textnormal{TP} + \textnormal{FP}},
+  \fprate \;=\; \frac{\mathrm{FP}}{\mathrm{TN} + \mathrm{FP}},
   \qquad
-  \textnormal{recall} \;=\; \frac{\textnormal{TP}}{\textnormal{TP} + \textnormal{FN}}.
+  \fnrate \;=\; \frac{\mathrm{FN}}{\mathrm{TP} + \mathrm{FN}}.
 \]
-Read off the table: precision divides TP by the \emph{column} total of trials
-the noisy bit \emph{called $\top$}, and recall divides TP by the \emph{row}
-total of trials whose true input was $\top$. Recall therefore coincides with
-the true-positive rate: $\textnormal{recall} = \tprate = 1 - \fnrate$.
+Dividing by the row total rather than by $n$ is what makes $\fprate$ and
+$\fnrate$ properties of the noisy bit itself rather than of the input mixture
+observed. The complementary rates are the true-negative rate
+$\tnrate = 1 - \fprate$ (the $\bot$-inputs reported correctly, also
+\emph{specificity}) and the true-positive rate $\tprate = 1 - \fnrate$ (also
+\emph{sensitivity}, and \emph{recall} in the vocabulary below). The two free
+parameters of a noisy bit are $\fprate$ and $\fnrate$; the other two are
+derived. The biased coin's $(\tau, \epsilon)$ of \Cref{sec:three-faces} is
+$(\tprate, \fprate)$, and the binary symmetric channel of \Cref{sec:bsc} is the
+constrained case $\fprate = \fnrate$, where one parameter suffices. These four
+symbols keep these meanings throughout the book.
 
-Precision is different. Its denominator is the column total $\textnormal{TP} +
-\textnormal{FP}$, which depends not only on the noisy bit's error rates but
-also on how many $\top$- and $\bot$-inputs were in the sample. Concretely, if
-the sample contains $n_\top$ positives and $n_\bot$ negatives with $n_\top +
-n_\bot = n$, then $\textnormal{TP} \approx n_\top \tprate$ and
-$\textnormal{FP} \approx n_\bot \fprate$ (treating $\tprate$ and $\fprate$ as
-the population rates, this is the expected-count decomposition; for the
-finite-sample version see \Cref{sec:sampling-rates}), so
+\begin{remark}[Negation reflects the rate pair]
+\label{rem:not-swaps-rates}
+Relabeling the output of a noisy bit, reporting $\bot$ wherever it reported
+$\top$ and conversely, exchanges the two error directions: a noisy bit with
+rates $(\fprate, \fnrate)$ becomes one with rates $(\fnrate, \fprate)$. Logical
+negation thus acts on the parameter pair as the reflection
+$(\fprate, \fnrate) \mapsto (\fnrate, \fprate)$ across the diagonal of the rate
+square $[0,1]^2$. This is the atom-level form of the complement operation that
+Part~II lifts to approximate sets (\Cref{prop:complement-swap}).
+\end{remark}
+
+\subsection*{Precision and recall}
+
+A practitioner of binary classification reads \Cref{tab:contingency} through
+precision and recall:
 \[
-  \textnormal{precision}
+  \mathrm{precision} \;=\; \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}},
+  \qquad
+  \mathrm{recall} \;=\; \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FN}}.
+\]
+Recall coincides with the true-positive rate, $\mathrm{recall} = \tprate = 1 -
+\fnrate$. Precision does not reduce to the rates of the noisy bit: its
+denominator is a column total, which depends on how many $\top$- and
+$\bot$-inputs the sample contained. With $n_\top$ positives and $n_\bot$
+negatives, $\mathrm{TP} \approx n_\top \tprate$ and $\mathrm{FP} \approx n_\bot
+\fprate$, so
+\[
+  \mathrm{precision}
   \;\approx\;
-  \frac{n_\top \tprate}{n_\top \tprate + n_\bot \fprate}
-  \;=\;
   \frac{n_\top (1 - \fnrate)}{n_\top (1 - \fnrate) + n_\bot \fprate}.
 \]
-Two facts follow. First, precision is a function not only of $(\fprate, \fnrate)$
-but also of the input mix $n_\top / n_\bot$, the \emph{prevalence} of positives
-in the sample. Recall depends only on the noisy bit. Second, precision and recall
-together determine $\fprate$ and $\fnrate$ only when the prevalence is also known.
-The pair $(\fprate, \fnrate)$ is intrinsic to the noisy bit; the pair (precision,
-recall) is intrinsic to the noisy bit together with a workload.
+Precision is therefore a function of the \emph{prevalence} $n_\top / n_\bot$ as
+well as the rates, whereas $(\fprate, \fnrate)$ is intrinsic to the noisy bit.
+The pair $(\fprate, \fnrate)$ describes the noisy bit; the pair (precision,
+recall) describes the noisy bit together with a workload. This is why the
+framework takes $(\fprate, \fnrate)$ as the primary description and treats
+precision and accuracy as derived; \Cref{ch:classification-measures} develops
+the derived measures as random variables.
 
-This is why the framework of this book uses $(\fprate, \fnrate)$ as the primary
-description of a noisy bit, and treats precision and the related accuracy as
-derived measures. The full development of these derived measures lives in the
-companion paper on classification measures; here we note only that they are
-expressible in terms of the four cells of \Cref{tab:contingency} and the
-prevalence.
+\subsection*{An instance}
 
-\subsection*{Worked example: a spam-filter run}
-
-Suppose a spam filter is run on a labelled mailbox of $n = 100$ messages, of
-which 40 are spam ($\top$) and 60 are ham ($\bot$). The filter's outputs
-produce the contingency table
+A filter run on $n = 100$ messages, 40 spam ($\top$) and 60 ham ($\bot$),
+produces the table
 
 \begin{center}
 \begin{tabular}{l|cc|c}
@@ -202,47 +135,22 @@ total         & 38 & 62 & 100 \\
 \end{tabular}
 \end{center}
 
-Row totals: $35 + 5 = 40$ spam, and $3 + 57 = 60$ ham. Column totals:
-$35 + 3 = 38$ flagged, and $5 + 57 = 62$ not flagged. Grand total $100$. The
-table is internally consistent.
+\noindent
+with rates $\fprate = 3/60 = 0.05$ and $\fnrate = 5/40 = 0.125$, hence
+$\tnrate = 0.95$ and $\tprate = 0.875$. Recall is $35/40 = 0.875 = \tprate$,
+while precision is $35/38 \approx 0.921$, exceeding $\tprate$ because the column
+total (38) falls short of the truth row total (40). At a different prevalence
+the same $(\fprate, \fnrate)$ would yield a different precision.
 
-The four rates are
-\[
-  \fprate = \frac{3}{60} = 0.05,
-  \quad
-  \fnrate = \frac{5}{40} = 0.125,
-  \quad
-  \tnrate = \frac{57}{60} = 0.95,
-  \quad
-  \tprate = \frac{35}{40} = 0.875.
-\]
-By construction $\tnrate = 1 - \fprate$ and $\tprate = 1 - \fnrate$, and both
-identities check.
-
-The two classifier metrics are
-\[
-  \textnormal{precision} = \frac{35}{35 + 3} = \frac{35}{38} \approx 0.921,
-  \qquad
-  \textnormal{recall} = \frac{35}{35 + 5} = \frac{35}{40} = 0.875.
-\]
-Recall matches $\tprate$, as the cross-walk predicts. Precision lies between
-$\tprate$ and $1$, reflecting that the column total 38 is smaller than the row
-total 40 because the filter misses 5 spam messages. The prevalence of spam in
-this sample is $40/100 = 0.4$; a sample with a different prevalence would yield a
-different precision from the same $(\fprate, \fnrate)$, illustrating the point
-of the previous subsection.
-
-\subsection*{What we have, what comes next}
-
-A noisy bit is characterized by two numbers, $\fprate$ and $\fnrate$, each a
-conditional rate read off the contingency table. The complementary rates
-$\tprate$ and $\tnrate$ are derived, as are the classifier metrics precision
-and recall. The symbols $\fprate, \fnrate, \tprate, \tnrate$ recur throughout
-the book with the meanings fixed in the notation sidebar.
-
-\Cref{sec:boolean-universe-first-look} now walks the four-cell Boolean
-universe of joint truth-output pairs whose conditional rates this section has
-just defined, treating the cells qualitatively before \Cref{ch:axioms-kronecker}
-assigns each cell a joint probability. \Cref{sec:sampling-rates} returns to
-the present section's contingency-table arithmetic from the data-analytic side,
-asking how reliably $\fprate$ and $\fnrate$ can be estimated from finite $n$.
+\begin{remark}[The constant noisy bit and the zero-information line]
+\label{rem:zero-information-line}
+A noisy bit that ignores its input, reporting $\top$ with a fixed probability
+$p$ regardless of the truth, has $\fprate = p$ and $\fnrate = 1 - p$, so
+$\fprate + \fnrate = 1$. On this anti-diagonal of the rate square the output is
+statistically independent of the truth: the report carries no information about
+the input. A constant rule is thus simultaneously a perfect classifier for one
+truth class and the worst possible one for the other (at $p = 1$, $\fnrate = 0$
+but $\fprate = 1$). The locus $\fprate + \fnrate = 1$ is the zero-information
+case, and it is distinct from the symmetric case $\fprate = \fnrate$, which
+remains informative for $\fprate \neq 1/2$.
+\end{remark}

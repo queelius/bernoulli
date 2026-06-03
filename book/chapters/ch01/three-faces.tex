@@ -5,167 +5,88 @@
 % ALREADY DEFINED (within chapter 1, by this section):
 %   \label{sec:three-faces}                 -- this section
 %
-% FORWARD REFS to later chapter 1 sections (resolve in Plan 4 Tasks 3-7):
-%   \Cref{sec:quantifying-noise}            -- §1.2 (Task 3)
-%   \Cref{sec:boolean-universe-first-look}  -- §1.3 (Task 4)
-%   \Cref{sec:sampling-rates}               -- §1.4 (Task 5)
-%   \Cref{sec:why-atom}                     -- §1.5 (Task 6)
+% FORWARD REFS to later chapter 1 sections:
+%   \Cref{sec:quantifying-noise}            -- §1.2
+%   \Cref{sec:boolean-universe-first-look}  -- §1.3
+%   \Cref{sec:sampling-rates}               -- §1.4
+%   \Cref{sec:why-atom}                     -- §1.5
 %
-% FORWARD REFS to chapters 2-4 (already resolved at Plan 3 HEAD):
+% FORWARD REFS to chapters 2-4:
 %   \Cref{sec:bsc}                          -- chapter 2 §2.1
 %   \Cref{sec:asymmetric-channel}           -- chapter 2 §2.2
 %   \Cref{ch:axioms-kronecker}              -- chapter 4
 %
-% This section is the atom-naming moment of the book. The three running
-% threads (biased coin, BSC, classifier verdict) are introduced here and
-% return at named points in chapters 2-4 (see spec §3.1). The closing
-% sentence ``We will call the abstract structure that all three share
-% \emph{a noisy bit}'' names the chapter's atomic object.
+% Monograph register: the three running threads (biased coin, BSC,
+% classifier verdict) are introduced and the shared object named. They
+% return at named points in chapters 2-4.
 
 \section{Three Faces of a Noisy Bit}
 \label{sec:three-faces}
 
-Three systems, drawn from three different corners of applied probability,
-each produce a single Boolean output that may be wrong. The first is a
-biased coin that reports an external state. The second is a one-bit
-communication channel that occasionally corrupts what it transmits. The
-third is a binary classifier that emits a verdict about each input it sees.
-We look at each in turn, with no formalism beyond informal arithmetic.
-The question to hold throughout: what is the abstract structure that
-all three share?
+Three systems from different corners of applied probability each produce a
+single Boolean output that may be wrong, and at the level of input-output
+behavior they are one object. We introduce them as running examples and
+extract that object.
 
-\subsection*{Face 1: The biased coin}
-\label{subsec:biased-coin-intro}
+\subsection*{The biased coin}
 
-Imagine a coin that is not quite fair, and whose bias depends on how it has
-been held. When you palm it ``in'' (cupped, warm side down) and flip, it
-lands heads with probability $\tau$. When you palm it ``out'' (cool side
-down) and flip, it lands heads with probability $\epsilon$. The numbers
-$\tau$ and $\epsilon$ are properties of the coin and how it is being held.
-They need not be equal, and neither needs to be close to $1/2$.
+Consider a coin whose bias depends on how it is held: palmed ``in'' it lands
+heads with probability $\tau$, palmed ``out'' with probability $\epsilon$,
+where $\tau$ and $\epsilon$ are neither equal nor near $1/2$. Read ``in'' as a
+positive condition and ``out'' as a negative one. The coin reports each with
+its own reliability: two inputs, one Boolean output, two independent
+parameters. It returns as an asymmetric channel in
+\Cref{sec:asymmetric-channel} and as the worked instance of the formal
+definition in \Cref{ch:axioms-kronecker}.
 
-This is a contrived setup, on purpose. Read it as a thought-experiment
-device that lets us write a single object that has two possible inputs (in
-versus out), one Boolean output (heads versus tails), and two independent
-parameters for how reliably the output tracks the input. The same flip
-mechanism is at work in both cases; what changes is how the coin is being
-held. In the language we are building toward, ``in'' is a positive
-condition and ``out'' is a negative condition, and the coin reports each
-with its own characteristic reliability. The biased coin returns as a running example throughout Part~I, first
-in \Cref{sec:asymmetric-channel} as an asymmetric channel and again as
-the worked example of the formal definition in \Cref{ch:axioms-kronecker}.
+\subsection*{The binary symmetric channel}
 
-\subsection*{Face 2: The binary symmetric channel}
-\label{subsec:bsc-intro}
+A single bit crosses a noisy line, a wire, a wireless link, a chip-to-chip
+trace. For each bit independently the line flips the symbol with crossover
+probability $\fprate$ and passes it through otherwise, with the same $\fprate$
+in both directions: a $\top$ flips to $\bot$ and a $\bot$ to $\top$ with equal
+probability. This is the binary symmetric channel (BSC), the simplest model of
+a noisy one-bit line and the most studied channel in information theory; the
+term \emph{channel} is Shannon's, for any single-input, single-output
+stochastic transmission. The symmetry is a real constraint, since many
+physical channels are asymmetric and need a separate rate per direction
+(\Cref{sec:asymmetric-channel}). Chapter~2 gives the BSC a formal definition
+and a matrix representation (\Cref{sec:bsc}).
 
-A single bit is transmitted across a noisy line: a wire, a wireless link,
-a chip-to-chip trace, or any one-bit communication path subject to
-disturbance. The line sends $\top$ or $\bot$ ($\top$ for true, $\bot$ for false,
-used throughout the book) from sender to receiver, and
-for each bit independently the line behaves as if a small probabilistic
-adversary acts on it. With probability $\fprate$ the line flips the bit;
-with probability $1 - \fprate$ it passes the bit through unchanged. The
-crossover probability $\fprate$ is the same regardless of which symbol is
-being transmitted: a $\top$ flips to $\bot$ with probability $\fprate$,
-and a $\bot$ flips to $\top$ with the same probability $\fprate$.
+\subsection*{The classifier verdict}
 
-This object is the binary symmetric channel, and it is the simplest model
-of a noisy one-bit communication line. The word \emph{channel} is borrowed
-from Shannon's information theory and is the standard name for any
-single-input, single-output stochastic transmission. The symmetry assumption (one
-parameter for both flip directions) is a strong one. Many real
-communication systems are asymmetric: a transistor pulled to ground may
-be more reliable than one held high; a photon detector may have a small
-dark-count rate but never an extinguished-photon false negative. Such
-systems need two parameters, one per direction, and we will treat them
-in \Cref{sec:asymmetric-channel}. For now, the BSC is the cleanest
-starting point because it isolates the phenomenon of bit-flip noise from
-the question of whether one direction is noisier than the other. The BSC
-is the most studied noisy channel in information theory, and the
-chapter~2 development of it (\Cref{sec:bsc}) will give it both a formal
-definition and a matrix representation.
+A spam filter emits a verdict on each message, spam ($\top$) or ham ($\bot$).
+It flags ham as spam at the false-positive rate $\fprate$ and misses spam at
+the false-negative rate $\fnrate$, and these are generally unequal: a filter
+that drops legitimate mail at $1\%$ is a different product from one that leaks
+$1\%$ of spam. Here the two parameters are forced by the problem rather than by
+happenstance, since the two errors are distinct harms with distinct costs. A
+score-thresholded classifier traces a curve of $(\fprate, \fnrate)$ pairs as
+its threshold sweeps, the trade-off the ROC curve re-axes; no threshold drives
+both rates to zero at once.
 
-\subsection*{Face 3: The classifier verdict}
-\label{subsec:classifier-intro}
+\subsection*{The shared object}
 
-A spam filter examines each incoming message and emits a verdict: spam
-($\top$) or ham ($\bot$). Some messages are genuinely spam; some are
-genuinely ham; the filter does its best on each. Like any imperfect
-classifier, it sometimes flags ham as spam (a false positive) and
-sometimes misses spam, marking it as ham (a false negative). The rate
-at which it flags ham as spam is the false-positive rate $\fprate$; the
-rate at which it misses spam is the false-negative rate $\fnrate$. In
-general these two numbers are not equal, and the asymmetry matters: a
-spam filter that drops legitimate mail at $1\%$ is a different product
-from one that lets $1\%$ of spam through.
+A coin held in or out, a wire carrying one bit, a filter emitting one verdict:
+physical, informational, and algorithmic, yet identical in input-output
+behavior. Each maps a Boolean input to a Boolean output that is correct with
+some probability and wrong otherwise, and the error behavior is fixed by at
+most two numbers, the rate of reporting $\top$ on a $\bot$-input and the rate
+of reporting $\bot$ on a $\top$-input. The BSC carries one parameter because
+its two rates are constrained equal; the coin and the filter carry two. Two
+numbers describe everything probabilistic at the single-query level. We call
+this object a \emph{noisy bit}.
 
-Notice that the spam filter, unlike the BSC, needs two parameters by
-design rather than by happenstance. The two error directions are
-conceptually distinct: a false positive misroutes legitimate mail, and a
-false negative leaks spam into the inbox. These are different harms with
-different costs. A useful classifier therefore comes with two rates, not
-one, and the user of the classifier wants to know both. The classifier
-verdict is our most realistic noisy-bit setting, because it forces us to
-take two-parameter error structure seriously from the start. The
-vocabulary of false positives and false negatives is the bridge to the
-contingency-table arithmetic we develop in \Cref{sec:quantifying-noise},
-and the spam filter itself returns as a worked example throughout the
-chapter.
-
-\subsection*{The unifying observation}
-
-We have three systems: a coin held in or out, a wire transmitting one
-bit, and a filter emitting one verdict. They live in different worlds.
-The first is physical, the second is informational, the third is
-algorithmic. Yet at the level of input-output behavior they look the
-same. Each takes a Boolean input ($\top$ or $\bot$, by whatever name) and
-produces a Boolean output. Each output is, with some probability, the
-correct one, and with the remaining probability the wrong one. The error
-behavior in every case is characterized by at most two numbers: the rate
-of reporting $\top$ when the truth is $\bot$, and the rate of reporting
-$\bot$ when the truth is $\top$. The BSC happens to have a single
-parameter because its two rates are constrained to be equal; the coin
-and the spam filter need two. In all three cases, two numbers suffice
-to describe everything probabilistic at the single-query level.
-
-We will call the abstract structure that all three share \emph{a noisy
-bit}.
-
-The three sections used three vocabularies, by design: each face is more
-natural in its own letters. The reconciliation is direct. The biased
-coin's $\tau$ is the true-positive rate $\tprate = 1 - \fnrate$, and
-its $\epsilon$ is the false-positive rate $\fprate$. The classifier's
-$\fprate, \fnrate$ are the same quantities under different names. The
-binary symmetric channel is the special case where these two rates are
-forced to be equal: a single $\fprate = \fnrate$ suffices.
-
-The naming is deliberate. It captures three commitments we will hold to
-throughout Part~I. First, the object is atomic: a noisy bit has one
-Boolean input slot and one Boolean output slot, and nothing larger. (We
-will see in chapters 2 and 4 that everything bigger, multi-bit channels,
-repeated-trial algorithms like Miller-Rabin, classifier ensembles, is
-built up from noisy bits.) Second, the structure is purely behavioral: we say nothing about
-how the noise arises, only about its rates. A biased coin, a thermal
-photon detector, and a logistic-regression classifier may have totally
-different mechanisms and identical noisy-bit profiles, and our framework
-treats them identically. Third, the description is parsimonious: at most
-two numbers per noisy bit, no more. The rest of Part~I unfolds the
-algebra of how these atoms compose, decompose, and combine.
-
-\subsection*{Where the chapter goes from here}
-
-\Cref{sec:quantifying-noise} fixes the vocabulary by introducing the
-$2 \times 2$ contingency table that gives $\fprate$ and $\fnrate$ a
-precise meaning, and connects this notation to the classifier vocabulary
-of precision and recall.
-\Cref{sec:boolean-universe-first-look} walks the four-cell
-Boolean universe (two true inputs, two observed outputs) qualitatively,
-deferring the joint-probability formalism to chapter~4.
-\Cref{sec:sampling-rates} asks how we estimate $\fprate$ and $\fnrate$
-from data, hooking the chapter's accompanying notebook.
-\Cref{sec:why-atom} closes the chapter by saying why this object earns
-the title ``atom'' and previews the algebraic development of chapters 2,
-3, and 4. The three faces return at named points in each of those
-chapters; by the end of Part~I, each will have been treated at four
-progressively tighter levels of formality, culminating in a single
-definition that retroactively justifies everything we say about it now.
+The three faces used three vocabularies because each is natural in its own
+letters, and they reconcile directly: the coin's $\tau$ is the true-positive
+rate $\tprate = 1 - \fnrate$ and its $\epsilon$ is $\fprate$; the classifier's
+$(\fprate, \fnrate)$ are the same quantities; the BSC is the special case
+$\fprate = \fnrate$. Three commitments follow and hold throughout Part~I. The
+noisy bit is \emph{atomic}: one Boolean input slot, one Boolean output slot,
+nothing smaller, and everything larger (multi-bit channels, repeated-trial
+algorithms such as Miller-Rabin, classifier ensembles) is built from noisy
+bits, as chapters 2 and 4 show. It is \emph{behavioral}: the description fixes
+the rates and says nothing about mechanism, so a biased coin, a thermal photon
+detector, and a logistic-regression classifier with the same rates are the
+same noisy bit. And it is \emph{parsimonious}: at most two numbers per noisy
+bit. The rest of Part~I is the algebra of how these atoms compose.

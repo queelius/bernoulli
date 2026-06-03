@@ -5,151 +5,87 @@
 % ALREADY DEFINED (within chapter 1, by this section):
 %   \label{sec:sampling-rates}              -- this section
 %
-% RESOLVED (already in source tree at Plan 4 Task 5 HEAD):
-%   \Cref{sec:three-faces}                  -- §1.1 (drafted)
-%   \Cref{sec:quantifying-noise}            -- §1.2 (drafted)
-%   \Cref{sec:boolean-universe-first-look}  -- §1.3 (drafted)
-%   \Cref{ch:classification-measures}       -- chapter 7 (scaffolded; full content in Plan 2)
+% RESOLVED:
+%   \Cref{sec:quantifying-noise}            -- §1.2
+%   \Cref{tab:contingency}                  -- §1.2
+%   \Cref{ch:classification-measures}       -- chapter 7
+%   \Cref{sec:axiom-1}                      -- chapter 4 §4.2 (independence)
 %
-% FORWARD REFS to later chapter 1 sections (resolve in Plan 4 Task 6):
-%   \Cref{sec:why-atom}                     -- §1.5 (Task 6)
+% FORWARD REFS to later chapter 1 sections:
+%   \Cref{sec:why-atom}                     -- §1.5
 %
-% This section is the "hook" into chapter 7 (Part II). It states results
-% without derivation: the binomial estimator for the rates, the CLT-based
-% Wald confidence interval, and the chapter 1 notebook (drafted in Task 9)
-% that demonstrates empirical convergence and CI coverage. The full
-% derivations live in \Cref{ch:classification-measures} (chapter 7).
-%
-% Defining \label{sec:sampling-rates} retires the four outstanding forward
-% references in chapter 1: three-faces.tex line 164,
-% quantifying-noise.tex lines 165 and 247, and
-% boolean-universe-first-look.tex lines 174 and 178.
+% Monograph register: states the binomial estimator, its variance, and the
+% Wald interval without derivation (full theory in chapter 7), frames the
+% notebook as a reproducibility artifact, and salvages the former
+% correlated-errors exercise as a remark (independence vs. stability).
 
 \section{Sampling and Estimating Rates}
 \label{sec:sampling-rates}
 
-\Cref{sec:quantifying-noise} defined what $\fprate$ and $\fnrate$ mean
-as conditional rates read off a contingency table.
-\Cref{sec:boolean-universe-first-look} walked the joint structure of the
-four cells of that table. Both treated the rates as known. In practice
-they are not. A spam filter arrives without a label saying ``my
-false-positive rate is $0.03$''; a randomized algorithm comes with a
-worst-case error bound but not a tight one; a noisy channel must be
-characterized from observed traffic. The honest question is: given a
-finite sample of trials, how do we estimate the rates, and how
-confident should we be in the estimate?
+In practice the rates are not given: a classifier arrives without a label
+stating its false-positive rate, and a channel must be characterized from
+observed traffic. We state how to estimate $\fprate$ and $\fnrate$ from a
+finite sample and how to quantify the uncertainty. The full theory of these
+estimators (bias, variance, efficiency, and interval forms) is developed in
+\Cref{ch:classification-measures}.
 
-This section answers in three short pieces. Binomial counts give the
-estimator. The central limit theorem gives an approximate confidence
-interval. A notebook simulation lets the reader watch both work and
-fail. The full theoretical treatment of the estimators (bias, variance,
-efficiency, alternative interval forms) lives in chapter~7 (Part~II),
-which earns the formal step after the algebra of approximate sets is
-in place.
+\subsection*{Binomial estimators}
 
-\subsection*{Binomial counts}
-
-Run a noisy bit $n$ times. Of those $n$ trials, suppose $n_0$ have
-truth $\bot$ and $n_1 = n - n_0$ have truth $\top$. The two row totals
-of the contingency table of \Cref{tab:contingency} are $n_0$ and $n_1$.
-For each of the $n_0$ trials with truth $\bot$, the noisy bit
-independently reports $\top$ with probability $\fprate$; the count of
-such reports is the false-positive count FP. Independence across the
-$n_0$ trials makes the count a binomial random variable,
+Run a noisy bit $n$ times, with $n_0$ trials of truth $\bot$ and $n_1 = n -
+n_0$ of truth $\top$. Each $\bot$-trial reports $\top$ independently with
+probability $\fprate$, so the false-positive count is binomial,
+$\mathrm{FP} \sim \mathrm{Binomial}(n_0, \fprate)$, and likewise
+$\mathrm{FN} \sim \mathrm{Binomial}(n_1, \fnrate)$. The row-conditional
+proportions
 \[
-  \textnormal{FP} \;\sim\; \mathrm{Binomial}(n_0, \fprate).
-\]
-The same construction on the $n_1$ trials with truth $\top$ gives
-$\textnormal{FN} \sim \mathrm{Binomial}(n_1, \fnrate)$.
-
-The natural empirical estimators are the row-conditional proportions
-\[
-  \hat{\fprate} \;=\; \frac{\textnormal{FP}}{n_0},
+  \hat{\fprate} = \frac{\mathrm{FP}}{n_0},
   \qquad
-  \hat{\fnrate} \;=\; \frac{\textnormal{FN}}{n_1}.
+  \hat{\fnrate} = \frac{\mathrm{FN}}{n_1}
 \]
-These are exactly the formulas of \Cref{sec:quantifying-noise} with
-empirical counts in the numerator. The estimators have two properties
-worth stating at this stage and deferring the proof for later. First,
-each estimator is unbiased: $\mathbb{E}[\hat{\fprate}] = \fprate$ and
-$\mathbb{E}[\hat{\fnrate}] = \fnrate$. Second, the variances are
+are unbiased, $\mathbb{E}[\hat{\fprate}] = \fprate$, with variances
 \[
-  \mathrm{Var}(\hat{\fprate}) \;=\; \frac{\fprate(1 - \fprate)}{n_0},
+  \mathrm{Var}(\hat{\fprate}) = \frac{\fprate(1 - \fprate)}{n_0},
   \qquad
-  \mathrm{Var}(\hat{\fnrate}) \;=\; \frac{\fnrate(1 - \fnrate)}{n_1}.
+  \mathrm{Var}(\hat{\fnrate}) = \frac{\fnrate(1 - \fnrate)}{n_1}.
 \]
-Both shrink as $1/n_0$ or $1/n_1$, so the estimator improves with more
-trials of the corresponding truth class. The variance numerator
-$\fprate(1 - \fprate)$ peaks at $\fprate = 1/2$, where the noisy bit is
-hardest to characterize, and vanishes at $\fprate \in \{0, 1\}$, where
-a single trial settles the matter. Chapter~7 derives both facts.
+The variance shrinks as $1/n_0$, and its numerator $\fprate(1 - \fprate)$ peaks
+at $\fprate = 1/2$, where the noisy bit is hardest to characterize, and
+vanishes at $\fprate \in \{0, 1\}$, where one trial settles the matter.
 
 \subsection*{A confidence interval}
 
-For large $n_0$, the central limit theorem applies to the standardized
-estimator. The result is that $\hat{\fprate}$ is approximately Normal
-with mean $\fprate$ and variance $\fprate(1 - \fprate)/n_0$. Replacing
-the unknown $\fprate$ in the variance with its empirical estimate gives
-the standard Wald confidence interval at level $1 - \alpha$,
+For large $n_0$ the central limit theorem makes $\hat{\fprate}$ approximately
+Normal with mean $\fprate$ and variance $\fprate(1 - \fprate)/n_0$. Substituting
+the estimate into the variance gives the Wald interval at level $1 - \alpha$,
 \[
   \hat{\fprate} \;\pm\; z_{\alpha/2}
     \sqrt{\frac{\hat{\fprate}(1 - \hat{\fprate})}{n_0}},
 \]
-where $z_{\alpha/2}$ is the upper-$\alpha/2$ quantile of the standard
-Normal. The analogous interval for $\fnrate$ replaces $\hat{\fprate}$
-with $\hat{\fnrate}$ and $n_0$ with $n_1$.
+with $z_{\alpha/2}$ the upper-$\alpha/2$ standard-Normal quantile. The Wald form
+is asymptotically correct but under-covers at small $n_0$ when $\fprate$ is near
+$0$ or $1$, and can even leave $[0,1]$; the Wilson, Clopper-Pearson, and
+Jeffreys intervals handle the boundary better, and \Cref{ch:classification-measures}
+develops them.
 
-The Wald form is convenient and asymptotically correct, but it is also
-known to under-cover at small $n_0$ when $\fprate$ sits near $0$ or
-$1$. The interval can even extend below $0$ or above $1$, which is a
-sign that the Normal approximation has broken down. Alternative
-intervals (Wilson, Clopper-Pearson, Jeffreys) handle the boundary case
-better. Chapter~7 develops the full theory; for now the Wald interval
-is the existence statement that an interval is available.
+\subsection*{Reproducibility}
 
-\subsection*{The chapter 1 notebook}
+The companion notebook \texttt{python/notebooks/ch01-noisy-bit.ipynb}
+reproduces these claims: it estimates $\fprate$ from a simulated binary
+symmetric channel across sample sizes spanning several orders of magnitude,
+exhibiting the $1/\sqrt{n_0}$ concentration of $\hat{\fprate}$ about the true
+rate; and it measures the empirical coverage of the $95\%$ Wald interval,
+showing it approach nominal at moderate $n_0$ and fall below nominal as $n_0$
+shrinks or $\fprate$ approaches a boundary, the under-coverage noted above.
 
-The accompanying notebook
-\texttt{python/notebooks/ch01-noisy-bit.ipynb} makes the abstract
-statements concrete. It simulates a binary symmetric channel with a
-known crossover probability and lets the reader vary the sample size
-across several orders of magnitude.
-
-The notebook does four things. First, it runs many independent
-replications at a fixed true $\fprate$ for each sample size and plots
-$\hat{\fprate}$ as a function of $n_0$ for $n_0$ sweeping from tens of
-samples to tens of thousands. The plot shows the empirical estimator
-settling toward the true rate, with a visible $1/\sqrt{n_0}$ band of
-fluctuation traced by the spread of the replications. The unbiasedness
-statement of the previous subsection is visible in the centering of the
-band; the variance formula is visible in its width.
-
-Second, at a single fixed $n_0$ it runs many independent replications,
-constructs the Wald interval at the $95\%$ level for each, and counts
-the fraction of intervals that actually contain the true $\fprate$. The
-CLT promises this fraction will approach $95\%$; the reader sees it land
-close to nominal at a moderate sample size.
-
-Third, it sweeps $n_0$ across several orders of magnitude and plots the
-empirical coverage at each size. For small $n_0$ the coverage falls
-below $95\%$, exactly the under-coverage promised above, and the gap
-closes as $n_0$ grows. The reader watches the asymptotic guarantee fail
-in the regime where it is supposed to fail.
-
-Fourth, it sweeps the true $\fprate$ from $0.5$ down to $0.01$ at a
-fixed $n_0$ and shows the coverage gap widening as the rate approaches
-the boundary. The pattern is a small but real warning: an estimator
-that is asymptotically correct can still mislead at the sample sizes
-practitioners actually use. The negative-space chapters of Part~III
-return to that point with examples in which the Wald approximation
-fails by enough to matter.
-
-\subsection*{What comes next}
-
-We can now define a noisy bit (\Cref{sec:quantifying-noise}), walk its
-joint structure (\Cref{sec:boolean-universe-first-look}), and estimate
-its rates from finite data with calibrated uncertainty. The chapter has
-done its concrete work. \Cref{sec:why-atom} zooms back out and explains
-why this single, narrow object, the noisy bit on two values with two
-free rates, deserves to be called the framework's atom and not merely
-its first example.
+\begin{remark}[Independence is separate from rate-stability]
+\label{rem:independence-vs-stability}
+The binomial model assumes the per-query error events are independent.
+Independence is a distinct assumption from the stability of the per-input
+rates: a system can have stable rates $\fprate$ and $\fnrate$ yet errors that
+are correlated across queries. The point estimates $\hat{\fprate},
+\hat{\fnrate}$ remain valid in that case, but the variances above, and every
+confidence interval and sample-size requirement built on them, misstate the
+true uncertainty. Independence is named as Axiom~1 in
+\Cref{sec:axiom-1}, and chapter~16 takes correlated-error systems as an
+explicit subject.
+\end{remark}
