@@ -11,10 +11,11 @@
 # ---------------------------------------------------------------------------
 
 project:
-  name: bernoulli-textbook
+  name: bernoulli-monograph
   title: "Bernoulli Types: An Algebra of Approximate Computation"
   author: Alexander Towell
-  status: draft-complete
+  genre: monograph   # research monograph (converted from the textbook-style draft 2026-06-02)
+  status: converting-to-monograph
   repo: https://github.com/queelius/bernoulli
 
 # ---------------------------------------------------------------------------
@@ -85,7 +86,9 @@ parts:
     chapters: [16, 17, 18]
     spec: docs/superpowers/specs/2026-05-27-bernoulli-textbook-part5-design.md
 
-master_spec: docs/superpowers/specs/2026-04-29-bernoulli-textbook-design.md
+master_spec: docs/superpowers/specs/2026-06-02-bernoulli-monograph-conversion.md
+# Historical textbook design (superseded 2026-06-02; records how the draft was built):
+superseded_spec: docs/superpowers/specs/2026-04-29-bernoulli-textbook-design.md
 
 # ---------------------------------------------------------------------------
 # Per-Part integration-pass records (written by /bookwright:integrate)

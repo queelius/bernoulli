@@ -2,7 +2,7 @@
 
 **Author:** Alexander Towell
 **Date:** 2026-04-29
-**Status:** Design (pre-implementation)
+**Status:** SUPERSEDED (2026-06-02) by `2026-06-02-bernoulli-monograph-conversion.md`. This document is the historical design of the drafted text (a pedagogical monograph with textbook affordances) and the record of how the 18-chapter draft was built. The book is being converted to a research monograph; the conversion spec is the current master. Read this for the original structure, threads, and rationale; read the conversion spec for go-forward conventions.
 **Working title:** *Bernoulli Types: An Algebra of Approximate Computation*
 
 ## 1. Purpose and Thesis
