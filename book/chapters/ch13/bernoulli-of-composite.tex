@@ -1,247 +1,138 @@
 % §13.2 Bernoulli of T for Composite T
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bernoulli-of-composite}            -- this section
-%   \label{thm:bernoulli-product}                 -- product-type isomorphism
-%
-% RESOLVED (earlier chapters):
-%   \Cref{thm:kronecker}                          -- chapter 4 §4.4
-%   \Cref{thm:n-ary-kronecker}                    -- chapter 9 §9.3
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{ch:sketches-estimators}                 -- chapter 10
-%   \Cref{ch:approximate-relations}               -- chapter 12
-%
-% RESOLVED (within chapter 13):
-%   \Cref{sec:algebraic-types-recap}              -- §13.1
-%
-% FORWARD REFS within chapter 13 (resolve in Plan 13 Task 4):
-%   \Cref{sec:composition-functor}                -- §13.3 (Task 4)
+% Monograph register + the sum-type fix. Product/list/function factor via
+% Kronecker (parameters additive / multiplicative). The SUM does NOT factor: the
+% approximate sum has a tag error delta that couples the components, so
+% Bernoulli[A+B] is NOT isomorphic to Bernoulli[A] (+) Bernoulli[B] in general
+% (source composite_types.tex thm:sum_error, rem:sum_nonfactor). The block-diagonal
+% form is the delta=0 special case. The optional type A+Unit with tag error IS
+% approximate set membership. Cross-refs thm:kronecker, thm:n-ary-kronecker,
+% ch:approximate-functions, ch:approximate-sets, sec:composition-functor. DEFINED:
+% sec:bernoulli-of-composite, thm:bernoulli-product, prop:sum-nonfactor.
 
 \section{\texorpdfstring{$\Bernoulli{T}$}{Bernoulli T} for Composite \texorpdfstring{$T$}{T}}
 \label{sec:bernoulli-of-composite}
 
-§13.1 stated that $\Bernoulli{-}$ preserves type structure: applying
-it through any of the four constructors produces a $\Bernoulli{-}$
-instance assembled from the factor lifts. This section makes the
-four rules concrete, one constructor at a time. The product rule is
-the structural backbone, and the other three follow its pattern.
+This section gives the lift $\Bernoulli{-}$ on each constructor. Three of the
+four factor cleanly; the sum is the exception.
 
 \subsection*{Product types: the Kronecker isomorphism}
 
-A noisy pair is a pair of noisy values. If $\tilde{t}$ is a
-$\Bernoulli{T}$ instance with channel matrix $Q_T$, and $\tilde{u}$
-is a $\Bernoulli{U}$ instance with channel matrix $Q_U$, the
-component-wise pair $(\tilde{t}, \tilde{u})$ is a noisy value over
-$T \times U$ whose joint distribution at each true input
-$(t, u) \in T \times U$ is the product of the marginal distributions.
-The joint channel matrix is the Kronecker product of the two
-component matrices: a $(K_T K_U) \times (L_T L_U)$ matrix whose
-$((j_T, j_U), (\ell_T, \ell_U))$-entry is $(Q_T)_{j_T, \ell_T}
-\cdot (Q_U)_{j_U, \ell_U}$.
-
-This is the chapter~4 and chapter~9 Kronecker factorization theorem
-read at the type level. Chapter~4's \Cref{thm:kronecker} treated the
-joint distribution of $m$ Boolean queries; chapter~9's
-\Cref{thm:n-ary-kronecker} extended the same result to n-ary
-channels. Both said the same structural thing: independent components
-give a joint channel matrix that factors as a Kronecker product. The
-$m$ in chapter~4's statement and the second factor in chapter~9's
-statement both index into a product of types, even when the original
-chapters did not say so. We now name that product.
+A noisy pair is a pair of noisy values. If $\tilde t$ has channel $Q_T$ and
+$\tilde u$ has channel $Q_U$, with independent noise, the joint channel at each
+$(t, u)$ is the product of the marginals, so the joint matrix is the Kronecker
+product $Q_T \otimes Q_U$, the chapter-4 and chapter-9 factorization
+(\Cref{thm:kronecker}, \Cref{thm:n-ary-kronecker}) read at the type level.
 
 \begin{theorem}[Product-type isomorphism]
 \label{thm:bernoulli-product}
-For algebraic types $T$ and $U$ with independent noise channels,
-\[
-  \Bernoulli{T \times U} \;\cong\; \Bernoulli{T} \otimes \Bernoulli{U},
-\]
-where the right-hand side is the Kronecker product of the two
-component channel matrices. The joint channel matrix has
-$K_T K_U$ rows (one per input block in the product) and $L_T L_U$
-columns (one per output label in the product), and factors entry-wise
-as $(Q_T \otimes Q_U)_{(j_T, j_U), (\ell_T, \ell_U)} =
-(Q_T)_{j_T, \ell_T} \cdot (Q_U)_{j_U, \ell_U}$.
+For types $T, U$ with independent noise channels, $\Bernoulli{T \times U} \cong
+\Bernoulli{T} \otimes \Bernoulli{U}$, the Kronecker product of the component
+channels: a $K_T K_U \times L_T L_U$ matrix with $(Q_T \otimes Q_U)_{(j_T, j_U),
+(\ell_T, \ell_U)} = (Q_T)_{j_T, \ell_T}(Q_U)_{j_U, \ell_U}$.
 \end{theorem}
 
-The statement is the chapter~9 \Cref{thm:n-ary-kronecker} specialized
-from a Kronecker power $Q^{\otimes m}$ (which assumed all $m$ queries
-share the same channel) to a heterogeneous Kronecker product
-$Q_T \otimes Q_U$ (where the two factors have different channels and
-even different dimensions). The proof is the same step-for-step
-calculation: Axiom~1 factors the joint distribution into a product
-across components, Axiom~2 keeps each component's row stable, and
-\Cref{thm:kronecker} reads off the matrix structure. The new content
-here is the interpretation: the formula is an isomorphism of types,
-not just a property of joint channels.
+Axiom~1 factors the joint into a product across components and Axiom~2 keeps each
+row stable, so the proof is the chapter-9 calculation with the two factors now of
+different dimensions. The parameter count is additive: without independence the
+joint would need $K_T K_U(L_T L_U - 1)$ parameters, but under it only $K_T(L_T -
+1) + K_U(L_U - 1)$, the parameters of $Q_T$ plus those of $Q_U$. Products are the
+well-behaved case, where approximation distributes and parameters grow
+additively.
 
-A parameter-count consequence falls out for free. Per the corollaries
-of chapter~4 and chapter~9, the joint channel of $\Bernoulli{T \times
-U}$ would, without the structural assumption, require $K_T K_U
-(L_T L_U - 1)$ free parameters. Under independence, it requires only
-$K_T (L_T - 1) + K_U (L_U - 1)$: the parameters of $Q_T$ plus the
-parameters of $Q_U$. Parameter cost is additive in the components,
-not multiplicative.
+\subsection*{Sum types: the tag error breaks the factorization}
 
-\subsection*{Sum types: block-diagonal channels}
-
-A sum $T + U$ has values that are either a $T$ tagged $\mathrm{Left}$
-or a $U$ tagged $\mathrm{Right}$. A noisy sum-typed value reports a
-tag plus a payload, and in the cleanest case the noise on the two
-summands is independent: errors within the $T$ summand are governed
-by $Q_T$, errors within the $U$ summand by $Q_U$, and the tag is
-either preserved (the common case) or flipped.
-
-When the tag is preserved, the joint channel matrix on $T + U$ is
-block-diagonal: rows indexed by $T$-blocks map to columns indexed by
-$T$-outputs via $Q_T$, rows indexed by $U$-blocks map to $U$-outputs
-via $Q_U$, and the off-diagonal blocks are zero. We write
+A sum $T + U$ tags each value $\mathrm{Left}(t)$ or $\mathrm{Right}(u)$. An
+approximate sum value errs in two ways: a \emph{tag error} flips the tag with
+probability $\delta$, and a \emph{payload error} corrupts the value within the
+correct component at rate $\fprate_T$ or $\fprate_U$. For a latent
+$\mathrm{Left}(t)$,
 \[
-  \Bernoulli{T + U} \;\cong\; \Bernoulli{T} \oplus \Bernoulli{U},
+  \Prob{\widetilde{\mathrm{Left}(t)}} = (1 - \delta)(1 - \fprate_T),
+  \quad
+  \Prob{\mathrm{Left}(t'\!\neq t)} = (1 - \delta)\tfrac{\fprate_T}{|T| - 1},
+  \quad
+  \Prob{\mathrm{Right}(\cdot)} = \delta,
 \]
-where $\oplus$ is the direct sum of channels: a block-diagonal
-matrix with $Q_T$ in the upper-left and $Q_U$ in the lower-right.
-The sum-of-types case is parameter-additive too: $K_T (L_T - 1) +
-K_U (L_U - 1)$ free parameters, the same count as the product case
-because in both cases the noise is structured by the per-component
-matrices and nothing else. The difference is the input/output
-dimensions: $K_T + K_U$ rows and $L_T + L_U$ columns for the sum,
-versus the product's multiplicative dimensions.
+the last spread over the wrong component.
 
-When the tag itself is noisy (a tag flip occurs with probability
-$\delta$), the channel matrix gains off-diagonal mass linking
-$T$-blocks to $U$-outputs and vice versa. The structural form is no
-longer pure block-diagonal but a sum of the two pure block-diagonal
-channels weighted by tag-preservation and tag-flip probabilities.
-We work with the tag-preserving case throughout, returning to tag
-errors in chapter~16's catalogue of boundary cases.
+\begin{proposition}[Sum types do not factor]
+\label{prop:sum-nonfactor}
+$\Bernoulli{T + U} \not\cong \Bernoulli{T} \oplus \Bernoulli{U}$ in general: the
+confusion matrix of an approximate sum does not factor as a direct sum of
+per-component channels.
+\end{proposition}
 
-\subsection*{List types: per-position lifts}
+The reason is structural and is the heart of the product-versus-sum distinction.
+In a product, both components are always active and independent, so the channel
+tensors. In a sum, the tag error \emph{couples} the components: when the tag is
+correct only one component's payload channel applies, and when it is wrong the
+value is drawn from the \emph{other} component entirely. The block-diagonal form
+$\Bernoulli{T} \oplus \Bernoulli{U}$ (one payload channel per summand, zero
+off-diagonal) is only the $\delta = 0$ degenerate case, a sum with an exact tag;
+any tag noise puts mass in the off-diagonal blocks and no factorization
+recovers it. This is Core Principle: products preserve parametric parsimony, sums
+break it.
 
-A list $L T$ of length $n$ is the same as a fixed-length product
-$T^n = T \times T \times \cdots \times T$. For lists of known length,
-the product rule applies directly:
-\[
-  \Bernoulli{T^n} \;\cong\; \Bernoulli{T}^{\otimes n}
-                  \;\cong\; \Bernoulli{T} \otimes \cdots \otimes
-                            \Bernoulli{T} \quad (n \text{ factors}).
-\]
-This is precisely the chapter~4 setting: $m = n$ independent queries
-on the same channel produce the joint matrix $Q_T^{\otimes n}$, the
-Kronecker power of the per-position channel. The parameter count is
-$K_T (L_T - 1)$, independent of $n$: adding list positions does not
-add parameters, only multiplies the joint matrix shape.
+The break is not a peripheral failure. The optional type $\mathrm{Maybe}(T) = T +
+\Unit$ adds a ``nothing'' case, and its tag error \emph{is} approximate set
+membership: a tag flip on $\mathrm{Just}(t)$ produces $\mathrm{Nothing}$, a false
+negative, and a flip on $\mathrm{Nothing}$ produces some $\mathrm{Just}(t)$, a
+false positive, with $\delta = \fprate$ for negatives and $\delta = \fnrate$ for
+positives. The sum's tag error is exactly the atomic membership error the whole
+framework rests on, which is why the sum constructor cannot be made to factor:
+factoring it away would factor away the framework's irreducible rate.
 
-Variable-length lists introduce a second source of noise: the length
-itself is an attribute that may be uncertain. A HyperLogLog sketch
-estimates the cardinality of an input set without remembering its
-elements; the cardinality is the length of the underlying list (with
-duplicates collapsed), and HyperLogLog is a $\Bernoulli{\mathbb{N}}$
-on that length. A CountMin sketch stores a noisy count of each
-distinct key, also a $\Bernoulli{\mathbb{N}}$ per key. For a
-variable-length list with noisy length and noisy per-position
-contents, the joint structure is
-\[
-  \Bernoulli{L T} \;\cong\; \Bernoulli{\mathbb{N}} \otimes
-                            \Bernoulli{T}^{\otimes n},
-\]
-read as a product of an $\mathbb{N}$-valued length channel and an
-$n$-fold per-position channel, where $n$ is itself the random
-realized length. The full noisy list is the joint outcome.
+\subsection*{List and function types}
 
-\subsection*{Function types: per-input lifts}
+A list of known length $n$ is the product $T^n$, so $\Bernoulli{T^n} \cong
+\Bernoulli{T}^{\otimes n}$, the Kronecker power of the per-position channel, with
+parameter count $K_T(L_T - 1)$ independent of $n$. A variable-length list,
+however, is a \emph{sum} over lengths, $L T \cong \sum_{n \ge 0} T^n$, so a noisy
+length is a sum-type tag error over the length index: $\Bernoulli{L T}$ is a
+mixture over the noisy length (a $\Bernoulli{\mathbb{N}}$), each component a
+per-position Kronecker product, and it does not reduce to a single clean product.
+A HyperLogLog cardinality estimate is exactly this noisy length, composing with
+per-element noise by the mixture rule, not by a simple per-element product.
 
-A function $f : T \to U$ approximated noisily produces a
-$\Bernoulli{U}$ instance on each input $t \in T$, with the noise
-characteristics potentially differing input by input. The full
-specification is one $\Bernoulli{U}$ per element of $T$:
-\[
-  \Bernoulli{T \to U} \;\cong\; T \to \Bernoulli{U}
-                       \;\cong\; \prod_{t \in T} \Bernoulli{U}.
-\]
-This is exactly the chapter~9 framework. The n-ary channel
-$(X, Y, Q)$ of chapter~9 has input domain $X$, output domain $Y$, and
-channel matrix $Q$ specifying a $\Bernoulli{Y}$ distribution for each
-input block of $X$. Rephrased at the type level: the channel is a
-function from input blocks to noisy-output distributions, i.e., a
-function $X \to \Bernoulli{Y}$, which is the same as $\Bernoulli{X
-\to Y}$ in the function-type sense.
-
-Two sub-cases are worth naming. When the codomain is $\BoolType$, a
-$\Bernoulli{T \to \BoolType}$ is a noisy predicate, the chapter~5
-approximate-set abstraction. When the codomain is a tag plus a
-payload, $\Bernoulli{T \to U + V}$, the function returns a noisy
-tagged value, combining the function rule with the sum rule. The
-chapter~12 approximate relation is the case
-$\Bernoulli{T \times U \to \BoolType}$: a noisy predicate on a product
-type.
-
-Parameter count grows with $|T|$: each of the $|T|$ inputs contributes
-one row of $Q$ and hence $L_U - 1$ free parameters, for a total of
-$|T| (L_U - 1)$. Function types are richer than the other three
-constructors precisely because they make the parameter count grow
-with the cardinality of the domain.
-
-\subsection*{Summary: four composition rules}
+A noisily approximated function $f : T \to U$ produces one $\Bernoulli{U}$ per
+input, so $\Bernoulli{T \to U} \cong T \to \Bernoulli{U} \cong \prod_{t \in T}
+\Bernoulli{U}$, the chapter-9 framework: the channel is a function from input
+blocks to output distributions. This factors over inputs as a Kronecker product
+of $|T|$ per-input channels, with parameter count $|T|(L_U - 1)$, growing with
+the domain. Approximate sets ($U = \BoolType$) and relations ($T$ a product) are
+sub-cases.
 
 \begin{center}
 \begin{tabular}{lll}
 \hline
-Type constructor & Lift of $\Bernoulli{-}$ & Channel-matrix form \\
+Constructor & Lift & Channel form \\
 \hline
 $T \times U$ & $\Bernoulli{T} \otimes \Bernoulli{U}$ & Kronecker product \\
-$T + U$ & $\Bernoulli{T} \oplus \Bernoulli{U}$ & block-diagonal \\
-$L T$ & $\Bernoulli{T}^{\otimes n}$ (and maybe $\Bernoulli{\mathbb{N}}$ length) & Kronecker power \\
-$T \to U$ & $T \to \Bernoulli{U}$ & one $\Bernoulli{U}$ per input \\
+$L T$ & $\Bernoulli{T}^{\otimes n}$ (mixture if length noisy) & Kronecker power \\
+$T \to U$ & $T \to \Bernoulli{U}$ & per-input Kronecker \\
+$T + U$ & does \emph{not} factor (tag coupling) & not block-diagonal unless $\delta = 0$ \\
 \hline
 \end{tabular}
 \end{center}
 
-Each row reads as a recipe for composing $\Bernoulli{-}$ instances by
-type structure. Given a composite type $T$ built from the four
-constructors, the recipe says how to assemble $\Bernoulli{T}$ from
-$\Bernoulli{-}$ instances on the components. The recipes are not
-optional: they are forced by Axioms~1 and~2 applied at the relevant
-type-structural level. They are the four faces of one underlying
-isomorphism, which §13.3 names.
+The first three rows are forced by Axioms~1 and~2 at the type-structural level;
+the fourth records where those axioms' independence fails. \Cref{sec:composition-functor}
+packages the three clean rules.
 
-\subsection*{Worked example: a labeled classifier}
+\subsection*{Worked example}
 
-A 3-class classifier reports a class label plus a count of times the
-input has been seen. The output type is
-$\{\text{cat}, \text{dog}, \text{bird}\} \times \mathbb{N}$, a
-product of a 3-element enumeration and the natural numbers. The
-classifier is noisy in two ways: the class label may be wrong
-(a confusion matrix among the three classes) and the count may be
-noisy (a CountMin-style sketch with additive overcounting).
-
-The class component is a $\Bernoulli{\{\text{cat}, \text{dog},
-\text{bird}\}}$, governed by a $3 \times 3$ confusion matrix
-$Q_{\text{class}}$. The count component is a
-$\Bernoulli{\mathbb{N}}$, governed by a per-count channel
-$Q_{\text{count}}$. Under independence of the two error sources, the
-joint $\Bernoulli{}$ instance on the output type factors:
-\[
-  \Bernoulli{\{\text{cat}, \text{dog}, \text{bird}\} \times \mathbb{N}}
-  \;\cong\;
-  \Bernoulli{\{\text{cat}, \text{dog}, \text{bird}\}} \otimes
-  \Bernoulli{\mathbb{N}}.
-\]
-The joint channel matrix is the Kronecker product
-$Q_{\text{class}} \otimes Q_{\text{count}}$, and the parameter count
-is $3 \cdot 2 + K_{\mathbb{N}} (L_{\mathbb{N}} - 1)$, the sum of the
-two components' counts. To compose two such classifiers (say, to ask
-whether the same image gets the same label and the same count from
-two independent runs of the system), one applies the join-rate
-calculation of chapter~12 to the label component and the chapter~10
-sketch-composition rules to the count component, and the two
-calculations carry no cross-interaction. The type structure tells
-you where to apply which rule.
-
-The classifier example illustrates the payoff. Composing approximate
-structures used to require deriving rules per data structure. Under
-the type-driven view, derivation reduces to applying four standard
-recipes, one per constructor, to the components of the composite
-type. §13.3 packages this observation as the chapter's headline
-result.
+A 3-class classifier reporting a class label and a times-seen count has output
+type $\{\text{cat}, \text{dog}, \text{bird}\} \times \mathbb{N}$, a product of a
+3-element enumeration (governed by a $3 \times 3$ confusion matrix
+$Q_{\text{class}}$) and a count (a CountMin-style $\Bernoulli{\mathbb{N}}$,
+$Q_{\text{count}}$). Under independence the joint factors as
+$\Bernoulli{\{\text{cat}, \text{dog}, \text{bird}\}} \otimes
+\Bernoulli{\mathbb{N}}$, the Kronecker product $Q_{\text{class}} \otimes
+Q_{\text{count}}$, with additive parameter count $3 \cdot 2 + K_{\mathbb{N}}
+(L_{\mathbb{N}} - 1)$. To compose two such classifiers one applies the
+chapter-12 join rate to the label and the chapter-10 sketch composition to the
+count, with no cross-interaction: the type structure says where each rule goes.
+Composing approximate structures, which used to need a per-structure derivation,
+reduces to applying the product, list, and function rules to the components, with
+the sum flagged as the place a tag error couples them.

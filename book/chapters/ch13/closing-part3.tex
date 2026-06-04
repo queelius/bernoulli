@@ -1,96 +1,45 @@
 % §13.4 Closing Part III
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:closing-part3}                     -- this section
-%
-% RESOLVED (earlier chapters):
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{ch:sketches-estimators}                 -- chapter 10
-%   \Cref{ch:approximate-relations}               -- chapter 12
-%
-% RESOLVED (within chapter 13):
-%   \Cref{sec:bernoulli-of-composite}             -- §13.2
-%   \Cref{sec:composition-functor}                -- §13.3
-%
-% FORWARD REFS (Parts IV, V stubs from Plan 0):
-%   \Cref{ch:optimal-bernoulli-sets}              -- chapter 14
-%   \Cref{ch:perfect-hash-filters}                -- chapter 15
-%   \Cref{ch:not-bernoulli}                       -- chapter 16
-%   (chapters 17 and 18 referenced by number only; cipher maps, encrypted search)
+% Monograph register: Part III close + Parts IV/V preview. Fix: "sums go to direct
+% sums" -> the sum is the exception (tag coupling). Uses "cipher maps" (not retired
+% "oblivious"). Cross-refs ch:approximate-functions, ch:sketches-estimators,
+% ch:approximate-relations, sec:composition-functor, ch:optimal-bernoulli-sets,
+% ch:perfect-hash-filters, ch:not-bernoulli. DEFINED: sec:closing-part3.
 
 \section{Closing Part III}
 \label{sec:closing-part3}
 
-Three parts of the book are now on the table. Part~I built the atom:
-a noisy bit, $\Bernoulli{\BoolType}$, characterized by a $2 \times 2$
-channel matrix and the two rates $(\fprate, \fnrate)$. Part~II
-specialized the atom one direction, to predicates on a universe, and
-worked out the algebra of approximate sets: union, intersection, and
-complement under the rate calculations of chapter~6, the
-classification measures of chapter~7, the information-theoretic floor
-of chapter~8. Part~III specialized the atom a second direction, to
-maps and types: \Cref{ch:approximate-functions} lifted the binary
-channel to $k \times k$ channels for finite codomains;
-\Cref{ch:sketches-estimators} did the same for the noisy counters and
-cardinality estimators of streaming algorithms; chapter~11 did the
-same for randomized deciders; \Cref{ch:approximate-relations} did the
-same for predicates on pairs; and the present chapter unified the
-four into one type-driven algebra.
+Three parts are now in place. Part~I built the atom, the noisy bit
+$\Bernoulli{\BoolType}$ with its $2 \times 2$ channel and rates $(\fprate,
+\fnrate)$. Part~II specialized it one direction, to predicates on a universe, and
+worked out the algebra of approximate sets, their composition (chapter~6),
+classification measures (chapter~7), and information-theoretic floor (chapter~8).
+Part~III specialized it a second direction, to maps and types:
+\Cref{ch:approximate-functions} lifted the binary channel to $K \times L$
+channels, \Cref{ch:sketches-estimators} to streaming counters and estimators,
+chapter~11 to randomized deciders, \Cref{ch:approximate-relations} to predicates
+on pairs, and this chapter unified the four into one type-driven algebra.
 
-Each part lifts the previous via a more general type structure. Part~I
-fixes the codomain to $\BoolType$ and looks at the atom. Part~II
-fixes the codomain to $\BoolType$ and looks at predicates on a
-universe, that is, functions $T \to \BoolType$. Part~III releases
-both the codomain and the domain to range over arbitrary algebraic
-types built from $\BoolType$ and the four type constructors. The
-codomain widens from $\BoolType$ to $\mathbb{N}$, to $[0, 1]$, to
-sums, to lists, to products of these, and the domain widens from a
-single universe to products, sums, lists, and function spaces. At each
-widening the rate calculations of the earlier parts carry through,
-specialized by the new type's structure. The two rates of Part~I
-become the channel matrix of Part~III; the union and intersection of
-Part~II become the rows of the table in \Cref{sec:composition-functor}.
+Each part widens the type structure. Part~I fixes the codomain to $\BoolType$ and
+studies the atom; Part~II keeps the codomain $\BoolType$ and studies functions
+$T \to \BoolType$; Part~III releases both domain and codomain to range over the
+algebraic types built from $\BoolType$ and the four constructors. The two rates
+of Part~I become the channel matrix of Part~III, and the union and intersection
+of Part~II become rows of the table in \Cref{sec:composition-functor}. Products
+go to Kronecker products, lists to per-position lifts, functions to per-input
+lifts; the sum is the exception, where the tag error couples the components and
+the factorization breaks, the same tag error that is the atomic membership rate
+the whole framework rests on.
 
-The full type system that emerged is the one promised in chapter~1.
-Part~I's $\Bernoulli{\BoolType}$ is the base case. Chapter~9 made the
-first inductive step: any finite type $T$ admits a $\Bernoulli{T}$
-characterized by a $|T| \times |T|$ channel matrix. The remaining
-chapters of Part~III worked out four type constructors that close
-this $\Bernoulli{-}$ operation under composition. Products go to
-Kronecker products of channels; sums go to direct sums; lists go to
-per-position lifts; functions go to per-input lifts. Chapter~13
-states these four rules as one structure-preserving map and closes
-the algebra: every approximate structure built from $\BoolType$ and
-the four constructors is one application of $\Bernoulli{-}$, with
-composition determined by the type's structural decomposition.
-
-Three further parts remain. Part~IV gives the constructive payoff
-that Part~II's lower bound left open.
-\Cref{ch:optimal-bernoulli-sets} constructs the Bernoulli Hash
-Function, an approximate set that achieves the chapter~8 entropy
-floor asymptotically; the construction abandons the shared bit array
-of the standard Bloom design in favor of a perfect-hash-based
-fingerprint encoding. \Cref{ch:perfect-hash-filters} constructs the
-other one-sided axis, the FPR-zero family of perfect hash filters,
-which give exact membership at the cost of a controlled
-false-negative rate. Together the two chapters answer the
-constructive question that Part~II's floor poses: which structures
-achieve the lower bound, and how?
-
-Part~V draws the boundary and turns the algebra to cryptographic use.
-\Cref{ch:not-bernoulli} catalogues the cases in which the
-independent-error model breaks down: correlated errors across
-queries, rates that drift in time, adversarial query distributions
-that defeat the uniform-sampling assumption underlying FPR
-estimation. Chapters~17 and~18 then read the algebra in the opposite
-direction: cipher maps and encrypted search use the controlled error
-of a Bernoulli map as a cryptographic resource rather than a
-deployment constraint. The salt of a Bernoulli hash function plays
-the role of a key, the acceptance predicate plays the role of a
-cipher map, and the chapter~8 entropy floor governs both the space
-cost and the security budget.
-
-With Part~III closed the algebra is in place. The next two parts
-build on it.
+Three parts remain. Part~IV gives the constructive payoff Part~II's lower bound
+left open: \Cref{ch:optimal-bernoulli-sets} builds the Bernoulli Hash Function,
+an approximate set meeting the chapter-8 entropy floor by abandoning the shared
+bit array for a perfect-hash fingerprint encoding, and
+\Cref{ch:perfect-hash-filters} builds the FPR-zero perfect hash filters on the
+other one-sided axis. Part~V draws the boundary and turns the algebra to
+cryptographic use: \Cref{ch:not-bernoulli} catalogues where the independent-error
+model fails (correlated errors, drifting rates, adversarial queries), and
+chapters~17 and~18 read the algebra in reverse, the salt of a Bernoulli hash
+function as a key and the acceptance predicate as a cipher map, with the
+chapter-8 floor governing both space cost and security budget. With Part~III
+closed, the algebra is in place; the next parts build on it.
