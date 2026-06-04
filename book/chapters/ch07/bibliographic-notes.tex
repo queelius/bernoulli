@@ -1,113 +1,56 @@
 % §7.6 Bibliographic Notes
 %
-% Cross-reference resolution status:
-%
-% ALREADY RESOLVED (within chapter 7, drafted in Tasks 2-6 of Plan 7):
-%   \Cref{sec:setup-revisited}                   -- chapter 7 §7.1
-%   \Cref{sec:binomial-estimator}                -- chapter 7 §7.2
-%   \Cref{sec:confidence-intervals}              -- chapter 7 §7.3
-%   \Cref{sec:derived-measures}                  -- chapter 7 §7.4
-%   \Cref{sec:bloom-diagnostics}                 -- chapter 7 §7.5
-%   \Cref{def:wilson-ci}                         -- chapter 7 §7.3
-%   \Cref{def:clopper-pearson-ci}                -- chapter 7 §7.3
-%   \Cref{def:jeffreys-ci}                       -- chapter 7 §7.3
-%   \Cref{thm:delta-method}                      -- chapter 7 §7.4
-%
-% ALREADY RESOLVED (chapter 1):
-%   \Cref{sec:sampling-rates}                    -- chapter 1 §1.4
-%   \Cref{sec:bib-notes-ch1}                     -- chapter 1 §1.6
-%
-% Citations resolved by new references.bib entries added in this task:
-%   \cite{towell-bernoulli-classification-measures}   -- Towell classification-measures manuscript
-%   \cite{wilson-1927}                                -- Wilson 1927
-%   \cite{clopper-pearson-1934}                       -- Clopper-Pearson 1934
-%   \cite{casella-berger}                             -- Casella and Berger 2002 (already used in §7.4)
-%
-% Citations resolved by prior references.bib entries:
-%   \cite{towell-bernoulli-sets}                 -- already in references.bib (Plan 0)
+% Monograph register: classification-measures manuscript, Wilson, Clopper-Pearson,
+% Jeffreys, the delta method, the prevalence question. Citations
+% towell-bernoulli-classification-measures, wilson-1927, clopper-pearson-1934,
+% casella-berger, towell-bernoulli-sets. Cross-refs sec:derived-measures,
+% sec:sampling-rates, sec:bloom-diagnostics, def:wilson-ci, def:clopper-pearson-ci,
+% def:jeffreys-ci, thm:delta-method, prop:ppv-variance, sec:bib-notes-ch1.
+% DEFINED: sec:bib-notes-ch7.
 
 \section*{Bibliographic Notes}
 \addcontentsline{toc}{section}{Bibliographic Notes}
 \label{sec:bib-notes-ch7}
 
 \paragraph{The classification-measures manuscript.}
-The treatment of PPV, NPV, recall, and F1 as random variables that are
-functions of $(\fprate, \fnrate, \pi)$, together with the delta-method
-derivations of their variances and Wald-style confidence intervals,
-follows \textcite{towell-bernoulli-classification-measures}. That
-manuscript is the primary source for \Cref{sec:derived-measures}: the
-PPV and NPV expressions, the prevalence-dependence diagnostic, the
-bivariate delta-method computation that yields \Cref{prop:ppv-variance},
-and the $\Fone$ derivation are all taken from it. The chapter's
-contribution beyond the manuscript is the pedagogical scaffolding ---
-the explicit retirement of the four items deferred in
-\Cref{sec:sampling-rates}, the worked Bloom filter scenario of
-\Cref{sec:bloom-diagnostics}, and the connection between the
-manuscript's machinery and the Part~II approximate-set framework via
-the predicate $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$.
+The treatment of PPV, NPV, recall, and $\Fone$ as functions of $(\fprate,
+\fnrate, \pi)$, with delta-method variances and confidence intervals, follows
+\textcite{towell-bernoulli-classification-measures}, the primary source for
+\Cref{sec:derived-measures}: the predictive-value expressions, the
+prevalence-dependence diagnostic, the bivariate computation of
+\Cref{prop:ppv-variance}, and the $\Fone$ derivation are all from it. The
+chapter's addition is to connect that machinery to the Part~II approximate-set
+framework through the predicate $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$
+and to work the deployed Bloom-filter diagnostic of \Cref{sec:bloom-diagnostics}.
 
-\paragraph{Wilson's score interval.}
-The interval of \Cref{def:wilson-ci} is due to \textcite{wilson-1927},
-who derived it by inverting a different statistic from the one that
-gives the Wald form: instead of fixing $\fprate = \hat\fprate$ in the
-variance and asking which true values are consistent with the observed
-deviation, Wilson keeps $\fprate$ as a free parameter inside the
-variance and solves the resulting quadratic in $\fprate$. The
-construction is a special case of test inversion (set-of-parameter
-values not rejected by a level-$\alpha$ test), but applied to the
-score statistic rather than the Wald statistic. The 1927 paper frames
-the result in the language of the ``law of succession'' and was
-written before the modern frequentist-CI vocabulary had stabilized;
-later texts standardized the procedure and gave it the name now in
-common use. Wilson's interval is the default modern recommendation
-for the binomial proportion when $n_0$ is small or the rate is near a
-boundary, and it is the recommendation this chapter inherits.
-
-\paragraph{The Clopper-Pearson exact interval.}
-The construction of \Cref{def:clopper-pearson-ci} is due to
-\textcite{clopper-pearson-1934}, whose paper introduces the
-test-inversion idea in its cleanest form. For each candidate
-$\fprate$, run a two-sided binomial test at level $\alpha$; the
-interval is the set of $\fprate$ values that the test fails to
-reject. The construction is sometimes called the exact interval
-because it uses the exact binomial CDF rather than a Normal
-approximation, but as the chapter notes, the discreteness of the
-binomial forces the coverage strictly above $1 - \alpha$ at most
-values of $\fprate$. The over-coverage is the price of the guarantee
-and is precisely what one wants in safety-critical applications.
-The Jeffreys interval of \Cref{def:jeffreys-ci} predates the modern
-Bayesian terminology under which it is now derived; its calibration
-property (matching frequentist coverage to higher order than Wald)
-is a result in higher-order asymptotic theory and is treated in
-standard texts on asymptotic inference.
+\paragraph{The binomial confidence intervals.}
+The interval of \Cref{def:wilson-ci} is due to \textcite{wilson-1927}, who
+inverted the score statistic, keeping $\fprate$ free in the variance and
+solving the resulting quadratic, rather than fixing $\fprate = \hat{\fprate}$
+as the Wald form does. It is the standard modern recommendation for the
+binomial proportion at small $n_0$ or near a boundary.
+\Cref{def:clopper-pearson-ci} is due to \textcite{clopper-pearson-1934}, who
+introduced test inversion in its cleanest form, taking the interval to be the
+$\fprate$ values a level-$\alpha$ binomial test fails to reject; the exact
+binomial CDF forces coverage strictly above $1 - \alpha$ at most rates, the
+over-coverage that suits safety-critical use. The Jeffreys interval of
+\Cref{def:jeffreys-ci} predates the Bayesian terminology under which it is now
+derived, and its higher-order coverage-matching property is a result in
+asymptotic inference.
 
 \paragraph{The delta method.}
-The asymptotic-Normality result for smooth functions of an
-asymptotically Normal estimator (\Cref{thm:delta-method}) is a
-classical consequence of the first-order Taylor expansion and
-Slutsky's lemma. A proof in the form most directly usable for the
-chapter's PPV and $\Fone$ derivations appears in
-\textcite{casella-berger}, Chapter~5, alongside the univariate and
-multivariate versions, the regularity conditions, and worked examples.
-The chapter cites that text for the proof and applies the result
-without re-deriving it. Readers who want a more thorough development
-of asymptotic theory, including the higher-order corrections that
-explain why Wilson and Jeffreys outperform Wald in the small-$n_0$
-regime, should consult a standard graduate text on large-sample
-inference.
+The asymptotic-Normality result for smooth functions of an asymptotically
+Normal estimator (\Cref{thm:delta-method}) follows from the first-order Taylor
+expansion and Slutsky's lemma; a proof in the form used for the PPV and
+$\Fone$ derivations is in \textcite[Ch.~5]{casella-berger}, with the
+multivariate version and regularity conditions.
 
-\paragraph{Diagnostic testing and the prevalence question.}
-The prevalence-dependence of PPV and NPV at fixed $(\fprate, \fnrate)$
---- the central caveat of \Cref{sec:derived-measures} --- is the same
-phenomenon that drives the medical diagnostic-testing literature
-referenced in \Cref{sec:bib-notes-ch1}: the bilingual conversation
-between epidemiology, signal detection, and information retrieval over
-which marginal to condition on and which derived rate gets the
-spotlight. A test with high sensitivity and high specificity can still
-have low PPV when the disease is rare, because PPV is the
-classifier-plus-workload combination and not the classifier alone.
-Chapter~1's bibliographic notes (\Cref{sec:bib-notes-ch1}) record the
-contingency-table tradition that this chapter inherits; chapter~7's
-contribution is to make the dependence explicit in formula and to give
-the reader a proper CI for any of the derived quantities at any
+\paragraph{The prevalence question.}
+The prevalence-dependence of PPV and NPV at fixed $(\fprate, \fnrate)$, the
+central caveat of \Cref{sec:derived-measures}, drives the medical
+diagnostic-testing literature noted in \Cref{sec:bib-notes-ch1}: a test with
+high sensitivity and specificity can still have low PPV when the condition is
+rare, because PPV is the classifier-and-workload combination, not the
+classifier alone. This chapter's contribution is to make the dependence
+explicit and to give a proper interval for any derived quantity at any
 specified prevalence.

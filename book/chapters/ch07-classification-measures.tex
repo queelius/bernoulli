@@ -1,23 +1,6 @@
 \chapter{Classification Measures}
 \label{ch:classification-measures}
 
-\begin{quote}
-\textsc{After this chapter you will be able to:}
-\begin{itemize}
-  \item Define PPV, NPV, recall, and F1 as functions of $\fprate$,
-    $\fnrate$, and workload prevalence; recognize the
-    prevalence-dependence of precision and the
-    prevalence-independence of $\fprate, \fnrate$.
-  \item Estimate any of these quantities from samples with
-    proper confidence intervals (Wald, Wilson, Clopper-Pearson,
-    Jeffreys); apply the delta method to derived measures.
-  \item Apply the framework to Bloom filter diagnostics: given an
-    observed false-positive count on a workload, recover a CI for
-    the underlying $\fprate$ and use it to bound PPV at the
-    workload's prevalence.
-\end{itemize}
-\end{quote}
-
 % Section 7.1
 \input{chapters/ch07/setup-revisited}
 
@@ -35,6 +18,3 @@
 
 % Section 7.6
 \input{chapters/ch07/bibliographic-notes}
-
-% Exercises
-\input{chapters/ch07/exercises}

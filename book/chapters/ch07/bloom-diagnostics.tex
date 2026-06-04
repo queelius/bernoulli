@@ -1,216 +1,91 @@
 % §7.5 Worked Application: Bloom Filter Diagnostics
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bloom-diagnostics}                 -- this section
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:bloom-from-scratch}                 -- chapter 5 §5.2
-%   \Cref{def:bloom-filter}                       -- chapter 5 §5.2
-%   \Cref{eq:bloom-fpr}                           -- chapter 5 §5.2
-%   \Cref{thm:bloom-optimal-k}                    -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 7, this plan):
-%   \Cref{sec:binomial-estimator}                 -- §7.2
-%   \Cref{sec:confidence-intervals}               -- §7.3
-%   \Cref{def:wilson-ci}                          -- §7.3
-%   \Cref{sec:derived-measures}                   -- §7.4
-%   \Cref{def:ppv}                                -- §7.4 PPV definition
-%   \Cref{thm:delta-method}                       -- §7.4 delta-method theorem
-%   \Cref{prop:ppv-variance}                      -- §7.4 PPV variance via delta method
-%
-% §7.5 applies the full chapter-7 toolkit (binomial estimator from §7.2,
-% Wilson CI from §7.3, PPV definition and delta-method CI from §7.4) to
-% one concrete scenario: a deployed Bloom filter with measured rates on
-% a workload with measured prevalence. The diagnostic question at the
-% end forks: re-tune the filter, or wait for higher prevalence?
+% Monograph register: the full toolkit on a deployed Bloom filter, scenario to
+% diagnostic question (route A re-tune vs route B wait). Cross-refs
+% def:bloom-filter, sec:bloom-from-scratch, eq:bloom-fpr, thm:bloom-optimal-k,
+% sec:binomial-estimator, sec:confidence-intervals, def:wilson-ci,
+% sec:derived-measures, def:ppv, prop:ppv-variance. DEFINED: sec:bloom-diagnostics.
 
 \section{Worked Application: Bloom Filter Diagnostics}
 \label{sec:bloom-diagnostics}
 
-The chapter-7 toolkit is now complete: \Cref{sec:binomial-estimator}
-proved the empirical-proportion estimator is unbiased and efficient;
-\Cref{sec:confidence-intervals} replaced the Wald interval with Wilson
-as the default; \Cref{sec:derived-measures} carried both into PPV via
-the delta method. The remaining task is to use all three on a single
-deployment problem and watch the diagnostic question fall out of the
-numbers. The scenario below is a spam filter implemented as a Bloom
-filter, the running example of \Cref{sec:bloom-from-scratch}; the
-deployment question is whether the filter is precise enough on the
-workload at hand, and if not, what to change.
+One deployment problem exercises the whole toolkit: a spam filter implemented
+as a Bloom filter, with a question, is the filter precise enough on this
+workload, and if not, what to change.
 
-\subsection*{Scenario}
+\subsection*{Scenario and observation}
 
-A spam filter is implemented as a Bloom filter
-(\Cref{def:bloom-filter,sec:bloom-from-scratch}) with parameters
-$(m, k, n) = (50000, 7, 5000)$. The bit-to-item ratio $m/n = 10$ and
-$k = 7$ put the filter in the optimal regime of
-\Cref{thm:bloom-optimal-k}. Applying \eqref{eq:bloom-fpr} with
-$kn/m = 0.7$,
+The filter (\Cref{def:bloom-filter}, \Cref{sec:bloom-from-scratch}) has
+parameters $(m, k, n) = (50000, 7, 5000)$, so $m/n = 10$, $k = 7$ put it in
+the optimal regime of \Cref{thm:bloom-optimal-k}, and \eqref{eq:bloom-fpr} at
+$kn/m = 0.7$ predicts $\fprate \approx (1 - e^{-0.7})^7 \approx 0.0082$, with
+$\fnrate = 0$ by construction. A workload of $N = 10000$ messages arrives,
+$n_\top = 1000$ spam and $n_\bot = 9000$ not; the filter reports $\top$ on all
+spam and on $\mathrm{FP} = 92$ of the non-spam, so
 \[
-  \fprate
-  \;\approx\; \bigl(1 - e^{-0.7}\bigr)^7
-  \;\approx\; (0.5034)^7
-  \;\approx\; 0.0082.
+  \hat{\fprate} = \frac{92}{9000} \approx 0.01022,
 \]
-The construction guarantees $\fnrate = 0$: no spam message is missed.
-A workload of $N = 10000$ messages arrives, a mix of spam and
-not-spam in proportions the deployment does not control. The pair
-$(\fprate, \fnrate) = (0.0082, 0)$ describes the filter; the
-workload's prevalence is a separate quantity that does not enter the
-filter at all. The PPV at deployment is a joint property of both, as
-\Cref{sec:derived-measures} insisted. The deployment question is
-what fraction of $\top$-flagged messages are actually spam, and what
-to do if that fraction is not high enough for the operational
-requirement.
-
-\subsection*{Empirical observation}
-
-Ground truth is available on this workload (the operator labels a
-sample, or downstream feedback eventually arrives). Of the $N = 10000$
-messages, $n_\top = 1000$ are spam and $n_\bot = 9000$ are not. The
-filter reports $\top$ on every spam message by $\fnrate = 0$ and on
-$\mathrm{FP} = 92$ of the non-spam. The empirical false-positive rate
-is therefore
+about $25\%$ above the design value. The Wilson $95\%$ interval
+(\Cref{def:wilson-ci}) at $z = 1.96$ has center
+$(0.01022 + 1.96^2/18000)/(1 + 1.96^2/9000) \approx 0.01043$ and half-width
 \[
-  \hat{\fprate}
-  \;=\; \frac{\mathrm{FP}}{n_\bot}
-  \;=\; \frac{92}{9000}
-  \;\approx\; 0.01022,
+  \frac{1.96}{1.000427}\sqrt{\frac{0.01022 \cdot 0.98978}{9000}
+    + \frac{1.96^2}{4 \cdot 9000^2}} \approx 0.00209,
 \]
-about twenty-five percent above the theoretical $0.0082$. The Wilson
-$95\%$ confidence interval (\Cref{def:wilson-ci}) at $z = 1.96$ has
-center
+giving $[0.00834, 0.01252]$. The design $\fprate = 0.0082$ sits just below the
+lower endpoint: at $n_\bot = 9000$ the interval is narrow enough to detect the
+$25\%$ deviation, plausibly from hash collisions that mildly violate the
+uniform-hash assumption or an item count above the design $n$. The deployment
+$\fprate$ is an empirical quantity to measure, not a design parameter to
+trust; we carry $\hat{\fprate} = 0.0102$ forward.
+
+\subsection*{PPV and its interval}
+
+With $\hat\pi = n_\top/N = 0.1$, \Cref{def:ppv} gives
 \[
-  \frac{0.01022 + 1.96^2 / 18000}{1 + 1.96^2 / 9000}
-  \;\approx\; \frac{0.01044}{1.000427}
-  \;\approx\; 0.01043
+  \widehat{\PPV} = \frac{0.1 \cdot 1}{0.1 \cdot 1 + 0.9 \cdot 0.01022}
+  = \frac{0.1}{0.10920} \approx 0.9158,
 \]
-and half-width
+so about $92\%$ of flagged messages are spam. The delta-method variance
+(\Cref{prop:ppv-variance}) simplifies because $\fnrate = 0$ kills the
+$\sigma_t^2$ term: with $\bar t = 1000$, $\bar f = 92$, $\sigma_f^2 = 9000
+\cdot 0.01022 \cdot 0.98978 \approx 91.06$,
 \[
-  \frac{1.96}{1.000427}
-    \sqrt{\frac{0.01022 \cdot 0.98978}{9000} + \frac{1.96^2}{4 \cdot 9000^2}}
-  \;\approx\; 1.959
-    \sqrt{1.124 \times 10^{-6} + 1.186 \times 10^{-8}}
-  \;\approx\; 0.00209,
+  \Var[\widehat{\PPV}] \approx \frac{1000^2 \cdot 91.06}{1092^4}
+  \approx 6.40 \times 10^{-5},
 \]
-giving the interval $[0.00834, 0.01252]$. The theoretical
-$\fprate = 0.0082$ sits just outside the lower endpoint. The
-discrepancy is real and not an artifact of small samples: at
-$n_\bot = 9000$ the Wilson interval is narrow enough to detect a
-$25\%$ deviation, and the theoretical value falls below the lower
-endpoint of the interval by roughly one standard error. Probable
-causes include real-world hash collisions that mildly violate the
-uniform-hash assumption behind \eqref{eq:bloom-fpr}, or an item count
-slightly above the design $n = 5000$ pushing the filter into a less
-favourable regime. The diagnostic point is that the deployment
-$\fprate$ is an empirical quantity to be measured, not a design
-parameter to be trusted on faith. We carry $\hat{\fprate}$ forward in
-the calculations below; the theoretical value $0.0082$ is the
-designer's promise, and the empirical $0.0102$ is what the workload
-actually sees.
+a standard error of $0.0080$, so the $95\%$ interval is $0.9158 \pm 1.96 \cdot
+0.0080 \approx [0.900, 0.932]$. The boundary concern of
+\Cref{sec:confidence-intervals} does not bite ($\widehat{\PPV}$ is far from
+$0$ and $1$, the conditional samples are large). All uncertainty here comes
+from the false-positive count; were $\fnrate > 0$, recall would be random and
+both variance terms would contribute.
 
-\subsection*{PPV computation}
+\subsection*{The diagnostic}
 
-The workload's prevalence point estimate is
-$\hat\pi = n_\top / N = 0.1$. Combining this with $\hat{\fprate}$ and
-$\hat{\fnrate} = 0$ in \Cref{def:ppv} gives
-\[
-  \widehat{\PPV}
-  \;=\; \frac{0.1 \cdot 1}{0.1 \cdot 1 + 0.9 \cdot 0.01022}
-  \;=\; \frac{0.1}{0.10920}
-  \;\approx\; 0.9158.
-\]
-About $92\%$ of $\top$-flagged messages are actually spam. A
-delta-method confidence interval follows from
-\Cref{prop:ppv-variance}. Conditioning on $n_\top, n_\bot$ and
-substituting $\bar t = n_\top \cdot 1 = 1000$, $\bar f = n_\bot
-\hat{\fprate} = 92$, $\sigma_t^2 = n_\top \cdot 1 \cdot 0 = 0$, and
-$\sigma_f^2 = n_\bot \hat{\fprate}(1 - \hat{\fprate}) \approx 91.06$,
-\[
-  \Var[\widehat{\PPV}]
-  \;\approx\; \frac{1000^2 \cdot 91.06}{(1000 + 92)^4}
-  \;\approx\; 6.40 \times 10^{-5},
-\]
-so the standard error is about $0.00800$ and the Wald-style
-delta-method $95\%$ interval is
-\[
-  \widehat{\PPV} \;\pm\; 1.96 \cdot 0.00800
-  \;\approx\; 0.9158 \pm 0.0157
-  \;\approx\; [0.900, 0.932].
-\]
-The interval is informative: PPV is bounded above by about $0.93$ at
-this workload's prevalence and at this filter's measured $\fprate$,
-with $95\%$ confidence on the sampling distribution. The
-boundary-failure concern of \Cref{sec:confidence-intervals} does not
-apply here because $\widehat{\PPV}$ is far from $0$ and $1$, and at
-the conditional sample sizes $n_\top = 1000, n_\bot = 9000$ the Normal
-approximation underlying the delta method is comfortable. The variance
-formula is also simplified by $\fnrate = 0$: the $\sigma_t^2$ term
-vanishes and the entire uncertainty in PPV comes from the
-false-positive count. Were $\fnrate > 0$, the recall would itself be
-a random quantity and both terms in \Cref{prop:ppv-variance} would
-contribute.
+Suppose the requirement is $\PPV > 0.95$. The estimate $0.9158$ falls short and
+the interval $[0.900, 0.932]$ excludes $0.95$: a fix is needed, and the
+interval, not the point, is what establishes it. A point estimate of $0.9158$
+alone would have suggested the target was nearly met; the interval rules out
+$0.95$ at $95\%$ confidence. \Cref{def:ppv} has three knobs, and $\fnrate = 0$
+already, leaving two routes.
 
-\subsection*{Diagnostic question}
+\emph{Route A, re-tune.} Lower $\fprate$. Solving $0.95 = 0.1/(0.1 + 0.9
+\fprate)$ gives $\fprate \approx 0.00585$; at $\fprate = 0.005$ the PPV is
+$0.1/(0.1 + 0.9 \cdot 0.005) \approx 0.957$, above target. Reaching $0.005$
+from $0.0102$ by \eqref{eq:bloom-fpr} costs about $30\%$ more bits at fixed
+$k$, a one-time hardware decision that buys an $\fprate$ surviving the
+worst-case workload.
 
-Suppose the operational requirement is $\PPV > 0.95$: at most one
-$\top$-report in twenty should be wrong. The point estimate $0.9158$
-falls short. The interval $[0.900, 0.932]$ excludes $0.95$. The
-deployment needs a fix.
+\emph{Route B, wait.} Keep the filter and bound the acceptable workload.
+Solving $0.95 = \pi/(\pi + (1 - \pi) \cdot 0.01022)$ gives $\pi \approx 0.163$;
+at $\pi = 0.2$ the PPV is $\approx 0.961$. Doing nothing structural is
+acceptable once the spam rate rises above about one in six, but it trades
+capital cost for the assumption that the workload mix will shift, which the
+deployment does not control.
 
-\Cref{def:ppv} has only three knobs: $\fprate$, $\fnrate$, and $\pi$.
-The filter has $\fnrate = 0$ already. Two routes are open.
-
-\smallskip
-\noindent\emph{Route A: re-tune.} Lower $\fprate$ by enlarging the bit
-array or shifting $k$. To match $\PPV = 0.95$ at $\pi = 0.1$,
-\[
-  0.95 \;=\; \frac{0.1}{0.1 + 0.9 \fprate}
-  \quad\Longleftrightarrow\quad
-  \fprate \;=\; \frac{0.1 \cdot 0.05}{0.9 \cdot 0.95}
-  \;\approx\; 0.00585.
-\]
-At $\fprate = 0.005$ the formula gives $\PPV = 0.1 / (0.1 + 0.9 \cdot
-0.005) \approx 0.9569$, comfortably above the target. Reaching
-$\fprate = 0.005$ from $0.01022$ by \eqref{eq:bloom-fpr} costs about
-$30\%$ more bits at fixed $k$, or a small re-balancing of $k$ at
-fixed $m$. The $30\%$ space cost is a one-time hardware decision and
-buys an $\fprate$ that survives the worst-case workload.
-
-\smallskip
-\noindent\emph{Route B: wait.} Keep the filter as-is and bound the
-acceptable workload. At fixed $\fprate = 0.01022$, the prevalence
-required for $\PPV = 0.95$ is
-\[
-  0.95 \;=\; \frac{\pi}{\pi + (1 - \pi) \cdot 0.01022}
-  \quad\Longleftrightarrow\quad
-  \pi \;\approx\; 0.163.
-\]
-At $\pi = 0.2$ the formula gives $\PPV = 0.2 / (0.2 + 0.8 \cdot
-0.01022) \approx 0.9607$, also above the target. Doing nothing
-structural is acceptable when the spam rate naturally rises above
-about one in six; below that, the target is missed. This route
-trades capital cost for the assumption that the workload mix will
-shift in the desired direction, which the deployment does not get to
-choose. It is the right route when prevalence is expected to climb
-for independent reasons, and the wrong route when prevalence might
-stay below the threshold indefinitely.
-
-\smallskip
-The choice is operational rather than statistical. Route~A spends
-storage to lower $\fprate$; Route~B accepts a residual $8\%$ false
-share until the workload's prevalence rises on its own. Both
-calculations used the same three formulas: \eqref{eq:bloom-fpr} for
-the filter's $\fprate$, the Wilson interval for its empirical
-estimate, and \Cref{def:ppv} for the translation into precision at
-workload prevalence. What the chapter-7 toolkit added beyond the
-chapter-5 design formulas is the honest accounting of uncertainty. A
-point estimate of PPV alone, $0.9158$, would have suggested the
-target $0.95$ was nearly met and a small tweak would suffice. The
-delta-method interval $[0.900, 0.932]$ shows that the data rule out
-$0.95$ at $95\%$ confidence: a small tweak would not have sufficed.
-The diagnostic question reduces to one division, run forward and
-backward, but the conclusion that a fix is needed at all rests on the
-interval, not the point.
+The choice is operational, not statistical. Both routes used the same three
+tools, \eqref{eq:bloom-fpr} for the design rate, the Wilson interval for its
+empirical estimate, and \Cref{def:ppv} for the translation into precision at
+prevalence. What the chapter added beyond the chapter-5 design formulas is the
+honest accounting of uncertainty that turns ``nearly met'' into ``ruled out.''

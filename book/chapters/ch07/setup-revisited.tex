@@ -1,132 +1,37 @@
 % §7.1 The Setup Revisited
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:setup-revisited}                 -- this section
-%
-% ALREADY DEFINED (chapter 1):
-%   \Cref{sec:sampling-rates}                   -- chapter 1 §1.4
-%   \Cref{sec:quantifying-noise}                -- chapter 1 §1.2
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{ch:approximate-sets}                  -- chapter 5
-%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2
-%
-% FORWARD REFS within chapter 7 (resolve in later Plan 7 tasks):
-%   \Cref{sec:binomial-estimator}               -- §7.2 (Task 3)
-%   \Cref{sec:confidence-intervals}             -- §7.3 (Task 4)
-%   \Cref{sec:derived-measures}                 -- §7.4 (Task 5)
-%   \Cref{sec:bloom-diagnostics}                -- §7.5 (Task 6)
-%
-% §7.1 opens chapter 7 by carrying chapter 1 §1.4's setup forward into
-% Part II's notation and naming the four items §1.4 deferred. Short
-% recap; no new theorems.
+% Monograph register: carries chapter 1 §1.4's deferral forward into Part II
+% and fixes notation. Cross-refs sec:sampling-rates, sec:quantifying-noise,
+% sec:binomial-estimator, sec:confidence-intervals, sec:derived-measures,
+% sec:bloom-diagnostics. DEFINED: sec:setup-revisited.
 
 \section{The Setup Revisited}
 \label{sec:setup-revisited}
 
-\Cref{sec:sampling-rates} stated the problem and stopped just short of
-the theory. An approximate set arrives with two unknown rates: a rate
-$\fprate$ at which it reports $\top$ on inputs whose truth is $\bot$,
-and a rate $\fnrate$ at which it reports $\bot$ on inputs whose truth
-is $\top$. The classifier was treated as a black box: query it on $n$
-labelled inputs, split them into the $n_0$ trials whose truth is
-$\bot$ and the $n_1 = n - n_0$ trials whose truth is $\top$, count the
-false positives and false negatives, and report the empirical
-proportions $\hat{\fprate} = \mathrm{FP}/n_0$ and $\hat{\fnrate} =
-\mathrm{FN}/n_1$. Part~II now writes that classifier as an approximate
-set $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$, a noisy
-membership predicate over a universe $\Universe$, but the estimation
-problem is unchanged. Chapter~7 closes the loop.
+\Cref{sec:sampling-rates} posed the estimation problem and stopped short of
+the theory. An approximate set $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$
+arrives with two unknown rates: $\fprate$, the chance it reports $\top$ on a
+$\bot$-input, and $\fnrate$, the chance it reports $\bot$ on a $\top$-input.
+Query it on $n$ labelled inputs, split them into the $n_0$ trials whose truth
+is $\bot$ and the $n_1 = n - n_0$ whose truth is $\top$, count false positives
+and false negatives, and report $\hat{\fprate} = \mathrm{FP}/n_0$,
+$\hat{\fnrate} = \mathrm{FN}/n_1$. Chapter~1 stated the binomial form, the
+unbiasedness, and a Wald confidence interval, all without proof, and deferred
+four things: the estimator's exact properties (bias, variance, the MLE
+identity, efficiency); proper confidence intervals to replace the Wald form;
+the cause of the sawtooth under-coverage its notebook displayed; and the
+derived measures, precision and the predictive values, that depend on the
+workload as the rates do not. This chapter supplies all four, in that order,
+and closes with a deployed Bloom filter run through the whole toolkit.
 
-\subsection*{What chapter 1 left deferred}
-
-\Cref{sec:sampling-rates} reported the binomial form of the
-estimators, stated their unbiasedness and variance without proof, and
-gave the Wald confidence interval with a warning attached. It promised
-the full theory to chapter~7. Four items were named:
-
-\smallskip
-\noindent\emph{(i) Estimator properties.}
-\Cref{sec:sampling-rates} claimed $\hat{\fprate} = \mathrm{FP}/n_0$ is
-unbiased for $\fprate$ with variance $\fprate(1 - \fprate) / n_0$. It
-did not prove either claim. It did not identify $\hat{\fprate}$ as the
-maximum-likelihood estimator, and it did not show that the estimator's
-variance equals the Cramer-Rao lower bound. All four facts (bias,
-variance, MLE identity, efficiency) are stated and proved in
-\Cref{sec:binomial-estimator}.
-
-\smallskip
-\noindent\emph{(ii) Proper confidence intervals.}
-The Wald interval $\hat{\fprate} \pm z_{\alpha/2}
-\sqrt{\hat{\fprate}(1 - \hat{\fprate}) / n_0}$ is asymptotically
-correct but inadequate in the small-$n_0$ regime where the cost of a
-single observation matters. Three standard alternatives exist (Wilson,
-Clopper-Pearson, Jeffreys), each with a different motivation and a
-different operating characteristic. \Cref{sec:confidence-intervals}
-derives each and recommends a default.
-
-\smallskip
-\noindent\emph{(iii) Sawtooth under-coverage near the boundaries.}
-The chapter~1 notebook visualized the Wald interval failing at small
-$n_0$ when $\fprate$ is near $0$ or $1$: empirical coverage drops
-below the nominal $1 - \alpha$ in a jagged, oscillating pattern that
-worsens as the rate approaches a boundary. The pattern has a name
-(sawtooth coverage) and a known cause (discrete binomial counts
-viewed through a continuous Normal approximation). The same section
-diagnoses the failure and shows which of the alternative intervals
-suppress it.
-
-\smallskip
-\noindent\emph{(iv) Derived measures.}
-The rates $\fprate$ and $\fnrate$ are intrinsic to a classifier;
-precision, the positive predictive value (PPV), the negative
-predictive value (NPV), and the F1 score are not. Each is a function
-of $\fprate$, $\fnrate$, and the prevalence $\pi$ of $\top$-inputs in
-the workload. \Cref{sec:derived-measures} writes each derived measure
-in those three variables and uses the delta method to turn the
-binomial CIs of \Cref{sec:confidence-intervals} into CIs for the
-derived quantities.
-
-\subsection*{The chapter's roadmap}
-
-\Cref{sec:binomial-estimator} retires item~(i): four short
-propositions establish that $\hat{\fprate}$ is unbiased, has the
-stated variance, equals the MLE, and achieves the Cramer-Rao lower
-bound. \Cref{sec:confidence-intervals} retires items~(ii) and~(iii):
-recap the Wald form, diagnose its sawtooth, define the Wilson,
-Clopper-Pearson, and Jeffreys intervals, and compare their coverage on
-the small-$n_0$ regime where Wald fails. \Cref{sec:derived-measures}
-retires item~(iv): defines PPV, NPV, recall, and F1 as functions of
-$(\fprate, \fnrate, \pi)$, applies the delta method, and works the
-prevalence-dependence of PPV as the central caveat.
-\Cref{sec:bloom-diagnostics} closes by running the full toolkit on a
-deployed Bloom filter with a measured workload, producing a CI for the
-filter's PPV and answering a diagnostic question (reduce the
-false-positive rate, or accept the current prevalence?).
-
-\subsection*{Notation refresh}
-
-The classification rates introduced in \Cref{sec:quantifying-noise}
-and used throughout chapters~1 to~6 carry the following symbols:
-\begin{description}
-  \item[$\fprate$] false-positive rate.
-  \item[$\fnrate$] false-negative rate.
-  \item[$\tprate$] true-positive rate, $= 1 - \fnrate$. Also called
-    \emph{recall} or \emph{sensitivity}.
-  \item[$\tnrate$] true-negative rate, $= 1 - \fprate$. Also called
-    \emph{specificity}.
-\end{description}
-\noindent The hatted forms $\hat{\fprate}, \hat{\fnrate}, \hat{\tprate},
-\hat{\tnrate}$ are the empirical estimators of those rates. Sample
-sizes are written $n_0$ for the count of trials with truth $\bot$ and
-$n_1$ for the count of trials with truth $\top$, so that
-$\hat{\fprate} = \mathrm{FP}/n_0$ and $\hat{\fnrate} = \mathrm{FN}/n_1$.
-The Normal-quantile symbol $z_{\alpha/2}$ denotes the upper-$\alpha/2$
-critical value of the standard Normal distribution and is used in the
-Wald CI of \Cref{sec:sampling-rates} and the Wilson CI of
-\Cref{sec:confidence-intervals}. Throughout this chapter we also use
-the workload prevalence $\pi = \Pr[X = \top]$ for the fraction of
-$\top$-inputs in the inference sample; this is the variable on which
-PPV, NPV, and F1 depend and on which $\fprate, \fnrate$ do not.
+\paragraph{Notation.}
+The rates of \Cref{sec:quantifying-noise} carry their usual symbols:
+$\fprate$ and $\fnrate$ for the two error rates, $\tprate = 1 - \fnrate$ for
+the true-positive rate (\emph{recall} or \emph{sensitivity}), and
+$\tnrate = 1 - \fprate$ for the true-negative rate (\emph{specificity}); the
+hatted forms are their empirical estimators. Sample sizes are $n_0$ (truth
+$\bot$) and $n_1$ (truth $\top$), so $\hat{\fprate} = \mathrm{FP}/n_0$ and
+$\hat{\fnrate} = \mathrm{FN}/n_1$, and $z_{\alpha/2}$ is the upper-$\alpha/2$
+standard-Normal quantile. The workload prevalence $\pi = \Prob{X = \top}$ is
+the fraction of $\top$-inputs in the inference sample; PPV, NPV, and $\Fone$
+depend on it and $\fprate, \fnrate$ do not.
