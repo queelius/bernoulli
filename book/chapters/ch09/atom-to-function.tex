@@ -1,197 +1,59 @@
 % §9.1 From Approximate Sets to Approximate Functions
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:atom-to-function}                  -- this section
-%
-% RESOLVED (chapter 5):
-%   \Cref{sec:from-atom-to-set}                   -- chapter 5 §5.1
-%   \Cref{ch:approximate-sets}                    -- chapter 5
-%
-% RESOLVED (chapter 8):
-%   \Cref{sec:bsc-capacity}                       -- chapter 8 §8.2
-%   \Cref{prop:bsc-capacity}                      -- chapter 8 §8.2 result
-%
-% RESOLVED (chapter 4):
-%   \Cref{sec:kronecker}                          -- chapter 4 §4.4
-%   \Cref{thm:kronecker}                          -- chapter 4 §4.4 result
-%
-% FORWARD REFS within chapter 9 (resolve in Tasks 3-5):
-%   \Cref{sec:n-ary-channels}                     -- §9.2 (Task 3)
-%   \Cref{sec:n-ary-kronecker}                    -- §9.3 (Task 4)
-%   \Cref{sec:n-ary-capacity}                     -- §9.4 (Task 5)
-%
-% §9.1 opens Part III by recasting Part II's predicate framing as one
-% point in a larger family: the codomain of an approximate function need
-% not be Boolean. Once $T$ is allowed to be anything finite (or even
-% countable), the single $(\fprate, \fnrate)$ pair gives way to a full
-% channel matrix $Q$, and the chapter 4 Kronecker theorem and chapter 8
-% BSC capacity become special cases of broader results that §9.3 and
-% §9.4 prove.
+% Monograph register: the lift from Boolean codomain (approximate set) to general
+% codomain T (approximate function), the K x L channel, two examples. Cross-refs
+% sec:from-atom-to-set, ch:approximate-sets, sec:kronecker, thm:kronecker,
+% sec:bsc-capacity, prop:bsc-capacity, sec:n-ary-channels, sec:n-ary-kronecker,
+% sec:n-ary-capacity. DEFINED: sec:atom-to-function.
 
 \section{From Approximate Sets to Approximate Functions}
 \label{sec:atom-to-function}
 
-\subsection*{Recall: an approximate set is a function with a Boolean codomain}
-
-\Cref{sec:from-atom-to-set} opened Part~II by observing that a classical
-set $A \subseteq \Universe$ is nothing more than its membership
-predicate, a function $\SetIndicator{A} : \Universe \to \{\top, \bot\}$
-that returns $\top$ on the elements of $A$ and $\bot$ elsewhere. The
-approximate analogue replaces the exact predicate with a noisy one:
-each evaluation $\ASet{A}(x)$ is an instance of the noisy-bit type
-$\Bernoulli{\BoolType}$, and the per-element rates collapse, under the
-chapter~4 axioms, to a single pair $(\fprate, \fnrate)$. The set as
-predicate is the framing that all of \Cref{ch:approximate-sets}
-inherits, and the framing pinned the codomain to $\{\top, \bot\}$.
-Part~III asks what happens when the codomain is larger.
-
-\subsection*{What if the codomain is bigger?}
-
-The predicate framing is not special to Booleans. Nothing in it relies
-on the codomain having exactly two values; what it relies on is that
-each evaluation is a draw from a distribution on the codomain, and
-that the per-query distribution depends only on which input block the
-query falls in. Replacing $\{\top, \bot\}$ with any other type $T$
-gives the \emph{approximate function},
+Part~II read a classical set as its membership predicate
+$\SetIndicator{A} : \Universe \to \{\top, \bot\}$ and made the predicate
+noisy: each evaluation $\ASet{A}(x)$ is a $\Bernoulli{\BoolType}$ instance, and
+the chapter-4 axioms collapse the per-element rates to a single pair
+$(\fprate, \fnrate)$. The framing pinned the codomain to $\{\top, \bot\}$.
+Nothing in it requires two values, only that each evaluation draws from a
+distribution on the codomain fixed by the input's block. Replacing
+$\{\top, \bot\}$ with any type $T$ gives the \emph{approximate function}
 \[
   \tilde{f} : \Universe \longrightarrow T,
 \]
-whose evaluation at $x$ is a noisy $T$-valued report. Each evaluation
-$\tilde{f}(x)$ is an instance of the lifted type $\Bernoulli{T}$, the
-$T$-valued analogue of the noisy bit of Part~I. The lifting is
-mechanical: a $\Bernoulli{T}$ instance has the same triple structure
-as a $\Bernoulli{\BoolType}$ instance, except that the output alphabet
-has $|T|$ values rather than two, and the per-block rate is a
-distribution on $T$ rather than a single error probability.
+whose evaluation $\tilde{f}(x)$ is an instance of the lifted type
+$\Bernoulli{T}$, the $T$-valued analogue of the noisy bit. For $T =
+\BoolType$ this is exactly the membership predicate of an approximate set, so
+Part~II is the special case; for $T = \{1, \ldots, K\}$ it is a $K$-way
+classifier; for $T = \mathbb{N}$ it is a counter or frequency estimator. The
+two-rate description gives way to a full per-block output distribution, and the
+$2 \times 2$ channel matrix of Part~II becomes a $K \times L$ matrix with $K$
+input blocks, $L = |T|$ output values, rows summing to one, and $(i,j)$-entry
+the probability that block $i$ produces output $j$.
 
-The framing covers a wide range of computational objects. For $T =
-\BoolType$, the codomain is $\{\top, \bot\}$ and the approximate
-function is exactly the membership predicate of an approximate set;
-Part~II is a special case. For $T = \{1, 2, \ldots, K\}$, the codomain
-is a finite enumeration, and $\tilde{f}$ is an n-ary classifier whose
-output is one of $K$ labels: the natural object for a tagger whose
-inputs are images and whose outputs name a category, or for a router
-whose inputs are queries and whose outputs name a shard. For $T =
-\mathbb{N}$, the codomain is the natural numbers, and $\tilde{f}$ is a
-counter or estimator: the natural object for a sketch that maps a
-multi-set to its approximate cardinality, or for a frequency
-estimator that maps a stream item to its approximate count. In each
-case the mathematical structure is the same: a function from a fixed
-input domain to a typed codomain, with the per-evaluation distribution
-governed by which block of inputs the query belongs to.
+\paragraph{Two examples.}
+A 3-class classifier on $T = \{\text{cat}, \text{dog}, \text{bird}\}$ has its
+input domain split into three blocks by true class, with per-block behavior a
+$3 \times 3$ confusion matrix: diagonal entries the per-class accuracies,
+off-diagonals the confusion rates, six free parameters once rows are
+normalized. A counter on $T = \mathbb{N}$ has input blocks $B_n$ indexed by
+true count $n$, and row $n$ is a distribution on $\mathbb{N}$ concentrated near
+$n$ with a tail width that records the counter's precision; the matrix is
+countably infinite but each row is still a probability distribution. In both
+cases the structure is the same: a function from inputs to a typed codomain,
+with the per-query distribution fixed by the input's block.
 
-The shift is not just an enlargement of the codomain; it is a change
-in how the rates are described. A Boolean codomain admits two rates,
-$\fprate$ for false positives and $\fnrate$ for false negatives, and
-the pair fully specifies the per-block behavior. A larger codomain
-admits more. With $|T| = K$ output values, each input block can map
-to any of $K$ outputs, and the per-block behavior is a distribution
-on the $K$ outputs rather than a single error probability. The
-two-by-two channel matrix of \Cref{sec:from-atom-to-set} becomes a
-$K \times L$ matrix where $K$ counts input blocks and $L = |T|$
-counts output values, with rows summing to one and the $(i, j)$ entry
-giving the probability that the $i$-th block produces the $j$-th
-output. The matrix is the rate description for an approximate
-function in the same way that the pair $(\fprate, \fnrate)$ was for
-an approximate set: it is the complete summary of per-query behavior,
-collapsed by the chapter~4 axioms from a potentially much larger
-parameter space.
-
-\subsection*{Two natural examples}
-
-\paragraph{A 3-class classifier.}
-Take $T = \{\text{cat}, \text{dog}, \text{bird}\}$ and let $\tilde{f}$
-be a classifier whose input is an image and whose output is one of
-the three labels. The input domain $\Universe$ partitions into three
-blocks by true class: the cats, the dogs, and the birds. The per-block
-behavior is a distribution on the three labels, recorded as a
-$3 \times 3$ confusion matrix:
-\[
-  Q \;=\;
-  \begin{pmatrix}
-    Q_{\text{cat}, \text{cat}}  & Q_{\text{cat}, \text{dog}}  & Q_{\text{cat}, \text{bird}} \\
-    Q_{\text{dog}, \text{cat}}  & Q_{\text{dog}, \text{dog}}  & Q_{\text{dog}, \text{bird}} \\
-    Q_{\text{bird}, \text{cat}} & Q_{\text{bird}, \text{dog}} & Q_{\text{bird}, \text{bird}}
-  \end{pmatrix}.
-\]
-Row $i$ records what the classifier does on inputs whose true class
-is $i$. The diagonal entries are the per-class accuracies; the
-off-diagonal entries are the confusion rates. A high-quality
-classifier has diagonal entries close to $1$; a degenerate one that
-always says ``cat'' has its first column equal to one and the rest
-zero. The two-rate description of an approximate set generalizes to
-the nine-entry description of a 3-class classifier, with six free
-parameters once the row-sum constraints are imposed. The structure
-that Part~II built for two-by-two membership channels is the
-model-order-2 specialization of the structure this chapter builds
-for $K \times L$ confusion matrices.
-
-\paragraph{A counter.}
-Take $T = \mathbb{N}$ and let $\tilde{f}$ be a counter whose input is
-a multi-set query and whose output is an estimate $\hat{n}$ of the
-true count $n$. The input domain partitions by true count: the block
-$B_n$ consists of all multi-sets whose true count is $n$. The
-per-block behavior is a distribution on $\mathbb{N}$, recording the
-probability that the counter reports $\hat{n}$ when the truth is $n$.
-The channel matrix has countably many rows and countably many
-columns, but the structure is the same: row $n$ is a distribution on
-$\mathbb{N}$ centered (one hopes) near $n$, with a tail width that
-records the counter's precision. Errors are not symmetric: the
-counter can both over-count and under-count, and the rate description
-records both directions of error as a function of the true count. For
-practical sketches (CountMin in chapter~10 and HyperLogLog in
-chapter~10's later treatment), the row distributions are
-concentrated, with most mass on $\hat{n}$ values close to $n$ and an
-analytically tractable tail. The two-rate description of an
-approximate set generalizes to a row distribution per block, with the
-precision of the counter set by the tail width of the row.
-
-\subsection*{What changes structurally}
-
-The lift from Part~II's predicate framing to Part~III's typed framing
-preserves more than it changes. The chapter~4 axioms transfer
-unchanged: Axiom~1 still requires that error events at distinct
-inputs be mutually independent, and Axiom~2 still requires that the
-per-block rate be stable across the block. What changes is the size
-of the per-block rate. With a Boolean codomain, the per-block rate is
-a single number (a Bernoulli parameter); with a $T$-valued codomain,
-the per-block rate is a distribution on $T$. The channel matrix grows
-from $2 \times 2$ to $K \times L$ accordingly, and the parameter
-count grows from $2$ to $K(L - 1)$, since each of the $K$ rows of an
-$L$-column row-stochastic matrix has $L - 1$ free entries.
-
-Two chapter-level results scale with the change.
-\Cref{thm:kronecker} of \Cref{sec:kronecker} showed that the joint
-distribution of $n$ independent queries on a $\Bernoulli{\BoolType}$
-instance factors as the Kronecker product of the $n$ per-query
-two-by-two matrices. The same factorization carries over, with the
-per-query $K \times L$ matrices in place of the two-by-two ones, and
-\Cref{sec:n-ary-kronecker} proves the general form. Similarly,
-\Cref{prop:bsc-capacity} of \Cref{sec:bsc-capacity} gave the
-closed-form capacity $C = 1 - H(\fprate)$ for the binary symmetric
-channel. The closed form is specific to the binary case, but the
-framework, capacity as the maximum mutual information over input
-distributions, generalizes to arbitrary $K \times L$ channels, and
-\Cref{sec:n-ary-capacity} develops the generalization (with closed
-forms for the symmetric sub-family, and numerical recipes for the
-rest).
-
-\subsection*{Where the chapter goes from here}
-
-The rest of the chapter formalizes the generalization in three
-steps. \Cref{sec:n-ary-channels} gives the formal definition of an
-n-ary channel as a $K \times L$ row-stochastic matrix, fixes the
-notation ($K$ uppercase for model-order, distinguishing it from the
-lowercase $k$ used for Bloom-filter hash counts and Miller-Rabin
-rounds), and works the constraints out from the chapter~4 axioms.
-\Cref{sec:n-ary-kronecker} states and proves the n-ary Kronecker
-theorem, the headline result of the chapter, which lifts
-\Cref{thm:kronecker} from the binary case to general $K$.
-\Cref{sec:n-ary-capacity} lifts \Cref{prop:bsc-capacity} from the
-BSC to general $K \times L$ channels, with closed forms where they
-exist and pointers to Blahut-Arimoto where they do not. The chapter
-closes with a bridge to chapter~10's sketches, each of which is an
-approximate function with a different choice of codomain $T$ and a
-correspondingly different channel matrix.
+\paragraph{What transfers.}
+The two chapter-4 axioms carry over unchanged, since both are independence
+claims indifferent to alphabet size: Axiom~1 keeps error events at distinct
+inputs independent, Axiom~2 keeps each per-block distribution stable. The
+parameter count grows from $2$ to $K(L-1)$ (each of $K$ rows is a distribution
+on $L$ outputs). Two structural results scale accordingly. The Kronecker
+factorization of \Cref{thm:kronecker} (\Cref{sec:kronecker}), which factored
+the joint of $m$ Boolean queries as a tensor product of $2 \times 2$ matrices,
+holds with $K \times L$ matrices in their place (\Cref{sec:n-ary-kronecker}).
+The BSC capacity $C = 1 - H(\fprate)$ of \Cref{prop:bsc-capacity}
+(\Cref{sec:bsc-capacity}) is specific to the binary case, but capacity as the
+maximum mutual information over input distributions generalizes, with closed
+forms for the symmetric sub-family and numerical recipes otherwise
+(\Cref{sec:n-ary-capacity}). \Cref{sec:n-ary-channels} gives the formal
+definition first.

@@ -1,322 +1,115 @@
 % §9.4 Capacity for n-ary Channels
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:n-ary-capacity}                    -- this section
-%   \label{prop:n-ary-capacity}                   -- strongly-symmetric capacity
-%
-% RESOLVED (chapter 8):
-%   \Cref{sec:entropy-refresher}                  -- chapter 8 §8.1
-%   \eqref{eq:entropy}                            -- §8.1 Shannon entropy
-%   \eqref{eq:binary-entropy}                     -- §8.1 binary entropy function
-%   \eqref{eq:mutual-info}                        -- §8.1 mutual information
-%   \eqref{eq:capacity-def}                       -- §8.1 capacity definition
-%   \Cref{sec:bsc-capacity}                       -- chapter 8 §8.2
-%   \Cref{prop:bsc-capacity}                      -- chapter 8 §8.2 BSC capacity
-%   \eqref{eq:bsc-capacity}                       -- §8.2 closed form
-%
-% RESOLVED (chapter 9, sibling sections):
-%   \Cref{sec:n-ary-channels}                     -- §9.2
-%   \Cref{def:n-ary-channel}                      -- §9.2 definition
-%   \Cref{sec:n-ary-kronecker}                    -- §9.3
-%
-% FORWARD REFS within chapter 9 (resolve in Task 6):
-%   \Cref{sec:bridge-to-sketches}                 -- §9.5 (Task 6)
-%
-% FORWARD REFS to later chapters (Plan 0 stubs):
-%   \Cref{ch:sketches}                            -- chapter 10 (stub)
-%
-% §9.4 generalizes the BSC capacity result of chapter 8 §8.2 from the
-% $K = L = 2$ Boolean case to the general n-ary channel. The general
-% maximization has no closed form (Blahut-Arimoto handles it
-% numerically), but two structural sub-families do: the symmetric
-% n-ary channel and the strongly symmetric n-ary channel. The worked
-% example computes capacity for a 4-state strongly symmetric channel
-% with per-input error $0.1$.
+% Monograph register + the symmetric-channel fix. The closed form
+% C = log2 L - H(r) holds for WEAKLY symmetric channels (rows are permutations of
+% one another AND columns have equal sums, so uniform input -> uniform output),
+% matching Cover-Thomas and the sec:bib-notes-ch9 note; rows-permutation alone is
+% not sufficient. Strongly symmetric (rows + columns permutations) is the clean
+% special case. rem:capacity-bound salvages ex:ch9-10 (C <= log2 L). Cross-refs
+% eq:capacity-def, eq:mutual-info, sec:entropy-refresher, prop:bsc-capacity,
+% eq:bsc-capacity, def:n-ary-channel, sec:n-ary-kronecker, sec:bridge-to-sketches.
+% DEFINED: sec:n-ary-capacity, prop:n-ary-capacity, eq:n-ary-capacity-def,
+% eq:symmetric-capacity, eq:strongly-symmetric-capacity, rem:capacity-bound.
 
 \section{Capacity for n-ary Channels}
 \label{sec:n-ary-capacity}
 
-\Cref{sec:n-ary-kronecker} settled the structural question: an n-ary
-channel with $K \times L$ matrix $Q$ has the same Kronecker
-factorization across queries that the Boolean case enjoyed in
-chapter~4. This section settles the information-theoretic question:
-how many bits per use does the channel convey? The formula of
-chapter~8 §8.2, $C = 1 - H(\fprate)$, is the $K = L = 2$ special case
-of a general definition that lifts without surprise to arbitrary $K$
-and $L$. The lift is mostly definitional; what changes is that the
-optimization underlying the definition no longer has a single closed
-form, and a class of structurally symmetric channels has to be
-identified to recover one. The two sub-families that do admit closed
-forms are stated, the general case is bridged to the numerical
-literature, and the worked example computes capacity for a four-state
-strongly symmetric channel.
+The BSC capacity $C = 1 - H(\fprate)$ of \Cref{prop:bsc-capacity} is the
+$K = L = 2$ case of a definition that lifts to any $K \times L$ channel. The
+lift is mostly definitional; what changes is that the optimization no longer has
+a single closed form except for a symmetric sub-family.
 
-\subsection*{Recall: capacity for the BSC}
+\subsection*{The general case}
 
-Chapter~8 §8.1 defined channel capacity as the maximum mutual
-information achievable by choosing the input distribution freely:
-\[
-  C \;=\; \max_{P_X} I(X; Y),
-\]
-the expression \eqref{eq:capacity-def} of \Cref{sec:entropy-refresher},
-with $P_X$ ranging over distributions on the input alphabet and the
-conditional $\Pr[Y \mid X]$ fixed by the channel matrix. For the
-binary symmetric channel of chapter~2 \S2.1, the closed form
-\eqref{eq:bsc-capacity} is
-\[
-  C \;=\; 1 - H(\fprate)
-  \quad \text{bits per channel use,}
-\]
-attained at the uniform input $P_X(\top) = P_X(\bot) = 1/2$
-(\Cref{prop:bsc-capacity}). The argument leading to that form used two
-facts about the BSC. First, the conditional entropy $H(Y \mid X)$
-equals $H(\fprate)$ for every input, because the two rows of $Q$ are
-permutations of each other; averaging over any input distribution
-gives the same $H(\fprate)$. Second, the output marginal entropy $H(Y)$
-is maximized when the output is uniform on $\{\top, \bot\}$, which by
-column-symmetry of $Q$ happens precisely at uniform input. Both facts
-generalize to a class of n-ary channels with the same symmetry
-structure; both fail for channels without it, and the general
-optimization has to fall back on numerical methods. The two strands
-organize the rest of the section.
-
-\subsection*{The general n-ary case}
-
-For an n-ary channel $(X, Y, Q)$ in the sense of
-\Cref{def:n-ary-channel}, the capacity definition copies over
-verbatim. An input distribution $P_X$ is now a probability vector on
-the $K$ blocks $B_1, \ldots, B_K$, with $P_X(B_i) \ge 0$ summing to
-one. The output distribution $P_Y$ it induces is
-\[
-  P_Y(j) \;=\; \sum_{i = 1}^{K} P_X(B_i) \, Q_{ij},
-  \qquad j = 1, \ldots, L,
-\]
-a $K$-fold average of the rows of $Q$ weighted by the input
-distribution. The mutual information \eqref{eq:mutual-info} between
-input and output is
-\[
-  I(X; Y) \;=\; H(Y) - H(Y \mid X),
-\]
-where $H(Y \mid X) = \sum_{i = 1}^{K} P_X(B_i) \, H(Q_{i\,\cdot})$ is
-the input-averaged row entropy of $Q$ and $H(Y)$ is the entropy of the
-induced output distribution $P_Y$. The capacity is the maximum over
-input distributions on the $K$ blocks:
+For an n-ary channel (\Cref{def:n-ary-channel}), an input distribution $P_X$ on
+the $K$ blocks induces $P_Y(j) = \sum_{i} P_X(B_i) Q_{ij}$, and the capacity
+\eqref{eq:capacity-def} is
 \begin{equation}
 \label{eq:n-ary-capacity-def}
-  C \;=\; \max_{P_X} \;\bigl[ H(Y) - H(Y \mid X) \bigr],
+  C \;=\; \max_{P_X}\, \bigl[ H(Y) - H(Y \mid X) \bigr],
+  \qquad H(Y \mid X) = \sum_{i=1}^{K} P_X(B_i)\, H(Q_{i\,\cdot}),
 \end{equation}
-the same object as \eqref{eq:capacity-def}, now ranging over the
-$(K - 1)$-dimensional simplex of distributions on input blocks rather
-than the one-dimensional interval $[0, 1]$ that parametrized the BSC
-input. The dimension of the optimization grew, but the object did
-not.
+the same object as the BSC's, now over the $(K-1)$-simplex rather than the
+interval $[0,1]$. The mutual information is concave in $P_X$, so the maximum
+exists, but the maximizer satisfies implicit stationarity conditions with no
+closed form in general. The \emph{Blahut--Arimoto} algorithm, an alternating
+fixed-point iteration over $P_X$ and the posterior $\Prob{X \mid Y}$, converges
+geometrically to the capacity-achieving distribution (\textcite[Ch.~10]{cover-thomas}),
+making the general n-ary capacity computable to any precision.
 
-The general optimization has no closed form. The function $I(X; Y)$
-viewed as a function of $P_X$ on the input simplex is concave (a
-standard fact from \cite{cover-thomas}), so the maximum exists and is
-unique up to ties on the boundary, but the maximizing $P_X$ has to
-satisfy a system of stationarity conditions whose solution is
-implicit. The standard numerical recipe is the \emph{Blahut-Arimoto
-algorithm}, a fixed-point iteration over alternating updates of $P_X$
-and a posterior $\Pr[X \mid Y]$. Each iteration tightens a lower
-bound on $I(X; Y)$, the iterates converge to the capacity-achieving
-distribution under mild conditions, and the convergence rate is
-geometric. Cover and Thomas~\cite{cover-thomas} chapter~10 develops
-the algorithm in detail and proves its convergence; the chapter~9
-notebook implements it for the worked examples that close this section
-and for the exercises. The takeaway for the reader is that the general
-n-ary capacity is computable to any precision, just not via a single
-analytic expression. The two sub-families below recover analytic
-expressions by imposing enough structural symmetry on $Q$ to collapse
-the maximization to a single calculation.
+\begin{remark}[The output-entropy ceiling]
+\label{rem:capacity-bound}
+Every n-ary channel obeys $C \le \log_2 L$: since $H(Y \mid X) \ge 0$,
+$C \le \max_{P_X} H(Y) \le \log_2 L$, the maximum entropy of an $L$-symbol
+alphabet. Equality requires both $H(Y \mid X) = 0$ (the channel is a noise-free
+function of the input) and an input distribution making $P_Y$ uniform, that is,
+a deterministic surjection from input blocks onto the $L$ outputs. This is the
+n-ary ceiling that $\log_2 2 = 1$ bit was for the BSC.
+\end{remark}
 
-\subsection*{Symmetric and strongly symmetric channels}
+\subsection*{Symmetric channels}
 
-The BSC's two key properties were that its rows are permutations of
-each other (which made $H(Y \mid X)$ input-independent) and that its
-columns are permutations of each other (which made $P_Y$ uniform at
-uniform input). Lifting each property to the n-ary case identifies a
-sub-family of channels for which capacity has a closed form, and
-combining both properties identifies a still smaller sub-family for
-which the closed form is especially clean.
+The BSC's closed form rested on two facts: its rows are permutations of one
+another (so $H(Y \mid X)$ is input-independent) and its columns are too (so
+uniform input gives uniform output). Lifting both gives a sub-family with a
+closed-form capacity.
 
-\paragraph{Symmetric n-ary channel.}
-An n-ary channel is \emph{symmetric} if every row of $Q$ is a
-permutation of every other row: there is a single multiset of
-probabilities $\mathbf{r} = (r_1, r_2, \ldots, r_L)$ summing to one,
-and each row of $Q$ is some rearrangement of $\mathbf{r}$. Under this
-hypothesis, every row of $Q$ has the same entropy
-$H(\mathbf{r}) = -\sum_{j} r_j \log_2 r_j$, so the conditional entropy
-$H(Y \mid X) = \sum_i P_X(B_i) \, H(Q_{i\,\cdot}) = H(\mathbf{r})$ is
-input-independent. The capacity definition then reduces to
-\[
-  C \;=\; \max_{P_X} H(Y) \;-\; H(\mathbf{r}),
-\]
-and the remaining maximization is over the output marginal entropy
-alone. The output alphabet has $L$ values, so $H(Y) \le \log_2 L$
-with equality at the uniform output distribution $P_Y(j) = 1/L$. The
-symmetric hypothesis does not by itself guarantee that uniform input
-produces uniform output: that requires the column structure of the
-next sub-family. The bound $C \le \log_2 L - H(\mathbf{r})$ is
-nevertheless tight whenever an input distribution making $P_Y$ uniform
-exists, which is generic for symmetric channels (every row permutation
-of $\mathbf{r}$ contributes the same total mass to every output, and
-the uniform input distribution suffices). The closed form for a
-symmetric n-ary channel is therefore
+Call a channel \emph{weakly symmetric} if every row of $Q$ is a permutation of a
+common multiset $\mathbf{r} = (r_1, \ldots, r_L)$ \emph{and} every column has the
+same sum. The first condition makes $H(Y \mid X) = H(\mathbf{r})$
+input-independent; the second makes the uniform input $P_X(B_i) = 1/K$ produce
+the uniform output $P_Y(j) = 1/L$, attaining $H(Y) = \log_2 L$. (Rows being
+permutations of one another does \emph{not} alone uniformize the output: the
+column sums must match.) Hence
 \begin{equation}
 \label{eq:symmetric-capacity}
   C \;=\; \log_2 L \;-\; H(\mathbf{r}),
 \end{equation}
-with $\mathbf{r}$ any row of $Q$ (the choice does not matter, since
-all rows have the same entropy). The result is the n-ary analogue of
-$C = 1 - H(\fprate)$: the term $\log_2 L$ is the maximum possible
-output entropy of an $L$-valued channel, the term $H(\mathbf{r})$ is
-the irreducible per-use uncertainty from the row distribution, and the
-difference is the per-use information bound.
+the n-ary analogue of $C = 1 - H(\fprate)$: the ceiling $\log_2 L$ less the
+irreducible per-use row uncertainty $H(\mathbf{r})$.
 
-\paragraph{Strongly symmetric n-ary channel.}
-A symmetric channel is \emph{strongly symmetric} if, in addition, the
-columns of $Q$ are also permutations of one another. The two
-hypotheses together force a very rigid structure on $Q$. A standard
-parametrization writes a single per-input error probability $p_e \in
-[0, 1)$ and spreads the off-diagonal mass uniformly across the other
-$L - 1$ outputs:
+A \emph{strongly symmetric} channel has, in addition, columns that are
+permutations of one another. The clean parametrization spreads a single error
+probability $p_e$ uniformly over the $L - 1$ wrong outputs,
 \[
-  Q_{ij}
-  \;=\;
+  Q_{ij} =
   \begin{cases}
-    1 - p_e & j = i, \\[2pt]
-    \dfrac{p_e}{L - 1} & j \ne i.
+    1 - p_e & j = i, \\
+    p_e/(L - 1) & j \neq i,
   \end{cases}
 \]
-The matrix is square with $K = L$, the diagonal is the common
-correct-transmission probability $1 - p_e$, and every off-diagonal
-entry is the same $p_e / (L - 1)$. The BSC of chapter~2 is the
-$L = 2$ instance with $p_e = \fprate$. Each row of $Q$ has the form
-$\mathbf{r} = (1 - p_e, \,p_e/(L-1), \ldots, \,p_e/(L-1))$, with one
-``correct'' coordinate and $L - 1$ uniform ``error'' coordinates, and
-the row entropy is
-\[
-  H(\mathbf{r})
-  \;=\; H\!\left(1 - p_e,\; \frac{p_e}{L - 1},\; \ldots,\;
-                \frac{p_e}{L - 1}\right).
-\]
-Substituting into \eqref{eq:symmetric-capacity} gives the closed form
-that the rest of the section uses.
+a square $K = L$ matrix with the BSC as its $L = 2$, $p_e = \fprate$ instance.
 
 \begin{proposition}[Strongly symmetric n-ary capacity]
 \label{prop:n-ary-capacity}
-The capacity of a strongly symmetric n-ary channel with output
-alphabet size $L$ and total error probability $p_e \in [0, 1)$ per
-input is
+A strongly symmetric channel with output size $L$ and per-input error $p_e \in
+[0, 1)$ has capacity
 \begin{equation}
 \label{eq:strongly-symmetric-capacity}
-  C \;=\; \log_2 L \;-\; H\!\left(1 - p_e,\;
-              \tfrac{p_e}{L - 1},\;\ldots,\; \tfrac{p_e}{L - 1}\right)
-  \quad \text{bits per channel use,}
+  C \;=\; \log_2 L \;-\; H\!\left(1 - p_e,\; \tfrac{p_e}{L-1},\; \ldots,\;
+          \tfrac{p_e}{L-1}\right)
+  \quad \text{bits per use,}
 \end{equation}
-attained by the uniform input distribution $P_X(B_i) = 1/L$ for every
-input block.
+attained at the uniform input.
 \end{proposition}
 
-At $L = 2$ and $p_e = \fprate$, the row distribution
-$\mathbf{r} = (1 - \fprate, \fprate)$ has entropy $H(\fprate)$,
-giving $C = \log_2 2 - H(\fprate) = 1 - H(\fprate)$. The
-strongly-symmetric formula recovers \eqref{eq:bsc-capacity} exactly,
-confirming that the n-ary capacity result subsumes the BSC capacity
-of chapter~8 §8.2 as the $L = 2$ specialization. The endpoints carry
-across too: $p_e = 0$ gives $H(\mathbf{r}) = 0$ and $C = \log_2 L$
-(noiseless $L$-ary channel transmits $\log_2 L$ bits per use); $p_e =
-(L - 1)/L$ gives the uniform row $\mathbf{r} = (1/L, \ldots, 1/L)$,
-$H(\mathbf{r}) = \log_2 L$, and $C = 0$ (maximally noisy $L$-ary
-channel transmits nothing). The strongly-symmetric family is the
-cleanest generalization of the BSC: a single error parameter
-parametrizes the whole family, and the closed form mirrors the
-chapter~8 result with $\log_2 L$ replacing the ceiling of one bit.
+At $L = 2$, $p_e = \fprate$, the row $(1 - \fprate, \fprate)$ has entropy
+$H(\fprate)$ and $C = 1 - H(\fprate)$, recovering \eqref{eq:bsc-capacity}. The
+endpoints carry over: $p_e = 0$ gives $C = \log_2 L$ (noiseless $L$-ary
+channel), and $p_e = (L-1)/L$ gives the uniform row and $C = 0$.
 
-\subsection*{Worked example: a 4-state strongly symmetric channel}
+\subsection*{Worked example}
 
-Take $L = 4$ and $p_e = 0.1$. The channel matrix is
+Take $L = 4$, $p_e = 0.1$, so each off-diagonal entry is $0.1/3 \approx 0.0333$
+and the channel is strongly symmetric. The ceiling is $\log_2 4 = 2$ bits. The
+row entropy is
 \[
-  Q \;=\;
-  \begin{pmatrix}
-    0.9       & 0.0333 & 0.0333 & 0.0333 \\
-    0.0333    & 0.9    & 0.0333 & 0.0333 \\
-    0.0333    & 0.0333 & 0.9    & 0.0333 \\
-    0.0333    & 0.0333 & 0.0333 & 0.9
-  \end{pmatrix},
+  H(\mathbf{r}) = -0.9 \log_2 0.9 - 3 \cdot \tfrac{0.1}{3} \log_2 \tfrac{0.1}{3}
+  \approx 0.137 + 0.490 = 0.627 \text{ bits,}
 \]
-writing the off-diagonal entry $p_e / (L - 1) = 0.1 / 3 \approx
-0.0333$ to four significant figures. Each row sums to $0.9 + 3 \cdot
-0.0333 \approx 1$; the diagonal is the common $90\%$ correct
-transmission probability; every off-diagonal entry is the same
-$3.33\%$. The channel is strongly symmetric by construction (rows and
-columns are both permutations of each other), so
-\Cref{prop:n-ary-capacity} applies.
-
-The output-alphabet ceiling is
-\[
-  \log_2 L \;=\; \log_2 4 \;=\; 2 \text{ bits per use.}
-\]
-The row entropy is
-\[
-  H(\mathbf{r})
-  \;=\; -0.9 \log_2 0.9
-       \;-\; 3 \cdot \tfrac{0.1}{3} \log_2 \tfrac{0.1}{3}.
-\]
-The two terms compute as follows. The diagonal contribution is
-\[
-  -0.9 \log_2 0.9
-  \;\approx\; -0.9 \cdot (-0.152)
-  \;\approx\; 0.137 \text{ bits.}
-\]
-The off-diagonal contribution is
-\[
-  -3 \cdot 0.0333 \cdot \log_2 0.0333
-  \;\approx\; -3 \cdot 0.0333 \cdot (-4.908)
-  \;\approx\; 0.490 \text{ bits.}
-\]
-Adding gives
-\[
-  H(\mathbf{r})
-  \;\approx\; 0.137 + 0.490
-  \;=\; 0.627 \text{ bits.}
-\]
-The capacity is the difference:
-\[
-  C
-  \;=\; \log_2 4 - H(\mathbf{r})
-  \;\approx\; 2 - 0.627
-  \;\approx\; 1.373 \text{ bits per channel use.}
-\]
-A four-symbol channel with a $90\%$ per-symbol correct-transmission
-probability conveys about $1.37$ bits per use, well below the
-noiseless ceiling of $2$ bits and well above the BSC's $0.531$ bits
-per use at the same per-symbol error rate of $0.1$. The gap to the
-ceiling shrinks as $L$ grows for a fixed $p_e$, because the off-diagonal
-mass spreads more thinly across more outputs and the row entropy
-grows sublinearly in $L$ at fixed $p_e$. The chapter~9 notebook
-verifies the numerical value $C \approx 1.373$ against a
-Blahut-Arimoto run on the same $Q$, confirming both the
-strongly-symmetric closed form and the general numerical recipe.
-
-\subsection*{Where capacity goes next}
-
-The capacity expression \eqref{eq:n-ary-capacity-def} closes the
-information-theoretic loop for chapter~9. Every n-ary channel of the
-form fixed by \Cref{def:n-ary-channel} has a well-defined per-use
-information bound; the strongly symmetric sub-family has the closed
-form \eqref{eq:strongly-symmetric-capacity} that
-\Cref{prop:n-ary-capacity} records; and the general case yields to
-Blahut-Arimoto when a closed form is not available.
-\Cref{sec:bridge-to-sketches} previews how concrete sketches
-instantiate the chapter~9 framework: a CountMin sketch is an n-ary
-channel with $L = \infty$ and a one-sided error profile; a
-HyperLogLog is an n-ary channel with $L = \infty$ and a relative-error
-profile; a MinHash is an n-ary channel with $L = [0, 1]$ output. Each
-sketch carries its own $Q$, its own capacity, and its own
-specialization of the chapter~9 machinery. Chapter~10 instantiates the
-framework in detail, building three sketches from scratch with
-explicit error bounds and composition rules.
+so $C = 2 - 0.627 \approx 1.373$ bits per use, well below the noiseless ceiling
+of $2$ and well above the BSC's $0.531$ at the same per-symbol error $0.1$. The
+gap to the ceiling shrinks as $L$ grows at fixed $p_e$: the error mass spreads
+more thinly and the row entropy grows sublinearly. \Cref{sec:bridge-to-sketches}
+previews how concrete sketches, each an n-ary channel with its own $Q$ and its
+own symmetry, instantiate the framework.
