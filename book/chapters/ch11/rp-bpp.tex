@@ -1,269 +1,135 @@
 % §11.3 RP, BPP, and Bernoulli Type
 %
-% Defines the three classical randomized complexity classes RP, coRP, ZPP,
-% and BPP, in the standard polynomial-time / two-state-error format, then
-% reframes each one inside the Part~II vocabulary: a language $L$ belongs to
-% one of these classes exactly when its decision algorithm is a
-% $\Bernoulli{\BoolType}$ instance of a certain shape on the rate plane.
-% RP sits on the FNR-zero axis of the perfect filter line; coRP on the
-% FPR-zero axis; ZPP at the origin; BPP in the interior. Amplification by
-% repetition is the composition theorem of chapter~3 specialized to the
-% majority-vote channel, with a Chernoff tail bound deferred to §11.4.
-%
-% Cross-reference resolution status:
-%
-% RESOLVED (chapters 3, 4, 5, 6, 7, drafted in Plans 1-7):
-%   \Cref{def:bernoulli-bool}       -- chapter 4 §4.5 $\Bernoulli{\BoolType}$
-%   \Cref{thm:composition}          -- chapter 3 §3.3 composition theorem
-%   \Cref{ax:element-indep}         -- chapter 4 §4.2 Axiom 1
-%   \Cref{def:perfect-filter-line}  -- chapter 6 §6.4 perfect filter line
-%   \Cref{sec:perfect-filter-line}  -- chapter 6 §6.4
-%   \Cref{def:ppv}                  -- chapter 7 §7.4 PPV
-%   \Cref{def:npv}                  -- chapter 7 §7.4 NPV
-%
-% INTERNAL (chapter 11):
-%   \Cref{sec:miller-rabin-formal}  -- §11.1 (Plan 11 Task 2)
-%   \Cref{thm:miller-rabin-formal}  -- §11.1 theorem
-%   \Cref{def:monte-carlo}          -- §11.2 (Plan 11 Task 3)
-%   \Cref{def:las-vegas}            -- §11.2 (Plan 11 Task 3)
-%   \Cref{sec:sample-complexity}    -- §11.4 (Plan 11 Task 5, forward)
-%   \Cref{thm:chernoff}             -- §11.4 (Plan 11 Task 5, forward)
+% Monograph register + the RP/coRP axis fix. The draft swapped the axis labels:
+% RP has eps = 0 (FPR-ZERO axis, certain accept, the perfect-hash-filter shape),
+% coRP has omega = 0 (FNR-ZERO axis, certain reject, the BLOOM-filter shape).
+% Miller-Rabin puts Composites in RP (certain composite-witness) and Primes in
+% coRP, consistent with §11.1/§11.2/§11.4 (which correctly frame MR-primality as
+% omega = 0 / FNR-zero). The table VALUES, the Schwartz-Zippel example, the PPV
+% discussion, and both amplification theorems were already correct. Cross-refs
+% def:bernoulli-bool, thm:composition, ax:element-indep, def:perfect-filter-line,
+% sec:perfect-filter-line, def:ppv, def:npv, sec:one-sided-two-sided,
+% def:bloom-filter, ch:perfect-hash-filters, thm:miller-rabin-formal,
+% def:monte-carlo, sec:sample-complexity, thm:chernoff. DEFINED: sec:rp-bpp,
+% def:rp, def:corp, def:zpp, def:bpp, thm:rp-amplification, thm:bpp-amplification.
 
 \section{RP, BPP, and Bernoulli Type}
 \label{sec:rp-bpp}
 
-The Monte Carlo regime of \Cref{def:monte-carlo} is the regime in which a
-single coin sequence may produce a wrong answer with bounded probability.
-Once one accepts that contract, the obvious next question is which decision
-problems admit a polynomial-time algorithm of that shape, and how the
-admissible shapes carve up by where the error is allowed to land. The
-answer is the family of randomized complexity classes RP, coRP, ZPP, and
-BPP. This section states each one in its standard form, then reads it back
-through the Part~II vocabulary: a language is in RP exactly when its
-decision algorithm sits on the FNR-zero axis of the perfect filter line of
-\Cref{def:perfect-filter-line}; coRP is the FPR-zero axis; ZPP is the
-origin; BPP is the interior of the rate plane below a fixed bound. The
-correspondence is not an analogy. The complexity-class definitions and the
-chapter~6 perfect-filter-line classification are the same axes seen from
-two angles.
+The Monte Carlo decision problems (\Cref{def:monte-carlo}) carve into the
+classes RP, coRP, ZPP, and BPP by where the error is allowed to land. Each is a
+location on the chapter-6 rate plane: RP and coRP on the two axes of the perfect
+filter line, ZPP at the origin, BPP in the interior. The correspondence is not
+an analogy; the complexity-class definitions and the chapter-6 classification are
+the same axes from two angles.
 
-%---------------------------------------------------------------------------
-\subsection*{RP: one-sided error in the false-positive direction}
+\subsection*{RP: certain accept, the FPR-zero axis}
 
 \begin{definition}[Randomized Polynomial Time, RP]
 \label{def:rp}
-A language $L \subseteq \{0,1\}^*$ is in the class \emph{RP} when there
-exists a polynomial-time randomized algorithm $A$ and a polynomial $p$
-such that on input $x \in \{0,1\}^*$, $A$ reads at most $p(|x|)$ random
-bits, runs in time at most $p(|x|)$, and satisfies
-\begin{align*}
-  x \in L      &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;\ge\; 1/2,\\
-  x \notin L   &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;=\; 0.
-\end{align*}
-The probability is over $A$'s coin flips alone; $x$ is fixed in both lines.
+A language $L$ is in \emph{RP} when a polynomial-time randomized $A$ satisfies
+$x \in L \Rightarrow \Prob{A(x) = 1} \ge 1/2$ and $x \notin L \Rightarrow
+\Prob{A(x) = 1} = 0$, the probability over $A$'s coins.
 \end{definition}
 
-Read the two lines through the $2 \times 2$ channel of
-\Cref{def:bernoulli-bool}, with $A(x) = 1$ identified with the report
-\textsc{in-$L$} and the truth value $\mathbf{1}_{x \in L}$ identified with
-the predicate $P(x)$. The second line is the statement that the algorithm
-never reports \textsc{in-$L$} on an input that is not in $L$:
-\[
-  \fprate \;=\; \Pr[A(x) = 1 \mid x \notin L] \;=\; 0.
-\]
-The first line is the statement that on inputs that are in $L$, the
-algorithm reports \textsc{in-$L$} with probability at least $1/2$, which
-is the false-negative bound
-\[
-  \fnrate \;=\; \Pr[A(x) = 0 \mid x \in L] \;\le\; 1/2.
-\]
-An RP algorithm is, channel-for-channel, a $\Bernoulli{\BoolType}$
-instance with $\fprate = 0$ and $\fnrate \le 1/2$. The class RP is the
-complexity-class incarnation of the FNR-zero axis of the chapter~6
-perfect filter line, polynomially constrained and polynomially advised.
-Where chapter~5 \S5.4 named the Bloom filter as the canonical FNR-zero
-approximate set, RP plays the same role for decision algorithms: a
-witness seen is a witness believed, and the only thing that can go wrong
-is failing to see the witness when one exists. The constant $1/2$ in the
-first line is conventional; any constant in $(0, 1)$ would give the same
-class by amplification, a point we return to below.
+Read $A(x) = 1$ as the report \textsc{in-}$L$. The second line says the algorithm
+never accepts a non-member, $\fprate = \Prob{A(x) = 1 \mid x \notin L} = 0$; the
+first says it accepts a member with probability $\ge 1/2$, $\fnrate = \Prob{A(x)
+= 0 \mid x \in L} \le 1/2$. An RP algorithm is a $\Bernoulli{\BoolType}$ instance
+with $\fprate = 0$, $\fnrate \le 1/2$: it sits on the \emph{FPR-zero} axis of the
+perfect filter line (\Cref{def:perfect-filter-line}). An accept is certain, a
+witness seen is a witness believed, and the only failure is missing a witness
+that exists. This is the certain-accept shape, the decision-algorithm kin of the
+perfect hash filter of \Cref{ch:perfect-hash-filters}, not the Bloom filter,
+whose certainty is on the reject side.
 
-The canonical RP problem is \textsc{Non-Zero Multivariate Polynomial},
-which asks, given an arithmetic circuit computing a polynomial $f$ over a
-finite field, whether $f$ is not the zero polynomial. The
-Schwartz-Zippel-DeMillo-Lipton lemma says that if $f$ is not zero, a
-uniformly random assignment of values to its variables produces a non-zero
-output with probability at least $1 - d/|F|$, where $d$ is the total
-degree and $|F|$ the field size. If $f$ is the zero polynomial, every
-assignment produces zero. Reporting \textsc{non-zero} when the random
-assignment evaluates to non-zero is exactly the RP shape: silent on zero
-polynomials (no false positives), occasionally wrong on non-zero
-polynomials (false negatives at rate $\le d/|F|$).
+The canonical RP problem is \textsc{Non-Zero Polynomial}: given a circuit for a
+polynomial $f$ over a finite field, decide whether $f \not\equiv 0$. By
+Schwartz--Zippel, a random assignment makes a non-zero $f$ evaluate non-zero
+with probability $\ge 1 - d/|F|$ (degree $d$, field size $|F|$), while a zero
+$f$ always evaluates zero. Reporting \textsc{non-zero} on a non-zero evaluation
+is the RP shape: silent on zero polynomials ($\fprate = 0$), occasionally
+missing a non-zero one ($\fnrate \le d/|F|$).
 
-%---------------------------------------------------------------------------
 \subsection*{coRP and ZPP: the mirror axis and the origin}
 
-\begin{definition}[Co-Randomized Polynomial Time, coRP]
+\begin{definition}[coRP and ZPP]
 \label{def:corp}
-A language $L$ is in \emph{coRP} when its complement $\bar L$ is in RP.
-Equivalently, there exists a polynomial-time randomized algorithm $A$
-with
-\begin{align*}
-  x \in L      &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;=\; 1,\\
-  x \notin L   &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;\le\; 1/2.
-\end{align*}
+$L \in \emph{coRP}$ when $\bar L \in \mathrm{RP}$: equivalently $x \in L
+\Rightarrow \Prob{A(x) = 1} = 1$ and $x \notin L \Rightarrow \Prob{A(x) = 1} \le
+1/2$. \label{def:zpp} $L \in \emph{ZPP}$ when $L \in \mathrm{RP} \cap
+\mathrm{coRP}$.
 \end{definition}
 
-The two lines are the mirror image of \Cref{def:rp}. Reading them as a
-channel, $\fnrate = 0$ and $\fprate \le 1/2$. A coRP algorithm is a
-$\Bernoulli{\BoolType}$ instance on the FPR-zero axis of the perfect
-filter line: an answer of \textsc{not-in-$L$} is always correct; the only
-error mode is reporting \textsc{in-$L$} when the input is not in $L$.
-Miller-Rabin (\Cref{thm:miller-rabin-formal}) is the canonical coRP
-algorithm for the language \textsc{Composites}: the algorithm reports
-\textsc{composite} only with a witness in hand, and that report is always
-correct; the failure mode is reporting \textsc{prime} on a composite
-input. Equivalently, the language \textsc{Primes} is in RP via the same
-algorithm with output negated, and historically this was the textbook
-example of a non-trivial RP language until the discovery of the
-deterministic polynomial-time AKS primality test in 2002.
+A coRP algorithm has $\fnrate = 0$, $\fprate \le 1/2$: it sits on the
+\emph{FNR-zero} axis, the certain-\emph{reject} shape, the decision-algorithm kin
+of the Bloom filter (\Cref{def:bloom-filter}), whose $\bot$ report is certain.
+Miller-Rabin (\Cref{thm:miller-rabin-formal}) is the canonical example: a
+composite witness certifies compositeness, so on the language \textsc{Primes} a
+reject is certain ($\fnrate = 0$, a prime is never rejected) while a composite is
+occasionally accepted as prime ($\fprate \le 1/4$). Thus $\textsc{Primes} \in
+\mathrm{coRP}$, and dually $\textsc{Composites} \in \mathrm{RP}$ via the same
+algorithm, where instead a composite-witness is a certain \emph{accept} of
+compositeness. (This was the textbook RP/coRP example until the deterministic
+AKS test of 2002.) ZPP, at $\fprate = \fnrate = 0$, is the origin: exact
+decisions paid for in the runtime tail, equivalently the expected-polynomial-time
+Las Vegas class.
 
-\begin{definition}[Zero-error Probabilistic Polynomial Time, ZPP]
-\label{def:zpp}
-A language $L$ is in \emph{ZPP} when $L \in \mathrm{RP} \cap \mathrm{coRP}$.
-Equivalently, there exists an expected-polynomial-time Las Vegas algorithm
-(\Cref{def:las-vegas}) for $L$: an algorithm that always returns the
-correct answer and whose expected runtime is polynomial in $|x|$.
-\end{definition}
-
-The equivalence is the Las Vegas / Monte Carlo conversion of \S11.2.
-Given an RP algorithm $A_+$ and a coRP algorithm $A_-$ for the same
-language $L$, run them in parallel on input $x$ until one of them
-produces a definite answer. $A_+$ produces a definite \textsc{in-$L$} on
-every coin sequence that triggers its acceptance branch; $A_-$ produces a
-definite \textsc{not-in-$L$} on every coin sequence that triggers its
-rejection branch. On every input, at least one of the two algorithms is
-allowed to be definite on a random fraction $\ge 1/2$ of its coin
-sequences (the fraction depends on whether $x \in L$ or not). The
-expected number of parallel rounds to obtain a definite answer is
-therefore bounded by a constant, and the overall runtime is expected
-polynomial. Conversely, an expected-polynomial-time Las Vegas algorithm
-gives an RP algorithm by the truncation trick of \S11.2 (run for a
-constant multiple of the expected time, report \textsc{not-in-$L$} on
-timeout) and a coRP algorithm by the opposite truncation. ZPP is the
-complexity-class incarnation of the origin of the rate plane: $\fprate =
-\fnrate = 0$, exact decisions, paid for in runtime tail.
-
-%---------------------------------------------------------------------------
-\subsection*{BPP: the interior of the rate plane}
+\subsection*{BPP: the interior}
 
 \begin{definition}[Bounded-error Probabilistic Polynomial Time, BPP]
 \label{def:bpp}
-A language $L$ is in \emph{BPP} when there exists a polynomial-time
-randomized algorithm $A$ such that
-\begin{align*}
-  x \in L      &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;\ge\; 2/3,\\
-  x \notin L   &\;\;\Rightarrow\;\; \Pr[A(x) = 1] \;\le\; 1/3.
-\end{align*}
+$L \in \emph{BPP}$ when a polynomial-time randomized $A$ satisfies $x \in L
+\Rightarrow \Prob{A(x) = 1} \ge 2/3$ and $x \notin L \Rightarrow \Prob{A(x) = 1}
+\le 1/3$.
 \end{definition}
 
-The two lines are now both bounded away from $1/2$ on the right side, but
-neither is forced to $0$ or $1$. Read as a channel, $\fnrate \le 1/3$ and
-$\fprate \le 1/3$, so the BPP algorithm sits in the interior of the rate
-plane, off both axes of the perfect filter line. The constants $2/3$ and
-$1/3$ are conventional; any pair $(p, q)$ with $p > 1/2 > q$ gives the
-same class by amplification (\Cref{thm:bpp-amplification} below; the
-proof is deferred to \Cref{sec:sample-complexity}).
-
-The Part~II vocabulary applies directly. At workload prevalence $\pi =
-\Pr[x \in L]$ (which depends on the input distribution the algorithm is
-deployed against, not on the algorithm itself), the positive predictive
-value of a BPP algorithm is given by \Cref{def:ppv}:
+Read as a channel, $\fnrate, \fprate \le 1/3$: BPP sits in the interior of the
+rate plane, off both axes. The chapter-7 vocabulary applies directly. At
+prevalence $\pi = \Prob{x \in L}$ the positive predictive value
+(\Cref{def:ppv}) is
 \[
-  \PPV
-  \;=\; \frac{\pi (1 - \fnrate)}{\pi (1 - \fnrate) + (1 - \pi) \fprate}
-  \;\ge\; \frac{\pi \cdot 2/3}{\pi \cdot 2/3 + (1 - \pi) \cdot 1/3}
-  \;=\; \frac{2 \pi}{2 \pi + (1 - \pi)}
-  \;=\; \frac{2 \pi}{\pi + 1}.
+  \PPV = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate}
+       \ge \frac{\pi \cdot 2/3}{\pi \cdot 2/3 + (1 - \pi)\cdot 1/3}
+       = \frac{2\pi}{\pi + 1},
 \]
-The expression looks innocent until one substitutes a small $\pi$. At
-$\pi = 0.01$ the bound gives $\PPV \ge 0.0198 / 1.01 \approx 0.0196$: the
-algorithm's report of \textsc{in-$L$} is correct only about $2\%$ of the
-time, despite the algorithm's $2/3$-versus-$1/3$ accuracy on each
-distribution. The other $98\%$ of positive reports are false alarms. The
-negative predictive value of \Cref{def:npv} similarly depends on the
-workload. The two definitions are not artifacts of medical statistics;
-they are the unavoidable book-keeping for any decision algorithm whose
-per-class accuracy is bounded away from $1$, including a generic BPP
-algorithm. A BPP algorithm with a $1/3$ error rate looks impressive in
-isolation and unimpressive at low prevalence, and \Cref{def:ppv} is the
-calculation that explains why.
+which at $\pi = 0.01$ is only $\approx 0.0196$: despite $2/3$-versus-$1/3$
+per-class accuracy, $98\%$ of accept reports are false at low prevalence, the
+same prevalence-dependence \Cref{def:npv} and chapter~7 record. The $2/3$-versus-
+$1/3$ gap is conventional but load-bearing: it forces a signal in both
+directions so amplification can drive both errors down, where the gap-closed
+class PP cannot.
 
-The conventional gap $2/3$ versus $1/3$ exists for exactly this reason:
-it forces a non-trivial signal in both directions, so that amplification
-can drive both errors to zero rather than only one. A class defined with
-the gap closed (both probabilities equal to $1/2$ on the respective
-inputs) is the class PP, which is much larger than BPP and is not
-believed to admit efficient amplification.
-
-%---------------------------------------------------------------------------
-\subsection*{Amplification: error reduction by repetition}
-
-The constants in the definitions of RP, coRP, and BPP look arbitrary,
-because they are. Any constant strictly inside $(0, 1)$ for RP, and any
-constant gap around $1/2$ for BPP, gives the same class. The reason is
-amplification: $k$ independent repetitions plus the appropriate
-aggregator drive the error rate to zero exponentially in $k$.
+\subsection*{Amplification}
 
 \begin{theorem}[RP amplification]
 \label{thm:rp-amplification}
-Let $A$ be an RP algorithm for $L$ with $\fnrate \le 1/2$ per run. Define
-$A^{(k)}$ to be $k$ independent runs of $A$ on $x$, reporting
-\textsc{in-$L$} when any run reports \textsc{in-$L$} and
-\textsc{not-in-$L$} otherwise. Then $A^{(k)}$ is a polynomial-time RP
-algorithm for $L$ with $\fnrate \le 2^{-k}$ and $\fprate = 0$.
+For an RP algorithm with $\fnrate \le 1/2$, running $k$ independent times and
+accepting if any run accepts gives an RP algorithm with $\fnrate \le 2^{-k}$,
+$\fprate = 0$.
 \end{theorem}
 
-The proof is the chapter~3 composition theorem (\Cref{thm:composition})
-applied to $k$ independent draws from the same Bernoulli predicate, with
-the OR aggregator. The $\fprate = 0$ property is preserved by OR (any
-\textsc{in-$L$} report must be true), and the $\fnrate$ at the OR is the
-product of the per-run $\fnrate$s by independence
-(\Cref{ax:element-indep}). Bringing $\fnrate$ from $1/2$ to $2^{-30}$
-costs a factor of $30$ in runtime; bringing it to $2^{-60}$ costs a
-factor of $60$. This is the perfect-filter-line analog of the $k$-round
-Miller-Rabin bound of \Cref{thm:miller-rabin-formal}, with the only
-difference being that Miller-Rabin's per-round bound is $1/4$ rather than
-$1/2$. coRP amplifies the same way with the AND aggregator, since coRP
-is RP on the mirror axis.
+This is the composition theorem (\Cref{thm:composition}) with the OR aggregator:
+the certain-accept property ($\fprate = 0$) is preserved (any accept is true),
+and $\fnrate$ at the OR is the product of per-run rates by independence
+(\Cref{ax:element-indep}). It is the FPR-zero mirror of the $k$-round
+Miller-Rabin bound, which drives the coRP rate $\fprate$ down via AND; coRP
+amplifies dually. Bringing $\fnrate$ to $2^{-30}$ costs $30$ runs.
 
 \begin{theorem}[BPP amplification]
 \label{thm:bpp-amplification}
-Let $A$ be a BPP algorithm for $L$ with $\fnrate, \fprate \le 1/3$ per
-run. Define $A^{(k)}$ to be $k$ independent runs of $A$ on $x$,
-reporting \textsc{in-$L$} when at least $k/2$ runs report
-\textsc{in-$L$} and \textsc{not-in-$L$} otherwise. Then $A^{(k)}$ is a
-polynomial-time BPP algorithm with $\fnrate, \fprate \le \exp(-\Omega(k))$.
+For a BPP algorithm with $\fnrate, \fprate \le 1/3$, the majority of $k$
+independent runs gives $\fnrate, \fprate \le \exp(-\Omega(k))$.
 \end{theorem}
 
-The BPP amplification rate is exponential in $k$, but the exponent is no
-longer the per-run error rate itself; it is the Chernoff exponent for a
-majority of independent Bernoulli draws. The proof rests on the Chernoff
-bound (\Cref{thm:chernoff}) applied to the count of majority votes for
-the wrong answer; we defer it to \Cref{sec:sample-complexity}, which
-develops the Chernoff machinery in the form needed for sample-complexity
-calculations across the whole chapter. The qualitative content is what
-matters here: BPP error decays exponentially in the number of repetitions
-even though the BPP algorithm cannot drive either error to zero on a
-single coin sequence. Bringing the per-vote error from $1/3$ to $2^{-30}$
-costs $O(k)$ runs with $k = \Theta(30)$, and the implicit constant is
-small.
+The exponent is no longer the per-run rate but the Chernoff exponent for a
+majority of independent draws; the proof, via the Chernoff bound
+(\Cref{thm:chernoff}), is in \Cref{sec:sample-complexity}. BPP error decays
+exponentially in the repetition count even though no single coin sequence drives
+either error to zero.
 
-%---------------------------------------------------------------------------
-\subsection*{The $\Bernoulli{\BoolType}$ correspondence at scale}
+\subsection*{The correspondence at scale}
 
-The four definitions of this section read in the chapter~4 vocabulary as
-four shapes in the rate plane:
 \begin{center}
 \begin{tabular}{lcc}
 \hline
@@ -276,39 +142,16 @@ BPP  & $\le 1/3$   & $\le 1/3$ \\
 \hline
 \end{tabular}
 \end{center}
-The first three rows trace out the perfect filter line of
-\Cref{def:perfect-filter-line}, with RP and coRP as the two axes and ZPP
-as their intersection at the origin. The fourth row, BPP, is the interior
-of the rate plane below the constant $1/3$. The chapter~6 classification
-of approximate sets by where they sit on the perfect filter line and the
-classical taxonomy of randomized complexity classes are the same
-classification applied to two different families of objects: arbitrary
-$\Bernoulli{\BoolType}$ instances in chapter~6, polynomially constrained
-decision algorithms here. The constraints differ; the geometry of the
-rate plane is the same.
-
-This is more than a slogan. The constraint that propagates the most is
-amplification. A point on the FNR-zero axis can be slid arbitrarily close
-to the origin by independent repetition with OR; the chapter~3
-composition theorem says so and \Cref{thm:rp-amplification} is the
-complexity-class-specific restatement. A point in the interior can be
-slid arbitrarily close to the origin by independent repetition with
-majority vote; the Chernoff bound says so and
-\Cref{thm:bpp-amplification} is the complexity-class-specific
-restatement. The two amplification theorems are special cases of the
-same phenomenon: any $\Bernoulli{\BoolType}$ instance whose per-trial
-error is bounded away from $1/2$ on both inputs can be driven to
-negligible error by enough independent repetitions and the right
-aggregator. The aggregator depends on which axis or interior region the
-instance sits in; the existence of amplification does not.
-
-The connection runs the other way too. When chapter~12 lifts the
-$\Bernoulli{\BoolType}$ framework to relations and when chapter~13
-unifies all of Part~III via the algebra of approximate types, every
-theorem about RP, coRP, ZPP, and BPP will lift along with it. A
-randomized algorithm that decides membership in a binary relation $R
-\subseteq A \times B$ with $\fprate, \fnrate$ in the BPP regime sits in
-a class one might call $\mathrm{BPP}_R$, the relational analog of BPP,
-and amplification will work for it for the same reason it works for the
-language version. The plumbing the rest of Part~III installs is what
-makes that lift mechanical rather than a theorem-by-theorem retread.
+The first three rows trace the perfect filter line of
+\Cref{def:perfect-filter-line}: RP the FPR-zero axis, coRP the FNR-zero axis,
+ZPP their intersection at the origin. BPP is the interior below $1/3$. The
+chapter-6 classification of approximate sets by axis and the classical
+randomized-complexity taxonomy are one classification applied to two families,
+arbitrary $\Bernoulli{\BoolType}$ instances there, polynomially constrained
+decision algorithms here. The one-sided-versus-two-sided distinction of
+\Cref{sec:one-sided-two-sided} is what separates RP and coRP from BPP, and
+amplification is the constraint that propagates: any instance with per-trial
+error bounded away from $1/2$ on both inputs is driven to negligible error by
+repetition and the right aggregator (OR or AND on an axis, majority in the
+interior). Chapters~12 and~13 lift these classes along with the rest of the
+framework, so the relational analog of BPP amplifies for the same reason.

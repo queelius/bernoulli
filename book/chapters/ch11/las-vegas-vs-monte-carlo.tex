@@ -1,251 +1,85 @@
 % §11.2 Las Vegas vs Monte Carlo
 %
-% Distinguishes the two species of randomized algorithm by where the
-% randomness is allowed to land: in the runtime (Las Vegas) or in the output
-% (Monte Carlo). Frames the trade-off, surveys three canonical examples
-% (randomized quicksort, Karger min-cut, Miller-Rabin), discusses
-% conversions in both directions, and positions Monte Carlo decision
-% algorithms as $\Bernoulli{\BoolType}$ instances within the framework of
-% Part~II.
-%
-% Cross-reference resolution status:
-%
-% RESOLVED (chapters 3, 4, drafted in Plans 1-4):
-%   \Cref{def:bernoulli-bool}       -- chapter 4 §4.5 $\Bernoulli{\BoolType}$
-%   \Cref{thm:composition}          -- chapter 3 §3.3 composition theorem
-%   \Cref{sec:miller-rabin}         -- chapter 3 §3.4 informal walkthrough
-%
-% INTERNAL (chapter 11):
-%   \Cref{sec:miller-rabin-formal}  -- §11.1 (Plan 11 Task 2, just drafted)
-%   \Cref{thm:miller-rabin-formal}  -- §11.1 theorem
-%   \Cref{sec:rp-bpp}               -- §11.3 (Plan 11 Task 4, forward)
-%   \Cref{sec:sample-complexity}    -- §11.4 (Plan 11 Task 5, forward)
+% Monograph register: the two regimes, the trade-off, three examples (Karger
+% amplification cost folded from ex:ch11-10), conversions, the Bernoulli[bool]
+% correspondence (only Monte Carlo decision algorithms are Bernoulli instances).
+% Cross-refs def:bernoulli-bool, thm:composition, sec:miller-rabin-formal,
+% thm:miller-rabin-formal, sec:rp-bpp, sec:sample-complexity. DEFINED:
+% sec:las-vegas-vs-monte-carlo, def:las-vegas, def:monte-carlo.
 
 \section{Las Vegas vs Monte Carlo}
 \label{sec:las-vegas-vs-monte-carlo}
 
-The chapter~3 \S3.4 walkthrough and the formalization of
-\Cref{sec:miller-rabin-formal} both treat a single example: Miller-Rabin.
-That example happens to live at one corner of the randomized-algorithm
-landscape. To navigate the rest of the landscape one needs a coordinate
-system, and the standard one separates randomized algorithms by where the
-randomness is allowed to surface. It either surfaces in the runtime, while
-the output stays exactly correct, or it surfaces in the output, while the
-runtime stays predictably bounded. These two regimes are named after the
-casinos that gave them their public reputations: Las Vegas and Monte Carlo.
-This section lays out the two definitions, shows the trade-off that forces
-the choice, walks through three canonical examples, sketches the
-conversions between the two regimes, and identifies which regime maps onto
-the $\Bernoulli{\BoolType}$ vocabulary that the rest of Part~III speaks.
-
-%---------------------------------------------------------------------------
-\subsection*{Two definitions}
+Randomized algorithms divide by where the randomness surfaces: in the runtime,
+with the output exactly correct, or in the output, with the runtime predictably
+bounded.
 
 \begin{definition}[Las Vegas algorithm]
 \label{def:las-vegas}
-A randomized algorithm $A$ on inputs $x$ is a \emph{Las Vegas algorithm}
-when its output $A(x)$ is deterministically correct on every input and
-every coin sequence (whenever $A$ halts), and its runtime $T_A(x)$ is a
-random variable whose distribution may depend on $x$. The algorithm is
-\emph{expected-polynomial-time Las Vegas} when $\Expect{T_A(x)}$ is bounded
-by a polynomial in $|x|$ for every $x$.
+A \emph{Las Vegas} algorithm has output that is deterministically correct on
+every input and coin sequence (when it halts), and a random runtime $T_A(x)$. It
+is \emph{expected-polynomial-time} when $\Expect{T_A(x)}$ is polynomial in $|x|$.
 \end{definition}
-
-The contract a Las Vegas algorithm signs is asymmetric. Output correctness
-is absolute: no coin flip will ever cause a wrong answer. Runtime is a
-random variable, and a bad coin sequence can make the algorithm take longer
-than its expected value. There is no fixed worst-case time bound; an
-adversarial coin flip is allowed to extend the runtime, as long as the
-expected runtime stays inside the promised polynomial envelope.
 
 \begin{definition}[Monte Carlo algorithm]
 \label{def:monte-carlo}
-A randomized algorithm $A$ on inputs $x$ is a \emph{Monte Carlo algorithm}
-when its runtime $T_A(x)$ is deterministically bounded on every input and
-every coin sequence (typically by a polynomial in $|x|$), and its output
-$A(x)$ is a random variable that agrees with the true answer $f(x)$ only
-with bounded probability. The probability of disagreement is the
-algorithm's \emph{error rate}, and Monte Carlo algorithms are classified
-further by whether that rate is one-sided or two-sided. A one-sided Monte
-Carlo decision algorithm has $\fprate \le \alpha$ and $\fnrate = 0$ (or the
-mirror image); a two-sided one has $\fprate, \fnrate \le \alpha$ for some
-common bound $\alpha < 1/2$.
+A \emph{Monte Carlo} algorithm has runtime deterministically bounded on every
+coin sequence and output that agrees with the truth only with bounded
+probability. A one-sided Monte Carlo decision algorithm has $\fprate \le \alpha$,
+$\fnrate = 0$ (or the mirror); a two-sided one has $\fprate, \fnrate \le \alpha$
+for some $\alpha < 1/2$.
 \end{definition}
 
-The Monte Carlo contract is the mirror image. Runtime is locked down: every
-coin sequence completes in at most $T(|x|)$ steps. Output is random, and a
-bad coin sequence is allowed to return the wrong answer, as long as the
-probability of that bad sequence is below the advertised error rate.
+The two are exhaustive of the useful regimes: an algorithm that is both
+deterministically correct and worst-case bounded is just deterministic, and one
+that is neither offers nothing. They are the two faces of one trade-off, since
+a worst-case runtime bound over all coin sequences leaves no room to keep
+flipping until the answer is right: if every sequence halts by step $T(|x|)$ and
+the answer in hand at that step is wrong, the algorithm must return it. Each
+regime gives up one guarantee. Las Vegas keeps the output exact and pays in the
+runtime tail; Monte Carlo keeps the runtime fixed and pays in the output. Which
+to pay on is an application question, exact-but-eventually versus
+fast-but-occasionally-wrong.
 
-The two definitions are exhaustive of the practically useful regimes but
-not of the formal possibilities. A randomized algorithm whose runtime is
-unbounded \emph{and} whose output may be wrong is rarely interesting; it
-loses both contracts simultaneously and offers nothing in exchange. The
-opposite, an algorithm with bounded worst-case runtime \emph{and}
-deterministically correct output, is simply a deterministic algorithm and
-needs no randomness at all. Las Vegas and Monte Carlo carve up the
-non-trivial middle.
+\paragraph{Three examples.}
+\emph{Randomized quicksort} (Las Vegas) sorts by partitioning around a uniform
+random pivot: the output is always correctly sorted, while the runtime is
+$O(n\log n)$ in expectation with a $\Theta(n^2)$ tail of probability
+$n^{-\Omega(c)}$ at $cn\log n$ comparisons. \emph{Karger min-cut} (Monte Carlo)
+contracts uniform random edges until two super-vertices remain, in
+deterministic $O(n^2)$ time, returning a fixed min-cut with probability only
+$\ge 2/[n(n-1)]$; running it $r$ times and keeping the smallest cut fails with
+probability $\le (1 - 2/[n(n-1)])^r \le \exp(-2r/[n(n-1)])$, so $r \ge
+\tfrac{n(n-1)}{2}\ln(1/\delta)$ trials suffice, a cubic-in-$n$ cost that is the
+price of a per-trial signal as weak as $1/n^2$. \emph{Miller-Rabin} (Monte
+Carlo, \Cref{sec:miller-rabin-formal}) runs in $O(k\log^3 n)$ and errs only on
+composites, at rate $\le (1/4)^k$ by \Cref{thm:miller-rabin-formal}; its
+per-round signal $1/4$ is independent of input size, so amplification needs only
+$O(\log(1/\delta))$ rounds, the opposite extreme from Karger.
 
-%---------------------------------------------------------------------------
-\subsection*{The trade-off}
+\paragraph{Conversion.}
+The regimes interconvert at a cost. A Las Vegas algorithm with expected runtime
+$\mu(|x|)$ becomes Monte Carlo by running for $c\,\mu(|x|)$ steps and reporting
+failure on timeout: by Markov the failure probability is $\le 1/c$, so $c = 10$
+gives error $\le 0.1$ at worst-case runtime $10\mu(|x|)$. This is why expected
+polynomial time is essentially worst-case polynomial time with bounded error.
+The reverse needs a verifier: a Monte Carlo algorithm with a deterministic
+polynomial-time check of candidate outputs becomes Las Vegas by repeating until
+a verified result appears, in expected $1/(1-\fprate)$ trials. The verifier is a
+nontrivial assumption, which is why $\mathrm{ZPP} = \mathrm{RP} \cap
+\mathrm{coRP}$ (\Cref{sec:rp-bpp}) but the directions are not symmetric.
 
-The two regimes look like a matter of taste but they are not. They are
-two faces of a single trade-off, which the following observation makes
-precise.
-
-\begin{remark}
-If $f\colon X \to Y$ is a total function whose graph an algorithm wishes to
-compute, then for any randomized algorithm $A$ at most one of the following
-holds with probability $1$ on every input: (i) $A(x) = f(x)$, or (ii)
-$T_A(x) \le T(|x|)$ for a fixed function $T$. An algorithm that satisfies
-both for every input on every coin sequence is deterministic.
-\end{remark}
-
-The remark is almost a tautology, but its content is the design tension of
-the field. A worst-case bounded runtime over all coin sequences leaves the
-algorithm no room to keep flipping coins until the answer is right. If
-every coin sequence completes in at most $T(|x|)$ steps, and on some coin
-sequence the answer the algorithm has computed at step $T(|x|)$ happens to
-be wrong, the algorithm must return that wrong answer. Conversely, an
-algorithm that insists on returning the right answer must keep working
-until it is sure, and on bad coin sequences that takes longer than any
-fixed bound would allow.
-
-Each regime gives up exactly one of the two guarantees. Las Vegas keeps the
-output correct and pays in the runtime tail: a bad sample of pivots, a
-bad sample of hash seeds, and the algorithm runs longer than expected.
-Monte Carlo keeps the runtime bounded and pays in the output: a bad sample
-of witnesses, a bad sample of contractions, and the algorithm reports a
-wrong answer. Which side to pay on is a question about the application.
-When an answer that is sometimes wrong is unsafe (a medical decision, a
-financial settlement) but a longer wait is tolerable, Las Vegas is the
-sensible choice. When timing is part of the contract and a small error
-rate is tolerable (a network filter, a real-time approximate query), Monte
-Carlo is.
-
-%---------------------------------------------------------------------------
-\subsection*{Three examples}
-
-The two definitions become concrete once one has a few canonical examples
-in mind. The following three are representative and recur throughout the
-rest of Part~III.
-
-\paragraph{Randomized quicksort (Las Vegas).} Sort an array of $n$
-elements by recursively partitioning around a pivot chosen uniformly at
-random from the current sub-array. The output is always the correctly
-sorted array: every comparison was a comparison, and the partition step
-preserves the multiset of elements. Runtime is a random variable. The
-expected number of comparisons is $\Expect{T(n)} = O(n \log n)$, but a
-bad sequence of pivot choices can make a particular run take $\Theta(n^2)$
-comparisons. The worst-case sequence is exponentially unlikely:
-$\Pr[T(n) \ge c n \log n] \le n^{-\Omega(c)}$ for a suitable constant. The
-algorithm is Las Vegas because the contract is on output correctness, and
-the runtime tail is the price paid.
-
-\paragraph{Karger min-cut (Monte Carlo).} Find a global minimum cut of an
-$n$-vertex multigraph by repeatedly contracting a uniformly random edge
-until only two super-vertices remain, then reporting the set of edges
-between them as the cut. The runtime is deterministically $O(n^2)$ on
-every coin sequence. The output is random; on a fixed input graph $G$ with
-a fixed minimum cut $C$, Karger's analysis gives
-\[
-  \Pr[\text{algorithm returns } C] \;\ge\; \frac{2}{n(n-1)}.
-\]
-A single run has only a $\Theta(1/n^2)$ chance of returning the right cut.
-The algorithm is salvaged by amplification: running it $k = c n^2 \log n$
-independent times and taking the smallest cut found drives the failure
-probability below $1/n^c$. Each run is fixed-cost; the cost of confidence
-is the count of runs. This is Monte Carlo through and through.
-
-\paragraph{Miller-Rabin (Monte Carlo).} The primality test of
-\Cref{sec:miller-rabin-formal}. The $k$-round version has runtime
-deterministically bounded by $O(k \log^3 n)$ on every coin sequence (each
-round does a modular exponentiation, which is $O(\log^3 n)$ with
-schoolbook modular arithmetic). The output is random: on composite inputs,
-the algorithm may report \textsc{probably-prime} with probability at most
-$(1/4)^k$, by \Cref{thm:miller-rabin-formal}. On prime inputs, the
-algorithm always reports \textsc{probably-prime}, so the error is
-one-sided. This is the Monte Carlo regime, and it is exactly the regime in
-which the $\Bernoulli{\BoolType}$ vocabulary of Part~II applies directly.
-
-The three examples cover the corners of the design space. Randomized
-quicksort sacrifices runtime tail to keep output exact. Karger min-cut
-sacrifices output to keep runtime fixed and uses amplification to recover
-confidence. Miller-Rabin sacrifices output in a one-sided way and uses the
-composition theorem of chapter~3 to amplify confidence in the same way.
-
-%---------------------------------------------------------------------------
-\subsection*{Conversion in both directions}
-
-The Las Vegas and Monte Carlo regimes are not strictly disjoint as a matter
-of design. Each can be converted to the other, at a cost.
-
-\paragraph{Las Vegas to Monte Carlo.} Given a Las Vegas algorithm $A$ with
-expected runtime $\Expect{T_A(x)} \le \mu(|x|)$, define the Monte Carlo
-algorithm $A'$ that runs $A$ for at most $c \cdot \mu(|x|)$ steps and
-returns ``failure'' if $A$ has not halted by then. By Markov's inequality,
-$A'$ returns failure with probability at most $1/c$, and otherwise returns
-the same correct output as $A$. Picking $c = 10$ gives a Monte Carlo
-algorithm with error rate $\le 0.1$ and worst-case runtime $\le 10\,
-\mu(|x|)$. The conversion is mechanical, and it explains why expected
-polynomial time is essentially the same resource as worst-case polynomial
-time with a bounded error rate.
-
-\paragraph{Monte Carlo to Las Vegas (if a verifier exists).} Given a Monte
-Carlo algorithm $A$ with error rate $\fprate$ \emph{and} a deterministic
-polynomial-time verifier $V$ that, given an input $x$ and a candidate
-output $y$, decides whether $y = f(x)$, define the Las Vegas algorithm
-$A''$ that repeatedly runs $A(x)$, verifies the output with $V$, and
-returns the first verified result. The expected number of trials is
-$1/(1-\fprate)$, so the expected runtime is bounded. The output is always
-correct because $V$ accepts only the true answer. The conversion requires
-the verifier, which is a non-trivial assumption: some problems admit Monte
-Carlo algorithms but no known polynomial-time verifier. This asymmetry is
-why the complexity class ZPP (the Las Vegas analogue of P) is contained in
-both RP and coRP, but the reverse containment is open in general; see
-\Cref{sec:rp-bpp}.
-
-%---------------------------------------------------------------------------
-\subsection*{The $\Bernoulli{\BoolType}$ correspondence}
-
-The Monte Carlo regime is the one that Part~II's vocabulary fits exactly.
-A Monte Carlo \emph{decision} algorithm, on input $x$, returns a Boolean
-report $A(x) \in \{\top, \bot\}$ that is the algorithm's guess at the true
-predicate value $P(x) \in \{\top, \bot\}$. The error structure is precisely
-the $2 \times 2$ channel of \Cref{def:bernoulli-bool}:
-\[
-  \fprate \;=\; \Pr[A(x) = \top \mid P(x) = \bot],
-  \qquad
-  \fnrate \;=\; \Pr[A(x) = \bot \mid P(x) = \top].
-\]
-A Monte Carlo decision algorithm \emph{is} a $\Bernoulli{\BoolType}$
-instance, in the sense of the type-membership criterion of chapter~4. The
-algorithm's stated error rate is the framework's $\fprate$ (or its mirror
-$\fnrate$ in the symmetric case). The $k$-fold amplification calculation
-of \Cref{thm:miller-rabin-formal} is just the composition theorem applied
-to $k$ independent instances of the same Bernoulli predicate. Everything
-chapter~7 says about PPV, NPV, and the derived measures applies to a Monte
-Carlo decision algorithm without modification, with prevalence playing the
-role of the base rate at which the input distribution presents true
-positives.
-
-Las Vegas algorithms occupy a different level of abstraction. The output
-of a Las Vegas algorithm is not a Bernoulli random variable; it is
-deterministically equal to the true answer. The randomness lives in the
-runtime, which is a non-negative real-valued random variable, not a
-Boolean. Framework-level objects such as $\fprate$ and $\fnrate$ are not
-defined for a Las Vegas algorithm because there is no error to rate. The
-right framework for analyzing a Las Vegas algorithm is the theory of
-runtime tail bounds: Markov's inequality, Chebyshev's inequality, and the
-Chernoff-style concentration inequalities we will see in
-\Cref{sec:sample-complexity}. These are about the runtime distribution,
-not about output error.
-
-The asymmetry is principled. Part~III is about the algebra of approximate
-answers, and approximate answers are what Monte Carlo algorithms produce.
-Las Vegas algorithms produce exact answers and then ask the user to wait;
-their analysis belongs to a different chapter of algorithmics, the one
-about expected runtime, and the Bernoulli framework has nothing to add to
-it. From this point on in Part~III, when we say ``randomized algorithm''
-without further qualification, we mean a Monte Carlo decision algorithm,
-and we mean it as a $\Bernoulli{\BoolType}$ instance.
+\paragraph{The $\Bernoulli{\BoolType}$ correspondence.}
+A Monte Carlo \emph{decision} algorithm returns a Boolean $A(x)$ guessing a
+predicate $P(x)$, with error structure exactly the $2 \times 2$ channel of
+\Cref{def:bernoulli-bool}, $\fprate = \Prob{A(x) = \top \mid P(x) = \bot}$ and
+$\fnrate = \Prob{A(x) = \bot \mid P(x) = \top}$. It \emph{is} a
+$\Bernoulli{\BoolType}$ instance, the $k$-fold amplification of
+\Cref{thm:miller-rabin-formal} is the composition theorem
+(\Cref{thm:composition}) on independent instances, and chapter~7's PPV and NPV
+apply with prevalence the base rate of true positives. A Las Vegas algorithm
+has no error to rate, its output being deterministically correct and its
+randomness living in the runtime; its analysis belongs to runtime tail bounds
+(Markov, Chebyshev, Chernoff of \Cref{sec:sample-complexity}), not to the
+Bernoulli channel. From here, ``randomized algorithm'' means a Monte Carlo
+decision algorithm, read as a $\Bernoulli{\BoolType}$ instance.

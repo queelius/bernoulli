@@ -1,202 +1,85 @@
 % §11.1 Miller-Rabin Formal
 %
-% Recasts the chapter 3 §3.4 informal walkthrough as a formal theorem about
-% a $\Bernoulli{\BoolType}$ instance. Retires the §3.4 deferral by stating
-% the per-round and $k$-round error bounds as theorems with proper citation
-% to the number-theoretic underpinnings (Rabin 1980).
-%
-% Cross-reference resolution status:
-%
-% RESOLVED (chapters 3 and 4, drafted in Plans 1-3):
-%   \Cref{sec:miller-rabin}         -- chapter 3 §3.4 informal walkthrough
-%   \Cref{thm:composition}          -- chapter 3 §3.3 composition theorem
-%   \Cref{sec:axiom-1}              -- chapter 4 §4.2 element independence
-%   \Cref{ax:element-indep}         -- Axiom 1 formal statement
-%   \Cref{def:bernoulli-bool}       -- chapter 4 §4.5 $\Bernoulli{\BoolType}$
-%
-% INTERNAL (resolves later in chapter 11):
-%   \Cref{sec:sample-complexity}    -- chapter 11 §11.4 (Plan 11 Task 5)
+% Monograph register: restates the ch3 §3.4 Miller-Rabin walkthrough as a formal
+% theorem. Per-round eps <= 1/4 (Rabin strong-liar bound), omega = 0; k-round
+% FNR = 1 - prod(1 - omega_i) = 0 and FPR = prod eps_i <= (1/4)^k -- consistent
+% with the ch3 §3.3 composition theorem and its dual (the B1 fix). Cross-refs
+% sec:miller-rabin, thm:composition, sec:axiom-1, ax:element-indep,
+% def:bernoulli-bool, sec:sample-complexity. DEFINED: sec:miller-rabin-formal,
+% thm:miller-rabin-formal, eq:mr-formal-fnr, eq:mr-formal-fpr, eq:mr-formal-k-round.
 
 \section{Miller-Rabin Formal}
 \label{sec:miller-rabin-formal}
 
-Chapter 3 \S3.4 walked through the Miller-Rabin primality test as an
-extended example, showing step by step how a single round behaves as a
-$\Bernoulli{\BoolType}$ instance with one-sided error and how $k$ rounds
-compose by the chain rule of \Cref{thm:composition}. The exposition there
-was deliberately informal in one specific respect: the per-round bound
-$\fprate \le 1/4$ was stated as a fact about strong-liar sets and then
-applied. The number-theoretic origin of that bound was acknowledged but
-deferred. This section closes the deferral. We restate the §3.4 walkthrough
-(see \Cref{sec:miller-rabin}) as a single formal theorem with an explicit
-appeal to Rabin's original result, then derive the $k$-round bound as a
-corollary of \Cref{thm:composition}.
+Chapter~3 \S3.4 (\Cref{sec:miller-rabin}) walked through the Miller-Rabin
+primality test as a $\Bernoulli{\BoolType}$ instance, stating the per-round
+bound $\fprate \le 1/4$ as a fact and applying it. This section closes that
+deferral, restating the walkthrough as one formal theorem with the per-round
+bound credited to Rabin and the $k$-round bound derived from the composition
+theorem.
 
-%---------------------------------------------------------------------------
-\subsection*{The formal statement}
-
-Fix an odd integer $n > 3$. Write $n - 1 = 2^r d$ with $d$ odd and $r \ge 1$.
-For each candidate witness $a \in \{2, 3, \ldots, n-2\}$, let
-$\mathrm{MillerRabinRound}(n, a)$ denote the single-round witness test of
-\Cref{sec:miller-rabin}: it returns \textsc{composite} when $a$ certifies
-the compositeness of $n$ via the square-roots-of-1 criterion, and
-\textsc{probably-prime} otherwise. Define the witness predicate
-\begin{equation*}
-  W_n(a) \;:=\; \mathrm{MillerRabinRound}(n, a),
-\end{equation*}
-viewed as a Boolean-valued function on the witness pool
-$\{2, \ldots, n-2\}$ (with \textsc{probably-prime} identified with $\top$
-and \textsc{composite} with $\bot$, as in chapter 3 \S3.4 Step 2).
+Fix an odd $n > 3$, write $n - 1 = 2^r d$ with $d$ odd, and let $W_n(a)$ be the
+single-round witness test on $a \in \{2, \ldots, n-2\}$, returning $\top$
+(\textsc{probably-prime}) or $\bot$ (\textsc{composite}), with the predicate
+``$n$ is prime.''
 
 \begin{theorem}[Miller-Rabin as a $\Bernoulli{\BoolType}$]
 \label{thm:miller-rabin-formal}
-Let $n > 3$ be an odd integer, and let $a$ be drawn uniformly at random
-from $\{2, \ldots, n-2\}$. The single-round witness predicate $W_n(a)$ is
-a $\Bernoulli{\BoolType}$ instance (in the sense of
-\Cref{def:bernoulli-bool}) whose error rates satisfy
+For $a$ drawn uniformly from $\{2, \ldots, n-2\}$, $W_n(a)$ is a
+$\Bernoulli{\BoolType}$ instance (\Cref{def:bernoulli-bool}) with
 \begin{equation}
 \label{eq:mr-formal-fnr}
-  \fnrate \;=\; 0
+  \fnrate = 0
 \end{equation}
 for every $n$, and
 \begin{equation}
 \label{eq:mr-formal-fpr}
-  \fprate \;\le\; \frac{1}{4}
+  \fprate \le \tfrac14
 \end{equation}
-for every odd composite $n > 3$.
-
-If $k$ independent witnesses $a_1, \ldots, a_k$ are drawn uniformly with
-replacement from $\{2, \ldots, n-2\}$, and the $k$-round test declares
-\textsc{probably-prime} only when every $W_n(a_i)$ does, then the $k$-round
-error rates satisfy
+for every odd composite $n > 3$. If $k$ independent witnesses are drawn with
+replacement and the test declares \textsc{probably-prime} only when every round
+does, then
 \begin{equation}
 \label{eq:mr-formal-k-round}
-  \fnrate^{(k)} \;=\; 0
+  \fnrate^{(k)} = 0
   \quad\text{and}\quad
-  \fprate^{(k)} \;\le\; \left(\frac{1}{4}\right)^{\!k}
+  \fprate^{(k)} \le \left(\tfrac14\right)^{\!k}
 \end{equation}
 for every odd composite $n > 3$.
 \end{theorem}
 
-%---------------------------------------------------------------------------
-\subsection*{Proof sketch}
+\begin{proof}
+\emph{Zero false-negative rate.} If $n$ is prime, Fermat's little theorem gives
+$a^{n-1} \equiv 1$, and in the field $\mathbb{Z}/n\mathbb{Z}$ the only square
+roots of $1$ are $\pm 1$, so tracing $a^d, a^{2d}, \ldots, a^{2^r d} = 1$
+backwards reaches $\pm 1$ and the witness test passes. Every witness yields
+$\top$, so $\fnrate = 0$.
 
-The two claims of \Cref{thm:miller-rabin-formal} have different status. The
-first claim, $\fprate \le 1/4$ per round, is a number-theoretic fact about
-the structure of $\mathbb{Z}/n\mathbb{Z}$. The second claim, the $k$-round
-bound, is a structural consequence that the Bernoulli framework supplies
-once the first is in hand. We sketch each in turn.
+\emph{Per-round bound.} For odd composite $n$, let $L_n = \{a \in \{2, \ldots,
+n-2\} : W_n(a) = \top\}$ be the strong-liar set. Rabin's theorem
+\parencite{rabin-1980}, sharpening the conditional analysis of
+\textcite{miller-1976}, gives $|L_n| \le (n-3)/4$ via the Chinese remainder
+structure of $\mathbb{Z}/n\mathbb{Z}$. With $a$ uniform over the pool of size
+$n - 3$, $\fprate = |L_n|/(n-3) \le 1/4$.
 
-\begin{proof}[Proof sketch of \Cref{thm:miller-rabin-formal}]
-\emph{Zero false-negative rate.} Suppose $n$ is prime. For any
-$a \in \{2, \ldots, n-2\}$, Fermat's little theorem gives
-$a^{n-1} \equiv 1 \pmod{n}$. The sequence
-$a^d, a^{2d}, a^{4d}, \ldots, a^{2^r d} \pmod{n}$ terminates at $1$, and
-in $\mathbb{Z}/n\mathbb{Z}$ (which is a field when $n$ is prime) the only
-square roots of $1$ are $\pm 1$. Tracing the sequence backwards from
-$a^{2^r d} = 1$, the last value before $1$ must itself be $\pm 1$. The
-witness test passes. Hence $W_n(a) = \textsc{probably-prime}$ for every
-witness whenever $n$ is prime, which gives $\fnrate = 0$.
-
-\smallskip
-\emph{Per-round false-positive bound.} Suppose $n$ is odd composite. Define
-the \emph{strong-liar set} for $n$,
+\emph{The $k$-round bound.} Distinct witnesses are distinct input elements, and
+sampling with replacement makes the events $\{a_i \in L_n\}$ independent, so
+Axiom~1 (\Cref{ax:element-indep}) applies. The $k$-round test is the $k$-fold
+AND of $W_n(a_1), \ldots, W_n(a_k)$, an FNR-zero chain with $\fnrate_i = 0$ and
+$\fprate_i \le 1/4$. By the composition theorem (\Cref{thm:composition}) the
+false-negative rate is $\fnrate^{(k)} = 1 - \prod_i(1 - \fnrate_i) = 0$, and the
+dual all-error direction gives the false-positive rate as the product (a
+composite survives only if every round is fooled),
 \[
-  L_n \;=\; \{\, a \in \{2, \ldots, n-2\} : W_n(a) = \textsc{probably-prime} \,\}.
+  \fprate^{(k)} = \prod_{i=1}^{k} \fprate_i \le \left(\tfrac14\right)^{\!k},
 \]
-Rabin's theorem~\cite{rabin-1980}, building on the earlier deterministic
-analysis of Miller~\cite{miller-1976}, establishes the strong-liar bound
-\[
-  |L_n| \;\le\; \frac{n-3}{4}.
-\]
-This is the number-theoretic content of Miller-Rabin; the proof goes
-through the structure of $\mathbb{Z}/n\mathbb{Z}$ via the Chinese Remainder
-Theorem and a careful counting of solutions to $x^{2^j d} \equiv \pm 1
-\pmod{n}$ for composite $n$. We do not reproduce it here; \S11.6 records
-the standard secondary references. With $|L_n| \le (n-3)/4$
-and $a$ drawn uniformly from a pool of size $n - 3$,
-\[
-  \fprate \;=\; \Pr[W_n(a) = \textsc{probably-prime} \mid n \text{ composite}]
-  \;=\; \frac{|L_n|}{n - 3} \;\le\; \frac{1}{4},
-\]
-which is the bound of equation~\eqref{eq:mr-formal-fpr}.
-
-\smallskip
-\emph{The $k$-round bound.} The argument here is exactly the chapter 3
-\S3.4 Step 3 calculation, now phrased as an application of the framework's
-Axiom 1 (\Cref{ax:element-indep}, \Cref{sec:axiom-1}) followed by the
-composition theorem. Recast the per-round test as a predicate
-$\tilde{P}\colon \{2, \ldots, n-2\} \to \{\top, \bot\}$ on the witness
-pool, so that distinct witnesses $a_i \neq a_j$ are distinct input
-elements. Drawing the $a_i$ independently and uniformly makes the events
-$\{a_i \in L_n\}$ mutually independent (this is sampling-with-replacement
-independence, which holds by the protocol, not by any deeper property of
-$L_n$). Axiom 1 therefore applies to $\tilde{P}$. The $k$-round test is
-the $k$-fold AND of $\tilde{P}(a_1), \ldots, \tilde{P}(a_k)$, an
-identity-with-error chain in the sense of \Cref{thm:composition} with
-$\fnrate_i = 0$ and $\fprate_i \le 1/4$ for each $i$.
-
-Substituting into the composition theorem gives
-\[
-  \fnrate^{(k)}
-  \;=\; 1 - \prod_{i=1}^{k}(1 - \fnrate_i)
-  \;=\; 1 - 1
-  \;=\; 0,
-\]
-and, in the FNR-zero special case where errors at later rounds cannot
-cancel an earlier false positive, the false-positive rate of the chain
-reduces to the product
-\[
-  \fprate^{(k)}
-  \;=\; \prod_{i=1}^{k} \fprate_i
-  \;\le\; \left(\frac{1}{4}\right)^{\!k},
-\]
-which is equation~\eqref{eq:mr-formal-k-round}. The equality is the
-same reduction to the product that \Cref{sec:miller-rabin} states for
-the $k$-round test, and the inequality bounds each per-round rate by
-the Monier-Rabin value $\fprate_i \le 1/4$. The bound is uniform over
-all odd composite $n > 3$, since the per-round bound was.
-\qedhere
+uniform over odd composite $n > 3$.
 \end{proof}
 
-The proof has the shape that chapter 3 \S3.4 promised. One ingredient is
-borrowed from number theory and credited to its origin
-\cite{miller-1976,rabin-1980}; the rest is the Bernoulli framework applied
-mechanically. The choice of $k$ to drive $\fprate^{(k)}$ below a target
-failure probability $\delta$ is a sample-complexity question that we take
-up in \Cref{sec:sample-complexity}.
-
-%---------------------------------------------------------------------------
-\subsection*{What changed from \S3.4}
-
-The §3.4 walkthrough and the present section are about the same algorithm,
-the same per-round bound, and the same $k$-round bound. What changed is the
-status of the per-round bound in the surrounding argument.
-
-In §3.4, the bound $\fprate \le 1/4$ was introduced as a fact to be
-applied. We named it the Miller-Rabin theorem and attached it to the
-strong-liar set, but we did not prove it and we did not cite the original
-source. The pedagogical reason was clear: §3.4 was Part~I climax 1, whose
-purpose was to demonstrate that the chapter 3 composition machinery could
-carry a real algorithm. Pausing to prove a 1980 number-theory theorem would
-have distracted from the framework story. The bound was a black box, and
-the framework was what filled the rest of the page.
-
-In §11.1, the same bound is stated as part of \Cref{thm:miller-rabin-formal}
-and credited to its origins~\cite{rabin-1980,miller-1976}. The proof sketch
-makes the division of labor explicit: number theory supplies the
-strong-liar bound, the framework supplies everything else. We have not
-strengthened the §3.4 result, nor have we recomputed it. What we have done
-is reframe the §3.4 walkthrough as the proof sketch of a single formal
-theorem, with the per-round bound cited rather than asserted, and the
-$k$-round bound derived as a corollary of \Cref{thm:composition} rather
-than as a self-contained product calculation.
-
-This reframing is the contribution of \S11.1, and it is small by design.
-The chapter 11 promise is not to re-derive Miller-Rabin from scratch; it
-is to retire the §3.4 informal layer by replacing it with a formal layer
-that names its borrowed pieces. The remaining sections of chapter 11
-extend the same kind of formalization to the broader landscape of
-randomized algorithms: the Las Vegas versus Monte Carlo distinction, the
-complexity classes RP and BPP, and the sample-complexity bounds that
-govern how many repetitions are needed to reach a target error rate.
+The division of labor is the one chapter~3 promised: number theory supplies the
+strong-liar bound, the framework supplies the rest. The two error directions
+take the two faces of the composition theorem, $1 - \prod(1 - \omega_i)$ for the
+monotone false-negative direction and $\prod \varepsilon_i$ for the all-error
+false-positive direction, exactly as \S3.3 distinguishes them. Choosing $k$ to
+drive $\fprate^{(k)}$ below a target $\delta$ is the sample-complexity question
+of \Cref{sec:sample-complexity}.
