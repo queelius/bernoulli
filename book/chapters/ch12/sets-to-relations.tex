@@ -1,124 +1,53 @@
 % §12.1 From Approximate Sets to Approximate Relations
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:sets-to-relations}                 -- this section
-%
-% RESOLVED (already in source tree from Plans 1-11):
-%   \Cref{ch:approximate-sets}                    -- chapter 5
-%   \Cref{sec:from-atom-to-set}                   -- chapter 5 §5.1
-%   \Cref{def:bernoulli-bool}                     -- chapter 4 §4.5
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{sec:n-ary-channels}                     -- chapter 9
-%
-% FORWARD REFS within chapter 12 (resolve in Plan 12 Tasks 3-4):
-%   \Cref{sec:relation-composition}               -- §12.2 (Task 3)
-%   \Cref{sec:approximate-joins}                  -- §12.3 (Task 4)
+% Monograph register: an approximate relation is an approximate set on the pair
+% universe T x U. Model-order note tightened for ch9 consistency (one row per
+% pair, collapsing to model order two). Cross-refs ch:approximate-sets,
+% sec:from-atom-to-set, def:bernoulli-bool, ch:approximate-functions,
+% sec:n-ary-channels, sec:relation-composition, sec:approximate-joins. DEFINED:
+% sec:sets-to-relations.
 
 \section{From Approximate Sets to Approximate Relations}
 \label{sec:sets-to-relations}
 
-Chapter 5 (\Cref{ch:approximate-sets}) introduced approximate sets as
-the predicate-level lift of the noisy bit: a function from a universe
-$\Universe$ to $\Bernoulli{\BoolType}$, with a single
-$(\fprate, \fnrate)$ pair governing every query. The construction was
-forced: a classical set is its membership predicate, and replacing the
-predicate with a noisy one is the only place the noise has to live
-(\Cref{sec:from-atom-to-set}). The same construction, applied to a
-different universe, gives the central object of this chapter.
-
-A binary relation $R \subseteq T \times U$ is a set whose elements are
-ordered pairs. The universe is the Cartesian product $T \times U$;
-each element is a pair $(t, u)$; the membership predicate
-$\SetIndicator{R} : T \times U \to \{\top, \bot\}$ returns $\top$ on
-the pairs in $R$ and $\bot$ elsewhere. The classical correspondence
-between a set and its indicator function holds with $T \times U$
-substituted for $\Universe$. An \emph{approximate relation} is the
-predicate-level analogue: a function
+A binary relation $R \subseteq T \times U$ is a set whose elements are ordered
+pairs, so the chapter-5 construction (\Cref{ch:approximate-sets}) applies with
+the universe $T \times U$ in place of $\Universe$. A relation is its membership
+predicate $\SetIndicator{R} : T \times U \to \{\top, \bot\}$
+(\Cref{sec:from-atom-to-set}), and an \emph{approximate relation} is the noisy
+analogue,
 \[
-  \tilde R : T \times U \longrightarrow \Bernoulli{\BoolType}
+  \tilde R : T \times U \longrightarrow \Bernoulli{\BoolType},
 \]
-whose per-query output $\tilde R(t, u) \in \{\top, \bot\}$ reports
-whether $(t, u)$ is in $R$, with the rates of error governed by the
-chapter 5 framework. Nothing in the construction is new. The universe
-got bigger; the apparatus did not.
-
-The two rates have the same meaning they had in chapter 5, with pairs
-substituted for elements. If $(t, u) \notin R$, the correct verdict is
-$\bot$ and the structure errs only by reporting $\top$. The
-false-positive rate of the approximate relation is the conditional
-probability of that error:
+whose evaluation $\tilde R(t, u)$ reports whether $(t, u) \in R$ with the two
+rates of \Cref{def:bernoulli-bool},
 \[
-  \fprate \;=\; \Prob{\tilde R(t, u) = \top \Given (t, u) \notin R}.
+  \fprate = \Prob{\tilde R(t, u) = \top \Given (t, u) \notin R},
+  \qquad
+  \fnrate = \Prob{\tilde R(t, u) = \bot \Given (t, u) \in R}.
 \]
-If $(t, u) \in R$, the correct verdict is $\top$ and the structure
-errs only by reporting $\bot$. The false-negative rate is the
-conditional probability of that error:
-\[
-  \fnrate \;=\; \Prob{\tilde R(t, u) = \bot \Given (t, u) \in R}.
-\]
-These are the two rates of \Cref{def:bernoulli-bool}, with the
-membership partition of $T \times U$ standing in for the membership
-partition of $\Universe$. The block structure is two-block: the
-in-relation block $R$ and the out-of-relation block
-$(T \times U) \setminus R$. One rate per block.
+The block structure is two-block, the in-relation block $R$ and its complement,
+one rate per block. The universe grew; the apparatus did not.
 
-\subsection*{Two examples to fix the picture}
+Two examples fix the picture. The \emph{friend-of} relation $F \subseteq P
+\times P$ on a population $P$ stores known friend pairs in a Bloom-style
+structure: a query $\tilde F(\text{Alice}, \text{Bob})$ reads the hashed
+positions for the pair, with $\fnrate = 0$ (a stored pair has its bits set) and a
+tunable $\fprate$, the chapter-5 Bloom analysis applied to pairs. The
+\emph{word-in-document} relation $\tilde R \subseteq W \times D$, the inverted
+index of information retrieval, holds $(w, d)$ when word $w$ appears in document
+$d$, representable as a Bloom filter per document; the chapter-5
+space-versus-accuracy trade carries over verbatim.
 
-The first example is the \emph{friend-of} relation on a population
-of persons. Let $P$ be the set of persons and let
-$F \subseteq P \times P$ be the relation that holds between two
-persons when one names the other as a friend. An approximate friend-of
-relation $\tilde F$ might be represented compactly as a Bloom-style
-structure that stores each known friend pair as a key. A query
-$\tilde F(\text{Alice}, \text{Bob})$ returns $\top$ if any of the
-hashed positions for the pair $(\text{Alice}, \text{Bob})$ are set in
-the underlying bit array. The structure has a structural
-false-negative rate of zero (a true friend pair was inserted, so its
-bits are set) and a tunable false-positive rate that depends on the
-bit-array size, the hash count, and the number of stored pairs, by
-exactly the chapter 5 Bloom-filter analysis applied to pairs rather
-than to single keys.
-
-The second example is the \emph{word-in-document} relation
-$\tilde R \subseteq W \times D$, where $W$ is a vocabulary and $D$ is
-a corpus of documents. A pair $(w, d)$ is in $R$ when word $w$ appears
-in document $d$. This is the inverted-index relation of classical
-information retrieval. The exact representation is a posting list per
-word; the approximate representation can be a Bloom filter per
-document (storing the set of words it contains) or a single global
-filter over $W \times D$. In either case, the per-query predicate
-returns a noisy Boolean, governed by the two rates of the chapter 5
-framework. The space-versus-accuracy trade-off that chapter 5 derived
-for sets carries over verbatim: more bits, smaller false-positive
-rate.
-
-\subsection*{What changes structurally}
-
-The chapter 5 framework lifts to relations without modification, but
-the chapter 9 framework for $n$-ary functions
-(\Cref{ch:approximate-functions}, \Cref{sec:n-ary-channels}) is also
-on the table now. The membership predicate
-$\SetIndicator{R} : T \times U \to \{\top, \bot\}$ is a binary function
-in the chapter 9 sense: two inputs, one Boolean output. At the
-predicate level the model order is $|T \times U|$, one row of the
-channel matrix per input pair; Axiom~2 collapses this to two rate-rows
-indexed by the membership partition, exactly as chapter 5 collapsed
-the per-element rates of an approximate set. At the truth level the
-order is two: in the relation or not. Whether to view $\tilde R$
-through the chapter 5 lens (as an approximate set over the universe
-$T \times U$) or through the chapter 9 lens (as an approximate binary
-function $T \times U \to \BoolType$) is a matter of which downstream
-machinery is easier to reach for. Both views are the same object.
-
-\subsection*{Signpost}
-
-What \Cref{sec:relation-composition} adds is structure on the universe
-$T \times U$ itself: the relational operations of natural join,
-projection, and selection take approximate relations to approximate
-relations, and the propagation of $(\fprate, \fnrate)$ through each
-operation follows the chapter 6 composition theorems lifted to pairs.
-\Cref{sec:approximate-joins} then specializes the join machinery to
-the database setting and recovers the MinHash similarity join of
-chapter 10 §10.4 as one instance of the framework.
+The chapter-9 view (\Cref{ch:approximate-functions},
+\Cref{sec:n-ary-channels}) is equivalent: $\SetIndicator{R}$ is a binary
+function $T \times U \to \BoolType$ whose channel has one row per input pair,
+collapsing under Axiom~2 to model order two (in the relation or not), exactly as
+chapter~5 collapsed the per-element rates of an approximate set. Whether to read
+$\tilde R$ as an approximate set on $T \times U$ or as an approximate binary
+function is a matter of which downstream machinery is nearer; both are the same
+object. \Cref{sec:relation-composition} adds structure on the universe itself,
+the relational operators of join, projection, and selection, with rates
+propagating by the chapter-6 composition theorems lifted to pairs;
+\Cref{sec:approximate-joins} then recovers the MinHash similarity join of
+chapter~10 as one instance.

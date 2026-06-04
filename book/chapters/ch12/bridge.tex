@@ -1,78 +1,33 @@
 % §12.4 Bridge
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:ch12-bridge}                       -- this section
-%
-% RESOLVED (within chapter 12, drafted in Tasks 2-4 of Plan 12):
-%   \Cref{sec:sets-to-relations}                  -- §12.1
-%   \Cref{sec:relation-composition}               -- §12.2
-%   \Cref{thm:join-rates}                         -- §12.2
-%   \Cref{sec:approximate-joins}                  -- §12.3
-%
-% RESOLVED (earlier chapters):
-%   \Cref{ch:approximate-sets}                    -- chapter 5
-%   \Cref{ch:set-composition}                     -- chapter 6
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{sec:minhash-lsh}                        -- chapter 10 §10.4
-%
-% FORWARD REFS to later chapters (Plan 0 stubs):
-%   \Cref{sec:bib-notes-ch12}                     -- §12.5 (Task 6)
-%   \Cref{ch:algebra-types}                       -- chapter 13
+% Monograph register: recap (with the corrected join rate) + forward to ch13.
+% Cross-refs sec:sets-to-relations, ch:approximate-sets, ch:approximate-functions,
+% sec:relation-composition, thm:join-rates, ch:set-composition,
+% sec:approximate-joins, sec:minhash-lsh, ch:algebra-types. DEFINED: sec:ch12-bridge.
 
 \section{Bridge}
 \label{sec:ch12-bridge}
 
-The three prior sections of this chapter trace one object from three
-sides. \Cref{sec:sets-to-relations} reads an approximate relation as
-the chapter~5 framework (\Cref{ch:approximate-sets}) applied to the
-pair universe $T \times U$: the construction is forced by the
-classical correspondence between a relation and its membership
-predicate, the two rates $(\fprate, \fnrate)$ retain their chapter~5
-meaning with pairs in place of elements, and the chapter~9 binary-
-function reading (\Cref{ch:approximate-functions}) is an equivalent
-view of the same object. \Cref{sec:relation-composition} adds the
-relational operators (natural join, projection, selection) and works
-out their rate-propagation rules. The headline is
-\Cref{thm:join-rates}: under cross-relation independence, two
-FNR-zero approximate relations with FPRs $\fprate_1$ and $\fprate_2$
-join into a relation with $\fnrate_{\bowtie} = 0$ and
-$\fprate_{\bowtie} = \fprate_1 \fprate_2$, the same product structure
-chapter~6 (\Cref{ch:set-composition}) derived for intersection of
-approximate sets. \Cref{sec:approximate-joins} instantiates the
-machinery on the MinHash + LSH similarity-join pipeline of chapter~10
-(\Cref{sec:minhash-lsh}) and reads the published FPR/FNR analyses of
-that pipeline as the chapter~12 join rates specialized to a
-particular sketch-based predicate. Three sections, one approximate
-relation: a definition, a composition algebra, an algorithmic
-instance.
+The chapter traced one object from three sides.
+\Cref{sec:sets-to-relations} read an approximate relation as the chapter-5
+framework on the pair universe $T \times U$ (\Cref{ch:approximate-sets}), with
+the chapter-9 binary-function view (\Cref{ch:approximate-functions}) an
+equivalent reading. \Cref{sec:relation-composition} added the relational
+operators: by \Cref{thm:join-rates}, the natural join of two FNR-zero relations
+stays FNR-zero with a false-positive rate that is the chapter-6 intersection
+rate on the triple universe (\Cref{ch:set-composition}), the bare product
+$\fprate_1 \fprate_2$ only in the sparse regime where out-of-join triples are
+dominated by the both-unrelated region. \Cref{sec:approximate-joins}
+instantiated the machinery on the MinHash-LSH similarity join
+(\Cref{sec:minhash-lsh}), reading its FPR/FNR as the chapter-12 join rates
+specialized to a sketch-based predicate.
 
-The bibliographic notes in \Cref{sec:bib-notes-ch12} name the
-antecedents that the prose has been compressing: the
-\textcite{towell-bernoulli-relations} manuscript is the primary
-source for the relation-level framework drafted here, Codd's
-relational algebra is the classical model that the approximate side
-specializes, and the database literature on similarity joins
-(MinHash-LSH and equijoin variants) is the algorithmic body of work
-that the chapter reads through the framework. The notes are short
-because the technical content is largely a lift: most of the work was
-done in chapters~5, 6, and 10, and chapter~12 is the relation-level
-specialization.
-
-\Cref{ch:algebra-types} closes Part~III by giving the type-driven
-algebra that unifies the chapter on approximate sets, the chapter on
-approximate functions, the present chapter on approximate relations,
-and the chapter on sketches into a single algebra of $\Bernoulli{T}$
-constructors. An approximate set is $\Bernoulli{\BoolType}$ on a
-universe; an approximate relation is $\Bernoulli{\BoolType}$ on a
-product universe $T \times U$ (equivalently $\Bernoulli{T \times U}$
-in the type-constructor view); a sketch over a list type is
-$\Bernoulli{L\,T}$; a Monte Carlo decision procedure is
-$\Bernoulli{\BoolType}$. Composition rules that each of the prior
-chapters derived by direct calculation become functorial properties
-of the type algebra. The next chapter does that unification
-explicitly, and chapter~12 is one of its first instances: an
-approximate relation reread as $\Bernoulli{T \times U}$ inherits its
-composition rules from the algebraic structure of the product type
-rather than from a separate derivation.
+\Cref{ch:algebra-types} closes Part~III with the type algebra that unifies
+approximate sets, functions, relations, and sketches into one algebra of
+$\Bernoulli{T}$ constructors. An approximate relation is $\Bernoulli{\BoolType}$
+on a product universe, equivalently $\Bernoulli{T \times U}$ in the
+type-constructor view, and the composition rules each prior chapter derived by
+direct calculation become functorial properties of the product type. Chapter~12
+is one of the first instances of that unification: an approximate relation reread
+as $\Bernoulli{T \times U}$ inherits its composition rules from the algebraic
+structure of the product type rather than from a separate derivation.

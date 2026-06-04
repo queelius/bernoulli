@@ -1,77 +1,40 @@
 % §12.5 Bibliographic Notes
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bib-notes-ch12}                    -- this section
-%
-% RESOLVED (within chapter 12, drafted in Tasks 2-5 of Plan 12):
-%   \Cref{sec:sets-to-relations}                  -- §12.1
-%   \Cref{sec:relation-composition}               -- §12.2
-%   \Cref{thm:join-rates}                         -- §12.2
-%   \Cref{sec:approximate-joins}                  -- §12.3
-%
-% Citations resolved by new references.bib entries added in this task:
-%   \cite{towell-bernoulli-relations}             -- Towell (2026) manuscript
-%   \cite{codd-1970}                              -- Codd (1970) relational model
-%   \cite{sarawagi-kirpal-2004}                   -- Sarawagi-Kirpal (2004) set-similarity joins
-%
-% Citations already in references.bib (used here):
-%   \cite{broder-1997}                            -- MinHash original
-%   \cite{indyk-motwani-1998}                     -- LSH original
+% Monograph register: the relation manuscript, Codd, the similarity-join
+% literature. The "exercise 10" reference is repointed to rem:bloom-equijoin.
+% Citations towell-bernoulli-relations, codd-1970, sarawagi-kirpal-2004,
+% broder-1997, indyk-motwani-1998. Cross-refs sec:relation-composition,
+% thm:join-rates, sec:approximate-joins, rem:bloom-equijoin. DEFINED:
+% sec:bib-notes-ch12.
 
 \section*{Bibliographic Notes}
 \addcontentsline{toc}{section}{Bibliographic Notes}
 \label{sec:bib-notes-ch12}
 
 \paragraph{The approximate-relation framework.}
-The relation-level lift of the chapter~5 framework is drawn from the
-\textcite{towell-bernoulli-relations} manuscript, which is the
-primary source for the construction of an approximate relation as a
-$\Bernoulli{\BoolType}$ on the pair universe $T \times U$ and for the
-join, projection, and selection rate-propagation rules of
-\Cref{sec:relation-composition}. The chapter compresses that
-manuscript into three sections by reading its rate calculations as
-the chapter~5 and chapter~6 frameworks specialized to pairs rather
-than as standalone derivations; the lift makes
-\Cref{thm:join-rates} a corollary of the chapter~6 intersection
-theorem with cross-relation independence playing the role of the
-chapter~6 cross-structure independence. A reader who wants the
-relational object treated as primary, with the connection to the
-set-level framework as derived rather than assumed, should treat the
-manuscript as the next reading.
+The relation-level lift of the chapter-5 framework follows
+\textcite{towell-bernoulli-relations}, the primary source for the approximate
+relation as a $\Bernoulli{\BoolType}$ on the pair universe and for the join,
+projection, and selection rate rules of \Cref{sec:relation-composition}. The
+chapter reads those rules as the chapter-5 and chapter-6 frameworks specialized
+to pairs, making \Cref{thm:join-rates} a corollary of the chapter-6 intersection
+theorem with cross-relation independence in the role of cross-structure
+independence.
 
 \paragraph{The classical relational model.}
-The classical model of a relation as a subset of a Cartesian product,
-and the algebraic operators (join, projection, selection, union,
-difference) that the chapter approximates, originate with
-\textcite{codd-1970}'s ``A Relational Model of Data for Large Shared
-Data Banks.'' Codd's paper is the foundation document of the
-relational-database tradition that gave us SQL, normal forms, and the
-algebraic-query view of databases; the present chapter borrows the
-relational operators wholesale and the only additions are the
-approximate-relation lift and the rate-propagation analysis under
-that lift. The textbook treatment of Codd's algebra appears in any
-standard database systems text; the historical narrative and the
-original axioms are still best read in the 1970 paper itself.
+The model of a relation as a subset of a Cartesian product, and the operators the
+chapter approximates, originate with \textcite{codd-1970}, the foundation of the
+relational-database tradition. The chapter borrows the operators wholesale; the
+only additions are the approximate lift and its rate analysis.
 
-\paragraph{Approximate-join algorithms in databases.}
-The algorithmic instance of \Cref{sec:approximate-joins} is the
-MinHash similarity join, whose two ingredients are
-\textcite{broder-1997}'s MinHash sketch (the per-pair Jaccard
-estimator) and \textcite{indyk-motwani-1998}'s locality-sensitive
-hashing (the sub-quadratic candidate-pruning layer). The combined
-pipeline as a database operator was systematized by
-\textcite{sarawagi-kirpal-2004} for set-similarity joins, and many
-later variants (prefix filtering, positional filtering, length
-filtering, signature-based pruning) are surveyed in the wider
-database literature. The chapter does not enumerate those variants;
-the point is that each one is an alternative implementation of the
-same approximate relation $\tilde S_\theta \subseteq R_1 \times R_2$,
-with FPR and FNR computed by the same chapter~12 join machinery.
-\Cref{thm:join-rates} commits to no particular sketch, and the
-chapter~10 MinHash error bound is the one used in
-\Cref{sec:approximate-joins} only because it is the sketch the book
-already developed in chapter~10; an equijoin variant using Bloom
-filters (exercise~10) is another instance of the same framework with
-different per-pair rates.
+\paragraph{Similarity-join algorithms.}
+The algorithmic instance of \Cref{sec:approximate-joins} combines
+\textcite{broder-1997}'s MinHash with \textcite{indyk-motwani-1998}'s
+locality-sensitive hashing, systematized as a database operator for
+set-similarity joins by \textcite{sarawagi-kirpal-2004}; the many later variants
+(prefix, positional, and length filtering) are each an alternative
+implementation of the same approximate relation $\tilde S_\theta$, with rates by
+the same chapter-12 machinery. \Cref{thm:join-rates} commits to no particular
+sketch: the chapter-10 MinHash bound is used only because the book already
+developed it, and the Bloom equijoin of \Cref{rem:bloom-equijoin} is another
+instance with different per-pair rates.
