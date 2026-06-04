@@ -1,74 +1,50 @@
 % §5.2 The Bloom Filter From Scratch
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bloom-from-scratch}              -- this section
-%   \label{def:bloom-filter}                    -- the construction
-%   \label{alg:bloom-insert-query}              -- insert/query pseudocode
-%   \label{thm:bloom-optimal-k}                 -- the optimal-k result
-%
-% RESOLVED (already in source tree from Plans 1-4 and Plan 5 Task 2):
-%   \Cref{sec:from-atom-to-set}                 -- §5.1 (Plan 5 Task 2)
-%   \Cref{ch:noisy-bit}                         -- chapter 1
-%   \Cref{sec:quantifying-noise}                -- chapter 1 §1.2
-%   \Cref{ch:axioms-kronecker}                  -- chapter 4
-%   \Cref{def:bernoulli-bool}                   -- chapter 4 §4.5
-%
-% FORWARD REFS within chapter 5 (resolve in Plan 5 Tasks 4-5):
-%   \Cref{sec:predicate-algebra}                -- §5.3 (Task 4)
-%   \Cref{sec:one-sided-two-sided}              -- §5.4 (Task 5)
+% Monograph register: construction, structural FNR=0, FPR derivation with the
+% bit-independence approximation (the ex:ch5-7 counter-example folded into a
+% remark), and the optimal-k theorem with a self-contained proof (the ex:ch5-5
+% uniqueness argument folded into the proof body). Cross-refs sec:from-atom-to-set,
+% def:bernoulli-bool, sec:predicate-algebra, sec:one-sided-two-sided.
+% DEFINED: sec:bloom-from-scratch, def:bloom-filter, alg:bloom-insert-query,
+% thm:bloom-optimal-k, eq:bloom-fpr, eq:bloom-optimal-k, eq:bloom-optimal-fpr.
 
 \section{The Bloom Filter From Scratch}
 \label{sec:bloom-from-scratch}
 
-\Cref{sec:from-atom-to-set} introduced the approximate set as an
-abstraction: a function $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$
-whose per-element rates collapse to two per-set numbers. It said
-nothing about how such a function might be built in finite space. This
-section answers that. We will construct the Bloom filter from first
-principles as a bit array plus $k$ hash functions, prove that its
-false-negative rate is exactly zero by inspection of the construction,
-derive a closed-form expression for its false-positive rate as a
-function of three integers, and find the choice of one of those
-integers that minimizes the rate. The Bloom filter is one specific
-realization of an approximate set, but it is the realization that
-chapters 6 through 8 keep returning to, and getting the construction
-fully on the table first repays itself many times over.
+\Cref{sec:from-atom-to-set} defined the approximate set abstractly and
+said nothing about building one in finite space. The Bloom filter is the
+canonical construction: a bit array plus $k$ hash functions, with a
+false-negative rate that is structurally zero, a false-positive rate in
+closed form, and a design knob whose optimal setting we derive. Every
+later chapter of Part~II returns to it.
 
 \subsection*{The construction}
 
-Fix a universe $\Universe$, a positive integer $m$ (the number of
-bits), and a positive integer $k$ (the number of hash functions). The
-data structure consists of a bit array $b[1\,..\,m]$ of length $m$,
-initialized to all zeros, together with $k$ independent hash functions
-\[
-  h_1, h_2, \ldots, h_k \;:\; \Universe \longrightarrow \{1, 2, \ldots, m\}.
-\]
-The independence assumed of the $h_i$ is the strong assumption that
-makes the analysis below tractable: each $h_i$ is treated as a uniform
-random function from $\Universe$ to $\{1, \ldots, m\}$, and the $k$
-functions are mutually independent. Real implementations approximate
-this with families like double hashing over SHA-256 output, and the
-divergence between the theoretical and empirical behaviour is small
-enough that we ignore it through this section.
+Fix a universe $\Universe$, a bit count $m$, and a hash count $k$. The
+structure is a bit array $b[1\,..\,m]$, initialized to zero, with $k$ hash
+functions $h_1, \ldots, h_k : \Universe \to \{1, \ldots, m\}$. The
+analysis treats each $h_i$ as a uniform random function and the $k$ of
+them as mutually independent; real implementations approximate this with
+families such as double hashing over a cryptographic digest, and the
+divergence is small enough to ignore here.
 
 \begin{definition}[Bloom filter]
 \label{def:bloom-filter}
-The \emph{Bloom filter} of parameters $(m, k)$ is the data structure
-$(b, h_1, \ldots, h_k)$ together with the two operations:
+The \emph{Bloom filter} of parameters $(m, k)$ is the structure
+$(b, h_1, \ldots, h_k)$ with two operations:
 \begin{itemize}
   \item \textsc{Insert}$(x)$: for $i = 1, \ldots, k$, set $b[h_i(x)] \gets 1$.
   \item \textsc{Query}$(x)$: return $\top$ if $b[h_i(x)] = 1$ for every
-    $i \in \{1, \ldots, k\}$; return $\bot$ otherwise.
+    $i$; return $\bot$ otherwise.
 \end{itemize}
-After inserting the $n$ elements of a set $A \subseteq \Universe$,
-the predicate $x \mapsto \textsc{Query}(x)$ defines the membership
-report of the approximate set $\ASet{A}$.
+After inserting the $n$ elements of $A \subseteq \Universe$, the predicate
+$x \mapsto \textsc{Query}(x)$ is the membership report of $\ASet{A}$.
 \end{definition}
 
-\Cref{alg:bloom-insert-query} states the two operations in pseudocode.
-Insert sets $k$ bits. Query reads $k$ bits and returns the conjunction.
+Both operations run in $O(k)$ time, independent of $|A|$ and $|\Universe|$,
+and the array is the only state. We follow the literature's $(m, k, n)$
+convention, with $n = |A|$ the item count; where a later chapter risks
+confusing this with a workload size we write $n_{\text{items}}$.
 
 \begin{algorithm}[ht]
   \caption{Bloom filter insert and query}
@@ -92,233 +68,126 @@ Insert sets $k$ bits. Query reads $k$ bits and returns the conjunction.
   }
 \end{algorithm}
 
-Both operations run in $O(k)$ time, independent of $|A|$ or $|\Universe|$.
-The data structure uses exactly $m$ bits of storage, also independent
-of $|A|$ or $|\Universe|$. The bit array is the only state, and it is
-never read except via \textsc{Query}.
+\subsection*{The false-negative rate is structurally zero}
 
-\subsection*{A notation note on $n$}
-
-The Bloom-filter literature universally writes $(m, k, n)$ for the
-parameter triple, where $m$ is the bit count, $k$ is the hash count,
-and $n$ is the number of items inserted (the cardinality of $A$).
-We adopt that convention here. The symbol $n$ in this section is the
-set size, not the workload size or the number of independent queries.
-Chapter 1's $n$ for sample size and chapter 4's $n$ for query count are
-different objects. Where the context could be ambiguous (especially in
-chapter 6 once we start composing Bloom filters and querying many
-items against the composition), we write $n_{\text{items}}$ for the
-set size and $n_{\text{queries}}$ for the workload size. Inside the
-present section the meaning is unambiguous and we write $n$ alone.
-
-\subsection*{Why the false-negative rate is exactly zero}
-
-Suppose $x \in A$ has been inserted into the filter. By definition of
-\textsc{Insert}, the bits $b[h_1(x)], b[h_2(x)], \ldots, b[h_k(x)]$
-were all set to $1$ at the time of insertion. Later insertions of
-other elements can only set additional bits to $1$; nothing in the
-construction ever resets a bit to $0$. Therefore at every subsequent
-time, the bits $b[h_1(x)], \ldots, b[h_k(x)]$ all remain $1$, and
-\textsc{Query}$(x)$ reads $k$ ones and returns $\top$.
-
-The argument is structural rather than probabilistic. It does not rely
-on the choice of hash family, on the cardinality of $A$, on the bit
-count $m$, or on the workload distribution. It relies only on the fact
-that \textsc{Insert} sets bits to $1$ and no operation resets them.
-For every inserted item and every parameter setting,
+If $x \in A$ was inserted, the bits $b[h_1(x)], \ldots, b[h_k(x)]$ were set
+to $1$ at insertion, and no operation ever resets a bit. Every later
+\textsc{Query}$(x)$ therefore reads $k$ ones and returns $\top$. The
+argument is structural: it uses only the monotonicity of the array, not
+the hash family, the load, or the workload. So
 \[
-  \fnrate \;=\; \Prob{\textsc{Query}(x) = \bot \Given x \in A} \;=\; 0.
+  \fnrate \;=\; \Prob{\textsc{Query}(x) = \bot \Given x \in A} \;=\; 0
 \]
-A Bloom filter is therefore \emph{one-sided}: its only failure mode is
-the false positive. \Cref{sec:one-sided-two-sided} will give the
-one-sided property a name and contrast it with two-sided approximate
-sets. For now, the point to register is that one of the two error
-rates of an approximate set, in this construction, has been driven to
-zero by construction rather than by parameter tuning. The remaining
-question is the size of the other rate.
+for every parameter setting. A Bloom filter is \emph{one-sided}
+(\Cref{sec:one-sided-two-sided}): one of its two rates is driven to zero by
+construction rather than by tuning. The remaining question is the size of
+the other.
 
 \subsection*{The false-positive rate}
 
-Consider a query for an element $x \notin A$. The query returns $\top$
-if and only if the bits $b[h_1(x)], \ldots, b[h_k(x)]$ are all $1$.
-These $k$ bits are positions in the same bit array that the $n$
-insertions populated. Whether the bits are $1$ depends on whether the
-$kn$ hash values produced during insertion ever landed on the same
-$k$ positions that the query now reads.
-
-The natural quantity to compute first is the probability that a
-\emph{specific} bit, say $b[j]$ for some fixed $j$, is still $0$ after
-the $n$ insertions. Each insertion contributes $k$ hash values, each
-uniformly distributed on $\{1, \ldots, m\}$. The probability that one
-hash value misses position $j$ is $1 - 1/m$. The probability that all
-$kn$ hash values miss position $j$, assuming they are independent, is
+A query for $x \notin A$ returns $\top$ iff all $k$ bits $b[h_i(x)]$ are
+$1$. Fix a position $j$. Each of the $kn$ hash values produced during
+insertion misses $j$ with probability $1 - 1/m$, so
 \[
-  \Prob{b[j] = 0 \text{ after } n \text{ inserts}}
-  \;=\; \left(1 - \frac{1}{m}\right)^{kn}
-  \;\approx\; e^{-kn/m}.
+  \Prob{b[j] = 0} \;=\; \left(1 - \tfrac{1}{m}\right)^{kn} \;\approx\; e^{-kn/m},
 \]
-The approximation uses $(1 - 1/m)^{kn} = \exp(kn \ln(1 - 1/m))$ and
-$\ln(1 - 1/m) \approx -1/m$ for large $m$. The error in the exponent
-is on the order of $1/m^2$ per insertion, so the substitution is
-excellent in any regime where $m$ is at all large. The complementary
-probability is
-\[
-  \Prob{b[j] = 1 \text{ after } n \text{ inserts}}
-  \;\approx\; 1 - e^{-kn/m}.
-\]
-Call this probability $p$. Each bit of the array is, at the end of the
-insertion phase, a Bernoulli random variable with mean $p$. The bits
-are identically distributed and the mean $p$ controls how full the
-array is. The product $kn/m$ is the load: it counts the average
-number of hash hits per bit.
-
-\paragraph{From bit occupancy to false-positive rate.}
-A query for $x \notin A$ reads $k$ bits at positions $h_1(x), \ldots,
-h_k(x)$. Each position is uniformly distributed in $\{1, \ldots, m\}$,
-and each bit at that position has marginal probability $p$ of being
-$1$. The query returns $\top$ if and only if all $k$ read bits are
-$1$. If the $k$ bit-read events were mutually independent, the joint
-probability would be $p^k$, and we would conclude
+using $\ln(1 - 1/m) \approx -1/m$, with error of order $1/m^2$ per
+insertion. Write $p = 1 - e^{-kn/m}$ for the resulting bit-occupancy
+probability; the load $kn/m$ is the average number of hash hits per bit. A
+query reads $k$ bits, each $1$ with marginal probability $p$. Treating the
+$k$ reads as independent gives the working formula
 \begin{equation}
   \fprate \;\approx\; \left(1 - e^{-kn/m}\right)^k.
   \label{eq:bloom-fpr}
 \end{equation}
 
-\paragraph{On the independence assumption.}
-The $k$ bits read during the query are positions in the same shared
-bit array, and the same $n$ insertions populated the array. The events
-``$b[h_i(x)] = 1$'' for $i = 1, \ldots, k$ are therefore not strictly
-independent. Knowing that one queried bit is $1$ shifts the posterior
-on which positions were hit by the $kn$ insertion-time hashes, and
-that in turn shifts the marginals on the remaining $k - 1$ queried
-bits. The dependence is positive (one bit being $1$ raises the
-probability that the others are too) and small. \textcite{bloomfilter}
-already noted the approximation, and subsequent analyses have
-quantified the deviation rigorously: the approximation
-\eqref{eq:bloom-fpr} is an under-estimate, and the true FPR is bounded
-by a slightly larger expression involving binomial coefficients. For
-sparse filters (small load $kn/m$) the deviation is negligible; for
-the practical regime $kn/m \approx \ln 2$ that we are about to derive
-as optimal, the deviation is below a percent of the rate itself, and
-we do not lose any practical accuracy by adopting
-\eqref{eq:bloom-fpr} as the working formula. We flag the assumption
-explicitly so that the reader is aware of the gap, and we proceed with
-\eqref{eq:bloom-fpr} for the optimization that follows. The exercises
-revisit the issue with a small worked counter-example
-(\Cref{ex:ch5-7}).
+\begin{remark}[The bit-independence approximation]
+\label{rem:bloom-independence}
+The $k$ queried bits lie in the same array populated by the same $n$
+insertions, so their occupancy events are not independent: a collision
+$h_i(x) = h_{i'}(x)$ between two query hashes makes two of the reads
+literally the same event, and conditioning on one queried bit being set
+raises the posterior on the others. The dependence is positive and small,
+so \eqref{eq:bloom-fpr} slightly \emph{under}-estimates the true rate. The
+smallest witness takes $m = 4$, $n = 1$, $k = 2$: the inserted element sets
+one bit with probability $\tfrac14$ (when its two hashes collide) and two
+bits otherwise, and averaging $\bigl(\tfrac{|S|}{4}\bigr)^2$ over those
+cases gives an exact false-positive rate of
+$\tfrac14 \cdot \tfrac{1}{16} + \tfrac34 \cdot \tfrac14 = \tfrac{13}{64}
+\approx 0.203$, against $(1 - e^{-1/2})^2 \approx 0.155$ from
+\eqref{eq:bloom-fpr}. Both the gap and the collision probability vanish as
+$m$ grows; at the practical load $kn/m \approx \ln 2$ derived below the
+deviation is well under a percent of the rate, and we use
+\eqref{eq:bloom-fpr} throughout.
+\end{remark}
 
 \subsection*{Optimal $k$ for fixed $m$ and $n$}
 
-The bit count $m$ is the space budget. The set size $n$ is given by
-the application. The hash count $k$ is the one design knob the
-implementer controls. The natural question is: what choice of $k$
-minimizes the FPR \eqref{eq:bloom-fpr} for fixed $m$ and $n$?
-
-Let $f(k) = (1 - e^{-kn/m})^k$. We minimize over $k > 0$, treating $k$
-as a continuous variable; the optimal integer $k$ is then read off as
-the nearest integer to the continuous optimum. Taking logarithms,
+The bit count $m$ is the space budget and $n$ is fixed by the application;
+the hash count $k$ is the design knob. Let $f(k) = (1 - e^{-kn/m})^k$,
+minimized over $k > 0$ as a continuous variable. Taking logarithms and
+differentiating,
 \[
-  \ln f(k) \;=\; k \ln(1 - e^{-kn/m}).
+  \frac{d}{dk}\ln f(k)
+  \;=\; \ln(1 - e^{-kn/m})
+  \;+\; \frac{kn}{m}\cdot\frac{e^{-kn/m}}{1 - e^{-kn/m}}.
 \]
-Differentiating with respect to $k$,
-\[
-  \frac{d}{dk} \ln f(k)
-  \;=\; \ln(1 - e^{-kn/m}) \;+\;
-  k \cdot \frac{(n/m) e^{-kn/m}}{1 - e^{-kn/m}}.
-\]
-Setting the derivative to zero and writing $u = e^{-kn/m}$ for
-brevity,
-\[
-  \ln(1 - u) \;+\; \frac{kn}{m} \cdot \frac{u}{1 - u} \;=\; 0.
-\]
-The quantity $kn/m$ is exactly $-\ln u$, so the equation becomes
-\[
-  \ln(1 - u) \;-\; (\ln u) \cdot \frac{u}{1 - u} \;=\; 0.
-\]
-Multiply through by $(1 - u)$:
-\[
-  (1 - u) \ln(1 - u) \;-\; u \ln u \;=\; 0,
-\]
-that is, $(1 - u) \ln(1 - u) = u \ln u$. By inspection, $u = 1/2$
-solves this equation: both sides equal $(1/2) \ln(1/2) = -(\ln 2)/2$.
-This is a minimum of $f$, not a maximum or saddle, by the following
-boundary argument. The base $1 - e^{-kn/m}$ lies in $(0, 1)$ for
-every $k > 0$, so $f(k) \in (0, 1)$ everywhere in the interior. At
-the boundaries, $f \to 1$: as $k \to 0^+$, $\ln f(k) = k \ln(1 -
-e^{-kn/m}) \approx k \ln(kn/m) \to 0$; as $k \to \infty$, $1 -
-e^{-kn/m} \to 1$ fast enough that $k \ln(1 - e^{-kn/m}) \approx -k
-e^{-kn/m} \to 0$. So $f$ is a smooth function on $(0, \infty)$ that
-sits strictly below $1$ in the interior and tends to $1$ at both
-endpoints; it therefore attains a global minimum at some interior
-critical point. Differentiating the FOC and substituting $u = 1/2$
-gives
-\[
-  \left.\frac{d^2 \ln f}{dk^2}\right|_{k = k^*}
-  \;=\; 2\,(n/m)\,(1 - \ln 2) \;>\; 0,
-\]
-so $k^* = (m/n)\ln 2$ is a local minimum, and by direct check the
-FOC has $u = 1/2$ as its only solution in $(0, 1)$ (see
-\Cref{ex:ch5-5}). The local minimum is therefore the global one.
-
-Substituting back, $u = e^{-kn/m} = 1/2$ gives $kn/m = \ln 2$, hence
+Writing $u = e^{-kn/m}$, so that $kn/m = -\ln u$, the first-order condition
+$\ln(1-u) - (\ln u)\,\tfrac{u}{1-u} = 0$ becomes, after multiplying by
+$(1-u)$,
 \begin{equation}
-  k^* \;=\; \frac{m}{n} \ln 2.
+  (1 - u)\ln(1 - u) \;=\; u \ln u.
+  \label{eq:bloom-foc}
+\end{equation}
+By inspection $u = \tfrac12$ solves \eqref{eq:bloom-foc}, both sides equal
+$-\tfrac12\ln 2$. It is the only interior solution. Set
+$\phi(u) = (1-u)\ln(1-u) - u\ln u$ on $(0,1)$; it is antisymmetric about
+$\tfrac12$, $\phi(1-u) = -\phi(u)$, so $\phi(\tfrac12) = 0$ and $\phi \to 0$
+at both endpoints. Its derivative $\phi'(u) = -\ln\!\big(u(1-u)\big) - 2$ is
+symmetric about $\tfrac12$, diverges to $+\infty$ at the endpoints, and dips
+to $\phi'(\tfrac12) = 2\ln 2 - 2 < 0$, so $\phi'$ changes sign exactly
+twice. Hence $\phi > 0$ on $(0, \tfrac12)$ and $\phi < 0$ on $(\tfrac12, 1)$,
+vanishing only at $u = \tfrac12$. The boundary behavior pins this critical
+point as the minimum: $f \in (0,1)$ in the interior and $f \to 1$ at both
+endpoints (as $k \to 0^+$, $\ln f \approx k\ln(kn/m) \to 0$; as
+$k \to \infty$, $\ln f \approx -k\,e^{-kn/m} \to 0$), and the
+second-derivative check at $u = \tfrac12$ gives
+$\tfrac{d^2 \ln f}{dk^2} = 2(n/m)(1 - \ln 2) > 0$. Substituting
+$u = \tfrac12$ into $kn/m = -\ln u$,
+\begin{equation}
+  k^* \;=\; \frac{m}{n}\ln 2,
   \label{eq:bloom-optimal-k}
 \end{equation}
-At this $k^*$ each bit has probability exactly $1/2$ of being $1$
-(half the array is occupied) and the FPR formula evaluates to
+at which each bit is occupied with probability exactly $\tfrac12$ and
 \begin{equation}
-  \fprate^* \;\approx\; \left(\frac{1}{2}\right)^{k^*}
-  \;=\; 2^{-(m/n) \ln 2}
+  \fprate^* \;\approx\; \left(\tfrac12\right)^{k^*}
+  \;=\; 2^{-(m/n)\ln 2}
   \;=\; (0.6185\ldots)^{m/n}.
   \label{eq:bloom-optimal-fpr}
 \end{equation}
-The optimal Bloom filter spends $m/n$ bits per stored item and pays
-roughly $0.62$ for every additional bit per item by reducing the FPR
-by that factor. The half-full bit array at the optimum is a striking
-fact: the filter is most accurate not when the bits are sparse but
-when exactly half of them are set.
 
 \begin{theorem}[Optimal $k$ for the Bloom filter]
 \label{thm:bloom-optimal-k}
-For fixed bit count $m$ and item count $n$, the false-positive rate
-of a Bloom filter under the approximation \eqref{eq:bloom-fpr} is
-minimized at
-\[
-  k^* \;=\; \frac{m}{n} \ln 2,
-\]
-at which the bit array is half-occupied in expectation and the
-false-positive rate satisfies
-\[
-  \fprate^* \;\approx\; \left(\frac{1}{2}\right)^{k^*}
-  \;=\; 2^{-(m/n) \ln 2}.
-\]
+For fixed $m$ and $n$, the false-positive rate \eqref{eq:bloom-fpr} is
+minimized at $k^* = (m/n)\ln 2$, where the array is half-occupied in
+expectation and $\fprate^* \approx (1/2)^{k^*} = 2^{-(m/n)\ln 2}$.
 \end{theorem}
 
-The bit-per-item ratio $m/n$ is the right way to think about a Bloom
-filter's space budget, and \Cref{thm:bloom-optimal-k} says the FPR
-decays exponentially in that ratio with base $1/2$ (after the optimal
-$k$ is chosen). Chapter 8 will compare this $0.6185^{m/n}$ scaling to
-the information-theoretic lower bound and will find a factor of about
-$1.44$ between the two: the standard Bloom filter is within a constant
-of optimal but does not reach it. Chapter 14 closes the gap.
+The bit-per-item ratio $m/n$ is the right measure of a Bloom filter's space
+budget: at the optimal $k$ the rate decays exponentially in $m/n$ with base
+$0.6185$, half a bit of accuracy bought per $1.6$ bits of storage.
+\Cref{ch:information-bounds} compares this to the information-theoretic
+floor and finds a fixed gap of $\log_2 e \approx 1.44$; the half-full array
+at the optimum is the striking signature of the construction, most accurate
+not when sparse but when exactly half its bits are set.
 
 \subsection*{A worked example}
 
-Take $m = 10000$ bits and $n = 1000$ items, a comfortable $10$ bits
-per item. Then $m/n = 10$ and
-\[
-  k^* \;=\; 10 \ln 2 \;\approx\; 6.93.
-\]
-The nearest integer is $k = 7$, which we adopt. The optimum FPR is
-\[
-  \fprate^* \;\approx\; (1/2)^7 \;=\; 1/128 \;\approx\; 0.0078,
-\]
-or about one false positive in every $128$ negative queries.
-
-To see that $k = 7$ is genuinely near the minimum and not just our
-rounded approximation, evaluate \eqref{eq:bloom-fpr} at $k = 5, 6,
-7, 8, 9$ with $m = 10000, n = 1000$:
+Take $m = 10000$, $n = 1000$, a comfortable $m/n = 10$ bits per item. Then
+$k^* = 10\ln 2 \approx 6.93$, rounded to $k = 7$, giving
+$\fprate^* \approx (1/2)^7 = 1/128 \approx 0.0078$, about one false positive
+per $128$ negative queries. Evaluating \eqref{eq:bloom-fpr} around the
+optimum confirms the rounding and shows how shallow the minimum is:
 \begin{center}
 \begin{tabular}{ccc}
 \hline
@@ -332,52 +201,18 @@ $9$ & $0.5934$ & $0.00913$ \\
 \hline
 \end{tabular}
 \end{center}
-The FPR curve is shallow near the minimum: the difference between
-$k = 6, 7, 8$ is in the third significant digit. Practical
-implementations often pick $k = 7$ for $m/n = 10$ and rarely bother
-to fine-tune. The corresponding occupancy at $k = 7$ is $1 -
-e^{-7/10} = 1 - 0.4966 = 0.5034$, just over half the bits set, which
-matches the half-full prediction of \Cref{thm:bloom-optimal-k} up to
-the rounding from $k^* = 6.93$ to $k = 7$.
+The rates at $k = 6, 7, 8$ agree to the third significant figure, and the
+occupancy at $k = 7$ is $0.5034$, half-full as predicted. The minimum sits
+where two pressures balance: raising $k$ widens the conjunction the query
+must satisfy (pushing the rate down) but fills the array faster (pushing it
+up), and the two cancel at half occupancy. Off the optimum the penalty is
+real, $k = 1$ at $m/n = 10$ gives $\fprate \approx 0.095$, twelve times the
+optimum, and the rate depends on $m$ and $n$ only through $m/n$ once $k$ is
+optimized.
 
-Two sanity checks anchor the formula. First, the FPR depends only on
-$m$ and $n$ through the ratio $m/n$ once $k$ is optimized. Doubling
-both $m$ and $n$ leaves the optimal FPR unchanged and doubles the
-storage; the bit-per-item budget is what matters. Second, the FPR is
-indeed sensitive to $k$ away from the optimum: a Bloom filter built
-with $k = 1$ and $m/n = 10$ has FPR $1 - e^{-0.1} \approx 0.0952$,
-about $12$ times the optimal rate; a Bloom filter built with $k = 20$
-has FPR $(1 - e^{-2})^{20} \approx 0.0546$, about $7$ times the
-optimal rate. Both off-optimum choices are markedly worse than $k =
-7$, and the curve is shallow only in a small neighborhood of the
-optimum. The optimum sits where two opposing pressures balance.
-Increasing $k$ widens the conjunction the query must satisfy, which
-on its own would drive the FPR down; but it also fills the array
-faster, so each individual bit-check is more likely $\top$, driving
-the FPR up. Decreasing $k$ has the mirror effect: each bit-check is
-less likely $\top$, but the conjunction is narrower. The minimum at
-$k^* = (m/n)\ln 2$ is where these two forces cancel: half the array
-is occupied at the optimum, and the per-bit and per-query terms
-exactly trade off.
-
-\subsection*{Looking ahead}
-
-We have constructed one approximate set in closed form. The Bloom
-filter has $\fnrate = 0$ by construction, $\fprate \approx (1 -
-e^{-kn/m})^k$ in the bit-independence approximation, and an optimal
-$k^* = (m/n) \ln 2$ at which the FPR decays as $0.6185^{m/n}$ in the
-bit-per-item budget. Every later chapter of Part II will use this
-filter as a running example.
-
-The construction also stands as one instance of the abstraction
-\Cref{sec:from-atom-to-set} developed. The same predicate framing,
-the same per-block rate structure, the same chapter 4 axioms apply
-to the Bloom filter and to any other approximate set.
-\Cref{sec:predicate-algebra} develops the predicate algebra in
-generality: the channel matrix per query, the block-stability under
-Axiom 2, and the Kronecker factorization over multiple queries. The
-Bloom filter is one row of that general theory.
-\Cref{sec:one-sided-two-sided} then takes up the special structure of
-this row, the one-sided property $\fnrate = 0$, and contrasts it with
-the two-sided constructions Part II will also encounter in chapters
-to come.
+The Bloom filter is one row of the general predicate algebra:
+$\fnrate = 0$ structurally, $\fprate$ in closed form, the same
+$\Bernoulli{\BoolType}$ channel and chapter-4 axioms as any other
+approximate set. \Cref{sec:predicate-algebra} develops that algebra in
+generality; \Cref{sec:one-sided-two-sided} takes up the one-sided property
+$\fnrate = 0$ this construction enjoys.

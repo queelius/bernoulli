@@ -17,7 +17,7 @@
 % ALREADY DEFINED (chapter 5):
 %   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2
 %   \Cref{eq:bloom-fpr}                       -- chapter 5 §5.2 FPR equation
-%   \Cref{ex:ch5-7}                           -- chapter 5 bit-check independence exercise
+%   \Cref{rem:bloom-independence}             -- chapter 5 bit-check independence remark
 %
 % INTERNAL forward refs (chapter 16):
 %   \Cref{sec:adversarial-inputs}             -- §16.4 (Task 5)
@@ -142,14 +142,23 @@ $\fprate \approx (1 - e^{-kn/m})^k$ formula
 independent: a query $x \notin A$ produces $k$ bit reads
 $h_1(x), \ldots, h_k(x)$, and the event ``all $k$ bits are set'' is
 written as the product of the per-bit probabilities.
-\Cref{ex:ch5-7} of chapter 5 acknowledged that this factorization
-is an approximation. The bit positions are negatively correlated
-(knowing one bit is set reduces, slightly, the expected number of
-items that also set another specific bit), and the true joint
-probability is therefore smaller than the product, by an amount
-that vanishes as $m \to \infty$ with $n/m$ fixed but is detectable
-at small $m$. This is the same Axiom 1 failure, scoped to within a
-single query rather than across queries.
+\Cref{rem:bloom-independence} of chapter 5 acknowledged that this
+factorization is an approximation. The $k$ bit-check events are in
+fact positively dependent: a query's hashes can collide, and a
+queried bit being set is evidence that the array is fuller, which
+raises the chance the other queried bits are set as well. The
+conjunction ``all $k$ bits set'' is therefore \emph{larger} than the
+product of the marginals, so the standard formula \emph{under}-estimates
+the false-positive rate, by an amount that vanishes as $m \to \infty$
+with $n/m$ fixed but is detectable at small $m$: the worked $m = 4$
+witness of \Cref{rem:bloom-independence} gives an exact $13/64 \approx
+0.203$ against the formula's $0.155$. This is the same Axiom 1 failure,
+scoped to within a single query rather than across queries; because the
+combination here is a conjunction, its positive sign makes the product a
+lower bound, the opposite direction from the $1 - \prod_i(1 - \eta_i)$
+serial form above. The negative across-insertion correlation of fixed
+distinct bit positions is real but sub-dominant; the array-occupancy
+channel sets the sign.
 
 The PPV machinery of chapter 7 \S7.4 is less directly affected
 because the PPV formula is a per-query quantity. The issue arises

@@ -1,305 +1,137 @@
 % §5.3 The Predicate Algebra
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:predicate-algebra}               -- this section
-%   \label{prop:block-stability}                -- per-element collapse to per-block under Axiom 2
-%   \label{cor:kronecker-set}                   -- Kronecker factorization for approximate sets
-%
-% RESOLVED (already in source tree from Plans 1-4 and Plan 5 Tasks 2-3):
-%   \Cref{ch:axioms-kronecker}                  -- chapter 4
-%   \Cref{sec:axiom-1}                          -- chapter 4 §4.2
-%   \Cref{ax:element-indep}                     -- Axiom 1 formal statement
-%   \Cref{sec:axiom-2}                          -- chapter 4 §4.3
-%   \Cref{ax:block-rates-indep}                 -- Axiom 2 formal statement
-%   \Cref{sec:kronecker}                        -- chapter 4 §4.4
-%   \Cref{thm:kronecker}                        -- Kronecker Factorization Theorem
-%   \Cref{cor:parameter-reduction}              -- chapter 4 §4.4
-%   \Cref{sec:bernoulli-bool-formal}            -- chapter 4 §4.5
-%   \Cref{def:bernoulli-bool}                   -- chapter 4 §4.5
-%   \Cref{sec:bsc}                              -- chapter 2 §2.1
-%   \Cref{sec:from-atom-to-set}                 -- chapter 5 §5.1
-%   \Cref{sec:bloom-from-scratch}               -- chapter 5 §5.2
-%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2
-%
-% FORWARD REFS within chapter 5 (resolve in Plan 5 Task 5):
-%   \Cref{sec:one-sided-two-sided}              -- §5.4 (Task 5)
+% Monograph register: the per-element channel matrix, Axiom-2 collapse to two
+% per-block rates (prop:block-stability), the Kronecker factorization for
+% approximate sets (cor:kronecker-set), a compact worked example, and a remark
+% on heterogeneous blocks (the ex:ch5-10 limitation). Cross-refs
+% ch:axioms-kronecker, ax:element-indep, ax:block-rates-indep, sec:axiom-2,
+% prop:stable-Q, thm:kronecker, def:bernoulli-bool, sec:from-atom-to-set,
+% sec:bloom-from-scratch, sec:one-sided-two-sided. DEFINED: sec:predicate-algebra,
+% prop:block-stability, cor:kronecker-set.
 
 \section{The Predicate Algebra}
 \label{sec:predicate-algebra}
 
-\Cref{sec:from-atom-to-set} introduced the approximate set as a
-function $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ and
-described its rates informally. \Cref{sec:bloom-from-scratch} built one
-specific instance, the Bloom filter, and showed how the rates of that
-construction come out. Both sections leaned on the
-$\Bernoulli{\BoolType}$ machinery of \Cref{ch:axioms-kronecker}
-without saying precisely how the lift to a set was structured at the
-matrix level. This section closes that gap. We restate the predicate
-$\ASet{A}(x)$ as a $\Bernoulli{\BoolType}$ instance per element, write
-down the channel matrix in its most general per-element form, show that
-Axiom 2 collapses the per-element rates to two per-block rates, and
-then invoke the Kronecker factorization of \Cref{thm:kronecker} to
-factor the joint distribution over many queries. The corollary is the
-chapter's first formal payoff: an approximate set's full probabilistic
-description, no matter how large the universe, requires exactly two
-parameters.
+\Cref{sec:from-atom-to-set} described an approximate set's rates informally
+and \Cref{sec:bloom-from-scratch} built one instance. This section places
+the abstraction inside the chapter-4 machinery at the matrix level: the
+per-element channel, the Axiom-2 collapse to two per-block rates, and the
+Kronecker factorization over many queries. The payoff is the chapter's
+first formal statement of parametric parsimony, that an approximate set's
+entire joint behavior is fixed by two numbers.
 
-\subsection*{The predicate as a $\Bernoulli{\BoolType}$ instance}
+\subsection*{Per-element channels and their collapse}
 
-Fix a universe $\Universe$ and an objective set $A \subseteq \Universe$.
-For every $x \in \Universe$, the query $\ASet{A}(x)$ produces a
-Boolean output, and the rates of that output depend on whether $x$ is
-inside or outside $A$. In the most general per-element setting, each
-$x$ carries its own per-element rate. If $x \in A$, the false-negative
-rate at $x$ is $\fnrate(x) = \Prob{\ASet{A}(x) = \bot \Given x \in A}$,
-and the structure correctly reports $\top$ with probability $1 - \fnrate(x)$.
-If $x \notin A$, the false-positive rate at $x$ is
-$\fprate(x) = \Prob{\ASet{A}(x) = \top \Given x \notin A}$, and the
-structure correctly reports $\bot$ with probability $1 - \fprate(x)$.
-
-The four conditional probabilities assemble into a $2 \times 2$ channel
-matrix attached to the query at $x$:
+For each $x \in \Universe$ the query $\ASet{A}(x)$ is a
+$\Bernoulli{\BoolType}$ instance. In the most general setting each $x$
+carries its own rate, $\fnrate(x)$ if $x \in A$ and $\fprate(x)$ if
+$x \notin A$, assembling into a per-element channel
 \[
   Q_x \;=\;
   \begin{pmatrix}
     1 - \fnrate(x) & \fnrate(x) \\
     \fprate(x) & 1 - \fprate(x)
-  \end{pmatrix}.
+  \end{pmatrix},
 \]
-Row 1 corresponds to the in-set case (truth $\top$, that is, $x \in A$);
-row 2 corresponds to the out-of-set case (truth $\bot$, that is,
-$x \notin A$). Column 1 is the report $\top$; column 2 is the report
-$\bot$. The convention matches the $\Bernoulli{\BoolType}$ definition
-of \Cref{def:bernoulli-bool}: row 1 governs positives, row 2 governs
-negatives, and each row sums to 1. The matrix $Q_x$ is the
-$\Bernoulli{\BoolType}$ instance that describes the per-query behavior
-of $\ASet{A}$ at $x$. There is one such instance per universe element,
-and in this most general formulation the family
-$\{Q_x : x \in \Universe\}$ may carry $2|\Universe|$ free parameters,
-one false-positive rate and one false-negative rate per element,
-clamped only by the obvious constraint that an in-set element has no
-false-positive rate and an out-of-set element has no false-negative
-rate. Without further structure, this is the cost of describing
-$\ASet{A}$ at the rate level: a parameter count that scales with the
-universe, not a constant. The next subsection shows that the cost
-collapses.
-
-\subsection*{Axiom 2 collapses per-element rates to per-block rates}
-
-Axiom 2 of chapter 4 (\Cref{ax:block-rates-indep}, \Cref{sec:axiom-2})
-asserts that the per-block error rates are conditionally independent
-of each other given the objective set. For an approximate set, the
-two blocks are the in-set block $B_1 = A$ and the out-of-set block
-$B_2 = \Universe \setminus A$, and Axiom 2 forces a stronger condition
-along with the independence: the per-element rates inside each block
-agree. The reason is that Axiom 2's statement is at the block level,
-not the element level. The axiom assigns one random rate per block;
-once that rate is realized, every element of the block inherits it.
-Element $x$ inside block $B_i$ does not get its own draw separate from
-$y$ inside the same $B_i$; both share the block's realized rate.
-\Cref{prop:stable-Q} of chapter 4 already recorded this: once the
-rates are realized, the per-element channel matrices stabilize, with
-row $i$ of every per-element matrix taking the realized rate of block
-$B_i$. The proposition below states the corresponding fact for the
-predicate algebra of an approximate set.
+row~$1$ for the in-set case, row~$2$ for the out-of-set case, matching the
+convention of \Cref{def:bernoulli-bool}. Unconstrained, the family
+$\{Q_x\}$ carries up to $2|\Universe|$ parameters. Axiom~2 collapses it.
 
 \begin{proposition}[Block-stability of per-element rates]
 \label{prop:block-stability}
-Let $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ be an approximate
-set satisfying \Cref{ax:block-rates-indep} (Axiom~2) over the
-partition $\{B_1, B_2\} = \{A,\, \Universe \setminus A\}$. Then there
-exist two scalar rates $\fprate, \fnrate \in [0,1]$ such that
-\[
-  \fnrate(x) \;=\; \fnrate \quad \text{for all } x \in A,
-  \qquad
-  \fprate(x) \;=\; \fprate \quad \text{for all } x \in \Universe \setminus A,
-\]
-and the per-element channel matrix is the same for every query:
-\[
-  Q_x \;=\; Q \;=\;
-  \begin{pmatrix}
-    1 - \fnrate & \fnrate \\
-    \fprate & 1 - \fprate
-  \end{pmatrix}.
-\]
-The rate description of $\ASet{A}$ collapses from $2|\Universe|$
-parameters to two: $(\fprate, \fnrate)$.
+Let $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ satisfy
+\Cref{ax:block-rates-indep} (Axiom~2) over the partition $\{A,\,
+\Universe \setminus A\}$. Then there exist scalars $\fprate, \fnrate \in
+[0,1]$ with $\fnrate(x) = \fnrate$ for all $x \in A$ and $\fprate(x) =
+\fprate$ for all $x \notin A$, so the per-element channel is one fixed
+matrix $Q$ for every query, and the rate description collapses from
+$2|\Universe|$ parameters to the pair $(\fprate, \fnrate)$.
 \end{proposition}
 
 \begin{proof}
-By Axiom 2, each block $B_i$ carries a single random rate $\alpha_i$.
-\Cref{prop:stable-Q} of chapter 4 then says that once the rates are
-realized, the per-element channel matrix $Q_x$ depends on $x$ only
-through the block $B_i$ to which $x$ belongs, with row $i$ of $Q_x$
-determined by $\alpha_i$. For the two-block partition $\{A,\,
-\Universe \setminus A\}$, this gives two scalars: $\fnrate$ for row 1
-(governing every $x \in A$) and $\fprate$ for row 2 (governing every
-$x \in \Universe \setminus A$). The remaining row entries follow from
-the stochasticity of $Q_x$. Since the row identified by an element's
-block determines its rate, the matrix $Q_x$ is the same for every
-$x$ in the same block; and since the rows correspond exactly to the
-two blocks, $Q_x = Q$ is the same matrix for every $x \in \Universe$.
+Axiom~2 assigns each block $B_i$ a single rate $\alpha_i$.
+\Cref{prop:stable-Q} then makes $Q_x$ depend on $x$ only through its
+block, with row~$i$ determined by $\alpha_i$. For the two-block partition
+this gives $\fnrate$ on row~$1$ (every $x \in A$) and $\fprate$ on row~$2$
+(every $x \notin A$); the off-diagonal entries follow from row-stochasticity.
+Since the block fixes the row and the two rows are the whole matrix,
+$Q_x = Q$ for every $x$.
 \end{proof}
 
 Throughout Part~II we work in the deterministic-rates regime of
-\Cref{ch:axioms-kronecker}: the per-block rates $\fprate$ and
-$\fnrate$ are fixed parameters of $\ASet{A}$, not random variables.
-Under this regime $Q^*_\ell = Q_\ell$ and the conditional and
-unconditional Kronecker forms of \Cref{thm:kronecker} coincide, so
-we may apply the factorization directly to joint behavior over many
-queries without re-establishing the conditional structure each time.
-With this assumption in hand we suppress the per-element subscript
-on $Q_x$ and write a single $Q$ for the approximate set's channel
-matrix. What varies across queries is the row that the query reads,
-not the matrix itself.
+\Cref{ch:axioms-kronecker}, where $\fprate$ and $\fnrate$ are fixed
+parameters rather than random variables; the conditional and unconditional
+Kronecker forms then coincide and we write a single $Q$ for $\ASet{A}$.
+What varies across queries is the row a query reads, not the matrix.
 
-\subsection*{The joint distribution over $m$ queries factors via Kronecker}
+\begin{remark}[Heterogeneous blocks]
+\label{rem:heterogeneous-block}
+The collapse is exactly as strong as Axiom~2. A construction whose error
+rate genuinely varies \emph{within} a block escapes it. A learned
+classifier used as a membership oracle might answer far-from-boundary
+out-of-set queries at $\fprate_{\text{easy}} = 0.01$ but near-boundary ones
+at $\fprate_{\text{hard}} = 0.30$, so $\fprate(x)$ depends on $x$ inside
+$B_2$ and no single block rate fits.
+\Cref{cor:kronecker-set} below then fails in its two-parameter form: the
+joint distribution must carry per-element rates and is no longer
+universe-size-independent. The gap is workload-dependent. A workload
+sampling uniformly from $B_2$ averages over the heterogeneity and looks
+single-rate; an adversarial workload concentrating on near-boundary
+elements exposes it. This is the boundary between the clean theory and the
+classifiers of \Cref{ch:classification-measures}.
+\end{remark}
 
-When the Bloom filter of \Cref{sec:bloom-from-scratch} is queried on
-a workload of $m$ items, the joint behavior over those $m$ queries
-is what determines the workload-level error rate; the single-query
-analysis of \Cref{sec:bloom-from-scratch} was only half the story.
-Suppose a workload issues $m$ independent queries on $\ASet{A}$, one
-on each of $m$ distinct elements $x_1, \ldots, x_m \in \Universe$.
-Each element $x_\ell$ belongs to one of the two blocks; call its
-block index $j_\ell \in \{1, 2\}$. Each query produces a Boolean
-output $k_\ell \in \{\top, \bot\}$, with conditional probability
-$(Q)_{j_\ell, k_\ell}$ as prescribed by the per-query matrix.
+\subsection*{The joint distribution factors via Kronecker}
 
-The joint distribution of $(k_1, \ldots, k_m)$ given the source-block
-tuple $(j_1, \ldots, j_m)$ is the object \Cref{thm:kronecker} of
-chapter 4 governs. Its hypotheses are exactly the two axioms of the
-Bernoulli framework: Axiom 1 (\Cref{ax:element-indep}) gives the
-mutual independence of error events across distinct elements, and
-Axiom 2 (\Cref{ax:block-rates-indep}) gives the block-stability of
-the rates that \Cref{prop:block-stability} just established. Since
-every per-query matrix is the same $Q$, the theorem yields the
-$m$-fold Kronecker power:
-\[
-  Q^{(m)} \;=\; \underbrace{Q \otimes Q \otimes \cdots \otimes Q}_{m \text{ copies}}
-  \;=\; Q^{\otimes m}.
-\]
+A workload of $m$ queries on distinct elements $x_1, \ldots, x_m$, with
+$x_\ell$ in block $j_\ell$ and report $k_\ell$, has joint behavior governed
+by \Cref{thm:kronecker}. Its hypotheses are the two axioms: Axiom~1
+(\Cref{ax:element-indep}) for cross-element independence and Axiom~2 for
+the block-stability just established. Since every per-query matrix is the
+same $Q$, the joint confusion matrix is the $m$-fold Kronecker power.
 
 \begin{corollary}[Kronecker factorization for approximate sets]
 \label{cor:kronecker-set}
-Let $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ be an approximate
-set satisfying Axioms 1 and 2 over the partition
-$\{A,\, \Universe \setminus A\}$, and assume the deterministic-rates
-regime announced above. The joint confusion matrix $Q^{(m)}$ of $m$
-queries on $m$ distinct elements of $\Universe$ factors as the
-$m$-fold Kronecker power $Q^{\otimes m}$ of the common per-query
-channel matrix
+Let $\ASet{A}$ satisfy Axioms~1 and~2 over $\{A,\, \Universe \setminus A\}$
+in the deterministic-rates regime. The joint confusion matrix of $m$
+queries on $m$ distinct elements is
 \[
+  Q^{(m)} \;=\; Q^{\otimes m},
+  \qquad
   Q \;=\;
   \begin{pmatrix}
     1 - \fnrate & \fnrate \\
     \fprate & 1 - \fprate
-  \end{pmatrix}.
+  \end{pmatrix},
 \]
-The full joint probabilistic description of $\ASet{A}$ requires only
-the two parameters $(\fprate, \fnrate)$, independently of
-$|\Universe|$ and $|A|$.
+so the full joint description of $\ASet{A}$ requires only
+$(\fprate, \fnrate)$, independent of $|\Universe|$ and $|A|$.
 \end{corollary}
 
 \begin{proof}
-\Cref{prop:block-stability} makes the per-element matrix $Q_x$ equal
-to a single matrix $Q$ parameterized by $(\fprate, \fnrate)$.
-\Cref{thm:kronecker} then factors the joint matrix as $Q^{(m)} =
-Q_1 \otimes \cdots \otimes Q_m$; the deterministic-rates assumption
-makes the conditional and unconditional forms coincide, and every
-factor equals $Q$, so $Q^{(m)} = Q^{\otimes m}$. The two scalars
-$(\fprate, \fnrate)$ that fix $Q$ fix the entire joint matrix.
+\Cref{prop:block-stability} makes every per-element matrix the same $Q$.
+\Cref{thm:kronecker} factors $Q^{(m)} = Q_1 \otimes \cdots \otimes Q_m$,
+and in the deterministic-rates regime the conditional and unconditional
+forms agree with every factor equal to $Q$, so $Q^{(m)} = Q^{\otimes m}$.
+The two scalars fixing $Q$ fix the whole power.
 \end{proof}
 
-\Cref{cor:kronecker-set} is the chapter's first formal payoff. The
-informal claim of \Cref{sec:from-atom-to-set}, that the rate
-description does not grow with $|\Universe|$, has now been earned at
-the joint level: two scalars fix $Q$, $Q$ fixes the Kronecker power,
-and the Kronecker power fixes the joint behavior of arbitrarily many
-queries. The parametric-parsimony observation of
-\Cref{ch:axioms-kronecker} carries over without dilution.
-
-\subsection*{A worked example}
-
-Let us see the factorization concretely. Take $\Universe = \{1, 2,
-\ldots, 10\}$, $A = \{1, 2, 3\}$, and an approximate set $\ASet{A}$
-with $\fprate = 0.1$ and $\fnrate = 0.05$. Block $B_1 = A$ has three
-in-set elements and $B_2 = \Universe \setminus A$ has seven out-of-set
-elements. The per-query channel matrix is
+This earns at the joint level the informal claim of
+\Cref{sec:from-atom-to-set}: two scalars fix $Q$, $Q$ fixes the Kronecker
+power, and the power fixes the behavior of arbitrarily many queries. To see
+it concretely, take $\Universe = \{1, \ldots, 10\}$, $A = \{1, 2, 3\}$,
+$\fprate = 0.1$, $\fnrate = 0.05$, so $Q = \left(\begin{smallmatrix} 0.95 &
+0.05 \\ 0.10 & 0.90 \end{smallmatrix}\right)$. The probability that two
+in-set queries and two out-of-set queries all report $\top$ (two true
+positives, two false positives) is the product of the corresponding cells,
 \[
-  Q \;=\;
-  \begin{pmatrix}
-    1 - 0.05 & 0.05 \\
-    0.1 & 1 - 0.1
-  \end{pmatrix}
-  \;=\;
-  \begin{pmatrix}
-    0.95 & 0.05 \\
-    0.10 & 0.90
-  \end{pmatrix}.
+  Q_{1,1}^2\, Q_{2,1}^2 \;=\; (1 - \fnrate)^2 \fprate^2
+  \;=\; 0.95^2 \cdot 0.10^2 \;=\; 0.009025,
 \]
-Now consider a workload of four queries: two on specific in-set
-elements (say $x_1 = 1$ and $x_2 = 2$, both in $A$) and two on
-specific out-of-set elements (say $x_3 = 4$ and $x_4 = 5$, both in
-$\Universe \setminus A$). Suppose we want the probability that the
-structure reports $\top$ on all four queries. The two in-set queries
-are correct reports (true positives), and the two out-of-set queries
-are wrong reports (false positives).
-
-By \Cref{cor:kronecker-set}, the joint confusion matrix is $Q^{(4)} =
-Q^{\otimes 4}$, and the probability of the specific source-block
-tuple $(B_1, B_1, B_2, B_2)$ producing the specific output pattern
-$(\top, \top, \top, \top)$ is the product of per-query entries from
-$Q$:
-\begin{align*}
-  &\Prob{\ASet{A}(x_1) = \top, \ASet{A}(x_2) = \top, \ASet{A}(x_3) = \top,
-    \ASet{A}(x_4) = \top \Given x_1, x_2 \in A,\; x_3, x_4 \notin A} \\
-  &\qquad = \; Q_{1,1} \cdot Q_{1,1} \cdot Q_{2,1} \cdot Q_{2,1} \\
-  &\qquad = \; (1 - \fnrate)^2 \cdot \fprate^2 \\
-  &\qquad = \; (0.95)^2 \cdot (0.10)^2 \\
-  &\qquad = \; 0.9025 \cdot 0.01 \\
-  &\qquad = \; 0.009025.
-\end{align*}
-The two true-positive factors $(0.95)^2 = 0.9025$ come from the two
-in-set queries reading row 1 of $Q$, column 1; the two false-positive
-factors $(0.10)^2 = 0.01$ come from the two out-of-set queries reading
-row 2 of $Q$, column 1. Each factor is one cell of the per-query
-matrix, and the Kronecker product structure puts them together
-multiplicatively because the queries are mutually independent (Axiom 1)
-and share the same per-block rates across the workload (Axiom 2).
-
-The same calculation would proceed identically for any other query
-pattern. The probability of reporting $\bot$ on the two in-set queries
-and $\top$ on the two out-of-set queries, for instance, would be
-$\fnrate^2 \cdot \fprate^2 = 0.0025 \cdot 0.01 = 0.000025$; the
-probability of reporting $\top$ on the two in-set queries and $\bot$
-on the two out-of-set queries would be $(1 - \fnrate)^2 \cdot
-(1 - \fprate)^2 = 0.9025 \cdot 0.81 = 0.731025$, the most likely
-single outcome and the one in which every query is reported correctly.
-Across all $2^4 = 16$ output patterns, the probabilities sum to one,
-and each is a product of four per-query entries selected from $Q$
-according to the block of the query and the report of the output.
-
-The point is the structure, not the numbers. Doubling the universe
-to $20$ elements while keeping the same rates leaves this query
-pattern's probability unchanged; doubling the workload to $40$
-queries grows the Kronecker product to $40$ copies of $Q$, but each
-entry is still a product of two-rate factors chosen one per query.
-
-\subsection*{Looking ahead}
-
-The Bloom filter of \Cref{sec:bloom-from-scratch} is one
-$\Bernoulli{\BoolType}$ instance in this family: its $Q$ has
-$\fnrate = 0$ structurally and $\fprate$ tuned by the bit count, hash
-count, and item count, so the worked example above applies directly
-once the Bloom filter's $\fprate$ is substituted for the generic
-$0.1$. Any other approximate set construction yields a different $Q$
-but the same algebra: per-query matrix in row-stochastic form, joint
-matrix as Kronecker product, two-parameter description of the full
-probabilistic behavior. The one-sided versus two-sided distinction of
-\Cref{sec:one-sided-two-sided} is the next slice: what happens when
-one of the two parameters is structurally zero, as it is for the
-Bloom filter, and how that case contrasts with the two-positive-rate
-setting that arises elsewhere.
+while the all-correct outcome has probability $(1-\fnrate)^2(1-\fprate)^2 =
+0.731$. Doubling the universe leaves these unchanged; doubling the workload
+grows the Kronecker power but keeps each entry a product of two-rate
+factors, one per query. The Bloom filter is the special case $\fnrate = 0$;
+any other construction supplies a different $Q$ but the same algebra. The
+distinction \Cref{sec:one-sided-two-sided} draws next is what happens when
+one of the two parameters is structurally zero.

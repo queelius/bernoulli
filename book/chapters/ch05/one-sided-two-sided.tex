@@ -1,202 +1,102 @@
 % §5.4 One-Sided vs Two-Sided Approximate Sets
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:one-sided-two-sided}             -- this section
-%   \label{def:one-sided}                       -- one-sided approximate set
-%
-% RESOLVED (already in source tree from Plans 1-4 and Plan 5 Tasks 2-4):
-%   \Cref{sec:from-atom-to-set}                 -- chapter 5 §5.1
-%   \Cref{sec:bloom-from-scratch}               -- chapter 5 §5.2
-%   \Cref{def:bloom-filter}                     -- chapter 5 §5.2
-%   \Cref{sec:predicate-algebra}                -- chapter 5 §5.3
-%   \Cref{sec:three-faces}                      -- chapter 1 §1.1
-%   \Cref{sec:asymmetric-channel}               -- chapter 2 §2.2
-%   \Cref{def:z-channel}                        -- chapter 2 §2.2
-%   \Cref{sec:bridge-to-sets}                   -- chapter 3 §3.5
-%   \Cref{ch:set-composition}                   -- chapter 6 stub label
-%   \Cref{ch:perfect-hash-filters}              -- chapter 15 stub label
-%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14 stub label
-%
-% FORWARD REFS within chapter 5 (resolve in Plan 5 Task 6):
-%   \Cref{sec:ch5-what-comes-next}              -- §5.5 (Task 6)
-%
-% Section-level forward references into chapters 6, 14, 15 do NOT exist yet.
-% The CHAPTER labels above resolve via the Plan 0 stubs; sub-section labels
-% inside those chapters are unresolved until Plans 6+ land. Where this matters
-% (the perfect-filter line in chapter 6 and the BPHF in chapter 15), we use
-% chapter-level \Cref or prose.
+% Monograph register: the one-sided/two-sided/exact trichotomy (def:one-sided),
+% why FNR-zero is the natural default for insertion-only structures and FPR-zero
+% needs deliberate construction, the safety-vs-space trade with the 1.44x floor,
+% and the perfect filter line with its closure asymmetry (seeding chapter 6).
+% Cross-refs sec:bloom-from-scratch, def:bloom-filter, sec:predicate-algebra,
+% def:z-channel, sec:bridge-to-sets, ch:set-composition, ch:perfect-hash-filters,
+% ch:optimal-bernoulli-sets, sec:ch5-what-comes-next. DEFINED:
+% sec:one-sided-two-sided, def:one-sided.
 
 \section{One-Sided vs Two-Sided Approximate Sets}
 \label{sec:one-sided-two-sided}
 
-The Bloom filter of \Cref{sec:bloom-from-scratch} has a striking
-property: one of its two error rates is exactly zero, not by parameter
-choice but by construction. The bit array can only accumulate ones,
-so an inserted item is never reported missing; the other rate is
-positive and tunable. This is one shape an approximate set can take.
-A different construction might force the false-positive rate to zero
-on a designated set instead, leaving the false-negative rate positive;
-a third might allow both rates to be positive. The present section
-gives the three shapes their names and connects the distinction to
-the algebraic structure that chapter~6 will develop.
-
-\subsection*{Definition}
+The Bloom filter has one error rate exactly zero, by construction rather
+than tuning. That is one shape an approximate set can take; others force
+the false-positive rate to zero on a designated set, or allow both rates to
+be positive. The shapes are not interchangeable, and the distinction
+organizes the constructions of \Cref{ch:set-composition},
+\Cref{ch:optimal-bernoulli-sets}, and \Cref{ch:perfect-hash-filters}.
 
 \begin{definition}[One-sided and two-sided approximate sets]
 \label{def:one-sided}
-Let $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$ be an approximate
-set of $A \subseteq \Universe$ with per-block rates
-$(\fprate, \fnrate)$ as in \Cref{sec:predicate-algebra}. We say
-$\ASet{A}$ is
-\begin{itemize}
-  \item \emph{one-sided in FNR} (or \emph{FNR-zero}) if $\fnrate = 0$
-    and $\fprate > 0$;
-  \item \emph{one-sided in FPR} (or \emph{FPR-zero}) if $\fprate = 0$
-    and $\fnrate > 0$;
-  \item \emph{two-sided} if both $\fprate > 0$ and $\fnrate > 0$.
-\end{itemize}
-The Bloom filter of \Cref{def:bloom-filter} is one-sided in FNR. The
-perfect hash filter of \Cref{ch:perfect-hash-filters} is one-sided in
-FPR on its design domain.
+An approximate set $\ASet{A}$ with rates $(\fprate, \fnrate)$ is
+\emph{one-sided in FNR} (FNR-zero) if $\fnrate = 0 < \fprate$; \emph{one-sided
+in FPR} (FPR-zero) if $\fprate = 0 < \fnrate$; and \emph{two-sided} if both
+rates are positive. The Bloom filter (\Cref{def:bloom-filter}) is FNR-zero;
+the perfect hash filter of \Cref{ch:perfect-hash-filters} is FPR-zero on its
+design domain.
 \end{definition}
 
-The names track the rate that is zero, not the one that is positive.
-The Z-channel of \Cref{def:z-channel} is the per-query analog; the
-present section's one-sided property is its per-set lift. A two-sided
-approximate set sits in the interior of the rate square $[0,1]^2$; a
-one-sided set sits on one of the two coordinate axes. The corner
-$\fprate = \fnrate = 0$ is the exact set, not an approximate set at
-all, and is excluded from \Cref{def:one-sided}.
+The name tracks the rate that is zero. A one-sided set sits on a coordinate
+axis of the rate square $[0,1]^2$; a two-sided set in its interior; the
+origin $\fprate = \fnrate = 0$ is the exact set, excluded as not
+approximate. The Z-channel of \Cref{def:z-channel} is the per-query analog,
+and the one-sided property is its per-set lift.
 
-\subsection*{Why FNR-zero is the natural default for insertion-only structures}
+\subsection*{Why FNR-zero is the natural default}
 
-The Bloom filter's FNR-zero property was structural, not designed. The
-insert operation sets bits to $1$, and no operation in the chosen
-insertion-only API ever resets them; a subsequent query for an inserted
-item reads bits that were set, so the query returns $\top$ regardless
-of what else has happened since. The argument depended only on the
-monotonicity of the bit array under that API. Insertions go up, never
-down. Any data structure built on the same monotone-insert primitive
-shares the property: counting sketches keyed by hash, summary
-structures over append-only logs, and any representation of an
-insertion-only bit-set query (read what was written) are one-sided
-in FNR for the same structural reason. (Counting Bloom filters, taken
-up below, restore deletions by storing small integer counters in place
-of bits, paying for that change of API with $\fnrate > 0$.)
+The Bloom filter's FNR-zero property came for free from monotonicity: the
+insert primitive only sets bits, so a query for an inserted item always
+reads ones. Any structure on a monotone insert-only primitive shares it,
+which is why summaries over append-only logs and hash-keyed sketches are
+FNR-zero for the same structural reason. Forcing the opposite asymmetry is
+harder. Making $\fprate = 0$ on a designated set requires the construction
+to certify membership, which a stored copy of the set would do, at the cost
+of the space an approximate set exists to save. The constructive path must
+be cleverer: \Cref{ch:perfect-hash-filters} computes a perfect hash for a
+fixed $A$ and stores one fingerprint per element, so a query for $x \in A$
+lands on its fingerprint and is certain while a query for $x \notin A$ may
+still collide. The set must be known up front and updates are expensive;
+those costs buy certainty in the positive direction.
 
-The asymmetry runs the other way. Forcing $\fprate = 0$ on a designated
-set, while keeping $\fnrate > 0$ elsewhere, requires the construction
-to know which queries are guaranteed inside and which are not. A
-deterministic check against the underlying set would do this, but at
-the cost of storing the set itself, which destroys the space saving
-an approximate set was supposed to provide. The constructive path to
-an FPR-zero structure must be more clever. Chapter~15's perfect hash
-filter (\Cref{ch:perfect-hash-filters}) computes a perfect hash for a
-fixed $A$ at construction time and stores only a fingerprint per
-element; a query for $x \in A$ lands on its fingerprint and is
-reported correctly with probability $1$, while a query for
-$x \notin A$ may still collide. The set has to be known up front, and
-updates are expensive. Those costs buy the opposite asymmetry:
-certainty in the positive direction rather than the negative.
+\subsection*{Safety versus space}
 
-\subsection*{The trade-off: safety versus space}
+One-sidedness is valuable because one direction of the answer is exact: a
+Bloom filter's $\bot$ is certain (the element is definitely absent), so a
+cache can skip a lookup or a spell-checker can pass a known word without
+follow-up. An FPR-zero filter has the dual guarantee, a certain $\top$.
+Two-sided sets give up the certain direction to recover space, as a
+\emph{counting} Bloom filter does: it replaces bits with small counters to
+support deletion, and counter saturation, where an overflowed counter is
+later decremented to zero, introduces a positive $\fnrate$ along with a
+roughly fourfold space cost.
 
-One-sided approximate sets are valuable because one direction of the
-answer is exact. If a Bloom filter reports $\bot$, the queried element
-is definitely not in the underlying set; downstream logic can act on
-the certain answer without further checks. An FPR-zero filter has the
-dual safety: a $\top$ report is certain, only $\bot$ needs follow-up.
-Many systems are built around exactly this asymmetric trust. Web
-caches use a Bloom filter to skip lookups for keys known to be absent;
-the certain $\bot$ avoids a slow disk read. Spell-checkers flag
-possibly misspelled words; the certain $\top$ on a known word avoids
-a distracting underline. In every such setting, the one-sided
-structure substitutes for an exact set precisely because the certain
-direction is the one the application needs.
-
-Two-sided sets give up the certain direction and recover space.
-Counting Bloom filters store small integer counters instead of bits
-to support deletions, paying for that with a nonzero $\fnrate$.
-Cardinality estimators such as HyperLogLog and generic sublinear
-sketches are typically two-sided on derived predicates. The trade is
-honest: dropping one side of the asymmetry frees the construction to
-use space more aggressively.
-
-A bit-budget comparison makes the size of the trade visible. By the
-optimal-$k$ formula of \Cref{sec:bloom-from-scratch}, a Bloom filter
-at $\fprate = 0.01$ and $\fnrate = 0$ requires
-$m \approx 1.44 \, n \log_2(1/\fprate) \approx 9.6 \, n$ bits, since
-$\log_2(100) / \ln 2 \approx 9.58$. Chapter~8 will show that the
-information-theoretic floor for an FNR-zero approximate set at the
-same $\fprate$ is $n \log_2(1/\fprate) = n \log_2 100 \approx 6.64 \, n$
-bits per element, so the Bloom filter pays a $9.6 / 6.64 \approx 1.44 \times$
-overhead above the floor that any FNR-zero construction must respect.
-That fixed overhead is the standard literature's $\log_2 e \approx 1.44$
-constant, and chapter~14's Bernoulli Hash Function is the construction
-that closes the gap.
-A two-sided set is not bound by the same one-sided floor at $\fprate$,
-because it can split its error budget across both directions. Splitting
-the budget can purchase space below the FNR-zero floor, but it spends
-the certain $\bot$ that the Bloom filter buys with its extra bits.
-The qualitative shape is what matters here. One-sidedness is paid for
-in bits, and a construction that gives up the certain direction can
-in principle spend those bits elsewhere.
+The size of the trade is calculable. By \Cref{eq:bloom-optimal-k} a Bloom
+filter at $\fprate = 0.01$, $\fnrate = 0$ needs $m \approx 1.44\,n
+\log_2(1/\fprate) \approx 9.6\,n$ bits.
+\Cref{ch:information-bounds} shows the floor for any FNR-zero set at the
+same $\fprate$ is $n\log_2(1/\fprate) \approx 6.64\,n$ bits, so the Bloom
+filter pays a fixed $1.44\times$ overhead, the standard literature's
+$\log_2 e$ constant, which \Cref{ch:optimal-bernoulli-sets} closes. A
+two-sided set is not bound by the one-sided floor at $\fprate$, because it
+can split its error budget across both directions, but it spends the
+certain $\bot$ that the extra bits bought.
 
 \subsection*{The perfect filter line}
 
-The two-dimensional rate plane $(\fprate, \fnrate) \in [0, 1]^2$
-parameterizes every approximate set. The one-sided sets occupy the
-two coordinate axes: the FNR-zero family on
-$\{\fnrate = 0,\, 0 < \fprate \le 1\}$ and the FPR-zero family on
-$\{\fprate = 0,\, 0 < \fnrate \le 1\}$. We call the union of these
-two segments the \emph{perfect filter line}. The name is the
-convention of the underlying paper family; the word ``line'' is
-appropriate because each segment is a one-dimensional locus inside
-the two-dimensional plane. A one-sided approximate set has one degree
-of rate-freedom, not two. Two-sided sets fill the interior of the
-unit square; the exact set is the origin.
+The rate plane $(\fprate, \fnrate) \in [0,1]^2$ parameterizes every
+approximate set. The one-sided sets occupy the two axes, $\{\fnrate = 0\}$
+and $\{\fprate = 0\}$; we call their union the \emph{perfect filter line},
+each axis a one-dimensional locus with one rate-degree of freedom. Two-sided
+sets fill the interior; the exact set is the origin.
 
-The perfect filter line is not a passive labeling. Chapter~6
-(\Cref{ch:set-composition}) will derive the union, intersection, and
-complement of two Bernoulli sets and show that
+The line is an algebraic constraint, not a passive label.
+\Cref{ch:set-composition} derives the union, intersection, and complement of
+Bernoulli sets and shows:
 \begin{itemize}
   \item the union of two FNR-zero sets is FNR-zero;
   \item the intersection of two FNR-zero sets is FNR-zero;
-  \item the complement swaps the two axes, sending an FNR-zero set
-    to an FPR-zero set and vice versa.
+  \item the complement swaps the axes, sending FNR-zero to FPR-zero.
 \end{itemize}
-The FPR-zero side is in general not closed under the same operations:
-the union of two FPR-zero sets is FPR-zero only when both are exact
-on the same designated set, a fragile condition. The asymmetry
-parallels the construction-side asymmetry: FNR-zero is the natural
-default in many places, FPR-zero requires more careful design.
-\Cref{sec:bridge-to-sets} of chapter~3 already previewed the
-union-as-bit-OR identity for FNR-zero Bloom filters as a special case
-of the composition theorem; chapter~6 generalizes the calculation and
-makes the perfect filter line into an algebraic constraint.
-
-Two further chapters take up the line as their concern. Chapter~14
-(\Cref{ch:optimal-bernoulli-sets}) develops the Bernoulli Hash
-Function and shows that within the FNR-zero family the bit-per-item
-cost is bounded below by an entropy formula, and the BHF achieves the
-bound. Chapter~15 (\Cref{ch:perfect-hash-filters}) takes the FPR-zero
-side seriously and constructs the perfect hash filter: an approximate
-set with $\fprate = 0$ on a designated set $A$ and $\fprate > 0$
-outside. Each chapter is one half of the same picture, sitting on one
-half of the perfect filter line.
-
-\subsection*{Looking ahead}
-
-We have separated the approximate sets of Part~II into three rate
-shapes: FNR-zero (the Bloom filter and its kin), FPR-zero (the perfect
-hash filter and its kin), and two-sided (counting filters and
-sketches). The shapes are not interchangeable. Each carries different
-safety guarantees, different space costs, and different behavior under
-algebraic operations on sets. \Cref{sec:ch5-what-comes-next} surveys
-the trajectory of the rest of the chapter and of Part~II as a whole:
-the composition algebra of chapter~6, the classification measures of
-chapter~7, the entropy bound of chapter~8, and the space-optimal
-constructions of chapter~14 that close the gap the standard Bloom
-filter leaves on the table.
+The FPR-zero side is not closed under the same operations: the union of two
+FPR-zero sets is FPR-zero only when both are exact on the same designated
+set, a fragile condition. The asymmetry parallels the construction-side one,
+FNR-zero the natural default, FPR-zero requiring care.
+\Cref{sec:bridge-to-sets} already previewed the union-as-bit-OR identity for
+FNR-zero filters as a special case of the composition theorem;
+\Cref{ch:set-composition} generalizes it.
+\Cref{ch:optimal-bernoulli-sets} and \Cref{ch:perfect-hash-filters} then
+take up the two halves of the line: the FNR-zero family and its entropy
+floor, and the FPR-zero construction that pays the dual price.
