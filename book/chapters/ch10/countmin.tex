@@ -1,320 +1,130 @@
 % §10.2 CountMin
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:countmin}                          -- this section
-%   \label{def:countmin}                          -- the construction
-%   \label{alg:countmin-update-query}             -- update/query pseudocode
-%   \label{thm:countmin-bound}                    -- the headline error bound
-%
-% RESOLVED (chapter 5):
-%   \Cref{ch:approximate-sets}                    -- chapter 5
-%   \Cref{def:bloom-filter}                       -- §5.2
-%
-% RESOLVED (chapter 9):
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{def:n-ary-channel}                      -- §9.2
-%   \Cref{thm:n-ary-kronecker}                    -- §9.3
-%
-% RESOLVED (chapter 10, prior section):
-%   \Cref{sec:sketches-as-bernoulli}              -- §10.1
-%
-% FORWARD REFS within chapter 10 (resolve in Plan 10 Tasks 4-7):
-%   \Cref{sec:hyperloglog}                        -- §10.3
-%
-% BIBLIOGRAPHIC (resolved in §10.6, Plan 10 Task 7):
-%   cormode-muthukrishnan-2005                    -- CountMin original
+% Monograph register: construction, the eps-delta bound (verified), the
+% upper-triangular Bernoulli[N] reading, the merge. Worked example: the achieved
+% parameters are eps = e/w and delta = e^{-d} (the draft wrote "<=" backwards).
+% rem:expected-overshoot salvages ex:ch10-9: the expected per-row overshoot is
+% eps*F/e, a factor e below the high-probability bound. Cross-refs def:bloom-filter,
+% ch:approximate-functions, def:n-ary-channel, thm:n-ary-kronecker, sec:hyperloglog.
+% DEFINED: sec:countmin, def:countmin, alg:countmin-update-query, thm:countmin-bound,
+% rem:expected-overshoot.
 
 \section{CountMin}
 \label{sec:countmin}
 
-\subsection*{Problem setup}
-
-A data stream presents items $x_1, x_2, \ldots, x_n$ from a universe
-$\Universe$ in some order, with possible repetition. For an item $a
-\in \Universe$, write $f_a = |\{i : x_i = a\}|$ for its true frequency
-in the stream, and write $F = \sum_b f_b = n$ for the total stream
-length. The frequency-estimation query asks, for a given $a$, to
-report an estimate $\hat f_a$ of $f_a$. Storing the exact frequencies
-costs space proportional to the number of distinct items, which in
-the heavy-hitter regime that motivates streaming sketches can run to
-the billions. CountMin gives up exactness and returns a small
-data structure of size polylogarithmic in the stream length, with a
-query that runs in time independent of $F$ and an error bound on
-$\hat f_a - f_a$ controllable by two design parameters.
+A data stream presents items $x_1, \ldots, x_n$ from a universe $\Universe$
+with repetition. For $a \in \Universe$, write $f_a = |\{i : x_i = a\}|$ for its
+true frequency and $F = \sum_b f_b = n$ for the stream length. The
+frequency-estimation query reports an estimate $\hat f_a$ of $f_a$ in a small
+structure of size polylogarithmic in $F$, with a tunable error bound.
 
 \subsection*{The construction}
 
-Fix a width $w$ and a depth $d$, both positive integers, and pick $d$
-hash functions
-\[
-  h_1, h_2, \ldots, h_d \;:\; \Universe \longrightarrow \{1, 2, \ldots, w\}.
-\]
-The $h_i$ are drawn from a pairwise-independent family: for any two
-distinct items $a, b \in \Universe$ and any two cells $u, v \in \{1,
-\ldots, w\}$, $\Prob{h_i(a) = u \text{ and } h_i(b) = v} = 1/w^2$.
-Pairwise independence is enough for the analysis below, and it is
-much cheaper to construct than the full independence assumed for the
-Bloom filter in \Cref{def:bloom-filter}.
-
-The data structure is a $d \times w$ integer table $C$ with rows
-indexed by $i \in \{1, \ldots, d\}$ and columns indexed by $j \in
-\{1, \ldots, w\}$, initialized to all zeros.
+Fix a width $w$ and depth $d$ and pick $d$ hash functions $h_1, \ldots, h_d :
+\Universe \to \{1, \ldots, w\}$ from a pairwise-independent family
+($\Prob{h_i(a) = u,\, h_i(b) = v} = 1/w^2$ for distinct $a, b$), which is
+cheaper than the full independence the Bloom filter assumed
+(\Cref{def:bloom-filter}).
 
 \begin{definition}[CountMin sketch]
 \label{def:countmin}
-The \emph{CountMin sketch} of parameters $(w, d)$ is the data
-structure $(C, h_1, \ldots, h_d)$ together with the two operations:
-\begin{itemize}
-  \item \textsc{Update}$(a)$: for $i = 1, \ldots, d$, set
-    $C[i][h_i(a)] \gets C[i][h_i(a)] + 1$.
-  \item \textsc{Query}$(a)$: return $\hat f_a = \min_i C[i][h_i(a)]$.
-\end{itemize}
-After processing a stream by calling \textsc{Update} once per item,
-the query returns the estimated frequency of any item $a$.
+The \emph{CountMin sketch} of parameters $(w, d)$ is a $d \times w$ integer
+table $C$, initialized to zero, with $d$ hashes, and two operations:
+\textsc{Update}$(a)$ increments $C[i][h_i(a)]$ for each $i$, and
+\textsc{Query}$(a)$ returns $\hat f_a = \min_i C[i][h_i(a)]$.
 \end{definition}
-
-\Cref{alg:countmin-update-query} states the two operations in
-pseudocode.
 
 \begin{algorithm}[ht]
   \caption{CountMin update and query}
   \label{alg:countmin-update-query}
-  \SetKwInOut{Input}{input}
-  \SetKwInOut{Output}{output}
   \SetKwProg{func}{procedure}{}{}
   \SetKwProg{fn}{function}{}{}
-
   \func{\textsc{Update}($a$)}{
-    \For{$i \gets 1$ \KwTo $d$}{
-      $C[i][h_i(a)] \gets C[i][h_i(a)] + 1$\;
-    }
+    \For{$i \gets 1$ \KwTo $d$}{$C[i][h_i(a)] \gets C[i][h_i(a)] + 1$\;}
   }
   \BlankLine
   \fn{\textsc{Query}($a$)}{
     $m \gets \infty$\;
-    \For{$i \gets 1$ \KwTo $d$}{
-      \lIf{$C[i][h_i(a)] < m$}{$m \gets C[i][h_i(a)]$}
-    }
+    \For{$i \gets 1$ \KwTo $d$}{\lIf{$C[i][h_i(a)] < m$}{$m \gets C[i][h_i(a)]$}}
     \Return $m$\;
   }
 \end{algorithm}
 
-Both operations run in $O(d)$ time per call, independent of the
-stream length $F$ and the universe size $|\Universe|$. The data
-structure uses $d \cdot w$ counters of storage, also independent of
-$F$. The minimum across rows in \textsc{Query} is the central trick:
-any single row $i$ records a count $C[i][h_i(a)]$ that is at least
-$f_a$ (one increment per occurrence of $a$ lands in that cell), plus
-the contributions of any other items whose hash $h_i$ collides with
-$a$'s. Taking the minimum across $d$ independent rows attenuates the
-collision noise: a row only inflates the estimate if some heavy
-collider hashes to the same cell, and the rows are independent enough
-that this happens in all $d$ rows only with small probability.
-
-\subsection*{Why the estimate never under-shoots}
-
-For every row $i$, the cell $C[i][h_i(a)]$ accumulates a count of
-$f_a$ from $a$'s own updates, plus a non-negative count from any
-other item $b \ne a$ whose hash $h_i(b)$ equals $h_i(a)$. Both
-contributions are non-negative, so $C[i][h_i(a)] \ge f_a$ for every
-$i$, and therefore
-\[
-  \hat f_a \;=\; \min_i C[i][h_i(a)] \;\ge\; f_a.
-\]
-The estimate is always at least the true count. This is the
-deterministic counterpart of the Bloom filter's deterministic
-no-false-negatives property (\Cref{def:bloom-filter}): the only
-failure mode is over-estimation, and the error is one-sided. The
-analysis below bounds the size of the over-estimate in probability.
+Both operations run in $O(d)$ time, independent of $F$ and $|\Universe|$, in
+$d \cdot w$ counters. Each cell $C[i][h_i(a)]$ holds $f_a$ plus a non-negative
+collision mass from other items hashing to the same cell, so $C[i][h_i(a)] \ge
+f_a$ for every $i$ and $\hat f_a = \min_i C[i][h_i(a)] \ge f_a$. The estimate
+never under-shoots, the count-valued analogue of the Bloom filter's deterministic
+no-false-negatives property; the minimum across $d$ independent rows attenuates
+the collision noise, since the estimate exceeds the truth only when every row
+collides with a heavy item.
 
 \subsection*{The error bound}
 
 \begin{theorem}[CountMin bound]
 \label{thm:countmin-bound}
-Fix $\epsilon, \delta \in (0, 1)$, and run CountMin with width
-$w = \lceil e/\epsilon \rceil$ and depth $d = \lceil \ln(1/\delta) \rceil$.
-For any item $a \in \Universe$, the estimate $\hat f_a$ returned by
-\textsc{Query}$(a)$ satisfies
-\[
-  f_a \;\le\; \hat f_a \;\le\; f_a + \epsilon F
-\]
-with probability at least $1 - \delta$, where $F = \sum_b f_b$ is
-the total stream length.
+With width $w = \lceil e/\epsilon \rceil$ and depth $d = \lceil \ln(1/\delta)
+\rceil$, for any $a$ the estimate satisfies $f_a \le \hat f_a \le f_a + \epsilon
+F$ with probability at least $1 - \delta$.
 \end{theorem}
 
 \begin{proof}
-Fix the query item $a$ and a single row $i \in \{1, \ldots, d\}$.
-Decompose the cell $C[i][h_i(a)]$ at the end of the stream into the
-contribution from $a$ itself and the contribution from collisions:
-\[
-  C[i][h_i(a)]
-  \;=\; f_a \;+\; \sum_{b \ne a} f_b \cdot \mathbf{1}[h_i(b) = h_i(a)],
-\]
-where $\mathbf{1}[\cdot]$ is the indicator. Write $X_i = \sum_{b \ne
-a} f_b \cdot \mathbf{1}[h_i(b) = h_i(a)]$ for the row-$i$ collision
-mass, so that $C[i][h_i(a)] = f_a + X_i$ and $X_i \ge 0$.
-
-By pairwise independence of $h_i$, the marginal probability that any
-specific $b \ne a$ collides with $a$ under $h_i$ is $\Prob{h_i(b) =
-h_i(a)} = 1/w$. Linearity of expectation gives
-\[
-  \mathbb{E}[X_i]
-  \;=\; \sum_{b \ne a} f_b \cdot \Prob{h_i(b) = h_i(a)}
-  \;=\; \frac{F - f_a}{w}
-  \;\le\; \frac{F}{w}.
-\]
-Apply Markov's inequality to the non-negative random variable $X_i$
-with threshold $\epsilon F$:
-\[
-  \Prob{X_i \ge \epsilon F}
-  \;\le\; \frac{\mathbb{E}[X_i]}{\epsilon F}
-  \;\le\; \frac{1}{\epsilon w}.
-\]
-With $w = \lceil e/\epsilon \rceil \ge e/\epsilon$, this bound becomes
-\[
-  \Prob{X_i \ge \epsilon F} \;\le\; \frac{1}{e}.
-\]
-The events $\{X_i \ge \epsilon F\}$ for $i = 1, \ldots, d$ depend on
-independently drawn hash functions $h_1, \ldots, h_d$, so they are
-mutually independent. The query reports the minimum across rows, and
-$\hat f_a - f_a > \epsilon F$ exactly when \emph{every} row
-over-shoots:
-\[
-  \Prob{\hat f_a > f_a + \epsilon F}
-  \;=\; \Prob{X_i \ge \epsilon F \text{ for all } i}
-  \;\le\; (1/e)^d.
-\]
-With $d = \lceil \ln(1/\delta) \rceil \ge \ln(1/\delta)$,
-$(1/e)^d \le \delta$, which is the claimed bound. The lower bound
-$\hat f_a \ge f_a$ is the deterministic argument of the previous
-subsection. \qedhere
+Fix $a$ and a row $i$. Write the collision mass $X_i = \sum_{b \neq a} f_b\,
+\mathbf{1}[h_i(b) = h_i(a)] \ge 0$, so $C[i][h_i(a)] = f_a + X_i$. By pairwise
+independence each $b$ collides with probability $1/w$, so $\Expect{X_i} =
+(F - f_a)/w \le F/w$. Markov's inequality gives $\Prob{X_i \ge \epsilon F} \le
+\Expect{X_i}/(\epsilon F) \le 1/(\epsilon w) \le 1/e$, the last step using
+$w \ge e/\epsilon$. The $d$ rows use independent hashes, and $\hat f_a >
+f_a + \epsilon F$ only if every row overshoots, so $\Prob{\hat f_a > f_a +
+\epsilon F} \le (1/e)^d \le \delta$ since $d \ge \ln(1/\delta)$. The lower
+bound is the deterministic argument above.
 \end{proof}
 
-Two design points are worth flagging. First, the bound is additive
-in $F$, not in $f_a$: heavy hitters with $f_a$ comparable to $F$ are
-estimated with small \emph{relative} error, while light items with
-$f_a \ll \epsilon F$ may be reported as $\epsilon F$ and the relative
-error is essentially uninformative. CountMin is the right sketch when
-the question of interest is which items are heavy, not what the
-counts of the light items are. Second, the space cost is
-\[
-  d \cdot w \;=\; \lceil \ln(1/\delta) \rceil \cdot \lceil e/\epsilon \rceil
-  \;=\; O\bigl((1/\epsilon) \ln(1/\delta)\bigr)
-\]
-counters, which is logarithmic in the failure probability and inverse
-in the additive error parameter. The original analysis is due to
-\textcite{cormode-muthukrishnan-2005}; the proof above is the
-standard Markov-plus-union-bound presentation.
+The bound is additive in $F$, not in $f_a$: heavy hitters with $f_a$ comparable
+to $F$ are estimated at small \emph{relative} error, while light items with
+$f_a \ll \epsilon F$ are washed out. CountMin is the sketch for finding which
+items are heavy, not for the counts of light ones. The space is $d \cdot w =
+\lceil \ln(1/\delta) \rceil \lceil e/\epsilon \rceil = O\big((1/\epsilon)
+\ln(1/\delta)\big)$ counters, logarithmic in the failure probability and
+inverse in the additive error (\textcite{cormode-muthukrishnan-2005}).
 
-\subsection*{The $\Bernoulli{T}$ type}
+\begin{remark}[Expected overshoot]
+\label{rem:expected-overshoot}
+The high-probability bound has a tighter expectation behind it. A single row's
+overshoot has mean $\Expect{X_i} = (F - f_a)/w$, and at the design width
+$w = \lceil e/\epsilon \rceil$ this is $\le F/w = \epsilon F / e$, a factor $e$
+below the headline slack $\epsilon F$. The factor $e$ is exactly the Markov
+slack the proof pays to turn a mean into a tail bound; the reported minimum sits
+below even this per-row mean.
+\end{remark}
 
-CountMin instantiates the framework of \Cref{ch:approximate-functions}
-with output type $T = \mathbb{N}$. The query is a function from
-streams to non-negative integers, and its error behaviour is
-summarized by a channel matrix $Q$ in the sense of
-\Cref{def:n-ary-channel}: rows are indexed by the true count $f_a$
-and columns by the reported estimate $\hat f_a$, with entry
-\[
-  Q_{f_a, \hat f_a} \;=\;
-  \Prob{\textsc{Query}(a) = \hat f_a \Given \text{true count is } f_a}.
-\]
-The deterministic lower bound $\hat f_a \ge f_a$ has a clean
-expression in $Q$: every row places all its mass on columns at or
-above the diagonal, so $Q$ is upper triangular. This is the analogue,
-for a count-valued output, of the upper-triangular channel matrix
-associated with the Bloom filter as a one-sided approximate set: the
-deterministic lower bound on the estimate corresponds structurally to
-the deterministic ``no false negatives'' guarantee of the membership
-report. The probabilistic upper bound from
-\Cref{thm:countmin-bound} fills in the row-wise shape: each row's
-mass is concentrated near the diagonal, with at most a $\delta$
-fraction of probability sitting more than $\epsilon F$ columns to the
-right of $f_a$. The matrix is large (rows and columns indexed by all
-of $\mathbb{N}$, in principle), but its structure is summarized by
-the two parameters $(\epsilon, \delta)$.
+\subsection*{The $\Bernoulli{T}$ type and merging}
 
-\subsection*{Composition: merging two CountMin sketches}
+CountMin instantiates \Cref{ch:approximate-functions} with $T = \mathbb{N}$: its
+channel $Q$ (\Cref{def:n-ary-channel}) has rows indexed by the true count, and
+the deterministic $\hat f_a \ge f_a$ makes $Q$ \emph{upper triangular}, the
+count-valued analogue of the Bloom filter's one-sided membership matrix. Each
+row concentrates near the diagonal, with at most a $\delta$ fraction of mass
+more than $\epsilon F$ columns to the right. Two sketches built on disjoint
+substreams with the same parameters and hashes merge by entry-wise addition,
+$(C_1 \oplus C_2)[i][j] = C_1[i][j] + C_2[i][j]$, which is exactly the sketch of
+the concatenated stream because \textsc{Update} only increments and addition
+commutes; the same $(\epsilon, \delta)$ bound holds at the combined $F$. Sharing
+the hash family is what keeps the merge a single correct sketch rather than a
+doubling of the failure probability, an instance of the
+\Cref{thm:n-ary-kronecker} composition.
 
-A common operational pattern is that two CountMin sketches $C_1$ and
-$C_2$ are built independently on two disjoint substreams of a single
-larger stream, and the analysis wants a sketch of the combined
-stream. If both sketches use the same parameters $(w, d)$ and the
-same hash functions $h_1, \ldots, h_d$, the merge is entry-wise
-addition:
-\[
-  (C_1 \oplus C_2)[i][j] \;=\; C_1[i][j] + C_2[i][j]
-  \quad \text{for all } i \in \{1, \ldots, d\}, \; j \in \{1, \ldots, w\}.
-\]
-The merged table is exactly the CountMin sketch that would have been
-built by running \textsc{Update} on the concatenation of the two
-substreams, because \textsc{Update} only increments counters and
-addition is commutative. \textsc{Query} on the merged sketch returns
-$\min_i (C_1 + C_2)[i][h_i(a)]$, which is the estimate of the total
-count $f_a^{(1)} + f_a^{(2)}$ in the combined stream. The same
-$(\epsilon, \delta)$ bound from \Cref{thm:countmin-bound} applies,
-with the new $F$ being the sum of the two substream lengths.
+\subsection*{Worked example}
 
-In the language of \Cref{ch:approximate-functions}, this merge is a
-$\Bernoulli{\mathbb{N}}$ composition. The channel matrix of the
-merged sketch is the channel matrix that
-\Cref{thm:n-ary-kronecker} would assign to the joint query of the
-two substream sketches under the natural product of integer counts.
-Crucially the merge does not double the failure probability: the two
-sketches share their hashes, so the row-collision events on the
-merged sketch are the same events as on each constituent, not the
-union of two separate event sets. Sharing the hash family is the
-discipline that lets independently built sketches add up to one
-correct sketch of the union.
-
-\subsection*{A worked example}
-
-Take $w = 10$ and $d = 5$, a small but illustrative configuration.
-The corresponding error parameters from \Cref{thm:countmin-bound} are
-$\epsilon \le e/w \approx 0.272$ (the additive bound is at most
-$0.272 \cdot F$) and $\delta \le e^{-d} \approx 0.00674$ (the
-failure probability is at most $0.67\%$).
-
-Consider a stream of $F = 1000$ items drawn from a universe of $50$
-distinct items, with frequency profile
-\[
-  f_{a_1} = 400, \; f_{a_2} = 200, \; f_{a_3} = 100, \;
-  f_{a_4} = \cdots = f_{a_{20}} = 10, \;
-  f_{a_{21}} = \cdots = f_{a_{50}} = 4,
-\]
-which sums to $400 + 200 + 100 + 17 \cdot 10 + 30 \cdot 4 = 990$,
-and pad with $10$ further occurrences of $a_1$ to reach exactly
-$F = 1000$ (so $f_{a_1} = 410$). Query for the heavy hitter $a_1$
-with $f_{a_1} = 410$. The expected per-row over-estimate is
-\[
-  \mathbb{E}[X_i] \;=\; (F - f_{a_1})/w \;=\; 590/10 \;=\; 59,
-\]
-so each row reports a value near $410 + 59 = 469$ in expectation,
-and the minimum across $d = 5$ rows is pulled below this mean by the
-order statistic. A typical realization (verified in the chapter
-notebook with seed 0) returns $\hat f_{a_1} = 432$, an over-estimate
-of $22$, well inside the headline bound $\epsilon F = 0.272 \cdot
-1000 = 272$. Now query for a light item $a_{30}$ with $f_{a_{30}} =
-4$. The expected per-row over-estimate is $(1000 - 4)/10 = 99.6$, so
-even the minimum across five rows will likely report something on
-the order of $50$ to $90$. The estimate is correctly bounded above by
-$f_{a_{30}} + \epsilon F = 4 + 272 = 276$, but it is essentially
-uninformative about the true count of $4$: the additive error term
-is twenty times the true frequency. The headline bound holds, but it
-holds in a regime where light items are washed out by the collision
-mass of heavier ones. This is exactly the heavy-hitter design point
-of CountMin: heavy items are estimated tightly relative to their own
-count, and light items are reported only up to the additive $\epsilon
-F$ slack.
-
-\subsection*{Looking ahead}
-
-CountMin estimates the frequency of a specific item. The next
-section, \Cref{sec:hyperloglog}, turns to a complementary streaming
-question: how many \emph{distinct} items have been seen, regardless
-of which ones. The answer is not a per-item count but a single
-integer, and the sketch that estimates it works on a completely
-different principle, the leading-zero count of a random hash, with a
-space cost that is logarithmic in the cardinality being estimated
-rather than logarithmic in the failure probability.
+Take $w = 10$, $d = 5$, so the achieved parameters are $\epsilon = e/w \approx
+0.272$ (additive bound $\epsilon F = 0.272\,F$) and $\delta = e^{-d} \approx
+0.0067$. On a stream of $F = 1000$ items with a heavy item $f_{a_1} = 410$, the
+expected per-row overshoot is $(F - f_{a_1})/w = 590/10 = 59$, so each row
+reports near $469$ and the minimum across five rows falls below it; a typical
+realization returns $\hat f_{a_1} = 432$, an overshoot of $22$, well inside the
+bound $\epsilon F = 272$. For a light item with $f = 4$, the expected per-row
+overshoot is $99.6$, and the estimate, though correctly bounded by $4 + 272$, is
+uninformative about the true count. This is the heavy-hitter design point:
+heavy items tight relative to their own count, light items only up to the
+additive slack. \Cref{sec:hyperloglog} turns to the complementary question of
+how many \emph{distinct} items a stream contains.

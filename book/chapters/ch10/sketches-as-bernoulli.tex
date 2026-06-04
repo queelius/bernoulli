@@ -1,149 +1,43 @@
 % §10.1 Sketches as Bernoulli of T
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:sketches-as-bernoulli}             -- this section
-%
-% RESOLVED (chapter 9):
-%   \Cref{sec:bridge-to-sketches}                 -- §9.5 (preview)
-%   \Cref{thm:n-ary-kronecker}                    -- §9.3 theorem
-%   \Cref{def:n-ary-channel}                      -- §9.2 definition
-%
-% RESOLVED (chapter 5):
-%   \Cref{ch:approximate-sets}                    -- chapter 5
-%
-% FORWARD REFS within chapter 10 (resolve in Plan 10 Tasks 3-6):
-%   \Cref{sec:countmin}                           -- §10.2
-%   \Cref{sec:hyperloglog}                        -- §10.3
-%   \Cref{sec:minhash-lsh}                        -- §10.4
-%   \Cref{sec:ch10-bridge}                        -- §10.5
-%
-% §10.1 is the chapter opener. It restates what a sketch is, names the
-% three canonical instances (CountMin, HyperLogLog, MinHash) along with
-% their output types, explains why the chapter 9 framework unifies them,
-% and signposts the rest of the chapter.
+% Monograph register: what a sketch is, the three sketches and their output
+% types, the ch9 channel-matrix unification. Cross-refs sec:bridge-to-sketches,
+% thm:n-ary-kronecker, def:n-ary-channel, ch:approximate-sets, sec:countmin,
+% sec:hyperloglog, sec:minhash-lsh, sec:ch10-bridge. DEFINED:
+% sec:sketches-as-bernoulli.
 
 \section{Sketches as Bernoulli of \texorpdfstring{$T$}{T}}
 \label{sec:sketches-as-bernoulli}
 
-\subsection*{What is a sketch?}
+A \emph{sketch} maps a stream or multiset over a universe $\Universe$ to a
+compact summary, with a query routine that reconstructs an estimate
+$\hat\theta$ of some quantity $\theta$ of the stream from the summary alone.
+What makes it a sketch, rather than a compressed representation, is that the
+summary grows sublinearly (often poly-logarithmically) in the stream length,
+the per-item update is near-constant, and the error $\hat\theta - \theta$ is
+bounded by a clean function of the design parameters
+(\Cref{sec:bridge-to-sketches}). This chapter builds three, distinguished by
+what they estimate, which is to say by their output type.
 
-A \emph{sketch} is a function from a stream or multiset of items, drawn
-from some universe $\Universe$, to a compact summary, together with a
-query routine that reconstructs an answer to a fixed family of
-questions about the input from the summary alone. The reconstruction
-is approximate: the query returns an estimate $\hat\theta$ of some
-quantity $\theta(x_1, \ldots, x_n)$ of the stream, and the error
-$\hat\theta - \theta$ is bounded by a known analytic expression in the
-summary size and the input. What makes a sketch a sketch, and not
-merely a compressed representation, is that the size of the summary
-grows sublinearly (often poly-logarithmically) in the stream length
-$n$, the per-item update cost is constant or near-constant, and the
-error bound is a clean function of the design parameters. The reader
-already saw the preview at \Cref{sec:bridge-to-sketches}, which framed
-the three sketches of this chapter as the canonical instances of the
-trade-off for frequency, cardinality, and similarity queries
-respectively; this section makes that framing the operating definition
-for the rest of Part III.
+\emph{CountMin} (\Cref{sec:countmin}) estimates per-item frequency $f_a$, with
+$T = \mathbb{N}$ and \emph{one-sided} error: the construction guarantees
+$\hat f_a \ge f_a$ deterministically, the multiset analogue of the Bloom
+filter's one-sided membership report (\Cref{ch:approximate-sets}).
+\emph{HyperLogLog} (\Cref{sec:hyperloglog}) estimates distinct-item cardinality
+$n$, again with $T = \mathbb{N}$ but with two-sided relative error of order
+$1/\sqrt{m}$ in the register count $m$. \emph{MinHash} (\Cref{sec:minhash-lsh})
+estimates Jaccard similarity $J(A,B)$, with $T = [0,1]$ and symmetric error of
+variance $J(1-J)/k$ in the signature length $k$.
 
-\subsection*{Three canonical sketches, three types}
-
-The three sketches built in this chapter differ chiefly in what they
-estimate, which is to say in their output type.
-
-\paragraph{CountMin estimates per-item frequency.}
-Given a stream $x_1, x_2, \ldots, x_n$ and a query item $a \in
-\Universe$, CountMin returns an estimate $\hat f_a$ of the true count
-$f_a = |\{i : x_i = a\}|$. The output type is $T = \mathbb{N}$, and
-the error is \emph{one-sided}: the construction guarantees $\hat f_a
-\ge f_a$ deterministically, with the over-estimate bounded in
-probability by a quantity that scales with the stream length and the
-sketch width. This one-sided structure is the direct analogue of the
-Bloom filter's one-sided membership report
-(\Cref{ch:approximate-sets}): the construction sets counters
-monotonically, no operation ever decreases a counter, and the worst
-case is that some other item's hashes coincide with $a$'s and inflate
-the reported count. False under-estimation, the analogue of a Bloom
-false negative, is impossible by construction.
-
-\paragraph{HyperLogLog estimates cardinality.}
-Given a stream that may contain duplicates, HyperLogLog returns an
-estimate $\hat n$ of the number of distinct items $n = |\{x_1, \ldots,
-x_n\}|$. The output type is again $T = \mathbb{N}$, but the error
-structure is qualitatively different: the estimate is approximate in
-both directions, with a relative error of order $1/\sqrt m$ in the
-register count $m$. The headline result is that $m = 2048$ registers
-of six bits apiece (a kilobyte and a half) suffice to estimate the
-cardinality of a stream of billions of distinct items to about two and
-a half percent relative accuracy. The space cost is logarithmic in
-the cardinality being estimated rather than linear in it, which is the
-qualitative win that makes HyperLogLog the standard sketch for
-distinct counts in production analytics systems.
-
-\paragraph{MinHash estimates Jaccard similarity.}
-Given two sets $A, B \subseteq \Universe$, MinHash returns an estimate
-$\hat J(A, B)$ of the Jaccard similarity $J(A, B) = |A \cap B| / |A
-\cup B|$. The output type is $T = [0, 1]$ (the unit interval),
-reflecting the fact that the quantity being estimated is a probability
-rather than a count. The error is symmetric: $\hat J - J$ is centered
-at zero with variance $J(1 - J)/k$ in the signature length $k$, and
-the deviations on either side of the true value have the same
-distribution. The sketch is built from the simple observation that
-the minimum of a random hash function over a set is equally likely to
-come from any element, so the probability that two sets share their
-minimum is exactly the fraction of elements they share. The full
-construction is the obvious generalization: run the trick $k$ times
-with independent hashes, count the matches, divide by $k$.
-
-\subsection*{Why the chapter 9 framework unifies them}
-
-The three sketches above estimate three different things over three
-different domains, and the conventional treatment introduces each one
-as its own structure with its own analysis. The chapter 9 framework
-gives all three the same shape. Each sketch is a function
-\[
-  s \;:\; \Universe^* \longrightarrow T,
-\]
-where $\Universe^*$ is the space of finite streams over the universe
-$\Universe$ and $T$ is the output type. The query algorithm is the
-projection from a stream to its sketch value, and the error structure
-is summarized by a row-stochastic channel matrix $Q$ in the sense of
-\Cref{def:n-ary-channel}: rows of $Q$ are indexed by the true value
-$\theta$ of the queried quantity, columns by the reported value
-$\hat\theta$, and the entry $Q_{\theta, \hat\theta}$ is the
-conditional probability that the sketch reports $\hat\theta$ when the
-input has true value $\theta$. The matrix $Q$ is typically very
-large or even continuous (HyperLogLog's $\theta$ ranges over the
-positive integers; MinHash's ranges over the unit interval), but in
-every case it has structure: CountMin's $Q$ is upper triangular
-(one-sided), HyperLogLog's concentrates within a multiplicative band
-around the diagonal (relative error), and MinHash's is approximately
-binomial along each row (signature counts).
-
-The structural payoff is composition. The independence properties
-that drive the per-sketch analyses (pairwise-independent hashes for
-CountMin, independent hash registers for HyperLogLog, independent
-permutation samples for MinHash) all amount to the same statement in
-the channel-matrix language: the joint behaviour of multiple sketch
-queries, or of a single sketch built by aggregating multiple streams,
-factors as a Kronecker product of the per-query or per-substream
-matrices. \Cref{thm:n-ary-kronecker} is the chapter 9 result that
-makes this factorization a theorem rather than a per-sketch lemma.
-Merging two CountMin sketches, merging two HyperLogLog sketches,
-querying a MinHash signature at $k$ positions are all instances of
-the same Kronecker structure, with the per-instance content amounting
-to filling in the correct entries of the elementary matrices.
-
-\subsection*{Signpost}
-
-The next three sections build the three sketches from scratch, each
-one following the same template: problem setup, construction with
-pseudocode, error-bound theorem, identification of the
-$\Bernoulli{T}$ type, and merge or composition rule.
-\Cref{sec:countmin} builds CountMin; \Cref{sec:hyperloglog} builds
-HyperLogLog; \Cref{sec:minhash-lsh} builds MinHash and its
-locality-sensitive-hashing extension. \Cref{sec:ch10-bridge} closes
-the chapter by handing the three constructions off to chapter 13,
-where the algebra of $\Bernoulli{T}$ composition is axiomatized and
-the sketches of this chapter become its first non-trivial instances.
+The chapter-9 framework gives all three the same shape. Each is a function
+$s : \Universe^* \to T$ whose error is summarized by a row-stochastic channel
+$Q$ (\Cref{def:n-ary-channel}) with rows indexed by the true value $\theta$,
+columns by the report $\hat\theta$: CountMin's $Q$ is upper triangular
+(one-sided), HyperLogLog's concentrates in a multiplicative band (relative
+error), MinHash's is binomial along each row. The structural payoff is
+composition: the per-sketch independence assumptions all reduce to the same
+channel statement, and merging two sketches or querying one at $k$ positions is
+the Kronecker factorization of \Cref{thm:n-ary-kronecker} rather than a
+per-sketch lemma. Each of the next three sections follows one template,
+construction, error bound, $\Bernoulli{T}$ type, merge; \Cref{sec:ch10-bridge}
+hands the pattern to the type algebra of Part~III's close.

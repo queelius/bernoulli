@@ -1,160 +1,65 @@
 % §10.3 HyperLogLog
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:hyperloglog}                       -- this section
-%   \label{def:hyperloglog}                       -- the construction
-%   \label{alg:hyperloglog-update-estimate}       -- update/estimate pseudocode
-%   \label{prop:hyperloglog-error}                -- standard error proposition
-%
-% RESOLVED (chapter 9):
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{def:n-ary-channel}                      -- §9.2
-%   \Cref{thm:n-ary-kronecker}                    -- §9.3
-%
-% RESOLVED (chapter 10, prior sections):
-%   \Cref{sec:sketches-as-bernoulli}              -- §10.1
-%   \Cref{sec:countmin}                           -- §10.2
-%   \Cref{thm:countmin-bound}                     -- §10.2
-%
-% FORWARD REFS within chapter 10 (resolve in Plan 10 Task 5):
-%   \Cref{sec:minhash-lsh}                        -- §10.4
-%
-% BIBLIOGRAPHIC (resolved in §10.6, Plan 10 Task 7):
-%   flajolet-et-al-2007                           -- HyperLogLog original
+% Monograph register: leading-zero trick, stochastic averaging, the estimator
+% with alpha_m, the 1.04/sqrt(m) error, two-sided Bernoulli[N], max-merge.
+% Worked-example fix: the draft computed a single-seed nhat=7240 by taking the
+% register average as log2(n/m)=5.3 (missing the ~+0.83 Gumbel correction that
+% alpha_m compensates), giving a 27% systematic low value mislabeled as a "2.8 SD"
+% outlier. HLL is unbiased; kept the relative SE (6.5%) and the 100-seed mean 9970.
+% Cross-refs ch:approximate-functions, def:n-ary-channel, thm:n-ary-kronecker,
+% sec:countmin, thm:countmin-bound, sec:minhash-lsh. DEFINED: sec:hyperloglog,
+% def:hyperloglog, alg:hyperloglog-update-estimate, prop:hyperloglog-error.
 
 \section{HyperLogLog}
 \label{sec:hyperloglog}
 
-\subsection*{Problem setup}
-
-The streaming question of this section is complementary to the
-frequency-estimation question of \Cref{sec:countmin}. Given a stream
-$x_1, x_2, \ldots, x_N$ of items from a universe $\Universe$, possibly
-with repetition, estimate the cardinality
-\[
-  n \;=\; |\{x_1, x_2, \ldots, x_N\}|
-\]
-of the set of distinct items seen, ignoring multiplicities. Exact
-counting requires space that grows with $n$: any deterministic
-algorithm that reports the exact cardinality of an arbitrary stream
-must, in essence, remember which distinct items it has already
-encountered, and a standard communication-complexity argument
-establishes that this is $\Theta(n)$ bits in the worst case. The
-HyperLogLog sketch gives up exactness and returns an estimate $\hat n$
-with relative error on the order of $1/\sqrt{m}$, using $m$
-small-integer registers and a single hash evaluation per stream item.
-The resulting space cost, for fixed target accuracy, is
-\emph{doubly logarithmic} in $n$: a few kilobytes of state suffices
-to estimate cardinalities into the billions.
+The complementary streaming question is cardinality: estimate $n = |\{x_1,
+\ldots, x_N\}|$, the number of distinct items, ignoring multiplicity. Exact
+counting needs $\Theta(n)$ bits in the worst case; HyperLogLog returns an
+estimate with relative error of order $1/\sqrt{m}$ using $m$ small registers,
+at space \emph{doubly} logarithmic in $n$, so a few kilobytes estimate
+cardinalities into the billions.
 
 \subsection*{The leading-zero trick}
 
-Let $h : \Universe \to [0, 1]$ be a uniformly random hash, and think
-of $h(a)$ as an infinite binary fraction
-$0.b_1 b_2 b_3 \cdots$. Define $\rho(x)$ to be the position of the
-first $1$ bit in this expansion: $\rho(0.001\ldots) = 3$,
-$\rho(0.1\ldots) = 1$, and so on. Equivalently, $\rho(x)$ counts the
-number of leading zeros and adds one.
+Let $h : \Universe \to [0,1]$ be a uniform hash, read as a binary fraction
+$0.b_1 b_2 \cdots$, and let $\rho(x)$ be the position of its first $1$ bit
+(leading zeros plus one). For uniform $h(a)$ the bits are fair coins, so
+$\Prob{\rho \ge k} = 2^{-(k-1)}$, and the maximum of $\rho$ over $n$ distinct
+items grows as $\log_2 n$ with $O(1)$ spread. Tracking only the running maximum
+of $\rho(h(a))$ and reporting $2^{\max}$ therefore estimates $n$ from a single
+small integer, but the multiplicative standard deviation is a factor of roughly
+two: an order-of-magnitude check, useless quantitatively. The fix is averaging.
 
-For a uniformly distributed $h(a)$ the bit $b_k$ is an independent
-fair coin, so
-\[
-  \Prob{\rho(h(a)) \ge k} \;=\; \Prob{b_1 = b_2 = \cdots = b_{k-1} = 0}
-  \;=\; 2^{-(k-1)},
-\]
-and the indicator that $\rho(h(a)) \ge k$ is exactly the event of
-seeing $k - 1$ leading zeros. The expected value of $\rho(h(a))$ over
-a single draw is therefore $\sum_{k \ge 1} \Prob{\rho \ge k} =
-\sum_{k \ge 0} 2^{-k} = 2$, but the tail is heavy: the probability
-of seeing at least $k$ leading zeros is $2^{-k}$, so the maximum of
-$\rho(h(a_1)), \ldots, \rho(h(a_n))$ across $n$ independent items
-grows as $\log_2 n$. Concretely, in $n$ independent draws of a
-$\mathrm{Geometric}(1/2)$ variable, the maximum is approximately
-$\log_2 n$ with standard deviation $O(1)$: each unit increase in the
-threshold halves the probability of exceeding it, so the maximum
-sits at the value where the expected count of exceedances drops from
-above one to below one.
+\subsection*{The construction}
 
-The trick of HyperLogLog is to invert this relationship. Track only
-the running maximum of $\rho(h(a))$ over the items seen, and read
-off an estimate of $\log_2 n$ from it. The data the algorithm needs
-to maintain is a single small integer (the current maximum $\rho$),
-not the items themselves.
-
-\subsection*{A single-register estimator}
-
-The crudest version of the algorithm is the obvious one. Maintain a
-single register $R$, initialized to zero. On each stream item $a$,
-compute $\rho(h(a))$ and set $R \gets \max(R, \rho(h(a)))$. At query
-time, report
-\[
-  \hat n \;=\; 2^R.
-\]
-
-This single-register estimator captures the right scaling: as the
-true cardinality $n$ grows, $R$ grows as $\log_2 n$, and $2^R$ grows
-as $n$. But the multiplicative variance is enormous. The maximum of
-$n$ independent geometric variables has standard deviation on the
-order of one bit, so the estimate $2^R$ has multiplicative standard
-deviation on the order of $2^{O(1)}$, that is, a constant factor of
-roughly two in either direction. An estimate that is off by a factor
-of two is useful for an order-of-magnitude check and useless for
-anything quantitative. The fix is averaging: run many independent
-copies of the algorithm and combine them in a way that pulls the
-estimate toward its mean.
-
-\subsection*{Multiple registers (the construction)}
-
-Running $m$ truly independent hash functions and tracking $m$
-independent registers would solve the variance problem at $m$-fold
-cost in hash evaluations. HyperLogLog avoids that overhead by reusing
-a single hash via \emph{stochastic averaging}: each item is routed to
-one of $m$ buckets by the first $\log_2 m$ bits of its hash, and only
-the remaining bits feed the leading-zero count for that bucket. The
-$m$ registers then play the role of independent observations of the
-single-register estimator, each on a stream of expected length $n/m$,
-without ever evaluating a second hash.
+HyperLogLog averages without a second hash by \emph{stochastic averaging}: the
+first $\log_2 m$ bits of each item's hash route it to one of $m$ buckets, and
+the remaining bits feed that bucket's leading-zero count. The $m$ registers act
+as independent observations of the single-register estimator on streams of
+expected length $n/m$.
 
 \begin{definition}[HyperLogLog sketch]
 \label{def:hyperloglog}
-Fix a register count $m = 2^p$ for some integer $p \ge 4$, and a
-hash $h : \Universe \to \{0, 1\}^{32}$ (or 64; the bit width sets the
-maximum representable cardinality). The \emph{HyperLogLog sketch} is
-a register array $M[0..m-1]$ of small non-negative integers,
-initialized to zero, together with the operations:
-\begin{itemize}
-  \item \textsc{Update}$(a)$: compute $h(a)$; split it into the
-    first $p$ bits $j$ (the bucket index) and the remaining bits
-    $w$; set
-    $M[j] \gets \max(M[j], \rho(w))$.
-  \item \textsc{Estimate}$()$: return
-    \[
-      \hat n \;=\; \alpha_m \cdot \frac{m^2}{\sum_{j=0}^{m-1} 2^{-M[j]}},
-    \]
-    where $\alpha_m$ is the bias-correction constant given below.
-\end{itemize}
-The constants are $\alpha_{16} = 0.673$, $\alpha_{32} = 0.697$,
-$\alpha_{64} = 0.709$, and
-$\alpha_m = 0.7213 / (1 + 1.079/m)$ for $m \ge 128$.
+Fix $m = 2^p$ registers ($p \ge 4$) and a hash $h : \Universe \to \{0,1\}^{32}$.
+The sketch is a register array $M[0..m-1]$, initialized to zero, with
+\textsc{Update}$(a)$ splitting $h(a)$ into a $p$-bit bucket index $j$ and a
+remainder $w$ and setting $M[j] \gets \max(M[j], \rho(w))$, and
+\textsc{Estimate}$()$ returning
+\[
+  \hat n = \alpha_m \cdot \frac{m^2}{\sum_{j=0}^{m-1} 2^{-M[j]}},
+\]
+with $\alpha_{16} = 0.673$, $\alpha_{32} = 0.697$, $\alpha_{64} = 0.709$, and
+$\alpha_m = 0.7213/(1 + 1.079/m)$ for $m \ge 128$.
 \end{definition}
-
-\Cref{alg:hyperloglog-update-estimate} states the two operations in
-pseudocode.
 
 \begin{algorithm}[ht]
   \caption{HyperLogLog update and estimate}
   \label{alg:hyperloglog-update-estimate}
-  \SetKwInOut{Input}{input}
-  \SetKwInOut{Output}{output}
   \SetKwProg{func}{procedure}{}{}
   \SetKwProg{fn}{function}{}{}
-
   \func{\textsc{Update}($a$)}{
-    $x \gets h(a)$\;
-    $j \gets$ first $p$ bits of $x$\;
-    $w \gets$ remaining bits of $x$\;
+    $x \gets h(a)$; $j \gets$ first $p$ bits of $x$; $w \gets$ remaining bits\;
     $M[j] \gets \max(M[j], \rho(w))$\;
   }
   \BlankLine
@@ -164,173 +69,55 @@ pseudocode.
   }
 \end{algorithm}
 
-Three pieces of the estimator deserve comment. The sum $Z = \sum_j
-2^{-M[j]}$ is the \emph{harmonic mean} (up to a factor of $m$) of the
-per-bucket estimates $2^{M[j]}$. Harmonic averaging suppresses the
-contribution of an outlier register that, by bad luck, accumulated
-an unusually long run of leading zeros and would otherwise pull the
-arithmetic mean of the per-bucket estimates upward by a constant
-multiplicative factor. The factor $m^2$ converts an estimate of
-$n/m$ per bucket into an estimate of $n$ total, and the bias-correction
-$\alpha_m$ removes a small constant-factor bias introduced by the
-choice of harmonic mean and the discrete geometric distribution of
-$\rho$. The asymptotic form $\alpha_\infty = 0.7213\ldots$ comes
-from an integral that \textcite{flajolet-et-al-2007} compute in their
-Theorem 1; the small-$m$ corrections are tabulated values that fit
-the same integral evaluated at finite $m$.
-
-The space cost is $m$ registers, each large enough to hold $\rho$ of
-the bit-string after the prefix. For a 32-bit hash and $p = 8$
-($m = 256$), each $M[j]$ takes values in $\{0, 1, \ldots, 24\}$ and
-fits in 5 bits. The whole sketch is $256 \cdot 5 = 1280$ bits, or
-160 bytes, regardless of how many items the stream contains.
-
-\subsection*{The error bound}
-
-The bias correction is calibrated to make $\mathbb{E}[\hat n] = n$
-to first order in $1/m$. The fluctuations of $\hat n$ around $n$ are
-governed by the central limit theorem applied to the registers.
+The sum $Z = \sum_j 2^{-M[j]}$ is the harmonic mean of the per-bucket estimates
+$2^{M[j]}$ (up to a factor $m$), which suppresses an outlier register that drew
+an unlucky run of leading zeros; the $m^2$ rescales $n/m$ per bucket to $n$
+total, and $\alpha_m$ removes the constant bias of the harmonic mean and the
+discrete $\rho$, an integral \textcite{flajolet-et-al-2007} evaluate. For a
+32-bit hash with $p = 8$ ($m = 256$), each $M[j] \in \{0, \ldots, 24\}$ fits in
+$5$ bits, so the sketch is $256 \cdot 5 = 1280$ bits ($160$ bytes) regardless of
+stream length.
 
 \begin{proposition}[HyperLogLog standard error]
 \label{prop:hyperloglog-error}
-For a HyperLogLog sketch with $m \ge 128$ registers built from a
-uniformly random hash, the relative standard error of the
-cardinality estimate $\hat n$ satisfies
-\[
-  \frac{\sigma(\hat n)}{n}
-  \;\approx\; \frac{1.04}{\sqrt{m}}
-\]
-in the regime where $n$ is large compared to $m$. With $m = 2048$
-(an 11-bit bucket prefix), the relative standard error is
-approximately $2.3\%$.
+For $m \ge 128$ registers and $n$ large relative to $m$, the relative standard
+error of the estimate is $\sigma(\hat n)/n \approx 1.04/\sqrt{m}$; at $m = 2048$
+this is about $2.3\%$.
 \end{proposition}
 
-The constant $1.04$ is the asymptotic value of the per-register
-standard-deviation factor computed by \textcite{flajolet-et-al-2007}
-in their main analysis; the proof is an exact generating-function
-calculation that we will not reproduce here. The dependence on
-$1/\sqrt{m}$ matches the central-limit intuition: $m$ buckets give
-$m$ approximately independent observations of $n/m$, and the relative
-error of their averaged estimator scales as $1/\sqrt{m}$ regardless
-of $n$. Doubling the relative accuracy quadruples the register count;
-this is the space-accuracy duality of the sketch.
+The $1.04$ is the asymptotic per-register factor of
+\textcite{flajolet-et-al-2007}, from an exact generating-function calculation we
+do not reproduce. The $1/\sqrt{m}$ dependence is the central-limit scaling of
+$m$ near-independent observations, and doubling the accuracy quadruples the
+register count. When $n$ is small relative to $m$ (many registers still zero)
+the algorithm switches to a linear-counting correction $\hat n = m \ln(m/V)$
+with $V$ the count of zero registers; a saturation correction handles the
+high-cardinality end.
 
-Two regime boundaries are worth noting. When $n$ is small relative
-to $m$ (so that many registers are still zero), the estimator
-under-counts and the algorithm switches to a linear-counting
-correction: $\hat n = m \ln(m / V)$, where $V$ is the count of
-zero registers. When $n$ approaches the maximum representable
-cardinality (set by the hash bit width), a saturation correction
-applies. Both corrections are routine and are documented in the
-original paper. The bulk of the operating range is governed by
-\Cref{prop:hyperloglog-error}.
+\subsection*{The $\Bernoulli{T}$ type and merging}
 
-\subsection*{The $\Bernoulli{T}$ type}
+HyperLogLog instantiates \Cref{ch:approximate-functions} with $T = \mathbb{N}$,
+as CountMin does, but its channel $Q$ (\Cref{def:n-ary-channel}) is \emph{not}
+triangular: it errs both ways. The limiting distribution of $\log\hat n - \log
+n$ is approximately normal with standard deviation $1.04/\sqrt{m}$
+\parencite{flajolet-et-al-2007}, so each row of $Q$ concentrates on a geometric
+interval around $n$, symmetric on a multiplicative rather than additive scale,
+the qualitative contrast with CountMin's one-sided additive error. Two sketches
+on the same hash and register count merge by entry-wise maximum, $(M^{(1)}
+\sqcup M^{(2)})[j] = \max(M^{(1)}[j], M^{(2)}[j])$, which is exactly the sketch
+of the union stream because each bucket stores a maximum and the max over a
+union is the max of the per-stream maxima; sharing the hash is again the
+discipline behind the \Cref{thm:n-ary-kronecker} composition.
 
-HyperLogLog instantiates the framework of
-\Cref{ch:approximate-functions} with output type $T = \mathbb{N}$,
-the same as CountMin, but with a fundamentally different channel
-structure. The query is a function from streams to non-negative
-integers, and its error behaviour is summarized by a channel matrix
-$Q$ in the sense of \Cref{def:n-ary-channel}: rows are indexed by
-the true cardinality $n$ and columns by the reported estimate
-$\hat n$, with entry
-\[
-  Q_{n, \hat n} \;=\;
-  \Prob{\textsc{Estimate}() = \hat n \Given \text{true cardinality is } n}.
-\]
-Unlike CountMin, the matrix is \emph{not} triangular. HyperLogLog
-errs in both directions: an unlucky sequence of hash bits can produce
-a register that overestimates $\log_2 n$ in some buckets while
-others underestimate, and the harmonic-mean combination can shake
-out either above or below $n$. The shape of each row is approximately
-log-normal in $\hat n / n$: by \Cref{prop:hyperloglog-error}, the
-multiplicative error has constant relative standard deviation
-$1.04/\sqrt{m}$ across the operating range, and the asymptotic
-analysis of \textcite{flajolet-et-al-2007} shows the limiting
-distribution of $\log \hat n - \log n$ is approximately normal
-with that standard deviation. Each row of $Q$ therefore concentrates
-on a roughly geometric interval around $n$, symmetric on a
-multiplicative scale rather than an additive one. The contrast with
-CountMin's one-sided additive error is the main qualitative
-distinction between the two channel matrices.
+\subsection*{Worked example}
 
-\subsection*{Merging two HyperLogLog sketches}
-
-Two HyperLogLog sketches $M^{(1)}$ and $M^{(2)}$ built on the same
-hash function and the same register count $m$ on two streams $S_1$
-and $S_2$ admit a particularly clean merge:
-\[
-  (M^{(1)} \sqcup M^{(2)})[j]
-  \;=\; \max\bigl(M^{(1)}[j], M^{(2)}[j]\bigr)
-  \quad \text{for all } j \in \{0, 1, \ldots, m-1\}.
-\]
-The merged register array is exactly the array that would have
-resulted from running \textsc{Update} on the union stream $S_1 \cup
-S_2$ (treating each stream as a multiset and taking the union of
-their distinct items). The argument is one line: for each bucket
-$j$, the bucket-$j$ register on the union stream is the maximum of
-$\rho(w)$ over all items in $S_1 \cup S_2$ whose hash prefix is $j$,
-which is the maximum of the per-stream bucket-$j$ maxima. The merge
-is idempotent in duplicate items: an item appearing in both streams
-contributes the same $\rho(w)$ to its bucket in both sketches, and
-$\max$ of two equal values is that value.
-
-In the language of \Cref{ch:approximate-functions}, this merge is a
-$\Bernoulli{\mathbb{N}}$ composition. The channel matrix of the
-merged sketch is the channel matrix that
-\Cref{thm:n-ary-kronecker} would assign to the joint query of the
-two stream sketches under the cardinality-of-union operation on
-multisets. As with CountMin, sharing the hash function across the
-two sketches is the discipline that lets independently constructed
-sketches add up to a correct sketch of the union: were the two
-sketches built on independent hashes, the merge would be a coarse
-upper bound on the union cardinality with no clean error analysis.
-
-\subsection*{A worked example}
-
-Take $m = 256$ (so $p = 8$) and simulate a stream of $n = 10000$
-distinct items, each hashed with a 32-bit hash. The expected relative
-standard error from \Cref{prop:hyperloglog-error} is
-$1.04/\sqrt{256} = 0.065$, so a single run typically returns an
-estimate within $\pm 650$ of $10000$.
-
-After processing the stream, each register $M[j]$ records the
-maximum $\rho$ of the $\approx 10000 / 256 \approx 39$ items that
-landed in bucket $j$. The expected maximum of $39$ independent draws
-of $\rho$ is approximately $\log_2 39 \approx 5.3$, so most of the
-registers contain values in $\{4, 5, 6, 7\}$, with a small minority
-at $3$ or $8$ from the tails of the maximum-of-geometrics
-distribution. A representative register array (verified in the
-chapter notebook with seed 0) is concentrated in this range, with
-distribution
-\[
-  M \;\approx\; (5, 5, 6, 4, 7, 5, 6, 5, 4, 6, 5, 7, 5, 6, 5, 4, \ldots)
-\]
-for the first sixteen entries, and a full sum $\sum_j 2^{-M[j]}$ on
-the order of $256 / 39 \approx 6.5$. The estimate is
-\[
-  \hat n \;=\; \alpha_{256} \cdot \frac{256^2}{Z}
-  \;\approx\; 0.7182 \cdot \frac{65536}{6.5}
-  \;\approx\; 7240,
-\]
-which is in the wrong tail by about $2.8$ standard deviations on a
-single seed; averaging over a hundred independent seeds returns an
-empirical mean estimate of $9970$ and an empirical relative standard
-deviation of $0.063$, both within the expected range from
-\Cref{prop:hyperloglog-error}. The example reinforces the point that
-the headline bound is a standard error, not a deterministic bound:
-any single sketch can land a few standard deviations away from $n$,
-and the value of the sketch is that the spread shrinks as
-$1/\sqrt{m}$ with the register count.
-
-\subsection*{Looking ahead}
-
-HyperLogLog estimates the cardinality of a single multiset.
-\Cref{sec:minhash-lsh} turns to a similarity question on two sets:
-estimate the Jaccard similarity $J(A, B) = |A \cap B|/|A \cup B|$
-from compact signatures of $A$ and $B$, without recomputing either
-intersection or union explicitly. The construction is again hash-based,
-again maintains a small array per set, and again admits a clean
-$\Bernoulli{T}$ analysis, this time with $T = [0, 1]$ and a symmetric
-two-sided error bound from Hoeffding's inequality.
+Take $m = 256$ and a stream of $n = 10000$ distinct items. The relative standard
+error from \Cref{prop:hyperloglog-error} is $1.04/\sqrt{256} = 0.065$, so a
+single sketch typically lands within about $\pm 650$ of $10000$, with each
+register holding the maximum $\rho$ of the $\approx 10000/256 \approx 39$ items
+in its bucket. The estimate is unbiased but high-variance on one seed: averaging
+$100$ independent seeds returns an empirical mean of $9970$ with relative
+standard deviation $0.063$, both matching the proposition. The headline figure
+is a standard error, not a deterministic bound; the value of the sketch is that
+the spread shrinks as $1/\sqrt{m}$. \Cref{sec:minhash-lsh} turns to similarity:
+estimating the Jaccard overlap of two sets from compact signatures.

@@ -1,348 +1,142 @@
 % §10.4 MinHash and LSH
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:minhash-lsh}                       -- this section
-%   \label{def:minhash}                           -- the construction
-%   \label{alg:minhash-signature-estimate}        -- signature/estimate pseudocode
-%   \label{prop:minhash-collision}                -- collision-probability lemma
-%   \label{prop:minhash-error}                    -- Hoeffding bound proposition
-%
-% RESOLVED (chapter 9):
-%   \Cref{ch:approximate-functions}               -- chapter 9
-%   \Cref{def:n-ary-channel}                      -- §9.2
-%   \Cref{thm:n-ary-kronecker}                    -- §9.3
-%
-% RESOLVED (chapter 10, prior sections):
-%   \Cref{sec:sketches-as-bernoulli}              -- §10.1
-%   \Cref{sec:countmin}                           -- §10.2
-%   \Cref{sec:hyperloglog}                        -- §10.3
-%   \Cref{prop:hyperloglog-error}                 -- §10.3
-%
-% FORWARD REFS within chapter 10 (resolve in Plan 10 Task 6):
-%   \Cref{sec:ch10-bridge}                        -- §10.5
-%
-% BIBLIOGRAPHIC (resolved in §10.6, Plan 10 Task 7):
-%   broder-1997                                   -- MinHash original
-%   indyk-motwani-1998                            -- LSH original
+% Monograph register: the collision identity, the signature estimator, the
+% Hoeffding bound, the binomial Bernoulli[[0,1]] reading, LSH. All math verified
+% correct (the worked example's single seed is a consistent 0.3-SE deviation).
+% Cross-refs ch:approximate-functions, def:n-ary-channel, thm:n-ary-kronecker,
+% prop:hyperloglog-error, sec:ch10-bridge. DEFINED: sec:minhash-lsh, def:minhash,
+% alg:minhash-signature-estimate, prop:minhash-collision, prop:minhash-error.
 
 \section{MinHash and LSH}
 \label{sec:minhash-lsh}
 
-\subsection*{Problem setup}
+The third primitive estimates the \emph{Jaccard similarity} $J(A, B) = |A \cap
+B|/|A \cup B| \in [0,1]$ of two sets. Exact computation needs space linear in
+the set sizes, a deal-breaker across a corpus of millions of documents over a
+vocabulary of millions of shingles. MinHash (\textcite{broder-1997}) reduces
+each set to a signature of $k$ integers and estimates $J$ from two signatures in
+$O(k)$ time.
 
-The similarity question on two sets is the third streaming primitive
-of this chapter. Given two sets $A, B \subseteq \Universe$, the
-\emph{Jaccard similarity} is
-\[
-  J(A, B) \;=\; \frac{|A \cap B|}{|A \cup B|},
-\]
-a value in $[0, 1]$ that is $0$ when the sets are disjoint and $1$
-when they coincide. Exact computation of $J(A, B)$ requires a pass
-through both sets and total work $O(|A| + |B|)$; storing the sets
-themselves costs space linear in their sizes, which is a deal-breaker
-when the inputs are documents over a vocabulary of millions of
-shingles and the comparison must be made across a corpus of millions
-of documents. The MinHash sketch (\textcite{broder-1997}) reduces
-each set to a signature of $k$ small integers, with $k$ a tunable
-accuracy parameter, and estimates $J(A, B)$ from the two signatures
-alone in time $O(k)$. Pairwise similarity queries that would otherwise
-be quadratic in the corpus size become quadratic in the signature
-length, and the further extension to Locality-Sensitive Hashing (LSH)
-reduces the corpus-wide comparison to a sub-linear approximate
-nearest-neighbour search.
+\subsection*{The collision identity}
 
-\subsection*{The MinHash trick}
-
-Fix a hash $h : \Universe \to [0, 1]$ that is uniform across the
-universe and injective on $A \cup B$ (no hash collisions among items
-of interest). For a non-empty set $S \subseteq \Universe$, write
-$\min h(S) = \min_{a \in S} h(a)$ for the smallest hash value attained
-on $S$, and write $\arg\min h(S) = \arg\min_{a \in S} h(a)$ for the
-item of $S$ at which that minimum is attained. The central
-observation is the following.
+Fix a hash $h : \Universe \to [0,1]$, uniform and injective on $A \cup B$, and
+write $\min h(S) = \min_{a \in S} h(a)$.
 
 \begin{proposition}[MinHash collision probability]
 \label{prop:minhash-collision}
-Let $A, B \subseteq \Universe$ be non-empty finite sets with
-$A \cup B$ injectively hashed by $h$. Then
-\[
-  \Prob{\min h(A) = \min h(B)} \;=\; J(A, B).
-\]
+$\Prob{\min h(A) = \min h(B)} = J(A, B)$.
 \end{proposition}
 
 \begin{proof}
-The minimum hash over $A \cup B$ is attained at a unique element
-$a^* \in A \cup B$ (by injectivity). The event
-$\{\min h(A) = \min h(B)\}$ holds exactly when $a^* \in A \cap B$:
-if $a^*$ lies in both $A$ and $B$, then $a^*$ is the argmin of $h$
-restricted to $A$ and also the argmin of $h$ restricted to $B$, and
-the two minima coincide; if $a^*$ lies in only one of the two sets,
-the other set's minimum is strictly larger. By the uniformity of $h$
-across $A \cup B$, every element of $A \cup B$ is equally likely to
-be the argmin, so
-\[
-  \Prob{a^* \in A \cap B}
-  \;=\; \frac{|A \cap B|}{|A \cup B|}
-  \;=\; J(A, B),
-\]
-which is the claimed identity.
+The minimum of $h$ over $A \cup B$ is attained at a unique $a^*$. The minima of
+$A$ and $B$ coincide iff $a^* \in A \cap B$ (otherwise the set not containing
+$a^*$ has a strictly larger minimum). By uniformity every element of $A \cup B$
+is equally likely to be $a^*$, so $\Prob{a^* \in A \cap B} = |A \cap B|/|A \cup
+B| = J(A, B)$.
 \end{proof}
 
-The proof is short because the identity is essentially combinatorial.
-What the proof says, restated, is that the minimum hash over a union
-is itself a uniform random sample from the union, and the probability
-this sample comes from a particular subset is the subset's
-proportion. A single hash $h$ converts the set-similarity question
-into a Bernoulli coin flip with bias $J(A, B)$. Estimating $J$ is
-then a matter of repeating the experiment.
+The minimum hash over a union is a uniform sample from the union, and the chance
+it falls in a subset is the subset's proportion. One hash converts the
+similarity question into a Bernoulli coin of bias $J$; estimating $J$ is
+repetition.
 
-\subsection*{The construction}
-
-Pick $k$ hash functions $h_1, h_2, \ldots, h_k$, each independent and
-each uniform across $\Universe$. For each set $A \subseteq \Universe$,
-compute the \emph{MinHash signature}
-\[
-  \sigma(A)
-  \;=\; \bigl(\sigma_1(A), \sigma_2(A), \ldots, \sigma_k(A)\bigr)
-  \;\in\; [0, 1]^k,
-\]
-where $\sigma_i(A) = \min_{a \in A} h_i(a)$. The signature is a
-length-$k$ vector that summarizes $A$: it discards the items of $A$
-themselves and retains only the $k$ minima.
+\subsection*{The construction and its error}
 
 \begin{definition}[MinHash sketch]
 \label{def:minhash}
-The \emph{MinHash sketch} of parameter $k$ for a set $A \subseteq
-\Universe$ is the signature $\sigma(A) = (\sigma_1(A), \ldots,
-\sigma_k(A))$ where each $\sigma_i(A) = \min_{a \in A} h_i(a)$ for
-independent uniform hashes $h_i$. The \emph{MinHash estimator} of the
-Jaccard similarity $J(A, B)$ is
+For independent uniform hashes $h_1, \ldots, h_k$, the \emph{signature} of
+$A \subseteq \Universe$ is $\sigma(A) = (\sigma_1(A), \ldots, \sigma_k(A))$ with
+$\sigma_i(A) = \min_{a \in A} h_i(a)$, and the \emph{estimator} of $J(A, B)$ is
 \[
-  \hat J(A, B)
-  \;=\; \frac{1}{k} \,
-        \bigl|\{i \in \{1, \ldots, k\} : \sigma_i(A) = \sigma_i(B)\}\bigr|,
+  \hat J = \frac{1}{k}\,\bigl|\{i : \sigma_i(A) = \sigma_i(B)\}\bigr|,
 \]
-the fraction of signature components on which the two sets agree.
+the fraction of agreeing components.
 \end{definition}
-
-\Cref{alg:minhash-signature-estimate} states the signature
-construction and the pairwise estimator in pseudocode.
 
 \begin{algorithm}[ht]
   \caption{MinHash signature and Jaccard estimate}
   \label{alg:minhash-signature-estimate}
-  \SetKwInOut{Input}{input}
-  \SetKwInOut{Output}{output}
-  \SetKwProg{func}{procedure}{}{}
   \SetKwProg{fn}{function}{}{}
-
   \fn{\textsc{Signature}($A$)}{
-    \For{$i \gets 1$ \KwTo $k$}{
-      $\sigma_i \gets \min_{a \in A} h_i(a)$\;
-    }
-    \Return $(\sigma_1, \sigma_2, \ldots, \sigma_k)$\;
+    \For{$i \gets 1$ \KwTo $k$}{$\sigma_i \gets \min_{a \in A} h_i(a)$\;}
+    \Return $(\sigma_1, \ldots, \sigma_k)$\;
   }
   \BlankLine
   \fn{\textsc{Estimate}($\sigma(A), \sigma(B)$)}{
     $c \gets 0$\;
-    \For{$i \gets 1$ \KwTo $k$}{
-      \lIf{$\sigma_i(A) = \sigma_i(B)$}{$c \gets c + 1$}
-    }
-    \Return $c / k$\;
+    \For{$i \gets 1$ \KwTo $k$}{\lIf{$\sigma_i(A) = \sigma_i(B)$}{$c \gets c + 1$}}
+    \Return $c/k$\;
   }
 \end{algorithm}
 
-The signature for $A$ takes $O(k \cdot |A|)$ time to compute (one
-pass per hash function) and $O(k)$ space to store. The pairwise
-estimator takes $O(k)$ time, independent of the original set sizes.
-The signature is also \emph{streaming}: items can be inserted into
-$A$ one at a time, with each insertion updating each $\sigma_i$ in
-$O(1)$ via $\sigma_i \gets \min(\sigma_i, h_i(a))$. Deletion is not
-supported, which is the price of the min-based summary; an item that
-once attained the minimum cannot be removed without rescanning the
-set.
-
-\subsection*{Error bound}
-
-Each component of the signature gives a Bernoulli trial for the
-Jaccard event. Let $Y_i = \mathbf{1}[\sigma_i(A) = \sigma_i(B)]$ for
-$i = 1, \ldots, k$. By \Cref{prop:minhash-collision}, each $Y_i$ is
-Bernoulli with parameter $J = J(A, B)$, and the $Y_i$ are independent
-because the hash functions $h_i$ are independent. The estimator is
-\[
-  \hat J \;=\; \frac{1}{k} \sum_{i=1}^k Y_i,
-\]
-the sample mean of $k$ independent Bernoulli($J$) variables.
+The signature costs $O(k)$ space and updates in $O(1)$ per inserted item via
+$\sigma_i \gets \min(\sigma_i, h_i(a))$ (deletion is unsupported, the price of a
+min-summary).
 
 \begin{proposition}[MinHash error bound]
 \label{prop:minhash-error}
-For a MinHash sketch of parameter $k$ built from independent uniform
-hashes, the estimator $\hat J$ of the Jaccard similarity $J = J(A, B)$
-satisfies
-\[
-  \mathbb{E}[\hat J] \;=\; J,
-  \qquad
-  \mathrm{Var}[\hat J] \;=\; \frac{J(1 - J)}{k},
-\]
-and, by Hoeffding's inequality, for every $\epsilon > 0$,
-\[
-  \Prob{|\hat J - J| \;\ge\; \epsilon}
-  \;\le\; 2 \exp\bigl(-2 k \epsilon^2\bigr).
-\]
+The estimator satisfies $\Expect{\hat J} = J$, $\mathrm{Var}[\hat J] = J(1 -
+J)/k$, and, by Hoeffding's inequality, $\Prob{|\hat J - J| \ge \epsilon} \le 2
+\exp(-2 k \epsilon^2)$ for every $\epsilon > 0$.
 \end{proposition}
 
 \begin{proof}
-Linearity of expectation gives $\mathbb{E}[\hat J] = \mathbb{E}[Y_1]
-= J$, and independence of the $Y_i$ gives $\mathrm{Var}[\hat J] =
-\mathrm{Var}[Y_1] / k = J(1 - J)/k$. Hoeffding's inequality for a
-sum of $k$ independent random variables each bounded in $[0, 1]$
-states that the deviation of the sample mean from its expectation
-exceeds $\epsilon$ in absolute value with probability at most
-$2 \exp(-2 k \epsilon^2)$, which is the claimed tail bound applied to
-$\hat J$.
+Let $Y_i = \mathbf{1}[\sigma_i(A) = \sigma_i(B)]$. By
+\Cref{prop:minhash-collision} each $Y_i$ is $\mathrm{Bernoulli}(J)$, independent
+across $i$ since the $h_i$ are. Then $\hat J = \frac1k \sum Y_i$ has mean $J$ and
+variance $J(1-J)/k$, and Hoeffding's bound for a mean of $k$ variables in
+$[0,1]$ gives the tail.
 \end{proof}
 
-The bound is symmetric in over-estimation and under-estimation: the
-MinHash estimator is two-sided in the same sense that the
-HyperLogLog estimator is two-sided
-(\Cref{prop:hyperloglog-error}), and unlike CountMin, which is
-one-sided. Inverting the Hoeffding bound for a target failure
-probability $\delta$ gives an additive accuracy $\epsilon = \sqrt{\ln
-(2/\delta) / (2 k)}$, so $\hat J$ falls within $\pm \epsilon$ of $J$
-with probability at least $1 - \delta$ when $k \ge \ln(2/\delta) /
-(2 \epsilon^2)$. The signature length grows linearly in $\ln(1/\delta)$
-and quadratically in $1/\epsilon$.
+The error is two-sided and symmetric, like HyperLogLog's
+(\Cref{prop:hyperloglog-error}) and unlike CountMin's. Inverting the tail for a
+target $\delta$ gives accuracy $\epsilon = \sqrt{\ln(2/\delta)/(2k)}$, so the
+signature length grows linearly in $\ln(1/\delta)$ and quadratically in
+$1/\epsilon$.
 
 \subsection*{The $\Bernoulli{T}$ type}
 
-MinHash instantiates the framework of
-\Cref{ch:approximate-functions} with output type $T = [0, 1]$, the
-unit interval of similarity values. The query is a function from
-pairs of signatures to similarity estimates, and its error behaviour
-is summarized by a channel matrix $Q$ in the sense of
-\Cref{def:n-ary-channel}: rows are indexed by the true Jaccard
-$J \in [0, 1]$ and columns by the reported estimate
-$\hat J \in \{0, 1/k, 2/k, \ldots, 1\}$, with entry
+MinHash instantiates \Cref{ch:approximate-functions} with $T = [0,1]$. Since
+$k\hat J$ is a sum of $k$ independent $\mathrm{Bernoulli}(J)$ variables, each row
+of the channel $Q$ (\Cref{def:n-ary-channel}) is a $\mathrm{Binomial}(k, J)$
+distribution on $\{0, 1/k, \ldots, 1\}$,
 \[
-  Q_{J, \hat J}
-  \;=\; \Prob{\textsc{Estimate}(\sigma(A), \sigma(B)) = \hat J
-              \Given J(A, B) = J}.
+  Q_{J,\, j/k} = \binom{k}{j} J^j (1 - J)^{k-j},
 \]
-Because $k \hat J$ is the sum of $k$ independent Bernoulli($J$)
-variables, each row of $Q$ is a Binomial$(k, J)$ distribution on the
-$k+1$ possible values of $\hat J$:
-\[
-  Q_{J, j/k}
-  \;=\; \binom{k}{j} J^j (1 - J)^{k - j},
-  \qquad j = 0, 1, \ldots, k.
-\]
-The matrix is row-stochastic by construction and is symmetric in the
-following sense: the row conditional on true similarity $J$ is the
-mirror image, under the substitution $\hat J \mapsto 1 - \hat J$, of
-the row conditional on true similarity $1 - J$. The contrast with
-CountMin's upper-triangular $Q$ and with HyperLogLog's approximately
-log-normal rows is that MinHash's $Q$ has a closed binomial form. The
-two-sided concentration of \Cref{prop:minhash-error} is the
-chapter~9 channel-matrix view of the Binomial distribution's
-concentration around its mean.
+symmetric under $\hat J \mapsto 1 - \hat J$, $J \mapsto 1 - J$, the contrast with
+CountMin's triangular and HyperLogLog's log-normal rows. The
+\Cref{prop:minhash-error} concentration is the channel-matrix view of the
+Binomial's concentration around its mean.
 
 \subsection*{LSH for approximate nearest neighbour}
 
-Estimating $J(A, B)$ for a single pair $(A, B)$ from signatures of
-length $k$ takes $O(k)$ time. Doing the same for every pair in a
-corpus of $N$ documents takes $O(k N^2)$ time, which is intractable
-once $N$ is in the millions. Locality-Sensitive Hashing
-(\textcite{indyk-motwani-1998}) is a structural device that uses the
-MinHash signatures themselves as bucket keys, so that pairs with high
-Jaccard similarity collide into the same bucket with high
-probability and pairs with low similarity do not. The corpus-wide
-similarity search reduces to a bucket lookup: for a query document
-$Q$, hash its signature into the same scheme and inspect only the
-documents sharing a bucket with $Q$.
-
-The construction partitions the length-$k$ MinHash signature into
-$b$ \emph{bands} of $r$ \emph{rows} each, with $k = b r$. For each
-band, the $r$ signature entries are concatenated into a single key
-and hashed into a bucket. Two sets $A$ and $B$ become \emph{candidate
-neighbours} if they share a bucket in at least one of the $b$ bands.
-The probability that a single band agrees on all $r$ rows is $J^r$
-(each row agrees independently with probability $J$ by
-\Cref{prop:minhash-collision}), so the probability that at least one
-band agrees is
+Estimating $J$ for every pair in a corpus of $N$ documents costs $O(kN^2)$.
+Locality-sensitive hashing (\textcite{indyk-motwani-1998}) uses signatures as
+bucket keys so that similar pairs collide. Partition the length-$k$ signature
+into $b$ bands of $r$ rows ($k = br$); two sets are \emph{candidates} if they
+agree on all $r$ rows of at least one band. A band agrees with probability
+$J^r$, so the candidate probability is the S-curve
 \[
-  p(J) \;=\; 1 - (1 - J^r)^b.
+  p(J) = 1 - (1 - J^r)^b,
 \]
-The shape of $p$ as a function of $J$ is the celebrated S-curve of
-LSH: small $J$ gives $p(J) \approx b J^r$, which is close to zero
-when $J^r$ is small; large $J$ gives $p(J)$ close to one. The
-transition is sharp, with the steep portion concentrated around the
-threshold $J^* \approx (1/b)^{1/r}$. Choosing $(b, r)$ tunes the
-threshold: a larger $r$ steepens the curve and pushes the threshold
-right (more selective), and a larger $b$ raises the entire curve
-(more permissive).
+with a sharp transition near $J^* \approx (1/b)^{1/r}$: larger $r$ steepens and
+selects, larger $b$ raises and admits. Tuning $(b, r)$ to a target $J^*$ and
+building the $b$ band tables once turns the $O(N^2)$ comparison into a
+sub-linear bucket lookup, with an exact pass filtering the small candidate set.
 
-For approximate nearest neighbour with target similarity $J^*$, the
-operational recipe is to pick $(b, r)$ so that $p(J)$ is small below
-$J^*$ and close to one above $J^*$, then build the $b$ bucket tables
-once over the corpus. A query hashes its signature into each of the
-$b$ band tables in $O(b)$ time and returns the union of the matching
-buckets as the candidate set; an exact pairwise Jaccard (or a MinHash
-estimate) on the small candidate set then filters down to the true
-neighbours. The expected candidate-set size is governed by the
-corpus's similarity distribution and the chosen $(b, r)$, and is
-typically a small constant times the number of true neighbours when
-the parameters are tuned to the target $J^*$. The resulting query
-time is sub-linear in $N$: the bucket lookup is $O(b)$, and the
-candidate-filtering work is governed by the actual neighbour density,
-not the corpus size.
+\subsection*{Worked example}
 
-\subsection*{A worked example}
-
-Take two sets $A$ and $B$ with $|A| = |B| = 100$ and overlap
-$|A \cap B| = 30$. The union has $|A \cup B| = |A| + |B| - |A \cap B|
-= 170$, and the true Jaccard similarity is
+Take $|A| = |B| = 100$, $|A \cap B| = 30$, so $|A \cup B| = 170$ and $J = 30/170
+\approx 0.176$. With $k = 200$,
 \[
-  J \;=\; \frac{30}{170} \;\approx\; 0.176.
+  \mathrm{Var}[\hat J] = \frac{0.176 \cdot 0.824}{200} \approx 7.26 \times
+  10^{-4},
 \]
-Build MinHash signatures of length $k = 200$ from independent uniform
-hashes. By \Cref{prop:minhash-error}, the estimator $\hat J$ has
-expectation $J \approx 0.176$ and variance
-\[
-  \mathrm{Var}[\hat J]
-  \;=\; \frac{J(1 - J)}{k}
-  \;=\; \frac{0.176 \cdot 0.824}{200}
-  \;\approx\; 7.26 \cdot 10^{-4},
-\]
-so the standard error of $\hat J$ is approximately $0.027$. A single
-sketch typically returns $\hat J$ within $\pm 0.027$ of $0.176$, and
-the Hoeffding bound of \Cref{prop:minhash-error} gives, for
-$\epsilon = 0.05$,
-\[
-  \Prob{|\hat J - J| \ge 0.05}
-  \;\le\; 2 \exp(-2 \cdot 200 \cdot 0.0025)
-  \;=\; 2 e^{-1}
-  \;\approx\; 0.736,
-\]
-which is a loose bound at this scale because Hoeffding ignores the
-$J(1 - J)$ factor that pulls the variance well below $1/4$ when $J$
-is small. The standard-error estimate above, derived from the exact
-binomial variance, is the practically relevant accuracy figure. A
-representative realization (verified in the chapter notebook with
-seed 0) returns $\hat J = 0.185$, a deviation of $0.009$ from the
-true value, well inside one standard error. To halve the standard
-error to $0.013$, quadruple the signature length to $k = 800$; this
-is the same $1/\sqrt{k}$ space-accuracy scaling as HyperLogLog and
-the same logarithmic-in-failure-probability dependence as CountMin,
-adapted to the symmetric two-sided Bernoulli setting.
-
-\subsection*{Looking ahead}
-
-The MinHash construction closes the catalogue of three sketches that
-this chapter builds from scratch. The next section,
-\Cref{sec:ch10-bridge}, recaps the common pattern (construction,
-$\Bernoulli{T}$ type, error bound, composition) across CountMin,
-HyperLogLog, and MinHash, and hands off to chapter~13's type algebra,
-where the composition rules informally invoked throughout this
-chapter are axiomatized and proved in their full generality.
+a standard error of $0.027$. The Hoeffding bound at $\epsilon = 0.05$ gives
+$2e^{-2 \cdot 200 \cdot 0.0025} = 2e^{-1} \approx 0.74$, loose here because
+Hoeffding ignores the $J(1-J)$ factor that shrinks the variance for small $J$;
+the exact binomial standard error $0.027$ is the relevant figure. A single
+sketch returns, say, $\hat J = 0.185$, within one standard error of $0.176$.
+Halving the error to $0.013$ quadruples the signature to $k = 800$, the same
+$1/\sqrt{k}$ scaling as HyperLogLog. \Cref{sec:ch10-bridge} recaps the common
+pattern and hands the three sketches to the type algebra of Part~III's close.
