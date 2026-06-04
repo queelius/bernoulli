@@ -1,164 +1,77 @@
 % §8.1 Shannon Entropy Refresher
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:entropy-refresher}                 -- this section
-%
-% ALREADY DEFINED (chapter 2):
-%   \Cref{sec:bsc}                                -- chapter 2 §2.1
-%
-% FORWARD REFS within chapter 8 (resolve in later Plan 8 tasks):
-%   \Cref{sec:bsc-capacity}                       -- §8.2 (Task 3)
-%   \Cref{sec:entropy-floor}                      -- §8.3 (Task 4)
-%   \Cref{sec:bloom-gap}                          -- §8.4 (Task 5)
-%
-% §8.1 collects the three pieces of Shannon's information theory used
-% by the rest of chapter 8: the entropy $H(X)$, the binary entropy
-% function $H(p)$, and the mutual information $I(X; Y)$. Stated, not
-% derived; Cover and Thomas is the depth reference.
+% Monograph register: entropy, binary entropy, mutual information, capacity.
+% Correctness: -log2(eps) is the self-information (surprisal) of an eps-event,
+% NOT "the entropy of an indicator" (that is H(eps) ~ -eps log2 eps). Cross-refs
+% sec:bsc, sec:bsc-capacity, sec:entropy-floor, sec:bloom-gap. DEFINED:
+% sec:entropy-refresher, eq:entropy, eq:binary-entropy, eq:mutual-info,
+% eq:mutual-info-joint, eq:capacity-def.
 
 \section{Shannon Entropy Refresher}
 \label{sec:entropy-refresher}
 
-The chapter's two headline results, the BSC capacity in
-\Cref{sec:bsc-capacity} and the entropy floor for approximate sets in
-\Cref{sec:entropy-floor}, both rest on a small slice of Shannon's
-information theory: the entropy of a random variable, the special
-form of that entropy for a single binary outcome, and the mutual
-information between two random variables. This section collects the
-three pieces and fixes notation. Cover and Thomas~\cite{cover-thomas}
-is the standard depth reference; nothing here is derived from first
-principles.
+The chapter's two results, the BSC capacity (\Cref{sec:bsc-capacity}) and the
+entropy floor for approximate sets (\Cref{sec:entropy-floor}), rest on a small
+slice of Shannon's information theory: the entropy of a random variable, its
+binary special case, and mutual information. We collect them and fix notation;
+\textcite{cover-thomas} is the depth reference.
 
-\subsection*{Entropy of a discrete random variable}
-
-For a discrete random variable $X$ taking values in a finite alphabet
-$\mathcal{X}$ with distribution $\Pr[X = x]$, the \emph{Shannon
-entropy} of $X$ is
+\paragraph{Entropy.}
+For a discrete $X$ on a finite alphabet $\mathcal{X}$, the \emph{Shannon
+entropy} is
 \begin{equation}
 \label{eq:entropy}
-  H(X) \;=\; -\sum_{x \in \mathcal{X}} \Pr[X = x] \, \log_2 \Pr[X = x],
+  H(X) \;=\; -\sum_{x \in \mathcal{X}} \Prob{X = x}\,\log_2 \Prob{X = x},
 \end{equation}
-with the convention $0 \log_2 0 = 0$. The base-$2$ logarithm sets the
-unit to \emph{bits}. The operational reading is that $H(X)$ is the
-average number of yes/no questions an optimal binary search needs to
-identify a draw of $X$: at one extreme, a constant random variable
-has $H(X) = 0$ (no questions needed); at the other extreme, a uniform
-distribution over $|\mathcal{X}|$ outcomes has $H(X) = \log_2
-|\mathcal{X}|$ bits (a balanced binary search). Real-world
-distributions sit somewhere between. The quantity $H(X)$ is also the
-tight lower bound on the expected length of any prefix-free binary
-code for $X$, by Shannon's source-coding theorem, and that
-operational reading is what \Cref{sec:entropy-floor} uses.
+with $0 \log_2 0 = 0$, measured in bits. Operationally $H(X)$ is the average
+number of yes/no questions an optimal binary search needs to identify a draw:
+$0$ for a constant, $\log_2|\mathcal{X}|$ for the uniform distribution. By
+Shannon's source-coding theorem it is also the tight lower bound on the
+expected length of any prefix-free code for $X$, the reading
+\Cref{sec:entropy-floor} uses.
 
-\subsection*{The binary entropy function}
-
-The single most-used special case is a Bernoulli random variable.
-For $X \sim \mathrm{Bernoulli}(p)$ with $\Pr[X = 1] = p$ and
-$\Pr[X = 0] = 1 - p$, equation~\eqref{eq:entropy} collapses to a
-function of $p$ alone:
+\paragraph{Binary entropy.}
+For $X \sim \mathrm{Bernoulli}(p)$, \eqref{eq:entropy} collapses to
 \begin{equation}
 \label{eq:binary-entropy}
-  H(p) \;=\; -p \log_2 p \;-\; (1 - p) \log_2 (1 - p),
-  \qquad p \in [0, 1].
+  H(p) \;=\; -p \log_2 p - (1 - p)\log_2(1 - p), \qquad p \in [0, 1],
 \end{equation}
-We overload the symbol $H$: the form $H(X)$ takes a random variable
-and the form $H(p)$ takes a scalar $p \in [0, 1]$; context
-disambiguates. The function $H(p)$ has three properties used
-repeatedly in this chapter and in chapter~14:
+overloading $H$ (a random variable in $H(X)$, a scalar in $H(p)$; context
+disambiguates). Three properties recur in this chapter and chapter~14: $H$ is
+strictly concave ($H''(p) = -1/[p(1-p)\ln 2] < 0$); it peaks at $H(1/2) = 1$
+(a fair coin is the most uncertain bit); and $H(0) = H(1) = 0$. It is
+symmetric, $H(p) = H(1-p)$, with $H(0.01) \approx 0.081$, $H(0.1) \approx
+0.469$. Distinct from $H(\fprate)$ is the \emph{self-information} (surprisal)
+$-\log_2 \fprate$ of a single event of probability $\fprate$: the floor of
+\Cref{sec:entropy-floor} is $-\log_2 \fprate$ bits per element, the cost of one
+such event, not the indicator entropy $H(\fprate) \approx -\fprate \log_2
+\fprate$ that weights it by $\fprate$.
 
-\begin{enumerate}
-  \item \emph{Concave on $[0, 1]$.} The second derivative
-    $H''(p) = -1 / (p (1 - p) \ln 2)$ is negative on $(0, 1)$, so $H$
-    is strictly concave. Jensen-style averaging arguments apply.
-  \item \emph{Maximum $1$ at $p = 1/2$.} Setting $H'(p) = 0$ gives
-    $\log_2 ((1 - p) / p) = 0$, so $p = 1/2$, where
-    $H(1/2) = 1$ bit. A fair coin is the most uncertain single bit.
-  \item \emph{Zero at the boundaries.} $H(0) = H(1) = 0$ by the
-    $0 \log_2 0 = 0$ convention. A deterministic bit carries no
-    information.
-\end{enumerate}
-
-\noindent The function is symmetric about $p = 1/2$, since
-$H(p) = H(1 - p)$ swaps the two terms. Numerically, $H(0.01) \approx
-0.081$ bit, $H(0.1) \approx 0.469$ bit, $H(0.5) = 1$ bit. The
-quantity that matters in \Cref{sec:bsc-capacity} is $H(\fprate)$
-where $\fprate$ is the BSC crossover rate; the quantity that matters
-in \Cref{sec:entropy-floor} is the related quantity $-\log_2 \fprate$,
-which is the entropy of an indicator that an event of probability
-$\fprate$ occurs (the dominant term of $H(\fprate)$ as $\fprate \to
-0$).
-
-\subsection*{Mutual information}
-
-When two random variables $X$ and $Y$ are jointly distributed, the
-\emph{mutual information}
+\paragraph{Mutual information and capacity.}
+For jointly distributed $X, Y$, the \emph{mutual information}
 \begin{equation}
 \label{eq:mutual-info}
   I(X; Y) \;=\; H(X) - H(X \mid Y) \;=\; H(Y) - H(Y \mid X)
 \end{equation}
-measures how much observing $Y$ reduces uncertainty about $X$, or
-equivalently how much observing $X$ reduces uncertainty about $Y$.
-The two forms in \eqref{eq:mutual-info} are equal: $I(X; Y)$ is
-symmetric in its two arguments, and the chapter uses both
-orientations as convenience dictates. Here $H(X \mid Y) = \sum_y
-\Pr[Y = y] \, H(X \mid Y = y)$ is the conditional entropy of $X$
-given $Y$, the average residual uncertainty about $X$ after $Y$ is
-known. An equivalent form writes the mutual information directly
-from the joint distribution,
+measures how much observing one reduces uncertainty about the other, with
+$H(X \mid Y) = \sum_y \Prob{Y = y}\,H(X \mid Y = y)$ the conditional entropy.
+Equivalently
 \begin{equation}
 \label{eq:mutual-info-joint}
-  I(X; Y) \;=\; \sum_{x, y} \Pr[X = x, Y = y]
-    \, \log_2 \frac{\Pr[X = x, Y = y]}{\Pr[X = x] \Pr[Y = y]},
+  I(X; Y) \;=\; \sum_{x, y} \Prob{X = x, Y = y}
+    \log_2 \frac{\Prob{X = x, Y = y}}{\Prob{X = x}\Prob{Y = y}},
 \end{equation}
-showing that $I(X; Y)$ is a Kullback-Leibler divergence between the
-joint distribution and the product of marginals, and so always
-nonnegative. Equality $I(X; Y) = 0$ holds iff $X$ and $Y$ are
-independent: the joint factorizes, the ratio inside the logarithm
-is uniformly $1$, and observing one of the pair tells you nothing
-about the other. At the opposite extreme, if $X$ is a function of
-$Y$, then $H(X \mid Y) = 0$ and $I(X; Y) = H(X)$: the observation of
-$Y$ pins down $X$ completely, and the reduction equals all of $X$'s
-prior uncertainty. Between those two endpoints, $I(X; Y)$
-interpolates smoothly and is the central object that
-\Cref{sec:bsc-capacity} optimizes.
-
-For a noisy channel with input $X$ and output $Y$ governed by a
-fixed conditional distribution $\Pr[Y \mid X]$, the mutual
-information $I(X; Y)$ depends on the input distribution
-$\Pr[X]$. The \emph{channel capacity} is the maximum:
+a Kullback--Leibler divergence between the joint and the product of marginals,
+hence nonnegative and zero iff $X, Y$ are independent. For a channel with fixed
+$\Prob{Y \mid X}$, $I(X; Y)$ depends on the input distribution, and the
+\emph{capacity} is the maximum,
 \begin{equation}
 \label{eq:capacity-def}
-  C \;=\; \max_{\Pr[X]} I(X; Y).
+  C \;=\; \max_{\Prob{X}} I(X; Y),
 \end{equation}
-This is the most information that a single use of the channel can
-convey, optimized over what the sender is allowed to choose (the
-distribution on inputs). \Cref{sec:bsc-capacity} works out
-\eqref{eq:capacity-def} explicitly for the BSC and arrives at the
-compact form $C = 1 - H(\fprate)$.
-
-\subsection*{The chapter's plan for these tools}
-
-Equations~\eqref{eq:entropy}, \eqref{eq:binary-entropy},
-\eqref{eq:mutual-info}, and~\eqref{eq:capacity-def} are the only
-information-theoretic objects this chapter needs.
-\Cref{sec:bsc-capacity} applies them to the BSC of
-\Cref{sec:bsc} and derives the capacity $C = 1 - H(\fprate)$, giving
-the chapter-2 channel its quantitative information-theoretic summary
-and recovering the familiar endpoints (one bit per use of a noiseless
-channel, zero bits per use of a maximally noisy channel).
-\Cref{sec:entropy-floor} then applies the source-coding reading of
-$H(X)$ to the bit-string representation of an approximate set: the
-result is a per-element entropy floor of $-\log_2 \fprate$ bits for
-any approximate set with zero false-negative rate and false-positive
-rate at most $\fprate$. The reading is direct. An approximate-set
-representation is a binary code for some random object, and any such
-code is bound below by the entropy of what it encodes; the floor is
-that entropy made explicit. \Cref{sec:bloom-gap} compares the
-standard Bloom filter's actual cost to that floor and recovers the
-literature's $\log_2 e \approx 1.443$ overhead constant. Throughout,
-the role of \eqref{eq:binary-entropy} is to bridge a probability
-into the bit budget that probability implies, and the role of
-\eqref{eq:capacity-def} is to bridge a channel into the per-use
-information bound it sets.
+the most information one channel use can convey. \Cref{sec:bsc-capacity}
+evaluates it for the BSC of \Cref{sec:bsc} and gets $C = 1 - H(\fprate)$;
+\Cref{sec:entropy-floor} applies the source-coding reading to approximate-set
+representations and gets the $-\log_2 \fprate$ floor;
+\Cref{sec:bloom-gap} measures the standard Bloom filter's $\log_2 e \approx
+1.443$ overhead above it.

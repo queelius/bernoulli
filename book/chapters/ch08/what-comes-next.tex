@@ -1,93 +1,37 @@
 % §8.5 What Comes Next
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:ch8-what-comes-next}              -- this section
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{ch:approximate-sets}                   -- chapter 5
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{ch:set-composition}                    -- chapter 6
-%
-% ALREADY DEFINED (chapter 7):
-%   \Cref{ch:classification-measures}            -- chapter 7
-%
-% ALREADY DEFINED (chapter 8 §§8.1--8.4):
-%   \Cref{sec:entropy-floor}                     -- §8.3
-%   \Cref{thm:entropy-floor}                     -- §8.3
-%   \Cref{sec:bloom-gap}                         -- §8.4
-%   \Cref{prop:bloom-overhead}                   -- §8.4
-%
-% FORWARD REFS (Part III, IV, V stubs from Plan 0):
-%   \Cref{ch:approximate-functions}              -- chapter 9
-%   \Cref{ch:optimal-bernoulli-sets}             -- chapter 14
-%   \Cref{ch:perfect-hash-filters}               -- chapter 15
-%   \Cref{ch:not-bernoulli}                      -- chapter 16
-%
-% §8.5 closes Part II and signposts Parts III, IV, V. Short by design:
-% four paragraphs, one per part transition. The chapter has spent its
-% mathematical budget on the entropy floor and the Bloom gap; the
-% section's job is to name the next destinations and stop.
+% Monograph register: closes Part II, previews Parts III-V. Cross-refs
+% ch:approximate-sets, ch:set-composition, ch:classification-measures,
+% thm:entropy-floor, sec:bloom-gap, ch:approximate-functions,
+% ch:optimal-bernoulli-sets, ch:perfect-hash-filters, ch:not-bernoulli.
+% DEFINED: sec:ch8-what-comes-next.
 
 \section{What Comes Next}
 \label{sec:ch8-what-comes-next}
 
-Part~II began with the approximate set as a noisy bit per universe
-element, the object \Cref{ch:approximate-sets} built up from the
-binary symmetric channel of Part~I. From that atom the part developed
-three things: the algebra of approximate sets under union,
-intersection, and complement (\Cref{ch:set-composition}); the
-estimation discipline for false-positive and false-negative rates and
-the derived diagnostic measures that follow from them
-(\Cref{ch:classification-measures}); and the information-theoretic
-floor that pins the per-element space cost of any FNR-zero
-representation (this chapter). The approximate set as an atomic object
-is now fully described. Its rates are estimable, its compositions are
-predictable, its space cost is bounded below by a number that depends
-only on the false-positive rate, and the standard Bloom filter sits a
-known $\log_2 e$ above that number. Part~II is done.
+Part~II is complete. From the approximate set as a noisy bit per universe
+element (\Cref{ch:approximate-sets}) it developed the algebra of unions,
+intersections, and complements (\Cref{ch:set-composition}), the estimation and
+diagnostic discipline for the two rates (\Cref{ch:classification-measures}),
+and the information-theoretic floor that pins the per-element space cost of any
+FNR-zero representation (this chapter). The atom is now fully described: its
+rates are estimable, its compositions predictable, its space cost bounded below
+by $-\log_2 \fprate$ (\Cref{thm:entropy-floor}), and the standard Bloom filter
+sits a known $\log_2 e$ above that floor (\Cref{sec:bloom-gap}).
 
-Part~III generalizes from sets to maps. \Cref{ch:approximate-functions}
-lifts the type $\Bernoulli{\BoolType}$, the noisy bit, to
-$\Bernoulli{T}$ for arbitrary algebraic types $T$. The model-order
-ceiling of $2$ that the binary channel imposed in Part~I lifts
-accordingly: an approximate map into a $k$-element output type is
-characterized by a $k \times k$ channel matrix, not a single
-$(\fprate, \fnrate)$ pair. Chapters~10 through~13 then develop, in
-order, sketches (count-min, hyperloglog, and the family of streaming
-estimators), randomized algorithms whose acceptance probability is
-itself the object of interest, approximate relations as the lifting
-of approximate sets from one column to two, and the formal
-algebraic-type framework that ties the type constructors of
-$\Bernoulli{T}$ to the error propagation rules Part~II derived for
-sets. Maps generalize sets in the same way that channel matrices
-generalize the BSC.
-
-Part~IV builds the constructive payoff. \Cref{ch:optimal-bernoulli-sets}
-constructs the Bernoulli Hash Function, the approximate set that
-achieves the entropy floor of \Cref{thm:entropy-floor} asymptotically.
-The construction abandons the flat shared bit array of the standard
-Bloom design (the structural choice \Cref{sec:bloom-gap} identified as
-responsible for the $\log_2 e$ overhead) in favor of a perfect-hash-based
-fingerprint encoding. \Cref{ch:perfect-hash-filters} constructs the
-counterpart on the other one-sided axis, the FPR-zero family of
-perfect hash filters, which give exact membership at the cost of a
-controlled false-negative rate. Together these two chapters close
-out the constructive question that Part~II's lower bound leaves open.
-
-Part~V draws the boundary. \Cref{ch:not-bernoulli} catalogues the
-systems that are \emph{not} Bernoulli, the cases in which the
-independent-error model breaks down: errors that are correlated across
-inputs, rates that drift in time, adversarial query distributions that
-defeat the uniform-sampling assumption underlying FPR estimation. The
-catalogue is itself useful, since it tells the practitioner when the
-machinery of Parts~II through~IV applies and when it does not.
-Chapters~17 and~18 then exploit the model's edges in a different way,
-turning to cipher maps and encrypted search: settings in which the
-controlled error of a Bernoulli map serves as a cryptographic resource
-rather than a deployment constraint. The thread that runs through all
-five parts is the same: an atom of controlled error, its algebra, its
-floor, its optimal constructions, and the boundary that fences off
-what the atom cannot describe.
+Part~III generalizes from sets to maps: \Cref{ch:approximate-functions} lifts
+$\Bernoulli{\BoolType}$ to $\Bernoulli{T}$ for arbitrary algebraic types,
+where an approximate map into a $k$-element output is a $k \times k$ channel
+rather than a single $(\fprate, \fnrate)$ pair, and chapters~10 through~13
+develop sketches, randomized algorithms, approximate relations, and the formal
+type framework. Part~IV builds the constructive payoff:
+\Cref{ch:optimal-bernoulli-sets} constructs the Bernoulli Hash Function that
+meets the entropy floor asymptotically by abandoning the flat bit array, and
+\Cref{ch:perfect-hash-filters} builds the FPR-zero counterpart on the other
+one-sided axis. Part~V draws the boundary: \Cref{ch:not-bernoulli} catalogues
+the systems that are \emph{not} Bernoulli, where errors correlate across
+inputs, rates drift, or adversarial queries defeat uniform sampling, and the
+closing chapters turn the model's controlled error into a cryptographic
+resource. The thread is one throughout: an atom of controlled error, its
+algebra, its floor, its optimal constructions, and the boundary that fences
+off what the atom cannot describe.

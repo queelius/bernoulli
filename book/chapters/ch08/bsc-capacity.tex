@@ -1,216 +1,64 @@
 % §8.2 Channel Capacity in the BSC
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bsc-capacity}                      -- this section
-%   \label{prop:bsc-capacity}                     -- the BSC capacity result
-%
-% ALREADY DEFINED (chapter 2):
-%   \Cref{sec:bsc}                                -- chapter 2 §2.1
-%   \Cref{def:bsc}                                -- chapter 2 §2.1 BSC definition
-%
-% ALREADY DEFINED (chapter 8 §8.1, Plan 8 Task 2):
-%   \Cref{sec:entropy-refresher}                  -- §8.1
-%   \eqref{eq:binary-entropy}                     -- §8.1 binary entropy function
-%   \eqref{eq:mutual-info}                        -- §8.1 mutual information
-%   \eqref{eq:capacity-def}                       -- §8.1 capacity definition
-%
-% FORWARD REFS within chapter 8 (resolve in later Plan 8 tasks):
-%   \Cref{sec:entropy-floor}                      -- §8.3 (Task 4)
-%
-% §8.2 applies the information-theoretic tools of §8.1 to the BSC of
-% chapter 2 and derives the closed-form capacity $C = 1 - H(\fprate)$,
-% achieved at the uniform input distribution. The section recovers the
-% endpoints (one bit per use at $\fprate = 0$, zero bits per use at
-% $\fprate = 1/2$) and bridges forward to the source-coding-theorem
-% reading that §8.3 applies to approximate-set representations.
+% Monograph register: derive C = 1 - H(eps) for the BSC, uniform input.
+% Cross-refs sec:bsc, def:bsc, sec:entropy-refresher, eq:binary-entropy,
+% eq:mutual-info, eq:capacity-def, sec:entropy-floor. DEFINED: sec:bsc-capacity,
+% prop:bsc-capacity, eq:bsc-capacity.
 
 \section{Channel Capacity in the BSC}
 \label{sec:bsc-capacity}
 
-\subsection*{Recall: the BSC}
-
-The binary symmetric channel of \Cref{sec:bsc} takes a single Boolean
-input $X \in \{\top, \bot\}$ and produces a Boolean output $Y \in
-\{\top, \bot\}$. \Cref{def:bsc} fixes a single parameter $\fprate \in
-(0, 1)$ that governs the channel: each transmitted bit is reproduced
-faithfully with probability $1 - \fprate$ and flipped to the opposite
-value with probability $\fprate$, the symmetry being that the flip
-probability does not depend on which value was sent. The channel
-matrix
-\[
-  Q \;=\;
-  \begin{pmatrix}
-    1 - \fprate & \fprate \\
-    \fprate & 1 - \fprate
-  \end{pmatrix}
-\]
-records this: rows indexed by the input, columns by the output, both
-diagonal entries equal to $1 - \fprate$ (correct transmission) and
-both off-diagonal entries equal to $\fprate$ (flip). The BSC is the
-common abstraction behind chapter~1's biased coin, noisy
-communication line, and binary classifier; capacity is its
-quantitative information-theoretic summary.
-
-\subsection*{Capacity, specialized to the BSC}
-
-The channel capacity defined in \eqref{eq:capacity-def} of
-\Cref{sec:entropy-refresher} is
-\[
-  C \;=\; \max_{P_X} I(X; Y),
-\]
-the largest mutual information achievable by choosing the input
-distribution $P_X$ on $\{\top, \bot\}$ freely while the conditional
-distribution $\Pr[Y \mid X]$ is held fixed by the channel matrix $Q$.
-The maximization has a single scalar free parameter: write
-$P_X(\top) = q \in [0, 1]$ and $P_X(\bot) = 1 - q$. Symmetry of the
-BSC will collapse the optimum to $q = 1/2$, the uniform input. The
-argument is short enough to write out in full.
-
-\subsection*{Derivation}
-
-We compute $I(X; Y) = H(Y) - H(Y \mid X)$, the second of the two
-equivalent forms in \eqref{eq:mutual-info}, because $H(Y \mid X)$
-turns out to be independent of the input distribution and the
-optimization then reduces to maximizing $H(Y)$.
-
-\medskip
-\noindent\textbf{Step 1: $H(Y \mid X) = H(\fprate)$.}
-Given input $X = \top$, the output $Y$ is a Bernoulli random
-variable: $Y = \top$ with probability $1 - \fprate$ (correct
-transmission) and $Y = \bot$ with probability $\fprate$ (flip). Its
-entropy, by \eqref{eq:binary-entropy}, is $H(\fprate)$. The same
-calculation with $X = \bot$ yields the same $H(\fprate)$, because the
-two rows of $Q$ are permutations of each other. Averaging over the
-input distribution then gives
-\[
-  H(Y \mid X)
-  \;=\; q \cdot H(\fprate) + (1 - q) \cdot H(\fprate)
-  \;=\; H(\fprate),
-\]
-a constant independent of $q$. The conditional entropy is the
-intrinsic flip uncertainty of the channel and has nothing to do with
-what the sender chooses to put in.
-
-\medskip
-\noindent\textbf{Step 2: $H(Y) \le 1$, with equality at $q = 1/2$.}
-The output marginal probability $\Pr[Y = \top]$ is
-\[
-  \Pr[Y = \top]
-  \;=\; q (1 - \fprate) + (1 - q) \fprate
-  \;=\; \fprate + q (1 - 2 \fprate),
-\]
-which at $q = 1/2$ equals $\fprate + \tfrac{1}{2}(1 - 2 \fprate) =
-\tfrac{1}{2}$. The output is uniform on $\{\top, \bot\}$, and its
-entropy is the maximum value of the binary entropy function, $H(1/2)
-= 1$ bit. For any other $q$, $\Pr[Y = \top]$ is some value in $[0,
-1]$ different from $\tfrac{1}{2}$, and $H(Y) < 1$ by strict concavity
-of $H$ with maximum at $1/2$.
-
-\medskip
-\noindent\textbf{Step 3: combine.}
-The mutual information is
-\[
-  I(X; Y)
-  \;=\; H(Y) - H(Y \mid X)
-  \;=\; H\bigl(\fprate + q(1 - 2 \fprate)\bigr) - H(\fprate),
-\]
-with the second term constant. Maximizing over $q$ pushes the first
-term to its ceiling of $1$, attained at $q = 1/2$. The capacity is
-the maximum:
-\[
-  C \;=\; 1 - H(\fprate).
-\]
+The binary symmetric channel of \Cref{sec:bsc} reproduces its Boolean input
+with probability $1 - \fprate$ and flips it with probability $\fprate$
+regardless of the value sent, the channel matrix being $Q =
+\left(\begin{smallmatrix} 1 - \fprate & \fprate \\ \fprate & 1 - \fprate
+\end{smallmatrix}\right)$ (\Cref{def:bsc}). Its capacity is the quantitative
+information-theoretic summary chapter~2 left implicit.
 
 \begin{proposition}[BSC capacity]
 \label{prop:bsc-capacity}
-The capacity of the binary symmetric channel of \Cref{def:bsc} with
-crossover probability $\fprate \in (0, 1)$ is
+The capacity of the BSC with crossover $\fprate \in (0, 1)$ is
 \begin{equation}
 \label{eq:bsc-capacity}
   C \;=\; 1 - H(\fprate)
-  \;=\; 1 + \fprate \log_2 \fprate
-       + (1 - \fprate) \log_2 (1 - \fprate)
-  \quad \text{bits per channel use,}
+  \;=\; 1 + \fprate \log_2 \fprate + (1 - \fprate)\log_2(1 - \fprate)
+  \quad \text{bits per use,}
 \end{equation}
-attained by the uniform input distribution $P_X(\top) = P_X(\bot) =
-1/2$.
+attained by the uniform input $\Prob{X = \top} = \Prob{X = \bot} = 1/2$.
 \end{proposition}
 
-A single number summarizes the BSC's quantitative information
-content. Once $\fprate$ is fixed, the channel admits at most $C(\fprate)$
-bits per use, no matter what coding scheme the sender devises.
-Shannon's noisy-channel coding theorem then promises that this
-ceiling is asymptotically achievable: for any rate $R < C$ and any
-$\varepsilon > 0$, there exist block codes of large enough length
-whose decoding error rate is below $\varepsilon$. The BSC capacity
-$1 - H(\fprate)$ is thus both an upper bound on what is possible and
-the asymptotic rate that good codes actually achieve.
+\begin{proof}
+Compute $I(X; Y) = H(Y) - H(Y \mid X)$ (the second form of
+\eqref{eq:mutual-info}), with input distribution $\Prob{X = \top} = q$. Given
+$X = \top$, the output is $\mathrm{Bernoulli}(\fprate)$ with entropy
+$H(\fprate)$ by \eqref{eq:binary-entropy}; the same holds for $X = \bot$ since
+the rows of $Q$ are permutations, so $H(Y \mid X) = q H(\fprate) + (1 - q)
+H(\fprate) = H(\fprate)$, independent of $q$. The output marginal is
+$\Prob{Y = \top} = q(1 - \fprate) + (1 - q)\fprate = \fprate + q(1 - 2\fprate)$,
+which equals $1/2$ at $q = 1/2$, where $H(Y) = H(1/2) = 1$ is maximal; for any
+other $q$ strict concavity gives $H(Y) < 1$. Hence $I(X; Y) = H(\fprate +
+q(1 - 2\fprate)) - H(\fprate)$ is maximized at $q = 1/2$, giving $C = 1 -
+H(\fprate)$.
+\end{proof}
 
-\subsection*{Reading the result}
+Once $\fprate$ is fixed the channel admits at most $C$ bits per use, and by
+Shannon's noisy-channel coding theorem this ceiling is asymptotically
+achievable: for any rate $R < C$ there are long block codes with decoding
+error below any $\varepsilon$. The closed form has a sharp shape. At $\fprate
+= 0$ the channel is noiseless, $H(0) = 0$ and $C = 1$. At $\fprate = 1/2$ the
+output is a fair coin independent of the input, $H(1/2) = 1$ and $C = 0$. At
+$\fprate = 1$ the channel always flips, which a receiver undoes by relabeling
+$\top \leftrightarrow \bot$, so $H(1) = 0$ and $C = 1$ again; $C(\fprate)$ is
+symmetric about $\fprate = 1/2$. The curve is steep near $0$ (the first
+crossover noise costs little: $C(0.01) \approx 0.919$) and shallow near $1/2$
+(the last noise costs almost everything: $C(0.1) \approx 0.531$, $C(0.4)
+\approx 0.029$).
 
-The closed form $C = 1 - H(\fprate)$ has a sharp shape worth fixing
-in mind, because §8.3 uses the same binary entropy function in a
-structurally similar role for approximate sets.
-
-\medskip
-\noindent\textbf{$\fprate = 0$: capacity $1$.}
-A noiseless channel transmits one bit per use without error. Setting
-$\fprate = 0$ in \eqref{eq:bsc-capacity} gives $H(0) = 0$, so
-$C = 1 - 0 = 1$. The output equals the input deterministically; one
-bit goes in, one bit comes out.
-
-\medskip
-\noindent\textbf{$\fprate = 1/2$: capacity $0$.}
-A maximally noisy channel transmits zero bits per use. Setting
-$\fprate = 1/2$ gives $H(1/2) = 1$, so $C = 1 - 1 = 0$. The output
-is a fair coin flip, statistically independent of the input, and no
-amount of clever coding extracts information from it.
-
-\medskip
-\noindent\textbf{$\fprate = 1$: capacity $1$ again.}
-A channel that always flips the bit is just as informative as a
-noiseless one: the receiver applies the deterministic relabeling
-$\top \leftrightarrow \bot$ and recovers the input perfectly. The
-formula reflects this: $H(1) = 0$, so $C = 1$. The function $C(\fprate) =
-1 - H(\fprate)$ is symmetric about $\fprate = 1/2$, mirroring the
-symmetry of the binary entropy function.
-
-\medskip
-\noindent\textbf{Intermediate values.}
-At $\fprate = 0.01$, $H(0.01) \approx 0.081$, so $C \approx 0.919$
-bits per use: a $1\%$-error channel delivers roughly $92\%$ of one
-bit per transmission, a small but real penalty. At $\fprate = 0.1$,
-$C \approx 1 - 0.469 = 0.531$ bits per use, slightly more than half
-a bit. The shape of $C$ on $[0, 1/2]$ is steep near $\fprate = 0$
-(the first bit of crossover noise costs little) and shallow near
-$\fprate = 1/2$ (the last bits of noise cost almost everything).
-The asymmetry has a direct operational reading. A channel with $1\%$
-crossover is almost as good as a noiseless one for practical coding
-purposes; a channel with $40\%$ crossover, by contrast, has $C \approx
-0.029$ bits per use, and getting any useful throughput out of it
-requires a very long block code spreading each source bit over many
-channel uses. The chapter~8 notebook in
-\texttt{python/notebooks/ch08-information-bounds.ipynb} plots the
-full curve and tabulates representative values.
-
-\subsection*{From channel capacity to representation cost}
-
-\Cref{prop:bsc-capacity} is the canonical first application of
-\Cref{sec:entropy-refresher}'s tools and the quantitative completion
-of chapter~2's BSC. The same machinery underlies a different but
-related question that occupies the rest of this chapter: how many
-bits are needed to \emph{represent} an approximate set with target
-false-positive rate $\fprate$? Shannon's source-coding theorem,
-mentioned briefly in \Cref{sec:entropy-refresher}, gives the relevant
-form. Any prefix-free binary encoding of a random source emitting
-$n$ symbols of entropy $H$ each requires on average at least $n H$
-bits. \Cref{sec:entropy-floor} applies this lower bound to the bit
-string that an approximate-set data structure stores: the bits in
-that string have a constrained distribution governed by $\fprate$,
-and the resulting per-element entropy gives a floor of $-\log_2
-\fprate$ bits per stored element for any FNR-zero representation.
-The BSC capacity derived here and the entropy floor derived there
-are two facets of the same source-coding principle, with the role
-of the binary entropy function $H$ holding throughout.
+The same source-coding principle drives the rest of the chapter through a
+different question: how many bits represent an approximate set at target
+$\fprate$? Any prefix-free encoding of a source emitting $n$ symbols of
+entropy $H$ each needs at least $nH$ bits on average, and
+\Cref{sec:entropy-floor} applies this to the bit string an approximate set
+stores, with the constrained per-element entropy giving a floor of $-\log_2
+\fprate$ bits per element for any FNR-zero representation. Capacity and the
+floor are two faces of one principle, with $H$ holding throughout.
