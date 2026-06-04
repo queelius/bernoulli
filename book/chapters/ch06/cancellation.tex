@@ -1,289 +1,134 @@
 % §6.3 Cancellation and the Loss of One-Sidedness
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:cancellation}                    -- this section
-%   \label{prop:complement-axis-swap}           -- axis-swap proposition
-%   \label{prop:mixed-intersection-escape}      -- mixed intersection escape proposition
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
-%   \Cref{def:one-sided}                        -- chapter 5 §5.4
-%
-% ALREADY DEFINED (chapter 6, earlier sections):
-%   \Cref{sec:union-of-sets}                    -- §6.1
-%   \Cref{prop:union-fpr-fnr}                   -- §6.1
-%   \Cref{eq:union-fpr}                         -- §6.1
-%   \Cref{sec:other-set-ops}                    -- §6.2
-%   \Cref{prop:intersection-fpr-fnr}            -- §6.2
-%   \Cref{prop:complement-swap}                 -- §6.2
-%   \Cref{prop:difference-fpr-fnr}              -- §6.2
-%
-% FORWARD REFS within chapter 6 (resolve in later Plan 6 tasks):
-%   \Cref{sec:perfect-filter-line}              -- §6.4 (Task 5)
-%
-% FORWARD REFS outside chapter 6 (chapter-level labels, exist via Plan 0 stubs):
-%   \Cref{ch:classification-measures}           -- chapter 7
-%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14
-%   \Cref{ch:perfect-hash-filters}              -- chapter 15
+% Monograph register + "B" fix continuation. The mixed-axis intersection
+% (FNR-zero cap FPR-zero) is two-sided IMMEDIATELY by the corrected
+% eq:intersection-fpr (the w2*eps_A term survives), not landing at (0, omega_B);
+% prop:mixed-intersection-escape restated accordingly. Cross-refs def:one-sided,
+% sec:union-of-sets, prop:union-fpr-fnr, sec:other-set-ops,
+% prop:intersection-fpr-fnr, eq:intersection-fpr, eq:intersection-fnr,
+% prop:complement-swap, prop:difference-fpr-fnr, sec:perfect-filter-line,
+% ch:classification-measures, ch:optimal-bernoulli-sets, ch:perfect-hash-filters.
+% DEFINED: sec:cancellation, prop:complement-axis-swap, prop:mixed-intersection-escape.
 
 \section{Cancellation and the Loss of One-Sidedness}
 \label{sec:cancellation}
 
-The operand rates of \Cref{sec:union-of-sets} and \Cref{sec:other-set-ops}
-were drawn from one-sided approximate sets sitting on the perfect filter
-line of \Cref{def:one-sided}. The union of two FNR-zero Bloom filters
-stayed FNR-zero; the intersection of two FNR-zero Bloom filters stayed
-FNR-zero; the worked examples landed back on the same axis the operands
-came from. This section asks the natural follow-up question. Are the
-operations of chapter~6 always axis-preserving in this way, or can a
-chain of operations take an operand off the line entirely? The answer
-is that composition can both move a one-sided set to the other axis
-and force both rates positive at once. The phenomenon is unavoidable
-once the complement operator enters the picture and intersection
-involves a mixture of axes, and §6.4 will reread it as a closure
-question about the perfect filter line.
+The operands of \Cref{sec:union-of-sets} and \Cref{sec:other-set-ops} were
+drawn from one-sided sets on the perfect filter line. Some compositions kept
+the result on the operands' axis; others did not. This section classifies the
+three behaviors: a composition can stay on the operands' axis, walk to the
+other axis, or leave the line entirely into the two-sided interior. The
+complement and the mixed-axis intersection drive the last two, and
+\Cref{sec:perfect-filter-line} rereads the classification as a closure
+question.
 
 \subsection*{Complement swaps which axis}
 
-The simplest escape from a single axis is the complement operation.
-\Cref{prop:complement-swap} stated the swap at the rate level: if
-$\ASet{A}$ has rates $(\fprate_A, \fnrate_A)$, then
-$\complement \ASet{A}$ has rates
-$(\fprate_\complement, \fnrate_\complement) = (\fnrate_A, \fprate_A)$.
-For a one-sided operand the consequences are immediate.
-
 \begin{proposition}[Complement swaps the perfect-filter axis]
 \label{prop:complement-axis-swap}
-Let $\ASet{A}$ be a one-sided approximate set in the sense of
-\Cref{def:one-sided}. Then $\complement \ASet{A}$ is also one-sided,
-but on the other axis: if $\ASet{A}$ is FNR-zero then
-$\complement \ASet{A}$ is FPR-zero, and if $\ASet{A}$ is FPR-zero then
-$\complement \ASet{A}$ is FNR-zero.
+If $\ASet{A}$ is one-sided, so is $\complement \ASet{A}$, on the other axis:
+FNR-zero maps to FPR-zero and vice versa.
 \end{proposition}
 
 \begin{proof}
-By \Cref{prop:complement-swap} the complement sends
-$(\fprate_A, \fnrate_A)$ to $(\fnrate_A, \fprate_A)$. If $\ASet{A}$ is
-FNR-zero then $\fnrate_A = 0 < \fprate_A$, so the swap produces
-$(\fprate_\complement, \fnrate_\complement) = (0, \fprate_A)$ with
-$\fprate_\complement = 0 < \fnrate_\complement$: the complement is
-FPR-zero. The FPR-zero case is symmetric.
+By \Cref{prop:complement-swap} the complement sends $(\fprate_A, \fnrate_A)$
+to $(\fnrate_A, \fprate_A)$. If $\fnrate_A = 0 < \fprate_A$ then the image is
+$(0, \fprate_A)$ with $\fprate_\complement = 0 < \fnrate_\complement$, which
+is FPR-zero. The FPR-zero case is symmetric.
 \end{proof}
 
-Geometrically the rate plane has two coordinate axes and the
-complement operator exchanges them. A Bloom filter with $\fprate = 0.01$
-and $\fnrate = 0$ sits at the point $(0.01, 0)$ on the FNR-zero axis.
-Its complement sits at the point $(0, 0.01)$ on the FPR-zero axis. The
-two structures encode the same information in dual senses. The Bloom
-filter is certain about absence and uncertain about presence, and its
-complement is certain about presence and uncertain about absence. A
-single application of complement walks across the rate plane from one
-axis to the other; nothing in between is visited because the operation
-is a discrete reflection rather than a continuous deformation.
+A Bloom filter at $(0.01, 0)$ on the FNR-zero axis has complement $(0, 0.01)$
+on the FPR-zero axis: the same information read dually, certain about absence
+becoming certain about presence. The complement is a discrete reflection
+across the rate plane, not a continuous deformation; it walks the line from
+one arm to the other in a single step. Composing union with complement
+illustrates this without leaving the line. Two FNR-zero filters at $\fprate_A
+= 0.01$, $\fprate_B = 0.02$ have union $(0.0298, 0)$ by
+\Cref{prop:union-fpr-fnr}, still FNR-zero, and complementing the union swaps
+its rates to $(0, 0.0298)$ on the FPR-zero axis. The composed structure stays
+one-sided; only the certain direction flips, from ``is $x$ in $A$ or $B$?''
+answered with a sure $\bot$ to ``is $x$ outside both?'' answered with a sure
+$\top$.
 
-\subsection*{Worked example: complement of a Bloom union}
+\subsection*{Mixed-axis intersection leaves the line}
 
-The first compound escape combines union and complement. Let
-$\ASet{A}$ and $\ASet{B}$ be two FNR-zero Bloom filters with operand
-rates
+The complement enters destructively the moment it sits inside an
+intersection. Let $\ASet{A}$ be FNR-zero at $(0.01, 0)$ and $\ASet{B}$
+FNR-zero at $(0.02, 0)$, and form the difference $\ASet{A} \setminus \ASet{B}
+= \ASet{A} \cap \complement \ASet{B}$. The complement $\complement \ASet{B}$
+sits at $(0, 0.02)$ on the FPR-zero axis, so the intersection pairs one
+operand from each axis. By the corrected intersection formula
+\eqref{eq:intersection-fpr}, the false-positive rate is \emph{not} the bare
+product: with $\ASet{A} = (0.01, 0)$ and $\complement \ASet{B} = (0, 0.02)$,
+the outside-both region survives,
 \[
-  \fprate_A = 0.01, \qquad \fnrate_A = 0,
+  \fprate_\cap \;\approx\; \fprate_A (1 - \fnrate_{\complement B})
+              \;=\; 0.01 \times 0.98 \;=\; 0.0098,
   \qquad
-  \fprate_B = 0.02, \qquad \fnrate_B = 0,
+  \fnrate_\cap \;=\; 1 - (1 - 0)(1 - 0.02) \;=\; 0.02.
 \]
-the same numerical example as \Cref{sec:union-of-sets} and
-\Cref{sec:other-set-ops}. The union $\ASet{A} \cup \ASet{B}$ inherits
-both rates from \Cref{prop:union-fpr-fnr}: it is FNR-zero with
-\[
-  \fprate_\cup \;=\; 1 - (1 - 0.01)(1 - 0.02) \;=\; 0.0298,
-  \qquad
-  \fnrate_\cup \;=\; 0.
-\]
-Now form the complement $\complement (\ASet{A} \cup \ASet{B})$ and apply
-\Cref{prop:complement-swap}. The complement swaps the union's two rates:
-\[
-  \fprate'
-  \;=\; \fnrate_\cup
-  \;=\; 0,
-  \qquad
-  \fnrate'
-  \;=\; \fprate_\cup
-  \;=\; 0.0298.
-\]
-The original two operands sat on the FNR-zero axis. The union stayed on
-that axis. The complement of the union moved to the FPR-zero axis. A
-two-step chain (union, then complement) has walked a one-sided
-approximate set from one half of the perfect filter line to the other.
-The composed structure is still one-sided, and still has only one degree
-of rate-freedom, but the certain direction has flipped. Where the
-union answered ``is $x$ in $A$ or in $B$?'' and reported $\bot$ with
-certainty, the complement of the union answers ``is $x$ outside both
-$A$ and $B$?'' and reports $\top$ with certainty. The rate algebra has
-done the bookkeeping for us; the qualitative content of the structure
-has changed.
-
-\subsection*{Worked example: intersection with a complemented operand}
-
-The second compound escape composes intersection with a single
-complement and produces both rates positive at once. Let $\ASet{A}$
-again be FNR-zero with $\fprate_A = 0.01, \fnrate_A = 0$, and let
-$\ASet{B}$ be FNR-zero with $\fprate_B = 0.02, \fnrate_B = 0$. The
-complement $\complement \ASet{B}$ has rates $(0, 0.02)$ by
-\Cref{prop:complement-swap}; it sits on the FPR-zero axis. The mixed
-intersection $\ASet{A} \cap \complement \ASet{B}$ asks both operands
-to report $\top$ on points of $A \cap \complement B = A \setminus B$;
-this is the difference of \Cref{def:difference-of-sets}, which the
-intersection-with-complement decomposition makes explicit.
-
-Apply \Cref{prop:intersection-fpr-fnr} to the two operands
-$\ASet{A}$ with rates $(\fprate_A, \fnrate_A) = (0.01, 0)$ and
-$\complement \ASet{B}$ with rates $(\fnrate_B, \fprate_B) = (0, 0.02)$:
-\[
-  \fprate_{\cap}
-  \;=\; \fprate_A \cdot \fnrate_B
-  \;=\; 0.01 \times 0
-  \;=\; 0,
-\]
-\[
-  \fnrate_{\cap}
-  \;=\; 1 - (1 - \fnrate_A)(1 - \fprate_B)
-  \;=\; 1 - (1 - 0)(1 - 0.02)
-  \;=\; 0.02.
-\]
-The composition has landed at $(0, 0.02)$ on the FPR-zero axis in this
-specific arithmetic; both numbers came out as integer-times-zero
-products of the FNR-zero structure of the operands. The point is not
-that the result is generic; the point is that the moment one operand's
-FNR is genuinely positive, both output rates also become positive. Take
-the same composition with $\fprate_A = 0.01$, $\fnrate_A = 0$ and
-$\complement \ASet{B}$ having rates $(\fprate_B^\complement,
-\fnrate_B^\complement) = (\fnrate_B, \fprate_B) = (0.005, 0.02)$
-(coming from a two-sided $\ASet{B}$ with rates $(0.02, 0.005)$):
-\[
-  \fprate_{\cap}
-  \;=\; \fprate_A \cdot \fprate_B^\complement
-  \;=\; 0.01 \times 0.005
-  \;=\; 5 \times 10^{-5},
-\]
-\[
-  \fnrate_{\cap}
-  \;=\; 1 - (1 - \fnrate_A)(1 - \fnrate_B^\complement)
-  \;=\; 1 - 1 \times 0.98
-  \;=\; 0.02.
-\]
-Both rates are now strictly positive. The composition has left both
-axes and landed in the two-sided interior of the rate plane. The
-operands did not need to be far from the line for this to happen;
-even an arbitrarily small leak in the FNR-zero structure of one
-operand produces a two-sided composed set.
+The composition lands at $\approx (0.0098, 0.02)$, in the two-sided interior,
+not on either operand's axis. This is the same two-sidedness §6.2 found for
+the difference directly, as it must be, since the two are the same set.
 
 \begin{proposition}[Mixed-axis intersection escapes the line]
 \label{prop:mixed-intersection-escape}
-Let $\ASet{A}$ be FNR-zero with $\fprate_A > 0$ and let $\ASet{B}$ be
-FPR-zero with $\fnrate_B > 0$. Then $\ASet{A} \cap \ASet{B}$ generically
-has both rates strictly positive: $\fprate_{\cap} = 0$ and
-$\fnrate_{\cap} = \fnrate_B > 0$ in one boundary regime, while a
-two-sided $\ASet{B}$ with any positive $\fprate_B$ in place of the
-strict FPR-zero gives $\fprate_{\cap} = \fprate_A \fprate_B > 0$ and
-$\fnrate_{\cap} = 1 - (1 - \fnrate_B) > 0$. The line is not preserved by
-this composition.
+Let $\ASet{A}$ be FNR-zero ($\fprate_A > 0$, $\fnrate_A = 0$) and $\ASet{B}$
+FPR-zero ($\fprate_B = 0$, $\fnrate_B > 0$). Then $\ASet{A} \cap \ASet{B}$ is
+two-sided: by \eqref{eq:intersection-fpr} its FPR is $w_2 \fprate_A(1 -
+\fnrate_B) > 0$, contributed by the region outside both sets where $\ASet{A}$
+false-positives and $\ASet{B}$ accepts, and by \eqref{eq:intersection-fnr}
+its FNR is $\fnrate_B > 0$. The line is not preserved.
 \end{proposition}
 
 \begin{proof}
-Substitute the operand rates into \Cref{prop:intersection-fpr-fnr}. The
-boundary case has $\fprate_B = 0$, giving $\fprate_{\cap} =
-\fprate_A \cdot 0 = 0$ and $\fnrate_{\cap} = 1 - (1 - 0)(1 - \fnrate_B) =
-\fnrate_B$. The non-boundary case has $\fprate_B > 0$, giving the two
-positive expressions above. In neither case does the result fall on the
-FNR-zero or FPR-zero axis of the operands.
+Substitute $(\fprate_A, 0)$ and $(0, \fnrate_B)$ into
+\Cref{prop:intersection-fpr-fnr}. The FNR is $1 - (1 - 0)(1 - \fnrate_B) =
+\fnrate_B$. In the FPR sum \eqref{eq:intersection-fpr} the first and third
+terms carry a factor $\fprate_B = 0$ and vanish, leaving $w_2 \fprate_A(1 -
+\fnrate_B)$, strictly positive whenever the outside-both region has positive
+weight. Both output rates are positive, so the result is off both axes.
 \end{proof}
 
-\subsection*{The escape, viewed geometrically}
+The older intuition that this intersection ``lands on the FPR-zero axis'' is
+an artifact of approximating $\fprate_\cap$ by the product $\fprate_A
+\fprate_B = 0$; the linear term is what makes the escape immediate, with no
+need for a leak in either operand's one-sidedness.
 
-The rate plane $[0, 1]^2$ has two distinguished one-dimensional loci:
-the FNR-zero axis (the segment with $\fnrate = 0$ and $\fprate > 0$)
-and the FPR-zero axis (the segment with $\fprate = 0$ and
-$\fnrate > 0$). Their union is the perfect filter line. Three classes
-of compositional behavior arise.
+\subsection*{The three regimes}
 
-\emph{Axis-preserving operations.} Union of two FNR-zero sets stays
-FNR-zero. Intersection of two FNR-zero sets stays FNR-zero. Symmetric
-statements hold on the FPR-zero side. These are the compositions in
-which both operands sit on the same axis and the rate algebra returns a
-result on the same axis. The operations of \Cref{prop:union-fpr-fnr}
-and \Cref{prop:intersection-fpr-fnr} drive false positives and false
-negatives toward zero on the operand's axis without ever ``leaking''
-the other rate.
+The chapter-6 operations fall into three classes by their action on the
+perfect filter line.
 
-\emph{Axis-swapping operations.} Complement of a one-sided set is
-one-sided on the other axis (\Cref{prop:complement-axis-swap}). The
-composition does not stay on either axis individually but stays on the
-line as a set: it walks across the line, from one half to the other,
-in a single discrete step.
+\emph{Axis-preserving.} Union and intersection of two FNR-zero sets stay
+FNR-zero: $\fnrate = 0$ is preserved (\Cref{eq:union-fnr},
+\Cref{eq:intersection-fnr} vanish), even though the surviving FPR is the
+full three-region rate of §6.2. The FPR-zero side is symmetric.
 
-\emph{Axis-leaving operations.} Intersection of an FNR-zero set with
-an FPR-zero set is generically two-sided
+\emph{Axis-swapping.} Complement of a one-sided set is one-sided on the other
+axis (\Cref{prop:complement-axis-swap}): the result leaves each axis
+individually but stays on the line as a whole.
+
+\emph{Axis-leaving.} Mixed-axis intersection is two-sided
 (\Cref{prop:mixed-intersection-escape}). Difference $\ASet{A} \setminus
-\ASet{B}$, being intersection with the complemented second operand, is
-two-sided unless one of the operands has both rates zero or both
-operands sit on the same axis after the complement. These are the
-compositions that leave the line entirely; the composed rate lives in
-the interior of the rate square, with both directions of report now
-uncertain.
+\ASet{B} = \ASet{A} \cap \complement \ASet{B}$ is two-sided exactly when
+$\ASet{A}$ and $\ASet{B}$ lie on the \emph{same} axis (so the complement
+sends $\ASet{B}$ to the opposite axis and the intersection is mixed); it
+stays one-sided only when the operands lie on opposite axes to begin with.
+These are the compositions that exit the line into the interior, where both
+directions of report are uncertain.
 
-The three classes exhaust the qualitative behavior of the chapter~6
-operations on the perfect filter line. The line is closed under axis-
-preserving operations, mapped to itself by axis-swapping operations,
-and exited by axis-leaving operations. \Cref{sec:perfect-filter-line}
-will state this classification as a closure proposition; for now it is
-enough that we have identified the qualitative regimes and connected
-each one to a specific composition.
+\subsection*{Why it matters}
 
-\subsection*{Why this matters}
-
-The cancellation phenomena are not abstract. Three downstream chapters
-depend on whether a composed set sits on the perfect filter line.
-
-\Cref{ch:classification-measures} develops PPV and NPV from the FPR
-and FNR. A one-sided structure simplifies the formulas: an FNR-zero
-structure has $\NPV = 1$ on its domain, and the confidence-interval
-treatment reduces to the one rate that is nonzero. A two-sided
-structure exercises the full machinery, with posterior weight on both
-directions of report and intervals on both rates.
-
-\Cref{ch:optimal-bernoulli-sets} develops the Bernoulli Hash Function
-and the entropy-floor argument for FNR-zero approximate sets. The
-information-theoretic lower bound is $-\log_2 \fprate$ bits per element
-at false-positive rate $\fprate$, and the BHF achieves this floor up to
-a small additive constant. A compositional chain that leaves the axis
-puts the result outside the regime the bound measures; the resulting
-two-sided structure would need a separate analysis to assess
-space-optimality.
-
-\Cref{ch:perfect-hash-filters} develops the perfect hash filter and
-achieves FPR-zero on a designated input set $A$, paying with a
-construction-time perfect-hash computation. The chapter operates
-entirely on the FPR-zero axis. Composing a perfect hash filter with a
-Bloom filter via mixed-axis intersection produces a two-sided structure
-by \Cref{prop:mixed-intersection-escape}, and the certain $\top$
-answer is lost.
-
-The pattern across chapters 7, 14, and 15 is the same. Each chapter is
-the constructive realization of one half of the perfect filter line at
-the lowest space cost, and each pays a real penalty when a
-compositional chain forces the result off the line. Composition
-discipline is the price of staying near the floor.
-
-\subsection*{What comes next}
-
-\Cref{sec:perfect-filter-line} states the perfect filter line as a
-formal definition and collects the closure results of this section
-into a coherent algebraic statement. The FNR-zero axis is closed
-under union and intersection but not under complement; the FPR-zero
-axis is closed dually; the union of the two axes is closed under no
-single operation but is mapped to itself by axis-swapping operations
-and exited by mixed-axis intersection. The section organizes the
-classification, and chapters 7, 14, and 15 then take up the
-consequences of staying on the line or leaving it.
+Whether a composed set sits on the line governs the three later chapters that
+take the line as their subject. \Cref{ch:classification-measures} simplifies
+for a one-sided structure (an FNR-zero set has $\NPV = 1$ and one nonzero
+rate to estimate) and exercises the full machinery for a two-sided one.
+\Cref{ch:optimal-bernoulli-sets} proves the entropy floor $-\log_2 \fprate$
+for FNR-zero sets and achieves it with the Bernoulli Hash Function; a chain
+that leaves the axis falls outside the regime the bound measures.
+\Cref{ch:perfect-hash-filters} builds on the FPR-zero axis, and a mixed-axis
+intersection with a Bloom filter destroys its certain $\top$. Composition
+discipline, keeping a chain on one axis, is the price of staying near the
+floor; \Cref{sec:perfect-filter-line} states the discipline as a closure
+result.

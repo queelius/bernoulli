@@ -1,225 +1,130 @@
 % §6.4 The Perfect Filter Line
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:perfect-filter-line}             -- this section
-%   \label{def:perfect-filter-line}             -- the perfect filter line
-%   \label{prop:fnr-zero-closure}               -- FNR-zero axis closure proposition
-%   \label{prop:fpr-zero-closure}               -- FPR-zero axis closure proposition (companion)
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
-%   \Cref{def:one-sided}                        -- chapter 5 §5.4
-%
-% ALREADY DEFINED (chapter 6, earlier sections):
-%   \Cref{sec:union-of-sets}                    -- §6.1
-%   \Cref{prop:union-fpr-fnr}                   -- §6.1
-%   \Cref{sec:other-set-ops}                    -- §6.2
-%   \Cref{prop:intersection-fpr-fnr}            -- §6.2
-%   \Cref{prop:complement-swap}                 -- §6.2
-%   \Cref{prop:difference-fpr-fnr}              -- §6.2
-%   \Cref{sec:cancellation}                     -- §6.3
-%   \Cref{prop:complement-axis-swap}            -- §6.3
-%   \Cref{prop:mixed-intersection-escape}       -- §6.3
-%
-% FORWARD REFS outside chapter 6 (chapter-level labels, exist via Plan 0 stubs):
-%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14
-%   \Cref{ch:perfect-hash-filters}              -- chapter 15
+% Monograph register + "B" fix completion. prop:fnr-zero-closure part (2) now
+% carries the three-region intersection FPR (not the bare product), and part (4)
+% is corrected: the difference of two FNR-zero sets is TWO-SIDED, so the axis is
+% NOT closed under difference (the earlier "(0, omega_B*0 terms vanish)" and
+% "exact-set test" were wrong). Two-pass PHF-skeleton salvaged from ex:ch6-10 as
+% a forward remark. Cross-refs sec:one-sided-two-sided, def:one-sided,
+% prop:union-fpr-fnr, eq:union-fnr, prop:intersection-fpr-fnr,
+% eq:intersection-fpr, prop:complement-swap, prop:difference-fpr-fnr,
+% prop:mixed-intersection-escape, ch:optimal-bernoulli-sets,
+% ch:perfect-hash-filters. DEFINED: sec:perfect-filter-line,
+% def:perfect-filter-line, prop:fnr-zero-closure, prop:fpr-zero-closure.
 
 \section{The Perfect Filter Line}
 \label{sec:perfect-filter-line}
 
-\Cref{sec:one-sided-two-sided} named the perfect filter line as the
-union of the two coordinate axes of the rate plane and previewed its
-relevance to chapter~6. The composition formulas of
-\Cref{sec:union-of-sets} and \Cref{sec:other-set-ops}, together with
-the cancellation classification of \Cref{sec:cancellation}, have given
-us everything required to read the line as an algebraic object: a
-distinguished subset of $[0, 1]^2$ that some operations preserve, some
-move within, and some leave. This section collects the closure
-results into a single statement, makes the geometric structure of the
-line explicit, and points forward to the two chapters that take each
-half of the line as their constructive target.
-
-\subsection*{Definition}
+\Cref{sec:one-sided-two-sided} named the perfect filter line as the union of
+the two coordinate axes of the rate plane. The composition formulas of this
+chapter, with the cancellation classification of \Cref{sec:cancellation}, let
+us read the line as an algebraic object: a distinguished subset of $[0,1]^2$
+that some operations preserve, some map to itself, and some exit.
 
 \begin{definition}[The perfect filter line]
 \label{def:perfect-filter-line}
-The \emph{perfect filter line} is the subset of the rate plane
-$[0, 1]^2$ consisting of points with at least one coordinate equal to
-zero. Explicitly, the line is the union of two coordinate axes:
-\[
-  \mathcal{L} \;=\; \mathcal{L}_{\fnrate} \,\cup\, \mathcal{L}_{\fprate},
-\]
-where the \emph{FNR-zero axis} is
-$\mathcal{L}_{\fnrate} = \{(\fprate, 0) : 0 < \fprate \le 1\}$ and the
-\emph{FPR-zero axis} is
-$\mathcal{L}_{\fprate} = \{(0, \fnrate) : 0 < \fnrate \le 1\}$. An
-approximate set \emph{lies on the line} when its rate point
-$(\fprate, \fnrate)$ belongs to $\mathcal{L}$.
+The \emph{perfect filter line} is
+$\mathcal{L} = \mathcal{L}_{\fnrate} \cup \mathcal{L}_{\fprate}$, where the
+\emph{FNR-zero axis} is $\mathcal{L}_{\fnrate} = \{(\fprate, 0) : 0 < \fprate
+\le 1\}$ and the \emph{FPR-zero axis} is $\mathcal{L}_{\fprate} = \{(0,
+\fnrate) : 0 < \fnrate \le 1\}$. An approximate set \emph{lies on the line}
+when its rate point $(\fprate, \fnrate)$ belongs to $\mathcal{L}$.
 \end{definition}
 
-The two axes meet only at the origin $(0, 0)$, which is the exact-set
-point and is excluded from $\mathcal{L}$ by the strict inequalities in
-the definition. An exact set is not an approximate set, in the sense
-that one of its two rates is not merely zero but unmeasured: the
-construction does not face the trade-offs the rate plane parameterizes.
-The perfect filter line is the set of approximate sets that achieve
-certainty in exactly one direction of report; its origin neighbor
-achieves certainty in both, at the cost of the space savings that
-motivated approximate sets in the first place.
-
-A note on orientation, fixed once for the rest of the book. The rate
-plane is drawn with the false-positive rate $\fprate$ on the
-horizontal axis and the false-negative rate $\fnrate$ on the vertical
-axis, matching the rate point $(\fprate, \fnrate)$ of the definition.
-The FNR-zero axis $\mathcal{L}_{\fnrate}$ is then the horizontal arm
-(every point has $\fnrate = 0$), and the FPR-zero axis
-$\mathcal{L}_{\fprate}$ is the vertical arm (every point has
-$\fprate = 0$). \Cref{ch:optimal-bernoulli-sets} builds on the
-horizontal arm and \Cref{ch:perfect-hash-filters} on the vertical
-one.
-
-\subsection*{Closure properties of the FNR-zero axis}
-
-The composition results of the previous sections specialize cleanly
-when one or both operands sit on $\mathcal{L}_{\fnrate}$. We collect
-the four cases.
+The axes meet only at the origin $(0,0)$, the exact set, excluded by the
+strict inequalities: a set on the line achieves certainty in exactly one
+direction of report, and the origin achieves it in both at the cost of the
+space approximate sets exist to save. We draw $\fprate$ horizontal and
+$\fnrate$ vertical, so $\mathcal{L}_{\fnrate}$ is the horizontal arm and
+$\mathcal{L}_{\fprate}$ the vertical one; \Cref{ch:optimal-bernoulli-sets}
+builds on the horizontal arm and \Cref{ch:perfect-hash-filters} on the
+vertical.
 
 \begin{proposition}[FNR-zero axis closure]
 \label{prop:fnr-zero-closure}
-Let $\ASet{A}$ and $\ASet{B}$ be FNR-zero approximate sets, so
-$\fnrate_A = \fnrate_B = 0$ and the operand rate points lie on
-$\mathcal{L}_{\fnrate}$. Then:
+Let $\ASet{A}, \ASet{B}$ be FNR-zero, so $\fnrate_A = \fnrate_B = 0$. Then:
 \begin{enumerate}
-  \item $\ASet{A} \cup \ASet{B}$ is FNR-zero, with $\fnrate_{\cup} = 0$
-    and $\fprate_{\cup} = 1 - (1 - \fprate_A)(1 - \fprate_B)$.
-  \item $\ASet{A} \cap \ASet{B}$ is FNR-zero, with $\fnrate_{\cap} = 0$
-    and $\fprate_{\cap} = \fprate_A \fprate_B$.
-  \item $\complement \ASet{A}$ is FPR-zero, with rates
-    $(0, \fprate_A)$; the complement maps the FNR-zero axis to the
-    FPR-zero axis pointwise.
-  \item $\ASet{A} \setminus \ASet{B}$ is FNR-zero when $\ASet{B}$ is in
-    addition FPR-zero (so $\fprate_B = 0$ also), giving rates
-    $(0, \fnrate_B \cdot 0 \,\textrm{terms vanish})$; otherwise the
-    difference generically leaves the line.
+  \item $\ASet{A} \cup \ASet{B}$ is FNR-zero, with $\fprate_\cup = 1 -
+    (1 - \fprate_A)(1 - \fprate_B)$;
+  \item $\ASet{A} \cap \ASet{B}$ is FNR-zero, with $\fprate_\cap$ the
+    three-region rate \eqref{eq:intersection-fpr}, equal to $\fprate_A
+    \fprate_B$ when $A = B$ or in the large-universe limit;
+  \item $\complement \ASet{A}$ is FPR-zero, at $(0, \fprate_A)$;
+  \item $\ASet{A} \setminus \ASet{B}$ is \emph{two-sided}, with
+    $\fnrate_\setminus = \fprate_B$ and $\fprate_\setminus = w_2 \fprate_A
+    (1 - \fprate_B) > 0$.
 \end{enumerate}
-In short, $\mathcal{L}_{\fnrate}$ is closed under union and
-intersection, mapped to $\mathcal{L}_{\fprate}$ by complement, and only
-closed under difference under a strong condition on the second operand.
+So $\mathcal{L}_{\fnrate}$ is closed under union and intersection, mapped to
+$\mathcal{L}_{\fprate}$ by complement, and \emph{not} closed under difference.
 \end{proposition}
 
 \begin{proof}
-Parts (1) and (2) substitute $\fnrate_A = \fnrate_B = 0$ into
-\Cref{prop:union-fpr-fnr} and \Cref{prop:intersection-fpr-fnr}. The
-union FNR formula~\eqref{eq:union-fnr} of \Cref{sec:union-of-sets}
-becomes $w_1 \cdot 0 \cdot (1 - \fprate_B) + w_2 \cdot 0 \cdot (1 -
-\fprate_A) + w_3 \cdot 0 \cdot 0 = 0$, and the intersection FNR
-formula~\eqref{eq:intersection-fnr} becomes
-$1 - (1 - 0)(1 - 0) = 0$. The two FPR formulas follow without
-modification because they do not involve the FNRs of the operands.
-
-Part (3) is the special case of \Cref{prop:complement-swap} with
-$\fnrate_A = 0$. The swap sends $(\fprate_A, 0)$ to $(0, \fprate_A)$,
-which is a point on $\mathcal{L}_{\fprate}$.
-
-Part (4) substitutes the operand rates into
-\Cref{prop:difference-fpr-fnr}. With $\fnrate_A = \fnrate_B = 0$ the
-difference FNR formula becomes $\fnrate_{\setminus} = 1 - (1 - 0)(1 -
-\fprate_B) = \fprate_B$, which is positive whenever $\fprate_B > 0$,
-so the difference leaves $\mathcal{L}_{\fnrate}$. Imposing $\fprate_B
-= 0$ in addition makes $\ASet{B}$ a perfect filter on
-$\mathcal{L}_{\fprate}$, the difference FNR collapses to $0$, and
-$\ASet{A} \setminus \ASet{B}$ reduces to an exact-set test.
+Parts (1) and (2) set $\fnrate_A = \fnrate_B = 0$ in
+\Cref{prop:union-fpr-fnr} and \Cref{prop:intersection-fpr-fnr}: the union FNR
+\eqref{eq:union-fnr} and intersection FNR \eqref{eq:intersection-fnr} both
+vanish, while the FPR formulas are unaffected by the operand FNRs. Part (3) is
+\Cref{prop:complement-swap} at $\fnrate_A = 0$. For part (4), the difference
+is $\ASet{A} \cap \complement \ASet{B}$; with $\ASet{B}$ FNR-zero its
+complement is FPR-zero at $(0, \fprate_B)$, so the intersection is mixed-axis
+and \Cref{prop:mixed-intersection-escape} applies, giving $\fnrate_\setminus =
+\fprate_B$ and a strictly positive $\fprate_\setminus = w_2 \fprate_A(1 -
+\fprate_B)$ on the region outside both sets.
 \end{proof}
 
-Union and intersection are the two operations that close
-$\mathcal{L}_{\fnrate}$ on its own; complement closes the line
-$\mathcal{L}$ as a whole by exchanging the two axes; and difference
-is conditionally closed, requiring the second operand to be a perfect
-filter on the opposite axis. The cancellation analysis of
-\Cref{sec:cancellation} already recorded the geometric reason
-difference fails: it is intersection with a complemented operand, and
-the intermediate complement walks the second operand across the line.
-
-\subsection*{Closure properties of the FPR-zero axis}
-
-The symmetric statement for $\mathcal{L}_{\fprate}$ follows from
-$\mathcal{L}_{\fnrate}$ by applying the complement-swap to both
-operands of any composition and unswapping the result. We record the
-companion proposition without re-deriving each case.
+Part (4) is the difference's signature: two FNR-zero operands compose to a
+two-sided set, because the intermediate complement sends $\ASet{B}$ to the
+opposite axis and the intersection then mixes axes. The difference stays
+one-sided only across axes, when $\ASet{A}$ and $\ASet{B}$ start on
+\emph{opposite} arms so the complement aligns them; same-axis operands always
+produce a two-sided difference.
 
 \begin{proposition}[FPR-zero axis closure]
 \label{prop:fpr-zero-closure}
-Let $\ASet{A}$ and $\ASet{B}$ be FPR-zero approximate sets, so
-$\fprate_A = \fprate_B = 0$. Then $\ASet{A} \cup \ASet{B}$ has
-$\fprate_{\cup} = 0$, and $\ASet{A} \cap \ASet{B}$ has $\fprate_{\cap}
-= 0$; both compositions are FPR-zero. The complement of an FPR-zero
-set is FNR-zero, mapping $\mathcal{L}_{\fprate}$ to
-$\mathcal{L}_{\fnrate}$ pointwise. The difference $\ASet{A} \setminus
-\ASet{B}$ is FPR-zero only under a strong condition on the second
-operand and is otherwise two-sided.
+Dually, if $\ASet{A}, \ASet{B}$ are FPR-zero then $\ASet{A} \cup \ASet{B}$ and
+$\ASet{A} \cap \ASet{B}$ are FPR-zero, $\complement \ASet{A}$ is FNR-zero, and
+$\ASet{A} \setminus \ASet{B}$ is two-sided.
 \end{proposition}
 
-The proof is by complement-swap from \Cref{prop:fnr-zero-closure}: any
-FPR-zero set is the complement of an FNR-zero set, the rate-plane
-algebra is symmetric under coordinate exchange, and the conclusions
-transpose accordingly.
+\begin{proof}
+By complement-swap from \Cref{prop:fnr-zero-closure}: an FPR-zero set is the
+complement of an FNR-zero set, and the rate-plane algebra is symmetric under
+coordinate exchange, so each conclusion transposes.
+\end{proof}
 
-\subsection*{The algebraic shape of the line}
+\paragraph{The shape of the line.}
+$\mathcal{L}$ is non-convex: the midpoint of a segment from $(\fprate, 0)$ to
+$(0, \fnrate)$ is $(\fprate/2, \fnrate/2)$, interior to the square and on
+neither axis. The two arms meet only at the excised origin, so $\mathcal{L}$
+is a wedge of two open segments rather than a connected curve, and no convex
+mixing of one operand from each arm preserves it, the geometric content of
+\Cref{prop:mixed-intersection-escape}. This is the precise sense in which the
+line is a \emph{subalgebra} of the rate plane: closed under same-axis union
+and intersection, swapped by complement, and exited by mixed-axis
+intersection and same-axis difference. Same-axis chains compose freely;
+cross-axis chains leave the line, and the space guarantees of
+\Cref{ch:optimal-bernoulli-sets} and \Cref{ch:perfect-hash-filters} no longer
+apply to the result.
 
-The line $\mathcal{L}$ is a non-convex subset of $[0, 1]^2$: the
-midpoint of any segment from a point $(\fprate, 0)$ on
-$\mathcal{L}_{\fnrate}$ to a point $(0, \fnrate)$ on
-$\mathcal{L}_{\fprate}$ is $(\fprate / 2, \fnrate / 2)$, which lies in
-the interior of the rate square and not on either axis. The two axes
-meet only at the excluded origin, so $\mathcal{L}$ is a wedge of two
-open segments rather than a connected curve; it has two ``arms''
-meeting at the corner the definition excises. The shape matters
-because no convex combination of operations preserves the line: mixing
-one operand from each axis produces a point off both, which is exactly
-the conclusion \Cref{prop:mixed-intersection-escape} reached in
-\Cref{sec:cancellation}.
+\begin{remark}[The two-pass skeleton]
+\label{rem:two-pass}
+A natural design pairs a cheap FNR-zero filter $\ASet{A}_-$ at $(\fprate_-,
+0)$ with a precise FPR-zero perfect filter $\ASet{A}_+$ at $(0, \fnrate_+)$
+for the same $A$, accepting only when both accept. By
+\Cref{prop:mixed-intersection-escape} this predicate-intersection is
+mixed-axis and hence two-sided, with FNR $\fnrate_+$ and a residual FPR
+$w_2 \fprate_-(1 - \fnrate_+)$ on inputs outside the perfect filter's
+certainty region. The cheap filter discards most non-members and the precise
+filter certifies the rest, which is the algorithmic skeleton of the perfect
+hash filter; \Cref{ch:perfect-hash-filters} is what turns the skeleton into a
+genuinely one-sided FPR-zero construction rather than a two-sided
+approximation.
+\end{remark}
 
-This is the formal sense in which the perfect filter line is a
-\emph{subalgebra} of the rate plane: closed under a specific subset of
-the chapter~6 operations, exited by the remaining operations, and
-internally structured into two halves that the complement operator
-swaps. Same-axis operations compose freely without leaving the line;
-cross-axis operations require care, because their composed structure
-is no longer a perfect filter and the chapter~14 and chapter~15 space
-guarantees do not apply.
-
-\subsection*{Forward to chapters 14 and 15}
-
-Two later chapters take the two halves of the line as their
-constructive concern. The forward references close the picture of
-why the line matters for the rest of Part~II.
-
-\Cref{ch:optimal-bernoulli-sets} develops the Bernoulli Hash
-Function, the constructive realization of an approximate set on
-$\mathcal{L}_{\fnrate}$ at the lowest possible space cost. The
-information-theoretic floor of chapter~8 gives the minimum number of
-bits per element required to represent an FNR-zero approximate set at
-false-positive rate $\fprate$; the BHF achieves the floor up to a
-small additive constant, closing the $\log_2 e \approx 1.44$
-multiplicative overhead the standard Bloom filter of chapter~5 leaves
-above the floor on the same axis. The closure results of this section
-then govern composed BHFs: union and intersection of BHFs remain on
-$\mathcal{L}_{\fnrate}$ at rates the chapter~6 formulas predict, so
-the entropy floor extends to the composition.
-
-\Cref{ch:perfect-hash-filters} develops the perfect hash filter, the
-constructive realization on $\mathcal{L}_{\fprate}$ for a designated
-input set $A$. A perfect-hash computation at build time stores a
-fingerprint per element; a query for $x \in A$ lands on its
-fingerprint and is reported correctly with probability one, while a
-query for $x \notin A$ may still hash to a stored fingerprint. The
-construction sits on the FPR-zero axis and stays there under
-same-axis union and intersection by \Cref{prop:fpr-zero-closure}.
-Mixed-axis composition with a BHF, by
-\Cref{prop:mixed-intersection-escape}, produces a two-sided structure
-off the line and the FPR-zero certainty is lost; the designer must
-respect the closure constraints to retain the constructive guarantees
-of either chapter.
+\Cref{ch:optimal-bernoulli-sets} builds the Bernoulli Hash Function on
+$\mathcal{L}_{\fnrate}$ at the entropy floor, closing the standard Bloom
+filter's $\log_2 e \approx 1.44$ overhead, and by
+\Cref{prop:fnr-zero-closure} its unions and intersections stay on the axis at
+predictable rates. \Cref{ch:perfect-hash-filters} builds the perfect hash
+filter on $\mathcal{L}_{\fprate}$; mixed-axis composition with a Bloom filter
+leaves the line and forfeits the FPR-zero certainty, so the designer must
+respect the closure constraints to keep either chapter's guarantees.

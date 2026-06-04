@@ -1,89 +1,28 @@
 % §6.5 What Comes Next
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:ch6-what-comes-next}             -- this section
-%
-% ALREADY DEFINED (chapter 1):
-%   \Cref{sec:sampling-rates}                   -- chapter 1 §1.4
-%
-% ALREADY DEFINED (chapter 6, earlier sections):
-%   \Cref{sec:union-of-sets}                    -- §6.1
-%   \Cref{sec:other-set-ops}                    -- §6.2
-%   \Cref{sec:cancellation}                     -- §6.3
-%   \Cref{sec:perfect-filter-line}              -- §6.4
-%   \Cref{prop:fnr-zero-closure}                -- §6.4
-%
-% FORWARD REFS outside chapter 6 (chapter-level labels, exist via Plan 0 stubs):
-%   \Cref{ch:classification-measures}           -- chapter 7
-%   \Cref{ch:information-bounds}                -- chapter 8
-%   \Cref{ch:optimal-bernoulli-sets}            -- chapter 14
-%
-% The §6.6 bibliographic notes section label (\Cref{sec:bib-notes-ch6}) is
-% drafted in Plan 6 Task 7; here it is referenced in prose as "the
-% bibliographic notes that follow" to avoid a forward label dependency.
-%
-% This is a short trajectory preview (~1 pp, 300-500 prose words) modeled on
-% the chapter 5 §5.5 pattern but tighter: chapter 6 closes the algebra of
-% set operations, and two later chapters take its rate formulas as input.
+% Monograph register: compact forward paragraph. Cross-refs sec:union-of-sets,
+% sec:other-set-ops, sec:cancellation, sec:perfect-filter-line,
+% prop:fnr-zero-closure, sec:sampling-rates, ch:classification-measures,
+% ch:information-bounds, ch:optimal-bernoulli-sets. DEFINED: sec:ch6-what-comes-next.
 
 \section{What Comes Next}
 \label{sec:ch6-what-comes-next}
 
-The chapter has fixed the algebra. \Cref{sec:union-of-sets} and
-\Cref{sec:other-set-ops} gave closed-form rates for union, intersection,
-complement, and difference of approximate sets. \Cref{sec:cancellation}
-classified the compositions that escape the perfect filter line.
-\Cref{sec:perfect-filter-line} collected the closure results into a
-single subalgebra statement and named the two halves of the line.
-What we have not yet done is connect those rates to the two questions
-that motivate the rest of Part~II: how good is an approximate set when
-measured against a workload, and how small can one be made? The next
-two chapters take up each question in turn.
-
-\subsection*{Chapter 7: rates feed into classification measures}
-
-\Cref{ch:classification-measures} takes the per-block rates
-$(\fprate, \fnrate)$ this chapter computed and turns them into the
-workload-dependent quality measures practitioners actually report:
-positive predictive value, negative predictive value, $F_1$, and the
-recall-precision pair. Each is a function of $(\fprate, \fnrate)$ and
-the prevalence of in-set elements in the query stream. The composition
-formulas of this chapter feed those derivations directly. A union of
-two FNR-zero Bloom filters at output FPR $\fprate_{\cup}$, by
-\Cref{prop:fnr-zero-closure}, is itself FNR-zero; chapter~7's PPV
-expression in $\fprate_{\cup}$ and the workload prevalence then gives
-the PPV for the composed structure with no additional work.
-
-Chapter~7 also retires the deferral \Cref{sec:sampling-rates} flagged in
-Part~I. The Wald confidence interval for a binomial rate was a working
-placeholder, and the chapter introduces the Wilson, Clopper-Pearson, and
-Jeffreys alternatives that handle the boundary at $\fprate = 0$ or
-$\fprate = 1$ properly. The estimator vocabulary chapter~1 left
-incomplete is finished there.
-
-\subsection*{Chapter 8: rates have a space-cost analog}
-
-\Cref{ch:information-bounds} bounds how compact an approximate set can
-be. Every operation of this chapter has a space-cost analog: the entropy
-of an FNR-zero set with false-positive rate $\fprate$ is
-$-\log_2 \fprate$ bits per stored element, the entropy of a composed
-structure is the entropy of its rate point, and the chapter~6 closure
-results on the FNR-zero axis then bound the bits per element a
-composition can possibly cost. The floor governs compression along the
-axis; \Cref{ch:optimal-bernoulli-sets} achieves it constructively with
-the Bernoulli Hash Function, closing the standard Bloom filter's
-$\approx 44\%$ overhead. The composition theorem of chapter~3 returns
-in chapter~8 dressed as the bit-budget arithmetic for chained
-approximate sets, and the chapter~6 formulas this section closes are the
-operations the bit budget applies to.
-
-\subsection*{Closing}
-
-The bibliographic notes that follow name the antecedents of the
-set-operation framework: the Bernoulli composition manuscript that
-collected the closed-form rates, Mitzenmacher and Upfal for the survey
-context of Bloom-filter union and intersection, and the chapter~3
-treatment of De~Morgan under noise that the complement-swap result
-specializes. Chapter~7 then opens the second half of Part~II.
+The chapter fixed the algebra of set operations: closed-form rates for union,
+intersection, complement, and difference (\Cref{sec:union-of-sets},
+\Cref{sec:other-set-ops}), the classification of which compositions leave the
+perfect filter line (\Cref{sec:cancellation}), and the line as a subalgebra
+of the rate plane (\Cref{sec:perfect-filter-line}). Two questions remain for
+the rest of Part~II: how good an approximate set is against a workload, and
+how small it can be made. \Cref{ch:classification-measures} turns the per-block
+rates into the workload-dependent measures practitioners report, positive and
+negative predictive value, $F_1$, recall and precision, feeding the
+composition rates directly into them (a union of FNR-zero filters is
+FNR-zero by \Cref{prop:fnr-zero-closure}, so its PPV follows with no extra
+work), and it retires the interval-estimator deferral of
+\Cref{sec:sampling-rates} with the Wilson, Clopper-Pearson, and Jeffreys
+constructions. \Cref{ch:information-bounds} gives the rates a space-cost
+analog, the entropy floor $-\log_2 \fprate$ bits per element for an FNR-zero
+set, against which the closure results bound what a composition can cost;
+\Cref{ch:optimal-bernoulli-sets} then achieves the floor with the Bernoulli
+Hash Function, closing the standard Bloom filter's $44\%$ overhead.

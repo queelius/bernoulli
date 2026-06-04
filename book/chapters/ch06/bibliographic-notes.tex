@@ -1,35 +1,12 @@
 % §6.6 Bibliographic Notes
 %
-% Cross-reference resolution status:
-%
-% ALREADY RESOLVED (within chapter 6, drafted in Tasks 2-6 of Plan 6):
-%   \Cref{sec:union-of-sets}                    -- chapter 6 §6.1
-%   \Cref{sec:other-set-ops}                    -- chapter 6 §6.2
-%   \Cref{sec:cancellation}                     -- chapter 6 §6.3
-%   \Cref{sec:perfect-filter-line}              -- chapter 6 §6.4
-%   \Cref{prop:complement-swap}                 -- chapter 6 §6.2
-%
-% ALREADY RESOLVED (chapter 3, drafted in Plan 3):
-%   \Cref{sec:or-not}                           -- chapter 3 §3.2
-%   \Cref{sec:composition-theorem}              -- chapter 3 §3.3
-%
-% ALREADY RESOLVED (chapter 5, drafted in Plan 5):
-%   \Cref{sec:predicate-algebra}                -- chapter 5 §5.3
-%   \Cref{sec:one-sided-two-sided}              -- chapter 5 §5.4
-%
-% ALREADY RESOLVED (Plan 0 chapter stubs):
-%   \Cref{ch:perfect-hash-filters}              -- chapter 15 stub label
-%
-% Citations resolved by new references.bib entries added in this task:
-%   \cite{towell-bernoulli-composition}         -- Towell Bernoulli composition manuscript
-%
-% Citations resolved by prior references.bib entries:
-%   \cite{bloomfilter}                          -- already in references.bib
-%   \cite{mitzenmacher-upfal}                   -- already in references.bib (Plan 3)
-%   \cite{broder-mitzenmacher-2004}             -- already in references.bib (Plan 5)
-%   \cite{carter-wegman-1979}                   -- already in references.bib (Plan 5)
-%   \cite{towell-bernoulli-sets}                -- already in references.bib (Plan 0)
-%   \cite{towell-bernoulli-hash-function}       -- already in references.bib (Plan 5)
+% Monograph register: the composition framework, Bloom union/intersection,
+% De Morgan under noise, perfect-filter lineage. Citations
+% towell-bernoulli-composition, mitzenmacher-upfal, broder-mitzenmacher-2004,
+% carter-wegman-1979, bloomfilter, towell-bernoulli-hash-function. Cross-refs
+% sec:union-of-sets, sec:other-set-ops, prop:complement-swap, sec:or-not,
+% sec:predicate-algebra, sec:perfect-filter-line, sec:one-sided-two-sided,
+% ch:perfect-hash-filters. DEFINED: sec:bib-notes-ch6.
 
 \section*{Bibliographic Notes}
 \addcontentsline{toc}{section}{Bibliographic Notes}
@@ -37,71 +14,49 @@
 
 \paragraph{The composition framework.}
 The rate-propagation formulas of \Cref{sec:union-of-sets,sec:other-set-ops}
-are the set-level instances of a more general framework developed in
-\textcite{towell-bernoulli-composition}. That manuscript proves the
-rate-propagation laws for the full algebra of approximate sets---union,
-intersection, complement, difference, and the symmetric difference---under
-independence of the constituent $\Bernoulli{\BoolType}$ outputs, and
-catalogues which compound operations preserve and which destroy
-one-sidedness. The chapter's contribution is to derive each rule
-constructively from the predicate algebra of \Cref{sec:predicate-algebra}
-and the AND/OR/NOT rules of \Cref{sec:or-not}, rather than stating the
-formulas as a fait accompli. The composition manuscript treats the rules
-at the level of joint $(\fprate, \fnrate)$ pairs; chapter~6 unpacks the
-proofs and connects each rule back to its Boolean-algebra ancestor in
-chapter~3.
+are the set-level instances of the framework of
+\textcite{towell-bernoulli-composition}, which proves the propagation laws for
+the full algebra, union, intersection, complement, difference, and symmetric
+difference, under independence of the constituent $\Bernoulli{\BoolType}$
+outputs, and catalogues which compound operations preserve one-sidedness. That
+manuscript carries the partition-weighted forms used here for the
+off-axis rates; this chapter derives each rule from the predicate algebra of
+\Cref{sec:predicate-algebra} and the gate rules of \Cref{sec:or-not} and
+connects it to its Boolean-algebra ancestor.
 
 \paragraph{Bloom filter union and intersection.}
-The well-known fact that two Bloom filters of the same length and the same
-hash family admit a bitwise union (logical OR of the bit arrays) and a
-bitwise intersection (logical AND) is folklore by now, but the analysis
-of what the resulting filter \emph{computes}---and at what error rate---is
-treated systematically in \textcite{mitzenmacher-upfal}, Chapter~5,
-and surveyed across applications in
-\textcite{broder-mitzenmacher-2004}. The union case is clean: the bitwise
-OR of two filters for sets $A$ and $B$ is exactly a filter for $A \cup B$,
-with $\fnrate = 0$ preserved and a slightly elevated $\fprate$ that
-chapter~6's \Cref{prop:union-fpr-fnr} accounts for. The intersection case
-is famously subtle: the bitwise AND of two filters does \emph{not} in
-general produce a filter for $A \cap B$, because the bit pattern of an AND
-filter admits ghost elements not in either input. Chapter~6 sidesteps the
-bitwise-AND trap by treating intersection at the predicate level instead,
-which gives the correct rate without committing to a specific
-representation. Readers who want the bitwise variant and its diagnostic
-issues should consult the survey directly.
+That two Bloom filters of equal length and shared hash family admit a bitwise
+OR and AND of their arrays is folklore, but what the result \emph{computes},
+and at what rate, is treated in \textcite[Ch.~5]{mitzenmacher-upfal} and
+surveyed in \textcite{broder-mitzenmacher-2004}. The union case is clean: the
+bitwise OR is exactly a filter for $A \cup B$ with $\fnrate = 0$ preserved.
+The intersection case is subtle: the bitwise AND does not in general produce a
+filter for $A \cap B$, admitting ghost members absent from both inputs.
+\Cref{sec:other-set-ops} sidesteps the trap by treating intersection at the
+predicate level, which gives the correct rate without committing to a
+representation.
 
-\paragraph{De Morgan under noise.}
-The complement-swap result of \Cref{prop:complement-swap}---that
-complementing an approximate set exchanges its FPR and FNR---is the set-level
-shadow of the Boolean-algebra rule worked out in \Cref{sec:or-not}: NOT
-swaps the two error rates of a noisy bit. Classical De Morgan reads
-$\complement (A \cup B) = \complement A \cap \complement B$, an identity
-between sets. Under noise the identity at the set level still holds, but
-the error rates of the two sides traverse the rate plane along different
-paths: one side touches the FNR-zero axis if both inputs are FNR-zero,
-the other side touches the FPR-zero axis after the swap. The
-``different paths, same destination'' phenomenon is what makes the
+\paragraph{De~Morgan under noise.}
+The complement-swap of \Cref{prop:complement-swap}, that complementing an
+approximate set exchanges its two rates, is the set-level shadow of the NOT
+rule of \Cref{sec:or-not}. Classical De~Morgan, $\complement(A \cup B) =
+\complement A \cap \complement B$, still holds at the set level, but the two
+sides traverse the rate plane by different paths: one touches the FNR-zero
+axis when both inputs are FNR-zero, the other the FPR-zero axis after the
+swap. ``Different paths, same destination'' is what makes the
 perfect-filter-line classification of \Cref{sec:perfect-filter-line}
-informative: it tells you which compound operations stay on a one-sided
-axis and which mixed operations are forced into the interior. This
-chapter's treatment is the set-algebra rephrasing of the noisy-bit
-De~Morgan worked through in chapter~3.
+informative about which compound operations stay one-sided and which are
+forced into the interior.
 
-\paragraph{Perfect-filter literature and the bridge forward.}
-The perfect-filter line of \Cref{sec:perfect-filter-line}---the locus of
-one-sided sets in the rate plane (\Cref{sec:one-sided-two-sided})---is
-where chapter~6 lands its main classification result. The line itself is
-a chapter~5 construct, but the question of \emph{which} compound operations
-preserve membership on the line is the chapter~6 contribution. The
-constructive side of the story, how to actually build a set whose rates
-sit exactly on the FPR-zero axis, has its roots in the perfect-hashing
-literature opened by \textcite{carter-wegman-1979} and is taken up in full
-in chapter~15 (\Cref{ch:perfect-hash-filters}), which builds on
+\paragraph{Perfect-filter lineage.}
+The constructive side of building a set whose rates sit exactly on the
+FPR-zero axis has roots in the perfect-hashing literature opened by
+\textcite{carter-wegman-1979} and is taken up in
+\Cref{ch:perfect-hash-filters}, which builds on
 \textcite{towell-bernoulli-hash-function} for the space-optimal construction.
-The Bloom filter of \textcite{bloomfilter} occupies the opposite axis;
-it has been the canonical one-sided approximate set since 1970, and its
-algebraic behaviour under union and intersection is exactly what this
-chapter's closure analysis formalizes. Chapter~6 sits between the
-predicate-algebra reading of chapter~5 and the constructive perfect-filter
+The Bloom filter of \textcite{bloomfilter} occupies the opposite axis and has
+been the canonical one-sided approximate set since 1970; its behavior under
+union and intersection is what this chapter's closure analysis formalizes.
+Chapter~6 sits between the predicate algebra of chapter~5 and the constructive
 machinery of chapter~15: the algebra of operations, divorced from any
-specific representation.
+representation.
