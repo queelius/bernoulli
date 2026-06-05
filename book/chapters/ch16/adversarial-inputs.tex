@@ -1,259 +1,155 @@
 % §16.4 Adversarial Inputs
 %
-% Cross-reference resolution status:
+% Monograph register: phenomenon (adversarial query stream), both axioms
+% break, concrete examples (Bloom evasion, side channel, adversarial ML,
+% chosen-plaintext), right tools (worst-case bounds, secret hash family,
+% trapdoor primitives), Bloom-evasion worked example.
 %
-% DEFINED here:
-%   \label{sec:adversarial-inputs}            -- this section
+% FIX: 0.518^7 ~ 0.010 (was 0.013), so the structural attacker (hash
+% disclosed, no optimization) examines ~100 candidates, the same count as
+% the iid attacker, only offline; the real advantage is the TARGETED
+% attacker at O(1). This also removes the internal tension between the
+% iid "100 queries" and the old structural "80".
+% Terminology: "oblivious computing" -> "trapdoor computing", "oblivious
+% primitive(s)" -> "trapdoor primitive(s)"; "oblivious RAM" and
+% "data-oblivious" kept (ORAM / the oblivious-to-X idiom).
 %
-% ALREADY DEFINED (chapter 4):
-%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
-%   \Cref{ax:block-rates-indep}               -- chapter 4 §4.3 Axiom 2
-%   \Cref{sec:axiom-1}                        -- chapter 4 §4.2
-%   \Cref{sec:axiom-2}                        -- chapter 4 §4.3
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2 Bloom construction
-%
-% INTERNAL refs (chapter 16):
-%   \Cref{sec:varying-rates}                  -- §16.2
-%   \Cref{sec:correlated-noise}               -- §16.3
-%   \Cref{sec:where-framework-helps}          -- §16.5
-%
-% FORWARD refs (later chapters):
-%   \Cref{ch:cipher-maps-trapdoor}            -- chapter 17 (Plan 0 stub)
-%   \Cref{ch:encrypted-search}                -- chapter 18 (Plan 0 stub)
-%
-% §16.4 covers the third failure mode: the query stream is not iid;
-% an adversary chooses the worst-case query. Both axioms can break;
-% recap how. Give four diagnostic examples (Bloom-filter evasion,
-% side-channel timing, adversarial ML, chosen-plaintext attacks).
-% State the right tools (worst-case bounds, cryptographic hash
-% families, oblivious primitives). Close with the Bloom-evasion
-% worked example quantifying the iid-vs-adversarial gap.
+% Cross-refs ax:element-indep, ax:block-rates-indep, sec:axiom-1,
+% sec:axiom-2, sec:bloom-from-scratch, sec:varying-rates,
+% sec:correlated-noise, sec:where-framework-helps, ch:cipher-maps-trapdoor,
+% ch:encrypted-search. DEFINED: sec:adversarial-inputs.
 
 \section{Adversarial Inputs}
 \label{sec:adversarial-inputs}
 
-The third failure mode breaks both axioms simultaneously, but in a
-distinctive way. Where \Cref{sec:varying-rates} watched the channel
-matrix drift through nature and \Cref{sec:correlated-noise} watched
-queries carry shared noise sources, the present section watches
-queries chosen with intent. An adversary observes the system's
-responses and selects subsequent queries to expose the worst-case
-behavior. The whole probabilistic setup, which presumed a query
-distribution that the analyst could pin down in advance, gives way
-to a worst-case query strategy that depends on the adversary's
-goals and knowledge.
+The third failure mode breaks both axioms at once. Where
+\Cref{sec:varying-rates} watched the channel drift through nature and
+\Cref{sec:correlated-noise} watched queries carry shared noise, this
+section watches queries chosen with intent. An adversary observes the
+responses and selects subsequent queries to expose the worst case, and
+the probabilistic setup, which presumed a query distribution the analyst
+could pin down in advance, gives way to a worst-case strategy that
+depends on the adversary's goals and knowledge.
 
 \subsection*{The phenomenon}
 
-A query stream is adversarial when the choice of the $t$-th query
-depends on the responses to queries $1, \ldots, t - 1$ and is
-selected to maximize some attacker objective such as the empirical
-false-positive rate, a side-channel signal, or a successful
-collision. The defender's analysis used a probability distribution
-over queries (often iid, sometimes a tractable Markov chain); the
-attacker uses a strategy that exploits whatever structure the
-defender's analysis assumed.
+A query stream is adversarial when the $t$-th query depends on the
+responses to queries $1, \ldots, t-1$ and is chosen to maximize an
+attacker objective: the empirical false-positive rate, a side-channel
+signal, a successful collision. The gap from the iid model can be stark.
+A Bloom filter sized for $\fprate = 0.01$ gives an iid attacker a $1\%$
+chance of a false positive per random query; an attacker who learns the
+hash family can compute $h_1(x), \ldots, h_k(x)$ for candidates and select
+inputs whose images land at already-set positions, pushing the
+per-crafted-query rate close to $1$. The Bernoulli analysis described a
+rate of $0.01$; the adversarial reality is a rate near $1$ per crafted
+query. The gradient-descent attacker against a neural classifier is the
+same phenomenon at scale: the empirical attack rate against current image
+classifiers is essentially $100\%$ with small perturbations, while the
+benchmark $\fprate$ described natural inputs, not adversarial ones.
 
-A simple way to picture the gap: a Bloom filter sized for
-$\fprate = 0.01$ gives an iid attacker a $1\%$ chance of hitting a
-false positive on each random query. An attacker who learns the
-hash family can compute $h_1(x), \ldots, h_k(x)$ for candidate
-inputs $x$ and select inputs whose hash images land at already-set
-bit positions. The probability of a false positive per attempt
-jumps from $0.01$ to close to $1$, conditional on a brief offline
-search. The Bernoulli analysis described a rate of $0.01$ per
-query; the adversarial reality is a rate near $1$ per crafted
-query.
+\subsection*{What is violated}
 
-A more involved version of the same phenomenon is the
-gradient-descent attacker. For a neural-network classifier whose
-training error rate is some $\fprate$, an attacker who can query
-the model and observe responses can use gradients to construct
-inputs near decision boundaries. The empirical attack rate against
-state-of-the-practice image classifiers is essentially $100\%$
-with quite small perturbations; the iid analysis from labeled
-benchmark data is a description of natural inputs, not of
-adversarial inputs.
-
-\subsection*{What's violated}
-
-The adversarial setup fails both axioms, but the failures stack in
-a specific way. \Cref{ax:element-indep} (Axiom 1) presumes that
-the inputs $x_1, x_2, \ldots$ are conditionally independent given
-the true labels; the attacker's $t$-th query is by construction a
-deterministic function of the prior responses, so the inputs are
-not independent of one another. The conditional-independence claim
-of \Cref{sec:axiom-1} fails not through any property of the
-channel but through the input distribution itself: a sequence of
-queries that an adversary can adapt is not an iid draw.
-
-\Cref{ax:block-rates-indep} (Axiom 2) is more subtly violated. The
-per-block rates in the channel matrix are typically defined
-relative to some input distribution. An adversary who selects
-inputs at the tail of that distribution effectively replaces the
-expected-case per-block rate with the worst-case per-block rate
-over inputs in the relevant block. The channel still has a stable
-matrix, but the matrix entries that the analyst computed for
-``typical'' queries no longer describe the attacker's queries.
-This is conceptually similar to \Cref{sec:varying-rates}'s
-time-varying rates, except that the variation tracks adversarial
-selection rather than time.
-
-The cleanest way to describe the joint failure is that the
-worst-case attacker effectively converts the analyst's
-expectation-based statements about $\fprate$ into supremum-based
-statements: where the analyst wrote $\mathbb{E}_x[\fprate(x)]$ for
-an average over a presumed distribution, the attacker reads
-$\sup_x \fprate(x)$ as the rate that actually obtains. The two
-quantities can differ by orders of magnitude.
+Both axioms fail, and they stack. \Cref{ax:element-indep} (Axiom 1)
+presumes the inputs are conditionally independent given the true labels;
+the attacker's $t$-th query is by construction a deterministic function of
+the prior responses, so the inputs are not independent. \Cref{ax:block-rates-indep}
+(Axiom 2) fails more subtly: the per-block rates are defined relative to
+some input distribution, and an adversary selecting inputs at the tail of
+that distribution replaces the expected-case per-block rate with the
+worst-case one. The cleanest summary is that the worst-case attacker
+converts the analyst's expectation-based statements into supremum-based
+ones: where the analyst wrote $\mathbb{E}_x[\fprate(x)]$ for an average over a
+presumed distribution, the attacker reads $\sup_x \fprate(x)$ as the rate
+that obtains, and the two can differ by orders of magnitude.
 
 \subsection*{Concrete examples}
 
-\textbf{Bloom filter evasion.} An attacker who knows the hash
-family $h_1, \ldots, h_k$ used by a defender's Bloom filter $B_A$
-can compute, for any candidate input $y$, the set of positions
-$h_1(y), \ldots, h_k(y)$ that $B_A$ would read. If those positions
-happen to all be set in $B_A$ (because other items in $A$
-collectively set those bits), the filter returns $\top$ on $y$,
-even though $y \notin A$. The attacker enumerates candidate inputs
-until one returns $\top$. Under iid sampling from the universe,
-finding such a $y$ takes $1 / \fprate$ tries on average. With
-hash-family knowledge and a structured search, the attacker can
-find a $y$ in a constant number of attempts by directly targeting
-positions known to be set. The gap between $1 / \fprate$ and
-$O(1)$ is the cost of unbounded adversarial knowledge.
+\textbf{Bloom filter evasion.} An attacker who knows the hash family can
+compute, for any candidate $y$, the positions $B_A$ would read, and if
+those are all set (because other items in $A$ set them), the filter
+returns $\top$ on $y \notin A$. Random sampling from the universe finds
+such a $y$ in $1/\fprate$ tries; a structured search targeting positions
+known to be set finds one in a constant number of attempts.
 
-\textbf{Side-channel timing.} A defender's filter may answer
-queries faster or slower depending on which bits are read first.
-Sequential bit-reads with early termination on a clear bit (the
-filter can return $\bot$ as soon as one of the $k$ bits is found
-unset) leak information about which bit positions are set: an
-unusually slow response corresponds to all $k$ bits being checked,
-i.e., a $\top$ response and therefore a candidate false-positive
-target. An attacker who measures response time can localize the
-attack region in a far smaller candidate space. The Bernoulli
-framework's analysis described the bit-pattern probabilities but
-not the access pattern; timing information sits outside the
-framework's scope and licenses queries that the framework's
-distribution does not account for.
+\textbf{Side-channel timing.} A filter that returns $\bot$ as soon as one
+of the $k$ bits is found unset answers faster on a clear bit; an unusually
+slow response signals that all $k$ bits were checked, that is, a $\top$
+and a candidate false-positive target. An attacker who measures response
+time localizes the attack region in a far smaller candidate space. The
+framework's analysis described the bit-pattern probabilities, not the
+access pattern; timing sits outside its scope.
 
-\textbf{Adversarial ML inputs.} A classifier trained on a natural
-distribution achieves a benchmark $\fprate$ on held-out data. An
-attacker who can query the classifier finds inputs near decision
-boundaries by following the classifier's confidence gradient (or
-by using a substitute model as a proxy). Adversarial examples have
-been a subject of sustained research; the canonical observation
-from this literature is that the empirical worst-case error rate
-under gradient attacks is essentially $100\%$ for many natural
-classifiers, regardless of the benchmark $\fprate$ value. The
-benchmark statement and the worst-case statement describe
-different distributions of inputs; conflating them is the failure
-mode.
+\textbf{Adversarial machine learning.} A classifier at a benchmark
+$\fprate$ on held-out data faces an attacker who follows the confidence
+gradient to inputs near decision boundaries. The empirical worst-case
+error under gradient attacks is essentially $100\%$ for many natural
+classifiers, regardless of the benchmark value; the benchmark and the
+worst-case statements describe different input distributions, and
+conflating them is the failure.
 
-\textbf{Cryptographic chosen-plaintext attacks.} In the encrypted
-search context that \Cref{ch:encrypted-search} (chapter 18 \S18.3)
-takes up, an attacker who can choose plaintexts and observe the
-ciphertext or the index responses gets a much stronger position
-than an attacker restricted to the natural distribution of
-documents. The Bernoulli analysis for an encrypted index typically
-assumed the document distribution; chosen-plaintext attacks let the
-attacker pick the worst-case document, breaking the same
-expectation-versus-supremum gap described above. Chapter 18
-catalogues the standard cryptographic defenses (semantic security,
-indistinguishability under chosen-plaintext attack); the present
-section flags the structural form of the attack rather than the
-cryptographic remediation.
+\textbf{Cryptographic chosen-plaintext attacks.} In the encrypted-search
+context of \Cref{ch:encrypted-search}, an attacker who chooses plaintexts
+and observes index responses is far stronger than one restricted to the
+natural document distribution. The Bernoulli analysis assumed that
+distribution; chosen-plaintext attacks let the attacker pick the
+worst-case document, the same expectation-versus-supremum gap. Chapter 18
+catalogues the cryptographic defenses (semantic security,
+indistinguishability under chosen-plaintext attack); this section flags
+the structural form of the attack rather than the remediation.
 
 \subsection*{The right tools}
 
-When iid is not the right model, the analyst's two replacements
-are worst-case bounds and cryptographic primitives.
-
-\emph{Worst-case bounds.} Drop the expectation and bound the
-maximum. For a Bloom filter, the worst-case $\fprate$ over inputs
-is determined by the bit pattern of $B_A$ and is bounded above by
-the fraction of bit-pattern subsets of size $k$ that lie inside
-the set-bit positions. For a classifier, the worst-case loss over
-a perturbation ball is bounded above by the Lipschitz constant of
-the model times the ball radius. These bounds are typically
-loose by large factors compared to natural-distribution
-expectations, but they are the right object for adversarial
-analysis: they describe what the attacker actually controls.
-
-\emph{Cryptographic hash families.} A standard cryptographic move
-is to make the hash family secret. The Bloom filter's hash family
-$h_1, \ldots, h_k$ is generated using a secret salt
-$\mathsf{salt}$, and the filter publishes only the bit pattern;
-the salt remains with the defender. An attacker who tries to
-construct false positives must first guess the salt, which under
-standard hash-family assumptions requires $2^{|\mathsf{salt}|}$
-work in expectation. The structural attack collapses to a
-brute-force key search; the false-positive rate under salt-secret
-operation matches the iid analysis, provided the salt has enough
-entropy. This is the cryptographic core of cipher maps; chapter
-17 picks up the details.
-
-\emph{Privacy-preserving primitives.} For settings where the
-attacker can observe side channels (timing, memory access
-patterns, control flow), the right machinery is oblivious
-computing: data-oblivious algorithms whose access patterns do not
-depend on the data they process. The classical primitives are
-oblivious RAM and constant-time cryptographic operations.
-\Cref{ch:cipher-maps-trapdoor} (chapter 17 \S17.3) details
-oblivious primitives as the bridge between Bernoulli analysis and
-adversarial environments; the Bernoulli framework continues to
-apply if and only if the side channels are closed.
+Off the iid path the analyst's replacements are worst-case bounds and
+cryptographic primitives. \emph{Worst-case bounds} drop the expectation
+and bound the maximum: a Bloom filter's worst-case $\fprate$ over inputs
+is set by its bit pattern, a classifier's worst-case loss over a
+perturbation ball by the model's Lipschitz constant times the radius.
+These are loose against natural-distribution expectations but are the
+right object, describing what the attacker controls. \emph{Cryptographic
+hash families} make the family secret: the Bloom hashes are generated from
+a secret salt, the filter publishes only the bit pattern, and an attacker
+who wants to construct false positives must first guess the salt, which
+under standard assumptions costs $2^{|\mathsf{salt}|}$ work. The
+structural attack collapses to a brute-force key search, and the
+false-positive rate under salt-secret operation matches the iid analysis
+provided the salt has enough entropy. This is the cryptographic core of
+cipher maps; \Cref{ch:cipher-maps-trapdoor} takes up the details.
+\emph{Trapdoor primitives} handle the side channels: when the attacker
+can observe timing, memory access, or control flow, the right machinery
+is trapdoor computing, whose data-oblivious algorithms have access
+patterns that do not depend on the data they process, with oblivious RAM
+and constant-time cryptographic operations the classical instances.
+\Cref{ch:cipher-maps-trapdoor} details these as the bridge between
+Bernoulli analysis and adversarial environments; the framework continues
+to apply if and only if the side channels are closed.
 
 \subsection*{Worked example: Bloom filter evasion}
 
-Take a Bloom filter $B_A$ sized for $\fprate = 0.01$ at $k = 7$,
-$m / n = 9.585$, storing $n = 1000$ items. The bit pattern has a
-fraction $1 - e^{-kn/m} = 1 - e^{-0.73} \approx 0.518$ of bits set
-at design fill. The iid false-positive rate of $0.01$ means that a
-random non-member input has a $1\%$ chance of all $k$ hashed
-positions being set, that is, $0.518^7 \approx 0.013$, which
-matches the design target within rounding.
+Take a filter sized for $\fprate = 0.01$ at $k = 7$, $m/n = 9.585$, $n =
+1000$ items. The bit pattern has a fraction $1 - e^{-kn/m} = 1 - e^{-0.73}
+\approx 0.518$ of bits set at design fill, so a random non-member is a
+false positive with probability $0.518^7 \approx 0.010$, matching the
+design target. The \emph{iid attacker}, querying uniformly at random,
+waits $1/\fprate = 100$ queries on average for a false positive: a
+diffuse, undirected adversary. The \emph{structural attacker}, who knows
+the hash family and reads the published bit pattern, examines candidates
+offline and checks locally whether all $k$ positions are set; a random
+candidate works with probability $0.518^7 \approx 0.010$, so the attacker
+still examines about $100$ candidates, gaining only the ability to do so
+offline rather than against the live filter. Disclosure of the family
+alone buys almost nothing here. The \emph{targeted attacker} does the
+real damage: by solving a small system of constraints to construct an
+input $y$ whose hashes land at chosen set positions $j_1, \ldots, j_k$,
+the attacker manufactures false positives in $O(1)$ work per attempt, and
+the practical attack proceeds at machine speed.
 
-\emph{The iid attacker} (queries drawn uniformly at random)
-expects to wait $1 / \fprate = 100$ queries to see one false
-positive. The expectation has a geometric distribution with mean
-$100$ and variance just under $10^4$; the iid attacker is a
-diffuse, undirected adversary.
-
-\emph{The structural attacker} (hash family known, no salt) can
-do much better. The attacker knows $h_1, \ldots, h_k$ and can
-read the bit pattern of $B_A$ (assume the filter is published; the
-analyst's standard convention). For each candidate input $y$, the
-attacker computes $h_1(y), \ldots, h_k(y)$ and checks whether all
-$k$ positions are set in $B_A$. The attacker enumerates candidates
-in any natural order until one satisfies the condition. Because
-roughly $51.8\%$ of bits are set, a random candidate has
-probability $0.518^7 \approx 0.013$ of working, and the attacker
-expects to enumerate about $80$ candidates before a hit. The
-iid-versus-structural gap is small here because the structural
-attacker did not actually exploit additional knowledge beyond
-hash-family disclosure; the worst-case attacker can do much
-better.
-
-\emph{The targeted attacker} (hash family known, plus optimization
-over candidate space) can engineer inputs $y$ whose hashes land at
-specific set positions. If the attacker can solve a small system
-of constraints to construct $y$ given target positions
-$j_1, \ldots, j_k$ that are all set, the attacker finds false
-positives in $O(1)$ work per attempt. The expected number of
-attempts drops to a small constant, and the practical attack
-proceeds at machine speed.
-
-The gap between iid analysis and worst-case adversarial analysis,
-quantified here, ranges from a small constant (for the structural
-attacker who exploits only hash-family disclosure) to several
-orders of magnitude (for the targeted attacker who optimizes
-candidates). In any case where the security model includes an
-attacker with knowledge of the hash family, the iid $\fprate$
-value is not a meaningful security parameter; the cryptographic
-salt-secret construction or an oblivious primitive must be
-invoked. \Cref{sec:where-framework-helps} returns to the question
-of which framework constructs continue to give traction once these
-defenses are in place.
+The gap from iid analysis to worst-case adversarial analysis thus runs
+from essentially nothing (the structural attacker exploiting only
+disclosure) to several orders of magnitude (the targeted attacker
+constructing inputs). In any security model that grants the attacker
+knowledge of the hash family, the iid $\fprate$ is not a meaningful
+security parameter; the salt-secret construction or a trapdoor primitive
+must be invoked. \Cref{sec:where-framework-helps} returns to which
+framework constructs keep their traction once those defenses are in
+place.

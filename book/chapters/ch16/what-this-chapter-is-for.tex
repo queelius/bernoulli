@@ -1,147 +1,73 @@
 % §16.1 What This Chapter Is For
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:what-this-chapter-is-for}      -- this section
-%
-% ALREADY DEFINED (chapter 4):
-%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
-%   \Cref{ax:block-rates-indep}               -- chapter 4 §4.3 Axiom 2
-%   \Cref{sec:axiom-1}                        -- chapter 4 §4.2
-%   \Cref{sec:axiom-2}                        -- chapter 4 §4.3
-%
-% FORWARD REFS within chapter 16:
-%   \Cref{sec:varying-rates}                  -- §16.2 (Task 3)
-%   \Cref{sec:correlated-noise}               -- §16.3 (Task 4)
-%   \Cref{sec:adversarial-inputs}             -- §16.4 (Task 5)
-%   \Cref{sec:where-framework-helps}          -- §16.5 (Task 6)
-%
-% §16.1 sets up the chapter: lists each deferral from earlier chapters
-% being closed here, names the three failure modes, and states the
-% chapter's honesty posture (where Bernoulli does not apply, we say so).
+% Monograph register: state the three failure modes and the chapter's
+% honesty posture. Reframed away from the per-exercise deferral
+% accounting of the textbook draft (those exercises are removed in the
+% monograph, so the old "chapter 1 exercise 10 asked..." references would
+% dangle); the phenomena are stated directly instead. Cross-refs
+% ax:element-indep, ax:block-rates-indep, sec:axiom-1, sec:axiom-2,
+% sec:varying-rates, sec:correlated-noise, sec:adversarial-inputs,
+% sec:where-framework-helps. DEFINED: sec:what-this-chapter-is-for.
 
 \section{What This Chapter Is For}
 \label{sec:what-this-chapter-is-for}
 
-The fifteen chapters that came before this one have repeatedly made a
-particular promise. When the prose ran up against a phenomenon that
-did not fit the Bernoulli axioms cleanly, the discussion was held over
-to ``a later chapter on what the framework does not cover.'' This is
-that chapter. The job of \S16.1 is to list those held-over questions,
-route each one to the section that takes it up, and state the posture
-under which the chapter proceeds.
-
-The decision to defer rather than hedge was deliberate. Each earlier
-chapter could have qualified its results with footnotes about the
-cases where Axiom 1 or Axiom 2 fails, but the qualifications would
-have distracted from the affirmative content. Better to write the
-positive theorems clearly in chapters 1 through 15 and collect the
-negative space here.
-
-\subsection*{The deferrals being closed}
-
-Five specific deferrals seeded earlier in the book are addressed in
-this chapter.
-
-\begin{itemize}
-  \item Chapter 1 \S1.4 (the sampling diagnostic) ended with an open
-    question: \emph{what if the error rates vary across samples
-    rather than being a fixed property of the channel?} The chapter
-    deliberately stopped short of the time-varying case because the
-    iid baseline had not yet been established. The time-varying case
-    is taken up in \Cref{sec:varying-rates}.
-
-  \item Chapter 1 exercise 10, refined in the chapter 3 notebook on
-    Miller-Rabin, asked: \emph{what happens to the $k$-round bound
-    when the witnesses are not independent?} The notebook acknowledged
-    that the analysis assumed independent witnesses and noted that
-    real composites can have correlation structure in their strong-liar
-    sets. That correlation case is the subject of
-    \Cref{sec:correlated-noise}.
-
-  \item Chapter 5 \S5.4 (one-sided sets) introduced the perfect-filter
-    line and observed in passing that \emph{the input distribution
-    might adapt to the filter's behavior over time}, for example a
-    spam classifier whose adversary updates strategies based on which
-    messages got blocked. That adaptive-input case is handled in
-    \Cref{sec:adversarial-inputs}.
-
-  \item Chapter 10 \S10.5 (sketch composition) raised the case of an
-    adversarial data stream: an attacker who chooses the next item
-    conditional on the sketch's prior state. The sketch composition
-    theorem of that chapter assumed iid input; the adversarial case
-    is taken up in \Cref{sec:adversarial-inputs}.
-
-  \item Chapter 13 exercise 11 (boundary algebra) asked when
-    structures fail to fit the algebra of approximate types. Some
-    boundary cases there were genuinely adversarial; others were
-    structural mismatches in which Axiom 1 or Axiom 2 fails despite
-    the input being natural. These boundary cases are sorted between
-    \Cref{sec:adversarial-inputs} and
-    \Cref{sec:where-framework-helps}.
-\end{itemize}
-
-The reader who tracked the open questions through the prior chapters
-should find each one closed below.
+The preceding chapters wrote the affirmative theory of the Bernoulli
+framework and, at several points, set aside a phenomenon that does not
+fit the two axioms cleanly: a rate that drifts, a pair of queries that
+share a noise source, an input chosen by an adversary. Qualifying each
+result in place would have buried the positive content under footnotes;
+the negative space is collected here instead. This chapter maps it,
+naming for each failure the axiom it violates and the analytical tool
+that replaces the broken machinery, and \Cref{sec:where-framework-helps}
+recovers the part of the framework that survives.
 
 \subsection*{Three failure modes}
 
-The deferrals fall into three failure modes, each named explicitly in
-this chapter and addressed in its own section.
+The phenomena set aside earlier fall into three modes, each taken up in
+its own section.
 
-\textbf{Varying rates over time (\Cref{sec:varying-rates}).} The
-error rate $\fprate$ (or $\fnrate$) is not a stable property of the
-channel. It drifts with query index, perhaps because the underlying
-data structure changes (a Bloom filter being filled past capacity),
-perhaps because the environment changes (a sensor's noise grows with
-temperature), perhaps because the calibration data was not
-representative of deployment data (classifier drift). This violates
-\Cref{ax:block-rates-indep} (Axiom 2): the per-block rates are no
-longer stable across queries. When Axiom 2 fails, the channel matrix
-$Q$ becomes a sequence $(Q_t)$ rather than a single $Q$, and the iid
-concentration tools of chapter 11 must be replaced with their
+\textbf{Varying rates over time (\Cref{sec:varying-rates}).} The error
+rate $\fprate$ (or $\fnrate$) is not a stable property of the channel. It
+drifts with the query index, because the structure changes (a Bloom
+filter filled past capacity), the environment changes (a sensor's noise
+grows with temperature), or the calibration data did not represent the
+deployment data (classifier drift). This violates
+\Cref{ax:block-rates-indep} (Axiom 2): the per-block rates are no longer
+stable across queries. The channel matrix $Q$ becomes a sequence $(Q_t)$,
+and the iid concentration tools of chapter 11 give way to their
 martingale counterparts.
 
 \textbf{Correlated noise across queries (\Cref{sec:correlated-noise}).}
-Two queries to the same approximate structure share error sources.
-The same query repeated is fully deterministic; two queries to
-overlapping bit positions of a Bloom filter are positively correlated;
-sequential draws from an online learning system have a temporal
-dependence structure. This violates \Cref{ax:element-indep} (Axiom 1):
+Two queries to the same structure share error sources: the same query
+repeated is deterministic, two queries to overlapping Bloom-filter bits
+are positively correlated, sequential draws from an online learner carry
+a temporal dependence. This violates \Cref{ax:element-indep} (Axiom 1):
 the error events at distinct inputs are no longer mutually independent.
-When Axiom 1 fails, the factored joint distribution behind every
-multi-query formula in the book becomes an inequality, and the
-composition theorem of chapter 3 \S3.3 picks up correction terms.
+The factored joint distribution behind every multi-query formula becomes
+an inequality, and the composition theorem of chapter 3 picks up
+correction terms whose sign tracks the sign of the correlation.
 
-\textbf{Adversarial inputs (\Cref{sec:adversarial-inputs}).} The
-query stream is not iid; the queries are chosen by an adversary, or
-by an adaptive learner, to expose the worst-case behavior. Both
-axioms can break here. The adversary's queries are not independent
-(each is conditional on the responses to earlier queries, breaking
-Axiom 1's independence across distinct inputs), and the worst-case
-query distribution sits at the tail of whatever per-block rate
-distribution the channel admits (breaking the Axiom 2 stability that
-licensed a single $\fprate$ value to begin with). The right tools
-here are worst-case bounds, cryptographic hash families, and
-oblivious-computing primitives, not concentration inequalities.
+\textbf{Adversarial inputs (\Cref{sec:adversarial-inputs}).} The query
+stream is not iid; the queries are chosen by an adversary, or an adaptive
+learner, to expose the worst case. Both axioms can break: the adversary's
+$t$-th query is conditional on the responses to the earlier ones (so the
+inputs are not independent), and the worst-case query sits at the tail of
+whatever per-block rate distribution the channel admits (so the single
+$\fprate$ the analyst computed no longer describes the queries that
+actually arrive). The right tools are worst-case bounds, cryptographic
+hash families, and trapdoor primitives, not concentration inequalities.
 
 \subsection*{Posture}
 
-The chapter is written under a deliberate honesty discipline. Where
-the Bernoulli framework genuinely does not apply, the chapter says
-so, names the violated axiom, and points to the analytical tool that
-replaces the broken machinery. The framework is not stretched to
-cover cases where its axioms manifestly fail.
-
-\Cref{sec:where-framework-helps} pushes back against pure
-relinquishment by catalogueing the cases where the framework's
-geometric and structural intuitions remain useful even when the
-strict axioms fail. The perfect-filter line of chapter 6 \S6.4 still
-classifies systems by their rate-plane position when the rates are
-time-varying. The channel-matrix view of chapter 9 \S9.2 still
-applies query by query when the matrix is not stable across queries.
-The PPV/NPV machinery of chapter 7 \S7.4 still holds at any single
+The chapter is written under a deliberate honesty discipline. Where the
+framework genuinely does not apply, it says so, names the violated axiom,
+and points to the replacement tool; it does not stretch the axioms to
+cover cases where they manifestly fail. \Cref{sec:where-framework-helps}
+pushes back against pure relinquishment by cataloguing what survives: the
+perfect-filter line of chapter 6 still classifies systems by their
+rate-plane position when the rates are time-varying, the channel-matrix
+view of chapter 9 still applies query by query when the matrix is not
+stable, and the PPV/NPV machinery of chapter 7 still holds at any single
 query even when the prevalence drifts. These are partial successes,
-not full applications, and they are catalogued honestly rather than
-oversold.
+catalogued honestly rather than oversold.

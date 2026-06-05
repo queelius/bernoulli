@@ -1,208 +1,133 @@
 % §16.3 Correlated Noise Across Queries
 %
-% Cross-reference resolution status:
+% Monograph register: phenomenon (correlated error events), which axiom
+% (Axiom 1), consequences, the right tools (conditional bounds,
+% McDiarmid, negative-correlation salvage), worked example.
 %
-% DEFINED here:
-%   \label{sec:correlated-noise}              -- this section
-%   \label{prop:mcdiarmid}                    -- McDiarmid's inequality
+% FIX: the textbook draft presented "two independent Bloom filters
+% sharing a hash family" as a correlation example. It is not: for a fixed
+% query the two filters read the same positions, but A's bits depend only
+% on A and B's only on B, so with A,B independent the answers are
+% independent (joint = product exactly). Cross-filter correlation needs
+% the SETS to overlap (share elements), with A=B the extreme (joint =
+% fpr). Reframed accordingly. The within-query k-bit-check positive
+% dependence (the ch5<->ch16 sign result, 13/64 vs 0.155) is the genuine
+% Bloom correlation and is preserved. Arithmetic (1-e^-0.6)^3 ~ 0.092
+% (was 0.097). Folds salvaged ex-11 as rem:composition-correlation-bracket.
 %
-% ALREADY DEFINED (chapter 4):
-%   \Cref{ax:element-indep}                   -- chapter 4 §4.2 Axiom 1
-%   \Cref{sec:axiom-1}                        -- chapter 4 §4.2
-%
-% ALREADY DEFINED (chapter 3):
-%   \Cref{thm:composition}                    -- chapter 3 §3.3 composition theorem
-%   \Cref{sec:composition-theorem}            -- chapter 3 §3.3
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2
-%   \Cref{eq:bloom-fpr}                       -- chapter 5 §5.2 FPR equation
-%   \Cref{rem:bloom-independence}             -- chapter 5 bit-check independence remark
-%
-% INTERNAL forward refs (chapter 16):
-%   \Cref{sec:adversarial-inputs}             -- §16.4 (Task 5)
-%   \Cref{sec:where-framework-helps}          -- §16.5 (Task 6)
-%
-% §16.3 covers the second failure mode: error events at distinct queries
-% are not independent. Recap Axiom 1; give three diagnostic examples
-% (repeated identical query, shared hash families, online updates);
-% trace the consequences (chapter 3 composition theorem breaks; chapter
-% 5 bit-check independence is exactly this case, per ex 7); state the
-% right tools (conditional bounds, McDiarmid's inequality, negative
-% correlation salvage); close with the two-Bloom-filter joint-FPR
-% worked example.
+% Cross-refs ax:element-indep, sec:axiom-1, thm:composition,
+% sec:composition-theorem, sec:bloom-from-scratch, eq:bloom-fpr,
+% rem:bloom-independence, ax:block-rates-indep, prop:ppv-variance,
+% sec:adversarial-inputs, sec:where-framework-helps. DEFINED:
+% sec:correlated-noise, prop:mcdiarmid, rem:composition-correlation-bracket.
 
 \section{Correlated Noise Across Queries}
 \label{sec:correlated-noise}
 
 The second failure mode trades a different axiom. Where
-\Cref{sec:varying-rates} watched the per-query rate drift, this
-section keeps the rate fixed and watches the independence between
-queries collapse. The channel matrix is stable in the sense of
-\Cref{sec:axiom-2}; what fails is the assumption that successive
-queries are independent draws from that matrix. Two queries about
-the same underlying structure may share noise sources, and the joint
-distribution of their outcomes no longer factors as the product of
-marginals.
+\Cref{sec:varying-rates} watched the per-query rate drift, this section
+holds the rate fixed and watches the independence between error events
+collapse. The channel matrix is stable in the sense of
+\Cref{sec:axiom-1}; what fails is the assumption that the error events
+are independent, and the joint distribution of outcomes no longer factors
+as the product of marginals.
 
 \subsection*{The phenomenon}
 
-Three short examples make the failure pattern concrete; each will
-return below in the consequences discussion.
+Three examples make the pattern concrete. The first is degenerate but
+instructive: one Bloom filter and one query, repeated. The response to
+$x \notin A$ is fixed by the bit pattern at $k$ positions; once that
+pattern is set, the answer is deterministic, and the second query for the
+same $x$ returns the same answer with probability one. The conditional
+probability of a second $\top$ given a first is $1$, not the marginal
+$\fprate$, and the gap is the entire failure.
 
-The first example is degenerate but instructive: a single Bloom
-filter and a single query, repeated. The Bloom filter's response to
-$x \notin A$ is determined by the bit pattern at $k$ specific
-positions. Once that pattern is fixed, the response is fixed; the
-second query for the same $x$ returns the same answer with
-probability one. The conditional probability of a $\top$ on the
-second query given a $\top$ on the first equals $1$, not the
-marginal $\fprate$. Independence between the two events would
-require a conditional probability of $\fprate$; the gap between
-$\fprate$ and $1$ is the entire failure.
+The second is the genuine Bloom correlation, internal to a single query.
+A query for $x$ reads $k$ bits $h_1(x), \ldots, h_k(x)$ and returns $\top$
+only if all are set. These $k$ bit-check events are not independent: a
+query's hashes can collide, and a queried bit being set is evidence that
+the array is fuller, which raises the chance the others are set too. The
+conjunction is correlated within the query.
 
-The second example is less degenerate and far more common. Two
-Bloom filters $B_A$ and $B_B$ share a hash family
-$h_1, \ldots, h_k$ but represent different sets $A$ and $B$. A
-query $x \notin A \cup B$ produces two answers: one from each
-filter. Each marginal answer follows the per-filter false-positive
-distribution. The joint distribution does not factor: if a hash
-function $h_j$ maps $x$ to a position $j^*$ that is set in $B_A$,
-the same hash value is checked against $B_B$, and the events that
-the bit is set in $B_A$ versus in $B_B$ are not independent of the
-hash output for $x$. The correlation runs through the shared
-hashes.
-
-The third example introduces time. An online classifier updates
-its model after each query response. The classification at query
-$t$ depends on the responses to queries $1, \ldots, t - 1$ through
-the updated model parameters. Sequential queries therefore have a
-dependence structure carried by the model's state at each step.
-This is conceptually similar to a Markov chain on the model state;
-the per-query rate $\fprate$ may be stable on average, but the
-conditional distribution of the $t$-th error given the history is
-nontrivial.
+The third introduces time. An online classifier updates its model after
+each response, so the classification at query $t$ depends on the
+responses to queries $1, \ldots, t-1$ through the updated parameters.
+Sequential queries carry a Markov dependence on the model state; the
+per-query rate may be stable on average while the conditional
+distribution of the $t$-th error given the history is nontrivial.
 
 \subsection*{Which axiom is violated}
 
-\Cref{sec:axiom-1} stated Axiom 1 as the mutual conditional
-independence of error events at distinct inputs, given the input
-identities. Its full statement is that, conditional on the true
-classifications, the channel's per-input errors are jointly
-independent. In symbols: for inputs $x_1, \ldots, x_n$ with true
-labels $y_1, \ldots, y_n$ and observed labels
-$\hat{y}_1, \ldots, \hat{y}_n$,
+\Cref{sec:axiom-1} stated Axiom 1 as the mutual conditional independence
+of error events at distinct inputs given the true classifications: for
+inputs $x_1, \ldots, x_n$ with true labels $y_i$ and observed labels
+$\hat y_i$,
 \[
-  \Pr[\hat{y}_1 = a_1, \ldots, \hat{y}_n = a_n \,|\, y_1, \ldots, y_n]
+  \Pr[\hat{y}_1 = a_1, \ldots, \hat{y}_n = a_n \mid y_1, \ldots, y_n]
   \;=\;
-  \prod_{i = 1}^n \Pr[\hat{y}_i = a_i \,|\, y_i].
+  \prod_{i = 1}^n \Pr[\hat{y}_i = a_i \mid y_i].
 \]
-This factorization is the basis of every multi-query bound in the
-book. When it fails, the joint becomes an inequality (in either
-direction, depending on the sign of the correlation), and the bounds
-derived from the factored form are no longer guarantees.
-
-The three examples each fail this in a specific way. The
-repeated-identical-query case fails completely: the conditional
-probability of the second response given the first is degenerate
-($0$ or $1$). The shared-hash-family case fails positively for
-queries near collision positions: knowing one filter said $\top$
-increases the posterior probability that the other did too. The
-online-learning case fails through a temporal Markov dependence:
-each error event is conditionally independent of distant past
-events given the current model state, but not independent of the
-recent past.
-
-A clarification matters here. \Cref{ax:element-indep} is the
-conditional-independence form; it can fail while
-\Cref{ax:block-rates-indep} (Axiom 2's stability claim) holds. The
-two Bloom filters of the second example have stable per-filter
-rates; the failure is purely in the joint, not in either marginal.
-Time-varying rates and correlated noise are independent failure
-modes; either can occur without the other.
+This factorization underlies every multi-query bound in the book; when it
+fails the joint becomes an inequality, in either direction depending on
+the sign of the correlation. The three examples fail it in different
+ways: the repeated query fails completely (the conditional is degenerate,
+$0$ or $1$); the within-query bit-checks fail positively (one bit set
+raises the posterior that the others are); the online learner fails
+through a temporal Markov dependence. \Cref{ax:element-indep} can fail
+while \Cref{ax:block-rates-indep} (Axiom 2's stability) holds; the two
+modes are independent.
 
 \subsection*{Consequences for the iid tools}
 
 The composition theorem of \Cref{sec:composition-theorem}
-($\eta_{\text{total}} = 1 - \prod_i (1 - \eta_i)$) used Axiom 1 at
-the moment it wrote the product. The product of marginal
-no-error probabilities equals the joint no-error probability only
-under independence; under positive correlation, the joint is
-larger (better than the product predicts), and under negative
-correlation, the joint is smaller (worse). The composition
-theorem becomes an approximation whose direction of error depends
-on the sign of the correlation. The product remains an upper bound
-on the joint error rate under positive correlation but is no
-longer the joint error rate itself.
+($\eta_{\text{total}} = 1 - \prod_i (1 - \eta_i)$) used Axiom 1 the moment
+it wrote the product: the product of marginal no-error probabilities
+equals the joint no-error probability only under independence. Under
+positive correlation the joint no-error probability is larger (the system
+does better than the product predicts), under negative correlation
+smaller, so the formula becomes an approximation whose error direction
+tracks the correlation sign.
 
-The Bloom filter derivation of \Cref{sec:bloom-from-scratch}
-contains the same approximation explicitly. The standard
-$\fprate \approx (1 - e^{-kn/m})^k$ formula
-(\Cref{eq:bloom-fpr}) treats the $k$ bit-check events as
-independent: a query $x \notin A$ produces $k$ bit reads
-$h_1(x), \ldots, h_k(x)$, and the event ``all $k$ bits are set'' is
-written as the product of the per-bit probabilities.
-\Cref{rem:bloom-independence} of chapter 5 acknowledged that this
-factorization is an approximation. The $k$ bit-check events are in
-fact positively dependent: a query's hashes can collide, and a
-queried bit being set is evidence that the array is fuller, which
-raises the chance the other queried bits are set as well. The
-conjunction ``all $k$ bits set'' is therefore \emph{larger} than the
-product of the marginals, so the standard formula \emph{under}-estimates
-the false-positive rate, by an amount that vanishes as $m \to \infty$
-with $n/m$ fixed but is detectable at small $m$: the worked $m = 4$
-witness of \Cref{rem:bloom-independence} gives an exact $13/64 \approx
-0.203$ against the formula's $0.155$. This is the same Axiom 1 failure,
-scoped to within a single query rather than across queries; because the
-combination here is a conjunction, its positive sign makes the product a
-lower bound, the opposite direction from the $1 - \prod_i(1 - \eta_i)$
-serial form above. The negative across-insertion correlation of fixed
-distinct bit positions is real but sub-dominant; the array-occupancy
-channel sets the sign.
+The Bloom derivation of \Cref{sec:bloom-from-scratch} contains exactly
+this approximation. The standard $\fprate \approx (1 - e^{-kn/m})^k$
+formula (\Cref{eq:bloom-fpr}) treats the $k$ bit-check events of one
+query as independent, writing ``all $k$ set'' as a product of per-bit
+probabilities. \Cref{rem:bloom-independence} of chapter 5 recorded that
+the factorization is an approximation: the $k$ events are positively
+dependent, since a queried bit being set is evidence the array is fuller,
+so the conjunction is \emph{larger} than the product and the standard
+formula \emph{under}-estimates the false-positive rate. The gap vanishes
+as $m \to \infty$ with $n/m$ fixed but is detectable at small $m$: the
+worked $m = 4$ witness of \Cref{rem:bloom-independence} gives an exact
+$13/64 \approx 0.203$ against the formula's $0.155$. This is the Axiom 1
+failure scoped within a single query; because the combination is a
+conjunction, the positive sign makes the product a \emph{lower} bound,
+the opposite direction from the $1 - \prod_i (1 - \eta_i)$ serial form
+above, where positive correlation makes the product an upper bound on the
+joint error. The sign of the correlation and the form of the combination
+together fix the direction.
 
-The PPV machinery of chapter 7 \S7.4 is less directly affected
-because the PPV formula is a per-query quantity. The issue arises
-when one combines PPV estimates across queries; the variance of
-the empirical PPV depends on the joint distribution of the
-contingency-table counts, which under Axiom 1 failure no longer
-satisfies the iid sampling assumptions used in
-\Cref{prop:ppv-variance}.
+The PPV machinery of chapter 7 is a per-query quantity and is unaffected
+at a single query; the issue arises only when combining PPV estimates
+across queries, where the variance of the empirical PPV depends on the
+joint distribution of the contingency counts and no longer satisfies the
+iid sampling that \Cref{prop:ppv-variance} assumed.
 
 \subsection*{The right tools}
 
-Three analytical replacements are standard in the dependent-data
-literature, and each has its scope.
-
-\emph{Conditional bounds via the law of total probability.} When
-the dependence has a known structure, one can condition on the
-relevant variable and bound each conditional separately. For the
-two-Bloom-filter case with shared hashes, conditioning on the
-hash outputs $h_1(x), \ldots, h_k(x)$ makes the two filter
-responses conditionally independent (given the hash positions and
-the bit patterns of $B_A$ and $B_B$, the responses are
-deterministic functions of the bit patterns, hence trivially
-``independent'' given the conditioning). The marginal joint
-distribution is then obtained by averaging over the hash output
-distribution. This is the most concrete approach when the source
-of dependence is structural and identifiable.
-
-\emph{McDiarmid's inequality} for bounded-difference functions of
-possibly dependent variables. Where Azuma-Hoeffding required a
-martingale structure, McDiarmid bounds a function
-$f(X_1, \ldots, X_n)$ that satisfies the bounded-differences
-property: changing any one $X_i$ changes the value of $f$ by at
-most $c_i$. The $X_i$ themselves need not be independent in the
-strict iid sense; the inequality is generally stated for
-independent $X_i$ but extends, with the same form, to
-martingale-difference sequences of the type Azuma covers.
+Three replacements are standard. \emph{Conditional bounds via the law of
+total probability}: when the dependence has known structure, condition on
+the relevant variable and bound each conditional separately. For a query
+whose $k$ bit-checks are coupled through the array occupancy, conditioning
+on the number of set bits makes the checks exchangeable and the
+conjunction computable. \emph{McDiarmid's inequality} for
+bounded-difference functions:
 
 \begin{proposition}[McDiarmid's bounded-differences inequality]
 \label{prop:mcdiarmid}
-Let $X_1, \ldots, X_n$ be independent random variables, each
-taking values in some measurable space, and let $f$ be a
-real-valued function of $(X_1, \ldots, X_n)$ satisfying the
-bounded-differences property: for each $i$, there is a constant
-$c_i$ such that
+Let $X_1, \ldots, X_n$ be independent random variables and $f$ a
+real-valued function satisfying the bounded-differences property: for each
+$i$ there is a constant $c_i$ with
 \[
   \sup_{x_1, \ldots, x_n, x_i'}
   |f(x_1, \ldots, x_i, \ldots, x_n) - f(x_1, \ldots, x_i', \ldots, x_n)|
@@ -216,85 +141,72 @@ Then for any $a > 0$,
 \]
 \end{proposition}
 
-The inequality is due to McDiarmid (1989). The connection to
-correlated-noise applications is that $f$ might be the empirical
-false-positive count of a Bloom filter under a fixed query stream;
-the $X_i$ are the bit positions in the filter (set or unset by
-inserting the indexed item). The bit positions are not strictly
-independent (the constraint that a given item sets exactly $k$
-bits ties them together at the level of the hash family), but for
-many natural applications, the dependence is weak enough that the
-bounded-differences form gives useful bounds.
+The inequality is McDiarmid's (1989). Here $f$ might be the empirical
+false-positive count of a fixed filter under a fixed query stream, a
+function of the hash-family choices; the function value moves by a bounded
+amount when one hash is resampled even though the bits a single hash sets
+are not independent, so the bounded-differences form gives a usable bound
+where the strict iid Chernoff bound does not apply. \emph{Negative
+correlation as a salvage}: when the dependence is known to be negative,
+the iid bounds remain valid as upper bounds, since a negatively correlated
+system errs less than the iid analysis predicts. Sampling without
+replacement against sampling with replacement is the classic instance;
+identifying negative correlation lets one keep the iid analysis as
+conservative.
 
-\emph{Negative correlation as a salvage.} When the dependence is
-known to be negative, the iid bounds remain valid as upper bounds
-on the dependent system's error rate. This is a quiet but
-important rescue: a system whose errors are negatively correlated
-behaves better than the iid analysis predicts, not worse. The
-classic example is sampling without replacement compared to
-sampling with replacement; the former has lower variance, and the
-Chernoff bound for the with-replacement case continues to bound
-the without-replacement case. For Bernoulli applications,
-identifying negative correlation lets one keep the iid analysis
-and treat it as conservative.
+\subsection*{Worked example: when shared hashes do and do not correlate}
 
-\subsection*{Worked example: two Bloom filters with shared hashes}
-
-Consider two Bloom filters $B_A$ and $B_B$ sharing a hash family
-$h_1, \ldots, h_k$, where $k = 3$, sized at $m = 100$ bits each,
-storing $n_A = n_B = 20$ items respectively. The per-filter
-false-positive rate, from \Cref{eq:bloom-fpr}, is approximately
+Take two Bloom filters $B_A$ and $B_B$ built with a shared hash family
+$h_1, \ldots, h_k$, $k = 3$, $m = 100$ bits each, holding $n_A = n_B = 20$
+items. The per-filter rate from \Cref{eq:bloom-fpr} is
 \[
-  \fprate \;=\; (1 - e^{-k n / m})^k
-  \;=\; (1 - e^{-0.6})^3
-  \;\approx\; 0.097.
+  \fprate \;=\; (1 - e^{-k n / m})^k \;=\; (1 - e^{-0.6})^3 \;\approx\; 0.092,
 \]
-For a query $x \notin A \cup B$, the iid prediction for the joint
-event ``both filters say $\top$'' would be
-$\fprate^2 \approx 0.0094$. The actual joint event, computed by
-conditioning on the hash positions, is larger. The reason is
-geometric: the three hash positions $h_1(x), h_2(x), h_3(x)$ are
-the same in both filters, and a position that is set in both
-filters costs only one ``coincidence'' in the joint, not two
-independent coincidences.
+so the iid prediction for ``both say $\top$'' on a query $x \notin A \cup
+B$ is $\fprate^2 \approx 0.0085$. A natural worry is that the shared hash
+family correlates the two answers. It does not, when $A$ and $B$ are
+independent. For a fixed query $x$ both filters read the same positions
+$h_1(x), h_2(x), h_3(x)$, but $B_A$'s bits at those positions depend only
+on $A$ and $B_B$'s only on $B$; with $A$ and $B$ independent the two bit
+patterns are independent, so the answers are independent and the joint is
+the product exactly. Computing position by position confirms it: a given
+position is set in $B_A$ with probability $p_A \approx 0.45$ and
+independently in $B_B$ with $p_B \approx 0.45$, set in both with
+$p_A p_B \approx 0.20$, and all three set in both with $(p_A p_B)^3
+\approx 0.0085$, the same $\fprate^2$. Sharing the hash family fixes
+\emph{which} positions are read, not \emph{whether} the two independent
+arrays have them set.
 
-A direct calculation gives the actual joint probability. For each
-hash position $j$, let $p_A = 1 - (1 - 1/m)^{k n_A} \approx 0.45$
-denote the probability that position $j$ is set in $B_A$, and
-similarly $p_B \approx 0.45$ for $B_B$. The two events ``position
-$j$ is set in $B_A$'' and ``position $j$ is set in $B_B$'' are
-independent (because $A$ and $B$ are independent of each other
-given the hash family), so the probability that position $j$ is
-set in both is $p_A p_B \approx 0.20$. The probability that all
-three queried positions are set in both filters, treating the
-three positions as independent (which they are not exactly, but
-the approximation is acceptable here), is
-$(p_A p_B)^3 \approx 0.20^3 \approx 0.008$.
+Correlation appears when the sets overlap. If $A$ and $B$ share elements,
+those elements set the same bits in both filters, coupling the answers;
+in the extreme $A = B$ the two filters are identical and the joint
+probability of two $\top$ responses is the marginal $\fprate$, not
+$\fprate^2$, the iid prediction undershooting by a factor $1/\fprate
+\approx 11$. The lesson sharpens the section: shared randomness is
+necessary but not sufficient for correlated error. The error events must
+\emph{jointly} depend on it, as the $k$ bit-checks within one query do
+(through the shared array occupancy) and as two filters on overlapping
+sets do (through the shared elements), but as two filters on independent
+sets do not.
 
-Compare this to the iid prediction $\fprate^2 \approx 0.0094$. The
-two numbers are close, but the structure differs: the iid
-prediction assumed independent draws from a per-filter marginal,
-while the actual joint runs through the shared hash positions and
-gives a slightly smaller probability than the product (because the
-hash positions are drawn jointly, not independently, between the
-two filters). The qualitative point is that the joint depends on
-the shared structure, and a system designer who treats the two
-filters as independent will get a wrong answer.
+\begin{remark}[The composition formula brackets the truth]
+\label{rem:composition-correlation-bracket}
+The sign analysis gives the designer who knows only the marginal stage
+rates a two-sided guarantee. Under \emph{negative} association of the
+stage errors ($\Pr[\text{error at } i \text{ and } j] \le \Pr[\text{error
+at } i]\Pr[\text{error at } j]$ for every pair), the serial composition
+formula $1 - \prod_i (1 - \eta_i)$ is an \emph{upper} bound on the true
+combined error rate; under \emph{positive} correlation it is a
+\emph{lower} bound, as the within-query Bloom conjunction above shows. The
+iid formula therefore sits between the two correlated regimes and brackets
+the true combined rate: a designer with only marginals knows the truth
+lies on the conservative side of the formula once the correlation sign is
+known, and within a computable interval when it is not.
+\end{remark}
 
-A more striking variant: take the two filters to be identical
-($A = B$, same hashes, same bit pattern). Then the joint
-probability of two $\top$ responses to the same query is exactly
-the marginal $\fprate$, not $\fprate^2$. The iid prediction
-underestimates the joint by a factor of $1 / \fprate \approx 10$.
-The correlation between identical-filter responses is total, and
-treating the responses as independent gives a wildly optimistic
-error budget.
-
-The diagnostic for correlated noise is to ask whether the noise
-sources of the queries are demonstrably independent. If the
-queries share hash families, share random seeds, query the same
-positions in shared memory, or otherwise touch common randomness,
-the responses are correlated, and the iid analysis is an
-approximation whose direction and magnitude require explicit
-calculation. \Cref{sec:where-framework-helps} returns to which
-parts of the framework survive these correlations.
+The diagnostic for correlated noise is to ask whether the error events
+share a source they \emph{jointly} depend on: the same array occupancy,
+the same elements, the same random seed consumed at query time. If they
+do, the iid analysis is an approximation whose direction and size need
+explicit calculation; \Cref{sec:where-framework-helps} returns to which
+parts of the framework survive the correlation.
