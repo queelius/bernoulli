@@ -1,281 +1,147 @@
 % §15.3 Space and Time Analysis
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:space-time-analysis}              -- this section
-%   \label{prop:bphf-space}                      -- bits-per-element proposition
-%   \label{eq:bphf-rank-bits}                    -- rank table bit cost
-%   \label{eq:bphf-total-bits}                   -- total bits accounting
-%   \label{eq:bphf-per-element}                  -- per-element bits accounting
-%   \label{tab:bhf-bphf-bits}                    -- comparison table at n = 10^6
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 8):
-%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
-%
-% ALREADY DEFINED (chapter 14):
-%   \Cref{def:bhf}                               -- chapter 14 §14.2
-%   \Cref{thm:bhf-optimality}                    -- chapter 14 §14.3
-%   \Cref{sec:space-analysis}                    -- chapter 14 §14.3
-%   \Cref{sec:construction-time}                 -- chapter 14 §14.5
-%
-% ALREADY DEFINED (chapter 15):
-%   \Cref{def:bphf}                              -- §15.2
-%   \Cref{sec:bphf-construction}                 -- §15.2
-%   \Cref{alg:bphf-build-query}                  -- §15.2
-%   \eqref{eq:bphf-r}                            -- §15.2 rank width
-%   \eqref{eq:bphf-build}                        -- §15.2 build pass
-%
-% FORWARD REFS within chapter 15:
-%   \Cref{sec:ranked-search}                     -- §15.4 (Task 5)
-%
-% §15.3 computes the BPHF's bit budget (n*r for the rank table plus a
-% sublinear perfect-hash term it inherits from chapter 14); states the
-% space proposition; covers expected O(n) build time and O(1) query
-% time; closes with a table comparing BHF and BPHF bits per element at
-% n = 10^6 so the trade between the two filter families is concrete.
+% Monograph register: rank table (n*r), perfect-hash storage (inherited
+% from ch14), total, prop:bphf-space, expected O(n) build, O(1) query,
+% comparison table at n=10^6 with the eps=1/n crossover. Trims the
+% repeated "asymmetry is not a defect" and the doubled perfect-hash
+% inheritance. Cross-refs def:bloom-filter, thm:entropy-floor, def:bhf,
+% thm:bhf-optimality, sec:space-analysis, sec:construction-time, def:bphf,
+% sec:bphf-construction, alg:bphf-build-query, eq:bphf-r, eq:bphf-build,
+% eq:bphf-fnr, sec:ranked-search. DEFINED: sec:space-time-analysis,
+% prop:bphf-space, eq:bphf-rank-bits, eq:bphf-total-bits,
+% eq:bphf-per-element, tab:bhf-bphf-bits.
 
 \section{Space and Time Analysis}
 \label{sec:space-time-analysis}
 
-\Cref{sec:bphf-construction} fixed the BPHF's two storage objects:
-the perfect hash $\phi$ and the rank table $R$ of width $r =
-\lceil \log_2 n \rceil$ from \eqref{eq:bphf-r}. The present section
-accounts for the bits each contributes, totals the cost per element,
-and gives the build and query times the construction inherits from
-its chapter~14 ancestor. The headline result is a proposition that
-the BPHF's per-element bit cost is $\lceil \log_2 n \rceil + o(1)$ as
-$n$ grows, with the perfect-hash overhead vanishing in the same way
-\Cref{sec:space-analysis} documented for the BHF. The build runs in
-expected $O(n)$ time and queries run in $O(1)$ time, matching the
-BHF's performance profile on the time axes. The structural difference
-lies on the space axis: the BPHF's bits-per-element depends on the
-set size $n$, while the BHF's depends on the target error rate
-$\fprate$. The two families are not substitutes parameter-for-
-parameter; they trade different quantities for different guarantees,
-and the table at the end of the section makes the trade concrete at
-a million elements.
+The BPHF stores the perfect hash $\phi$ and the rank table $R$ of width
+$r = \lceil \log_2 n \rceil$. This section totals the bits, gives the
+build and query times the construction inherits from its chapter~14
+ancestor, and tabulates the trade against the BHF. The headline is
+\Cref{prop:bphf-space}: the per-element cost is $\lceil \log_2 n \rceil +
+o(1)$, with the perfect-hash overhead vanishing as in
+\Cref{sec:space-analysis}. The build is expected $O(n)$ and queries
+$O(1)$, matching the BHF on the time axes. The structural difference is
+on the space axis: the BPHF's bits-per-element depends on the set size
+$n$, the BHF's on the target rate $\fprate$, so the two families are not
+substitutes parameter-for-parameter.
 
 \subsection*{Rank table storage}
 
-The rank table $R : [n] \to \{0, 1\}^r$ holds $n$ slots, each of
-width $r$ bits. The total bit cost is
+The table $R : [n] \to \{0, 1\}^r$ holds $n$ slots of $r$ bits, so
 \begin{equation}
 \label{eq:bphf-rank-bits}
   L_R \;=\; n \cdot r \;=\; n \cdot \lceil \log_2 n \rceil
 \end{equation}
-bits. The dependence on the set size is doubly linear in the sense
-that the slot count is $n$ and the per-slot width grows as $\log_2 n$.
-At $n = 1000$ the table costs $10{,}000$ bits ($r = 10$, computed in
-\Cref{sec:bphf-construction}). At $n = 10^6$ the table costs $20
-\cdot 10^6 = 2 \cdot 10^7$ bits, or about $2.5$ megabytes. At
-$n = 10^9$ the table costs $30 \cdot 10^9 = 3 \cdot 10^{10}$ bits, or
-about $3.75$ gigabytes. The growth rate is $n \log_2 n$, the same
-information-theoretic cost a fully sorted lookup index pays to
-distinguish $n$ ranks from one another.
-
-The integer rounding in $r = \lceil \log_2 n \rceil$ contributes
-between $0$ and $1$ extra bits per element compared to the
-real-valued $\log_2 n$. When $n$ is exactly a power of two the
-rounding is zero; in the worst case it approaches one bit per
-element. Over a uniformly distributed $n$ on a logarithmic scale the
-rounding averages $0.5$ bits per element, the same rounding profile
-the BHF showed in \Cref{sec:space-analysis}. The rounding cost is
-small in absolute terms and well-understood; the chapter does not
-pursue fractional-bit rank encodings because the gains are not worth
-the query-time complexity, the same conclusion chapter~14 reached
-for fingerprints.
-
-The rank table is the densest possible representation of a uniform
-rank per element. Each slot holds exactly $r$ bits, the minimum
-needed to distinguish $n$ ranks. The table has exactly $n$ slots,
-the minimum needed to address every element of $A$ through the
-perfect hash $\phi$. There is no padding, no per-slot overhead, and
-no addressing structure inside the table other than the indexing by
-$\phi$. The table is a flat array, addressed deterministically, and
-the bit cost is the sum of the per-slot widths.
+bits, growing as $n \log_2 n$, the same information-theoretic cost a
+sorted lookup index pays to distinguish $n$ ranks. At $n = 10^6$ the
+table is $20 \cdot 10^6$ bits, about $2.5$ megabytes; at $n = 10^9$ it is
+$30 \cdot 10^9$ bits, about $3.75$ gigabytes. The integer rounding in
+$r = \lceil \log_2 n \rceil$ adds between $0$ and $1$ bits per element
+over $\log_2 n$, zero at powers of two and averaging $0.5$, the rounding
+profile \Cref{sec:space-analysis} showed for fingerprints; fractional-bit
+rank encodings are not worth the query-time complexity, the same
+conclusion chapter~14 reached. The table is a flat array addressed by
+$\phi$, with no padding, the densest representation of one rank per
+element.
 
 \subsection*{Perfect-hash storage}
 
-The second storage object is the perfect hash $\phi$ itself.
-\Cref{sec:space-analysis} computed the BHF's perfect-hash overhead
-in detail; the BPHF inherits the same machinery without modification,
-because the perfect-hash construction depends on the set $A$ alone
-and not on what gets stored at each slot. The asymptotic bound from
-the Belazzougui-Botelho-Dietzfelbinger family is
+The perfect hash is a property of the set, not of the values stored at
+each slot, so the BPHF inherits the BHF's overhead unchanged: the
+Belazzougui-Botelho-Dietzfelbinger family gives
 \[
   L_\phi \;=\; O\bigl( n \log \log \log n / \log n \bigr)
 \]
-bits, which is $o(n)$ and therefore vanishing relative to the rank
-table's $n \log_2 n$. The per-element overhead $L_\phi / n =
-O(\log \log \log n / \log n)$ tends to zero as $n$ grows. At $n = 10^6$
-practical implementations report between $2$ and $3$ bits per
-element; at $n = 10^9$ the figure drops to between $1.5$ and $2.5$
-bits per element. The full discussion is in chapter~14; the BPHF
-inherits both the asymptotic bound and the practical constants
-unchanged.
-
-The structural reason the BPHF and BHF share their perfect-hash
-overhead is that the perfect hash is a property of the set, not of
-the values stored at each slot. The chapter~14 build pass populated
-$F[\phi(a)] = g(a)$ with the fingerprint $g(a)$; the chapter~15 build
-pass populates $R[\phi(a)] = \rho(a)$ with the rank $\rho(a)$. The
-only changed component is the per-slot value. The perfect-hash
-representation, the slot count, and the addressing pattern are
-identical. Whatever bound holds for the BHF's $\phi$ holds for the
-BPHF's $\phi$ as well, and the chapter does not redo the derivation.
+bits, $o(n)$ and therefore vanishing relative to the rank table's
+$n \log_2 n$, at practical constants of $2$ to $3$ bits per element at
+$n = 10^6$ and below that at larger $n$. The chapter~14 build pass
+populated $F[\phi(a)] = g(a)$; the chapter~15 pass populates
+$R[\phi(a)] = \rho(a)$. Only the per-slot value differs; the
+perfect-hash representation, slot count, and addressing are identical, so
+the chapter does not redo the derivation.
 
 \subsection*{Total bits per element}
 
-Combining the two terms,
+Combining,
 \begin{equation}
 \label{eq:bphf-total-bits}
   L_{\text{BPHF}}
   \;=\; L_R + L_\phi
   \;=\; n \cdot \lceil \log_2 n \rceil
-  \;+\; O\bigl( n \log \log \log n / \log n \bigr)
+  \;+\; O\bigl( n \log \log \log n / \log n \bigr),
 \end{equation}
-bits. Dividing by $n$,
+and dividing by $n$,
 \begin{equation}
 \label{eq:bphf-per-element}
   L_{\text{BPHF}} / n
   \;=\; \lceil \log_2 n \rceil
   \;+\; O(\log \log \log n / \log n).
 \end{equation}
-The first term is bounded between $\log_2 n$ and $\log_2 n + 1$ by
-integer rounding. The second term is $o(1)$ as $n \to \infty$. The
-per-element bit cost approaches the integer rounding of $\log_2 n$,
-with the perfect-hash correction vanishing in the limit.
 
 \begin{proposition}[BPHF space]
 \label{prop:bphf-space}
-The Bernoulli Perfect Hash Filter of \Cref{def:bphf} on a
-designated set $A$ with $|A| = n$ uses
+The Bernoulli Perfect Hash Filter of \Cref{def:bphf} on a designated set
+$A$ with $|A| = n$ uses
 \[
   L_{\text{BPHF}} / n
   \;=\; \lceil \log_2 n \rceil
   \;+\; o(1)
   \;=\; \log_2 n \;+\; O(1)
 \]
-bits per element. The dominant term is the rank table at $\lceil
-\log_2 n \rceil$ bits per element; the perfect-hash overhead is a
-sublinear additive correction that vanishes as $n \to \infty$.
+bits per element, the rank table dominating at $\lceil \log_2 n \rceil$
+bits and the perfect-hash overhead a vanishing sublinear correction.
 \end{proposition}
 
-The proposition has the same form as \Cref{thm:bhf-optimality} for
-the BHF, with one key difference: the parameter controlling the
-leading term is the set size $n$, not the target rate $\fprate$. The
-two formulas
+The proposition has the form of \Cref{thm:bhf-optimality} with one
+difference: the leading term is controlled by the set size $n$, not the
+target rate $\fprate$. The two budgets
 \[
-  L_{\text{BHF}} / n
-    \;=\; \lceil -\log_2 \fprate \rceil + o(1),
+  L_{\text{BHF}} / n = \lceil -\log_2 \fprate \rceil + o(1),
   \qquad
-  L_{\text{BPHF}} / n
-    \;=\; \lceil \log_2 n \rceil + o(1)
+  L_{\text{BPHF}} / n = \lceil \log_2 n \rceil + o(1)
 \]
 are functions of different inputs. The BHF spends bits at a rate the
-designer chooses through the target $\fprate$; the BPHF spends bits
-at a rate the application's set size dictates. At small $n$ the BPHF
-is cheaper per element than a BHF at any nontrivial $\fprate$; at
-large $n$ the BPHF becomes more expensive than a BHF at any but the
-strictest $\fprate$ targets. The crossover is computed concretely in
-the comparison table below.
+designer sets through $\fprate$; the BPHF at a rate the set size
+dictates. Neither is a defect: each budget is the minimum its guarantee
+requires. The BHF pays $\lceil -\log_2 \fprate \rceil$ bits to make a
+false-positive coincidence rare; the BPHF pays $\lceil \log_2 n \rceil$
+bits so the rank assignment can name all $n$ members apart and certify a
+witness. At full resolution the BPHF is exact (the $\fnrate = 0$ corner);
+the $k$-perfect dial of \Cref{sec:bphf-construction} shrinks the slot
+count to $m < n$ and trades $\fnrate \approx 1 - m/n$ for the saved
+space.
 
-The asymmetry is not a defect of one construction relative to the
-other. The two filters give different guarantees, and the bit costs
-reflect what each guarantee requires. The BHF guarantees $\fnrate =
-0$ at the cost of $\fprate \le 2^{-r}$, and pays $r = \lceil -\log_2
-\fprate \rceil$ bits per element to make the false-positive
-probability small enough. The BPHF guarantees $\fprate = 0$ in the
-witness query model and pays $r = \lceil \log_2 n \rceil$ bits per
-element so the rank assignment can name all $n$ elements apart. At
-full resolution with a true perfect hash the BPHF is exact (the
-$\fnrate = 0$ corner of the perfect-filter line); the per-element
-budget of \Cref{prop:bphf-space} is the cost of that exact corner.
-The dial that buys a smaller table is the $k$-perfect hash of
-\Cref{sec:bphf-construction}, which shrinks the slot count to $m < n$
-and trades a controlled $\fnrate \approx 1 - m/n$ for the saved
-space. Each construction's bit budget is the minimum needed for its
-guarantee, and each spends extra bits, on its own axis, only to drive
-the controlled error rate down.
+\subsection*{Build and query time}
 
-\subsection*{Build time}
+The build writes one rank per element in a one-pass $O(n)$ stage plus the
+expected-$O(n)$ perfect-hash construction of \Cref{sec:construction-time}
+(the same Fredman-Komlos-Szemeredi, Hagerup-Tholey, MWHC, BBHash, and BDZ
+families), dominated by the latter; build throughputs and times match the
+BHF's. The rank-fill is embarrassingly parallel (distinct slots by
+bijectivity), running after the perfect-hash stage in the same two-stage
+pipeline. The only build-time difference from the BHF is computing a rank
+$\rho(a)$ rather than a fingerprint $g(a)$ per element, both $O(1)$.
 
-The build pass of \eqref{eq:bphf-build} writes one rank value per
-element, plus the perfect-hash construction itself. The
-fingerprint-fill stage of the BHF was a one-pass operation in $O(n)$
-time; the rank-fill stage of the BPHF is identical at the algorithmic
-level. The perfect-hash construction is the same expected-$O(n)$
-subroutine \Cref{sec:construction-time} described for the BHF, with
-the same family of candidate algorithms (Fredman-Komlos-Szemeredi,
-Hagerup-Tholey, the displacement-based MWHC and BBHash, and the
-modern Belazzougui-Botelho-Dietzfelbinger scheme). The expected total
-build time is therefore $O(n)$, dominated by the perfect-hash
-construction.
-
-The BPHF inherits the chapter~14 implementation lineage without
-modification: build throughputs on the order of $10$ to $50$ million
-elements per second on commodity hardware, end-to-end build times on
-the order of seconds for million-element sets and minutes for
-billion-element sets. The rank-fill pass is embarrassingly parallel
-(each iteration writes a distinct slot, since $\phi$ is a bijection
-on $A$), and the perfect-hash construction admits parallel variants
-in the published implementations. The two-stage pipeline
-(perfect-hash first, ranks second) runs sequentially at the stage
-level but parallel within each stage, matching the chapter~14
-organization.
-
-The only build-time difference between the BHF and the BPHF is the
-nature of the per-slot value being computed. The BHF computes a
-fingerprint hash $g(a)$ per element; the BPHF computes a rank
-$\rho(a)$ per element. Both are $O(1)$ per element. The total
-per-element build cost is the same constant-time evaluation plus the
-$O(1)$ amortized share of the perfect-hash construction. The two
-constructions differ in what they store, not in how much work each
-storage operation costs.
-
-\subsection*{Query time}
-
-The query algorithm of \Cref{alg:bphf-build-query} runs in $O(1)$
-time. It evaluates the perfect hash $\phi(x)$ once (one
-constant-time data-structure lookup), evaluates the rank function
-$\rho(x)$ once (one hash or one metadata lookup), reads one $r$-bit
-slot of the table (one memory access), and compares two $r$-bit
-strings (constant time when $r$ fits in a machine word, which it
-does for any $n$ up to $2^{64}$ on a $64$-bit architecture). The
-total work is constant in $n$ and constant in the universe size,
-dominated by the two function evaluations and the one memory read.
-
-Compared to the BHF's query cost, the BPHF performs the same two
-function evaluations and the same one memory read; the only
-difference is which function is the second one ($\rho$ rather than
-$g$) and what value comes back from the table read (a rank rather
-than a fingerprint). The cycle count is essentially identical. The
-$r$-bit comparison is at machine-word speed in both constructions.
-The two filters share their query-time profile to within constant
-factors that depend on whichever specific perfect-hash family is in
-use.
+The query of \Cref{alg:bphf-build-query} runs in $O(1)$: one
+perfect-hash evaluation, one rank evaluation, one memory read, and an
+$r$-bit comparison (at machine-word speed for any $n$ up to $2^{64}$).
+The cycle count is essentially the BHF's, differing only in which
+function is the second evaluation and what the table read returns.
 
 \subsection*{The bit-cost picture at \texorpdfstring{$n = 10^6$}{n = 10\^{}6}}
 
-Fix $n = 10^6$ elements and compare the BHF and BPHF bit budgets.
-The BHF's per-element cost is $\lceil -\log_2 \fprate \rceil$, which
-depends on the target $\fprate$. The BPHF's per-element cost is
-$\lceil \log_2 n \rceil = \lceil \log_2 10^6 \rceil = \lceil
-19.93 \rceil = 20$ bits, independent of any error target.
-\Cref{tab:bhf-bphf-bits} reports the BHF cost at three target rates
-and the BPHF cost (constant across the table).
+Fix $n = 10^6$. The BPHF's per-element cost is
+$\lceil \log_2 10^6 \rceil = 20$ bits, independent of any error target;
+the BHF's is $\lceil -\log_2 \fprate \rceil$. \Cref{tab:bhf-bphf-bits}
+puts them side by side.
 
 \begin{table}[h]
 \centering
 \caption{Bits per element at $n = 10^6$. BHF column is $\lceil -\log_2
-\fprate \rceil$ from \Cref{thm:bhf-optimality}; BPHF column is
-$\lceil \log_2 n \rceil = 20$ from \Cref{prop:bphf-space}, independent
-of $\fprate$ since the BPHF guarantees $\fprate = 0$ exactly. Both
-columns omit the sublinear perfect-hash overhead.}
+\fprate \rceil$ (\Cref{thm:bhf-optimality}); BPHF column is $\lceil
+\log_2 n \rceil = 20$ (\Cref{prop:bphf-space}), constant since the BPHF
+guarantees $\fprate = 0$. Both omit the sublinear perfect-hash overhead.}
 \label{tab:bhf-bphf-bits}
 \begin{tabular}{l|cc}
 \hline
@@ -288,38 +154,17 @@ columns omit the sublinear perfect-hash overhead.}
 \end{tabular}
 \end{table}
 
-At $\fprate = 10^{-2}$ the BHF spends $7$ bits per element and the
-BPHF spends $20$, a factor of $2.86$ more expensive on the bit axis.
-At $\fprate = 10^{-3}$ the BHF spends $10$ bits per element and the
-BPHF spends $20$, a factor of $2$ more expensive. At $\fprate =
-10^{-6}$ the two filters cross over and tie at $20$ bits per element.
-For any target stricter than $\fprate = 10^{-6}$ at $n = 10^6$, the
-BPHF is actually cheaper than the BHF at the same set size; for any
-target looser than $\fprate = 10^{-6}$, the BHF is cheaper.
-
-The crossover point at $n = 10^6$ is $\fprate = 2^{-20} \approx
-10^{-6}$, where the two formulas give the same bit count. In general
-the crossover is at $\fprate = 1/n$: setting $\lceil -\log_2 \fprate
-\rceil = \lceil \log_2 n \rceil$ gives $\fprate = 1/n$. Below the
-crossover (stricter targets, equivalently $\fprate < 1/n$) the BPHF
-is the cheaper construction at the same $n$. Above the crossover
-(looser targets, $\fprate > 1/n$) the BHF is the cheaper
-construction. The two regimes correspond to the two operational
-modes: the BHF is the right tool when the application tolerates
-some false positives in exchange for cheap storage; the BPHF is the
-right tool when the application cannot tolerate any false positives
-at all, and pays the extra bits to enforce $\fprate = 0$.
-
-The BPHF's extra bits in the loose-target regime are not wasted;
-they buy a guarantee that the BHF cannot deliver at any bit budget.
-A BHF at $\fprate = 10^{-2}$ admits roughly one false positive per
-hundred non-member queries, regardless of how many bits are spent
-beyond the entropy floor. A BPHF at the same $n = 10^6$ admits zero
-false positives, period. The $13$ extra bits per element (over the
-BHF at $\fprate = 10^{-2}$) are the price of converting a $10^{-2}$
-probability into a $0$ certainty on the consequential axis. The
-\Cref{sec:ranked-search} application discussion works through one
-setting where the conversion pays for itself: top-$k$ retrieval,
-where a false positive surfaces an off-topic document as if it
-belonged in the top set, and the application's precision invariant
-is the $\fprate = 0$ guarantee the BPHF provides.
+The two filters cross over at $\fprate = 1/n$, where $\lceil -\log_2
+\fprate \rceil = \lceil \log_2 n \rceil$: at $n = 10^6$ this is $\fprate =
+2^{-20} \approx 10^{-6}$. Above the crossover (looser targets, $\fprate >
+1/n$) the BHF is cheaper; below it (stricter targets) the BPHF is
+actually cheaper at the same $n$. The two regimes are the two operating
+modes, the BHF where the application tolerates some false positives for
+cheap storage, the BPHF where it cannot tolerate any. The BPHF's extra
+bits in the loose-target regime are not wasted: they buy a guarantee the
+BHF cannot deliver at any bit budget. A BHF at $\fprate = 10^{-2}$ admits
+roughly one false positive per hundred non-member queries no matter how
+many bits it spends; a BPHF at the same $n$ admits zero. The $13$ extra
+bits per element are the price of converting a $10^{-2}$ probability into
+a certainty on the consequential axis, the conversion
+\Cref{sec:ranked-search} shows paying for itself in top-$k$ retrieval.

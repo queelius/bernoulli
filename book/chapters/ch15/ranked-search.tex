@@ -1,321 +1,177 @@
 % §15.4 Ranked Search Application
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:ranked-search}                    -- this section
-%   \label{prop:bphf-ranked-search}              -- expected-miss bound
-%   \label{eq:bphf-ranked-misses}                -- expected miss count
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{def:perfect-filter-line}               -- chapter 6 §6.4
-%
-% ALREADY DEFINED (chapter 14):
-%   \Cref{def:bhf}                               -- chapter 14 §14.2
-%   \Cref{prop:bhf-fpr}                          -- chapter 14 §14.4
-%
-% ALREADY DEFINED (chapter 15):
-%   \Cref{def:bphf}                              -- §15.2
-%   \Cref{sec:bphf-construction}                 -- §15.2
-%   \Cref{alg:bphf-build-query}                  -- §15.2
-%   \Cref{prop:bphf-space}                       -- §15.3
-%   \Cref{sec:space-time-analysis}               -- §15.3
-%   \eqref{eq:bphf-fnr}                          -- §15.2 FNR bound
-%   \eqref{eq:bphf-r}                            -- §15.2 rank width
-%
-% FORWARD REFS within chapter 15:
-%   \Cref{sec:bridge-to-part5}                   -- §15.5 (Task 6)
-%
-% §15.4 develops the BPHF's archetypal application: top-k retrieval.
-% The ranked-search problem is stated; the BPHF is constructed by
-% pre-computing scores, sorting, and assigning ranks; the structural
-% argument for why FPR = 0 is the right guarantee in this setting is
-% given; the expected-miss bound is derived; the worked example at
-% n = 10^6 and k = 100 makes the bit budget concrete.
+% Monograph register: the ranked-search problem, BPHF for top-k, why
+% FPR=0 is the right guarantee (precision/recall asymmetry, compressed),
+% the false-negative cost and prop:bphf-ranked-search, worked example.
+% Folds salvaged ex-7 as rem:bphf-bhf-compose (composing the two filter
+% families for A cap B). Cross-refs def:bloom-filter,
+% def:perfect-filter-line, def:bhf, prop:bhf-fpr, def:bphf,
+% sec:bphf-construction, alg:bphf-build-query, prop:bphf-space,
+% sec:space-time-analysis, eq:bphf-fnr, eq:bphf-r, sec:bridge-to-part5.
+% DEFINED: sec:ranked-search, prop:bphf-ranked-search, rem:bphf-bhf-compose,
+% eq:bphf-ranked-misses.
 
 \section{Ranked Search Application}
 \label{sec:ranked-search}
 
-The chapter has so far developed the BPHF as a membership filter
-on the FPR-zero arm of the perfect-filter line. The structural
-features (zero false positives in the witness query model, exact at
-full resolution with a true perfect hash, and a controlled false
-negative rate $\fnrate \approx 1 - m/n$ bought by a $k$-perfect hash
-with $m$ slots, at per-element cost $\lceil \log_2 n \rceil$ bits from
-\Cref{prop:bphf-space}) describe the filter in the abstract; the
-present section places it in its archetypal application, which is also
-the setting that supplies the witness model the FPR-zero guarantee
-needs. The setting is ranked search: given a corpus and a
-query, return the top-$k$ most relevant documents. The exact
-solution scores every document and sorts; the BPHF accelerates the
-solution by storing each document's pre-computed rank in a perfect-
-hash-addressed table, with the query checking whether a candidate
-document's stored rank falls within the top-$k$ band. The
-$\fprate = 0$ guarantee is exactly the precision invariant the
-application needs, and the chapter argues that the BPHF is not a
-generic data structure that happens to fit ranked search but the
-data structure ranked search asks for.
+The chapter developed the BPHF abstractly: zero false positives in the
+witness model, exact at full resolution, a controlled $\fnrate \approx
+1 - m/n$ bought by a $k$-perfect hash of $m$ slots at $\lceil \log_2 n
+\rceil$ bits per element (\Cref{prop:bphf-space}). This section places it
+in its archetypal application, which also supplies the witness model the
+guarantee needs. The setting is ranked search: given a corpus and a
+query, return the top-$k$ most relevant documents. The $\fprate = 0$
+guarantee is exactly the precision invariant the application needs, and
+the BPHF is not a generic structure that happens to fit ranked search but
+the structure ranked search asks for.
 
 \subsection*{The ranked-search problem}
 
-Fix a corpus of $n$ documents indexed by IDs $a_1, \ldots, a_n$. For
-each document the application has a relevance scoring function
-$s : \text{ID} \to \mathbb{R}$, computed from features such as
-term-frequency weights, semantic embeddings, or external metadata.
-A query asks for the top-$k$ documents, meaning the $k$ document IDs
-whose scores are largest under $s$. The exact solution computes
-$s(a_i)$ for every $i$, sorts the scores in descending order, and
-returns the IDs at positions $1, \ldots, k$. The cost is $O(n)$
-score evaluations plus $O(n \log n)$ sorting, dominated by the score
-evaluations when $s$ is expensive. At corpus sizes in the millions,
-the per-query cost is dominated by the score-evaluation phase, and
-the application's question becomes: can the top-$k$ retrieval avoid
-evaluating $s$ on every document at every query? An indexing
-structure that pre-computes the answer once and serves queries
-without per-document scoring is the right architectural answer; the
-BPHF is one such structure.
+Fix a corpus of $n$ documents with IDs $a_1, \ldots, a_n$ and a relevance
+score $s : \text{ID} \to \mathbb{R}$ from term weights, embeddings, or
+metadata. A query asks for the top-$k$ IDs by score. The exact solution
+scores every document and sorts, at $O(n)$ score evaluations plus
+$O(n \log n)$ sorting, dominated by the scoring when $s$ is expensive. At
+corpus sizes in the millions the question becomes whether top-$k$
+retrieval can avoid scoring every document at every query. A structure
+that pre-computes the answer once and serves queries without per-document
+scoring is the architectural answer, and the BPHF is one.
 
 \subsection*{BPHF for top-\texorpdfstring{$k$}{k} retrieval}
 
-The construction is a single-pass build over the corpus. Pre-compute
-$s(a_i)$ for every document, sort the IDs in descending order of
-score, and assign to each ID its rank in the sort: the ID with the
-largest score gets rank $0$, the next gets rank $1$, and so on, with
-the ID at the bottom of the sort getting rank $n - 1$. The rank
-assignment $\rho : A \to \{0, 1, \ldots, n - 1\}$ is exactly the
-function the BPHF construction of \Cref{sec:bphf-construction}
-requires as input. Build the BPHF on the corpus with this $\rho$ and
-$r = \lceil \log_2 n \rceil$ bits per slot from \eqref{eq:bphf-r}.
-The resulting data structure has the property that for any document
-ID $a \in A$, the query $\textsc{Query}(a)$ from
-\Cref{alg:bphf-build-query} reads $R[\phi(a)] = \rho(a)$ and returns
-$\top$, recovering the document's pre-computed rank.
-
-The top-$k$ retrieval reduces to a rank-bound check. For a candidate
-document ID $a$, the application asks: is $a$ in the top $k$? The
-top-$k$ predicate is $\rho(a) < k$ (since the top-scoring document
-has rank $0$ and the $k$-th has rank $k - 1$). The query algorithm
-becomes
+The build is a single pass over the corpus: pre-compute $s(a_i)$ for
+every document, sort the IDs by descending score, and assign each its
+rank, the top-scoring ID rank $0$ and the bottom rank $n - 1$. That rank
+assignment $\rho : A \to \{0, \ldots, n-1\}$ is exactly the input
+\Cref{sec:bphf-construction} requires; build the BPHF on it with $r =
+\lceil \log_2 n \rceil$ bits per slot. Top-$k$ retrieval reduces to a
+rank-bound check: a candidate $a$ is in the top $k$ iff $\rho(a) < k$, so
 \[
   \textsc{TopK}(a) \;=\; \textsc{Query}(a) \;\land\; R[\phi(a)] < k,
 \]
-combining the BPHF's membership check with a numeric comparison
-against $k$. The membership check returns $\top$ when $a$ is a known
-corpus document; the numeric comparison admits $a$ only when its
-stored rank is in the top band. Both conditions must hold for the
-top-$k$ verdict to be $\top$.
-
-The query cost is $O(1)$: one perfect-hash evaluation $\phi(a)$, one
-rank-function evaluation $\rho(a)$, one memory read of $R[\phi(a)]$,
-one $r$-bit comparison against $\rho(a)$ (the BPHF check), and one
-integer comparison against $k$ (the top-$k$ check). The per-query
-work is constant in $n$ and constant in $k$; the application can
-serve top-$k$ queries at the rate of one per few hundred CPU cycles.
-The build cost is the one-time work of scoring all $n$ documents,
-sorting them, and constructing the BPHF, totaling $O(n \log n)$
-sorting plus the $O(n)$ BPHF build that \Cref{sec:space-time-analysis}
-analyzed. The amortization is favorable: each query saves $n$ score
-evaluations relative to the exact solution, so the per-query cost
-drops from $O(n)$ to $O(1)$ once the build is paid off.
-
-The architecture is suitable for any application that issues many
-queries against a stable corpus. The build runs once when the
-corpus is loaded or refreshed; the queries run continuously
-afterwards. A search engine ingests a new corpus snapshot every
-hour and rebuilds the BPHF; in between rebuilds the BPHF serves
-millions of queries per second on commodity hardware. A
-recommendation system ingests user-rated items nightly and rebuilds
-the per-user BPHFs; in between rebuilds the personalized top-$k$
-predictions are served instantly. The pattern, batch build and
-constant-time query, matches the BHF's deployment profile from
-chapter~14 and applies here to the FPR-zero side of the design
-space.
+combining the BPHF membership check with a numeric comparison. The query
+is $O(1)$: one perfect-hash evaluation, one rank evaluation, one memory
+read, one $r$-bit comparison, one integer comparison against $k$,
+constant in both $n$ and $k$. The build is the one-time $O(n \log n)$
+sort plus the $O(n)$ BPHF build of \Cref{sec:space-time-analysis}; each
+query then saves the $n$ score evaluations the exact solution repeats,
+dropping per-query cost from $O(n)$ to $O(1)$. The profile is batch build
+and constant-time query, matching the BHF deployment of chapter~14: a
+search engine rebuilds on each hourly corpus snapshot and serves millions
+of queries per second between rebuilds; a recommender rebuilds per-user
+indices nightly and serves personalized top-$k$ instantly.
 
 \subsection*{Why \texorpdfstring{$\fprate = 0$}{FPR = 0} is the right guarantee}
 
-The top-$k$ retrieval problem has an asymmetric error structure
-that distinguishes the two error modes by consequence. A false
-positive is the BPHF reporting that an irrelevant or off-topic
-document belongs in the top set; a false negative is the BPHF
-missing a document that should have been included. The two errors
-corrupt the application's output in different ways.
-
-A false positive corrupts the result list directly. The application
-shows the user a document that has no business being there; the
-user sees an obvious irrelevance among the top results; the
-precision of the result list visibly suffers. In a search interface
-the user clicks the irrelevant result, finds it useless, and judges
-the search system as broken. In a recommendation system the
-irrelevant item gets shown, the user dismisses it, and the
-recommendation engine's trust score drops. The cost of a false
-positive is the cost of corrupted output: visible to the user,
-attributable to the system, and immediately damaging to the
-application's perceived quality.
-
-A false negative has a softer consequence. The application omits a
-document that should have been included; the user sees a result
-list with one entry missing; the recall of the result list suffers.
-In many settings the user does not notice (a top-$100$ list is
-indistinguishable from a top-$99$-plus-one-missing list to the
-casual reader), and even when the user does notice, the missing
-entry is recovered by relaxing the query, browsing further, or
-re-running with looser parameters. The cost of a false negative is
-the cost of mild under-recall: invisible to most users, hard to
-attribute to the system, and recoverable through application-level
-adaptations.
-
-The asymmetry tracks the BPHF's error structure exactly. The
-$\fprate = 0$ guarantee from \Cref{def:bphf} eliminates the
-high-cost error mode by construction; the $\fnrate > 0$ trade-off
-admits the low-cost error mode at a controlled rate. The
-application designer who chooses the BPHF over a competing filter
-makes the trade explicitly: zero corrupted output in exchange for a
-small under-recall. The trade is the right one for any setting where
-precision is the binding quality metric and recall is the
-recoverable one. Ranked search, content-recommendation systems,
-precision-sensitive classification, and authorization filters are
-all examples; the section returns to the broader category in the
-discussion that follows.
+Top-$k$ retrieval has an asymmetric error structure. A false positive
+surfaces an off-topic document as if it belonged in the top set: the user
+sees an obvious irrelevance, clicks it, finds it useless, and judges the
+system broken. The cost is corrupted output, visible and attributable. A
+false negative omits a document that should have appeared: the user sees
+a top-$100$ list that is really a top-$99$-plus-one-missing, usually does
+not notice, and recovers the entry by relaxing the query when they do.
+The cost is mild under-recall, mostly invisible and recoverable. The
+asymmetry tracks the BPHF exactly: the $\fprate = 0$ guarantee of
+\Cref{def:bphf} eliminates the high-cost error by construction, and the
+$\fnrate > 0$ trade admits the low-cost error at a controlled rate. The
+designer who chooses the BPHF makes the trade explicitly, zero corrupted
+output for a small under-recall, the right trade wherever precision is
+the binding metric and recall the recoverable one: ranked search,
+recommendation, precision-sensitive classification, authorization
+filters.
 
 \subsection*{The false-negative cost}
 
-Ranked search is the witness model: a query is posed for a document
-that already carries its corpus rank, and a non-corpus candidate has
-no such rank to present. The BPHF therefore returns no off-corpus
-document, $\fprate = 0$. The false negatives come entirely from the
-$k$-perfect hash. At full resolution, $m = n$ slots and a true
-perfect hash, every corpus document owns its slot and the retrieval
-is exact: no top-$k$ document is missed. Shrinking the table to
-$m < n$ slots crowds out a fraction $1 - m/n$ of the corpus, and the
-expected number of top-$k$ documents missed is that fraction of the
-$k$ retrieved:
+Ranked search is the witness model: a query is posed for a document that
+already carries its corpus rank, and a non-corpus candidate has none to
+present, so $\fprate = 0$. The false negatives come entirely from the
+$k$-perfect hash. At full resolution every document owns a slot and the
+retrieval is exact; shrinking to $m < n$ slots crowds out a fraction
+$1 - m/n$ of the corpus, and by linearity over the $k$ true top documents
+the expected misses are
 \begin{equation}
 \label{eq:bphf-ranked-misses}
   \mathbb{E}[\text{misses}]
   \;\approx\; k \cdot \fnrate
   \;\approx\; k \left( 1 - \frac{m}{n} \right),
 \end{equation}
-using $\fnrate \approx 1 - m/n$ from \eqref{eq:bphf-fnr} and
-linearity of expectation over the $k$ true top documents. The miss
-count is set by the retrieval depth $k$ and the table-size ratio
-$m/n$, the designer's space-versus-recall dial, and is independent of
-the rank width $r$, which is fixed at $\lceil \log_2 n \rceil$ by the
-need for distinct ranks.
+using $\fnrate \approx 1 - m/n$ from \eqref{eq:bphf-fnr}, set by the
+retrieval depth $k$ and the table ratio $m/n$ and independent of the rank
+width $r = \lceil \log_2 n \rceil$.
 
 \begin{proposition}[BPHF top-$k$ expected misses]
 \label{prop:bphf-ranked-search}
-Let the BPHF of \Cref{def:bphf} be built on a corpus of $n$
-documents in the witness model, with a $k$-perfect hash of $m \le n$
-slots. A top-$k$ retrieval query against this BPHF surfaces no
-off-corpus document ($\fprate = 0$) and misses, in expectation, at
-most $k\,(1 - m/n)$ of the true top-$k$ documents. At full
+Let the BPHF of \Cref{def:bphf} be built on a corpus of $n$ documents in
+the witness model, with a $k$-perfect hash of $m \le n$ slots. A top-$k$
+query surfaces no off-corpus document ($\fprate = 0$) and misses, in
+expectation, at most $k\,(1 - m/n)$ of the true top-$k$ documents. At full
 resolution $m = n$ the retrieval is exact.
 \end{proposition}
 
-The proposition matches the intuition that a fuller table misses
-fewer documents and a deeper retrieval exposes more documents to the
-miss rate. Halving the spare capacity $1 - m/n$ halves the expected
-misses; setting $m = n$ removes them entirely. The designer picks the
-table size to make the per-query miss expectation small enough that
-the user-facing experience is indistinguishable from exact top-$k$
-retrieval, paying in slots for the recall it wants.
+Halving the spare capacity $1 - m/n$ halves the expected misses; $m = n$
+removes them. The designer sets the table size to make the per-query miss
+expectation small enough that the experience is indistinguishable from
+exact top-$k$, paying in slots for recall.
+
+\begin{remark}[Composing the two filter families]
+\label{rem:bphf-bhf-compose}
+The two arms compose. To test $x \in A \cap B$ with a BPHF on $A$ and a
+BHF on $B$, query both and return $\top$ iff both do, at $O(1)$. The
+composed false-positive rate is bounded by the BHF's alone: a false
+positive needs $x \notin A \cap B$ with both filters accepting, and if
+$x \notin A$ the BPHF rejects with certainty ($\fprate = 0$), so only the
+$x \in A,\, x \notin B$ case contributes, at the BHF's $\le 2^{-r_B}$.
+The composed false-negative rate is the BPHF's: for $x \in A \cap B$ the
+BHF accepts with certainty, so a miss requires the BPHF to miss, at $0$
+with a true perfect hash and $\approx 1 - m_A/|A|$ under a $k$-perfect
+one. The composition inherits the weaker guarantee on each axis, the
+FPR-zero arm absorbing the non-members of $A$ before the BHF is consulted.
+\end{remark}
 
 \subsection*{A worked example}
 
-Fix a corpus of $n = 10^6$ documents and a top-$k = 100$ retrieval
-target. The rank width is
+Fix $n = 10^6$ documents and top-$k = 100$. The rank width is
 \[
-  r \;=\; \lceil \log_2 10^6 \rceil
-  \;=\; \lceil 19.93 \rceil
-  \;=\; 20 \text{ bits},
+  r \;=\; \lceil \log_2 10^6 \rceil \;=\; \lceil 19.93 \rceil \;=\; 20
+  \text{ bits},
 \]
-since $2^{20} = 1{,}048{,}576 \ge 10^6 > 2^{19} = 524{,}288$. The
-BPHF's per-element bit cost from \Cref{prop:bphf-space} is therefore
-$20$ bits plus the sublinear perfect-hash overhead. The rank table
-occupies
-\[
-  n \cdot r \;=\; 10^6 \cdot 20 \;=\; 2 \cdot 10^7 \text{ bits}
-  \;=\; 2.5 \text{ megabytes}.
-\]
-Adding the perfect-hash representation (between $2$ and $3$ bits per
-element at $n = 10^6$ in practical implementations), the total is
-approximately $2.7$ to $2.9$ megabytes. The whole indexing structure
-fits comfortably in the L3 cache of a modern server CPU, and the
-per-query work is a handful of memory accesses entirely served from
-cache.
-
-At full resolution, $m = n = 10^6$ slots with a true perfect hash,
-the error guarantees are
-\[
-  \fprate \;=\; 0
-  \qquad \text{and} \qquad
-  \fnrate \;=\; 0,
-\]
-and the retrieval is exact: every query returns the right $100$
-documents, never an off-corpus one. To trade table space for the
-usual reason, shrink to a $k$-perfect hash with $m = 0.99\,n$ slots.
-By \eqref{eq:bphf-ranked-misses} the expected miss count is
+so the rank table is $2 \cdot 10^7$ bits, $2.5$ megabytes, and with the
+perfect-hash representation about $2.7$ to $2.9$ megabytes, comfortably in
+a server's L3 cache. At full resolution $\fprate = \fnrate = 0$ and the
+retrieval is exact. Shrinking to $m = 0.99\,n$ slots, \eqref{eq:bphf-ranked-misses}
+gives
 \[
   \mathbb{E}[\text{misses}]
-  \;\approx\; 100 \left( 1 - \frac{0.99\,n}{n} \right)
-  \;=\; 100 \cdot 0.01 \;=\; 1,
+  \;\approx\; 100 \left( 1 - 0.99 \right)
+  \;=\; 1,
 \]
-so a typical top-$100$ query returns about $99$ of the true top
-documents, while
-\[
-  \fprate \;=\; 0
-\]
-still holds exactly: not one of the roughly $|\Universe| - n$
-off-corpus candidates is ever surfaced. The one-percent table saving
-costs about one missed result in a hundred, and the affirmative
-guarantee, never showing an irrelevant document, is untouched. From
-the user's perspective the retrieval is indistinguishable from exact
-top-$k$: the missing entry is rarely noticed, and a wrong entry never
-appears.
+so a typical top-$100$ query returns about $99$ true top documents while
+$\fprate = 0$ holds exactly, not one of the roughly $|\Universe| - n$
+off-corpus candidates ever surfaced. The one-percent table saving costs
+about one missed result in a hundred, and the affirmative guarantee is
+untouched; the retrieval is indistinguishable from exact top-$k$, the
+missing entry rarely noticed and a wrong entry never present.
 
-The bit cost matches the application's needs. A baseline solution
-that stores the full sorted index would need $n \log_2 n = 10^6
-\cdot 20 = 2 \cdot 10^7$ bits for the ranks plus the perfect-hash
-addressing, the same $2.5$ to $3$ megabytes as the BPHF. The
-baseline gives exact retrieval at the same space cost, so what does
-the BPHF add? The answer is in the query algorithm. The baseline
-needs to support efficient lookup of a document's rank by ID, which
-requires either a hash table (with collision handling, load factor
-overhead, and potentially $O(1)$ amortized but variable-time
-queries) or a sorted associative structure (with $O(\log n)$
-queries). The BPHF provides the same lookup at one memory access
-and one comparison, the minimum any data structure can achieve. The
-$0$ false positive guarantee is the bonus: the BPHF refuses
-non-corpus queries by construction, where a hash table would need
-an additional membership check to filter them out.
+A full sorted index storing each rank explicitly costs the same
+$n \log_2 n$ bits for ranks but adds an associative structure mapping IDs
+to ranks, a hash table or balanced tree at $32$ to $64$ bits per document
+of pointers and load factor, with $O(1)$ amortized or $O(\log n)$
+queries. The BPHF provides the same lookup at one memory access and one
+comparison, the minimum any structure can achieve, and folds the
+$\fprate = 0$ membership check into the rank lookup, where the sorted
+index would need a separate check to filter off-corpus queries. The
+construction also extends, preserving $\fprate = 0$ throughout: a
+multi-resolution variant stores more bits for high-ranked documents and
+fewer for the tail; a streaming-rebuild variant amortizes inserts over
+the inter-arrival interval; a tiered variant pairs a recent-corpus BPHF
+with an archived-corpus BPHF and merges their verdicts.
 
-The construction also extends to a useful family of generalizations.
-A multi-resolution BPHF stores ranks at varying precisions per
-document (more bits for high-ranked documents, fewer bits for the
-tail), reducing the per-element cost for applications that only
-query the head of the distribution. A streaming-rebuild BPHF
-maintains the rank index as new documents arrive, by amortizing the
-rebuild cost over the inter-arrival interval. A tiered BPHF
-combines a primary BPHF on the recent corpus with a secondary BPHF
-on the archived corpus, with queries checking both and merging the
-results. Each generalization preserves the $\fprate = 0$ guarantee
-of the underlying BPHF and varies the operational profile to suit a
-specific deployment. The exercises return to these variants; the
-present section establishes the baseline construction and its
-error structure, and the chapter's bridge in
-\Cref{sec:bridge-to-part5} returns to the place of the BPHF in
-Part~IV's broader architecture.
-
-The ranked-search application illustrates the larger point of
-Part~IV: the perfect-filter line of \Cref{def:perfect-filter-line}
-is not a theoretical curiosity but an architectural decision space
-that maps cleanly to operational requirements. Applications with
-precision-binding quality metrics belong on the FPR-zero arm and
-use the BPHF; applications with recall-binding quality metrics
-belong on the FNR-zero arm and use the BHF. The decision is forced
-by the application's tolerance for each error mode, and the
-chapter's two constructions cover both halves of the resulting
-design space at the asymptotic bit-budget optimum on each side.
+The application illustrates Part~IV's larger point: the perfect-filter
+line of \Cref{def:perfect-filter-line} is an architectural decision space
+that maps to operational requirements. Precision-binding applications
+take the FPR-zero arm and the BPHF; recall-binding applications take the
+FNR-zero arm and the BHF. The decision is forced by which error the
+application can tolerate, and the chapter's two constructions cover both
+halves at the asymptotic bit-budget optimum on each side.
+\Cref{sec:bridge-to-part5} places them in Part~IV's architecture and
+turns to Part~V.

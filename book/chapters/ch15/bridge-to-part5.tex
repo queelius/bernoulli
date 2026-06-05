@@ -1,116 +1,62 @@
 % §15.5 Bridge to Part V
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bridge-to-part5}                  -- this section
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:one-sided}                         -- chapter 5 §5.4
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{def:perfect-filter-line}               -- chapter 6 §6.4
-%
-% ALREADY DEFINED (chapter 8):
-%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
-%
-% ALREADY DEFINED (chapter 14):
-%   \Cref{def:bhf}                               -- chapter 14 §14.2
-%   \Cref{thm:bhf-optimality}                    -- chapter 14 §14.3
-%
-% ALREADY DEFINED (chapter 15):
-%   \Cref{def:bphf}                              -- §15.2
-%   \Cref{prop:bphf-space}                       -- §15.3
-%   \Cref{sec:ranked-search}                     -- §15.4
-%
-% FORWARD REFS within chapter 15:
-%   \Cref{sec:bib-notes-ch15}                    -- §15.6 (Task 7)
-%
-% FORWARD REFS to later parts:
-%   Chapter 16 (NOT-Bernoulli catalogue) and chapters 17-18 (cipher
-%   maps and encrypted search) -- Part V is in draft elsewhere.
-%
-% §15.5 closes Part IV: pairs BHF (chapter 14) and BPHF (chapter 15)
-% as constructive realizations on the perfect-filter line; pairs them
-% with the chapter 8 entropy floor to close the analytical-and-
-% constructive picture for one-sided approximate sets; previews
-% Part V's catalogue of NOT-Bernoulli systems and the cipher map /
-% encrypted search applications; forward-references the bibliographic
-% notes for antecedents.
+% Monograph register: close Part IV (pair BHF and BPHF as the two
+% operating points on the perfect-filter line, with the chapter-8 floor),
+% note the (eps,0)/(0,omega) endpoints with hybrids interpolating
+% (salvaged ex-11), preview Part V (ch16 NOT-Bernoulli, ch17-18 cipher
+% maps / encrypted search). Cuts the "what 15.6 supplies" subsection.
+% Cross-refs def:one-sided, def:perfect-filter-line, thm:entropy-floor,
+% def:bhf, thm:bhf-optimality, def:bphf, prop:bphf-space, sec:ranked-search,
+% sec:bib-notes-ch15. DEFINED: sec:bridge-to-part5.
 
 \section{Bridge to Part V}
 \label{sec:bridge-to-part5}
 
-The chapter has assembled the constructive answer to the FPR-zero
-arm of the perfect-filter line. The BPHF of \Cref{def:bphf} reaches
-$\fprate = 0$ in the witness query model, is exact at full resolution
-with a true perfect hash, and trades a controlled $\fnrate \approx
-1 - m/n$ for a smaller table through a $k$-perfect hash of $m$ slots.
-It spends $\lceil \log_2 n \rceil + o(1)$ bits per element from
-\Cref{prop:bphf-space}, and applies cleanly to ranked retrieval
-through the construction \Cref{sec:ranked-search} worked out. The chapter's bridge has two threads to tie before Part~V opens:
-the place of chapters~14 and~15 in Part~IV's larger architecture,
-and the new questions Part~V picks up that the present part does not
-address.
+The chapter assembled the constructive answer to the FPR-zero arm of the
+perfect-filter line. The BPHF of \Cref{def:bphf} reaches $\fprate = 0$ in
+the witness query model, is exact at full resolution, and trades a
+controlled $\fnrate \approx 1 - m/n$ for a smaller table through a
+$k$-perfect hash, at $\lceil \log_2 n \rceil + o(1)$ bits per element
+(\Cref{prop:bphf-space}), applying cleanly to ranked retrieval through
+the construction of \Cref{sec:ranked-search}.
 
 \subsection*{Closing Part IV}
 
-Part~IV opened with the chapter~8 entropy floor, which set a lower
-bound on the bits per element any one-sided approximate set must
-spend. Chapter~14 introduced the BHF as the construction that
-reaches the floor on the FNR-zero arm of the perfect-filter line,
-with the $\log_2 e \approx 1.44$ multiplicative overhead the
-standard Bloom filter pays disappearing into a constant-bit additive
-overhead. The present chapter introduces the BPHF as the construction
-that reaches the analogous bound on the FPR-zero arm, with the bit
-budget shifted from $\lceil -\log_2 \fprate \rceil$ to $\lceil \log_2
-n \rceil$ and the controlled error rate shifted from $\fprate$ to
-$\fnrate$. The two constructions together cover the perfect-filter
-line at the asymptotic bit-budget optimum on each side; the part
-closes with both arms supplied with their constructive realization.
-
-The architecture has a clean shape in retrospect. Chapters~5 and~6
-named the perfect-filter line (\Cref{def:perfect-filter-line},
-building on \Cref{def:one-sided}). Chapter~8 derived the entropy
-floor (\Cref{thm:entropy-floor}) as the bit-budget lower bound any
-structure on the line must respect. Chapters~14 and~15 constructed
-the two optimum points on the line, each at one extreme error axis,
-each reaching the floor up to integer rounding plus a sublinear
-correction. The space-accuracy duality of the chapter~6 geometry
-becomes a deployment-time decision once the two chapters have
-supplied the operating points: applications where false negatives
-are unacceptable take the FNR-zero arm and use the BHF; applications
-where false positives are unacceptable take the FPR-zero arm and use
-the BPHF.
+Part~IV has a clean shape in retrospect. Chapters~5 and~6 named the
+perfect-filter line (\Cref{def:perfect-filter-line}, building on
+\Cref{def:one-sided}); chapter~8 derived the entropy floor
+(\Cref{thm:entropy-floor}) as the bit-budget lower bound any structure on
+the line must respect; chapters~14 and~15 constructed the two operating
+points, each at one extreme error axis, each reaching its bound up to
+integer rounding and a sublinear correction. The BHF reaches the floor on
+the FNR-zero arm, dissolving the standard Bloom filter's $\log_2 e
+\approx 1.44$ overhead into a constant additive one
+(\Cref{thm:bhf-optimality}); the BPHF reaches the analogous bound on the
+FPR-zero arm, with the budget shifted from $\lceil -\log_2 \fprate
+\rceil$ to $\lceil \log_2 n \rceil$ and the controlled error from
+$\fprate$ to $\fnrate$. The two are the endpoints $(\fprate, 0)$ and
+$(0, \fnrate)$ of the line; a structure that tolerates both errors can
+interpolate between them, trading one axis against the other, but the
+endpoints are where the bit budget is minimized for a one-sided
+guarantee. The space-accuracy duality of the chapter~6 geometry becomes
+a deployment decision once the operating points are in hand:
+false-negative-intolerant applications take the BHF, false-positive-
+intolerant ones the BPHF.
 
 \subsection*{Part V preview}
 
 Part~V picks up two threads. The first is diagnostic: chapter~16
-catalogues the structural ways a system can fail to be Bernoulli
-(varying rates, correlated errors, adversarial inputs that break the
-fixed-rate assumption the chapter~5 axioms rest on), giving the
-practitioner a checklist for when the framework applies cleanly and
-when it requires modification. The second is generative: chapters~17
-and~18 develop \emph{cipher maps}, the algebraic framework that
-recasts the BHF/BPHF perfect-hash-and-fingerprint architecture as
-the building block for encrypted search, with the perfect hash
-replaced by a trapdoor function whose forward direction is public
-and reverse direction is private. The FPR and FNR guarantees of the
-present part carry over into the cryptographic setting; the
-architectural template is the same.
-
-\subsection*{What \texorpdfstring{\S15.6}{section 15.6} supplies}
-
-The construction the chapter has developed has antecedents in the
-perfect-hashing literature, in the universal-hashing literature on
-which the rank-comparison check rests, and in the ranked-retrieval
-literature that the application of \Cref{sec:ranked-search} draws
-on. The chapter's prose has cited these sources sparingly to keep
-the argument moving at its own pace; the bibliographic notes of
-\Cref{sec:bib-notes-ch15} attach the construction to its published
-antecedents and name the implementations (most prominently the
-\emph{maph} C++ library) that are the production-grade realizations
-of the design the chapter has presented. The next section is the
-place to consult for the chapter's external dependencies and for
-pointers to the literature the practitioner should know about when
-deploying a BPHF in production.
+catalogues the structural ways a system fails to be Bernoulli, varying
+rates, correlated errors, and adversarial inputs that break the
+fixed-rate axioms, giving a checklist for when the framework applies
+cleanly and when it needs modification. The witness model's dependence on
+an unforgeable rank (\Cref{rem:witness-is-query-model}) is one entry in
+that catalogue and the hinge to the second thread, which is generative:
+chapters~17 and~18 develop \emph{cipher maps}, recasting the
+perfect-hash-and-fingerprint architecture as the building block for
+encrypted search, with the perfect hash replaced by a trapdoor whose
+forward direction is public and reverse private. The FPR and FNR
+guarantees of the present part carry into the cryptographic setting on
+the same architectural template. \Cref{sec:bib-notes-ch15} attaches the
+construction to its antecedents, including the \emph{maph} C++ library
+that is its production-grade realization.
