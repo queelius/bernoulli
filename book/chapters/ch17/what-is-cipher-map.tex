@@ -2,7 +2,9 @@
 %
 % Monograph register: the cipher-map abstraction (def:cipher-map), why
 % bounded error is acceptable, the trapdoor key, three example cipher
-% maps. Tightened from the textbook draft. Cross-refs sec:noisy-bit,
+% maps. Tightened from the textbook draft. Cross-refs sec:quantifying-noise
+% (ch1, the (fprate,fnrate) definition; the prior draft used the stale slug
+% sec:noisy-bit, repointed here),
 % sec:bloom-from-scratch, sec:bernoulli-error-model, sec:trapdoor-paradigm,
 % sec:fhe-sidebar, ch:optimal-bernoulli-sets, sec:perfect-filter-line,
 % def:ppv. DEFINED: sec:what-is-cipher-map, def:cipher-map.
@@ -48,7 +50,7 @@ representations such that, for $x \in X$,
 when $f(x)$ is a positive output, and the probability of a spurious
 $y \ne f(x)$ on the negative case is at most $\fprate$. The pair
 $(\fprate, \fnrate)$ is the cipher map's \emph{error profile}, in the
-Bernoulli sense of \Cref{sec:noisy-bit}.
+Bernoulli sense of \Cref{sec:quantifying-noise}.
 \end{definition}
 
 The cipher map operates entirely on the encrypted domain; decryption
