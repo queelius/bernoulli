@@ -3,12 +3,16 @@
 % Monograph register: phenomenon (fpr(t)), which axiom (Axiom 2
 % stability), consequences for iid tools, Azuma-Hoeffding, Bloom-past-
 % capacity worked example, time-sorted diagnostic. Folds salvaged ex-5
-% as rem:composition-jensen (random stage rates make the composition
-% theorem optimistic by Jensen). Cross-refs ax:element-indep,
-% ax:block-rates-indep, sec:axiom-2, thm:chernoff, sec:bloom-from-scratch,
-% thm:composition, sec:where-framework-helps, sec:correlated-noise,
-% sec:adversarial-inputs. DEFINED: sec:varying-rates, prop:azuma-hoeffding,
-% rem:composition-jensen.
+% as rem:composition-unbiased: random stage rates that are INDEPENDENT
+% leave the composition formula unbiased in expectation (E of a product
+% of independents is the product of expectations), so plugging mean rates
+% is exact; a directional bias needs correlation (rem:composition-
+% correlation-bracket, 16.3). (The earlier draft's Jensen "optimistic
+% gap" was false for independent stages; corrected here.) Cross-refs
+% ax:element-indep, ax:block-rates-indep, sec:axiom-2, thm:chernoff,
+% sec:bloom-from-scratch, thm:composition, rem:composition-correlation-bracket,
+% sec:where-framework-helps, sec:correlated-noise, sec:adversarial-inputs.
+% DEFINED: sec:varying-rates, prop:azuma-hoeffding, rem:composition-unbiased.
 
 \section{Varying Rates Over Time}
 \label{sec:varying-rates}
@@ -66,19 +70,20 @@ $\fprate(t)$ the $X_t$ are independent but not identically distributed,
 and the multiplicative form that relied on a single $p$ no longer applies
 directly. Its martingale generalization does.
 
-\begin{remark}[Random rates make composition optimistic]
-\label{rem:composition-jensen}
-The composition formula does not merely lose exactness under random
-stage rates; it errs in a fixed direction. If the $\eta_i$ are
-independent with means $\mu_i = \mathbb{E}[\eta_i]$, then since $\mathbb{E}[1 - \eta_i] =
-1 - \mu_i$ and $-\log(1 - x)$ is convex, Jensen's inequality gives $\mathbb{E}[\,1
-- \prod_i (1 - \eta_i)\,] \ge 1 - \prod_i (1 - \mu_i)$, with equality only
-when every variance vanishes. Plugging the mean rates into the
-deterministic formula therefore \emph{under}-estimates the expected
-combined error. For five stages at $\mu = 0.1$ and $\sigma = 0.02$ the
-gap is a fraction of a percentage point, but it grows with the stage
-count and the rate variance, and it is always in the optimistic
-direction.
+\begin{remark}[Independent random rates leave composition unbiased]
+\label{rem:composition-unbiased}
+Random stage rates do not bias the composition formula when the stages
+are independent. If the $\eta_i$ are independent with means $\mu_i =
+\mathbb{E}[\eta_i]$, the expectation of a product of independent factors
+is the product of the expectations, $\mathbb{E}[\prod_i (1 - \eta_i)] =
+\prod_i (1 - \mu_i)$, so $\mathbb{E}[1 - \prod_i (1 - \eta_i)] = 1 -
+\prod_i (1 - \mu_i)$: plugging the mean rates into the deterministic
+formula returns the exact expected combined error. What random rates add
+is variance, not bias. The error along the worst trajectory can still
+exceed the mean, as the section opened by noting, but in expectation the
+formula is exact. A directional bias appears only when the stages are
+correlated, the case \Cref{rem:composition-correlation-bracket} treats,
+where the sign of the bias follows the sign of the correlation.
 \end{remark}
 
 \subsection*{The right tool: martingale concentration}
@@ -124,7 +129,10 @@ fill with non-member inputs, the per-query rate having grown from $0.01$
 to $0.5$ along the way. Treating the rate as a constant $\bar\fprate
 \approx 0.25$ and applying the iid Chernoff bound to the expected count
 $250$ gives $\Pr[X \ge 275] \le e^{-0.83} \approx 0.44$, a useless bound,
-because the constant-rate premise is wrong and the mean is misspecified.
+because the constant-rate premise is wrong: its midpoint mean $0.25 \cdot
+1000 = 250$ overstates the honest trajectory sum $\sum_t \fprate(t)
+\approx 230$ (the convex Bloom-fill curve spends most of its queries at
+low rates), so the bound is centered on the wrong count to begin with.
 The Azuma-Hoeffding bound assumes no constant rate: with $c_t = 1$,
 $\Pr[|\sum_t X_t - \sum_t \fprate(t)| \ge a] \le 2 e^{-a^2/2000}$, and
 $a = 100$ gives $2 e^{-5} \approx 0.013$. The count lies within $\pm 100$

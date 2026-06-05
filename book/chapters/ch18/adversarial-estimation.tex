@@ -94,18 +94,20 @@ confidentiality bound.
 
 A defender monitors a system at 100 queries per minute, processing $n =
 6000$ queries in an hour and observing $540$ matches, an empirical rate
-$\hat\pi = 0.09$. The \emph{iid} Wilson CI at $95\%$ is $0.09 \pm 1.96
-\sqrt{0.09 \cdot 0.91 / 6000} \approx 0.09 \pm 0.0072$, so $\pi \in
-[0.083, 0.097]$; substituting the upper end into the confidentiality
-formula at $\fprate = 0.01$, $\fnrate = 0$ gives $\PPV \approx 0.915$, $C
-\approx 0.085$, so the defender concludes confidentiality is at least
-$0.085$. The \emph{MAB UCB} approach, with $K = 1000$ keywords queried over
-the hour at $\delta_{\mathrm{arm}} = 0.05/1000 = 5 \times 10^{-5}$ and an
-average $n_w = 6$ queries per arm (with high variance), bounds an arm at
-$n_w = 6$, $\hat\pi_w = 0.5$ by a Clopper-Pearson upper limit of roughly
-$0.95$; the worst-arm bound is then $\pi^{\mathrm{MAB}}_{\max} \approx
-0.95$, giving $\PPV \approx 0.999$, $C \approx 0.001$. The two bounds
-differ by nearly two orders of magnitude, and only the MAB bound answers
+$\hat\pi = 0.09$. The \emph{iid} normal-approximation interval at $95\%$
+is $0.09 \pm 1.96 \sqrt{0.09 \cdot 0.91 / 6000} \approx 0.09 \pm 0.0072$,
+so $\pi \in [0.083, 0.097]$; substituting the upper end into the
+confidentiality formula at $\fprate = 0.01$, $\fnrate = 0$ gives $\PPV
+\approx 0.915$, $C \approx 0.085$, so the defender concludes
+confidentiality is at least $0.085$. The \emph{MAB UCB} approach, with $K
+= 1000$ keywords queried over the hour at $\delta_{\mathrm{arm}} =
+0.05/1000 = 5 \times 10^{-5}$ and an average $n_w = 6$ queries per arm
+(with high variance), bounds an arm at $n_w = 6$, $\hat\pi_w = 0.5$ by a
+Clopper-Pearson upper limit near $1$ (about $0.99$ at this sample size and
+joint confidence); the worst-arm bound is then $\pi^{\mathrm{MAB}}_{\max}
+\approx 0.99$, giving $\PPV \approx 0.9999$ and $C \approx 10^{-4}$. The
+two bounds differ by nearly three orders of magnitude, and only the MAB
+bound answers
 the defender's actual question, how leaky is the worst-case keyword the
 attacker might target. The warning is the chapter's recurring one: a
 framework guarantee is only as strong as the estimator that produced its

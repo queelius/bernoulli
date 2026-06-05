@@ -4,9 +4,14 @@
 % key-holder decrypts), two-party server/client setup, confidentiality vs
 % correctness on the perfect-filter line, Kronecker leakage over m
 % queries, adaptive adversaries with a worked example.
-% FIX: notation collision in the worked example (the draft set A in
-% {0,1}^n then wrote "n = |A|"); use N = |A| for dataset size throughout,
-% so the adversary extracts O(log N) bits/query unambiguously.
+% FIX: (1) notation collision in the worked example (the draft set A in
+% {0,1}^n then wrote "n = |A|"); use N = |A| for dataset size throughout.
+% (2) leakage-rate error (review M1): the draft claimed the adaptive
+% adversary extracts O(log N) bits PER QUERY, which does not follow
+% (seed-probing is O(1)/query; record-localization takes O(log N) queries
+% TOTAL). Corrected: per-query extraction is O(1); the real gap is that a
+% bounded budget of O(log N) crafted queries breaks the scheme outright,
+% vs the iid attacker's O(fpr) bits/query that never recovers the seed.
 % Cross-refs sec:kronecker, thm:kronecker, ax:element-indep,
 % def:perfect-filter-line, sec:adversarial-inputs, def:cipher-map,
 % sec:bernoulli-error-model, sec:fhe-sidebar, sec:maximizing-confidentiality.
@@ -122,19 +127,25 @@ trapdoor. Under iid queries the behavior is benign: each random query has
 independent probability $2^{-k}$ of a false positive, and after $m$
 queries the server has gained $O(m)$ bits about $A$, spread uniformly
 enough that no record is pinned down. Under an adaptive adversary the
-picture changes. The $\fprate = 2^{-k}$ comes from $k$ hash bits matching
-at once; an adversary crafts queries that probe the bits individually,
-each extracting roughly one bit about the seed. After $k$ queries the
-seed is recovered and the dataset decrypts; after $\log N$ queries a
-specific record's membership is localized. Either way the adversary
-extracts $O(\log N)$ bits of plaintext per query, far above the iid rate
-of $O(\fprate)$ bits. The gap between $O(\log N)$ and $O(\fprate)$ is the
-gap between worst-case and average-case, and the fix, as chapter 16
-prescribed, is a cipher map whose worst-case extraction is bounded by a
-constant. Cryptographic hash families (pseudorandom functions) achieve
-this, leaking one bit of best-effort guessing per worst-case query and
-matching the average case to a constant; the FHE sidebar that follows
-gives an even stronger guarantee, worst-case leakage exactly zero. Both
+picture changes, not in the per-query rate but in what a bounded budget
+of crafted queries buys. The $\fprate = 2^{-k}$ comes from $k$ hash bits
+matching at once; an adversary crafts queries that probe the bits
+individually, each extracting about one bit of the seed, so after $O(k)$
+such queries the seed is recovered and the entire dataset decrypts, and a
+binary search over the records localizes a chosen record's membership in
+$O(\log N)$ queries. The per-query extraction stays $O(1)$ bits
+throughout; the danger is that this bounded budget, logarithmic in the
+dataset size, breaks the scheme outright, where the iid attacker gains
+only $O(\fprate)$ bits per query and never recovers the seed. The gap
+between total compromise in a logarithmic number of crafted queries and
+an $O(\fprate)$-bit-per-query trickle is the gap between worst-case and
+average-case, and the fix, as chapter 16 prescribed, is a cipher map no
+bounded budget of crafted queries can break. Cryptographic hash families
+(pseudorandom functions) achieve this: a pseudorandom seed cannot be
+recovered by probing, so the worst-case attacker gains only one bit of
+best-effort guessing per query, matching the average case to a constant;
+the FHE sidebar that follows gives an even stronger guarantee, worst-case
+leakage exactly zero. Both
 the worst-case story (chapter 16) and the average-case story (chapters 4
 through 14) are needed in the trapdoor setting: the average case for
 sizing under benign workloads, the worst case for security against
