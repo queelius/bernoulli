@@ -1,136 +1,49 @@
 % §14.6 Bridge
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:ch14-bridge}                      -- this section
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:bloom-filter}                      -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{sec:perfect-filter-line}               -- chapter 6 §6.4
-%   \Cref{def:perfect-filter-line}               -- chapter 6 §6.4
-%
-% ALREADY DEFINED (chapter 8):
-%   \Cref{thm:entropy-floor}                     -- chapter 8 §8.3
-%   \Cref{prop:bloom-overhead}                   -- chapter 8 §8.4
-%
-% ALREADY DEFINED (chapter 14):
-%   \Cref{def:bhf}                               -- §14.2
-%   \Cref{thm:bhf-optimality}                    -- §14.3
-%   \Cref{prop:bhf-fpr}                          -- §14.4
-%   \Cref{sec:construction-time}                 -- §14.5
-%
-% FORWARD REFS:
-%   \Cref{sec:bib-notes-ch14}                    -- §14.7 (Task 8)
-%   \Cref{ch:perfect-hash-filters}               -- chapter 15 stub
-%
-% §14.6 bridges from BHF to its FPR-zero counterpart (BPHF, chapter 15)
-% and forward-references the bibliographic notes that name the
-% antecedents the construction draws on.
+% Monograph register: a tight bridge from the BHF to its FPR-zero
+% counterpart (BPHF, chapter 15), keeping the duality as the substantive
+% forward hook and cutting the two chapter-recap subsections. Cross-refs
+% def:perfect-filter-line, sec:perfect-filter-line, ch:perfect-hash-filters,
+% def:bhf, thm:bhf-optimality, prop:bhf-fpr, sec:construction-time,
+% sec:bib-notes-ch14, thm:entropy-floor, prop:bloom-overhead.
+% DEFINED: sec:ch14-bridge.
 
 \section{Bridge}
 \label{sec:ch14-bridge}
 
-The chapter has assembled the constructive answer to the entropy
-floor of \Cref{thm:entropy-floor}. The Bernoulli Hash Function of
-\Cref{def:bhf} reaches the floor up to integer rounding plus a
-sublinear correction (\Cref{thm:bhf-optimality}), meets the
-designer's FPR target under a standard uniformity assumption on the
-fingerprint hash (\Cref{prop:bhf-fpr}), and pays for the
-improvement in static-set restrictions and an $O(n)$ build cost
-(\Cref{sec:construction-time}). The chapter's headline result is the
-$1.44\times$ factor that the standard Bloom filter spent over the
-floor (\Cref{prop:bloom-overhead}) collapsing to a constant-bit
-additive overhead. Two threads remain to tie before chapter~15
-opens: the antecedents the construction draws on, and the dual
-construction that sits opposite the BHF on the perfect-filter line
-of chapter~6.
+The chapter answered the optimality question chapter~8 left open. The
+Bernoulli Hash Function (\Cref{def:bhf}) reaches the entropy floor of
+\Cref{thm:entropy-floor} up to integer rounding and a sublinear
+correction (\Cref{thm:bhf-optimality}), meets the FPR target under a
+standard uniformity assumption (\Cref{prop:bhf-fpr}), and pays for the
+improvement in static-set restrictions and an $O(n)$ build
+(\Cref{sec:construction-time}). The $\log_2 e \approx 1.44$ factor the
+Bloom filter spends over the floor (\Cref{prop:bloom-overhead})
+collapses to a constant additive overhead. The construction draws on a
+decades-old perfect-hash literature and the universal-hashing machinery
+the Bloom filter also uses, differing only in where the hash is applied;
+\Cref{sec:bib-notes-ch14} names the antecedents.
 
-\subsection*{What comes next: the bibliographic landscape}
+The BHF occupies one end of the perfect-filter line of
+\Cref{def:perfect-filter-line}, the FNR-zero membership structures. The
+other end holds the FPR-zero ranked-search structures, the perfect hash
+filters of chapter~15. The two share a skeleton, a perfect hash and a
+fingerprint table, and trade their error modes: the BHF accepts a small
+false-positive rate to guarantee no false negatives; the BPHF
+(Bernoulli Perfect Hash Filter) accepts a small false-negative rate to
+guarantee no false positives. The duality is exact, the BPHF for a set
+being the BHF for its complement, modulo the practical detail that the
+complement is usually infinite. The applications split accordingly: the
+BHF where false negatives are unacceptable (a cache that must not miss a
+stored element, a routing layer that must not drop a known address), the
+BPHF where false positives are unacceptable (a precision-oriented index
+that must not return non-matching results, an authorization filter that
+must not admit an unauthorized identifier).
 
-The construction did not arrive from a vacuum. The perfect-hash
-literature is several decades old and supports a family of
-constructions whose space and time bounds the chapter has cited.
-The fingerprint table draws on the same universal-hashing
-machinery that the Bloom filter uses, with the structural
-difference being where the hash is applied. The proposition
-\Cref{prop:bhf-fpr} is recent in the form the chapter states it,
-but its components (perfect-hash addressing, fingerprint comparison,
-universal-hashing assumption on the fingerprint hash) each have
-their own histories. \Cref{sec:bib-notes-ch14} names the primary
-sources: the Towell manuscript that develops the BHF construction
-in its full form; the Carter-Wegman universal-hashing paper that
-underwrites the fingerprint analysis; the Belazzougui-Botelho-
-Dietzfelbinger construction that achieves the asymptotic
-perfect-hash bound the chapter quoted; and the cuckoo-filter and
-quotient-filter constructions that occupy related design spaces.
-The bibliographic notes section is the place to consult for the
-chapter's external dependencies; the chapter's prose deliberately
-keeps the citations sparse so the argument can move at its own
-pace.
-
-\subsection*{What comes next: the other side of the perfect-filter line}
-
-The perfect-filter line of \Cref{def:perfect-filter-line} runs
-between two extremes: the FNR-zero membership data structures (the
-Bloom filter and its descendants, which the present chapter has
-extended to the BHF as the space-optimal representative) and the
-FPR-zero ranked-search data structures (the perfect hash filters
-and their descendants, which chapter~15 introduces). The two
-extremes share a structural skeleton (both use a perfect hash and
-a fingerprint table) but trade their error modes: the BHF accepts a
-small false-positive rate to guarantee no false negatives; the
-BPHF (Bernoulli Perfect Hash Filter), the chapter~15 counterpart,
-accepts a small false-negative rate to guarantee no false positives.
-The dual is exact: the BPHF for a designated set is the BHF for
-the complement, modulo the practical detail that the complement is
-usually infinite. The two halves of the perfect-filter line are
-therefore not independent constructions but two instantiations of
-the same architectural template, separated by the choice of which
-error mode to zero out.
-
-The applications differ accordingly. The BHF is the right choice
-for membership filters where false negatives are unacceptable (a
-cache that must not miss a stored element; a routing layer that
-must not drop a known address; a security check that must not
-admit a denied entity). The BPHF is the right choice for ranked
-search and approximate set representation where false positives
-are unacceptable (a precision-oriented search index that must not
-return non-matching results; an authorization filter that must not
-grant access to unauthorized identifiers; a deduplication layer
-that must not declare two distinct items the same). The
-applications correspond to the two halves of the perfect-filter
-line of \Cref{sec:perfect-filter-line}, and the chapter has covered
-the FNR-zero half; chapter~15 will cover the FPR-zero half.
-
-The construction of the BPHF will mirror the BHF closely. The
-ingredients are still a perfect hash and a fingerprint table; the
-build pass and query algorithm are nearly identical; the space
-bound is the same $\lceil -\log_2 \fnrate \rceil$ bits per element
-(with $\fnrate$ replacing $\fprate$ in the role of the target
-error); the trade-offs against the analogous streaming structures
-(the FPR-zero analogues of the Bloom filter, which include the
-quotient filter and the rank-and-select-based structures) are
-analogous. The chapter~15 narrative will not need to redevelop the
-machinery; it will reuse the chapter~14 derivation with the
-error-mode swap. The reader who has internalized the BHF
-construction will find chapter~15 a short read; the new content is
-the application setting, not the data structure.
-
-\subsection*{What this chapter has achieved}
-
-The chapter set out to answer the optimality question from
-chapter~8: can the entropy floor be reached by a real construction,
-or is the $\log_2 e$ Bloom-filter overhead an unavoidable structural
-cost? The answer is yes, the floor is reachable, and the BHF
-reaches it. The construction is short (two ingredients, two
-algorithms), the analysis is short (one optimality theorem, one
-FPR proposition), and the price is operationally manageable
-(static set, $O(n)$ build, $O(1)$ queries). The chapter closes
-Part~IV's opening question and opens its second question, the
-dual application on the FPR-zero side of the perfect-filter line.
-The bibliographic notes of \Cref{sec:bib-notes-ch14} attach the
-chapter's argument to the published literature it draws on, and
-chapter~15 picks up the thread on the other side of the line.
+The BPHF construction mirrors the BHF closely: the same two ingredients,
+a nearly identical build and query, the space bound $\lceil -\log_2
+\fnrate \rceil$ bits per element with $\fnrate$ in the role of the target
+error, and analogous trade-offs against the FPR-zero streaming
+structures. \Cref{ch:perfect-hash-filters} reuses the present
+derivation with the error-mode swap and turns to the ranked-search
+setting on the FPR-zero half of the line.
