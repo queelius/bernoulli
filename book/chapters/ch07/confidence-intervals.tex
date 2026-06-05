@@ -33,7 +33,7 @@ $\hat{\fprate} = 0$ it collapses to the degenerate point $[0,0]$.
 \emph{Skew:} $\mathrm{Binomial}(n_0, \fprate)$ is symmetric only at $\fprate =
 1/2$; near a boundary the central limit theorem has not overcome the binomial
 skew, and the symmetric interval miscalibrates, dropping below nominal
-coverage (near $0.92$ at $n_0 = 100$, $\fprate = 0.05$ rather than $0.95$).
+coverage (near $0.88$ at $n_0 = 100$, $\fprate = 0.05$ rather than $0.95$).
 A third, finer effect is the \emph{sawtooth}: coverage as a function of $n_0$
 oscillates jaggedly because the interval is continuous while $\mathrm{FP}$ is
 integer-valued, so the cover/miss boundary shifts in discrete jumps. The
@@ -130,7 +130,7 @@ re-parametrization behind logistic-regression intervals.
                                 & Wald             & Wilson           & Clopper--Pearson  & Jeffreys \\
 \hline
 Coverage, $n_0 = 100$, $\fprate = 0.05$
-                                & $\approx 0.92$   & $\approx 0.94$   & $\geq 0.95$      & $\approx 0.945$ \\
+                                & $\approx 0.88$   & $\approx 0.97$   & $\geq 0.95$      & $\approx 0.94$ \\
 Coverage, $n_0 = 1000$, $\fprate = 0.05$
                                 & $\approx 0.95$   & $\approx 0.95$   & $\geq 0.95$      & $\approx 0.95$ \\
 Interval at $\hat{\fprate} = 0$
@@ -142,10 +142,12 @@ Approximation                   & Normal           & Normal (score)   & exact bi
 \hline
 \end{tabular}
 \caption{Four binomial confidence intervals at nominal $1 - \alpha = 0.95$.
-Small-$n_0$ coverage figures (Wilson, Clopper--Pearson, Jeffreys) are standard
-results of Brown, Cai, and DasGupta (2001); each oscillates along a mild
-sawtooth, smoothed here. Wald is the only interval whose dips fall far enough
-below nominal to mislead, and the only one that degenerates at the boundary.}
+The $n_0 = 100$ figures are exact single-point binomial coverages at the
+stated $(n_0, \fprate)$; at $n_0 = 1000$ all four are near nominal. Coverage
+oscillates along a sawtooth in $n_0$ (Brown, Cai, and DasGupta 2001), so
+neighbouring sizes differ. Wald is the only interval whose dips fall far
+enough below nominal to mislead, and the only one that degenerates at the
+boundary.}
 \label{tab:ci-comparison}
 \end{table}
 

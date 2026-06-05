@@ -28,8 +28,8 @@
 \label{sec:bib-notes-ch1}
 
 \paragraph{Shannon and the channel framing.}
-The noisy-channel reading of Face~2 in \Cref{sec:three-faces}---and the
-binary symmetric channel that opens Chapter~2 (\Cref{sec:bsc})---descend
+The noisy-channel reading of Face~2 in \Cref{sec:three-faces}, and the
+binary symmetric channel that opens Chapter~2 (\Cref{sec:bsc}), descend
 directly from \textcite{shannon-1948}. Shannon's 1948 paper introduced the
 discrete memoryless channel as the mathematical object for noisy
 communication: a conditional distribution $P(\text{output} \mid
@@ -51,8 +51,8 @@ calculation. The vocabulary of sensitivity, specificity, and the cells of
 the $2 \times 2$ table travelled from clinical screening into machine
 learning largely unchanged; what differs across fields is which marginal
 the practitioner conditions on, and which derived rate gets the spotlight.
-The cross-walk at the end of \Cref{sec:quantifying-noise}---from
-$(\fprate, \fnrate)$ to precision and recall---is the modern statement of
+The cross-walk at the end of \Cref{sec:quantifying-noise}, from
+$(\fprate, \fnrate)$ to precision and recall, is the modern statement of
 a much older bilingual conversation between epidemiology and signal
 detection.
 
@@ -65,9 +65,9 @@ corpus, what fraction were returned (recall). The textbook reference is
 \textcite{manning-raghavan-schutze}, whose Chapter~8 develops the
 precision-recall vocabulary, the precision-recall curve, and the
 $F$-measure as the standard combined score. Chapter~1's emphasis on
-the difference between $(\fprate, \fnrate)$ and (precision, recall)---that
+the difference between $(\fprate, \fnrate)$ and (precision, recall), that
 the first pair is intrinsic to a noisy bit and the second depends also on
-the workload---is the contingency-table analogue of the IR distinction
+the workload, is the contingency-table analogue of the IR distinction
 between a system's intrinsic discriminating ability and its observed
 behaviour on a given query mix.
 
@@ -78,9 +78,9 @@ in \Cref{sec:miller-rabin} has two distinct intellectual parents.
 Extended Riemann Hypothesis; \textcite{rabin-1980} removed the hypothesis
 by randomizing the choice of witness and proved the unconditional $1/4$
 bound on the per-round false-positive rate. Chapter~3's reading of
-Miller-Rabin---one round of the test as a $\Bernoulli{\BoolType}$ with
+Miller-Rabin, one round of the test as a $\Bernoulli{\BoolType}$ with
 $\fnrate = 0$ and $\fprate \leq 1/4$, the $k$-round protocol as a
-composition---restates that result in the language of this text.
+composition, restates that result in the language of this text.
 The full historical record, the proof of the $1/4$ bound, and the
 companion treatment of randomized algorithms more broadly are taken up
 in \Cref{sec:bib-notes-ch3}.
@@ -90,8 +90,8 @@ The atom of this chapter, the noisy bit, is the order-2 Boolean instance
 of the formal Bernoulli framework developed in our companion papers.
 The two-axiom model and the rate-propagation theorems originate in
 \textcite{towell-bernoulli-sets}; the extension from approximate sets to
-approximate values over arbitrary algebraic types---and, in particular,
-the treatment of $\Bernoulli{\BoolType}$ as a value-with-error type---is
+approximate values over arbitrary algebraic types, and, in particular,
+the treatment of $\Bernoulli{\BoolType}$ as a value-with-error type, is
 the subject of \textcite{towell-bernoulli-data-type}. The present
 monograph \cite{towell-bernoulli-book} draws that material into a single
 development, starting from the noisy bit and building outward to sets,

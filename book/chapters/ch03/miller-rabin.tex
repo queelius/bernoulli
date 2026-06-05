@@ -111,8 +111,9 @@ Miller-Rabin is not a separate technique. The single round is a
 $\Bernoulli{\BoolType}$ instance with $\fnrate = 0$ and $\fprate \le 1/4$; the
 $k$-round test is the conjunction of \Cref{sec:and-under-noise}; the bound
 $\fprate_k \le (1/4)^k$ is \eqref{eq:mr-k-round}; and the design rule, choose $k
-\ge -2 \log_2 \epsilon$ to reach false-positive target $\epsilon$, is that
-bound solved for $k$. The number theory supplies the per-round $1/4$; the rest
+\ge \tfrac{1}{2}\log_2(1/\epsilon) = \log_4(1/\epsilon)$ to reach
+false-positive target $\epsilon$, is that bound solved for $k$ ($k = 5$
+reaches $10^{-3}$ and $k = 20$ reaches $10^{-12}$, the rounds quoted above). The number theory supplies the per-round $1/4$; the rest
 is Boolean algebra over noisy bits. The broader theory of randomized
 algorithms, including the Las Vegas versus Monte Carlo distinction, is
 \Cref{ch:randomized-algorithms}; the companion one-sided example, the Bloom
