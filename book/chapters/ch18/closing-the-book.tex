@@ -1,154 +1,86 @@
 % §18.6 Closing the Book
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:closing-the-book}              -- this section
-%
-% ALREADY DEFINED (chapter labels):
-%   \Cref{ch:noisy-bit}                       -- chapter 1
-%   \Cref{ch:axioms-kronecker}                -- chapter 4
-%   \Cref{ch:approximate-sets}                -- chapter 5
-%   \Cref{ch:set-composition}                 -- chapter 6
-%   \Cref{ch:classification-measures}         -- chapter 7
-%   \Cref{ch:information-bounds}              -- chapter 8
-%   \Cref{ch:approximate-functions}           -- chapter 9
-%   \Cref{ch:sketches-estimators}             -- chapter 10
-%   \Cref{ch:randomized-algorithms}           -- chapter 11
-%   \Cref{ch:approximate-relations}           -- chapter 12
-%   \Cref{ch:algebra-types}                   -- chapter 13
-%   \Cref{ch:optimal-bernoulli-sets}          -- chapter 14
-%   \Cref{ch:perfect-hash-filters}            -- chapter 15
-%   \Cref{ch:not-bernoulli}                   -- chapter 16
-%   \Cref{ch:cipher-maps-trapdoor}            -- chapter 17
-%
-% ALREADY DEFINED (axiom labels):
-%   \Cref{ax:element-indep}                   -- chapter 4 Axiom 1
-%   \Cref{ax:block-rates-indep}               -- chapter 4 Axiom 2
-%   \Cref{def:bernoulli-bool}                 -- chapter 4 §4.2
-%   \Cref{thm:kronecker}                      -- chapter 4 §4.4
-%
-% §18.6 closes the book. Six items mapping to five parts: (1) the
-% atom (Part I, ch1+ch4); (2) the lift to sets (Part II, ch5-ch8);
-% (3) the lift to maps and types (Part III, ch9-ch13); (4) the
-% constructive optimum (Part IV, ch14-ch15); (5) the boundary and
-% applications (Part V, ch16-ch18); (6) one sentence on research
-% directions.
+% Monograph register: the five-part arc (atom; sets; maps and types;
+% constructive optimum; boundary and applications) and the research
+% directions. Tightened; the arc and chapter mapping are clean and
+% preserved. Cross-refs the chapter labels and chapter-4 axiom/theorem
+% labels. DEFINED: sec:closing-the-book.
 
 \section{Closing the Book}
 \label{sec:closing-the-book}
 
-The book has built one framework in five parts and eighteen
-chapters. Each part lifted the preceding part's algebra to a
-larger domain, and each chapter inside a part filled in one
-component of the lift. The chapter that ends here is the final
-application of the framework to a working construction; this
-section closes the book by tracing the arc that the eighteen
-chapters built.
+The book built one framework in five parts and eighteen chapters, each
+part lifting the preceding part's algebra to a larger domain and each
+chapter filling in one component of the lift. This section traces the arc.
 
-\subsection*{The atom}
+\subsection*{The atom and its lifts}
 
-The book opened (\Cref{ch:noisy-bit}) with a single object: the
-noisy bit, a Boolean value transmitted across a binary channel
-that flips it with a known probability. The opening chapter named
-the framework's two atomic parameters, the false-positive rate
-$\fprate$ (the probability a $0$ comes through as $1$) and the
-false-negative rate $\fnrate$ (the probability a $1$ comes through
-as $0$), and introduced the Bernoulli square as the parameter
-space they jointly inhabit. \Cref{ch:axioms-kronecker} formalized
-the atom: the type $\Bernoulli{\BoolType}$ of \Cref{def:bernoulli-bool}
-collects all $(\fprate, \fnrate)$ Bernoulli channels; the
-chapter~4 axioms (element independence in \Cref{ax:element-indep},
-block-rate independence in \Cref{ax:block-rates-indep}) prescribe
-how multiple atoms combine; the chapter~4 Kronecker theorem
-(\Cref{thm:kronecker}) gives the operational composition law in
-matrix form. Part~I closed with the framework's whole machinery
-distilled into one $2 \times 2$ matrix per atom and a Kronecker
+Part~I opened with the noisy bit (\Cref{ch:noisy-bit}), a Boolean value
+crossing a binary channel that flips it with known probability, and named
+the two atomic parameters, the false-positive rate $\fprate$ and the
+false-negative rate $\fnrate$, jointly inhabiting the Bernoulli square.
+\Cref{ch:axioms-kronecker} formalized the atom: $\Bernoulli{\BoolType}$
+(\Cref{def:bernoulli-bool}) collects all $(\fprate, \fnrate)$ channels, the
+two axioms (\Cref{ax:element-indep}, \Cref{ax:block-rates-indep}) prescribe
+how atoms combine, and the Kronecker theorem (\Cref{thm:kronecker}) gives
+the composition law as a matrix product. Part~I closed with the whole
+machinery distilled into one $2 \times 2$ matrix per atom and a Kronecker
 product for composition.
 
-\subsection*{The lift to sets}
+Part~II lifted the atom to a set of bits, one per element of a universe.
+\Cref{ch:approximate-sets} framed the random approximate set as a function
+from a plaintext set to a sequence of atoms; \Cref{ch:set-composition}
+worked out the composition theorem for union, intersection, complement,
+and difference, with the perfect-filter line marking the structures
+(Bloom filters chief among them) on the $\fnrate = 0$ axis;
+\Cref{ch:classification-measures} lifted the atomic rates to the derived
+measures (precision, recall, PPV, NPV, $\Fone$, Youden's $J$); and
+\Cref{ch:information-bounds} priced approximate membership at the entropy
+floor $-\log_2 \fprate$ bits per element. Part~II closed with the algebra
+of approximate sets fully priced: construction bounded by Shannon,
+composition by Kronecker, classification by the chapter 7 posterior.
 
-Part~II lifted the atom from a single bit to a whole set of bits,
-one per element of an underlying universe. \Cref{ch:approximate-sets}
-framed the lift: a random approximate set is a function from a
-plaintext set to a sequence of Bernoulli atoms, one per element,
-and the chapter~5 axioms inherit unchanged from chapter~4.
-\Cref{ch:set-composition} worked out the composition theorem for
-set-algebraic operations (union, intersection, complement,
-difference); the framework's two rates aggregate predictably
-across set algebra, and the perfect-filter line of chapter~6
-\S6.4 marks the structures (Bloom filters chief among them) that
-sit on the $\fnrate = 0$ axis. \Cref{ch:classification-measures}
-lifted the chapter~4 atomic rates to the chapter~7 derived measures
-(precision, recall, PPV, NPV, $\Fone$, Youden's $J$), and
-\Cref{ch:information-bounds} priced the space cost of approximate
-membership at the entropy floor $-\log_2 \fprate$ bits per element.
-Part~II closed with the algebra of approximate sets fully priced:
-construction is bounded by Shannon, composition is bounded by
-Kronecker, classification is bounded by the chapter~7 posterior.
+Part~III lifted from sets to functions. \Cref{ch:approximate-functions}
+took the binary channel to its $n$-ary generalization, the random
+approximate map; \Cref{ch:sketches-estimators} treated the streaming
+sketches that compress the map into bounded memory;
+\Cref{ch:randomized-algorithms} extended the framework to randomized
+algorithms; \Cref{ch:approximate-relations} took the relational lift; and
+\Cref{ch:algebra-types} unified them, every Bernoulli-lifted structure an
+instance of $\Bernoulli{T}$ for some type $T$, the compositions inheriting
+from the algebra of types.
 
-\subsection*{The lift to maps and types}
+\subsection*{The optimum, the boundary, the applications}
 
-Part~III lifted the algebra from sets to functions.
-\Cref{ch:approximate-functions} took the chapter~4 binary channel
-to its $n$-ary generalization, the random approximate map from
-plaintext keys to approximate values. \Cref{ch:sketches-estimators}
-treated the streaming sketches that compress the map into bounded
-working memory; \Cref{ch:randomized-algorithms} extended the
-framework to the randomized algorithm setting, where the algorithm
-itself rolls dice that the framework prices; and
-\Cref{ch:approximate-relations} took the relational-algebra lift,
-where the map's domain and codomain both carry approximate
-structure. \Cref{ch:algebra-types} closed the part by unifying the
-preceding chapters under a single algebraic-types framework: every
-Bernoulli-lifted structure is an instance of the parametric type
-$\Bernoulli{T}$ for some type $T$, and the part's compositions
-inherit from the algebra of types.
-
-\subsection*{The constructive optimum}
-
-Part~IV asked whether the algebra's space-accuracy lower bound is
-achievable in practice. \Cref{ch:optimal-bernoulli-sets} answered
-yes for the Bloom-filter-style random approximate set: the
-Bernoulli hash function (BHF) achieves the chapter~8 entropy floor
-within a vanishing additive overhead, and the construction is
-explicit. \Cref{ch:perfect-hash-filters} gave the FPR-zero
-counterpart: a perfect hash filter (BPHF) for the
-ranked-retrieval setting where the map from queries to documents
-is deterministic and the only error budget is the false-negative
-side. Part~IV exhibited the algebra's theoretical bounds as
+Part~IV asked whether the space-accuracy lower bound is achievable.
+\Cref{ch:optimal-bernoulli-sets} answered yes for the FNR-zero set: the
+Bernoulli hash function reaches the chapter 8 entropy floor within a
+vanishing additive overhead, explicitly. \Cref{ch:perfect-hash-filters}
+gave the FPR-zero counterpart for ranked retrieval, where the error budget
+is the false-negative side. Part~IV exhibited the algebra's bounds as
 operationally achievable, not merely necessary.
 
-\subsection*{The boundary and applications}
-
-Part~V identified where the framework holds and where it does not.
-\Cref{ch:not-bernoulli} catalogued the boundary: when the per-query
-rates are not iid, when the channel matrix is non-stationary, when
-the inputs are chosen adversarially, the framework's predictions
-fail in predictable ways and have to be either patched (with
-distinct estimators and per-input bounds) or abandoned in favor of
-a different framework. \Cref{ch:cipher-maps-trapdoor} took the
-algebra to the cryptographic setting: cipher maps generalize the
-Bernoulli atoms to the trapdoor-computing paradigm, and the
-chapter~7 PPV becomes the cryptographic confidentiality measure
-in a re-reading that the chapter made explicit. \Cref{ch:encrypted-search},
-the present chapter, instantiated cipher maps for a working
-application: encrypted search with Bloom-filter-based indexing,
-where the framework's rate-prevalence triangle prices the
-trade-off between recovery and leakage in operational terms.
+Part~V drew the boundary and turned the algebra to use.
+\Cref{ch:not-bernoulli} catalogued where the framework fails, when the
+rates are not iid, the channel non-stationary, or the inputs adversarial,
+and what replaces the broken machinery. \Cref{ch:cipher-maps-trapdoor}
+took the algebra to the cryptographic setting, cipher maps generalizing
+the atoms to the trapdoor-computing paradigm with the chapter 7 PPV
+re-read as the confidentiality measure. \Cref{ch:encrypted-search}, the
+present chapter, instantiated cipher maps for a working application,
+encrypted search with Bloom-filter indexing, where the rate-prevalence
+triangle prices the trade-off between recovery and leakage.
 
 \subsection*{What comes next}
 
-The framework is not exhausted by the eighteen chapters. Three
-research threads point past the book's current scope: approximate
-query languages that lift the chapter~12 relational algebra to a
-declarative query interface with framework-priced execution costs;
-federated computation, where the cipher-map machinery generalizes
-to multiple parties each holding partial trapdoor keys; and the
-relation to differential privacy, which uses a structurally
-similar noise-budget abstraction (with the noise being explicitly
-controlled rather than emergent) and which the framework should
-ultimately subsume as a constrained sibling. Each thread is a
-working extension, not a planned chapter; the book closes with
-the framework in a state that admits the extensions but does not
-require them.
+The framework is not exhausted by the eighteen chapters. Three threads
+point past its current scope: approximate query languages that lift the
+chapter 12 relational algebra to a declarative interface with
+framework-priced execution costs; federated computation, where the
+cipher-map machinery generalizes to multiple parties each holding partial
+trapdoor keys; and the relation to differential privacy, which uses a
+structurally similar noise-budget abstraction, with the noise explicitly
+controlled rather than emergent, and which the framework should ultimately
+subsume as a constrained sibling. Each is a working extension, not a
+planned chapter; the book closes with the framework in a state that admits
+the extensions but does not require them.

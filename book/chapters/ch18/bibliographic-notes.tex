@@ -1,110 +1,63 @@
 % §18.7 Bibliographic Notes
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bib-notes-ch18}                -- this section
-%
-% INTERNAL refs (chapter 18):
-%   \Cref{sec:encrypted-search-problem}       -- §18.1
-%   \Cref{sec:bloom-based}                    -- §18.2
-%   \Cref{sec:confidentiality-measures}       -- §18.3
-%   \Cref{sec:adversarial-estimation}         -- §18.4
-%   \Cref{sec:toy-system}                     -- §18.5
-%
-% Citations introduced here:
-%   \cite{towell-encrypted-search-thesis}     -- new bib entry (Task 8)
-%   \cite{towell-es-conf-mab}                 -- new bib entry (Task 8)
-%   \cite{song-wagner-perrig-2000}            -- new bib entry (Task 8)
-%   \cite{curtmola-et-al-2006}                -- new bib entry (Task 8)
-%   \cite{towell-maximizing-confidentiality}  -- already in bib from ch17
-%
-% Four paragraphs: encrypted-search thesis (Alex's MS); estimating
-% es-conf MAB paper; SSE literature antecedents (Song-Wagner-Perrig
-% 2000, Curtmola et al 2006); the encrypted-search robust-approach
-% companion via towell-maximizing-confidentiality already-cited
-% from chapter 17.
+% Monograph register: the encrypted-search thesis, the es-conf MAB paper,
+% the SSE literature (Song-Wagner-Perrig 2000, Curtmola et al 2006), the
+% maximizing-confidentiality manuscript. Light compression. Cites
+% towell-encrypted-search-thesis, towell-es-conf-mab, song-wagner-perrig-2000,
+% curtmola-et-al-2006, towell-maximizing-confidentiality. DEFINED:
+% sec:bib-notes-ch18.
 
 \section*{Bibliographic Notes}
 \addcontentsline{toc}{section}{Bibliographic Notes}
 \label{sec:bib-notes-ch18}
 
 \paragraph{The encrypted-search thesis.}
-The chapter's confidentiality analysis and the Bloom-filter
-construction it builds on are developed at length in
-\textcite{towell-encrypted-search-thesis}, ``On the
-Confidentiality of Bloom-Filter-Based Encrypted Search,'' the
-master's thesis that first laid out the framework's
-encrypted-search reading. The thesis treats the construction in
-operational detail (key schedule, indexing structure, query
-protocol) the present chapter has abbreviated, and develops the
-adversarial-estimation problem of
-\Cref{sec:adversarial-estimation} as the central concern. The
-present chapter has reorganized the thesis material around the
-Bernoulli framework that the rest of the book builds on; the
-thesis predates the framework's current formulation and reads as
-a self-contained application of approximate-membership ideas to
-the encrypted-search setting.
+The confidentiality analysis and the Bloom-filter construction are
+developed at length in \textcite{towell-encrypted-search-thesis}, ``On the
+Confidentiality of Bloom-Filter-Based Encrypted Search,'' the master's
+thesis that first laid out the framework's encrypted-search reading in
+operational detail (key schedule, indexing, query protocol) and developed
+the adversarial-estimation problem of \Cref{sec:adversarial-estimation} as
+its central concern. The present chapter reorganized the thesis material
+around the Bernoulli framework the rest of the book builds on; the thesis
+predates the framework's current formulation and reads as a self-contained
+application of approximate-membership ideas.
 
 \paragraph{Estimating confidentiality via multi-armed bandits.}
-The MAB-based estimation framework of
-\Cref{sec:adversarial-estimation} draws on
+The MAB-based estimation of \Cref{sec:adversarial-estimation} draws on
 \textcite{towell-es-conf-mab}, ``Estimating encrypted-search
-confidentiality via multi-armed bandits,'' which developed the
-moving-average bootstrap CI as a tighter alternative to the
-union-bound construction the section described. The paper
-presented at IEEE CloudCom 2016 frames the encrypted-search
-estimation problem as a bandit problem and develops the
-adversarial-sampling CI in its full generality; the chapter's
-treatment summarizes the framing and the worked example,
-leaving the bootstrap construction and the empirical
-calibration data to the paper. Readers interested in the
-estimator's finite-sample behavior should consult the paper's
-simulation studies; the chapter's worked example reproduces
-the qualitative gap between iid Chernoff and MAB UCB intervals
-but does not exhibit the bootstrap construction's tighter
-behavior under concentrated workloads.
+confidentiality via multi-armed bandits'' (IEEE CloudCom 2016), which
+frames the estimation problem as a bandit problem and develops the
+moving-average bootstrap CI as a tighter alternative to the union bound.
+The chapter summarizes the framing and the worked example, leaving the
+bootstrap construction and the finite-sample simulation studies to the
+paper.
 
 \paragraph{The searchable-symmetric-encryption literature.}
-The chapter's Bloom-filter constructions sit in a literature on
-searchable symmetric encryption (SSE) that traces back to
-\textcite{song-wagner-perrig-2000}, ``Practical Techniques for
-Searches on Encrypted Data,'' the foundational paper that
-introduced the encrypted-search problem in the form
-\Cref{sec:encrypted-search-problem} restated. Song-Wagner-Perrig
-developed a stream-cipher-based construction that supports
-keyword search on encrypted documents without revealing the
-queried keyword to the server; the paper's threat model and
-operational assumptions are the ones the present chapter has
-inherited. \textcite{curtmola-et-al-2006}, ``Searchable
-Symmetric Encryption: Improved Definitions and Efficient
-Constructions,'' tightened the security definitions to the
-adaptive-adversary setting and gave the first sub-linear-time
-SSE construction; the paper is the standard reference for SSE
-security notions and the entry point to the modern SSE
-literature, which has grown into a substantial subfield in the
-two decades since. The chapter has used the SSE literature for
-the threat model and the construction style without entering
-the formal security-definition machinery, which is
-necessary for a cryptographic-engineering treatment and which
-the SSE literature surveys cover in depth.
+The constructions sit in the searchable-symmetric-encryption (SSE)
+literature tracing to \textcite{song-wagner-perrig-2000}, ``Practical
+Techniques for Searches on Encrypted Data,'' the foundational paper that
+introduced the problem in the form \Cref{sec:encrypted-search-problem}
+restated, with a stream-cipher construction whose threat model the present
+chapter inherits. \textcite{curtmola-et-al-2006}, ``Searchable Symmetric
+Encryption: Improved Definitions and Efficient Constructions,'' tightened
+the security definitions to the adaptive-adversary setting and gave the
+first sub-linear-time SSE construction; it is the standard reference for
+SSE security notions and the entry point to the modern subfield. The
+chapter uses the SSE literature for the threat model and construction
+style without entering the formal security-definition machinery a
+cryptographic-engineering treatment requires.
 
 \paragraph{Maximizing confidentiality.}
 The PPV-as-confidentiality identification of
-\Cref{sec:confidentiality-measures} extends a line of analysis
-the cipher-maps manuscript started in
-\textcite{towell-maximizing-confidentiality} (already cited
-from chapter~17), ``Maximizing confidentiality in encrypted
-search,'' which developed the framework's confidentiality
-measure in the encrypted-search setting before the broader
-trapdoor-computing framing of chapter~17 was in place. The
-manuscript treats the trade-off curve quantitatively, gives a
-closed-form solution for the optimal $\fprate^*$ at a
-target confidentiality, and addresses the multi-query
-accumulation behavior that the chapter's
-\Cref{prop:multi-query-leakage} stated without proof. The
-manuscript and the present chapter cover overlapping ground;
-where they diverge, the chapter has preferred the framework's
-algebraic reading and left the manuscript's
-information-theoretic supplements for the reader who wants the
-quantitative refinement.
+\Cref{sec:confidentiality-measures} extends a line the cipher-maps
+manuscript began in \textcite{towell-maximizing-confidentiality} (cited
+from chapter 17), ``Maximizing confidentiality in encrypted search,''
+which developed the confidentiality measure in the encrypted-search
+setting before the broader trapdoor framing of chapter 17 was in place,
+treating the trade-off curve quantitatively, giving the closed-form
+$\fprate^*$ at a target confidentiality, and addressing the multi-query
+accumulation that \Cref{prop:multi-query-leakage} states without proof.
+Where the two diverge the chapter prefers the framework's algebraic
+reading and leaves the manuscript's information-theoretic supplements for
+the reader who wants the quantitative refinement.

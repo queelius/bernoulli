@@ -1,297 +1,151 @@
 % §18.2 Bloom-Filter-Based Constructions
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:bloom-based}                  -- this section
-%   \label{def:per-document-bloom}           -- the per-document construction
-%   \label{def:inverted-index-bloom}         -- the inverted-index construction
-%
-% ALREADY DEFINED (chapter 3):
-%   \Cref{thm:composition}                   -- chapter 3 §3.6 composition theorem
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:bloom-filter}                  -- chapter 5 §5.2
-%   \Cref{sec:bloom-from-scratch}            -- chapter 5 §5.2
-%   \Cref{thm:bloom-optimal-k}               -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{sec:union-of-sets}                 -- chapter 6 §6.1
-%
-% ALREADY DEFINED (chapter 17):
-%   \Cref{def:cipher-map}                    -- §17.1
-%
-% INTERNAL (chapter 18):
-%   \Cref{def:encrypted-search}              -- §18.1
-%
-% §18.2 builds the two Bloom-filter-based encrypted-search
-% constructions (per-document and inverted-index), identifies each as
-% a cipher map, and analyzes space and query cost. Six items: core
-% idea; two construction styles; cipher-map analysis; FNR-zero
-% structural property; space and query cost; worked example.
+% Monograph register: the per-document and inverted-index constructions,
+% each as a cipher map, FNR-zero structural property, space/query cost,
+% worked example. Tightened.
+% FIX: the conjunctive-query FPR reasoning. The draft said a conjunctive
+% false positive "requires both individual filters to falsely match"
+% (implying eps^2). The headline bound "<= eps per document" is correct,
+% but the reason is wrong: a document containing w1 but not w2 (which is
+% NOT in the conjunction) is a false positive when only the w2-test
+% falsely matches, at rate eps. The rate is the ch6 three-region sum
+% (eq:intersection-fpr): eps in the missing-one-keyword regions, ~eps^2
+% only for documents missing both. Corrected.
+% Terminology: "match obliviously" / "oblivious to the underlying
+% keywords" kept (the oblivious-to-X idiom).
+% Cross-refs thm:composition, def:bloom-filter, sec:bloom-from-scratch,
+% thm:bloom-optimal-k, sec:union-of-sets, prop:intersection-fpr-fnr,
+% eq:intersection-fpr, def:cipher-map, def:encrypted-search. DEFINED:
+% sec:bloom-based, def:per-document-bloom, def:inverted-index-bloom.
 
 \section{Bloom-Filter-Based Constructions}
 \label{sec:bloom-based}
 
-The cipher-map framing of \S\ref{sec:encrypted-search-problem}
-identified the encrypted-search problem with a family of approximate
-membership tests on encrypted documents. To turn the framing into a
-construction, the client needs (i) an approximate set structure that
-records the keywords of each document compactly, (ii) an encryption
-scheme that lets the server test a query token against the stored
-representation without learning the plaintext keyword, and (iii) a
-query-token format the client can compute privately and the server
-can match obliviously. The Bloom filter of \Cref{def:bloom-filter}
-solves (i); a standard symmetric encryption scheme (one-time pad
-keyed by a pseudorandom function) solves (ii) once the construction
-is laid out correctly; the query token is a deterministic function
-of the keyword and a client-held secret key, which solves (iii).
+The cipher-map framing of \Cref{sec:encrypted-search-problem} identified
+encrypted search with a family of approximate membership tests on
+encrypted documents. A construction needs an approximate-set structure
+recording each document's keywords compactly, an encryption scheme
+letting the server test a query token against the stored representation
+without learning the plaintext keyword, and a query-token format the
+client computes privately and the server matches obliviously. The Bloom
+filter of \Cref{def:bloom-filter} solves the first; a standard symmetric
+scheme (a one-time pad keyed by a pseudorandom function) the second; a
+deterministic keyed function of the keyword the third. The two
+construction families differ in what counts as a ``document'' in the
+Bloom sense: the first puts a filter inside each document, the second
+inside each keyword.
 
-The two construction families this section develops differ in what
-counts as a ``document'' in the Bloom-filter sense. The first puts a
-Bloom filter inside each document; the second puts a Bloom filter
-inside each keyword (over the set of documents the keyword appears
-in). Both inherit the underlying Bloom filter's $\fprate$ and
-$\fnrate$; both are cipher maps in the sense of
-\Cref{def:cipher-map}; both are deployed in practice, and they
-trade off space and query cost in opposite directions.
-
-\subsection*{The per-document construction}
+\subsection*{The two constructions}
 
 \begin{definition}[Per-document Bloom-filter encrypted search]
 \label{def:per-document-bloom}
-For each document $d_i$ in the corpus, the client computes a Bloom
-filter $B_i$ over the keywords contained in $d_i$. The client
-encrypts each $B_i$ as $\mathsf{Enc}(B_i)$ under a key the server
-does not hold, and uploads $\{(i, \mathsf{Enc}(B_i))\}$ to the
-server. To search for keyword $w$, the client computes a query token
-$\tau_w$ (a deterministic function of $w$ and the client's secret
-key) and sends $\tau_w$ to the server. The server runs a server-side
-match against each $\mathsf{Enc}(B_i)$ that tests whether $\tau_w$
-corresponds to a bit pattern set in the encrypted filter, and
-returns the set of identifiers $i$ for which the test succeeds.
+For each document $d_i$ the client computes a Bloom filter $B_i$ over its
+keywords, encrypts it as $\mathsf{Enc}(B_i)$ under a key the server does
+not hold, and uploads $\{(i, \mathsf{Enc}(B_i))\}$. To search for $w$ the
+client sends a query token $\tau_w$ (a deterministic function of $w$ and
+its secret key); the server tests $\tau_w$ against each
+$\mathsf{Enc}(B_i)$ and returns the identifiers for which the test
+succeeds.
 \end{definition}
-
-The per-document construction is the most direct realization of the
-cipher-map framing. Each encrypted document is its own
-approximate-membership oracle; the server queries each oracle
-independently and aggregates the matching identifiers. The server
-never sees a plaintext keyword and never sees a plaintext document.
-What the server sees is a sequence of encrypted bit arrays, a
-sequence of query tokens, and a bit per document indicating whether
-that document matched.
-
-The encryption layer is doing two jobs. First, it hides the actual
-bit pattern of $B_i$ from the server: an adversary inspecting the
-stored data sees ciphertext, not bits. Second, it ensures that the
-match operation is itself oblivious to the underlying keywords:
-$\tau_w$ contains no information the server can use to recover $w$,
-because $w$ enters the token through a keyed cryptographic function
-the server does not hold the key to.
-
-\subsection*{The inverted-index construction}
 
 \begin{definition}[Inverted-index Bloom-filter encrypted search]
 \label{def:inverted-index-bloom}
-For each keyword $w$ in the vocabulary, the client computes a Bloom
-filter $B_w$ over the document identifiers $\{i : w \in d_i\}$. The
-client encrypts each $B_w$ and uploads $\{(\tau_w, \mathsf{Enc}(B_w))\}$
-to the server, indexed by the query token $\tau_w$. To search for
-keyword $w$, the client sends $\tau_w$; the server looks up the
-matching encrypted filter and returns it; the client decrypts to
-recover (an approximate version of) the identifier set $\{i : w \in
-d_i\}$.
+For each keyword $w$ the client computes a Bloom filter $B_w$ over the
+identifiers $\{i : w \in d_i\}$, encrypts it, and uploads
+$\{(\tau_w, \mathsf{Enc}(B_w))\}$ indexed by token. To search for $w$ the
+client sends $\tau_w$; the server returns the matching encrypted filter,
+which the client decrypts to recover an approximate identifier set.
 \end{definition}
 
-The inverted-index construction inverts the relation between
-documents and keywords. The per-document construction asks, for each
-document, ``does this query match?''; the inverted-index construction
-asks, for each query, ``which documents does this query match?''
-The first question has $|D|$ answers per query, one per document;
-the second has $|W|$ entries in the index, each holding an
-approximate document set. The query path is shorter: the server does
-one lookup, returns one encrypted blob, and the client does the rest
-locally.
+The per-document construction asks, for each document, ``does this query
+match?'', and has $|D|$ answers per query; the inverted-index
+construction asks ``which documents match?'', with $|W|$ index entries
+and a shorter query path (one lookup, one encrypted blob, the rest done
+client-side). The encryption layer does two jobs in both: it hides the
+bit pattern from the server, and it makes the match oblivious to the
+underlying keywords, since $\tau_w$ carries $w$ only through a keyed
+function the server cannot invert.
 
-The trade-off is exposed in storage. The per-document filters are
-small (each $B_i$ records at most the keyword count of a single
-document) and numerous (one per document). The inverted-index
-filters are large (each $B_w$ records identifiers of every document
-containing $w$, which can be a substantial fraction of the corpus)
-and fewer (one per keyword). Which is cheaper depends on the corpus.
+\subsection*{Each is a cipher map, and FNR-zero}
 
-\subsection*{Each construction is a cipher map}
+In the per-document construction the plaintext function is $f_i(w) =
+\mathbf{1}[w \in d_i]$: the token replaces $w$, the encrypted filter
+replaces $d_i$, and the server-side match approximates $f_i$ up to the
+filter's $\fprate$, always reporting a match when $w \in d_i$ ($\fnrate =
+0$) and reporting one with probability at most $\fprate$ when $w \notin
+d_i$. The error profile is $(\fprate, 0)$, satisfying
+\Cref{def:cipher-map}. The inverted-index construction realizes $f(w) =
+\{i : w \in d_i\}$ with the same profile. Both have $\fnrate = 0$ by
+structural inheritance from the Bloom filter, whose union analysis
+(\Cref{sec:union-of-sets}) showed that ORing bits can only add matches,
+never remove them, so the per-document filter never misses an inserted
+keyword.
 
-In the per-document construction, the plaintext function is the
-per-document indicator
-\[
-  f_i(w) \;=\; \mathbb{1}[\,w \in d_i\,].
-\]
-The cipher map operates entirely on encrypted representations: the
-client's $\tau_w$ replaces the plaintext $w$, the server's
-$\mathsf{Enc}(B_i)$ replaces the plaintext $d_i$, and the server-side
-match $\tilde f_i$ approximates $f_i$ up to the Bloom filter's
-$\fprate$. Specifically, when $w \in d_i$ the server always reports a
-match (this is the Bloom filter's $\fnrate = 0$ property); when $w
-\notin d_i$ the server reports a match with probability at most
-$\fprate$, the residual false-positive rate of the filter. The
-cipher-map error profile of the per-document construction is
-$(\fprate, 0)$, matching the underlying Bloom filter exactly. The
-construction satisfies \Cref{def:cipher-map}.
+The chapter 3 composition theorem (\Cref{thm:composition}) extends this
+to multi-keyword conjunctions, with the three-region care chapter 6
+required for intersection. A client querying for documents containing
+both $w_1$ and $w_2$ intersects the two returned identifier sets. The
+result has $\fnrate = 0$ (a true match, containing both keywords, is
+returned by both queries and survives). Its false-positive rate per
+document is bounded by $\fprate$, but not for the reason a bare product
+would suggest. A document outside the conjunction is a false positive
+when the test for a keyword it lacks falsely matches: a document
+containing $w_1$ but not $w_2$ is returned whenever the $w_2$-test errs,
+at rate $\fprate$ (the $w_1$-test is correct, not a false match), and only
+a document containing neither keyword needs both tests to err, at the
+lower rate $\approx \fprate^2$. By the three-region intersection rate
+(\Cref{prop:intersection-fpr-fnr}, \eqref{eq:intersection-fpr}) the
+conjunction's FPR is the partition-weighted sum, bounded by $\fprate$ and
+met by documents missing exactly one of the two keywords. Deep
+conjunctions are highly precise on a corpus of true non-matches and only
+modestly precise when documents commonly contain one queried keyword but
+not the other.
 
-In the inverted-index construction, the plaintext function is the
-keyword-to-set map
-\[
-  f(w) \;=\; \{i : w \in d_i\}.
-\]
-The cipher map again operates on encrypted representations:
-$\tau_w$ replaces $w$, $\mathsf{Enc}(B_w)$ replaces the document set
-the index would return, and the server's lookup-and-return procedure
-approximates $f$ up to the Bloom filter's error profile. A query
-token $\tau_w$ for a known vocabulary keyword always returns the
-correct encrypted filter, and decryption recovers the document set
-exactly up to the per-document false-positive rate. The error
-profile is again $(\fprate, 0)$.
-
-The two constructions are not the same cipher map, but they are two
-cipher maps in the same family: both have the framework's
-$\fnrate = 0$, both have $\fprate$ controlled by the underlying
-Bloom filter, and both compose with the chapter~3 composition theorem
-when the client issues multiple queries.
-
-\subsection*{The $\fnrate = 0$ structural property}
-
-The $\fnrate = 0$ property is not a coincidence; it is a structural
-inheritance from the underlying Bloom filter. Chapter~6
-\S\ref{sec:union-of-sets} proved the union analysis: a Bloom filter
-representing $A \cup B$ never misses a member, because the membership
-test only ORs the relevant bits, and ORing more bits can only
-\emph{add} matches, never remove them. The same argument applies to
-the per-document filter: $B_i$ never misses a keyword that was
-actually inserted, so the server's test never reports a false
-negative on a true member. The inverted-index construction inherits
-the same property in the other direction: $B_w$ never misses a
-document that actually contains $w$.
-
-The chapter~3 composition theorem (\Cref{thm:composition}) extends
-this to a multi-keyword conjunction. A client querying for documents
-containing both $w_1$ and $w_2$ issues two queries, intersects the
-returned identifier sets, and obtains an approximate match set whose
-false-negative rate is exactly zero (no true match is lost) and
-whose false-positive rate is bounded by $\fprate$ per document
-because a false positive in the intersection requires both individual
-filters to falsely match. The cipher-map family inherits this
-arithmetic without modification.
-
-The operational consequence is that a Bloom-based encrypted-search
-system never \emph{loses} a real match. Every document that truly
-contains the queried keyword shows up in the server's response. What
-varies is how many \emph{additional} documents show up as
-false-positive matches; that count is the operational price the
-client pays for the encryption, and it is exactly the price chapter~5
-priced for the underlying Bloom filter.
+A Bloom-based encrypted search therefore never \emph{loses} a real match:
+every document truly containing the keyword appears. What varies is how
+many \emph{additional} documents appear as false positives, the
+operational price the client pays, exactly the price chapter 5 set for
+the underlying filter.
 
 \subsection*{Space and query cost}
 
-For the per-document construction with corpus of $|D|$ documents and
-typical keyword count $W_d$ per document, the storage cost is
+For the per-document construction with $|D|$ documents and $W_d$ keywords
+each, the chapter 5 optimal-$k$ formula (\Cref{thm:bloom-optimal-k}) gives
+$m_d / W_d = (\log_2 e)\log_2(1/\fprate) \approx 1.44 \log_2(1/\fprate)$
+bits per item, so total storage is
 \[
-  S_{\text{per-doc}}
-  \;=\; |D| \cdot m_d,
+  S_{\text{per-doc}} \;\approx\; 1.44 \cdot |D| \cdot W_d \cdot
+  \log_2(1/\fprate),
 \]
-where $m_d$ is the per-document filter size. The chapter~5 optimal-$k$
-formula (\Cref{thm:bloom-optimal-k}) gives the bits-per-item ratio as
-$m_d / W_d = (\ln 2)^{-1} \log_2(1/\fprate) = (\log_2 e) \cdot
-\log_2(1/\fprate) \approx 1.44 \log_2(1/\fprate)$, so $m_d \approx
-1.44 \, W_d \log_2(1/\fprate)$ bits per filter and total storage
-\[
-  S_{\text{per-doc}}
-  \;\approx\; 1.44 \cdot |D| \cdot W_d \cdot \log_2(1/\fprate).
-\]
-Query cost is $|D|$ server-side matches per keyword query, since the
-server tests the query token against every encrypted filter in turn.
-
-For the inverted-index construction with vocabulary $|W|$ and average
-document-count-per-keyword $|D_w|$, the storage cost is
-\[
-  S_{\text{inv}}
-  \;\approx\; 1.44 \cdot |W| \cdot |D_w| \cdot \log_2(1/\fprate),
-\]
-applying the same optimal-$k$ formula to filters that hold
-identifiers instead of keywords. Query cost is one server-side
-lookup per keyword query (the server retrieves the indexed
-encrypted filter), followed by client-side decryption and membership
-testing of the returned filter.
-
-The two cost models agree on the same product $\sum_d W_d = \sum_w
-|D_w|$ (total keyword-document incidence), so to leading order the
-two constructions cost the same in storage at the same $\fprate$.
-The query cost differs by a factor of $|D|$ at the server (the
-per-document construction tests every filter; the inverted-index
-construction does one lookup), at the cost of pushing the
-membership test back to the client. Which trade-off is right depends
-on whether the bottleneck is server compute or client compute.
-
-A secondary consideration is incremental update. Adding a new
-document to the per-document construction is local: build a new
-filter for the new document, encrypt, append. Adding a new document
-to the inverted-index construction touches every keyword filter
-$B_w$ whose corresponding keyword appears in the new document, and
-each touched filter has to be decrypted, updated, re-encrypted. For
-write-heavy workloads the per-document construction is easier to
-maintain; for read-heavy workloads the inverted-index construction
-pays back its update cost through faster query response. Production
-deployments routinely keep both layouts, the per-document filters as
-the primary store and the inverted index as a query accelerator that
-can be rebuilt lazily.
+at $|D|$ server-side matches per query. The inverted-index construction
+with vocabulary $|W|$ and average per-keyword document count $|D_w|$ costs
+$S_{\text{inv}} \approx 1.44 \cdot |W| \cdot |D_w| \cdot \log_2(1/\fprate)$
+at one server lookup per query. Since $\sum_d W_d = \sum_w |D_w|$ is the
+total keyword-document incidence, the two cost the same in storage to
+leading order; they differ in query cost by a factor of $|D|$ at the
+server (the per-document construction tests every filter, the
+inverted-index does one lookup), at the price of pushing the membership
+test to the client. Incremental update favors the per-document layout
+(adding a document is local) while query latency favors the inverted
+index, so production deployments routinely keep both, the per-document
+filters as the primary store and the inverted index as a query
+accelerator rebuilt lazily.
 
 \subsection*{A worked example}
 
-Take a corpus of $|D| = 10{,}000$ documents, $W_d = 50$ keywords per
-document on average, with target $\fprate = 0.01$. The per-document
-filter has bits-per-item ratio $1.44 \log_2(100) \approx 9.59$, so
-$m_d \approx 50 \cdot 9.59 \approx 479.5 \approx 480$ bits per
-filter. Total storage is
-\[
-  S_{\text{per-doc}}
-  \;\approx\; 10{,}000 \cdot 480
-  \;=\; 4.8 \times 10^6 \text{ bits}
-  \;=\; 0.6 \text{ MB}.
-\]
-Compare with exact word-set storage: each document holds 50 keywords
-of (say) 8 bytes each (a generous average), so
-\[
-  S_{\text{exact}}
-  \;\approx\; 10{,}000 \cdot 50 \cdot 8
-  \;=\; 4 \times 10^6 \text{ bytes}
-  \;=\; 4 \text{ MB},
-\]
-about seven times more space than the per-document Bloom
-representation, before any encryption overhead is added. The Bloom
-representation also has the property that the encryption is on a
-fixed-size object (a 480-bit array) regardless of keyword length or
-spelling, which simplifies the encryption layer relative to a
-variable-length plaintext word set.
-
-The inverted-index version of the same corpus needs $|W| \cdot |D_w|
-\approx \sum_d W_d = 5 \times 10^5$ keyword-document incidence pairs;
-distributed at $1.44 \log_2(100) \approx 9.59$ bits per pair, the
-total is the same $0.6 \text{ MB}$. The construction style does not
-change the storage cost; it changes the storage \emph{layout} and
-the corresponding query path.
-
-A useful sanity check is the per-bit cost of a single false-positive
-match. At $\fprate = 0.01$, the expected number of spurious
-documents returned per query is $0.01 \cdot |D| = 100$, against a
-typical true-match count of perhaps $|D| \cdot \pi = 10$ for a
-workload prevalence of $\pi = 0.001$ (one document in a thousand
-truly contains the queried keyword). The server's response is
-dominated by false positives, and the client's post-processing has
-to filter them out by some means external to the encrypted-search
-layer (a second-pass decryption of the candidate documents, a
-plaintext post-filter at the client side, or a higher-tier ranker
-that takes the noisy match set as input). The Bernoulli framework
-neither hides this fact nor accepts it as a defect: the false
-positives are exactly what the framework is doing, and the next
-section reads them as the source of the system's confidentiality
-rather than as a bug.
+Take $|D| = 10{,}000$ documents, $W_d = 50$ keywords each, $\fprate =
+0.01$. The per-document filter has $1.44 \log_2(100) \approx 9.59$ bits
+per item, so $m_d \approx 50 \cdot 9.59 \approx 480$ bits, total
+$10{,}000 \cdot 480 = 4.8 \times 10^6$ bits $= 0.6$ MB. Exact word-set
+storage at 50 keywords of 8 bytes each is $10{,}000 \cdot 50 \cdot 8 = 4$
+MB, about seven times more, and the Bloom representation also encrypts a
+fixed-size object regardless of keyword length. The inverted-index
+version needs the same $\sum_d W_d = 5 \times 10^5$ incidence pairs at
+$9.59$ bits each, the same $0.6$ MB: the construction style changes the
+layout and the query path, not the storage cost. At $\fprate = 0.01$ over
+this corpus the expected spurious matches per query are $0.01 \cdot |D| =
+100$, against perhaps $|D| \cdot \pi = 10$ true matches at prevalence
+$\pi = 0.001$; the response is dominated by false positives, which the
+client filters out by some means external to the encrypted-search layer.
+The next section reads those false positives as the source of the
+system's confidentiality rather than as a defect.

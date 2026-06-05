@@ -1,285 +1,120 @@
 % §18.3 Confidentiality Measures
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:confidentiality-measures}     -- this section
-%   \label{prop:multi-query-leakage}         -- multi-query leakage scaling
-%
-% ALREADY DEFINED (chapter 4):
-%   \Cref{sec:kronecker}                     -- chapter 4 §4.4
-%   \Cref{thm:kronecker}                     -- chapter 4 Kronecker theorem
-%
-% ALREADY DEFINED (chapter 7):
-%   \Cref{def:ppv}                           -- chapter 7 §7.4
-%   \Cref{def:npv}                           -- chapter 7 §7.4
-%   \Cref{def:f1}                            -- chapter 7 §7.4
-%   \Cref{sec:derived-measures}              -- chapter 7 §7.4
-%
-% ALREADY DEFINED (chapter 17):
-%   \Cref{sec:trapdoor-paradigm}             -- §17.3 (multi-query subsection)
-%   \Cref{sec:maximizing-confidentiality}    -- §17.6
-%
-% INTERNAL (chapter 18):
-%   \Cref{def:per-document-bloom}            -- §18.2
-%
-% §18.3 lifts the chapter 7 derived measures (PPV, NPV, F1) and
-% chapter 17 confidentiality framework to the encrypted-search
-% setting. Five items: leakage model; PPV as confidentiality; NPV and
-% F1 on top; multi-query leakage; worked example.
+% Monograph register: the server's leakage model, PPV as confidentiality,
+% NPV/F1, multi-query leakage (prop:multi-query-leakage), worked example.
+% Tightened; all numbers verified. Cross-refs sec:kronecker, thm:kronecker,
+% def:ppv, def:npv, def:f1, sec:derived-measures, sec:trapdoor-paradigm,
+% sec:maximizing-confidentiality, def:per-document-bloom, sec:union-of-sets.
+% DEFINED: sec:confidentiality-measures, prop:multi-query-leakage.
 
 \section{Confidentiality Measures}
 \label{sec:confidentiality-measures}
 
-The cipher-map framing of \S\ref{sec:bloom-based} fixed an error
-profile $(\fprate, 0)$ for both Bloom-filter-based constructions,
-and chapter~17 \S\ref{sec:maximizing-confidentiality} already worked
-out the formal definition of confidentiality at fixed error rates
-and workload prevalence. This section reads that derivation in the
-encrypted-search setting: every measure chapter~7 derived for the
-noisy-bit posterior has a leakage interpretation, and the design
-problem of trading rate-budget for confidentiality is solved by
-choosing $\fprate$ to put the system at the right point on the
-chapter~7 curve.
+The cipher-map framing of \Cref{sec:bloom-based} fixed an error profile
+$(\fprate, 0)$ for both constructions, and
+\Cref{sec:maximizing-confidentiality} worked out confidentiality at fixed
+rates and prevalence. This section reads that derivation in the
+encrypted-search setting: every chapter 7 measure has a leakage
+interpretation, and trading rate-budget for confidentiality reduces to
+choosing $\fprate$ on the chapter 7 curve.
 
 \subsection*{The server's leakage model}
 
-A deployed Bloom-based encrypted-search system gives the server
-access to two streams of data. The first is structural: the server
-holds the encrypted filter store at all times, and an adversary who
-compromises the server can inspect $\mathsf{Enc}(B_i)$ for every $i$
-in the per-document construction (or $\mathsf{Enc}(B_w)$ for every
-$w$ in the inverted-index construction). The second is operational:
-during normal service the server sees query tokens $\tau_w$ arriving
-from clients and the corresponding match decisions (which filter
-matched which token) as the server resolves each query.
+A deployed system gives the server two streams. The \emph{structural}
+stream is the encrypted filter store, opaque by construction: each
+$\mathsf{Enc}(B_i)$ is semantically secure, leaking nothing beyond the
+filter size. The \emph{operational} stream is where the analysis lives:
+each match decision is a yes/no answer to ``does $\tau_w$ correspond to a
+keyword in $d_i$?'', which the server computes and therefore knows. The
+plaintext keyword and document content stay hidden, but the bare fact of
+the match is unavoidably revealed. Under the Bernoulli model each match
+decision is a noisy bit, $1$ when the keyword truly belongs (the filter's
+$\fnrate = 0$) and $1$ with probability $\fprate$ when it does not, so the
+chapter 7 measures over noisy bits are the right measures for the server's
+posterior.
 
-The structural stream is, by construction, opaque: each
-$\mathsf{Enc}(B_i)$ is the output of a semantically secure
-encryption scheme, and reading bits off the ciphertext reveals
-nothing about the underlying plaintext keywords beyond what the
-encryption scheme leaks (which, for a well-designed scheme, is
-exactly the size of the filter). The operational stream is where the
-real analysis lives. Each match decision is a yes/no answer to the
-question ``does query $\tau_w$ correspond to a keyword that appears
-in document $d_i$?''. The server learns the answer to that question
-exactly, because the server is the party that computed it. The
-plaintext keyword $w$ remains hidden behind $\tau_w$, and the
-plaintext document content remains hidden inside $\mathsf{Enc}(B_i)$,
-but the bare fact of the match (and its absence) is what the server
-returns to the client and therefore what the server unavoidably
-knows.
+\subsection*{PPV is the confidentiality measure}
 
-The leakage analysis is the analysis of what the server can infer
-about plaintext keywords and document contents from a stream of
-match decisions. Under the Bernoulli model of the cipher-map error,
-each match decision is a noisy bit: it is $1$ when the keyword truly
-belongs to the document (because the per-document filter inherits
-$\fnrate = 0$), and it is $1$ with probability $\fprate$ when the
-keyword does not belong (because that is the Bloom filter's residual
-false-positive rate). The chapter~7 measures over noisy bits are
-therefore the right measures for the server's posterior.
-
-\subsection*{PPV as the confidentiality measure}
-
-Fix a query token $\tau_w$ and a document $d_i$ in whose encrypted
-filter the server's match test succeeded. The server's posterior
-probability that the underlying keyword $w$ truly appears in $d_i$
-is, by Bayes' rule,
+Fix a query token $\tau_w$ and a document $d_i$ whose filter matched. The
+server's posterior that $w$ truly appears in $d_i$ is, by Bayes' rule,
+the positive predictive value of \Cref{def:ppv} at the cipher map's rates
+and the workload prevalence $\pi$,
 \[
-  \Pr[\,w \in d_i \,\mid\, \tau_w \text{ matched } \mathsf{Enc}(B_i)\,]
-  \;=\; \frac{\pi (1 - \fnrate)}
-              {\pi (1 - \fnrate) + (1 - \pi)\,\fprate},
+  \Pr[w \in d_i \mid \tau_w \text{ matched}]
+  = \PPV = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate}.
 \]
-where $\pi$ is the prior probability that $w \in d_i$ (the workload
-prevalence: the share of queried keywords that truly match the
-queried document at all). The right-hand side is exactly the
-positive predictive value of \Cref{def:ppv}, computed at the
-cipher-map's error rates and the workload's prevalence. The
-chapter~7 formula and the cipher-map's posterior are not similar
-quantities: they are the same quantity, derived twice.
-
-Following chapter~17 \S\ref{sec:maximizing-confidentiality}, the
-confidentiality of a match decision is the complement:
+The chapter 7 formula and the cipher map's posterior are the same
+quantity derived twice. Following
+\Cref{sec:maximizing-confidentiality}, confidentiality is the complement
+$C = 1 - \PPV$, high when most matches are spurious and low when most are
+genuine. At $\fnrate = 0$, which both constructions satisfy,
 \[
-  C \;=\; 1 - \PPV
-  \;=\; \frac{(1 - \pi)\,\fprate}
-              {\pi (1 - \fnrate) + (1 - \pi)\,\fprate}.
+  C \;=\; \frac{(1 - \pi)\fprate}{\pi + (1 - \pi)\fprate},
 \]
-$C$ is high when most matches are spurious (the server's evidence
-points unreliably at the plaintext); $C$ is low when most matches
-are genuine (the server's evidence points reliably at the plaintext).
-At $\fnrate = 0$, which both Bloom constructions satisfy, the
-formula simplifies to
-\[
-  C \;=\; \frac{(1 - \pi)\,\fprate}
-              {\pi + (1 - \pi)\,\fprate}.
-\]
-This is the single most useful equation in the chapter. It says
-that, on the perfect-filter line, confidentiality is a monotone
-function of the rate-prevalence product: as $(1 - \pi)\fprate$ grows
-relative to $\pi$, the share of match decisions that protect the
-plaintext rises toward $1$. As $(1 - \pi)\fprate$ shrinks toward $0$,
-the share collapses to zero and the server's matches identify the
-plaintext with near-certainty.
-
-\subsection*{NPV and F1 round out the picture}
-
-PPV measures the confidentiality of a positive match decision: a
-$\top$-report that the server returns and an adversary then reads.
-The companion measure for the $\bot$-reports is negative predictive
-value (\Cref{def:npv}),
-\[
-  \NPV \;=\; \frac{(1 - \pi)(1 - \fprate)}
-                   {(1 - \pi)(1 - \fprate) + \pi\,\fnrate},
-\]
-which at $\fnrate = 0$ collapses to $\NPV = 1$: a Bloom-based
-encrypted search reports $\bot$ only when the keyword really is
-absent (the filter's union analysis from chapter~6 \S6.1 guaranteed
-this), so a $\bot$-report is fully reliable and an adversary who
-reads one learns the plaintext with certainty in that direction. The
-$\fnrate = 0$ regime concentrates all confidentiality on the
-$\top$-side; the system has nothing to hide on the $\bot$-side
-because there is no ambiguity there.
-
-The combined leakage of a balanced workload is the $\Fone$-score of
-\Cref{def:f1}: the harmonic mean of precision (which is PPV) and
-recall (which at $\fnrate = 0$ is $1$). At $\fnrate = 0$ the
-$\Fone$-score reduces to $2\PPV/(1 + \PPV)$, monotone in PPV.
-$\Fone$ is the standard summary when the workload prevalence $\pi$
-is not known in advance, and the deployed encrypted-search system
-faces a mix of $\top$- and $\bot$-decisions whose proportions vary
-across keywords. The combined leakage budget of the workload is
-bounded by $\Fone$ in the same way the per-decision leakage of a
-positive match is bounded by PPV.
-
-The chapter~7 \S\ref{sec:derived-measures} apparatus thus carries
-over without modification. Every derived measure chapter~7 defined
-for the noisy bit has a confidentiality reading in the
-encrypted-search setting: the precision is the positive-match
-leakage, the recall is the corpus-coverage of the response, and
-$\Fone$ is the balanced leakage budget. The Bernoulli framework
-gives the encrypted-search designer the same toolkit it gives the
-classifier designer.
+the single most useful equation in the chapter: on the perfect-filter
+line confidentiality is monotone in the rate-prevalence product $(1 -
+\pi)\fprate$ relative to $\pi$. The companion measure for $\bot$-reports
+is the negative predictive value (\Cref{def:npv}), which at $\fnrate = 0$
+collapses to $\NPV = 1$: a Bloom-based search reports $\bot$ only when the
+keyword is truly absent (the union analysis of \Cref{sec:union-of-sets}),
+so a $\bot$-report is fully reliable and the $\fnrate = 0$ regime
+concentrates all confidentiality on the $\top$-side. The balanced-workload
+summary is the $\Fone$-score of \Cref{def:f1}, which at $\fnrate = 0$
+(recall $= 1$, precision $= \PPV$) reduces to $2\PPV/(1 + \PPV)$, monotone
+in PPV and the right measure when $\pi$ is not known in advance. The
+chapter 7 apparatus (\Cref{sec:derived-measures}) thus carries over
+unchanged, every derived measure acquiring a confidentiality reading.
 
 \subsection*{Multi-query leakage}
 
-A single query leaks a bounded amount of information about a single
-$(w, d_i)$ pair. A long sequence of queries leaks information about
-the whole corpus, and the accumulation analysis is governed by the
-chapter~4 \S\ref{sec:kronecker} Kronecker structure that chapter~17
-\S\ref{sec:trapdoor-paradigm} already used for trapdoor cipher maps.
+A single query leaks a bounded amount about one $(w, d_i)$ pair; a long
+sequence leaks about the whole corpus, governed by the Kronecker
+structure of \Cref{sec:kronecker} that \Cref{sec:trapdoor-paradigm}
+already used.
 
 \begin{proposition}[Multi-query leakage scaling]
 \label{prop:multi-query-leakage}
-Suppose a client issues $m$ independent queries against a
-Bloom-filter-based encrypted-search system with per-query error
-profile $(\fprate, 0)$ and workload prevalence $\pi$. Under the
-chapter~4 independence axiom, the server's posterior factorizes as
-the $m$-fold Kronecker product of single-query posteriors. The
-total raw leakage (mutual information between the query stream and
-the plaintext) grows linearly in $m$:
-\[
-  I_m \;=\; m \cdot I_1,
-\]
-where $I_1$ is the per-query mutual information. The
-\emph{confidentiality} of the worst plaintext bit, measured as the
-number of bits of uncertainty about a single $(w, d_i)$ pair after
-$m$ queries, shrinks as
-\[
-  C_m \;=\; \Theta(m^{-1/2})
-\]
-in bits, by standard concentration around the posterior mean.
+For $m$ independent queries against a system with profile $(\fprate, 0)$
+and prevalence $\pi$, under the chapter 4 independence axiom the server's
+posterior factorizes as the $m$-fold Kronecker product of single-query
+posteriors. The total leakage (mutual information between the query stream
+and the plaintext) grows linearly, $I_m = m\,I_1$, while the
+confidentiality of any single $(w, d_i)$ pair, measured in bits of
+posterior uncertainty, shrinks as $C_m = \Theta(m^{-1/2})$ by standard
+concentration.
 \end{proposition}
 
-The two scalings are not contradictory; they read the same
-phenomenon from opposite sides. The first scaling says the server's
-total information about the corpus grows linearly with the query
-budget. The second says the confidentiality of any single plaintext
-fact (measured in bits of uncertainty the server has about it)
-decays as the square root of the query budget. The asymmetry comes
-from the structure of the posterior: the central limit theorem
-sharpens the server's estimate of the posterior mean at rate
-$m^{-1/2}$, and the confidentiality bits are the (negative)
-logarithm of the posterior gap.
-
-Two operational implications follow. First, a system designed for a
-fixed query budget $m$ can be analyzed by treating $m$ as a
-parameter and reading off the corresponding $C_m$. Second, a system
-designed for an unbounded budget cannot have non-trivial
-confidentiality in the long run: either the trapdoor key has to be
-rotated periodically (the rotation resets the accumulated leakage),
-or the system has to be designed for a regime where the server's
-asymptotic posterior is itself acceptable. Both options are real
-deployment choices, and the framework makes the trade-off explicit
-rather than hiding it behind a security definition.
+The two scalings read the same phenomenon from opposite sides: the
+server's total information grows linearly in the budget, while the
+confidentiality of any one fact decays as its square root, the asymmetry
+coming from the central limit theorem sharpening the posterior mean at
+rate $m^{-1/2}$. A system with a fixed query budget can be analyzed by
+reading off $C_m$; an unbounded budget cannot have non-trivial asymptotic
+confidentiality, so the trapdoor key must be rotated periodically (a
+rotation resets the accumulated leakage) or the asymptotic posterior must
+itself be acceptable.
 
 \subsection*{A worked example}
 
-Take the per-document Bloom construction of
-\Cref{def:per-document-bloom} at $\fprate = 0.01$, with workload
-prevalence $\pi = 0.1$ (one queried keyword in ten actually appears
-in the queried document, a typical figure for keyword-based search
-on a topical corpus). The PPV formula at $\fnrate = 0$ gives
+Take the per-document construction (\Cref{def:per-document-bloom}) at
+$\fprate = 0.01$, $\pi = 0.1$ (one queried keyword in ten truly appears in
+the queried document). The PPV formula at $\fnrate = 0$ gives
 \[
-  \PPV
-  \;=\; \frac{0.1}{0.1 + 0.9 \cdot 0.01}
-  \;=\; \frac{0.1}{0.109}
-  \;\approx\; 0.917.
+  \PPV = \frac{0.1}{0.1 + 0.9 \cdot 0.01} = \frac{0.1}{0.109}
+  \approx 0.917, \qquad C \approx 0.083,
 \]
-Confidentiality at this operating point is $C \approx 0.083$: when
-the server reports a match, an adversary reading the report has
-about a $91.7\%$ posterior on the underlying keyword truly being
-present in the document, and only an $8.3\%$ residual uncertainty.
-The system is correctness-tuned and privacy-leaky.
-
-Now move the cipher map to $\fprate = 0.3$, a much looser filter
-that returns many spurious matches per query. The PPV becomes
-\[
-  \PPV
-  \;=\; \frac{0.1}{0.1 + 0.9 \cdot 0.3}
-  \;=\; \frac{0.1}{0.37}
-  \;\approx\; 0.270.
-\]
-Confidentiality jumps to $C \approx 0.730$: the server's matches are
-now mostly false positives, an adversary reading a match has only a
-$27\%$ posterior on the underlying keyword being present, and the
-system protects the plaintext at the cost of a much noisier response
-to the client. The client now has to do substantially more
-post-filtering work to recover the true match set, but in exchange
-the server's matches reveal much less about the plaintext.
-
-The two operating points span the trade-off curve the framework
-exposes. Every choice of $\fprate$ at fixed $\pi$ sits on the curve
-$C = (1 - \pi)\fprate / [\pi + (1 - \pi)\fprate]$, and the designer
-picks the point. There is no free lunch: PPV and confidentiality
-sum to $1$, and the framework's space, accuracy, and
-confidentiality are coupled through chapter~8's entropy bound and
-chapter~7's posterior in a way that prevents the designer from
-improving any one of the three without paying somewhere else. What
-the framework provides is the equation that prices the trade-off.
-
-For intermediate operating points, the curve passes through
-$\fprate = 0.05$ at $\PPV \approx 0.690$ ($C \approx 0.310$),
-through $\fprate = 0.1$ at $\PPV \approx 0.526$ ($C \approx 0.474$),
-and through $\fprate = 0.2$ at $\PPV \approx 0.357$ ($C \approx
-0.643$). The numerical pattern is consistent with the geometric
-reading of the chapter~17 perfect-filter line: moving away from
-$\fprate = 0$ in single percentage-point steps buys confidentiality
-in roughly equal increments early, and in diminishing increments as
-the system approaches the trivial $\fprate = 1$ endpoint. The
-designer's job is to read the workload's $\pi$ from operational
-data, pick a target confidentiality, and solve the curve in
-closed form for the corresponding $\fprate^*$. The closed-form
-solution is direct: rearranging $C = (1 - \pi)\fprate^* /
-[\pi + (1 - \pi)\fprate^*]$ for $\fprate^*$ gives $\fprate^* =
-\pi C / [(1 - \pi)(1 - C)]$, so a deployment that requires $C =
-0.9$ at $\pi = 0.1$ needs $\fprate^* = 0.1 \cdot 0.9 / (0.9 \cdot
-0.1) = 1$, which is degenerate. The same target at $\pi = 0.01$
-needs $\fprate^* \approx 0.091$, a much friendlier operating
-point. Lower-prevalence workloads buy confidentiality more cheaply,
-which matches the chapter~17 intuition that confidentiality is
-abundant in the regime where the prior already concentrates the
-plaintext mass on $\bot$. The next section addresses the harder
-version of the problem: when the workload is adversarial and $\pi$
-is itself a quantity to be estimated under uncertainty.
+a correctness-tuned, privacy-leaky point: a match gives the adversary a
+$91.7\%$ posterior. Loosening to $\fprate = 0.3$ gives $\PPV = 0.1/0.37
+\approx 0.270$, $C \approx 0.730$, the matches now mostly false positives
+and the plaintext well protected, at the cost of a much noisier response
+the client must post-filter. Every $\fprate$ at fixed $\pi$ sits on the
+curve $C = (1 - \pi)\fprate / [\pi + (1 - \pi)\fprate]$; intermediate
+points are $\fprate = 0.05$ at $C \approx 0.310$, $\fprate = 0.1$ at $C
+\approx 0.474$, $\fprate = 0.2$ at $C \approx 0.643$. Inverting for the
+design target, $\fprate^* = \pi C / [(1 - \pi)(1 - C)]$, so $C = 0.9$ at
+$\pi = 0.1$ needs $\fprate^* = 1$ (degenerate), while the same target at
+$\pi = 0.01$ needs $\fprate^* \approx 0.091$, a friendly operating point:
+lower-prevalence workloads buy confidentiality more cheaply, matching the
+chapter 17 intuition that confidentiality is abundant where the prior
+already concentrates the plaintext on $\bot$. The next section turns to
+the harder problem of estimating $\pi$ when the workload is adversarial.

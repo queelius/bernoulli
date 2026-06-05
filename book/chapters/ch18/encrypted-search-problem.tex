@@ -1,166 +1,97 @@
 % §18.1 The Encrypted Search Problem
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:encrypted-search-problem}     -- this section
-%   \label{def:encrypted-search}             -- the problem statement
-%
-% ALREADY DEFINED (chapter 7):
-%   \Cref{def:ppv}                           -- PPV at workload prevalence pi
-%
-% ALREADY DEFINED (chapter 17):
-%   \Cref{def:cipher-map}                    -- §17.1
-%   \Cref{sec:fhe-sidebar}                   -- §17.4
-%   \Cref{sec:maximizing-confidentiality}    -- §17.6
-%
-% FORWARD refs within chapter 18:
-%   \Cref{sec:bloom-based}                   -- §18.2 (Task 3)
-%   \Cref{sec:confidentiality-measures}      -- §18.3 (Task 4)
-%   \Cref{sec:adversarial-estimation}        -- §18.4 (Task 5)
-%   \Cref{sec:toy-system}                    -- §18.5 (Task 6)
-%
-% §18.1 opens chapter 18 with the encrypted-search problem statement:
-% five items. (1) setup of the client/server search problem on
-% encrypted documents; (2) naive solutions and why each fails; (3) the
-% cipher-map framing that resolves the impasse; (4) the
-% leakage-recovery trade-off quantified by chapter 7 PPV; (5) signpost
-% for the remaining sections.
+% Monograph register: the problem (def:encrypted-search), three naive
+% resolutions and why each fails, the cipher-map framing, the
+% leakage-recovery trade-off (1 - PPV). Tightened. Uses \Cref{def:ppv}
+% for the known-good PPV label. Cross-refs def:ppv, def:cipher-map,
+% sec:fhe-sidebar, sec:maximizing-confidentiality, sec:bernoulli-error-model,
+% sec:bloom-based, sec:confidentiality-measures, sec:adversarial-estimation,
+% sec:toy-system. DEFINED: sec:encrypted-search-problem, def:encrypted-search.
 
 \section{The Encrypted Search Problem}
 \label{sec:encrypted-search-problem}
 
-A client stores a collection of documents on a remote server and wants
-to search the collection for documents containing a keyword. The
-client trusts itself, but does not trust the server: the documents
-hold private content, the queries reveal what the client is interested
-in, and giving the server either piece in the clear would defeat the
-point of using the server at all. The server, for its part, has
-abundant storage and computation and is willing to do work on the
-client's behalf; what the server cannot be trusted with is reading
-the data it stores.
+A client stores documents on a remote server and wants to search them for
+a keyword without trusting the server to read either the documents or the
+queries. The documents hold private content, the queries reveal what the
+client is interested in, and handing either to the server in the clear
+defeats the point. The server has abundant storage and computation and
+will do work on the client's behalf; what it cannot be trusted with is
+reading the data it stores.
 
 \begin{definition}[Encrypted-search problem]
 \label{def:encrypted-search}
 A client holds a corpus of plaintext documents $\{d_1, \ldots, d_n\}$,
-each a set of keywords drawn from a vocabulary $W$. The client wants
-to outsource the corpus to a server such that, for any keyword $w \in
-W$, the client can issue a query that the server resolves by returning
-the document identifiers $\{i : w \in d_i\}$, while the server learns
-neither the plaintext of any document nor the keyword of any query.
+each a set of keywords from a vocabulary $W$. The client wants to
+outsource the corpus to a server so that, for any keyword $w \in W$, it
+can issue a query the server resolves by returning the identifiers $\{i :
+w \in d_i\}$, while the server learns neither the plaintext of any
+document nor the keyword of any query.
 \end{definition}
 
-The two privacy goals (hidden documents and hidden queries) are
-intertwined. Whatever scheme the server uses to test a query against a
-stored document must operate on whatever encrypted form of each the
-server has access to, and that operation is the seam through which
-information can leak. A scheme that leaks nothing at all about either
-side does not, in general, exist: the server has to learn something to
-return an answer, if only the bare fact that a query matched (or did
-not match) a document. The design question is how much, and of what
-kind, the server is allowed to learn.
+The two privacy goals are intertwined: whatever operation tests a query
+against a stored document is the seam through which information leaks. A
+scheme leaking nothing about either side does not exist in general, since
+the server must learn something to return an answer, if only the bare
+fact that a query matched. The design question is how much, and of what
+kind.
 
-\subsection*{Three naive resolutions, and why each fails}
+\subsection*{Three naive resolutions}
 
-The simplest resolution is to skip the server's involvement
-altogether: download every document and search locally. This works,
-and it leaks nothing to the server beyond the fact that the client
-fetched its own data, but it eliminates every reason to use a server
-in the first place. A client capable of downloading and storing the
-full corpus could have hosted the corpus locally to begin with. The
-scheme is correct, fully private, and operationally useless on
-anything bigger than a toy corpus.
-
-The second resolution preserves the server's role at the cost of
-privacy: send each query as plaintext, let the server match it
-against whatever plaintext-or-encrypted form of the documents it
-holds, and return the matched identifiers. If the documents are
-themselves stored as plaintext, the server reads everything; if the
-documents are stored encrypted but the queries are not, the server at
-least learns the query workload (which keywords the client cares
-about, how often, in what order) and can correlate that workload with
-side channels (access patterns, timing, document sizes) to recover
-the document contents in many cases. Encrypting the documents but
-not the queries protects the corpus only as long as the workload is
-uninformative, and most realistic workloads are extremely
-informative.
-
-The third resolution chases full privacy through fully homomorphic
-encryption (chapter~17 \S\ref{sec:fhe-sidebar}). FHE lets the server
-evaluate an arbitrary circuit on encrypted inputs without decrypting
-either inputs or output, so in principle the client can outsource a
-plaintext-equivalent search to the server while revealing neither the
-query nor the documents. In practice the construction is many orders
-of magnitude too slow for the document-collection scales that
-encrypted search is meant to address. Chapter~17 marked FHE as a
-useful baseline against which to measure cheaper alternatives, not
-as a competitive option for a deployed search system.
-
-None of the three resolutions is satisfactory. The first abandons the
-server; the second abandons privacy; the third abandons performance.
-The fourth resolution, the one this chapter develops, abandons
-\emph{exactness}.
+The first resolution skips the server: download everything and search
+locally. It leaks nothing but eliminates every reason to use a server,
+since a client that can download and store the full corpus could have
+hosted it locally. The second preserves the server at the cost of
+privacy: send queries in plaintext and let the server match them. If the
+documents are plaintext the server reads everything; if they are
+encrypted but the queries are not, the server still learns the workload
+(which keywords matter, how often, in what order) and correlates it with
+access patterns, timing, and document sizes to recover content in many
+cases. Encrypting the documents but not the queries protects the corpus
+only as long as the workload is uninformative, and most realistic
+workloads are extremely informative. The third chases full privacy
+through fully homomorphic encryption
+(\Cref{sec:fhe-sidebar}), which lets the server evaluate an arbitrary
+circuit on encrypted inputs but is many orders of magnitude too slow for
+the corpus scales encrypted search must address. The first abandons the
+server, the second privacy, the third performance. The fourth resolution,
+this chapter's, abandons \emph{exactness}.
 
 \subsection*{Encrypted search as a cipher map}
 
-The cipher-map abstraction of \Cref{def:cipher-map} describes a
-function that operates on encrypted representations and returns the
-right answer up to bounded $\fprate$ and $\fnrate$. Encrypted search
-fits the abstraction directly. The plaintext function is the
-membership test ``does document $d$ contain keyword $w$?''; the
-encrypted-domain map is a server-side test on whatever encrypted
-form of $d$ and $w$ the construction provides; the bounded error
-rates are the share of non-members the server reports as matches and
-the share of true members the server fails to report. A search is a
-sequence of such membership tests, one per document, and the
-chapter~4 Kronecker composition law (chapter~17
-\S\ref{sec:bernoulli-error-model}) tells the client how the per-test
-error rates aggregate into a corpus-wide result.
-
-This is the framing the chapter takes throughout. Encrypted search is
-a family of cipher maps, parameterized by the choice of underlying
-approximate-set structure (chapter~5) and the encryption scheme
-applied to it. The framework's two error rates govern recovery: how
-faithfully the server's response reflects the true match set. The
-framework's confidentiality (chapter~17
-\S\ref{sec:maximizing-confidentiality}) governs leakage: how much the
-server's response reveals about the plaintext document and query.
-The Bernoulli machinery applies without modification; what changes is
-the operational reading of $\fprate$ and $\fnrate$.
+The cipher map of \Cref{def:cipher-map} operates on encrypted
+representations and returns the right answer up to bounded $\fprate$ and
+$\fnrate$, and encrypted search fits it directly. The plaintext function
+is the membership test ``does document $d$ contain keyword $w$?''; the
+encrypted-domain map is a server-side test on whatever encrypted form of
+$d$ and $w$ the construction provides; the error rates are the share of
+non-members reported as matches and the share of true members missed. A
+search is a sequence of such tests, one per document, and the Kronecker
+composition law of \Cref{sec:bernoulli-error-model} aggregates the
+per-test rates into a corpus-wide result. Encrypted search is thus a
+family of cipher maps parameterized by the underlying approximate-set
+structure and the encryption scheme applied to it; the two rates govern
+recovery (how faithfully the response reflects the true match set) and
+the confidentiality of \Cref{sec:maximizing-confidentiality} governs
+leakage (how much the response reveals about the plaintext). The Bernoulli
+machinery applies unchanged; only the operational reading of $\fprate,
+\fnrate$ changes.
 
 \subsection*{The leakage-recovery trade-off}
 
-A tighter encrypted-search system (smaller $\fprate$, smaller
-$\fnrate$) returns a more faithful match set to the client. The same
-tighter system also leaks more about each query: the server's
-membership reports are more reliable, which is to say a third party
-who learns a report has a higher posterior probability of correctly
-guessing whether the underlying document truly contained the queried
-keyword. Chapter~7 \S\ref{sec:derived-measures} introduced the
-positive predictive value $\PPV$ as the posterior $\Pr[w \in d \mid
-\text{server reports match}]$; the same posterior, read with the
-adversary in mind, is the leakage measure. Confidentiality is $1 -
-\PPV$ (chapter~17 \S\ref{sec:maximizing-confidentiality}), and the
-two halves of the trade-off are exposed as opposite faces of one
-formula.
-
-The trade-off is unavoidable in the cipher-map framing. An exact
-search system has $\PPV = 1$ and confidentiality zero; a search
-system that returns matches uniformly at random has confidentiality
-$1 - \pi$ and is operationally useless. Every encrypted-search
-construction picks a point on the line between the two extremes, and
-the framework tells the designer what the trade-off costs in both
-directions.
-
-\subsection*{Where the chapter goes}
-
-\Cref{sec:bloom-based} builds two Bloom-filter-based encrypted-search
-constructions (per-document and inverted-index) and identifies each
-as a cipher map. \Cref{sec:confidentiality-measures} works out the
-chapter~7 PPV / NPV / F1 measures as the confidentiality bounds and
-gives worked examples at production-scale parameters.
-\Cref{sec:adversarial-estimation} addresses the defender's estimation
-problem: how to estimate the actual leakage of a deployed system when
-the query workload is adversarial. \Cref{sec:toy-system} walks
-through a minimal end-to-end implementation, with the paired notebook
-making the construction concrete.
+A tighter system (smaller $\fprate, \fnrate$) returns a more faithful
+match set but also leaks more: its membership reports are more reliable,
+so a third party who learns a report has a higher posterior on whether
+the document truly contained the queried keyword. The positive predictive
+value of \Cref{def:ppv}, $\Pr[w \in d \mid \text{match reported}]$, read
+with the adversary in mind, is the leakage measure, and confidentiality
+is $1 - \PPV$ (\Cref{sec:maximizing-confidentiality}), the two halves of
+the trade-off being opposite faces of one formula. The trade-off is
+unavoidable: an exact system has $\PPV = 1$ and confidentiality zero, a
+system returning random matches has confidentiality $1 - \pi$ and is
+useless, and every construction picks a point between.
+\Cref{sec:bloom-based} builds two Bloom-filter constructions,
+\Cref{sec:confidentiality-measures} works out the PPV/NPV/F1 measures as
+confidentiality bounds, \Cref{sec:adversarial-estimation} addresses
+estimating leakage under adversarial workloads, and
+\Cref{sec:toy-system} walks an end-to-end implementation.

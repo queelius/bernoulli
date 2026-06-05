@@ -1,260 +1,126 @@
 % §18.5 A Toy Encrypted Search System
 %
-% Cross-reference resolution status:
-%
-% DEFINED here:
-%   \label{sec:toy-system}                    -- this section
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{def:bloom-filter}                   -- chapter 5 §5.2
-%
-% ALREADY DEFINED (chapter 17):
-%   \Cref{def:cipher-map}                     -- §17.1
-%
-% INTERNAL (chapter 18):
-%   \Cref{def:per-document-bloom}             -- §18.2
-%   \Cref{sec:confidentiality-measures}       -- §18.3
-%   \Cref{sec:adversarial-estimation}         -- §18.4
-%   \Cref{sec:closing-the-book}               -- §18.6 (forward)
-%
-% §18.5 walks through a minimal end-to-end toy encrypted-search
-% system, in six items: (1) construction walkthrough (per-document
-% Bloom filters, AES-encrypted bit arrays, HMAC tokens, server-side
-% bit-vector matching); (2) setup phase; (3) query phase; (4) trace
-% through with $\fprate, \fnrate, \pi$ at each stage; (5)
-% confidentiality analysis at production-tuned parameters and a
-% note about retuning for privacy; (6) notebook hook pointing at
-% python/notebooks/ch18-encrypted-search.ipynb.
+% Monograph register: construction walkthrough, setup, query, single-query
+% trace, confidentiality at production parameters, notebook hook.
+% Tightened; numbers verified. Folds salvaged ex-11 as rem:design-language
+% (the framework as a design language: privacy/correctness/storage budgets
+% -> operating point, or infeasibility). Cross-refs def:bloom-filter,
+% def:cipher-map, def:per-document-bloom, sec:confidentiality-measures,
+% sec:adversarial-estimation, ch:perfect-hash-filters, sec:closing-the-book.
+% DEFINED: sec:toy-system, rem:design-language.
 
 \section{A Toy Encrypted Search System}
 \label{sec:toy-system}
 
-The preceding sections have given the cipher-map framing
-(\S\ref{sec:encrypted-search-problem}), the two Bloom-filter
-constructions (\S\ref{sec:bloom-based}), the confidentiality
-analysis at fixed workload (\S\ref{sec:confidentiality-measures}),
-and the estimation problem under adversarial queries
-(\S\ref{sec:adversarial-estimation}). This section turns the
-framing into running code in the smallest form that exhibits every
-piece of the framework: a single-client, single-server,
-per-document Bloom system with a standard symmetric cipher for the
-encrypted index and a keyed cryptographic function for the query
-tokens. The companion notebook materializes the construction; the
-prose here gives the structure the notebook fills in.
+This section turns the framing into the smallest running form that
+exhibits every piece of the framework: a single-client, single-server,
+per-document Bloom system with a symmetric cipher for the index and a
+keyed function for the query tokens. It is deliberately minimal, handling
+no multi-user key management, no index rotation, and no side-channel
+defense beyond the primitives' standard guarantees; what it does is show
+the cipher-map abstraction in operational form, the client encrypting
+something, the server operating on the ciphertext to return an approximate
+answer, and the framework pricing the recovery-leakage trade-off at every
+stage. The companion notebook materializes it; the prose gives the
+structure the notebook fills.
 
-The system is deliberately minimal. It does not handle multi-user
-key management, it does not implement index rotation, it does not
-defend against side-channel attacks beyond the cryptographic
-primitives' standard guarantees, and it does not optimize for
-performance. What it does is exhibit the cipher-map abstraction in
-operational form: the client encrypts something, the server
-operates on the ciphertext to return an approximate answer, and
-the framework prices the resulting trade-off between recovery and
-leakage at every stage.
+\subsection*{Construction, setup, and query}
 
-\subsection*{Construction walkthrough}
+Three cryptographic ingredients suffice: a keyed function
+$\mathrm{HMAC}_k$ producing a query token $\tau_w = \mathrm{HMAC}_k(w)$,
+deterministic in $w$ and pseudorandom to anyone without $k$; a symmetric
+authenticated encryption (AES-based) for the bit arrays; and the Bloom
+filter of \Cref{def:bloom-filter} as the per-document structure. Each
+document's keyword set becomes a filter $B_i$, encrypted as
+$\mathsf{Enc}(B_i)$ and uploaded with its identifier; the client keeps both
+keys, the server keeps the encrypted store, and neither party holds both
+the plaintext keywords and the bits they hash to. The match operation is
+the cipher map: to test whether $\tau_w$ corresponds to a keyword in
+$d_i$, the server checks whether the bit positions $\tau_w$ addresses are
+all set in the recovered filter, reporting $\top$ (``$d_i$ may contain the
+keyword'') or $\bot$ (``$d_i$ definitely does not,'' by $\fnrate = 0$).
+The simplest variant decrypts the filter server-side, a security
+regression that production variants avoid with bilinear pairings or
+one-time-pad-keyed arrays at extra cost; for the toy system the
+simplification is acceptable.
 
-The system has three cryptographic ingredients. The first is a
-keyed cryptographic function $\mathrm{HMAC}_k$ that takes a secret
-key $k$ (held only by the client) and a keyword $w$ and produces a
-fixed-size query token $\tau_w = \mathrm{HMAC}_k(w)$. The function
-is deterministic in $w$ (the same keyword always produces the
-same token) and pseudorandom in $w$ from the perspective of any
-party that does not hold $k$. The second is a symmetric encryption
-scheme (a standard AES-based authenticated encryption, with a key
-also held only by the client) that takes a plaintext bit array and
-produces a ciphertext blob the server can store but cannot read.
-The third is the Bloom filter of \Cref{def:bloom-filter}, used as
-the underlying approximate-set structure on each document.
-
-The data structures are equally minimal. Each document $d_i$ is
-represented by its keyword set; the client converts the keyword
-set into a Bloom filter $B_i$, encrypts the filter as
-$\mathsf{Enc}(B_i)$, and uploads $(i, \mathsf{Enc}(B_i))$ to the
-server. The server's storage is a dictionary keyed by document ID
-and valued by encrypted filter. The client retains the encryption
-key and the HMAC key; the server retains the encrypted filter
-store; neither party has both the plaintext keywords and the bit
-patterns they hash to.
-
-The match operation is the cipher map. To test whether token
-$\tau_w$ corresponds to a keyword that was inserted into document
-$d_i$, the server reads $\mathsf{Enc}(B_i)$ off disk, decrypts the
-filter under the client's key (in the simplest variant; more
-sophisticated variants keep the filter encrypted throughout), and
-checks whether the bit positions corresponding to $\tau_w$ are all
-set in the recovered $B_i$. If yes, the server reports $\top$
-(``document $i$ may contain the keyword underlying $\tau_w$''); if
-no, the server reports $\bot$ (``document $i$ definitely does not
-contain that keyword,'' because Bloom filters have no false
-negatives). The simplest variant requires giving the server the
-encryption key, which is a security regression; the production
-variants use bilinear pairings or one-time-pad-keyed bit arrays to
-avoid this, at additional cryptographic cost. For the toy system,
-the simplification is acceptable because the goal is to expose the
-cipher-map abstraction, not to optimize key management.
-
-\subsection*{Setup phase}
-
-The setup phase runs once per corpus, on the client. The client
-holds the plaintext documents $\{d_1, \ldots, d_n\}$, the
-encryption key $K_{\mathrm{enc}}$, and the HMAC key $K_{\mathrm{tok}}$.
-For each document, the client extracts the keyword set, computes a
-Bloom filter at the target $\fprate$ (the chapter~5 formula
-$m \approx 1.44 \cdot W_d \cdot \log_2(1/\fprate)$ gives the
-required filter size), encrypts the filter, and uploads the
-encrypted blob to the server with the document's identifier. The
-upload is a single round-trip per document; the total bandwidth is
-$n \cdot m / 8$ bytes (filter size times document count).
-
-After setup, the server holds the encrypted index but cannot read
-any plaintext keyword, and the client holds the two keys but no
-copy of the encrypted index. The corpus is in deployment.
-
-\subsection*{Query phase}
-
-A query is a three-step protocol. The client computes the query
-token $\tau_w = \mathrm{HMAC}_{K_{\mathrm{tok}}}(w)$ locally and
-sends $\tau_w$ to the server. The server runs the match operation
-against every encrypted filter in the store and assembles the set
-of document IDs for which the match succeeded. The server returns
-the matched ID set to the client; the client verifies the
-candidates (typically by a second-pass decryption of the matched
-documents' contents, which is outside the encrypted-search layer)
-and discards the false-positive matches. The protocol completes in
-two round-trips: one for the token, one for the matched IDs.
-
-The server never sees the plaintext keyword $w$ (the HMAC hides
-it), never sees the plaintext keyword set of any document (the
-Bloom filter hides them up to false positives), and never sees the
-client's verification step (it is entirely client-side). What the
-server sees is a sequence of query tokens, a sequence of match
-decisions, and the bare fact of which documents matched which
-tokens. The information flow from the query phase is exactly the
-cipher-map output stream the chapter~17 framework predicted, and
-the chapter~7 PPV analysis prices it.
+Setup runs once per corpus on the client: for each document, extract the
+keyword set, build a filter at the target $\fprate$ (the chapter 5 size
+$m \approx 1.44\,W_d \log_2(1/\fprate)$), encrypt, upload. A query is a
+two-round-trip protocol: the client computes $\tau_w$ locally and sends
+it, the server matches it against every encrypted filter and returns the
+matched identifiers, and the client verifies the candidates (by a
+second-pass decryption outside the encrypted-search layer) and discards
+the false positives. The server never sees the plaintext keyword (the
+HMAC hides it), the plaintext keyword set (the filter hides it up to false
+positives), or the verification step (entirely client-side). What it sees
+is the cipher-map output stream chapter 17 predicted, which the chapter 7
+PPV prices.
 
 \subsection*{Trace through a single query}
 
-Take a query for the keyword \texttt{alice} against a corpus of
-$|D| = 1000$ documents, with per-document Bloom filters at
-$\fprate = 0.01$ and the framework's $\fnrate = 0$. Suppose the
-true match set is $\{17, 209, 832\}$, three documents containing
-the queried keyword. The trace proceeds as follows.
-
-\begin{enumerate}
-\item Client side. The client computes $\tau_{\mathrm{alice}} =
-  \mathrm{HMAC}_{K_{\mathrm{tok}}}(\mathtt{alice})$, a fixed-size
-  pseudorandom bit string. The framework's $\fprate$ and
-  $\fnrate$ enter through the filter parameters built into the
-  encrypted filters during setup; they do not affect the token
-  computation itself. The framework's $\pi$ is fixed by the
-  corpus and the query: in this case $\pi = 3/1000 = 0.003$,
-  three of the thousand documents truly contain \texttt{alice}.
-
-\item Server side. The server tests $\tau_{\mathrm{alice}}$
-  against each of the 1000 encrypted filters. The three true
-  matches return $\top$ unconditionally (the Bloom filter
-  $\fnrate = 0$ guarantees this). The remaining 997 non-matches
-  return $\top$ with probability $\fprate = 0.01$; the expected
-  number of false-positive matches is $997 \cdot 0.01 \approx
-  9.97$. The server's reported match set has expected size
-  $3 + 9.97 \approx 13$ documents.
-
-\item Return path. The server returns the matched ID set (about
-  13 IDs on average) to the client. The client decrypts the
-  matched documents (or queries a higher-tier verification
-  service), confirms the three true matches, and discards the
-  remaining ten as false positives. The framework's $\PPV$ for
-  this query is
-  \[
-    \PPV
-    \;=\; \frac{0.003}{0.003 + 0.997 \cdot 0.01}
-    \;\approx\; \frac{0.003}{0.01297}
-    \;\approx\; 0.231,
-  \]
-  so $C = 1 - \PPV \approx 0.769$. The system's matches at this
-  $\pi$ and this $\fprate$ are dominated by false positives,
-  and the confidentiality margin is correspondingly large.
-\end{enumerate}
-
-The trace exhibits every framework parameter. The $\fprate$ is
-the per-document false-positive rate of the Bloom filter; the
-$\fnrate = 0$ is the structural property the construction
-inherits; the $\pi$ is the workload prevalence of the queried
-keyword; the resulting $\PPV$ and $C$ price the trade-off. The
-framework predicted these quantities before the trace ran, and
-the trace exhibits them in operational form.
-
-\subsection*{Confidentiality analysis at production-tuned
-parameters}
-
-The toy system as built is tuned for correctness, not for
-privacy. A more representative production trace uses a higher
-workload prevalence (the encrypted-search literature typically
-analyzes deployments where the queried keywords are
-\emph{interesting} keywords, not arbitrary vocabulary items).
-At $\fprate = 0.01$ and $\pi = 0.1$ (one queried keyword in ten
-truly matches the queried document) with 10 keywords per
-document, the system has
+Query \texttt{alice} against $|D| = 1000$ documents at $\fprate = 0.01$,
+$\fnrate = 0$, with true match set $\{17, 209, 832\}$. The client computes
+$\tau_{\mathrm{alice}}$, a fixed-size pseudorandom string; the rates enter
+through the filter parameters fixed at setup, and the prevalence is $\pi =
+3/1000 = 0.003$. The server tests the token against all 1000 filters: the
+three true matches return $\top$ unconditionally ($\fnrate = 0$), and the
+997 non-matches return $\top$ at rate $0.01$, an expected $9.97$ false
+positives, for a reported set of about $13$. The client decrypts the
+candidates, confirms the three, and discards the rest. The query's PPV is
 \[
-  \PPV
-  \;=\; \frac{0.1}{0.1 + 0.9 \cdot 0.01}
-  \;\approx\; 0.917,
+  \PPV = \frac{0.003}{0.003 + 0.997 \cdot 0.01} \approx \frac{0.003}{0.01297}
+  \approx 0.231, \qquad C \approx 0.769,
 \]
-which puts $C \approx 0.083$. A server compromise at this
-operating point exposes most of the plaintext: an adversary
-reading match decisions infers the underlying keyword with
-about a $92\%$ posterior probability. The toy system is not
-privacy-tuned, and a deployment with serious privacy
-requirements has to retune $\fprate$ upward to push the
-operating point further onto the confidentiality side of the
-trade-off.
+the matches dominated by false positives and the confidentiality margin
+correspondingly large. The trace exhibits every framework parameter in
+operational form, each predicted before the trace ran.
 
-The retuning is mechanical. Solving the chapter~7 PPV equation
-for $\fprate^*$ at the target $C$ gives $\fprate^* = \pi C /
-[(1 - \pi)(1 - C)]$. For a target $C = 0.5$ at $\pi = 0.1$,
-the required $\fprate^*$ is
-\[
-  \fprate^*
-  \;=\; \frac{0.1 \cdot 0.5}{0.9 \cdot 0.5}
-  \;=\; \frac{0.05}{0.45}
-  \;\approx\; 0.111.
-\]
-The system has to allow about an $11\%$ per-document false
-positive rate to achieve fifty-fifty leakage. The filter size
-shrinks correspondingly (chapter~5's
-$m \approx 1.44 \cdot W_d \cdot \log_2(1/\fprate)$ formula
-gives $m \approx 1.44 \cdot 10 \cdot 3.17 \approx 46$ bits per
-filter, against the $\fprate = 0.01$ value of $m \approx 96$
-bits), and the client's post-filtering load grows
-correspondingly. The framework's space-accuracy-confidentiality
-triangle (chapter~8 set the entropy floor, chapter~17 priced
-the confidentiality) tells the designer that no choice escapes
-the trade-off; the only design freedom is which corner of the
-triangle to live in.
+\subsection*{Tuning for privacy}
+
+The toy system as built is correctness-tuned. A production trace at a
+higher prevalence $\pi = 0.1$ (queried keywords are \emph{interesting}
+keywords) with $\fprate = 0.01$ gives $\PPV \approx 0.917$, $C \approx
+0.083$: a server compromise exposes most of the plaintext, an adversary
+inferring the keyword at a $92\%$ posterior. Retuning is mechanical:
+solving the chapter 7 PPV equation, $\fprate^* = \pi C / [(1 - \pi)(1 -
+C)]$, a target $C = 0.5$ at $\pi = 0.1$ needs $\fprate^* = 0.05/0.45
+\approx 0.111$. The filter shrinks correspondingly, $m \approx 1.44 \cdot
+10 \cdot \log_2(9) \approx 46$ bits against $96$ at $\fprate = 0.01$, and
+the client's post-filtering load grows. No choice escapes the trade-off;
+the only design freedom is which corner of the space-accuracy-confidentiality
+space to occupy.
+
+\begin{remark}[The framework as a design language]
+\label{rem:design-language}
+The three budgets of an encrypted-search deployment each have a price the
+framework reads off a different chapter. A \emph{privacy} budget, a target
+confidentiality $C^*$, fixes the false-positive rate through the chapter 7
+posterior, $\fprate \ge \pi C^* / [(1 - \pi)(1 - C^*)]$. A \emph{correctness}
+budget, a cap $B$ on expected false positives per query over a corpus of
+$|D|$ documents, fixes it from the other side, $\fprate \le B/|D|$. A
+\emph{storage} budget caps the bits through the chapter 5 and chapter 8
+space law, $1.44\,|D|\,W_d \log_2(1/\fprate) \le S$, a lower bound on
+$\fprate$. The three constraints carve a feasible interval for $\fprate$
+at a given $\pi$, and the design rule reads the operating point off it, or
+reports that no feasible point exists when the privacy floor exceeds the
+correctness ceiling, as happens when a high $C^*$ is demanded at a high
+prevalence (the $\fprate^* = 1$ degeneracy of \Cref{sec:confidentiality-measures}).
+The same triangle priced chapters 6, 7, 8, 14, and 17; the encrypted-search
+designer solves it as one system of inequalities.
+\end{remark}
 
 \subsection*{Notebook hook}
 
-The companion notebook for this chapter,
-\texttt{python/notebooks/ch18-encrypted-search.ipynb}, implements
-the toy system end-to-end. The notebook builds the per-document
-Bloom filters, encrypts them with a standard library AES
-primitive, computes HMAC-based query tokens, runs the server-side
-match, and verifies the recovered match sets against the ground
-truth. Plots compare the empirical $\PPV$ and confidentiality
-across $\fprate$ values from $0.001$ to $0.5$, exhibiting the
-chapter's trade-off curve as a measured quantity rather than a
-theoretical prediction. The notebook also runs the
-\Cref{sec:adversarial-estimation} comparison between iid Chernoff
-and MAB UCB confidence intervals on a synthetic adversarial query
-trace, exhibiting the two-orders-of-magnitude gap the worked
-example predicted.
-
-The notebook is intended as a starting point, not as a production
-artifact. Readers interested in deploying an encrypted-search
-system should consult the production-grade implementations in
-the SSE literature and the underlying cryptographic primitives'
-formal security definitions; the notebook here exhibits the
-Bernoulli framework on the construction without engaging the
-full cryptographic-engineering surface.
+The companion notebook,
+\texttt{python/notebooks/ch18-encrypted-search.ipynb}, implements the toy
+system end-to-end: per-document filters, AES-encrypted bit arrays,
+HMAC-based tokens, server-side matching, and verification against ground
+truth. It plots empirical PPV and confidentiality across $\fprate$ from
+$0.001$ to $0.5$, exhibiting the trade-off curve as a measured quantity,
+and runs the \Cref{sec:adversarial-estimation} comparison between iid
+Chernoff and MAB UCB intervals on a synthetic adversarial trace,
+reproducing the two-orders-of-magnitude gap. It is a starting point, not a
+production artifact; a real deployment should consult the SSE literature
+and the primitives' formal security definitions, which the notebook does
+not engage.
