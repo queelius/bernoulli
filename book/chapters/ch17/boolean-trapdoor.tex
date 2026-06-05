@@ -1,298 +1,174 @@
 % §17.5 Boolean Algebra Over Trapdoor Sets
 %
-% Cross-reference resolution status:
+% Monograph register: trapdoor sets (def:trapdoor-set), Boolean ops,
+% composition rates, cancellation off the perfect-filter line, worked
+% conjunctive query.
 %
-% DEFINED here:
-%   \label{sec:boolean-trapdoor}              -- this section
-%   \label{def:trapdoor-set}                  -- trapdoor set definition
+% FIX (the recurring intersection-FPR bug, same as ch6/ch12): the draft
+% claimed the conjunction (A cap B) FPR is the bare product eps_A*eps_B
+% "because a false positive needs both tests to false-positive." That is
+% only the both-negative region. For a query in A\B (which is NOT in
+% A cap B) filter A correctly says yes and filter B false-positives at
+% eps_B, so the intersection FPR is the ch6 three-region weighted sum
+% (prop:intersection-fpr-fnr, eq:intersection-fpr); eps_A*eps_B is the
+% sparse/both-negative limit. The cancellation subsection had the same
+% error (claimed the cross-axis intersection sits at eps=0 on the
+% FPR-zero axis; in fact it lands in the interior with both rates
+% positive). Corrected throughout. Also: PARALLEL Boolean combinations
+% use ch6 set-composition, not thm:cipher-composition (which is for
+% SEQUENTIAL chains); the draft conflated them.
 %
-% ALREADY DEFINED (chapter 3):
-%   \Cref{thm:composition}                    -- chapter 3 §3.3 composition theorem
-%
-% ALREADY DEFINED (chapter 5):
-%   \Cref{sec:bloom-from-scratch}             -- chapter 5 §5.2 Bloom filter
-%
-% ALREADY DEFINED (chapter 6):
-%   \Cref{sec:cancellation}                   -- chapter 6 §6.3 cancellation analysis
-%   \Cref{def:perfect-filter-line}            -- chapter 6 §6.4 definition
-%   \Cref{prop:complement-axis-swap}          -- chapter 6 §6.3 complement axis swap
-%
-% INTERNAL refs (chapter 17):
-%   \Cref{def:cipher-map}                     -- §17.1
-%   \Cref{sec:trapdoor-paradigm}              -- §17.3
-%   \Cref{thm:cipher-composition}             -- §17.2
-%
-% §17.5 introduces Boolean algebra over trapdoor sets. Five items:
-% (1) trapdoor sets: encrypted set representations needing key for
-% membership; Bloom is example; (2) Boolean ops (union, intersection,
-% complement) on trapdoor representations; (3) composition theorem
-% (chapter 3) applies to trapdoor-set composition; (4) cancellation
-% (chapter 6 §6.3) lets trapdoor composition escape perfect-filter
-% line; (5) worked example: query x in A AND x in B on two trapdoor
-% sets, derive overall fprate.
+% Cross-refs thm:composition, sec:bloom-from-scratch, sec:cancellation,
+% def:perfect-filter-line, prop:complement-axis-swap, prop:intersection-fpr-fnr,
+% eq:intersection-fpr, def:cipher-map, sec:trapdoor-paradigm,
+% thm:cipher-composition. DEFINED: sec:boolean-trapdoor, def:trapdoor-set.
 
 \section{Boolean Algebra Over Trapdoor Sets}
 \label{sec:boolean-trapdoor}
 
-The trapdoor cipher maps of \Cref{sec:trapdoor-paradigm} are
-useful in isolation: a single encrypted Bloom filter answers
-membership queries with controlled error. They become more useful
-when several are combined. A common request in encrypted-search
-applications is the conjunctive query: \emph{is $x$ in $A$ AND in
-$B$?}, asked of two trapdoor sets held on the same server. The
-answer requires Boolean reasoning over encrypted representations,
-not over plaintext sets. This section asks how Boolean algebra
-behaves when its operands are trapdoor sets, and finds that the
-framework's composition rules continue to apply, with the same
-geometric subtleties that chapter 6 raised for plaintext approximate
-sets.
+The trapdoor cipher maps of \Cref{sec:trapdoor-paradigm} are useful in
+isolation and more useful combined. A common request in encrypted search
+is the conjunctive query, \emph{is $x$ in $A$ and in $B$?}, asked of two
+trapdoor sets on the same server. The answer requires Boolean reasoning
+over encrypted representations, and this section asks how Boolean algebra
+behaves when its operands are trapdoor sets. The framework's
+set-composition rules carry over, with the same three-region subtlety
+chapter 6 raised for plaintext approximate sets.
 
 \subsection*{Trapdoor sets}
 
-A trapdoor set is an encrypted representation of a plaintext set
-whose membership query requires a secret key.
-
 \begin{definition}[Trapdoor set]
 \label{def:trapdoor-set}
-Let $A \subseteq X$ be a plaintext set and let $k$ be a secret key.
-A \emph{trapdoor set} for $A$ under $k$, denoted $\tilde A$, is an
-encrypted data structure together with an associated membership
-cipher map
-\[
-  \tilde m_A : \mathsf{Enc}_k(X) \to \mathsf{Enc}_k(\{0, 1\})
-\]
-such that, for $x \in X$, $\mathsf{Dec}_k(\tilde m_A(\mathsf{Enc}_k(x))) =
-\mathbf{1}[x \in A]$ with bounded error rates $\fprate_A, \fnrate_A$ in
-the sense of \Cref{def:cipher-map}. Without the key $k$, the
-membership query is computationally infeasible; with the key, it is
-as cheap as a plaintext set lookup.
+Let $A \subseteq X$ be a plaintext set and $k$ a secret key. A
+\emph{trapdoor set} for $A$ under $k$, written $\tilde A$, is an
+encrypted data structure with a membership cipher map $\tilde m_A :
+\mathsf{Enc}_k(X) \to \mathsf{Enc}_k(\{0,1\})$ such that
+$\mathsf{Dec}_k(\tilde m_A(\mathsf{Enc}_k(x))) = \mathbf{1}[x \in A]$ with
+bounded rates $\fprate_A, \fnrate_A$ in the sense of
+\Cref{def:cipher-map}. Without $k$ the membership query is
+computationally infeasible; with $k$ it is as cheap as a plaintext
+lookup.
 \end{definition}
 
-The Bloom filter of chapter 5 \Cref{sec:bloom-from-scratch} is the
-canonical example. A server holds an encrypted bit array
-representing the Bloom filter's state, plus encrypted hash family
-parameters that depend on the key. The client encrypts a query
-element under the key, sends the ciphertext to the server, and the
-server returns the encrypted membership bit. The cipher map has
-$\fprate_A = (1 - e^{-kn/m})^k$ (the standard Bloom-filter formula
-with $k$ hash functions, $n$ inserted elements, and $m$ bits), and
-$\fnrate_A = 0$ from the one-sided error of the construction. The
-trapdoor set sits at the point $(\fprate_A, 0)$ on the perfect-filter
-line of \Cref{def:perfect-filter-line}.
+The Bloom filter of \Cref{sec:bloom-from-scratch} is canonical: the
+server holds an encrypted bit array plus key-dependent hash parameters,
+the client sends an encrypted query, the server returns the encrypted
+membership bit. The map has $\fprate_A = (1 - e^{-kn/m})^k$ and $\fnrate_A
+= 0$, so $\tilde A$ sits at $(\fprate_A, 0)$ on the perfect-filter line of
+\Cref{def:perfect-filter-line}. A perfect-hash-filter trapdoor set
+(chapter 15) sits at $(2^{-r}, 0)$; a counting variant trades a small
+$\fnrate_A$ for deletions. What they share is the structure of
+\Cref{def:trapdoor-set}: encrypted representation, key-dependent query,
+bounded Bernoulli error.
 
-Other trapdoor-set constructions sit at different points on the
-rate plane. A perfect-hash-filter trapdoor set (chapter 15) sits
-at $(2^{-r}, 0)$ for an $r$-bit fingerprint. A counting trapdoor
-set built on the same hash family can support deletions at the
-cost of a small $\fnrate_A$. The space of constructions is large;
-what they share is the structural property of \Cref{def:trapdoor-set}:
-encrypted representation, key-dependent membership query, bounded
-Bernoulli error.
+\subsection*{Boolean operations and their rates}
 
-\subsection*{Boolean operations on trapdoor sets}
+The three primitive operations lift to the trapdoor setting, the server
+computing on encrypted representations. \emph{Union} returns the
+encrypted OR of the two membership bits (a bitwise OR of the arrays when
+the scheme is additively homomorphic over bits); \emph{intersection} the
+encrypted AND (run both queries, combine with a homomorphic AND, since
+the bitwise AND of two Bloom arrays is not the filter of the
+intersection); \emph{complement} the flipped bit, which by
+\Cref{prop:complement-axis-swap} moves the result to the opposite axis.
 
-The three primitive Boolean operations on sets are union $A \cup B$,
-intersection $A \cap B$, and complement $\complement A$.
-Each lifts to the trapdoor setting, but the lift requires the server
-to compute on encrypted representations rather than plaintext.
-
-\textbf{Union.} A trapdoor set $\tilde{A \cup B}$ realizes the
-plaintext union $A \cup B$ in the sense that
-\[
-  \mathsf{Dec}_k(\tilde m_{A \cup B}(\mathsf{Enc}_k(x))) =
-  \mathbf{1}[x \in A \cup B] \;=\; \mathbf{1}[x \in A] \lor \mathbf{1}[x \in B],
-\]
-up to Bernoulli error. For Bloom-filter trapdoor sets the union can
-be computed by a bitwise OR of the encrypted bit arrays, provided
-the encryption scheme is additively homomorphic over the bits. The
-server returns the encrypted bit obtained by querying both arrays
-and OR-ing the results, and the client decrypts to read the union
-membership.
-
-\textbf{Intersection.} The intersection $\tilde{A \cap B}$ is the
-analogous lift of $A \cap B$. The server queries both trapdoor sets
-and AND-s the encrypted membership bits, returning an encrypted
-result that decrypts to $\mathbf{1}[x \in A] \land \mathbf{1}[x \in B]$.
-Unlike union, intersection on Bloom-filter trapdoor sets cannot
-generally be computed by a bitwise operation on the underlying
-arrays (the bitwise AND of two Bloom-filter arrays is not the Bloom
-filter of the intersection, a well-known pitfall in the cleartext
-case). Instead the server runs both membership queries separately
-and combines the encrypted output bits with a homomorphic AND.
-
-\textbf{Complement.} The complement $\tilde{\complement A}$ is
-computed by complementing the encrypted membership bit:
-$\mathsf{Dec}_k(\tilde m_{\complement A}(\mathsf{Enc}_k(x))) =
-1 - \mathbf{1}[x \in A]$ up to Bernoulli error. The server flips
-the returned bit (or runs the cipher map in complement mode). The
-operation is cheap; what changes, as \Cref{prop:complement-axis-swap}
-warned, is the position of the result on the perfect-filter line.
-
-These three primitives suffice to build any finite Boolean
-combination by composition. The interesting questions concern how
-the operations' error rates compose, and how confidentiality
-propagates when the server has access to the operations' encrypted
-outputs.
-
-\subsection*{The composition theorem applies}
-
-The error rates of a Boolean combination of trapdoor sets are the
-error rates of the corresponding plaintext Boolean operation,
-computed by the framework's composition theorem.
-\Cref{thm:composition} stated the rule for plaintext approximate
-sets: when an operation combines $k$ approximate operands whose
-error events are mutually independent under Axiom 1, the resulting
-overall error rate satisfies
-\[
-  \eta_{\text{total}} \;=\; 1 - \prod_{i=1}^{k} (1 - \eta_i),
-\]
-applied separately to the FPR and FNR channels.
-
-The same formula applies to trapdoor-set composition without
-modification. Two trapdoor sets $\tilde A, \tilde B$ with per-set
-rates $(\fprate_A, 0)$ and $(\fprate_B, 0)$, combined under union,
-yield a trapdoor set $\tilde{A \cup B}$ with rates
+These are \emph{parallel} combinations of two membership tests on one
+query, not the \emph{sequential} chains \Cref{thm:cipher-composition}
+governs, so their rates are the set-composition rates of chapter 6 rather
+than a channel-matrix product. For two FNR-zero trapdoor sets under
+union, a query outside $A \cup B$ is outside both, a single region, so
 \[
   \fprate_{A \cup B} \;=\; 1 - (1 - \fprate_A)(1 - \fprate_B),
   \qquad
-  \fnrate_{A \cup B} \;=\; 0.
+  \fnrate_{A \cup B} \;=\; 0,
 \]
-Combined under intersection the rates are
+the chapter 3 monotone formula (\Cref{thm:composition}). Intersection is
+subtler. A query outside $A \cap B$ falls into one of three regions, $A
+\setminus B$, $B \setminus A$, or outside $A \cup B$, and the false
+positive arises differently in each: in $A \setminus B$ the $A$-test is
+correct and only the $B$-test must err (rate $\fprate_B$), in $B \setminus
+A$ only the $A$-test (rate $\fprate_A$), and only outside $A \cup B$ must
+both err (rate $\fprate_A \fprate_B$). By \Cref{prop:intersection-fpr-fnr}
+the rate is the partition-weighted sum \eqref{eq:intersection-fpr},
 \[
-  \fprate_{A \cap B} \;=\; \fprate_A \cdot \fprate_B,
+  \fprate_{A \cap B} \;=\; w_1 \fprate_B + w_2 \fprate_A
+  + w_3 \fprate_A \fprate_B,
   \qquad
   \fnrate_{A \cap B} \;=\; 0,
 \]
-because a query $x \notin A \cap B$ is a false positive only if it
-is a false positive under both component membership tests, which
-happens with probability $\fprate_A \cdot \fprate_B$ under
-independence.
+with $w_1, w_2, w_3$ the masses of the three regions among non-members of
+$A \cap B$. The bare product $\fprate_A \fprate_B$ is the $w_3 \to 1$
+limit, where queries land almost entirely outside $A \cup B$; it is the
+best case, not the general one. The conditional independence behind the
+$w_3$ term is Axiom 1 applied to the two trapdoor sets, automatic when
+their keys are generated independently.
 
-The conditional-independence hypothesis is the chapter 4 Axiom 1
-applied to the trapdoor setting: the two trapdoor sets' cipher
-maps use independent randomness (independent hash family seeds,
-independent encryption noise) and so produce independent false-positive
-events for any given query. This is automatic if the two trapdoor
-keys are generated independently, and is the standard assumption in
-encrypted-search constructions.
-
-The same algebra propagates through deeper compositions. A
-three-way conjunctive query $x \in A \cap B \cap C$ on trapdoor
-sets at rates $\fprate_A, \fprate_B, \fprate_C$ has overall
-$\fprate = \fprate_A \fprate_B \fprate_C$. A $k$-way conjunction
-has $\fprate = \prod_i \fprate_i$, which decays exponentially in
-$k$: deep conjunctive queries are highly precise even when the
-individual trapdoor sets are loose. The framework's composition
-law captures this strengthening exactly, and the trapdoor-set
-geometry inherits it.
+The distinction matters for the conjunctive precision often claimed for
+encrypted search. A $k$-way conjunction reaches $\prod_i \fprate_i$, an
+exponential sharpening, only in the sparse limit where queries miss every
+set; in general the rate is dominated by the largest single-miss region,
+$\max_i \fprate_i$ weighted by the mass of queries inside all sets but
+one. Deep conjunctions are highly precise on a workload of true negatives
+and only modestly precise on a workload of near-misses, and the design
+must know which regime it is in.
 
 \subsection*{Cancellation escapes the perfect-filter line}
 
-The composition formula above kept the operands on the perfect-filter
-line: both unions and intersections of FNR-zero trapdoor sets stayed
-FNR-zero. What chapter 6 \Cref{sec:cancellation} flagged is that
-this clean behavior is not a general property of Boolean composition;
-it depends on the operands sitting on the same axis. As soon as the
-complement enters the picture (or as soon as one operand sits on the
-opposite axis from another), the result can leave the perfect-filter
-line entirely.
-
-The cancellation phenomenon transfers directly to trapdoor sets.
-Consider a trapdoor union $\tilde A \cup \tilde B$ at rates
-$(\fprate_A, 0)$ and $(\fprate_B, 0)$, both on the FNR-zero axis.
-Now take the complement of this union, $\tilde{\complement(A \cup B)}$.
-By \Cref{prop:complement-axis-swap} the complement of an FNR-zero
-trapdoor set is FPR-zero, so $\tilde{\complement(A \cup B)}$ sits
-at the point $(0, \fprate_{A \cup B})$ on the FPR-zero axis. The
-trapdoor system has moved off the original axis.
-
-Compose further. Suppose the server is asked $\tilde{\complement(A
-\cup B)} \cap \tilde C$, where $\tilde C$ is a third trapdoor set
-back on the FNR-zero axis at rates $(\fprate_C, 0)$. The
-intersection now mixes operands from different axes. By the rate
-algebra,
+The composition above kept FNR-zero operands FNR-zero, but that is not a
+general property: as soon as a complement enters, or operands sit on
+opposite axes, the result can leave the perfect-filter line, the
+cancellation phenomenon chapter 6 \Cref{sec:cancellation} flagged. Take a
+trapdoor union $\tilde A \cup \tilde B$ at $(\fprate_{A \cup B}, 0)$ and
+complement it: by \Cref{prop:complement-axis-swap} the complement of an
+FNR-zero set is FPR-zero, so $\tilde{\complement(A \cup B)}$ sits at $(0,
+\fprate_{A \cup B})$. Now intersect with a third FNR-zero set $\tilde C$
+at $(\fprate_C, 0)$. The intersection mixes axes, and the three-region
+rate tells the true story. Its false-negative rate is
 \[
-  \fprate_{\complement(A \cup B) \cap C} \;=\;
-  \fprate_{\complement(A \cup B)} \cdot \fprate_C \;=\; 0,
-\]
-because one operand is FPR-zero. But the FNR is no longer zero,
-because the FPR-zero operand carries a positive $\fnrate$:
-\[
-  \fnrate_{\complement(A \cup B) \cap C} \;=\;
-  1 - (1 - \fprate_{A \cup B})(1 - \fnrate_C)
+  \fnrate_{\complement(A \cup B) \cap C}
+  \;=\; 1 - (1 - \fprate_{A \cup B})(1 - \fnrate_C)
   \;=\; \fprate_{A \cup B},
 \]
-since $\fnrate_C = 0$. The composed trapdoor set has rates
-$(0, \fprate_{A \cup B})$ and now sits on the FPR-zero axis: the
-two complements and the cross-axis intersection have moved the
-result through the rate plane in a manner the perfect-filter-line
-classification cannot describe by a single one-sidedness flag.
-
-More elaborate Boolean combinations can produce trapdoor sets with
-both rates positive, fully off the perfect-filter line. This is
-the same cancellation phenomenon chapter 6 documented for
-plaintext approximate sets, lifted intact to the trapdoor setting.
-The practical implication is that designing trapdoor-set Boolean
-combinations requires the same care as designing plaintext Boolean
-combinations: track the operand axes through the composition, and
-expect the perfect-filter-line classification to dissolve as soon
-as the composition mixes axes.
+since $\fnrate_C = 0$. Its false-positive rate is \emph{not} zero, despite
+one operand being FPR-zero: a query in $\complement(A \cup B) \setminus C$
+(in the first operand's set, outside the second, hence outside the
+intersection) is a false positive whenever the $C$-test errs, at rate
+$\fprate_C$, so by \eqref{eq:intersection-fpr}
+\[
+  \fprate_{\complement(A \cup B) \cap C}
+  \;=\; w_1 (1 - \fprate_{A \cup B}) \fprate_C \;>\; 0.
+\]
+The composed trapdoor set carries \emph{both} a positive false-positive
+rate and a positive false-negative rate: it sits in the interior of the
+Bernoulli square, off the perfect-filter line entirely, not merely on the
+opposite axis. This is the cancellation phenomenon chapter 6 documented,
+lifted intact to the trapdoor setting, and sharper than a naive
+bare-product reading suggests: mixing axes does not just swap one-sidedness
+but dissolves it. Designing trapdoor-set Boolean combinations requires the
+same care as the plaintext case, tracking operand axes and the three
+regions through every composition.
 
 \subsection*{Worked example: conjunctive query}
 
-A concrete example fixes the rate algebra. Take two trapdoor Bloom
-filters $\tilde A$ and $\tilde B$ on plaintext sets $A, B \subseteq
-X$, each configured at $\fprate = 0.01$ with $\fnrate = 0$. The
-client wants to answer the query
+Take two trapdoor Bloom filters $\tilde A, \tilde B$, each at $\fprate =
+0.01$, $\fnrate = 0$, and the query $q(x) = \mathbf{1}[x \in A \cap B]$.
+The client sends $\mathsf{Enc}_k(x)$; the server queries both, combines
+the encrypted bits under a homomorphic AND, and returns the result, which
+the client decrypts. The intersection is FNR-zero (both component queries
+return $1$ on a true positive), and by \eqref{eq:intersection-fpr} the
+false-positive rate is
 \[
-  q(x) \;=\; \mathbf{1}[x \in A] \;\land\; \mathbf{1}[x \in B] \;=\;
-  \mathbf{1}[x \in A \cap B].
+  \fprate_{A \cap B} \;=\; w_1 (0.01) + w_2 (0.01) + w_3 (0.01)^2.
 \]
-The client encrypts $x$ under the shared key, sends $\mathsf{Enc}_k(x)$
-to the server, and asks the server to compute the conjunctive
-membership cipher map.
-
-\textbf{Server computation.} The server queries both trapdoor sets,
-producing encrypted bits $\tilde b_A = \tilde m_A(\mathsf{Enc}_k(x))$
-and $\tilde b_B = \tilde m_B(\mathsf{Enc}_k(x))$. It combines them
-under a homomorphic AND to produce $\tilde b = \tilde b_A \land
-\tilde b_B$, and returns $\tilde b$ to the client. The client
-decrypts: $\mathsf{Dec}_k(\tilde b)$ is a bit in $\{0, 1\}$ which
-approximates $\mathbf{1}[x \in A \cap B]$ up to the composed
-Bernoulli error.
-
-\textbf{Rate analysis.} Apply the composition formula above. The
-intersection of two FNR-zero trapdoor sets has $\fnrate = 0$ (no
-real positive is lost, because both component queries return $1$
-on true positives). The composed FPR is the product:
-\[
-  \fprate_{A \cap B} \;=\; \fprate_A \cdot \fprate_B \;=\; 0.01 \times 0.01
-  \;=\; 10^{-4}.
-\]
-The conjunctive query has $\fprate = 10^{-4}$, two orders of
-magnitude tighter than either component trapdoor set. The client
-receives an answer that is correct on all true positives (because
-$\fnrate = 0$) and rejects all but one in ten thousand false
-positives.
-
-\textbf{Interpretation.} The intersection sharpens precision
-multiplicatively. Each additional trapdoor set in a $k$-way
-conjunction divides the false-positive rate by another factor on
-the order of $\fprate$, and a $k$-way conjunction has $\fprate
-= \fprate^k$ (assuming equal-rate operands and independent
-trapdoors). The framework's composition theorem captures this
-sharpening exactly; the trapdoor setting inherits it without
-qualification.
-
-This is the most useful pattern in encrypted search built from
-trapdoor sets. A query that asks for documents matching all of
-several encrypted keywords becomes a conjunction of trapdoor-set
-memberships, and the conjunction's precision sharpens exponentially
-in the number of keywords. The same composition law that governs
-plaintext Bloom-filter conjunctions governs the trapdoor lift:
-matrix multiplication in the channel-matrix formulation of
-\Cref{thm:cipher-composition}, or equivalently the product
-formula above when the operands are FNR-zero. The next section turns
-to how this rate-algebra story is also a confidentiality-algebra
-story, and asks how much information about the plaintext sets the
-server can recover from the conjunctive query stream.
+On a workload of true negatives ($w_3 \to 1$) this is the product $10^{-4}$,
+two orders of magnitude tighter than either component, the precision
+gain conjunctive encrypted search is built on. On a workload where the
+query is known to lie in one set but tested for the other ($w_1$ or $w_2$
+near $1$, the natural case when $A$ and $B$ are correlated keyword sets),
+the rate is about $0.01$, the single component's rate, and the
+conjunction buys little. The honest design figure is the weighted sum,
+read from the application's query distribution, not the optimistic product
+alone. The same set-composition law that governs plaintext Bloom-filter
+conjunctions governs the trapdoor lift; the next section turns the
+rate-algebra story into a confidentiality-algebra story, asking how much
+the server recovers from the conjunctive query stream.
