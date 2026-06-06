@@ -1,0 +1,42 @@
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+.tox/
+
+# Test / type / lint / coverage caches
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+# (uv.lock is intentionally NOT ignored once we lock deps)
+
+# cffi build artifacts
+_c*.c
+_c*.o
+src/bernoulli/_c/_*.c
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store

@@ -26,8 +26,8 @@ project:
 
 notebook_stack: python-uv
 
-notebook_dir: python/notebooks
-notebook_execute_command: "cd python && uv run jupyter nbconvert --to notebook --execute notebooks/{name}.ipynb --output {name}.ipynb"
+notebook_dir: bernoulli-py/notebooks
+notebook_execute_command: "cd bernoulli-py && uv run jupyter nbconvert --to notebook --execute notebooks/{name}.ipynb --output {name}.ipynb"
 
 # ---------------------------------------------------------------------------
 # Directory layout (paths relative to repo root)
