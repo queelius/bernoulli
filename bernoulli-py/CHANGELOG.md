@@ -32,6 +32,13 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
   controls the non-member value distribution independent of storage frequency
   (the maph CODESPACE_NONMEMBERS result): a value never stored still appears for
   non-members in proportion to its codespace share.
+- Phase 4 (relations): `bernoulli.relations.BernoulliRelation`, a relation as a
+  Bernoulli set of tuples with a relational algebra that is the chapter 6 set
+  algebra lifted to tuples. `select` is a noiseless restriction (rates
+  unchanged); `join` propagates rates by the intersection composition (the bare
+  product `fpr_R * fpr_S` is only the `Partition.sparse()` limit); `project`
+  drives the false-negative rate down by the fiber multiplicity
+  (`fnr ** fiber_size`, averaged over projected tuples).
 
 ### Fixed
 - Composed set rates are clamped to `[0, 1]` to absorb floating-point overshoot
