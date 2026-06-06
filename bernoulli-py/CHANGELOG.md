@@ -5,6 +5,15 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
 
 ## [Unreleased]
 
+### Added
+- Phase 2 (sets), pure-Python core: `bernoulli.sets.composition` (`SetRates`,
+  `Partition`, and union / intersection / complement / difference rate
+  propagation using the book chapter 6 three-region formulas, with the bare
+  product exposed as the `Partition.sparse()` limit) and
+  `bernoulli.sets.entropy_bound` (the `-log2(fpr)` floor, the Bloom `1.44x`
+  overhead, and the BHF model from chapters 8 and 14). Hypothesis property
+  tests cover both.
+
 ### Changed
 - Repository consolidation (Stage 0): this package, formerly at `src/bernoulli/`,
   is now the single Python tree at `bernoulli-py/`. The teaching stub at
