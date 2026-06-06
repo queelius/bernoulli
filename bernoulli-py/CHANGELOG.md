@@ -17,6 +17,13 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
   `BenchResult`) complementing `bernoulli.harness` (which measures rates).
   Reports best-of-N throughput and per-op latency, reusable from notebooks and
   experiments.
+- Phase 3 (maps): `bernoulli.maps.MinimalPerfectHash` (a BBHash minimal perfect
+  hash, about 3 bits/key at gamma=2) and `bernoulli.maps.PerfectFilter`, the
+  book chapter 14 Bernoulli hash function: a perfect hash plus an r-bit
+  fingerprint per slot, giving `fnr = 0` and `fpr = 2^-r` at `mu + r` bits per
+  key. Validated against `entropy_bound` (measured bits/key equals
+  `bhf_bits_per_key` with the measured perfect-hash overhead as `mu`); beats the
+  Bloom filter at tight FPR targets.
 
 ### Fixed
 - Composed set rates are clamped to `[0, 1]` to absorb floating-point overshoot

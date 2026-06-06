@@ -34,20 +34,25 @@ The resulting object is a Bernoulli map ``f_tilde: X -> Y`` with:
 Optionally, a fingerprint layer can be added to give ``contains`` a controllable
 false-positive rate, yielding the "perfect filter" composition.
 
-Phase 3 deliverables (scaffolded here):
+Phase 3 components:
 
-- :class:`PerfectHashFunction`: protocol mirroring maph's
-  ``concepts/perfect_hash_function.hpp``.
-- :class:`ApproximateMap`: protocol mirroring maph's
-  ``concepts/approximate_map.hpp``.
-- ``PrefixCodec``: Huffman-style codec (port from maph's
-  ``codecs/prefix_codec.hpp``).
-- ``RibbonRetrieval``: GF(2) ribbon retrieval (port from maph's
-  ``retrieval/ribbon_retrieval.hpp``).
-- ``EncodedRetrieval``: codec-controlled retrieval composition.
-- ``PerfectFilter``: PHF + fingerprint, the canonical approximate map.
+- :class:`PerfectHashFunction`, :class:`ApproximateMap`: protocols mirroring
+  maph's ``concepts/perfect_hash_function.hpp`` and ``concepts/approximate_map.hpp``.
+- :class:`MinimalPerfectHash`: a BBHash minimal perfect hash (slot assignment).
+- :class:`PerfectFilter`: perfect hash plus per-slot fingerprint, the chapter 14
+  Bernoulli hash function (``fnr = 0``, ``fpr = 2^-r``, ``mu + r`` bits per key).
+- ``PrefixCodec`` (in :mod:`bernoulli.maps.codec`): Huffman-style value codec.
+- ``RibbonRetrieval``, ``EncodedRetrieval`` (forthcoming): GF(2) ribbon retrieval
+  and codec-controlled non-member output.
 """
 
+from bernoulli.maps.perfect_filter import PerfectFilter
+from bernoulli.maps.perfect_hash import MinimalPerfectHash
 from bernoulli.maps.protocol import ApproximateMap, PerfectHashFunction
 
-__all__ = ["ApproximateMap", "PerfectHashFunction"]
+__all__ = [
+    "ApproximateMap",
+    "MinimalPerfectHash",
+    "PerfectFilter",
+    "PerfectHashFunction",
+]
