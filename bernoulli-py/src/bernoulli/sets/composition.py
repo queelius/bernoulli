@@ -48,6 +48,17 @@ from dataclasses import dataclass
 _TOL = 1e-9
 
 
+def _clamp01(x: float) -> float:
+    """Clamp a rate to [0, 1].
+
+    The composed rates are convex combinations of values in [0, 1] and so are
+    mathematically in range, but floating-point rounding can overshoot by a few
+    ulps (e.g. weights that sum to 1.0000000002). Clamping keeps the result a
+    valid :class:`SetRates` without masking any real out-of-range value.
+    """
+    return 0.0 if x < 0.0 else (1.0 if x > 1.0 else x)
+
+
 @dataclass(frozen=True, slots=True)
 class SetRates:
     """The error profile ``(fpr, fnr)`` of an approximate set.
@@ -210,7 +221,7 @@ def union(a: SetRates, b: SetRates, partition: Partition) -> SetRates:
             + w2 * b.fnr * (1.0 - a.fpr)
             + w3 * a.fnr * b.fnr
         )
-    return SetRates(fpr=fpr, fnr=fnr)
+    return SetRates(fpr=_clamp01(fpr), fnr=_clamp01(fnr))
 
 
 def intersection(a: SetRates, b: SetRates, partition: Partition) -> SetRates:
@@ -245,7 +256,7 @@ def intersection(a: SetRates, b: SetRates, partition: Partition) -> SetRates:
             + w2 * a.fpr * (1.0 - b.fnr)
             + w3 * a.fpr * b.fpr
         )
-    return SetRates(fpr=fpr, fnr=fnr)
+    return SetRates(fpr=_clamp01(fpr), fnr=_clamp01(fnr))
 
 
 def difference(a: SetRates, b: SetRates, partition: Partition) -> SetRates:

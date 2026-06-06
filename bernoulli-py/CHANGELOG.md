@@ -13,6 +13,15 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
   `bernoulli.sets.entropy_bound` (the `-log2(fpr)` floor, the Bloom `1.44x`
   overhead, and the BHF model from chapters 8 and 14). Hypothesis property
   tests cover both.
+- `bernoulli.bench`: a timing harness (`benchmark`, `bench_membership`,
+  `BenchResult`) complementing `bernoulli.harness` (which measures rates).
+  Reports best-of-N throughput and per-op latency, reusable from notebooks and
+  experiments.
+
+### Fixed
+- Composed set rates are clamped to `[0, 1]` to absorb floating-point overshoot
+  in the three-region weighted sums (surfaced by a hypothesis property test at
+  operand rates near 1).
 
 ### Changed
 - Repository consolidation (Stage 0): this package, formerly at `src/bernoulli/`,
