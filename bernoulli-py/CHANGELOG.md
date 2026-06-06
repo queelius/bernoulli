@@ -39,6 +39,12 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
   product `fpr_R * fpr_S` is only the `Partition.sparse()` limit); `project`
   drives the false-negative rate down by the fiber multiplicity
   (`fnr ** fiber_size`, averaged over projected tuples).
+- Phase 5 (sketches): `bernoulli.sketches.CountMinSketch` (a one-sided
+  `Bernoulli<int>` frequency estimator: never undercounts, overestimate bounded
+  by `e/width * N` with probability `1 - e**-depth`) and
+  `bernoulli.sketches.MinHash` (a `Bernoulli<float>` Jaccard estimator: per-hash
+  signature minima, element-wise-min union merge), joining the existing
+  `HyperLogLog`.
 
 ### Fixed
 - Composed set rates are clamped to `[0, 1]` to absorb floating-point overshoot
