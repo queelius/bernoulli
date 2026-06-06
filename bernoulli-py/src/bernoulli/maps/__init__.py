@@ -41,18 +41,34 @@ Phase 3 components:
 - :class:`MinimalPerfectHash`: a BBHash minimal perfect hash (slot assignment).
 - :class:`PerfectFilter`: perfect hash plus per-slot fingerprint, the chapter 14
   Bernoulli hash function (``fnr = 0``, ``fpr = 2^-r``, ``mu + r`` bits per key).
-- ``PrefixCodec`` (in :mod:`bernoulli.maps.codec`): Huffman-style value codec.
-- ``RibbonRetrieval``, ``EncodedRetrieval`` (forthcoming): GF(2) ribbon retrieval
-  and codec-controlled non-member output.
+- :class:`DenseCodec`, :class:`PaddedCodec`, :class:`PrefixCodec`,
+  :func:`shannon_entropy`: value-to-bit-pattern codecs (Huffman-style and dense).
+- :class:`GF2Retrieval`: a static ``keys -> r-bit values`` retrieval by GF(2)
+  peeling (the pure-Python core that the ribbon band optimizes for cache).
+- :class:`EncodedRetrieval`: retrieval composed with a codec, so the codec's
+  codespace allocation controls the non-member value distribution.
 """
 
+from bernoulli.maps.codec import (
+    DenseCodec,
+    PaddedCodec,
+    PrefixCodec,
+    shannon_entropy,
+)
 from bernoulli.maps.perfect_filter import PerfectFilter
 from bernoulli.maps.perfect_hash import MinimalPerfectHash
 from bernoulli.maps.protocol import ApproximateMap, PerfectHashFunction
+from bernoulli.maps.retrieval import EncodedRetrieval, GF2Retrieval
 
 __all__ = [
     "ApproximateMap",
+    "DenseCodec",
+    "EncodedRetrieval",
+    "GF2Retrieval",
     "MinimalPerfectHash",
+    "PaddedCodec",
     "PerfectFilter",
     "PerfectHashFunction",
+    "PrefixCodec",
+    "shannon_entropy",
 ]

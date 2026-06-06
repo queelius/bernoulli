@@ -24,6 +24,14 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
   key. Validated against `entropy_bound` (measured bits/key equals
   `bhf_bits_per_key` with the measured perfect-hash overhead as `mu`); beats the
   Bloom filter at tight FPR targets.
+- Phase 3 (maps), retrieval and codecs: surfaced `bernoulli.maps.codec`
+  (`DenseCodec`, `PaddedCodec`, `PrefixCodec`, `shannon_entropy`) through the
+  `bernoulli.maps` namespace, and added `bernoulli.maps.GF2Retrieval` (a static
+  `keys -> r-bit` retrieval by GF(2) peeling) and
+  `bernoulli.maps.EncodedRetrieval` (retrieval composed with a codec). The codec
+  controls the non-member value distribution independent of storage frequency
+  (the maph CODESPACE_NONMEMBERS result): a value never stored still appears for
+  non-members in proportion to its codespace share.
 
 ### Fixed
 - Composed set rates are clamped to `[0, 1]` to absorb floating-point overshoot
