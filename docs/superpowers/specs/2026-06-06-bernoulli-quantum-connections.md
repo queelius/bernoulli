@@ -98,6 +98,15 @@ Before committing the research direction, close two prior-art risks personally (
 
 Also verify the decisive quantum-computing citations in Section 3 directly (the agent findings are leads, not verdicts).
 
+### Verification outcome (2026-06-06)
+
+- **Fine's theorem confirmed exactly** (Fine, PRL 48, 291, 1982): a deterministic hidden-variable model, a factorizable stochastic model, a single joint distribution over all observables returning the experimental probabilities, and the Bell inequalities are mutually equivalent. This is the precise anchor for the ch16 mapping (the latent value asserts the global joint distribution; its failure is contextuality/nonlocality).
+- **Tannu and Qureshi confirmed** (MICRO-52, 2019): state-dependent (asymmetric) readout bias, measurement errors of 8 to 30 percent, exploited for mitigation. Sound motivation citation for asymmetric readout.
+- **Effectus theory and readout error are disjoint literatures.** A combined search returns only matrix-inversion / CTMP mitigation and no effectus content, so the readout-error-rate calculus is not subsumed by effectus theory. The distinction to draw in writing: effectus theory is a categorical foundation in which predicates form effect algebras (Boolean and probabilistic logic as special cases of the quantum case); it models the structure of quantum and probabilistic theory and Bayesian conditioning, not device readout-error rates, and carries no `(epsilon, omega)` propagation.
+- **QPL/EPTCS sweep (title level).** Proceedings located for the 20th to 22nd conferences (2023 to 2025); venue-restricted searches surfaced no compositional readout-error-rate calculus. The venue is categorical foundations (ZX, semantics), orthogonal to device readout-error rates.
+
+Outcome: the gate is substantially closed. The research direction (B) is open as a bounded modeling and forward-analysis contribution, positioned against effectus theory, tensored mitigation, and the classical parity identities. Residual low-risk item: a full table-of-contents scan of QPL from 2020 onward at paper-writing time, since absence of evidence is weaker than presence.
+
 ## 7. Risks and honest scoping
 
 - The single-bit asymmetric-channel primitive is not original; the algebra over it is the claim.
