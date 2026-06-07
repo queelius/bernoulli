@@ -9,7 +9,8 @@
 % def:model-order. Cross-refs def:bsc, def:asymmetric-channel, sec:model-order,
 % def:model-order, sec:miller-rabin, ax:element-indep, ax:block-rates-indep,
 % sec:bloom-from-scratch, def:bernoulli-bool, cor:parameter-reduction,
-% sec:atom-to-function, sec:n-ary-kronecker, sec:n-ary-capacity. DEFINED:
+% sec:atom-to-function, sec:n-ary-kronecker, sec:n-ary-capacity,
+% sec:quantum-contextuality. Cites nielsen-chuang-2010. DEFINED:
 % sec:n-ary-channels, def:n-ary-channel.
 
 \section{N-ary Channels}
@@ -101,6 +102,24 @@ count $n$ and an infinite channel matrix whose row $n$ is a distribution on
 $\mathbb{N}$ concentrated near $n$. CountMin gives a one-sided tail (it
 over-counts but never under-counts), HyperLogLog a relative-error tail;
 chapter~10 builds the constructions.
+
+\paragraph{A physical instance: quantum readout.}
+The n-ary channel has a direct physical realization in quantum computing.
+Measuring $n$ qubits in the computational basis is a channel whose
+$2^n \times 2^n$ row-stochastic matrix $Q_{ij} = \Prob{\text{observed
+bitstring } j \Given \text{prepared classical state } i}$ is the
+\emph{assignment matrix} that readout-error mitigation calibrates and inverts
+\parencite{nielsen-chuang-2010}. When per-qubit readout errors are
+independent, $Q$ factors as a Kronecker product of $2 \times 2$ single-qubit
+matrices, the n-ary Kronecker factorization of \Cref{sec:n-ary-kronecker}, and
+each single-qubit matrix is asymmetric in practice (energy relaxation makes
+$|1\rangle \to |0\rangle$ misreads likelier than the reverse), the
+Z-channel-skewed asymmetric channel above. The correspondence is exact only on
+the diagonal: $Q$ presupposes a definite prepared state, which a pre-measurement
+superposition lacks, and the channel omits the interference such a state
+carries. The Bernoulli channel is in this sense the classical, decohered shadow
+of a quantum measurement; \Cref{sec:quantum-contextuality} marks where the
+shadow stops being faithful.
 
 \subsection*{Axiom transfer and parameter count}
 
