@@ -1,97 +1,128 @@
-# CLAUDE.md — rd_ph_filter (Perfect Hash Filter)
+# CLAUDE.md: bernoulli-phf (The Perfect Hash Filter)
 
 ## Paper Overview
 
 **Title**: The Perfect Hash Filter
-**Author**: Alexander Towell
-**Status**: Draft, actively maintained
+**Subtitle**: An efficient implementation of the positive Bernoulli set and Bernoulli map abstract data types
+**Author**: Alexander Towell (atowell@siue.edu)
+**Status**: Draft, complete in its core theory; builds clean at 37 pages.
 
-The Perfect Hash Filter (PHF) is a practical data structure implementing the **positive Bernoulli set** abstract data type from the `bernoulli_sets/` paper. It is an alternative to the Bloom filter with different space/time trade-offs.
+The Perfect Hash Filter (PHF) places each member of a static set at a unique
+slot via a minimal perfect hash and stores a short fingerprint there. This
+minimal-perfect-hash-plus-fingerprint structure is the well-known static
+approximate-membership-query (AMQ) construction shared by Bloomier, xor, ribbon,
+and cuckoo filters; **the base structure is not new**. The paper's contribution
+is its treatment within Bernoulli type theory: realizing the PHF as a faithful
+implementation of the positive Bernoulli set ADT, deriving a tunable false
+negative rate via $k$-perfect hashing, lifting it to a key-value map (the Perfect
+Map Filter), and tying its space to the information-theoretic bound.
 
-## Key Conceptual Distinction
+## Salvage history (read before editing)
 
-**Model order vs. parameter count**: The PHF satisfies the Bernoulli axioms, so its error behaviour is fully characterized by its FPR (and FNR in the k-perfect case). Composing PHF instances with other Bernoulli sets yields higher-order models, but element-wise independence constrains the joint confusion matrix to factor as a Kronecker product, keeping parameters linear. See `bernoulli_sets/` Remark on parametric parsimony.
+This paper was salvaged in phases. Phases A through C are done and committed:
 
-## Relationship to Bernoulli Sets
+- **A (correctness)**: fixed the `dummyref` placeholder, the `thm:fpr`/`thm:fnr`
+  vs `thm:fp_rate` name mismatch, and the sign error in the union
+  space-complexity proof; restored the build (a stub `img/phfilter.tex` stands in
+  for the never-committed original figure).
+- **B (honest framing)**: added a related-work section (`related_work.tex`) that
+  states plainly the AMQ structure is established and reframes the contribution
+  as the Bernoulli-ADT realization plus the $k$-perfect FNR analysis. Qualified the
+  $-\log_2 \fprate$ optimality claim (it holds only as $\fprate \to 0$; the PHF
+  does not attain it at finite $\fprate$).
+- **C (completeness)**: dropped the load-bearing dependency on the unpublished
+  `oph` manuscript for the headline space theorem (it is now self-contained via
+  the random-oracle birthday argument; `oph` survives only as a non-load-bearing
+  aside in the C++ subsection). Derived the $k$-perfect false negative rate
+  $\omega = 1 - (1-e^{-r})/r$ from a balls-into-bins model
+  (\cref{thm:k_omega}). Completed the PMF space and entropy (PMF) bounds.
+- **E (polish)**: threaded the Five Core Principles and the explicit relation to
+  the Bernoulli Hash Function paper into the intro; added a numeric end-to-end
+  worked example (\cref{ex:dictionary}, $m=10^6$, $\fprate=2^{-16}$); fixed the
+  bibliography self-cites (years + real GitHub URLs).
 
-This paper is a **concrete implementation** paper for the theory developed in `bernoulli_sets/`. Key connections:
+**Remaining work**: Phase D, the `maph` experiments (the repo is a full `maph`
+C++ project; wire measured numbers into the paper), and final pre-submission
+polish.
 
-| Bernoulli sets concept | PHF realization |
-|---|---|
-| Positive Bernoulli set ($\fnrate = 0$) | Standard PHF: stores hash fingerprints at perfect-hash indices |
-| False positive rate $\fprate$ | Determined by fingerprint bit-width: $\fprate \approx 2^{-b}$ for $b$-bit fingerprints |
-| False negative rate $\fnrate$ | Arises from imperfect (k-)perfect hashing: collisions cause missed elements |
-| Information-theoretic lower bound $-\log_2 \fprate$ bits/element | PHF approaches this asymptotically; Bloom filter achieves $\ln 2 \approx 0.69$ efficiency |
-| Bernoulli set ADT (Section 3.1 of `bernoulli_sets/`) | PHF satisfies the ADT axioms: `contains(x, ctor(A))` has the prescribed error rates |
-| `phf` and `shs` citations in `bernoulli_sets/` | Refer to this paper and the singular hash set |
+## All 8 sections are subfiled and compiled
+
+`main.tex` subfiles every section in `sections/`, in this order:
+
+| # | Section file | Title | Notes |
+|---|---|---|---|
+| 1 | `intro.tex` | Introduction | Contributions list, two axioms, "Relation to the Bernoulli framework" paragraph (Five Principles + BHF link) |
+| 2 | `related_work.tex` | Related work | AMQ prior art; "What this paper contributes" subsection |
+| 3 | `rd_ph_filter.tex` | Rate-distorted perfect hash filter | Core derivation: FPR theorem, space bounds, Bloom comparison, worked example, entropy/cardinality estimation |
+| 4 | `typed_phf.tex` | The typed Perfect Hash Filter | Injection $\mathbb{X}\to\BitSet^*$ |
+| 5 | `k_perfect_hashing.tex` | $k$-perfect hashing and false negatives | Two-rate second-order model; $\omega$ derivation; binary asymmetric channel |
+| 6 | `pmf.tex` | Approximate hash map | Perfect Map Filter; two rates; space lower bound; entropy upper bound |
+| 7 | `apps_postings_list.tex` | Applications | Boolean + rank-ordered (fuzzy) retrieval |
+| 8 | `cpp_imp.tex` | A C++ implementation | Dynamic polymorphism, complement; some listings still commented out |
+| 9 | `adt.tex` | Abstract data type of the Bernoulli set | $\sigma$-algebra, Boolean algebra, space complexity of unions/differences |
+
+`variation.tex` from the old layout is gone; `adt.tex` is the final section. The
+old "only 4 of 8 included" / "`rd_ph_filter` NOT included" claim is obsolete.
 
 ## Build
 
 ```bash
-cd paper && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+cd paper && \
+  pdflatex -shell-escape main.tex && \
+  makeglossaries main && \
+  bibtex main && \
+  pdflatex -shell-escape main.tex && \
+  pdflatex -shell-escape main.tex
 ```
 
-**Note**: Requires `minted` package (and therefore `--shell-escape` or `pygmentize`) and glossaries (`makeglossaries`). Modular `.sty` packages are in `paper/sty/` (self-contained, no external dependencies).
+Requires `minted` (hence `-shell-escape` / `pygmentize`) and `glossaries`
+(`makeglossaries`, makeindex backend). Current state: **37 pages, 0 undefined
+refs/citations, 0 bibtex warnings**. Modular `.sty` packages are in `paper/sty/`
+(self-contained); `\fprate`=$\varepsilon$ and `\fnrate`=$\omega$ come from
+`approx_data_type_notation.sty` (required transitively by `approxsetnotation`).
 
-## Structure
+## Relationship to the rest of the family
 
-```
-rd_ph_filter/
-├── paper/
-│   ├── main.tex                    # Document root (uses \subfile{})
-│   ├── references.bib              # Bibliography (needs cleanup)
-│   ├── sections/
-│   │   ├── intro.tex               # Introduction
-│   │   ├── k_perfect_hashing.tex   # k-perfect hashing techniques
-│   │   ├── cpp_imp.tex             # C++ implementation details
-│   │   ├── adt.tex                 # Abstract data type (~28 KB, substantial)
-│   │   ├── rd_ph_filter.tex        # Main PHF derivation (~27 KB, NOT included in main.tex)
-│   │   ├── pmf.tex                 # Probability mass function (NOT included)
-│   │   ├── apps_postings_list.tex  # Applications (NOT included)
-│   │   └── variation.tex           # Variations (NOT included)
-│   ├── img/                        # Figures
-│   ├── research/                   # Earlier approximate_hash_set version
-│   ├── todo.txt, todo2.txt         # Active work notes
-│   └── gls-*.tex                   # Glossary definition files
-├── include/rd_ph_filter/
-│   └── rd_ph_filter.hpp            # C++ template implementation
-└── tests/                          # Test directory
-```
+This is the **concrete implementation** paper for theory developed elsewhere:
 
-**Important**: Only 4 of 8 section files are included in `main.tex`: `intro`, `k_perfect_hashing`, `cpp_imp`, `adt`. The others (`rd_ph_filter`, `pmf`, `apps_postings_list`, `variation`) exist but are NOT compiled.
+| Framework concept | PHF realization |
+|---|---|
+| Positive Bernoulli set ($\fnrate=0$)~\cite{bsets} | Standard PHF: fingerprints at perfect-hash slots |
+| False positive rate $\fprate$ | Fingerprint width: $\fprate = 2^{-M}$ |
+| False negative rate $\fnrate=\omega$ | $k$-perfect collisions overwrite slots (\cref{thm:k_omega}) |
+| Composition theorem $\eta_{\mathrm{total}}=1-\prod(1-\eta_i)$ | Induced FPR of a union of PHFs |
+| Space-accuracy duality $-\log_2\fprate+\mu$ | PHF attains $-\log_2\fprate+\log_2 e$ (minimal), succinct as $\fprate\to0$ |
+| Bernoulli map~\cite{bmaps} | Perfect Map Filter (`pmf.tex`) |
+| Entropy / space lower bound~\cite{emaps} | `thm:approx_l_b`, `thm:mPHF_size`, `thm:pmf_lower_bound` |
+| **Space-optimal Bernoulli set/map construction (BHF)**~\cite{shs} | The PHF is the **perfect-hash instance** of the BHF; fingerprint equality is its acceptance predicate |
 
-## Notation
+The `shs` citation is the **Bernoulli Hash Function** paper
+(`papers/bernoulli-hash-function/`): the "singular hash set" is the space-optimal
+construction developed there, and the PHF is one concrete instance of it. The
+Bloom filter's $1.44$ overhead is the gap succinct constructions close.
 
-Uses modular `.sty` packages (NOT `alex.sty`):
-- `setnotation.sty`, `approxsetnotation.sty`, `functionnotation.sty`
-- `relationnotation.sty`, `algorithmnotation.sty`, `matrixnotation.sty`
-- `envnotation.sty`, `obliviousnotation.sty`
-- Glossary system (`glossaries` package with custom `.tex` entries)
+## Bibliography
 
-Core notation is compatible with `bernoulli_sets/`:
-- `\ASet{A}` for approximate sets, `\fprate`/`\fnrate` for error rates
-- Additional: `\gls{gls-phf}` for "Perfect Hash Filter" glossary term
+`references.bib` has 16 real external entries (perfect hashing, Bloom/AMQ,
+information-theoretic bounds, modern filters, fuzzy sets/IR) plus 9 author
+self-cites. As of Phase E all self-cites carry `year={2026}`; `bsets`, `bmaps`,
+`emaps`, `shs` carry their real GitHub `url`; `obset` is the **cipher set**
+(formerly "oblivious", retired terminology). No invented DOIs. `aset` and `pmf`
+are defined but currently uncited.
 
-## Key Concepts
+## Code side (Phase D target)
 
-1. **Perfect hash function**: A hash function $h: S \to \{0,\ldots,m-1\}$ that is injective on a known set $S$
-2. **k-perfect hash function**: Allows up to $k$ collisions per bucket; trades space for construction time
-3. **Rate distortion (two sources)**:
-   - **FPR**: Fingerprint collision — a non-member's hash matches a stored fingerprint ($\fprate \approx 2^{-b}$)
-   - **FNR**: Perfect hash collision — a member collides with another member and loses its slot (arises with k-perfect hashing)
-4. **Space efficiency**: PHF achieves $-\log_2 \fprate$ bits/element asymptotically (optimal), vs. Bloom filter's $-(1/\ln 2)\log_2 \fprate$
+The repo top level is a full `maph` C++23 project, **not** the old single
+`rd_ph_filter.hpp`: `include/maph/*.hpp`, `src/maph_cli.cpp`, `tests/` (19
+files, populated), `benchmarks/`, `examples/`, `integrations/`, `CMakeLists.txt`.
+This is the active C++ research sandbox for the PHF and the source of the planned
+experiments. Wiring its measured numbers (perfect-hash overhead, FPR/FNR,
+space vs Bloom) into the paper is Phase D.
 
-## Known Issues
+## House style
 
-- `references.bib` contains placeholder URLs (`http://example.com`) for self-citations
-- Several sections exist but are not included in main.tex — may need integration or archival
-- Glossary entries may reference undefined terms if section files are reorganized
-- The `\subfile{}` document class pattern differs from `bernoulli_sets/`'s `\input{}` pattern
-- `todo.txt` and `todo2.txt` contain active research notes on k-collision handling and Boolean algebra
-
-## Cross-Paper References
-
-- `bernoulli_sets/` cites this paper as `\cite{phf}` — the PHF is a primary motivating example
-- The space complexity bound in `bernoulli_sets/sections/entropy.tex` ($-\log_2 \fprate$ bits/element) is proven here for the positive case
-- The Bloom filter comparison ($\ln 2 \approx 0.69$ absolute efficiency) appears in both papers
-- `bernoulli_sets/sections/adt.tex` (excluded from compilation) contains an expanded ADT treatment that overlaps with this paper's `adt.tex`
+Keep prose free of em-dashes (use commas, periods, colons, or parentheses) and
+of the promotional adjectives the soul hook bans on sight (it matches them in any
+context). Use `\gls{}` glossary terms, `\fprate`/`\fnrate`, and the modular
+`sty/` notation. The soul hook scans only the diff, so appended clean text is
+fine even where a file already contains banned characters.

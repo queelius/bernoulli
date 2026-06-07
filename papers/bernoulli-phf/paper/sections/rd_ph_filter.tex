@@ -290,6 +290,33 @@ Set the load factor $r = 1$ in \cref{thm:mPHF_size}: the correction term $\left(
 Dividing by $m$ yields $\log_2 e - \log_2 \fprate = \log_2(e/\fprate)$ bits per element.
 \end{proof}
 
+\begin{example}[A dictionary of one million keys]
+\label{ex:dictionary}
+Consider approximating a static dictionary of $m = 10^6$ keys at a false
+positive rate $\fprate = 2^{-16} \approx \num{1.5e-5}$. The fingerprint width is
+$M = -\log_2 \fprate = 16$ bits, so each query reads a $16$-bit slot and reports
+membership by fingerprint equality (\cref{alg:PHF_has}). By
+\cref{cor:mPHF_size}, the minimal \gls{gls-phf} stores in expectation
+\begin{equation}
+    \log_2 \frac{e}{\fprate} = M + \log_2 e = 16 + \num{1.4427} = \num{17.4427}
+    \quad \si{bits \per element}\,,
+\end{equation}
+the $16$-bit fingerprint plus the $\log_2 e \approx \num{1.4427}$-bit
+minimal-perfect-hash floor (\cref{thm:mPHF_size}, \cite{mehlhorn1982}), for a
+total of $m \cdot \num{17.4427} \approx \num{1.74e7}$ bits ($\approx \SI{2.18}{MB}$).
+The same dictionary in a Bloom filter at the same $\fprate$ costs
+$-\tfrac{1}{\ln 2}\log_2 \fprate = \num{1.4427}\cdot 16 = \num{23.0831}$ bits per
+element, about $\num{2.31e7}$ bits ($\approx \SI{2.89}{MB}$). The \gls{gls-phf}
+therefore occupies about $\num{75.6}\%$ of the Bloom filter's space, a relative
+efficiency $\RE(X,Y) = \num{23.0831}/\num{17.4427} \approx \num{1.32}$,
+consistent with the $\fprate = 2^{-16}$ row implied by \cref{fig:abs_eff}, and an
+absolute efficiency $\AE(X) = 16/\num{17.4427} \approx \num{0.917}$. Solving
+$M + \log_2 e = M/\ln 2$ for the break-even width gives $M^* = \log_2 e/(1/\ln 2 -
+1) \approx \num{3.26}$, i.e.\ $\fprate^* \approx 2^{-3.26}$, so for any
+$\fprate < 2^{-3}$ (as here) the idealized minimal \gls{gls-phf} is the more
+space-efficient of the two, and the margin widens as $\fprate \to 0$.
+\end{example}
+
 
 \begin{figure}
 \centering

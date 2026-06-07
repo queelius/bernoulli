@@ -61,6 +61,37 @@ rate is independent of the objective set, given its cardinality). The
 construction of the \gls{gls-phf} satisfies both axioms under standard
 cryptographic hash assumptions.
 
+\paragraph{Relation to the Bernoulli framework.}
+The \gls{gls-phf} is best read as one concrete realization of the framework's
+general theory, inheriting its results rather than reproving them. Four threads
+of that theory run through this paper. First, the two axioms above place the
+\gls{gls-phf} inside the model, so its error counts are the binomials and its
+composition follows the closed-form rules proved for Bernoulli sets in
+general~\cite{bsets}; the union of $n$ positive \glspl{gls-phf} carries the
+induced false positive rate $\eta_{\mathrm{total}} = 1 - \prod_{i} (1 - \eta_i)$,
+the framework's composition theorem (here with $\eta_i = \fprate_i$), which we
+use to analyze the space of unions in \cref{sec:adt}, and element-wise
+independence keeps the joint confusion matrix a Kronecker product, so the
+parameter count stays linear even as the model order grows. Second, the membership test returns a Bernoulli
+Boolean: a single bit with a known false positive (and, in the $k$-perfect case,
+false negative) rate, the atomic object on which the framework's Boolean algebra
+is built, and the Boolean and ranked queries of \cref{sec:apps} are exactly
+compositions of these bits. Third, the space bound proved here is the
+framework's space-accuracy duality made concrete: a positive Bernoulli set costs
+$-\log_2 \fprate$ bits per element at the information-theoretic floor, and the
+minimal \gls{gls-phf} attains $-\log_2 \fprate + \log_2 e$, the floor plus the
+minimal-perfect-hash overhead (\cref{cor:mPHF_size}). Fourth, the $k$-perfect
+extension (\cref{sec:k_perfect}) illustrates the framework's parametric
+parsimony: moving from the one-rate positive set to the two-rate
+$(\fprate, \omega)$ model adds exactly one parameter and one partition block, not
+a full second-order channel. The \gls{gls-phf} is, in particular, a concrete
+instance of the space-optimal Bernoulli set and map construction developed in
+the Bernoulli hash function paper~\cite{shs}: there the salt search and an
+acceptance predicate over hash outputs are shown to reach the $-\log_2 \fprate +
+\mu$ bound for sets ($\mu = 0$) and maps alike, and the perfect-hash filter is
+the perfect-hash instance of that construction, with the fingerprint-equality
+test as its acceptance predicate.
+
 The paper is organized as follows.
 \Cref{sec:phf} derives the \gls{gls-phf} construction, proves its false
 positive rate, and analyzes its space complexity relative to the Bloom filter.

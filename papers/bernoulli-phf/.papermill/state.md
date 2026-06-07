@@ -1,52 +1,49 @@
-# Papermill State — The Perfect Hash Filter
+# Papermill State: The Perfect Hash Filter
 
 ## Meta
 
 | Field | Value |
 |-------|-------|
 | **Title** | The Perfect Hash Filter |
+| **Subtitle** | An efficient implementation of the positive Bernoulli set and Bernoulli map abstract data types |
 | **Authors** | Alexander Towell (atowell@siue.edu) |
 | **ORCID** | 0000-0001-6443-9897 |
 | **Affiliation** | Southern Illinois University Edwardsville |
-| **Status** | Draft — incomplete, actively maintained |
-| **Venue** | Undetermined |
+| **Status** | Draft, core theory complete; builds clean |
+| **Venue** | Undetermined (Zenodo preprint per family strategy) |
 | **Repo started** | 2019-01-14 |
-| **Last updated** | 2026-02-24 |
-| **Pages** | 10 (compiled sections only) |
-| **Build system** | pdflatex + bibtex + makeglossaries (shell-escape for minted) |
+| **Last updated** | 2026-06-07 |
+| **Pages** | 37 |
+| **Build system** | pdflatex + makeglossaries + bibtex (shell-escape for minted) |
 
 ## Thesis
 
-The Perfect Hash Filter is a succinct, immutable data structure that implements the positive Bernoulli set abstract data type (from the `bernoulli_sets/` paper) using perfect hash functions and fingerprint arrays, asymptotically achieving the information-theoretic lower bound of $-\log_2 \varepsilon$ bits/element on space complexity.
+The Perfect Hash Filter (PHF) is the perfect-hash instance of the well-known
+minimal-perfect-hash-plus-fingerprint approximate-membership construction. The
+contribution is its treatment within Bernoulli type theory: it is a faithful
+implementation of the positive Bernoulli set ADT (and, lifted, the Bernoulli
+map), so it inherits the framework's error model, composition theory, and space
+bounds; a $k$-perfect variant gives it a derived false negative rate, making it a
+genuine two-rate Bernoulli set; and its space approaches the information-theoretic
+floor of $-\log_2 \fprate$ bits per element as $\fprate \to 0$, against the Bloom
+filter's $1/\ln 2 \approx 1.44$ overhead.
 
-## Structure
+## Structure (all 8 sections subfiled and compiled)
 
-### Compiled sections (in `main.tex`)
-
-| # | Section file | Title | Status | Lines |
-|---|---|---|---|---|
-| 1 | `intro.tex` | Introduction | Stub — references undefined labels (`sec:set_model`, `sec:phf`, `dummyref`) | 11 |
-| 2 | `k_perfect_hashing.tex` | Perfect hash filters that trade time for space | Stub — only math fragments, no prose | 15 |
-| 3 | `cpp_imp.tex` | A C++ implementation | Partial — dynamic polymorphism, union/intersection, but commented-out listings | 274 |
-| 4 | `adt.tex` | Abstract data type of random approximate sets | Most complete — deterministic algorithm, algebraic properties, sigma-algebra, entropy | 579 |
-
-### Excluded sections (exist but NOT compiled)
-
-| Section file | Title | Lines | Notes |
+| # | Section file | Title | State |
 |---|---|---|---|
-| `rd_ph_filter.tex` | Rate-distorted perfect hash filter | 564 | Core derivation: PHF construction, FPR proof, space bounds, Bloom filter comparison. **Should be included.** |
-| `pmf.tex` | Approximate hash map | 82 | Extends PHF to key-value maps (Perfect Map Filter). |
-| `apps_postings_list.tex` | (Applications) | 124 | Information retrieval application. |
-| `variation.tex` | (Variations) | 107 | Load factor variations, oblivious sets. |
+| 1 | `intro.tex` | Introduction | Complete. Contributions list, two axioms, "Relation to the Bernoulli framework" paragraph (Five Principles + BHF link). |
+| 2 | `related_work.tex` | Related work | Complete. AMQ prior art; honest "what this paper contributes". |
+| 3 | `rd_ph_filter.tex` | Rate-distorted perfect hash filter | Complete. FPR theorem, space bounds, Bloom comparison, numeric worked example, entropy/cardinality estimation. |
+| 4 | `typed_phf.tex` | The typed Perfect Hash Filter | Complete. Injection into $\BitSet^*$. |
+| 5 | `k_perfect_hashing.tex` | $k$-perfect hashing and false negatives | Complete. $\omega$ derived from balls-into-bins; binary asymmetric channel. |
+| 6 | `pmf.tex` | Approximate hash map | Complete. Perfect Map Filter; two rates; space + entropy bounds. |
+| 7 | `apps_postings_list.tex` | Applications | Complete. Boolean + fuzzy/rank-ordered retrieval. |
+| 8 | `cpp_imp.tex` | A C++ implementation | Partial. Prose + interface; some listings still commented out. |
+| 9 | `adt.tex` | Abstract data type of the Bernoulli set | Mature. $\sigma$-algebra, Boolean algebra, union/difference space complexity. |
 
-### Other files
-
-- `references.bib` — 8 entries; 4 self-citations have placeholder URLs (`http://example.com`)
-- `todo.txt` — k-collision handling, RegularType concept, entropy/confidentiality notes
-- `todo2.txt` — Boolean algebra / expressively complete connectives
-- `research/approximate_hash_set/` — Earlier version of paper (preserved for reference)
-- `include/rd_ph_filter/rd_ph_filter.hpp` — C++ header-only library (149 lines)
-- `tests/` — Empty (no tests)
+The old "4 of 8 compiled / `rd_ph_filter` excluded / ~10 pages" assessment is
+obsolete. `variation.tex` is gone; `adt.tex` is the closing section.
 
 ## Build Command
 
@@ -59,46 +56,84 @@ cd paper && \
   pdflatex -shell-escape main.tex
 ```
 
+Current result: **37 pages, 0 undefined refs/citations, 0 bibtex warnings.**
+
 ### Build dependencies
-- `.sty` packages in local `paper/sty/` directory (self-contained)
-- `obliviousnotation.sty` — local stub (no macros from this package are used)
-- Glossary files: `gls-custom.tex`, `gls-approxset.tex`, `gls-set.tex`, `gls-hashing.tex` (created 2026-02-24)
-- External: `pdflatex`, `bibtex`, `makeglossaries` (makeindex backend), `pygmentize`
+- `.sty` packages in `paper/sty/` (self-contained); `\fprate`/`\fnrate` come from
+  `approx_data_type_notation.sty` (required by `approxsetnotation`).
+- Glossary files: `gls-custom.tex`, `gls-approxset.tex`, `gls-set.tex`,
+  `gls-hashing.tex`.
+- `img/phfilter.tex` is a Phase A stub for the never-committed original figure.
+- External: `pdflatex`, `bibtex`, `makeglossaries` (makeindex backend),
+  `pygmentize`.
 
-## Known Issues
+## Salvage phases
 
-1. **Incomplete structure**: Only 4 of 8 sections compiled; `rd_ph_filter.tex` (the core derivation) is excluded
-2. **Introduction is a stub**: References labels in excluded sections (`sec:set_model`, `sec:phf`, `dummyref`)
-3. **`k_perfect_hashing.tex` is a stub**: Only math fragments, no developed prose
-4. **Self-citations placeholder**: `references.bib` entries `aset`, `obset`, `oph`, `pmf` use `http://example.com`
-5. **Missing bib entries**: `phf` and `shs` cited but not defined in `references.bib`
-6. **Undefined cross-references**: `thm:fpr`, `thm:fnr`, `sec:set_model`, `sec:phf`, `sec:set_theory`, `lst:asetunion`, `lst:asetcomp` — all defined in excluded sections
-7. **No C++ tests**: `tests/` directory is empty
-8. **`cpp_imp.tex` commented-out listings**: Code listing includes are commented out (paths may be stale)
+- **A (correctness, done)**: fixed `dummyref`, the `thm:fpr`/`thm:fnr` vs
+  `thm:fp_rate` mismatch, and the union space-complexity sign error; restored the
+  build with a stub figure.
+- **B (honest framing, done)**: added `related_work.tex`; reframed the
+  contribution as a Bernoulli-ADT realization plus $k$-perfect FNR analysis;
+  qualified the $-\log_2 \fprate$ optimality (holds only as $\fprate \to 0$).
+- **C (completeness, done)**: dropped the load-bearing `oph` dependency for the
+  headline space theorem (now self-contained; `oph` is a non-load-bearing aside
+  in the C++ subsection); derived the $k$-perfect FNR
+  $\omega = 1 - (1-e^{-r})/r$ (`thm:k_omega`); completed the PMF space and
+  entropy (PMF) bounds.
+- **E (polish, done)**: threaded the Five Core Principles and the explicit
+  relation to the Bernoulli Hash Function paper (`\cite{shs}`) into the intro;
+  added the numeric worked example (`ex:dictionary`, $m=10^6$, $\fprate=2^{-16}$:
+  $17.4427$ vs Bloom's $23.0831$ bits/element); fixed the bibliography
+  (self-cites carry `year={2026}`; real GitHub URLs on `bsets`/`bmaps`/`emaps`/
+  `shs`; `obset` retitled "cipher set").
+- **D (experiments, TODO)**: the repo top level is a full `maph` C++23 project
+  (`include/maph/`, `src/maph_cli.cpp`, populated `tests/`, `benchmarks/`,
+  `examples/`, `integrations/`). Wire its measured numbers (perfect-hash overhead,
+  FPR/FNR, space vs Bloom) into the paper. Not yet started.
+
+## Open items
+
+1. Phase D experiments (above).
+2. `cpp_imp.tex`: a few code listings remain commented out.
+3. `img/phfilter.tex` is a stub; a proper figure would help the worked example.
+4. Final pre-submission polish (papermill:polish) once experiments land.
 
 ## Completeness Assessment
 
 | Dimension | Rating | Notes |
 |-----------|--------|-------|
-| Core argument | 40% | Main derivation (`rd_ph_filter.tex`) exists but is excluded from compilation |
-| Introduction | 15% | Stub with broken references |
-| Related work | 0% | No related work section |
-| Proofs/theory | 50% | FPR/space proofs in `rd_ph_filter.tex`; ADT formalization in `adt.tex` |
-| Implementation | 35% | C++ section exists but has commented-out code listings |
-| Experiments | 0% | No experimental evaluation |
-| Bibliography | 25% | 8 entries, 4 are placeholders |
-| **Overall** | **~25%** | Early draft with substantial content in excluded sections |
+| Core argument | 95% | FPR, $k$-perfect FNR, space, and entropy results complete and self-contained. |
+| Introduction | 100% | Framing, axioms, framework relation, BHF link. |
+| Related work | 100% | Honest AMQ situating; contribution stated plainly. |
+| Proofs/theory | 90% | All headline theorems proved; PMF and union-space results complete. |
+| Implementation | 50% | C++ section partial (commented listings); separate `maph` codebase mature. |
+| Experiments | 0% | Phase D. |
+| Bibliography | 95% | 16 real external entries + 9 dated self-cites; no invented DOIs. |
+| **Overall** | **~85%** | Theory complete and building; remaining work is experiments and polish. |
 
 ## Cross-Paper Context
 
-This paper is part of the `bernoulli/papers/` collection:
-- **Parent theory**: `bernoulli_sets/` — defines the Bernoulli set model this paper implements
-- **Cited as**: `\cite{phf}` in `bernoulli_sets/`
-- **Sibling papers**: `bernoulli_maps/`, `bernoulli_relations/`, `bernoulli_data_type/`
-- **Notation**: Uses modular `.sty` packages from local `paper/sty/` (not `alex.sty`)
+- **Parent theory**: `bernoulli_sets/` (`\cite{bsets}`), the model this paper implements.
+- **Space-optimal construction**: `bernoulli-hash-function/` (`\cite{shs}`); the
+  PHF is the perfect-hash instance of the BHF, fingerprint equality as its
+  acceptance predicate.
+- **Map / entropy**: `bernoulli_maps/` (`\cite{bmaps}`), `bernoulli_entropy/`
+  (`\cite{emaps}`).
+- **Cited as** `\cite{phf}` elsewhere in the family.
+- **Notation**: modular `.sty` packages in `paper/sty/` (not `alex.sty`).
 
 ## History
 
-- **2026-02-24**: Papermill initialized. Fixed build: created glossary files, added `\bibliographystyle{plainnat}`, created `obliviousnotation.sty` stub, switched glossaries from `xindy` to `makeindex` backend. Paper compiles to 10 pages with warnings from excluded section cross-references.
-- **2026-05-29** (multi-agent-review): **not-ready**. Critical 4, Major 17, Minor 19, Suggestions 6. BUILD STATUS CHANGED since 2026-02-24, and the "Pages: 10" / "rd_ph_filter excluded" claims in the Meta and Structure tables above are now STALE: `main.tex` subfiles `sections/rd_ph_filter` at line 156, which `\input`s the nonexistent `img/phfilter.tex`, so `pdflatex` now ABORTS and produces no PDF. Prioritized path to complete: (1) restore the build by stubbing/authoring `paper/img/phfilter.tex`, fixing the placeholder `\cref{dummyref}` (cited 4x) and the `thm:fpr`/`thm:fnr` vs `thm:fp_rate` name mismatch; (2) add a related-work section and reframe novelty as a Bernoulli-ADT realization plus k-perfect FNR analysis, since the MPHF-plus-fingerprint structure is the known AMQ behind xor/fuse/cuckoo/Bloomier filters and the right references are already in the .bib but uncited; (3) qualify the `-log2 eps` optimality claim (true only as eps to 0; intro vs body disagree on 2^-3 vs 2^-4); (4) fix the sign error in the union space-complexity proof; (5) add experiments using the in-repo `maph` C++ library (the paper points at a stale nonexistent codebase); (6) resolve the headline space theorem's reliance on the unpublished `oph` manuscript. Bright spots: `adt.tex` is mature, the FPR theorem is sound, and the bibliography (16 real entries) is in better shape than this state file claimed. Report: `.papermill/reviews/2026-05-29/review.md`.
-- **2026-05-29** (build-repair): restored the build. Created a placeholder `paper/img/phfilter.tex` (the original was never committed, and its missing `\input` at `rd_ph_filter.tex:156`/169 aborted pdflatex). The paper now compiles to **28 pages** with `cd paper && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && (pdflatex -shell-escape x2)`. Remaining undefined cites/refs (placeholder `\cite{}`, `\cref{dummyref}`, the `thm:fpr`/`thm:fnr` vs `thm:fp_rate` mismatch, and refs into still-excluded sections) are the documented content gaps from the review, not build blockers. So `rd_ph_filter` is now wired in AND the build succeeds (with a stub figure).
+- **2026-02-24**: Papermill initialized; build fixed (glossary files,
+  `\bibliographystyle{plainnat}`, makeindex backend). 10 pages then.
+- **2026-05-29** (review + build-repair): review found not-ready (build was
+  aborting on a missing `\input{img/phfilter.tex}`); a stub figure restored the
+  build to 28 pages. Prioritized correctness, honest related work, optimality
+  qualification, the union sign error, and the `oph` dependency.
+- **2026-06-07** (Phase A–C salvage, committed): correctness fixed, related work
+  added, `oph` dependency dropped, $k$-perfect FNR derived, PMF bounds completed.
+  Build clean at 36 pages.
+- **2026-06-07** (Phase E polish): Five Principles + BHF relation threaded,
+  numeric worked example added, bibliography self-cites dated/URL'd, metadata
+  synced. Build clean at **37 pages, 0 undefined refs/cites, 0 bibtex warnings**.
+  Remaining: Phase D (maph experiments) and final polish.
