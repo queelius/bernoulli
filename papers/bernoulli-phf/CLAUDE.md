@@ -41,9 +41,10 @@ This paper was salvaged in phases. Phases A through C are done and committed:
   worked example (\cref{ex:dictionary}, $m=10^6$, $\fprate=2^{-16}$); fixed the
   bibliography self-cites (years + real GitHub URLs).
 
-**Remaining work**: Phase D, the `maph` experiments (the repo is a full `maph`
-C++ project; wire measured numbers into the paper), and final pre-submission
-polish.
+**Remaining work**: Phase D, the `maph` experiments (the embedded C++ copy was
+removed as a stale duplicate; the maintained library lives at
+`~/github/repos/maph/`, wire its measured numbers into the paper), and final
+pre-submission polish.
 
 ## All 8 sections are subfiled and compiled
 
@@ -110,14 +111,16 @@ self-cites. As of Phase E all self-cites carry `year={2026}`; `bsets`, `bmaps`,
 (formerly "oblivious", retired terminology). No invented DOIs. `aset` and `pmf`
 are defined but currently uncited.
 
-## Code side (Phase D target)
+## Implementation (external)
 
-The repo top level is a full `maph` C++23 project, **not** the old single
-`rd_ph_filter.hpp`: `include/maph/*.hpp`, `src/maph_cli.cpp`, `tests/` (19
-files, populated), `benchmarks/`, `examples/`, `integrations/`, `CMakeLists.txt`.
-This is the active C++ research sandbox for the PHF and the source of the planned
-experiments. Wiring its measured numbers (perfect-hash overhead, FPR/FNR,
-space vs Bloom) into the paper is Phase D.
+This repo is the paper only. The PHF implementation is the `maph` library,
+maintained in its own repository at `~/github/repos/maph/`, not here. An older,
+broken snapshot of the C++ code (a flat `include/maph/*.hpp` layout missing its
+`core.hpp`) once sat at this repo's top level; it was removed as a stale
+duplicate of the maintained `maph`. Phase D experiments (measured FPR versus
+`2^{-M}`, bits per key versus the formula, throughput versus the Bloom filter)
+should draw their numbers from that maintained library, and the C++ section
+(`cpp_imp.tex`) should reference it.
 
 ## House style
 

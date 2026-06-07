@@ -23,13 +23,13 @@ Collection of related research papers by Alexander Towell on **random approximat
 | `bernoulli_classification_measures/` | Binary classification measures for random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual | no |
 | `bernoulli_entropy/` | Entropy and space complexity of random approximate sets | **Companion to bernoulli_sets** | `alex.sty` (unified) | `pdflatex` manual | no |
 | `bernoulli-hash-function/` | The Bernoulli Hash Function: Optimal Bernoulli Sets and Maps | Standalone (~95% complete) | `alex.sty` (unified) | `make` | yes |
-| `bernoulli-phf/` | The Perfect Hash Filter | Standalone (early, ~25%) | Modular `sty/` packages | `pdflatex` manual (shell-escape); LaTeX is in `paper/` subdir, not at top level | yes |
+| `bernoulli-phf/` | The Perfect Hash Filter | Standalone (salvaged 2026-06; core theory complete, 37 pp) | Modular `sty/` packages | `pdflatex` manual (shell-escape); LaTeX is in `paper/` subdir; repo is paper-only | yes |
 | `bernoulli_maps/` | The algebra of the random approximate map model | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
 | `bernoulli_relations/` | The abstract data type of the approximate relation | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
 | `bernoulli_data_type/` | Random approximate values over algebraic types | Standalone (early) | Modular `.sty` packages | two sub-papers, build each separately | yes |
 
 **Structural deviations from the standard layout** (assume the standard pattern and you will look in the wrong place):
-- `bernoulli-phf/` is a C++ project that *contains* the paper at `bernoulli-phf/paper/main.tex`. The top-level directory has `include/`, `src/`, `tests/`, `CMakeLists.txt`, etc.
+- `bernoulli-phf/` holds the paper at `bernoulli-phf/paper/main.tex` (LaTeX in a `paper/` subdir, not at the repo root). It was formerly a C++ project with an embedded `maph` copy at the top level; that stale duplicate was removed in 2026-06 (the maintained library is `~/github/repos/maph/`), so the repo is now paper-only.
 - `bernoulli_data_type/` has no top-level `main.tex`. It contains **two parallel sub-papers**, each a complete LaTeX project: `bernoulli_model/` (foundational framework) and `algebraic_types/` (type-theoretic extension).
 
 ### Consolidation History
