@@ -1,0 +1,36 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Related work}
+\label{sec:related}
+
+The \gls{gls-phf} sits within a long line of approximate-membership-query (AMQ) data structures. We review that line here, then state precisely what is new in this paper (\cref{sec:related_contribution}): the construction itself is established, and our contribution is its framing, analysis, and application within Bernoulli type theory, not the base structure.
+
+\paragraph{Bloom filters and the classical space bound.}
+The Bloom filter~\cite{bloom1970} is the canonical positive approximate set: a bit array shared across $k$ hash functions, with one-sided error (zero false negatives, tunable false positive rate $\fprate$). It is space-efficient but not space-optimal: at its optimal load it spends $-\log_2 \fprate / \ln 2 \approx 1.44 \log_2(1/\fprate)$ bits per element, a factor of $1/\ln 2 \approx 1.44$ above the information-theoretic minimum. Broder and Mitzenmacher~\cite{bf} survey the filter's many network and systems applications. The $1.44$ overhead is the gap that succinct constructions, including the \gls{gls-phf}, aim to close.
+
+\paragraph{The information-theoretic lower bound.}
+Carter, Floyd, Gill, Markowsky, and Wegman~\cite{carter1978} established that any data structure answering approximate membership queries for an $m$-element set over a countably infinite universe with false positive rate $\fprate$ and zero false negatives requires at least $-\log_2 \fprate$ bits per element in expectation. This is the bound the \gls{gls-phf} approaches asymptotically (as $\fprate \to 0$); it is a published theorem, not a postulate, and we treat it as such throughout (\cref{thm:approx_l_b}). The companion entropy paper~\cite{emaps} restates and proves it within the Bernoulli framework and discusses the general two-rate case.
+
+\paragraph{The minimal-perfect-hash-plus-fingerprint construction.}
+The structure underlying the \gls{gls-phf}, place each member at a unique slot via a (minimal) perfect hash function and store a short fingerprint of the member at that slot, is the well-known static AMQ construction. Several modern filters realize this idea or close variants of it. The Bloomier filter~\cite{bloomier} stores arbitrary values for a fixed key set and is exactly the key-value (map) form of the construction. Cuckoo filters~\cite{fan2014} store fingerprints in a cuckoo-hash table, supporting deletion at the cost of dynamic structure. Xor filters~\cite{graf2020} and ribbon filters~\cite{dillinger2021} solve a linear system over the key set so that the exclusive-or (respectively, a ribbon-banded combination) of the slots a key indexes recovers its fingerprint, reaching close to the $-\log_2 \fprate$ asymptote with low constant overhead. The optimal-Bloom-replacement line of Pagh, Pagh, and Rao~\cite{pagh2005} and the retrieval and approximate-membership structures of Dietzfelbinger and Pagh~\cite{dietzfelbinger2008} give succinct constructions and matching analyses for the same query. The \gls{gls-phf} is the perfect-hash instance of this family; it is not a new member of it.
+
+\paragraph{Perfect hashing.}
+The space achieved by the \gls{gls-phf} is governed by the cost of the underlying perfect hash function. Fredman, Koml\'os, and Szemer\'edi~\cite{fks} gave the first $O(1)$-access perfect hash with linear space; Mehlhorn~\cite{mehlhorn1982} established lower bounds on the program size of perfect and universal hash functions, including the $\log_2 e \approx 1.44$ bits-per-key floor for minimal perfect hashing that our space analysis uses. Practical minimal perfect hash constructions, hash, displace, and compress (CHD)~\cite{chd} and the space-efficient method of Botelho, Pagh, and Ziviani~\cite{simple}, approach a few bits per key. Our space comparison (\cref{sec:phf}) uses the idealized $\log_2 e$ floor for the theoretical break-even and the CHD overhead for the practical one.
+
+\paragraph{Fuzzy sets and ranked retrieval.}
+The application in \cref{sec:apps} casts Boolean and ranked document retrieval over the \gls{gls-pmf}. Zadeh's fuzzy sets~\cite{zadeh1965} supply the graded membership and the hedges (such as \emph{very}) used there; inverted-index and ranked-retrieval background follows Zobel and Moffat~\cite{zobel2006} and Manning et al.~\cite{manning}. These are the tools the application uses, not objects this paper introduces.
+
+\subsection{What this paper contributes}
+\label{sec:related_contribution}
+
+Given the prior art above, the bare minimal-perfect-hash-plus-fingerprint structure is not a contribution of this paper. Our contribution is its treatment within Bernoulli type theory:
+\begin{enumerate}
+    \item \textbf{An AMQ structure realized as a Bernoulli set ADT.} We exhibit the perfect hash filter as a faithful realization of the \emph{positive Bernoulli set}~\cite{bsets} (zero false negatives, tunable false positive rate $\fprate = 2^{-M}$), so that it inherits the family's error model, composition theory, and space bounds automatically rather than by separate analysis.
+    \item \textbf{A two-rate ($k$-perfect) extension.} Replacing the perfect hash with a $k$-perfect hash admits a tunable false \emph{negative} rate $\fnrate$, turning the structure into a genuine second-order (two-rate) Bernoulli set and a binary asymmetric channel (\cref{sec:k_perfect}).
+    \item \textbf{A key-value lift and an information-retrieval application.} We lift the set to the \gls{gls-pmf}, realizing the static \emph{Bernoulli map}~\cite{bmaps}, and apply it to fuzzy and rank-ordered retrieval (\cref{sec:pmf,sec:apps}).
+    \item \textbf{Construction tied to the framework's space-accuracy bound.} We relate the construction's space to the Carter et al.~\cite{carter1978} bound it approaches as $\fprate \to 0$, situating it against the Bloom filter's $1.44$ overhead and modern succinct filters.
+\end{enumerate}
+In short, this paper offers a framing, analysis, and application of a known structure, not a new data structure.
+
+\end{document}

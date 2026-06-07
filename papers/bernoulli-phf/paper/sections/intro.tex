@@ -11,14 +11,48 @@ positive rate~$\varepsilon$. This model captures the semantics of data
 structures such as the Bloom filter~\cite{bf}, which implements the positive
 Bernoulli set abstract data type.
 
-In this paper, we derive the \emph{Perfect Hash Filter} (\gls{gls-phf}), a
-data structure that implements the static positive Bernoulli set over
-$\BitSet^*$. The \gls{gls-phf} achieves an expected space complexity
-approaching the information-theoretic lower bound of
-$-\log_2 \varepsilon$~bits per element, compared to the Bloom filter's
-$-1.44 \log_2 \varepsilon$~bits per element. For false positive rates
-$\varepsilon < 2^{-3}$, the \gls{gls-phf} is the more space-efficient
-structure.
+In this paper, we study the \emph{Perfect Hash Filter} (\gls{gls-phf}): a data
+structure that implements the static positive Bernoulli set over $\BitSet^*$ by
+placing each member at a unique slot, via a minimal perfect hash function, and
+storing a short fingerprint of the member at that slot. Membership is tested by
+fingerprint equality. This minimal-perfect-hash-plus-fingerprint structure is
+the well-known static approximate-membership-query construction: it is the
+mechanism behind the Bloomier filter~\cite{bloomier}, and close relatives appear
+in xor~\cite{graf2020}, ribbon~\cite{dillinger2021}, and cuckoo~\cite{fan2014}
+filters. The base structure is therefore not new. Our contribution is its
+treatment within the Bernoulli framework: realizing it as a Bernoulli set ADT,
+extending it to a two-rate structure, lifting it to a key-value map, and tying
+its measured space to the framework's space-accuracy bound. \Cref{sec:related}
+situates the \gls{gls-phf} against this prior work in detail.
+
+The \gls{gls-phf} is \emph{succinct}: its expected space complexity approaches
+the information-theoretic lower bound of $-\log_2 \varepsilon$~bits per element
+established by Carter et al.~\cite{carter1978} (\cref{thm:approx_l_b}),
+asymptotically as $\varepsilon \to 0$. It does not attain the bound at finite
+$\varepsilon$. By comparison, the Bloom filter spends $-1.44 \log_2 \varepsilon$
+bits per element, a factor of $1/\ln 2 \approx 1.44$ above the bound. For false
+positive rates $\varepsilon < 2^{-3}$, the idealized \gls{gls-phf} is the more
+space-efficient of the two.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+    \item We realize the \gls{gls-phf}, the minimal-perfect-hash-plus-fingerprint
+    structure, as a faithful implementation of the \emph{positive Bernoulli
+    set}~\cite{bsets} (false positive rate $\varepsilon = 2^{-M}$, zero false
+    negatives), so that it inherits the family's error model, composition theory,
+    and space bounds automatically (\cref{sec:phf}).
+    \item We give a \emph{$k$-perfect} extension that admits a tunable false
+    negative rate $\omega$, turning the structure into a genuine two-rate
+    (second-order) Bernoulli set and a binary asymmetric channel
+    (\cref{sec:k_perfect}).
+    \item We lift the construction from set membership to key-value lookup, the
+    \emph{Perfect Map Filter} (\gls{gls-pmf}) realizing the static \emph{Bernoulli
+    map}~\cite{bmaps}, and apply it to fuzzy set queries for rank-ordered
+    retrieval (\cref{sec:pmf,sec:apps}).
+    \item We tie the construction's space to the Carter et al.~\cite{carter1978}
+    lower bound it approaches as $\varepsilon \to 0$, situating it against the
+    Bloom filter and modern succinct filters (\cref{sec:adt}).
+\end{enumerate}
 
 The Bernoulli set model~\cite{bsets} is characterized by two axioms:
 \emph{element-wise independence} (membership outcomes for distinct elements are
@@ -26,14 +60,6 @@ independent) and \emph{conditional independence of rates} (the false positive
 rate is independent of the objective set, given its cardinality). The
 construction of the \gls{gls-phf} satisfies both axioms under standard
 cryptographic hash assumptions.
-
-We also describe two extensions. First, replacing the perfect hash function with
-a \emph{$k$-perfect hash function} introduces a non-zero false negative rate,
-yielding a general second-order Bernoulli set with two degrees of freedom
-($\varepsilon$, $\omega$). Second, generalizing from set membership to key-value
-lookup produces the \emph{Perfect Map Filter} (\gls{gls-pmf}), which implements
-the static \emph{Bernoulli map}~\cite{bmaps}, an approximate partial function
-with quantifiable error rates.
 
 The paper is organized as follows.
 \Cref{sec:phf} derives the \gls{gls-phf} construction, proves its false

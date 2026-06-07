@@ -143,7 +143,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We derive the \gls*{gls-phf}, an immutable data structure that implements the static \emph{positive Bernoulli set}---a set with a quantifiable false positive rate and zero false negatives. Under the Bernoulli set model~\cite{bsets}, the \gls*{gls-phf} satisfies element-wise independence and conditional independence of rates. We demonstrate that the \gls*{gls-phf} is a \emph{succinct} data structure that asymptotically achieves the information-theoretic lower bound of $-\log_2 \varepsilon$~bits per element. We extend the construction to the \gls*{gls-pmf}, which implements the static \emph{Bernoulli map}~\cite{bmaps}, and demonstrate applications including fuzzy set queries for rank-ordered search. Finally, we provide a C++ implementation and compare it to the theoretical analysis.
+The \gls*{gls-phf} places each member of a static set at a unique slot via a minimal perfect hash and stores a short fingerprint there, the well-known static approximate-membership-query construction shared by Bloomier, xor, and cuckoo filters. Our contribution is not this structure but its treatment within Bernoulli type theory. We make four contributions. First, we realize the \gls*{gls-phf} as a faithful implementation of the static \emph{positive Bernoulli set}~\cite{bsets} (a set with a quantifiable false positive rate $\varepsilon = 2^{-M}$ and zero false negatives), so that it inherits the framework's error model and composition theory; under the Bernoulli set model it satisfies element-wise independence and conditional independence of rates. Second, replacing the perfect hash with a \emph{$k$-perfect} hash admits a tunable false negative rate, turning the structure into a genuine two-rate (second-order) Bernoulli set. Third, we lift the construction to the \gls*{gls-pmf}, which implements the static \emph{Bernoulli map}~\cite{bmaps}, and apply it to fuzzy set queries for rank-ordered retrieval. Fourth, we tie the construction's space to the information-theoretic lower bound of $-\log_2 \varepsilon$~bits per element due to Carter et al.~\cite{carter1978}: the \gls*{gls-phf} is \emph{succinct}, approaching this bound asymptotically as $\varepsilon \to 0$ (it does not attain it at finite $\varepsilon$), against the Bloom filter's $1.44$ overhead.
 \end{abstract}
 
 \tableofcontents
@@ -151,6 +151,7 @@ We derive the \gls*{gls-phf}, an immutable data structure that implements the st
 %\listofalgorithms
 
 \subfile{sections/intro}
+\subfile{sections/related_work}
 \subfile{sections/rd_ph_filter}
 \subfile{sections/typed_phf}
 \subfile{sections/k_perfect_hashing}

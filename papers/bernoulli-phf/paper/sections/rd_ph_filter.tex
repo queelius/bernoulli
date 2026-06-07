@@ -221,15 +221,15 @@ Since $M$ is any non-negative integer, the false positive rate is given by \cref
 \end{proof}
 
 \subsection{Space complexity}
-The minimum possible bit length of a data structure implementing the abstract data type of the \emph{Bernoulli set} is given by the following postulate (see~\cite{bsets} for a proof).
-\begin{postulate}
-\label{pst:approx_l_b}
-The information-theoretic lower-bound of a data structure that implements the \emph{Bernoulli set} abstract data type has an \emph{expected} bit length given by
+The minimum possible bit length of a data structure implementing the abstract data type of the positive \emph{Bernoulli set} is a classical information-theoretic result, not a postulate of this paper. It is due to Carter, Floyd, Gill, Markowsky, and Wegman~\cite{carter1978}; the companion entropy paper~\cite{emaps} restates and proves it within the Bernoulli framework.
+\begin{theorem}[{\cite{carter1978}}]
+\label{thm:approx_l_b}
+The information-theoretic lower-bound of a data structure that implements the positive \emph{Bernoulli set} abstract data type (false negative rate $\fnrate = 0$) over a countably infinite universe has an \emph{expected} bit length of
 \begin{equation}
-    -(1 - \fnrate) \log_2 \fprate \; \si{bits \per element}\,,
+    -\log_2 \fprate \; \si{bits \per element}\,,
 \end{equation}
-where $\fprate$ is the false positive rate and $\fnrate$ is the false negative rate. For the \emph{positive} Bernoulli set realized by the \gls{gls-phf}, $\fnrate = 0$ and the lower-bound specializes to $-\log_2 \fprate$ bits per element.
-\end{postulate}
+where $\fprate$ is the false positive rate. More generally, a Bernoulli set with false negative rate $\fnrate$ admits an encoding of expected length $-(1 - \fnrate)\log_2 \fprate$ bits per element, which the \gls{gls-phf} attains in the positive case $\fnrate = 0$.
+\end{theorem}
 
 The \emph{expected} bit length of the \emph{minimal} \gls{gls-phf} has a lower-bound given by the following theorem.
 \begin{theorem}
