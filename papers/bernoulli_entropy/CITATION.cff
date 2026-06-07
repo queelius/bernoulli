@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Entropy and space complexity of random approximate sets"
+type: article
+authors:
+  - family-names: Towell
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0001-6443-9897"
+    affiliation: "Southern Illinois University Edwardsville"
+repository-code: "https://github.com/queelius/bernoulli_entropy"
+license: CC-BY-4.0
+keywords:
+  - Bernoulli set
+  - random approximate types
+  - probabilistic data structure
+  - entropy
+  - space complexity
+  - information-theoretic bound

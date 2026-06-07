@@ -1,0 +1,24 @@
+{
+  "title": "bernoulli-types: a Python implementation of random approximate types",
+  "upload_type": "software",
+  "description": "The reference Python implementation of the Bernoulli framework: the atom, sets, maps, relations, sketches, and a composition algebra over error rates.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "Python",
+    "Bloom filter",
+    "perfect hash filter",
+    "Count-Min",
+    "HyperLogLog"
+  ],
+  "license": "MIT",
+  "access_right": "open"
+}

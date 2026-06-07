@@ -1,0 +1,24 @@
+{
+  "title": "Composition of Bernoulli sets",
+  "upload_type": "publication",
+  "description": "Closed-form error rates for complement, union, intersection, and difference of Bernoulli sets, showing the model is closed under set-theoretic composition.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "set composition",
+    "error propagation",
+    "union",
+    "intersection"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

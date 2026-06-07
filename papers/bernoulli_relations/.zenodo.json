@@ -1,0 +1,24 @@
+{
+  "title": "The Abstract Data Type of the Approximate Relation",
+  "upload_type": "publication",
+  "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "approximate relation",
+    "relational algebra",
+    "join",
+    "trapdoor database"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

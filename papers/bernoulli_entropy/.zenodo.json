@@ -1,0 +1,23 @@
+{
+  "title": "Entropy and space complexity of random approximate sets",
+  "upload_type": "publication",
+  "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with a closed-form asymptotic expansion and the -log2(epsilon) bits-per-element space bound.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "entropy",
+    "space complexity",
+    "information-theoretic bound"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

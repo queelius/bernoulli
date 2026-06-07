@@ -1,0 +1,24 @@
+{
+  "title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
+  "upload_type": "publication",
+  "description": "The Bernoulli hash function (BHF): hash-based constructions that optimally implement the Bernoulli set and map at the information-theoretic space bound.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "perfect hash",
+    "fingerprint",
+    "space-optimal",
+    "succinct data structure"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

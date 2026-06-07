@@ -1,0 +1,24 @@
+{
+  "title": "Binary classification measures for random approximate sets",
+  "upload_type": "publication",
+  "description": "Distributions, expectations, and variances of binary classification measures (PPV, NPV, accuracy, F1, Youden's J) for the Bernoulli set model, via delta-method expansions validated by Monte Carlo.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "binary classification",
+    "positive predictive value",
+    "F1-score",
+    "delta method"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Bernoulli sets: a model for random approximate sets",
+  "upload_type": "publication",
+  "description": "A probabilistic framework for random approximate sets with independent element-wise false-positive and false-negative errors; two axioms yield the error-count distributions, their normal limits, and confidence intervals.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "false positive rate",
+    "false negative rate",
+    "Bloom filter",
+    "axioms"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "article"
+}

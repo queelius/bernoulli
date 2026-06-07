@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Composition of Bernoulli sets"
+type: article
+authors:
+  - family-names: Towell
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0001-6443-9897"
+    affiliation: "Southern Illinois University Edwardsville"
+repository-code: "https://github.com/queelius/bernoulli_composition"
+license: CC-BY-4.0
+keywords:
+  - Bernoulli set
+  - random approximate types
+  - probabilistic data structure
+  - set composition
+  - error propagation
+  - union
+  - intersection
