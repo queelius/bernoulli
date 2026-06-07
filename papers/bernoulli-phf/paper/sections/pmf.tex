@@ -75,12 +75,79 @@ The \emph{minimal} \gls{gls-pmf} has load factor $r=1$ and may be denoted by $\p
 \end{algorithm}
 
 
+\subsection{The two rates of the map}
+\label{sec:pmf_rates}
+Before bounding the space, we record the error model the \gls{gls-pmf} realizes, which is the static \emph{Bernoulli map}~\cite{bmaps} specialized to the perfect-hash realization. A query on a key $k$ proceeds exactly as in the set case (\cref{alg:shmap}): the perfect hash locates the slot $\ph_K(k)$ and the stored codeword is decoded.
+\begin{enumerate}
+    \item For a key in the domain of definition, the decode returns the stored value, so the false negative rate is $\fnrate = 0$ in the minimal construction. (Relaxing the perfect hash to a $k$-perfect hash introduces a false negative rate $\omega$ by exactly the collision mechanism of \cref{thm:k_omega}; the value, like the fingerprint, is the content overwritten on a collision.)
+    \item For a key not in the domain of definition, the slot's codeword decodes to a spurious value rather than to \emph{undefined} with probability $\fprate$. As in the entropy-map construction~\cite{bmaps,emaps}, if a proportion $\fprate$ of bit patterns decode to defined values then an out-of-domain key is incorrectly reported as defined with probability $\fprate$. The \gls{gls-pmf} thus implements the positive Bernoulli map with false positive rate $\fprate$.
+\end{enumerate}
+
+We make precise the per-element value cost that enters the bounds.
+\begin{definition}[Mean value cost]
+\label{def:mu}
+Let the values $v_1,\ldots,v_m$ be encoded by a prefix-free (self-delimiting) code, with $v_j^*$ the codeword for $v_j$ and $\BL(v_j^*)$ its bit length. The \emph{mean value cost} is the per-element expected codeword length,
+\begin{equation}
+\label{eq:mu_def}
+    \mu \coloneqq \frac{1}{m}\sum_{j=1}^{m} \BL(v_j^*)\,.
+\end{equation}
+When the values are drawn from a distribution $p_{\RV{Y}}$ and the code is optimal, $\mu$ attains the value entropy $H(\RV{Y}) = -\sum_y p_{\RV{Y}}(y)\log_2 p_{\RV{Y}}(y)$ by Shannon's source coding theorem~\cite{bmaps}.
+\end{definition}
+
 \subsection{Lower-bound on space complexity}
-% TODO: Derive the information-theoretic lower bound on the space complexity
-% of the approximate map, analogous to \cref{thm:approx_l_b} for sets.
+\label{sec:pmf_lower_bound}
+The \gls{gls-pmf} is the map analogue of the \gls{gls-phf}: the bit matrix $\matrx{V}$ stores, at each perfect-hash slot, a value codeword in place of a fixed-width fingerprint. Its space bound is obtained by specializing the Bernoulli-map space bound to this realization, exactly as \cref{thm:mPHF_size} specialized the set bound.
+
+\begin{theorem}[Space lower bound for the \gls{gls-pmf}]
+\label{thm:pmf_lower_bound}
+The \emph{expected} bit length of the \gls{gls-pmf} with $m$ keys, mean value cost $\mu$ (\cref{def:mu}), false positive rate $\fprate$, and load factor $r$ has a lower bound of
+\begin{equation}
+\label{eq:pmf_lower_bound}
+    \log_2 e
+    \;-\; \left(\frac{1}{r} - 1\right)\log_2\!\left(\frac{1}{1-r}\right)
+    \;+\; \frac{1}{r}\bigl(-\log_2 \fprate + \mu\bigr)
+    \quad \si{bits \per element}\,.
+\end{equation}
+In the minimal case $r = 1$ this reduces to
+\begin{equation}
+\label{eq:pmf_lower_bound_minimal}
+    \log_2 e \;-\; \log_2 \fprate \;+\; \mu \quad \si{bits \per element}\,.
+\end{equation}
+\end{theorem}
+\begin{proof}
+The encoding is the pair $\Tuple{\matrx{V}, \ph_K}$ of the value matrix and the perfect hash, so its expected length is the sum of the perfect-hash cost and the content cost, the same decomposition as in the proof of \cref{thm:mPHF_size}.
+
+The perfect-hash cost is unchanged from \cref{thm:mPHF_size}: a load-factor-$r$ perfect hash over $m$ keys costs, in expectation, $\log_2 e - \left(\tfrac{1}{r}-1\right)\log_2\!\left(\tfrac{1}{1-r}\right)$ bits per element, with the floor $\log_2 e \approx \num{1.4427}$ at $r=1$~\cite{mehlhorn1982}, since the slot-assignment problem is identical for the set and the map.
+
+The content cost is the map specialization. For the value content, \cref{thm:approx_l_b}'s set quantity $-\log_2\fprate$ (the per-element fingerprint width that realizes the false positive rate) is replaced by the Bernoulli-map per-element bound $-\log_2 \fprate + \mu$ of~\cite{bmaps,emaps}: a slot codeword must simultaneously realize the false positive rate $\fprate$ and carry the value, and the information-theoretic minimum to do both, per defined element, is $-\log_2 \fprate + \mu$ bits (the $-\log_2\fprate$ term is the rate-distortion cost of the false positive rate on out-of-domain keys and the $\mu$ term is the value content of \cref{def:mu}). The matrix $\matrx{V}$ has $N = m/r$ slots, so the total content is $\tfrac{m}{r}\bigl(-\log_2\fprate + \mu\bigr)$ bits, that is $\tfrac{1}{r}\bigl(-\log_2\fprate + \mu\bigr)$ per element.
+
+Summing the two contributions gives \cref{eq:pmf_lower_bound}. Setting $r = 1$, the correction term $\left(\tfrac{1}{r}-1\right)\log_2\!\left(\tfrac{1}{1-r}\right)$ vanishes (its limit as $r\to 1$ is $0$) and the content term is $-\log_2\fprate + \mu$, yielding \cref{eq:pmf_lower_bound_minimal}.
+\end{proof}
+
+\begin{remark}
+\label{rem:pmf_specializes}
+Setting $\mu = 0$ (a one-element codomain, so the map carries no value, only membership) recovers \cref{thm:mPHF_size} for the \gls{gls-phf}: the \gls{gls-pmf} bound is the set bound plus the per-element value content $\mu/r$. The minimal bound \cref{eq:pmf_lower_bound_minimal} is the entropy-map bound $-\log_2\fprate + \mu$ of~\cite{bmaps} plus the $\log_2 e$ minimal-perfect-hash floor, the same $\log_2 e$ overhead the minimal \gls{gls-phf} pays over the set bound of \cref{thm:approx_l_b}.
+\end{remark}
 
 \subsection{Upper-bound on entropy}
-% TODO: Derive the upper bound on the entropy of the PMF encoding.
+\label{sec:pmf_entropy}
+We now show the construction of \cref{alg:shmap} attains the lower bound of \cref{thm:pmf_lower_bound} in expectation: its code carries no more information than the bound permits, so it is a maximum-entropy coder for the Bernoulli map, the map analogue of \cref{thm:max_entropy_coder}.
+
+\begin{theorem}[Entropy upper bound for the \gls{gls-pmf} code]
+\label{thm:pmf_entropy}
+Conditioned on the key cardinality $m$, the false positive rate $\fprate$, and the value distribution, the random bit string that codes the \gls{gls-pmf} of \cref{alg:shmap} has expected length, equivalently entropy, at most
+\begin{equation}
+\label{eq:pmf_entropy}
+    \Expect{\BL(\Mt^*)}
+    = m\!\left(\log_2 e - \left(\tfrac{1}{r}-1\right)\log_2\!\left(\tfrac{1}{1-r}\right) + \tfrac{1}{r}\bigl(-\log_2\fprate + \mu\bigr)\right) \si{bits}\,,
+\end{equation}
+with no further structure imposed beyond the Bernoulli-map axioms, so the bound of \cref{thm:pmf_lower_bound} is attained.
+\end{theorem}
+\begin{proof}
+The code is the pair $\Tuple{\matrx{V}, b_n}$ of the value matrix and the seed found by \cref{alg:shmap}. By the argument of \cref{thm:max_entropy_coder}, the seed bits are uniform (the seed is the index of the first acceptable draw among i.i.d.\ uniform candidates), so the perfect-hash component contributes its expected cost $m\bigl(\log_2 e - (\tfrac{1}{r}-1)\log_2(\tfrac{1}{1-r})\bigr)$ bits and no more, this being the same maximum-entropy seed encoding as in the set case.
+
+For the content, each slot of $\matrx{V}$ holds a self-delimiting codeword whose decoding under the prefix-free code realizes the value with mean length $\mu$ (\cref{def:mu}) and realizes the false positive rate $\fprate$ on out-of-domain keys: by the optimality of the entropy-map encoding~\cite{bmaps,emaps}, the expected content per slot is $-\log_2\fprate + \mu$ bits and, conditioned on $m$, $\fprate$, and the value distribution, every coded bit beyond what these constraints fix is an independent fair coin. Hence the content carries maximum conditional entropy at this expected length, and over the $N = m/r$ slots contributes $\tfrac{m}{r}\bigl(-\log_2\fprate+\mu\bigr)$ bits. Summing the two components gives \cref{eq:pmf_entropy}, which equals $m$ times the per-element lower bound of \cref{eq:pmf_lower_bound}; the lower bound is therefore attained in expectation, and since no structure beyond the axioms is imposed, the code is a maximum-entropy coder for the static Bernoulli map.
+\end{proof}
 
 
 

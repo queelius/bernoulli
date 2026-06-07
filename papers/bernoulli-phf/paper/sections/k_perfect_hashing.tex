@@ -3,28 +3,105 @@
 \begin{document}
 \section{$k$-perfect hashing and false negatives}
 \label{sec:k_perfect}
-As noted in \cref{sec:phf}, replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function} generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible. A $k$-perfect hash function allows disjoint subsets of up to $k$ elements to collide, which means that when two members of $\Set{S}$ map to the same slot, the later one overwrites the earlier, producing a \emph{false negative} for the overwritten element.
+As noted in \cref{sec:phf}, replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function} generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible. A $k$-perfect hash function maps the objective set $\Set{S}$ into the $N$ slots so that at most $k$ members share any single slot. The slot array $\matrx{V}$ stores exactly one $M$-bit fingerprint per slot (\cref{alg:k_PHF}), so when a slot receives more than one member, only one fingerprint can be retained; the rest are overwritten and become unrecoverable. Querying an overwritten member returns \False, a \emph{false negative}.
 
-The advantage of $k$-perfect hashing is that it trades accuracy (introducing a non-zero false negative rate $\omega$) for reduced construction time and space in the perfect hash function itself.
+The advantage of $k$-perfect hashing is that it trades accuracy (introducing a non-zero false negative rate $\fnrate$, which we denote $\omega$) for reduced construction time and space in the perfect hash function itself: relaxing the injectivity requirement from a $1$-perfect hash (no collisions) to a $k$-perfect hash (up to $k$ collisions per slot) admits a far larger family of acceptable seeds, so a usable seed is found after far fewer trials.
 
-In the Bernoulli set model~\cite{bsets}, the positive Bernoulli set has a single degree of freedom (the false positive rate~$\varepsilon$). Introducing false negatives via $k$-perfect hashing yields a general second-order Bernoulli set with two degrees of freedom ($\varepsilon$, $\omega$). From the perspective of the entropy map framework~\cite{emaps}, this corresponds to a binary asymmetric channel with a confusion matrix parameterized by both rates.
-
-\subsection{Probability of successful placement}
-Consider the construction of a $k$-perfect hash filter for a set $\Set{S}$ with $\Card{\Set{S}} = m$ elements and $N = \lceil m/r \rceil$ slots. Each element is assigned to a slot by the hash function. We model this as a variant of the \emph{coupon collector problem}: for the $j$-th element, the number of hash evaluations needed to find an unoccupied slot follows a geometric distribution
+In the Bernoulli set model~\cite{bsets}, the positive Bernoulli set has a single degree of freedom (the false positive rate~$\varepsilon$). Introducing false negatives via $k$-perfect hashing yields a general second-order Bernoulli set with two degrees of freedom, the rate pair $(\fprate, \omega)$. In the language of model order (\cref{sec:phf}, and \cite{bsets,bmaps}), the positive \gls{gls-phf} is first order (one rate, one nontrivial partition block, the negatives); the $k$-perfect \gls{gls-phf} is second order, partitioning the universe into negatives (carrying $\fprate$) and positives (carrying $\omega$). From the entropy map viewpoint~\cite{emaps}, this is precisely a binary asymmetric channel whose confusion matrix is parameterized by both rates,
 \begin{equation}
-    \RV{K}_j \sim \geodist\!\left(\frac{N - j + 1}{N}\right)\,.
+\label{eq:k_channel}
+    \begin{pmatrix}
+        \Prob{\hat 0 \Given 0} & \Prob{\hat 1 \Given 0}\\
+        \Prob{\hat 0 \Given 1} & \Prob{\hat 1 \Given 1}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        1-\fprate & \fprate\\
+        \omega & 1-\omega
+    \end{pmatrix}\,,
 \end{equation}
+where the rows are conditioned on true non-membership ($0$) and true membership ($1$) respectively. The positive \gls{gls-phf} of \cref{sec:phf} is the special case $\omega = 0$.
 
-If each element is allowed at most $k$ hash evaluations, the probability that all $m$ elements are successfully placed is
+\subsection{The collision model and the loss event}
+\label{sec:k_loss_model}
+We make the slot-assignment model precise so that $\omega$ can be derived rather than posited.
+
+\begin{assumption}[Uniform slot assignment]
+\label{asm:uniform_slots}
+Under the random-oracle model of \cref{asm:ro}, the $k$-perfect hash assigns the $m = \Card{\Set{S}}$ members to the $N = \lceil m/r \rceil$ slots independently and uniformly: each member lands in a slot drawn uniformly from $\{0,\ldots,N-1\}$, independently of the others, subject to the construction's rejection of any seed that produces a slot of occupancy exceeding $k$.
+\end{assumption}
+
+This is the standard balls-into-bins occupancy model: $m$ balls (members) thrown independently and uniformly into $N$ bins (slots). The number of members in a given slot is therefore $\bindist(m, 1/N)$, and the joint occupancy is multinomial.
+
+\begin{definition}[Loss event]
+\label{def:loss}
+A member $x \in \Set{S}$ is \emph{lost} (a false negative) if its slot $\ph_{\Set{S}}(x)$ is shared with at least one other member of $\Set{S}$ and $x$ is not the member whose fingerprint is retained in that slot. We model the retained member as drawn uniformly at random from the members occupying the slot (equivalently, the last member written during construction, which under \cref{asm:uniform_slots} is uniform). Consequently, if a slot holds $L \geq 1$ members, each of the $L$ survives with probability $1/L$ and is lost with probability $1 - 1/L$.
+\end{definition}
+
+The role of $k$ in this design is to cap the worst case, not to set the rate: with one fingerprint per slot, \emph{any} slot of occupancy $L \geq 2$ loses $L-1$ members regardless of $k$. The parameter $k$ therefore governs construction cost and the tail of the occupancy distribution; the loss rate $\omega$ is governed by the occupancy distribution itself, which we make explicit below.
+
+\begin{remark}[Modeling assumption, flagged]
+\label{rem:single_fingerprint}
+The single-fingerprint-per-slot design of \cref{alg:k_PHF} is what makes a colliding member unrecoverable. A design that instead stored all $L \leq k$ fingerprints in a slot (a slot of width $k M$ bits) would have $\omega = 0$ but pay the worst-case width on every slot; the construction here takes the opposite trade, paying one fingerprint per slot and absorbing collisions as false negatives. The rate $\omega$ derived below is specific to the single-fingerprint design.
+\end{remark}
+
+\subsection{Derivation of the false negative rate}
+\label{sec:k_omega}
+The false negative rate $\omega$ is the probability that a member chosen uniformly at random from $\Set{S}$ is lost.
+
+\begin{theorem}[False negative rate of the $k$-perfect \gls{gls-phf}]
+\label{thm:k_omega}
+Under \cref{asm:uniform_slots,def:loss}, the false negative rate of a $k$-perfect \gls{gls-phf} over $m$ members in $N$ slots is
 \begin{equation}
-\label{eq:k_success}
-    p(k) = \Pr\!\left[\RV{K}_1 \leq k \cap \cdots \cap \RV{K}_m \leq k\right] = \prod_{j=1}^{m-1}\left(1 - \left(\frac{j}{N}\right)^{k+1}\right)\,.
+\label{eq:k_omega_exact}
+    \omega
+    = 1 - \frac{N}{m}\!\left(1 - \left(1 - \frac{1}{N}\right)^{\!m}\right)
+    = 1 - \frac{\Expect{\RV{O}}}{m}\,,
 \end{equation}
-Equivalently,
+where $\RV{O}$ is the number of occupied slots. With a load factor $r = m/N$ held fixed, as $m \to \infty$,
 \begin{equation}
-    p(k) = N^{-(m-1)(k+1)} \prod_{j=1}^{m-1}\left(N^{k+1} - j^{k+1}\right)\,.
+\label{eq:k_omega_asym}
+    \omega \;\longrightarrow\; 1 - \frac{1 - e^{-r}}{r}\,.
 \end{equation}
-As $k \to \infty$, $p(k) \to 1$. A $1$-perfect hash function ($k = 1$) is the standard perfect hash function with $p(1) = 1$ by construction.
+\end{theorem}
+\begin{proof}
+Fix a member $x \in \Set{S}$ and let $L$ be the occupancy of its slot, that is, the number of members of $\Set{S}$ (including $x$) assigned to slot $\ph_{\Set{S}}(x)$. By \cref{def:loss}, conditioned on $L$ the member $x$ is lost with probability $1 - 1/L$, so
+\begin{equation}
+\label{eq:omega_cond}
+    \omega = \Expect{1 - \frac{1}{L}} = 1 - \Expect{\frac{1}{L}}\,.
+\end{equation}
+Under \cref{asm:uniform_slots} the slots of the other $m-1$ members are independent and uniform, so the number of \emph{other} members sharing $x$'s slot is $\RV{B} \sim \bindist(m-1,\, 1/N)$ and $L = 1 + \RV{B}$. Using the identity, for $\RV{B} \sim \bindist(n,p)$,
+\begin{equation}
+\label{eq:binom_recip}
+    \Expect{\frac{1}{1+\RV{B}}}
+    = \sum_{j=0}^{n} \frac{1}{1+j}\binom{n}{j} p^{j}(1-p)^{n-j}
+    = \frac{1 - (1-p)^{n+1}}{(n+1)\,p}\,,
+\end{equation}
+which follows from $\frac{1}{1+j}\binom{n}{j} = \frac{1}{n+1}\binom{n+1}{j+1}$ and the binomial theorem applied to $\sum_{j} \binom{n+1}{j+1} p^{j+1}(1-p)^{n-j} = 1 - (1-p)^{n+1}$, we set $n = m-1$ and $p = 1/N$:
+\begin{equation}
+\label{eq:E_recipL}
+    \Expect{\frac{1}{L}}
+    = \frac{1 - (1 - 1/N)^{m}}{m \cdot (1/N)}
+    = \frac{N}{m}\!\left(1 - \left(1 - \frac{1}{N}\right)^{\!m}\right)\,.
+\end{equation}
+Substituting into \cref{eq:omega_cond} gives the closed form \cref{eq:k_omega_exact}. The middle expression of \cref{eq:E_recipL} is $\Expect{\RV{O}}/m$, since the expected number of occupied slots in the balls-into-bins model is $\Expect{\RV{O}} = N\bigl(1 - (1-1/N)^{m}\bigr)$ (each slot is empty with probability $(1-1/N)^m$); equivalently, $\omega = 1 - \Expect{\RV{O}}/m$ because the construction retains exactly one survivor per occupied slot, so the expected number of survivors is $\Expect{\RV{O}}$ out of $m$ members. For the asymptotic form, hold $r = m/N$ fixed; then $(1-1/N)^{m} = (1 - 1/N)^{rN} \to e^{-r}$ as $N \to \infty$, and $N/m = 1/r$, giving \cref{eq:k_omega_asym}.
+\end{proof}
+
+\begin{remark}[Sanity limits]
+\label{rem:omega_limits}
+As $r \to 0$ (slots far outnumber members) the asymptotic rate is $\omega = 1 - (1-e^{-r})/r \to 0$; expanding, $\omega \approx r/2$ for small $r$, matching the intuition that the dominant loss is a single pairwise collision, which displaces one of the two members. As $r \to 1$ (the minimal case, $N = m$) the asymptotic rate is $\omega \to 1 - (1 - e^{-1}) = e^{-1} \approx 0.368$: even with as many slots as members, roughly a third of members are lost to collisions, which is the price the single-fingerprint minimal construction pays for a nonzero false negative rate. Choosing $r$ small drives $\omega$ down at the cost of more slots; this is the accuracy-for-space trade that \cref{sec:phf} quantifies for $\fprate$, now applied to $\omega$.
+\end{remark}
+
+With both rates in hand, the $k$-perfect \gls{gls-phf} is a genuine second-order Bernoulli set: a non-member is accepted with probability $\fprate = 2^{-M}$ (the fingerprint argument of \cref{thm:fp_rate} is unchanged for retained slots) and a member is rejected with probability $\omega$ given by \cref{thm:k_omega}. Its error counts are the two independent binomials of the second-order model, $\FP \sim \bindist(\Card{\NEG}, \fprate)$ and $\FN \sim \bindist(m, \omega)$, and its joint confusion matrix is the channel \cref{eq:k_channel}, exactly as the framework~\cite{bsets,emaps} prescribes.
+
+\subsection{Construction cost}
+\label{sec:k_construction}
+Whereas $\omega$ is governed by occupancy and is, to leading order, insensitive to $k$, the value of $k$ controls how hard the construction is: a seed is acceptable only if no slot exceeds occupancy $k$. Under \cref{asm:uniform_slots}, a drawn seed is acceptable with probability
+\begin{equation}
+\label{eq:k_accept}
+    p(k) = \Prob{\max_{0 \le i < N} L_i \le k}\,,
+\end{equation}
+the probability that the maximum slot occupancy is at most $k$, where $(L_0,\ldots,L_{N-1})$ is the multinomial occupancy vector of $m$ members in $N$ slots. The number of seeds examined before one is accepted is geometric with mean $1/p(k)$, so the expected seed-search cost is $\log_2\bigl(1/p(k)\bigr)$ bits, paralleling the perfect-hash seed cost of \cref{thm:mPHF_size}. As $k$ increases, $p(k)$ increases monotonically toward $1$ (a sufficiently large $k$ admits every seed), so larger $k$ makes the construction cheaper; the limiting case $k \ge m$ accepts every seed, $p(k) = 1$. The $1$-perfect ($k=1$) case forbids all collisions and recovers the positive \gls{gls-phf} of \cref{sec:phf}, for which $\omega = 0$ and the acceptable seeds are exactly the injective placements of \cref{eq:perfect_hash_prob}.
 
 \subsection{Construction and membership test}
 \Cref{alg:k_PHF,alg:k_PHF_has} describe the construction and membership test for the $k$-perfect hash filter.
@@ -37,25 +114,25 @@ As $k \to \infty$, $p(k) \to 1$. A $1$-perfect hash function ($k = 1$) is the st
         \begin{itemize}
             \item[$S$] The set to approximate.
             \item[$\fprate$] The false positive rate.
-            \item[$k$] The maximum number of hash evaluations per element.
+            \item[$k$] The maximum number of members permitted per slot.
             \item[$r$] The load factor.
         \end{itemize}
     }
     \KwOut
     {
-        A $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$ and load factor $r$.
+        A $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$, false negative rate $\omega$ given by \cref{thm:k_omega}, and load factor $r$.
     }
     \func{\MakeKPerfectHashSet{$S, \fprate, r, k$}}
     {
-        $\ph_{S} \gets$ \MakeMinimalPerfectHash{$S$, $r$}\;
+        $\ph_{S} \gets$ \MakeMinimalPerfectHash{$S$, $r$, $k$}\tcp*{$k$-perfect: at most $k$ members per slot}
         $N \gets \left\lceil \Card{S} / r \right\rceil$\;
         $M \gets \left\lceil -\log_2 \fprate \right\rceil$\;
         $\matrx{V} \gets N$-by-$M$ bit matrix\;
         \For{$x \in S$}
         {
             $i \gets \ph_{S}(x)$\;
-            $h \gets \operatorname{h}(x) \bmod M$\;
-            $\matrx{V}[i] \gets h$\;
+            $h \gets \trunc\!\left(\ro(x), M\right)$\;
+            $\matrx{V}[i] \gets h$\tcp*{collisions overwrite: at most one survivor per slot}
         }
         \tcp{This tuple is sufficient to code the $k$-perfect hash filter.}
         \Return $\Tuple{\matrx{V}, \ph_{S}}$\;
@@ -74,14 +151,13 @@ As $k \to \infty$, $p(k) \to 1$. A $1$-perfect hash function ($k = 1$) is the st
     }
     \KwOut
     {
-        \True if $x \in S$ and $x$ was not displaced by a collision during construction. Otherwise, \True with probability $\fprate$ and \False with probability $1 - \fprate$.
+        \True if $x \in S$ and $x$ was not displaced by a collision during construction. Otherwise, for $x \notin S$, \True with probability $\fprate$ and \False with probability $1 - \fprate$; for a displaced member, \False (a false negative, occurring with rate $\omega$ over the members).
     }
     \func{\Contains{$S^+, x$}}
     {
         $M \gets$ \Columns{$\matrx{V}$}\;
-        $N \gets$ \Rows{$\matrx{V}$}\;
         $i \gets \ph_{S}(x)$\;
-        $h \gets \operatorname{h}(x) \bmod M$\;
+        $h \gets \trunc\!\left(\ro(x), M\right)$\;
         \Return{$\matrx{V}[i] = h$}\;
     }
 \end{algorithm}

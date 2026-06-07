@@ -1,13 +1,58 @@
-% Placeholder figure, created 2026-05-29 (build-repair).
-% rd_ph_filter.tex \input's this file, but the original img/phfilter.tex was never committed
-% (absent from disk and git history), so pdflatex aborted with a fatal "file not found" and
-% produced no PDF. This tabular stub restores the build and conveys the intended schematic:
-% a 5-slot perfect-hash array storing 3-bit fingerprints for {x1, x2, x3}
-% (load factor 3/5, false positive rate 2^{-3}). Replace with the intended TikZ diagram.
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-slot $0$ & slot $1$ & slot $2$ & slot $3$ & slot $4$ \\
-\hline
-$\mathtt{101}$ & $\varnothing$ & $\mathtt{011}$ & $\mathtt{110}$ & $\varnothing$ \\
-\hline
-\end{tabular}
+% Real TikZ schematic of the perfect hash filter, replacing the 2026-05-29 tabular stub.
+% Construction (top): members {x1,x2,x3} -> minimal perfect hash ph_S -> slots ->
+%   stored M=3-bit fingerprints trunc(h*(x),3). Load factor 3/5 (3 of 5 slots filled),
+%   false positive rate eps = 2^{-3}.
+% Query (bottom): a query y is hashed to a slot, its fingerprint is compared to the
+%   stored row, and membership is accepted on equality, rejected otherwise.
+\usetikzlibrary{positioning,arrows.meta}
+\begin{tikzpicture}[
+    >={Stealth[length=4pt]},
+    font=\footnotesize,
+    member/.style={draw, rounded corners, minimum width=2.6em, minimum height=1.6em},
+    slot/.style={draw, minimum width=3.0em, minimum height=1.7em},
+    empty/.style={slot, fill=ltgray!25},
+    lbl/.style={font=\scriptsize\itshape},
+]
+% ---- slot array (the bit matrix V), drawn as a vertical column ----
+\node[slot]  (s0) at (4.2, 2.0) {$\mathtt{101}$};
+\node[empty] (s1) at (4.2, 1.0) {};
+\node[slot]  (s2) at (4.2, 0.0) {$\mathtt{011}$};
+\node[slot]  (s3) at (4.2,-1.0) {$\mathtt{110}$};
+\node[empty] (s4) at (4.2,-2.0) {};
+% slot indices
+\foreach \i/\n in {0/s0,1/s1,2/s2,3/s3,4/s4}{
+    \node[left=1pt of \n, font=\scriptsize] {slot $\i$};
+}
+\node[above=2pt of s0, align=center, font=\scriptsize]
+    {bit matrix $\matrx{V}$\\($M=3$ bits/slot)};
+
+% ---- members on the left ----
+\node[member] (x1) at (0,  1.5) {$x_1$};
+\node[member] (x2) at (0,  0.0) {$x_2$};
+\node[member] (x3) at (0, -1.5) {$x_3$};
+\node[above=10pt of x2, font=\scriptsize] {members $\Set{S}$};
+
+% ---- perfect-hash mapping (construction) ----
+% ph_S sends x1->slot2, x2->slot0, x3->slot3 (an injective, i.e. perfect, assignment)
+\draw[->] (x1) to[out=0,in=180] node[lbl,pos=0.55,above]{$\ph_{\Set{S}}$} (s2.west);
+\draw[->] (x2) to[out=0,in=180] (s0.west);
+\draw[->] (x3) to[out=0,in=180] (s3.west);
+\node[lbl, font=\scriptsize\itshape] at (2.0,-2.35)
+    {store $\trunc(\ro(x),3)$ at $\ph_{\Set{S}}(x)$};
+
+% ---- query path (bottom) ----
+\node[member] (q) at (0,-3.4) {$y$};
+\node[font=\scriptsize, right=1pt of q] {query};
+\node[draw, rounded corners, minimum height=1.6em] (cmp) at (7.6,-1.0)
+    {$\matrx{V}[i] \stackrel{?}{=} \trunc(\ro(y),3)$};
+% y -> its slot index i = ph_S(y)
+\draw[->, dashed] (q.east) to[out=0,in=200]
+    node[lbl,pos=0.35,below]{$i=\ph_{\Set{S}}(y)$} (s4.west);
+% compare the addressed slot against the recomputed fingerprint
+\draw[->, dashed] (s3.east) to[out=0,in=180] (cmp.west);
+% accept / reject
+\node[font=\scriptsize] (acc) at (7.6, 0.2) {accept ($y \in S^{+}$)};
+\node[font=\scriptsize] (rej) at (7.6,-2.2) {reject};
+\draw[->] (cmp.north) -- (acc.south) node[midway,right,font=\scriptsize]{$=$};
+\draw[->] (cmp.south) -- (rej.north) node[midway,right,font=\scriptsize]{$\neq$};
+\end{tikzpicture}
