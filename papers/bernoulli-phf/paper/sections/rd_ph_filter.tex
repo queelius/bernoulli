@@ -169,12 +169,27 @@ Consider a set $A = \{x_1, x_2, x_3\}$ and suppose we wish to approximate this s
 \input{img/phfilter.tex}
 \end{figure}
 
+Following the Bernoulli set model~\cite{bsets}, we recall the defining conditions of a positive approximate set.
+\begin{definition}
+\label{def:approx_set}
+A data structure implements the \emph{positive approximate set} (positive Bernoulli set) $\PASet{S} \supseteq \Set{S}$ with false positive rate $\fprate$ if the membership test satisfies:
+\begin{enumerate}
+\item for all $x \in \Set{S}$, $\SetContains[\PASet{S}][x]$ returns \True\ (no false negatives);
+\item for any $x \notin \Set{S}$, $\SetContains[\PASet{S}][x]$ returns \True\ with probability $\fprate$ and \False\ with probability $1 - \fprate$.
+\end{enumerate}
+\end{definition}
+
 We make the following set of assumptions. See \cite{oph} for more on these assumptions.
 \begin{enumerate}
     \item The set $A$ consists of $m$ elements, where each element is drawn uniformly at random without replacement from $\{0,1\}^*$.
     \item The rate-distorted perfect hash function $\ph_{A}$ is a cryptographic hash function.
     \item The hash function $\operatorname{hash} \colon \{0,1\}^* \mapsto \{0,1\}^k$ is a cryptographic hash function.
 \end{enumerate}
+
+\begin{assumption}[Random oracle]
+\label{asm:ro}
+The fingerprint hash function $h$ behaves as a random oracle: for any input, its output is uniformly distributed over the $2^M$ bit strings of length $M$, independently across distinct inputs.
+\end{assumption}
 
 These assumptions ensure that the \gls{gls-phf} satisfies the element-wise independence axiom of the Bernoulli set model~\cite{bsets}.
 
@@ -195,10 +210,10 @@ For the \gls{gls-phf} to be an implementation of approximate set $\PASet{S} \sup
 \item\label{itm:fp_rate_2} For any $x \notin \Set{S}$, $x \in \PASet{S}$ returns \True with probability $\fprate$ and \False with probability $1 - \fprate$.
 \end{enumerate}
 
-First, we prove condition \ref{itm:fp_rate_1}. For some $x \in \BitStringSet$,
-let $i = \ph_{\Set{X}}(x)$. For $\SetContains[\PASet{S}][x]$ to return \True, row $\matrx{V}[i]$ must equal the hash given by h{$x$}. Since \ph$_{\Set{S}}$ perfectly hashes all $y \in \Set{S}$ and $x \in \Set{S}$, no other member of $\Set{S}$ hashes ?, and $\matrx{V}[i]$ is explicitly set to the hash $h(x)$ during the construction of the \gls{gls-phf} as given by \cref{alg:PHF}.
+First, we prove condition \ref{itm:fp_rate_1}. For some $x \in \BitSet^*$,
+let $i = \ph_{\Set{S}}(x)$. For $\SetContains[\PASet{S}][x]$ to return \True, row $\matrx{V}[i]$ must equal the hash $h(x)$. Since $\ph_{\Set{S}}$ perfectly hashes all $y \in \Set{S}$ and $x \in \Set{S}$, no other member of $\Set{S}$ hashes to slot $i$, and $\matrx{V}[i]$ is explicitly set to the hash $h(x)$ during the construction of the \gls{gls-phf} as given by \cref{alg:PHF}.
 
-Second, we prove condition \ref{itm:fp_rate_2}. Observe that $\ph_{\Set{S}}$ is a hash function that takes any $x \in \BitSet^*$ and maps it to an integer between $1$ and $N$. The corresponding row of $\matrx{V}$ consists of $M$ bits. There are $2^M$ possible bit strings of length $M$ and, by \cref{asm:ro}, h uniformly distributes over these possibilities. Thus, for $x \notin \Set{S}$, the probability that h{$x$} is equal to the corresponding $M$ bits is given by the false positive rate
+Second, we prove condition \ref{itm:fp_rate_2}. Observe that $\ph_{\Set{S}}$ is a hash function that takes any $x \in \BitSet^*$ and maps it to an integer between $1$ and $N$. The corresponding row of $\matrx{V}$ consists of $M$ bits. There are $2^M$ possible bit strings of length $M$ and, by \cref{asm:ro}, $h$ uniformly distributes over these possibilities. Thus, for $x \notin \Set{S}$, the probability that $h(x)$ is equal to the corresponding $M$ bits is given by the false positive rate
 \begin{equation}
 \fprate = 2^{-M}\,.
 \end{equation}
@@ -206,14 +221,14 @@ Since $M$ is any non-negative integer, the false positive rate is given by \cref
 \end{proof}
 
 \subsection{Space complexity}
-The minimum possible bit length of a data structure implementing the abstract data type of the \emph{Bernoulli set} is given by the following postulate.
+The minimum possible bit length of a data structure implementing the abstract data type of the \emph{Bernoulli set} is given by the following postulate (see~\cite{bsets} for a proof).
 \begin{postulate}
 \label{pst:approx_l_b}
 The information-theoretic lower-bound of a data structure that implements the \emph{Bernoulli set} abstract data type has an \emph{expected} bit length given by
 \begin{equation}
-    -\log_2 \fprate \; \si{bits \per element}\,,
+    -(1 - \fnrate) \log_2 \fprate \; \si{bits \per element}\,,
 \end{equation}
-where $\fprate$ is the false positive rate.
+where $\fprate$ is the false positive rate and $\fnrate$ is the false negative rate. For the \emph{positive} Bernoulli set realized by the \gls{gls-phf}, $\fnrate = 0$ and the lower-bound specializes to $-\log_2 \fprate$ bits per element.
 \end{postulate}
 
 The \emph{expected} bit length of the \emph{minimal} \gls{gls-phf} has a lower-bound given by the following theorem.
@@ -363,7 +378,7 @@ The \gls{gls-phf} is most suitable as an immutable data structure. It is optimiz
 \begin{equation}
     \mathcal{O} \left( 1 \right)
 \end{equation}
-hash functions need to be computed to test an element for membership. The Bloom filter is suitable as a mutalbe data structure; elements may be inserted into it at any point at a cost of increasing the false positive rates. However, it requires computing on the order of
+hash functions need to be computed to test an element for membership. The Bloom filter is suitable as a mutable data structure; elements may be inserted into it at any point at a cost of increasing the false positive rates. However, it requires computing on the order of
 \begin{equation}
     \mathcal{O}\left(-\log \fprate\right)
 \end{equation}
@@ -375,7 +390,7 @@ The \emph{Bloom filter} has an expected encoding size given approximately by
 \end{equation}
 The absolute efficiency of the \gls{gls-blf} is approximately $\ln 2 \approx 0.69$.
 
-The relative efficiency of the \gls{gls-phf} to the \gls{gls-blf} is a function of the false positive rate $\fprate$ as shown in \cref{fig:rel_eff_bf_PHF,fig:abs_eff}. If $\fprate < 2^{-3}$, the \gls{gls-blf} is more space efficient; otherwise the \gls{gls-phf} is more space efficient. As $\fprate$ goes to $0$, the relative efficiency of the \gls{gls-phf} to the \gls{gls-blf} goes to $1.44$.
+The relative efficiency of the \gls{gls-phf} to the \gls{gls-blf} is a function of the false positive rate $\fprate$ as shown in \cref{fig:rel_eff_bf_PHF,fig:abs_eff}. For this idealized construction, the break-even point is $\fprate \approx 2^{-3}$: if $\fprate < 2^{-3}$, the \gls{gls-phf} is more space efficient; otherwise the \gls{gls-blf} is more space efficient. As $\fprate$ goes to $0$, the relative efficiency of the \gls{gls-phf} to the \gls{gls-blf} goes to $1.44$.
 
 \subsection{Entropy}
 If the load factor is known, the cardinality of $\Set{S} \subset \PASet{S}$ is given by
@@ -384,7 +399,7 @@ If the load factor is known, the cardinality of $\Set{S} \subset \PASet{S}$ is g
 \end{equation}
 
 If the load factor is not known, then the cardinality may be probabilistically estimated.
-According to \cite{}, the probability mass of the perfect hash function is given by
+According to \cite{oph}, the probability mass of the perfect hash function is given by
 \begin{equation}
     \RV{N} \sim \PDF{n \Given m, r}[\RV{N}] = q^{2^n-1}\left(1 - q^{2^n}\right)
 \end{equation}
@@ -410,67 +425,43 @@ For a random bit $\RV{X}$ to have maximum entropy, it must be Bernoulli distribu
     \RV{X} \sim \berdist\!\left(p = \frac{1}{2}\right)\,.
 \end{equation}
 
-The \gls{gls-phf} of $\Set{S}$ is coded by two parts. The first party is a \emph{cryptographic} hash of $m$ elements in $\Set{S}$ concatenated with a bit string $b_n$, denoted by $h_k$. The \emph{cryptographic} hash function uniformly distributes over $\BitSet^{k}$, and so $h_k$ has maximum entropy.
+The \gls{gls-phf} of $\Set{S}$ is coded by two parts. The first part is a \emph{cryptographic} hash of $m$ elements in $\Set{S}$ concatenated with a bit string $b_n$, denoted by $h_k$. The \emph{cryptographic} hash function uniformly distributes over $\BitSet^{k}$, and so $h_k$ has maximum entropy.
 
 The second part is a bit string $b_n$ of bit length $n$.
 \end{proof}
 
-The only information contained in the code, prior to memmbership test, is given by the probality mass function of the random bit length $\RV{N}$, which is a function of the cardality of the \gls{gls-finiteset} it is approximating.
+The only information contained in the code, prior to a membership test, is given by the probability mass function of the random bit length $\RV{N}$, which is a function of the cardinality of the \gls{gls-finiteset} it is approximating.
 
 The random bit length $\RV{N}$ of the string has a probability mass concentrated around
 \begin{equation}
-    -m \log_2 \fprate + 1.44 m\,.
+\label{eq:phf_expected_bits}
+    \Expect{\RV{N}} = -m \log_2 \fprate + 1.44 m\,.
 \end{equation}
 
 
 \begin{theorem}
-An estimator of the cardinality of an approximated set represented by a \gls{gls-phf} is given by
+A \emph{method-of-moments} estimator of the cardinality of an approximated set represented by a \gls{gls-phf} is given by
 \begin{equation}
-    \hat{m} = -\frac{\BL\!\left(\PASet{S}\right)}{-\log_2 \fprate + 1.44}\,,
+    \hat{m} = \frac{\BL\!\left(\PASet{S}\right)}{-\log_2 \fprate + 1.44}\,,
 \end{equation}
-were $\BL$ is the bit length function and $\fprate$ is the \emph{\gls{gls-fprate}}.
+where $\BL$ is the bit length function and $\fprate$ is the \emph{\gls{gls-fprate}}.
 \end{theorem}
 \begin{proof}
-The \emph{expected} bit length is given by
+The \emph{expected} bit length is given by \cref{eq:phf_expected_bits},
 \begin{equation*}
     \Expect{\RV{N}} = -m \log_2 \fprate + 1.44 m\,,
-    \tag{\ref{} revisited}
+    \tag{\ref{eq:phf_expected_bits} revisited}
 \end{equation*}
-where $m$ is the cardinality of the approximated set. Thus, the maximumn likelihood estimator is given by assuming the bit length of the \gls{gls-phf} realizes this expectation,
+where $m$ is the cardinality of the approximated set. The method-of-moments estimator is obtained by equating the observed bit length of the \gls{gls-phf} to this expectation,
 \begin{equation}
-    \BL(\PASet{S}) = -\hat{m} \log_2 \fprate + 1.44 \hat{m}\,.
+    \BL(\PASet{S}) = -\hat{m} \log_2 \fprate + 1.44 \hat{m}\,,
 \end{equation}
-Solving for $\hat{m}$ results in the estimator
+and solving for $\hat{m}$, which yields the estimator
 \begin{equation}
     \hat{m} = \frac{\BL(\PASet{S})}{-\log_2 \fprate + 1.44}\,.
 \end{equation}
 \end{proof}
-
-
-
-\begin{theorem}
-A \emph{maximum likelihood estimator} of the cardinality of an approximated set represented by a \gls{gls-phf} is given by
-\begin{equation}
-    \hat{m} = -\frac{\BL\!\left(\PASet{S}\right)}{-\log_2 \fprate + 1.44}\,,
-\end{equation}
-were $\BL$ is the bit length function and $\fprate$ is the \emph{\gls{gls-fprate}}.
-\end{theorem}
-\begin{proof}
-The \emph{expected} bit length is given by
-\begin{equation*}
-    \Expect{\RV{N}} = -m \log_2 \fprate + 1.44 m\,,
-    \tag{\ref{} revisited}
-\end{equation*}
-where $m$ is the cardinality of the approximated set. Thus, the maximumn likelihood estimator is given by assuming the bit length of the \gls{gls-phf} realizes this expectation,
-\begin{equation}
-    \BL(\PASet{S}) = -\hat{m} \log_2 \fprate + 1.44 \hat{m}\,.
-\end{equation}
-Solving for $\hat{m}$ results in the estimator
-\begin{equation}
-    \hat{m} = \frac{\BL(\PASet{S})}{-\log_2 \fprate + 1.44}\,.
-\end{equation}
-\end{proof}
-However, there is actually a simpler method. Simply count the number of rows in the matrix $\matrx{V}$.
+When the bit matrix is available, there is a simpler method: count the number of rows in the matrix $\matrx{V}$.
 
 We made trade space complexity for entropy if desired. For instance, if we find a bit string of a length around $t > -m \log_2 \fprate$ that codes the \gls{gls-phf}, then an estimate of the cardinality is given by
 \begin{equation}
@@ -506,7 +497,7 @@ which is the \emph{maximum} efficiency possible for an approximate set with $\lo
 
 The theoretical \gls{gls-phf} based off of the random oracle as described by \cite{oph} is not tractable. Its purpose was to demonstrate theoretical properties.
 
-We use a fast state-of-the-art algorithm \cite{chd} for generating perfect hash functions that requires $\alpha(r) \; \si{bits \per element}$, where $\alpha$ is a function of the \gls{gls-loadfactor} $r$ which does not obtain the \emph{expected} lower-bound. The expected bit length of this \gls{gls-phf} is given by
+We use a fast, practical algorithm \cite{chd} for generating perfect hash functions that requires $\alpha(r) \; \si{bits \per element}$, where $\alpha$ is a function of the \gls{gls-loadfactor} $r$ which does not obtain the \emph{expected} lower-bound. The expected bit length of this \gls{gls-phf} is given by
 \begin{equation}
     -\frac{1}{r} \log_2 \fprate + \alpha(r) \; \si{bits \per element}
 \end{equation}
@@ -528,7 +519,7 @@ The relative efficiency of the Bloom filter to the \emph{minimal} perfect hash f
 \begin{equation}
     \ln 2 - \frac{1.4375}{\log_2 \fprate}\,.
 \end{equation}
-The point at which they are equally efficient efficient is $\fprate \approx 2^{-4}$. Thus, the \emph{minimal} perfect hash filter is more efficient if $\fprate < 2^{-4}$ and otherwise the Bloom filter is more efficient. See \cref{fig:rel_eff} for a visualization.
+For this \emph{practical} construction (using the hash-displace-compress perfect-hash algorithm~\cite{chd}, which does not attain the idealized lower-bound), the point at which the two are equally efficient is $\fprate \approx 2^{-4}$. Thus, the practical \emph{minimal} perfect hash filter is more efficient if $\fprate < 2^{-4}$ and otherwise the Bloom filter is more efficient. The break-even is at a smaller false positive rate than the idealized $2^{-3}$ threshold of \cref{fig:abs_eff} precisely because the practical perfect hash costs more bits per element than the random-oracle ideal. See \cref{fig:rel_eff} for a visualization.
 \begin{figure}
 \caption{Relative efficiency of the Bloom filter to the \emph{minimal} perfect hash filter}
 \label{fig:rel_eff}

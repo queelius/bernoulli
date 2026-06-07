@@ -28,7 +28,7 @@ Assuming the elements of an approximate set are \emph{non-enumerable}, i.e., onl
 \SetContains[x][\left(\SetUnion[\ASet{S}[1]][\ASet{S}[2]]\right)] \equiv \left(\SetContains[x][\ASet{S}[1]]\right) \lor \left(\SetContains[x][\ASet{S}[2]]\right)\,.
 \end{equation}
 
-Any set-theoretic composition may be implemented as a combination of unions and complements as described in \cref{sec:set_theory}. A C++ implementation for taking the union of two approximate sets is given by \cref{lst:asetunion} and a C++ implementation for taking the complement of an approximate set is given by \cref{lst:asetcomp}.
+Any set-theoretic composition may be implemented as a combination of unions and complements, with each approximate set stored as-is and composed at query time. The union and complement operators are implemented in C++ as shown below.
 
 % code\random_approximate_sets_adt\include\approximate_set\dynamic
 
@@ -149,7 +149,7 @@ auto fnr(perfect_hash_filter<K, PerfectHashFn, false> A)
 template <int K, typename PerfectHashFn>
 auto fpr(perfect_hash_filter<K, PerfectHashFn, true>)
 {
-	return rate_distortion(A.hash_fn())*(1-fpr(A)); ???
+	return rate_distortion(A.hash_fn())*(1-fpr(A));
 }
 \end{minted}
 

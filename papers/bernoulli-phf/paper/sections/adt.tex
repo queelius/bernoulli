@@ -11,7 +11,7 @@ subtraction.
 
 A \emph{data structure} is a particular way of organizing data and may 
 implement one or more abstract data types. Two different data structures that 
-implement the abstract data type should be \emph{exchangable} in a computer 
+implement the abstract data type should be \emph{exchangeable} in a computer
 program without changing the outward behavior of the program.
 
 See \cref{sec:impl} to see how a C++ interface for the Bernoulli set
@@ -22,7 +22,8 @@ an exchangeable implementation. A popular implementation is the \emph{Bloom
 filter}.
 
 \subsection{Deterministic algorithm}
-By \cref{thm:fpr,thm:fnr}, each independent observation of $\ASet{S}$ generates 
+By \cref{thm:fp_rate} (and, for false negatives, the Bernoulli set
+model~\cite{bsets}), each independent observation of $\ASet{S}$ generates
 an uncertain number of false positives and false negatives. In practice, this
 may or may not be the case.
 
@@ -49,7 +50,7 @@ knowledge is independent of experience.}  about the image of $\operatorname{f}$
 is that its members are subsets of $\Set{U}$ and it contains the empty set 
 $\EmptySet$ and universal set $\Set{U}$.
 \begin{definition}
-A $\sigma$-algebra is closed under...
+A \emph{$\sigma$-algebra} on a set $\Set{U}$ is a collection of subsets of $\Set{U}$ that contains $\Set{U}$ and is closed under complementation and under countable unions (and hence, by De Morgan's laws, under countable intersections).
 \end{definition}
 The image of $\operatorname{f}$ is not necessarily a $\sigma$-algebra. However, 
 the subsets of $\Set{U}$ that may be constructed by countable complements, 
@@ -94,9 +95,9 @@ In practice, it is often trivial to implement a large family
 of random approximate set
 generators with distinct Boolean algebras given a single implementation, e.g.,
 ``randomly'' seeding a Bloom filter's hash function. As the size of this family
-goes to infinity, ``randomly'' selecting one of them each time we generate an 
-approximate set generates a random sample consistent with the 
-probability distribution given by \cref{dummyref}.   
+goes to infinity, ``randomly'' selecting one of them each time we generate an
+approximate set generates a random sample consistent with the
+probability distribution of the Bernoulli set model~\cite{bsets}.
 
 %In some cases, it may be important for each objective set to 
 %%%have a unique approximate set. A quantity of $n$ 
@@ -159,7 +160,7 @@ quantifies our \emph{ignorance}:
 \item Given an objective set $\Set{S}$, we do not have complete \emph{a priori} 
 knowledge about the set $\Set{X}$ it maps to (the approximate set model only 
 provides \emph{a priori} knowledge about the probability distribution 
-$\ASet{S}$). We acquire \emph{a posterior} knowledge\footnote{A posteriori 
+$\ASet{S}$). We acquire \emph{a posteriori} knowledge\footnote{A posteriori
 knowledge is dependent on experience.} by applying the algorithm and 
 \emph{observing} $\Set{X}$ as its output.
 \item Given a set $\Set{X}$ that approximates some unknown objective set 
@@ -182,12 +183,12 @@ our uncertainty by mapping some subset of interest.
 
 Suppose $\Set{U}$ is finite. There are $2^{\Card{\Set{U}}}$ subsets of
 $\Set{U}$, and each set in $\SetDiff[\PowerSet(\Set{U})][\{\EmptySet,\Set{U}\}]$ 
-may map (assuming both false positives and false negatives are possible) to 
-\emph{any} of subset. There are a total of
+may map (assuming both false positives and false negatives are possible) to
+\emph{any} subset. There are a total of
 \begin{equation}
     2^{2(\Card{\Set{U}} - 1)}
 \end{equation}
-possible functions that map perform this 
+possible functions that perform this
 mapping.\footnote{There are a countably infinite number of 
 algorithms that may carry out the computations that 
 implement any particular function.} Each of these functions 
@@ -199,17 +200,19 @@ in the universal set to the same hash. Thus, for instance, no
 matter the objective set $\Set{X} \subseteq \Set{U}$, it will 
 map to $\Set{U}$. The Bloom filter had a theoretically sound 
 implementation, but only after empirical evidence was it 
-discovered that it was not suitable. This is an extremely 
-unlikely outcome in the case of large universal sets, but as 
-the cardinality of the universal set decreases, the 
-probability of such an outcome increases. Indeed, at 
-$\Card{U} = 2$, the probability of this outcome is $?$.
+discovered that it was not suitable. This is an extremely
+unlikely outcome in the case of large universal sets, but as
+the cardinality of the universal set decreases, the
+probability of such an outcome increases. Indeed, for a
+single-hash filter over $m$ buckets and $\Card{\Set{U}} = 2$,
+the two elements collide into one bucket with probability
+$1/m$ (which is $1/2$ for the minimal $m = 2$).
 
 Thus, \emph{a priori} knowledge, e.g., a theoretically sound 
 algorithm, is not in practice sufficient (although for large 
 universal sets, the probability is negligible). The 
-suitability of an algorithm can only be determined by 
-acquring \emph{a posterior} knowledge.
+suitability of an algorithm can only be determined by
+acquiring \emph{a posteriori} knowledge.
 
 We could explore the space of functions in the family and 
 only choose those which, on some sample of objective sets of 
@@ -275,20 +278,12 @@ rate, and the false negative rate.
 
 The lower-bound on the \emph{expected} space complexity of a data structure
 implementing the \emph{Bernoulli set} abstract data type where the elements
-are over a \emph{countably infinite} universe is given by the following
-postulate (see~\cite{bsets} for a proof).
-\begin{postulate}
-\label{pst:approx_l_b}
-The \emph{information-theoretic lower-bound}\index{information-theoretic 
-lower-bound} of a data structure that implements the countably infinite 
-\emph{approximate set} abstract data type has an \emph{expected} bit length 
-given by
-\begin{equation}
-    -(1 - \fnrate) \log_2 \fprate \; \si{bits \per element}\,,
-\end{equation}
-where $\fprate > 0$ is the false positive rate\index{false positive rate} and 
-$\fnrate$ is the false negative rate\index{false negative rate}.
-\end{postulate}
+are over a \emph{countably infinite} universe is given by
+\cref{pst:approx_l_b}: the \emph{information-theoretic
+lower-bound}\index{information-theoretic lower-bound} is an \emph{expected} bit
+length of $-(1 - \fnrate)\log_2 \fprate$ bits per element, where $\fprate > 0$
+is the false positive rate\index{false positive rate} and $\fnrate$ is the
+false negative rate\index{false negative rate}.
 
 The \emph{relative space efficiency}\index{relative space efficiency} of a data 
 structure\index{data structure} $X$ to a data structure $Y$ is some value 
@@ -357,9 +352,10 @@ then apply the union function,
 \begin{equation}
     \SetUnion[X_1][X_2]\,.
 \end{equation}
-If we replace $X_1$ and $X_2$ by objects that implement \emph{positive 
-approximate sets} of $\Set{S}[1]$ and $\Set{S}[2]$ respectively, then by 
-\cref{dummyref}, the false positive rate of the resulting approximate set is 
+If we replace $X_1$ and $X_2$ by objects that implement \emph{positive
+approximate sets} of $\Set{S}[1]$ and $\Set{S}[2]$ respectively, then by
+the composition theorem of the Bernoulli set model~\cite{bsets}, the false
+positive rate of the resulting approximate set is
 $\fprateob_1 + \fprateob_2 - \fprateob_1 \fprateob_2$.
 
 The space efficiency of this positive approximate set is given by the following 
@@ -405,30 +401,36 @@ The proof comes in two parts. First, we prove \cref{eq:union_space_complexity},
 and then we prove the bounds on $\alpha_1$ and $\alpha_2$ given by 
 \cref{eq:union_space_complexity_bounds}.
 
-Let $X$ and $Y$ denote optimally space-efficient data structures that 
-respectively implement positive approximate sets $\PASet{S}[1]$ and 
-$\PASet{S}[2]$ with false positive rates $\fprateob_1$ and $\fprateob_2$. By 
-\cref{dummyref}, their union has an induced false positive rate given by
+Let $X$ and $Y$ denote optimally space-efficient data structures that
+respectively implement positive approximate sets $\PASet{S}[1]$ and
+$\PASet{S}[2]$ with false positive rates $\fprateob_1$ and $\fprateob_2$. By
+the composition theorem of the Bernoulli set model~\cite{bsets}, a non-member is
+a false positive of the union exactly when it is a false positive of at least
+one of the two independent operands, so their union has an induced false
+positive rate given by inclusion-exclusion,
 \begin{equation}
-    \fprateob_1 + \fprateob_2 + \fprateob_1 \fprateob_2\,.
+    1 - (1 - \fprateob_1)(1 - \fprateob_2)
+        = \fprateob_1 + \fprateob_2 - \fprateob_1 \fprateob_2\,.
 \end{equation}
-The information-theoretic lower-bound of the approximate set of 
-$\SetUnion[\Set{S}[1]][\Set{S}[2]]$ with the above false positive rate is given 
+The information-theoretic lower-bound of the approximate set of
+$\SetUnion[\Set{S}[1]][\Set{S}[2]]$ with the above false positive rate is given
 by
 \begin{equation}
     -\Card{\SetUnion[\Set{S}[1]][\Set{S}[2]]}
-        \log_2 \! \left(\fprateob_1 + \fprateob_2 +
+        \log_2 \! \left(\fprateob_1 + \fprateob_2 -
         \fprateob_1 \fprateob_2\right) \; \si{bits}\,.
 \end{equation}
-Since we assume we only have $X$ and $Y$ and it is not possible to enumerate the 
-elements in either, we must implement their union by storing and separately 
-querying both $X$ and $Y$. Since $X$ and $Y$ are optimal, 
-$\BL(X) = -\Card{\Set{S}[1]} \log_2 \fprateob_1$ and 
-$\BL(Y) = -\Card{\Set{S}[2]} \log_2 \fprateob_2$. 
-Making these substitutions yields an absolute efficiency ???
+Since we assume we only have $X$ and $Y$ and it is not possible to enumerate the
+elements in either, we must implement their union by storing and separately
+querying both $X$ and $Y$. Since $X$ and $Y$ are optimal,
+$\BL(X) = -\Card{\Set{S}[1]} \log_2 \fprateob_1$ and
+$\BL(Y) = -\Card{\Set{S}[2]} \log_2 \fprateob_2$.
+The absolute efficiency is the ratio of the lower-bound bit length of the union
+to the combined bit length $\BL(X) + \BL(Y)$ that the stored-and-queried
+implementation actually occupies. Making these substitutions yields
 \begin{equation}
 \label{eq:proof_union_ae}
-    \AbsoluteEfficiency = \frac{\Card{\SetUnion[\Set{S}[1]][\Set{S}[2]]} \log_2 \! \left(\fprateob_1 + \fprateob_2 + \fprateob_1 \fprateob_2\right)}{\Card{\Set{S}[1]} \log_2 \fprateob_1 + \Card{\Set{S}[2]} \log_2 \fprateob_2}\,.
+    \AbsoluteEfficiency = \frac{\Card{\SetUnion[\Set{S}[1]][\Set{S}[2]]} \log_2 \! \left(\fprateob_1 + \fprateob_2 - \fprateob_1 \fprateob_2\right)}{\Card{\Set{S}[1]} \log_2 \fprateob_1 + \Card{\Set{S}[2]} \log_2 \fprateob_2}\,.
 \end{equation}
 Letting
 \begin{equation}
@@ -453,7 +455,7 @@ has a minimum value by assuming that $\Set{S}[1]$ and $\Set{S}[2]$ are disjoint 
     \alpha_1 + \alpha_2 = \frac{\Card{\Set{S}[1]} + \Card{\Set{S}[2]}}{\Card{\Set{S}[1]} + \Card{\Set{S}[2]}} = 1\,.
 \end{equation}
 \end{proof}
-See \cref{dummyref} for a contour plot of the expected lower-bound as a function of $\fprateob_1$ and $\fprateob_2$. As $\fprateob_1 \to 0$ or $\fprateob_2 \to 0$, the efficiency goes to $0$.
+See \cref{fig:cor_union_same_fprate} for a plot of the expected lower-bound on the efficiency as a function of the false positive rate. As $\fprateob_1 \to 0$ or $\fprateob_2 \to 0$, the efficiency goes to $0$.
 
 The lower-bound on the efficiency of the union of approximate sets is given by the following corollary.
 \begin{corollary}
