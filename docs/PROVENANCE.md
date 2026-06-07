@@ -6,15 +6,15 @@ its manifest. Edit the manifest and re-run; do not hand-edit this file.
 
 | Artifact | Repo | Type | License | Concept DOI | Latest version DOI | Status |
 |---|---|---|---|---|---|---|
-| Bernoulli sets: a model for random approximate sets | [bernoulli_sets](https://github.com/queelius/bernoulli_sets) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
-| Composition of Bernoulli sets | [bernoulli_composition](https://github.com/queelius/bernoulli_composition) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
-| Binary classification measures for random approximate sets | [bernoulli_classification_measures](https://github.com/queelius/bernoulli_classification_measures) | article | CC-BY-4.0 | (mint) | 10.5281/zenodo.19104550 | DOI minted |
+| Bernoulli sets: a model for random approximate sets | [bernoulli_sets](https://github.com/queelius/bernoulli_sets) | article | CC-BY-4.0 | 10.5281/zenodo.19105381 | 10.5281/zenodo.19105382 | DOI minted |
+| Composition of Bernoulli sets | [bernoulli_composition](https://github.com/queelius/bernoulli_composition) | article | CC-BY-4.0 | 10.5281/zenodo.19105387 | 10.5281/zenodo.19105388 | DOI minted |
+| Binary classification measures for random approximate sets | [bernoulli_classification_measures](https://github.com/queelius/bernoulli_classification_measures) | article | CC-BY-4.0 | 10.5281/zenodo.19104549 | 10.5281/zenodo.19104550 | DOI minted |
 | Entropy and space complexity of random approximate sets | [bernoulli_entropy](https://github.com/queelius/bernoulli_entropy) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps | [bernoulli-hash-function](https://github.com/queelius/bernoulli-hash-function) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map | [bernoulli-phf](https://github.com/queelius/bernoulli-phf) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
-| The Algebra of the Random Approximate Map Model | [bernoulli_maps](https://github.com/queelius/bernoulli_maps) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
+| The Algebra of the Random Approximate Map Model | [bernoulli_maps](https://github.com/queelius/bernoulli_maps) | article | CC-BY-4.0 | 10.5281/zenodo.19105389 | 10.5281/zenodo.19105390 | DOI minted |
 | The Abstract Data Type of the Approximate Relation | [bernoulli_relations](https://github.com/queelius/bernoulli_relations) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
-| The Bernoulli Model: A Probabilistic Framework for Data Structures and Types | [bernoulli_data_type](https://github.com/queelius/bernoulli_data_type) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
+| The Bernoulli Model: A Probabilistic Framework for Data Structures and Types | [bernoulli_data_type](https://github.com/queelius/bernoulli_data_type) | article | CC-BY-4.0 | 10.5281/zenodo.19105398 | 10.5281/zenodo.19105399 | DOI minted algebraic_types sub-paper minted separately at concept 10.5281/zenodo.19105395 (version 10.5281/zenodo.19105396) |
 | A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes | [bernoulli-quantum-readout](https://github.com/queelius/bernoulli-quantum-readout) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | bernoulli-types: a Python implementation of random approximate types | [bernoulli](https://github.com/queelius/bernoulli/tree/main/bernoulli-py) | software | MIT | (mint) | (mint) | metadata ready subtree split to queelius/bernoulli-types deferred |
 | Bernoulli Types: An Algebra of Approximate Computation | [bernoulli](https://github.com/queelius/bernoulli/tree/main/book) | book | all-rights-reserved | (mint) | (mint) | metadata ready all-rights-reserved (KDP-bound); Zenodo deposit + repo split deferred |

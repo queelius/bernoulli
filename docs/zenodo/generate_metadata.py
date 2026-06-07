@@ -64,6 +64,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "A probabilistic framework for random approximate sets with independent element-wise false-positive and false-negative errors; two axioms yield the error-count distributions, their normal limits, and confidence intervals.",
         "keywords": ["false positive rate", "false negative rate", "Bloom filter", "axioms"],
+        "concept_doi": "10.5281/zenodo.19105381", "version_doi": "10.5281/zenodo.19105382",
+        "url": "https://doi.org/10.5281/zenodo.19105381",
     },
     {
         "dir": "papers/bernoulli_composition", "repo": "bernoulli_composition",
@@ -71,6 +73,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Closed-form error rates for complement, union, intersection, and difference of Bernoulli sets, showing the model is closed under set-theoretic composition.",
         "keywords": ["set composition", "error propagation", "union", "intersection"],
+        "concept_doi": "10.5281/zenodo.19105387", "version_doi": "10.5281/zenodo.19105388",
+        "url": "https://doi.org/10.5281/zenodo.19105387",
     },
     {
         "dir": "papers/bernoulli_classification_measures", "repo": "bernoulli_classification_measures",
@@ -78,8 +82,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Distributions, expectations, and variances of binary classification measures (PPV, NPV, accuracy, F1, Youden's J) for the Bernoulli set model, via delta-method expansions validated by Monte Carlo.",
         "keywords": ["binary classification", "positive predictive value", "F1-score", "delta method"],
-        "concept_doi": "", "version_doi": "10.5281/zenodo.19104550",
-        "url": "https://doi.org/10.5281/zenodo.19104550", "date_released": "2026-03-18",
+        "concept_doi": "10.5281/zenodo.19104549", "version_doi": "10.5281/zenodo.19104550",
+        "url": "https://doi.org/10.5281/zenodo.19104549", "date_released": "2026-03-18",
     },
     {
         "dir": "papers/bernoulli_entropy", "repo": "bernoulli_entropy",
@@ -108,6 +112,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, the composition theorem, and a space-optimal construction at -log2(epsilon)+mu bits per element.",
         "keywords": ["approximate map", "model order", "composition theorem", "channel"],
+        "concept_doi": "10.5281/zenodo.19105389", "version_doi": "10.5281/zenodo.19105390",
+        "url": "https://doi.org/10.5281/zenodo.19105389",
     },
     {
         "dir": "papers/bernoulli_relations", "repo": "bernoulli_relations",
@@ -122,6 +128,9 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The Bernoulli Model, a probabilistic framework for uncertainty in data types, trading space for accuracy with O(1) operations and probabilistic guarantees; the foundational overview.",
         "keywords": ["data types", "cipher data types", "Count-Min sketch", "error propagation"],
+        "concept_doi": "10.5281/zenodo.19105398", "version_doi": "10.5281/zenodo.19105399",
+        "url": "https://doi.org/10.5281/zenodo.19105398",
+        "note": "algebraic_types sub-paper minted separately at concept 10.5281/zenodo.19105395 (version 10.5281/zenodo.19105396)",
     },
     {
         "dir": "papers/bernoulli-quantum-readout", "repo": "bernoulli-quantum-readout",

@@ -9,6 +9,8 @@ authors:
     affiliation: "Southern Illinois University Edwardsville"
 repository-code: "https://github.com/queelius/bernoulli_composition"
 license: CC-BY-4.0
+doi: "10.5281/zenodo.19105388"
+url: "https://doi.org/10.5281/zenodo.19105387"
 keywords:
   - Bernoulli set
   - random approximate types
