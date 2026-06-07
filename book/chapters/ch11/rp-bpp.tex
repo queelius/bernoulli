@@ -128,6 +128,39 @@ majority of independent draws; the proof, via the Chernoff bound
 exponentially in the repetition count even though no single coin sequence drives
 either error to zero.
 
+\begin{remark}[The quantum sibling: amplitude amplification]
+\label{rem:quantum-amplification}
+The amplification theorems above compose \emph{probabilities} across independent
+runs: the OR aggregator drives $\fnrate$ to $2^{-k}$
+(\Cref{thm:rp-amplification}), the majority aggregator gives Chernoff decay
+(\Cref{thm:bpp-amplification}). The quantum class BQP has a sibling operation,
+\emph{amplitude amplification} (\textcite{grover-1996} search is its special
+case; the general form is \parencite{brassard-2002}), that composes
+\emph{amplitudes} instead, and the comparison is exact. Take a one-sided routine
+that succeeds with probability $p$. Classical OR-amplification reaches
+near-certainty in $k \propto 1/p$ runs, since the found-probability
+$1 - (1 - p)^k \approx kp$ grows linearly in $k$. Amplitude amplification rotates
+the success \emph{amplitude} by a fixed angle $\theta$ per step,
+$\sin\theta = \sqrt{p}$, so after $k$ steps the success probability is
+$\sin^2\!\big((2k+1)\theta\big)$, the square of an amplitude that grows linearly
+in $k$, reaching near-certainty in $k \propto 1/\sqrt{p}$ steps. The quadratic
+speedup is exactly probability equals amplitude squared, applied to a quantity
+that accumulates linearly: the Born-rule square is the entire $\sqrt{\cdot}$.
+
+Two caveats keep this an analogy rather than an identity, and both trace to the
+latent-value question of \Cref{sec:quantum-contextuality}. First, the classical
+theorems presuppose a stable latent value to resample:
+\Cref{ax:element-indep} makes the repeated looks independent draws on one fixed
+truth. A superposition has no such value; measuring collapses it, and
+re-measuring in the same basis returns the collapsed outcome, not a fresh
+sample, so ``repeat and aggregate'' is unavailable and one must amplify the
+amplitude coherently before the single measurement. Second, classical
+amplification is monotone, more runs never hurt and the error tends to zero,
+whereas amplitude amplification is oscillatory: rotating past
+$(2k+1)\theta \approx \pi/2$ drives the success probability back down. The same
+Born square that buys the speedup forbids the monotonicity.
+\end{remark}
+
 \subsection*{The correspondence at scale}
 
 \begin{center}

@@ -1,8 +1,9 @@
 % §11.6 Bibliographic Notes
 %
 % Monograph register: Miller-Rabin origins, the randomized-algorithms field,
-% Chernoff/concentration, Karger. Citations rabin-1980, miller-1976, cormen-clrs,
-% motwani-raghavan, mitzenmacher-upfal, karger-1993. Cross-refs
+% Chernoff/concentration, Karger, quantum amplitude amplification. Citations
+% rabin-1980, miller-1976, cormen-clrs, motwani-raghavan, mitzenmacher-upfal,
+% karger-1993, grover-1996, brassard-2002. Cross-refs
 % thm:miller-rabin-formal, sec:miller-rabin-formal, sec:las-vegas-vs-monte-carlo,
 % sec:rp-bpp, sec:sample-complexity, thm:chernoff. DEFINED: sec:bib-notes-ch11.
 
@@ -42,3 +43,16 @@ probability. Its value here is not its complexity but its illustration of the
 Monte Carlo pattern, a weak per-trial signal amplified by independent repetition,
 the same $\Bernoulli{\BoolType}$ amplification \Cref{sec:sample-complexity}
 applies to Miller-Rabin and BPP.
+
+\paragraph{Quantum amplitude amplification.}
+The quantum sibling of the amplification theorems, noted in
+\Cref{rem:quantum-amplification}, is amplitude amplification.
+\textcite{grover-1996}, ``A Fast Quantum Mechanical Algorithm for Database
+Search,'' gave the search whose state rotates toward the marked item by a fixed
+angle per iteration; \textcite{brassard-2002}, ``Quantum Amplitude
+Amplification and Estimation,'' generalized it to any one-sided routine and is
+the reference for the $1/\sqrt{p}$ scaling. The reading here, that the quadratic
+speedup over classical OR-amplification is the Born-rule square applied to a
+linearly accumulating amplitude, and that it needs coherence in place of the
+resampleable latent value the classical theorems assume
+(\Cref{sec:quantum-contextuality}), is the chapter's.
