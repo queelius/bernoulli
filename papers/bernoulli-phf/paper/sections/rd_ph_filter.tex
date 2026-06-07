@@ -55,17 +55,19 @@ The \gls{gls-phf} is a data structure that implements\footnote{In \cref{thm:fp_r
 \end{definition}
 
 
-The \emph{Perfect Hash Filter} is a product type $\textrm{PerfectHashFilter} = \textrm{BitMatrix} \times \textrm{PerfectHash}$ and a set of functions
-\begin{enumerate}
-\item $\SetContains \colon \BitSet^* \times \textrm{PerfectHashFilter}]$
-\end{enumerate}
+Concretely, a \gls{gls-phf} is a value of the product type
+\begin{equation}
+\label{eq:phf_type}
+    \PHF \;=\; \BitMatrix \times \PH\,,
+\end{equation}
+that is, a pair $\Tuple{\matrx{V}, \ph_{\Set{S}}}$ of a bit matrix $\matrx{V}$ (the stored fingerprints) and a perfect hash function $\ph_{\Set{S}}$ (the slot assignment). It supports the single membership operation of the positive Bernoulli set,
+\begin{equation}
+\label{eq:phf_contains_type}
+    \SetContains \colon \BitSet^* \times \PHF \to \BitSet\,,
+\end{equation}
+which returns $1$ (member) or $0$ (non-member). \Cref{alg:PHF,alg:PHF_has} give the constructor and this membership test. We prove in \cref{thm:fp_rate} that the resulting structure implements the static positive Bernoulli set over $\BitSet^*$.
 
-
-
-tuple of type $[\textrm{BitMatrix}]$ that implements\footnote{In \cref{thm:fp_rate}, we prove the \gls{gls-phf} implements the static positive Bernoulli set.} the abstract data type of the \emph{positive Bernoulli set} where the universe of elements is given by $\BitSet^*$.
-
-
-The \emph{minimal} perfect hash filter given by the following definition.
+The \emph{minimal} perfect hash filter is given by the following definition.
 \begin{definition}
 The \emph{minimal} perfect hash filter is a perfect hash filter with a load factor $1$, i.e., every element $x$ in the set being approximated is \emph{perfectly hashed}.
 \end{definition}
@@ -120,7 +122,7 @@ n 			& \coloneqq \min{\SetBuilder{ j \in \NatSet }{ \Set{Y}[j] \in \PS{\NatSet} 
         \For{$x \in \Set{S}$}
         {
             $i \gets \ph_{\Set{S}}(x)$\;
-            $h \gets \ro(x) \mod M$\;
+            $h \gets \trunc\!\left(\ro(x), M\right)$\;
             $\matrx{V}[i] \gets h$\;
         }
         \tcp{This tuple is sufficient to code the \gls{gls-phf}.}
@@ -128,36 +130,29 @@ n 			& \coloneqq \min{\SetBuilder{ j \in \NatSet }{ \Set{Y}[j] \in \PS{\NatSet} 
     }
 \end{algorithm}
 
-%   \caption{Implementation of \protect\MakeApproxSet}
-
-
-\COMMENT{
 \begin{algorithm}[h]
-    \caption{Implementation of $\operatorname{contains} : 2^U \times U \mapsto \{0,1\}$}
+    \caption{Membership test for the \gls{gls-phf}}
     \label{alg:PHF_has}
     \SetKwProg{func}{function}{}{}
     \KwIn
     {
-        \begin{enumerate}
-            \item[$s$] A rate-distorted perfect hash filter object.
-            \item[$x$] The object to test membership of in $s$.
-        \end{enumerate}
+        \begin{itemize}
+            \item[$S^{+}$] A \gls{gls-phf} $\Tuple{\matrx{V}, \ph_{\Set{S}}}$ that approximates $\Set{S}$ with false positive rate $\fprate$.
+            \item[$x$] The element to test for membership in $S^{+}$.
+        \end{itemize}
     }
     \KwOut
     {
-        \True if $x \in A$, otherwise \True with probability $\varepsilon$ and false with probability $1 - \varepsilon$.
+        \True if $x \in \Set{S}$. Otherwise, \True with probability $\fprate$ and \False with probability $1 - \fprate$.
     }
-    \func{$\operatorname{contains}(A,x)$}
+    \func{\Contains{$S^{+}, x$}}
     {
-        $V \gets \operatorname{get_bit_matrix}(A)$\;
-        $M \gets \operatorname{ncols}(V)$\;
-        $N \gets \operatorname{nrows}(V)$\;
-        $i \gets \ph_{A}(x)$\;
-        $h \gets \operatorname{hash}(x) \mod N$\;
-        \Return row $i$ of $V$ is $h$\;
+        $M \gets$ \Columns{$\matrx{V}$}\;
+        $i \gets \ph_{\Set{S}}(x)$\;
+        $h \gets \trunc\!\left(\ro(x), M\right)$\;
+        \Return $\matrx{V}[i] = h$\;
     }
 \end{algorithm}
-}
 
 \begin{example}
 Consider a set $A = \{x_1, x_2, x_3\}$ and suppose we wish to approximate this set with a false positive rate $\fprate = 2^{-3}$. The perfect hash filter depicted by \cref{fig:PHFilter} is a representation of this \emph{frozen approximate set}.
@@ -179,7 +174,7 @@ A data structure implements the \emph{positive approximate set} (positive Bernou
 \end{enumerate}
 \end{definition}
 
-We make the following set of assumptions. See \cite{oph} for more on these assumptions.
+We make the following set of assumptions.
 \begin{enumerate}
     \item The set $A$ consists of $m$ elements, where each element is drawn uniformly at random without replacement from $\{0,1\}^*$.
     \item The rate-distorted perfect hash function $\ph_{A}$ is a cryptographic hash function.
@@ -242,10 +237,29 @@ The \emph{expected} bit length of the \gls{gls-phf} with a load factor $r$ has a
 where $\fprate$ is the false positive rate and $r$ is the load factor.
 \end{theorem}
 \begin{proof}
-The proof comes in two parts. First, according to Theorem~3 in \cite{oph}, the \emph{expected} lower-bound for a perfect hash function with a load factor $r$ is given by
+The proof comes in two parts: the cost of the perfect hash function and the cost of the fingerprint matrix.
+
+First, we bound the per-element cost of a perfect hash function with load factor $r$. We use the random-oracle model of \cref{asm:ro}: a perfect hash is found by drawing a seed $n$ and testing whether $\ph_{\Set{S}}(\cdot \cat n)$ places the $m$ keys injectively into the $N = m/r$ slots, retaining the first seed that succeeds (the constructor of \cref{eq:loadfactor} does exactly this). Under \cref{asm:ro} the $m$ slot indices are independent and uniform on $\{0,\ldots,N-1\}$, so the probability that a given seed yields an injective placement is the birthday product
 \begin{equation}
-    \log_2 \mathrm{e} - \left(\frac{1}{r} - 1\right) \log_2\!\left(\frac{1}{1-r}\right) \si{bits \per element}\,.
+\label{eq:perfect_hash_prob}
+    P(m,N) = \prod_{j=0}^{m-1}\left(1 - \frac{j}{N}\right)\,.
 \end{equation}
+A seed that succeeds must be identified among the $1/P(m,N)$ candidates examined in expectation, which costs $\log_2\!\bigl(1/P(m,N)\bigr)$ bits in total, hence
+\begin{equation}
+\label{eq:perfect_hash_bits}
+    -\frac{1}{m}\log_2 P(m,N)
+    = -\frac{1}{m}\sum_{j=0}^{m-1} \log_2\!\left(1 - \frac{j}{N}\right)
+    \quad \si{bits \per element}\,.
+\end{equation}
+Setting $N = m/r$ and writing $u_j = j/N = jr/m$ (so the spacing is $\Delta u = r/m$), the sum in \cref{eq:perfect_hash_bits} is a Riemann sum that converges as $m \to \infty$,
+\begin{equation}
+    -\frac{1}{m}\sum_{j=0}^{m-1}\log_2(1 - u_j)
+    \longrightarrow
+    -\frac{1}{r}\int_{0}^{r}\log_2(1-u)\,\mathrm{d}u
+    = \log_2 e - \left(\frac{1}{r} - 1\right)\log_2\!\left(\frac{1}{1-r}\right)\,,
+\end{equation}
+where we used $\int_0^r \ln(1-u)\,\mathrm{d}u = -(1-r)\ln(1-r) - r$. As $r \to 1$ the correction term vanishes and the cost tends to $\log_2 e \approx \num{1.4427}$ bits per element, which is the information-theoretic floor for minimal perfect hashing established by Mehlhorn~\cite{mehlhorn1982}; this is the second part of the bound specialized to the minimal case. The expression is therefore the expected per-element cost of a load-factor-$r$ perfect hash, and it is a lower bound since no encoding can identify a member of a set of expected size $1/P(m,N)$ in fewer than $\log_2(1/P(m,N))$ bits.
+
 Second, a perfect hash function with a load factor $r$ maps each $x \in \Set{S}$ to a unique integer between $1$ and $\frac{m}{r}$, where $m=\Card{\Set{S}}$, which requires a bit matrix $\matrx{V}$ with $m$ rows. Also, as shown in the proof for \cref{thm:fp_rate}, a false positive rate $\fprate$ requires $M = -\log_2 \fprate$ bits. Thus, the bit matrix $\matrx{V}$ has $m$ rows and $-\log_2 \fprate$ columns, resulting in a total of
 \begin{equation}
     -\frac{m}{r} \log_2 \fprate \; \si{bits}\,.
@@ -261,6 +275,7 @@ Since we are interested in the bits per element, we divide by $m$ yielding the r
 \end{proof}
 
 \begin{corollary}
+\label{cor:mPHF_size}
 The \emph{expected} bit length of the \emph{minimal} \gls{gls-phf} has a lower-bound given by
 \begin{equation}
     \log_2 \frac{e}{\fprate} \; \si{bits \per element}\,,
@@ -268,20 +283,11 @@ The \emph{expected} bit length of the \emph{minimal} \gls{gls-phf} has a lower-b
 where $\fprate$ is the false positive rate.
 \end{corollary}
 \begin{proof}
-First, $1.44 \si{bits}$ is the \emph{expected} bits per element for optimally space-efficient \emph{minimal perfect hash functions}.
-
-Second, a \emph{minimal} perfect hash function maps each $x \in \Set{S}$ to a unique integer between $1$ and $m=\Card{\Set{S}}$ which requires a bit matrix $\matrx{V}$ with $m$ rows. Also, as shown in the proof for \cref{thm:fp_rate}, a false positive rate $\fprate$ requires $M = -\log_2 \fprate$ bits. Thus, the bit matrix $\matrx{V}$ has $m$ rows and $-\log_2 \fprate$ columns, resulting in a total of
+Set the load factor $r = 1$ in \cref{thm:mPHF_size}: the correction term $\left(\frac{1}{r}-1\right)\log_2\!\left(\frac{1}{1-r}\right)$ vanishes (its limit as $r \to 1$ is $0$), leaving $\log_2 e - \log_2 \fprate$ bits per element. Equivalently and directly, $\log_2 e \approx \num{1.4427}$ bits is the expected per-element cost of an optimally space-efficient minimal perfect hash function~\cite{mehlhorn1982}, while the fingerprint matrix $\matrx{V}$ of a minimal \gls{gls-phf} has $m = \Card{\Set{S}}$ rows and (by the proof of \cref{thm:fp_rate}) $-\log_2 \fprate$ columns, for a total of
 \begin{equation}
-    -m \log_2 \fprate \; \si{bits}\,.
+    -m \log_2 \fprate + m \log_2 e\; \si{bits}\,.
 \end{equation}
-Adding both parts of the proof together results in
-\begin{equation}
-    -m \log_2 \fprate + 1.44 m\; \si{bits}\,.
-\end{equation}
-Since we are interested in the bits per element, we divide by $m$ yielding the result
-\begin{equation}
-    1.44 - \log_2 \fprate\; \si{bits \per element}\,.
-\end{equation}
+Dividing by $m$ yields $\log_2 e - \log_2 \fprate = \log_2(e/\fprate)$ bits per element.
 \end{proof}
 
 
@@ -398,67 +404,46 @@ If the load factor is known, the cardinality of $\Set{S} \subset \PASet{S}$ is g
     \Card{\Set{S}} = N r\,.
 \end{equation}
 
-If the load factor is not known, then the cardinality may be probabilistically estimated.
-According to \cite{oph}, the probability mass of the perfect hash function is given by
-\begin{equation}
-    \RV{N} \sim \PDF{n \Given m, r}[\RV{N}] = q^{2^n-1}\left(1 - q^{2^n}\right)
-\end{equation}
-where
-\begin{equation}
-\begin{split}
-	q &= 1 - \frac{(m/r)!}{(m/r)^m ((m/r)-m)!}\,,\\
-	m &= \Card{\Set{S}}\,,\\
-\end{split}
-\end{equation}
+If the load factor is not known, then the cardinality may be probabilistically estimated from the bit length, since the expected bit length is an increasing function of the cardinality. The randomness in the bit length comes entirely from the search for a perfect hash seed: by \cref{eq:perfect_hash_prob} each seed succeeds independently with probability $P(m, N)$, so the number of seeds examined is geometric and the seed length is its base-two logarithm. Combining the resulting expected seed cost (\cref{thm:mPHF_size}) with the fixed fingerprint width gives the concentration result below; we do not need the exact distribution of the seed length to estimate the cardinality, only its mean.
 
-%Since $m = N r$
-
-It does contain some information. We know that if the bit matrix of hashes $\matrx{V}$ has $m$ rows and $k$ columns, then $\Card{\Set{S}} \leq m$ and the expected false positive rate is $\fprate=2^{-k}$.
-
+If the bit matrix of fingerprints $\matrx{V}$ has $m$ rows and $M$ columns, then $\Card{\Set{S}} \leq m$ and the expected false positive rate is $\fprate=2^{-M}$.
 
 \begin{theorem}
-The random bit string that codes the \gls{gls-phf} is a \emph{maximum entropy} coder for the \emph{Bernoulli set} abstract data type.
+\label{thm:max_entropy_coder}
+The random bit string that codes the \gls{gls-phf} is a \emph{maximum entropy} coder for the \emph{positive Bernoulli set} abstract data type: conditioned on the cardinality $m$ and the false positive rate $\fprate$, every bit of the code is an independent fair coin.
 \end{theorem}
 \begin{proof}
-For a random bit $\RV{X}$ to have maximum entropy, it must be Bernoulli distribution with equiprobability, i.e.,
-\begin{equation}
-    \RV{X} \sim \berdist\!\left(p = \frac{1}{2}\right)\,.
-\end{equation}
-
-The \gls{gls-phf} of $\Set{S}$ is coded by two parts. The first part is a \emph{cryptographic} hash of $m$ elements in $\Set{S}$ concatenated with a bit string $b_n$, denoted by $h_k$. The \emph{cryptographic} hash function uniformly distributes over $\BitSet^{k}$, and so $h_k$ has maximum entropy.
-
-The second part is a bit string $b_n$ of bit length $n$.
+A binary string has maximum entropy when its bits are independent and each is $\berdist(1/2)$. The \gls{gls-phf} code is the pair $\Tuple{\matrx{V}, n}$ of the fingerprint matrix and the perfect-hash seed. Each entry of $\matrx{V}$ is $\trunc(\ro(x), M)$ for a distinct member $x$; by \cref{asm:ro} the random oracle $\ro$ is uniform on $\BitSet^M$ and independent across distinct inputs, so the $m M$ fingerprint bits are i.i.d.\ $\berdist(1/2)$. The seed $n$ is the index of the first injective placement among i.i.d.\ uniform draws, so its bits are likewise uniform. Hence, given $m$ and $\fprate$, no further structure is imposed beyond the Bernoulli axioms, and the code attains the maximum conditional entropy. This is the discrete analogue of the entropy-map optimality of \cref{thm:approx_l_b}: the code carries no information about \emph{which} elements are members, only the minimum needed to realize the prescribed rate.
 \end{proof}
 
-The only information contained in the code, prior to a membership test, is given by the probability mass function of the random bit length $\RV{N}$, which is a function of the cardinality of the \gls{gls-finiteset} it is approximating.
-
-The random bit length $\RV{N}$ of the string has a probability mass concentrated around
+Prior to any membership test, the only information the code carries about $\Set{S}$ is its cardinality, through the distribution of the bit length $\RV{N}$, which concentrates around
 \begin{equation}
 \label{eq:phf_expected_bits}
-    \Expect{\RV{N}} = -m \log_2 \fprate + 1.44 m\,.
+    \Expect{\RV{N}} = -m \log_2 \fprate + m \log_2 e\,,
 \end{equation}
-
+by \cref{cor:mPHF_size} (the minimal case; the load-factor-$r$ case replaces $\log_2 e$ with the bound of \cref{thm:mPHF_size}).
 
 \begin{theorem}
-A \emph{method-of-moments} estimator of the cardinality of an approximated set represented by a \gls{gls-phf} is given by
+\label{thm:phf_mom_estimator}
+A \emph{method-of-moments} estimator of the cardinality of an approximated set represented by a minimal \gls{gls-phf} is given by
 \begin{equation}
-    \hat{m} = \frac{\BL\!\left(\PASet{S}\right)}{-\log_2 \fprate + 1.44}\,,
+    \hat{m} = \frac{\BL\!\left(\PASet{S}\right)}{-\log_2 \fprate + \log_2 e}\,,
 \end{equation}
 where $\BL$ is the bit length function and $\fprate$ is the \emph{\gls{gls-fprate}}.
 \end{theorem}
 \begin{proof}
 The \emph{expected} bit length is given by \cref{eq:phf_expected_bits},
 \begin{equation*}
-    \Expect{\RV{N}} = -m \log_2 \fprate + 1.44 m\,,
+    \Expect{\RV{N}} = -m \log_2 \fprate + m \log_2 e\,,
     \tag{\ref{eq:phf_expected_bits} revisited}
 \end{equation*}
 where $m$ is the cardinality of the approximated set. The method-of-moments estimator is obtained by equating the observed bit length of the \gls{gls-phf} to this expectation,
 \begin{equation}
-    \BL(\PASet{S}) = -\hat{m} \log_2 \fprate + 1.44 \hat{m}\,,
+    \BL(\PASet{S}) = -\hat{m} \log_2 \fprate + \hat{m} \log_2 e\,,
 \end{equation}
 and solving for $\hat{m}$, which yields the estimator
 \begin{equation}
-    \hat{m} = \frac{\BL(\PASet{S})}{-\log_2 \fprate + 1.44}\,.
+    \hat{m} = \frac{\BL(\PASet{S})}{-\log_2 \fprate + \log_2 e}\,.
 \end{equation}
 \end{proof}
 When the bit matrix is available, there is a simpler method: count the number of rows in the matrix $\matrx{V}$.
