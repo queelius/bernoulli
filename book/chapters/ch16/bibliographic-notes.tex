@@ -8,7 +8,8 @@
 % "oblivious primitives" -> "trapdoor primitives"; "oblivious RAM" and
 % "private-information-retrieval" kept as named primitives.
 % Cites azuma-1967, hoeffding-1963, mcdiarmid-1989, devroye-lugosi-2001,
-% goodfellow-2015, carlini-wagner-2017, goldreich-1996.
+% goodfellow-2015, carlini-wagner-2017, goldreich-1996, bell-1964,
+% fine-1982, kochen-specker-1967, nielsen-chuang-2010.
 % DEFINED: sec:bib-notes-ch16.
 
 \section*{Bibliographic Notes}
@@ -60,3 +61,18 @@ cipher-map framework. Readers anticipating chapters~17 and~18 should treat
 Goldreich's foundations as the prerequisite; the Bernoulli-framework
 specialization sits on top of the cryptographic infrastructure those
 volumes formalize.
+
+\paragraph{Quantum contextuality.}
+The boundary of \Cref{sec:quantum-contextuality}, the regime where no
+latent value exists, rests on three results. \textcite{bell-1964}, ``On
+the Einstein Podolsky Rosen Paradox,'' gave the inequality whose
+violation rules out local hidden variables; \textcite{fine-1982},
+``Hidden Variables, Joint Probability, and the Bell Inequalities,''
+proved the equivalence the section turns on, that a joint distribution
+over all observables exists exactly when the Bell inequalities hold; and
+\textcite{kochen-specker-1967}, ``The Problem of Hidden Variables in
+Quantum Mechanics,'' established the contextuality obstruction in
+dimension at least three. The density-matrix and decoherence facts that
+place the framework on the diagonal (readout) sector are standard;
+\textcite{nielsen-chuang-2010}, \emph{Quantum Computation and Quantum
+Information}, is the textbook reference.

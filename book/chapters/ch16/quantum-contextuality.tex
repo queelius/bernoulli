@@ -1,0 +1,124 @@
+% §16.5 When No Latent Value Exists: Quantum Contextuality
+%
+% Monograph register: the deepest failure mode. The prior three (varying
+% rates, correlated noise, adversarial inputs) mis-estimate a process whose
+% latent value still exists; here the pre-axiom assumption that a latent
+% value exists at all is false, and quantum mechanics is its rigorous
+% instance. The Bernoulli latent value is a non-contextual local hidden
+% variable; Fine's theorem makes its existence equivalent to the Bell
+% inequalities; entanglement (Bell) and dimension >= 3 (Kochen-Specker)
+% falsify it. Axiom 1 reads as locality. The framework is exact on the
+% diagonal/readout sector.
+% Cross-refs: sec:varying-rates, sec:correlated-noise, sec:adversarial-inputs,
+% sec:where-framework-helps, ax:element-indep, ax:block-rates-indep,
+% rem:composition-correlation-bracket. Cites fine-1982, bell-1964,
+% kochen-specker-1967, nielsen-chuang-2010. DEFINED: sec:quantum-contextuality.
+
+\section{When No Latent Value Exists: Quantum Contextuality}
+\label{sec:quantum-contextuality}
+
+The failure modes catalogued so far share a feature that is easy to
+overlook: in every one, a definite latent value still exists. A drifting
+rate (\Cref{sec:varying-rates}) is the rate of a bit that is genuinely
+$0$ or $1$; correlated noise (\Cref{sec:correlated-noise}) garbles
+genuine answers with a dependence the factorization missed; an
+adversarial input (\Cref{sec:adversarial-inputs}) has a true membership
+status, chosen to sit at the tail. In each case the framework
+mis-estimates a parameter of a process whose underlying value is never in
+question. There is one failure of a different kind, where the assumption
+beneath both axioms fails: there is no consistent latent value to
+estimate at all. Quantum mechanics is its rigorous physical instance, and
+it gives this chapter its sharpest example.
+
+\subsection*{The latent value is a hidden variable}
+
+The framework's atom posits a definite truth $t$, garbled by a channel
+$Q$ and recovered by Bayes. Read literally, $t$ is a \emph{non-contextual
+local hidden variable}: the answer to ``is $x$ a member?'' is a
+pre-existing fact, and $Q$ only obscures it. This commitment is stronger
+than either axiom and prior to both. It asserts that a single joint
+distribution over the answers to all queries exists, of which each
+observed rate is a marginal. \Cref{ax:element-indep} (Axiom 1) then adds
+that this joint factorizes across instances; \Cref{ax:block-rates-indep}
+(Axiom 2) adds that the per-block rates are stable across queries. The
+existence of the joint distribution is assumed before either axiom is
+written, and it is the assumption this section examines.
+
+\subsection*{Fine's theorem: the latent value is a falsifiable claim}
+
+That the latent value exists looks like a harmless modeling convenience.
+It is not. \textcite{fine-1982} proved that, for a correlation
+experiment, the following are equivalent: a deterministic hidden-variable
+model exists; a factorizable stochastic model exists; a single joint
+distribution over all of the experiment's observables exists and returns
+the measured probabilities; and the Bell inequalities hold. Translated
+into the framework's vocabulary, the chain reads
+\[
+  \text{a latent value exists}
+  \;\Longleftrightarrow\;
+  \text{a joint distribution over all answers exists}
+  \;\Longleftrightarrow\;
+  \text{the Bell inequalities hold.}
+\]
+The latent-value assumption is therefore a falsifiable physical claim,
+not a definitional choice, and it can be tested in the laboratory.
+
+\subsection*{The physical archetype}
+
+Quantum mechanics falsifies it. Two entangled qubits, measured in
+suitably chosen bases, produce correlations that violate the Bell
+inequalities \parencite{bell-1964}. By Fine's equivalence no joint
+distribution over the measurement outcomes exists, so the pair cannot be
+written as two $\Bernoulli{\BoolType}$ values, not with any rates and not
+with any correlation correction. This is the precise difference from
+\Cref{sec:correlated-noise}: correlated noise widened the composition
+theorem into an inequality with correction terms
+(\Cref{rem:composition-correlation-bracket}) because a joint distribution
+still existed and merely failed to factorize; entanglement removes the
+joint distribution itself, so there is nothing left for a correction term
+to correct.
+
+A second, independent obstruction appears once measurements can be
+incompatible and the state space has dimension at least three. The
+Kochen-Specker theorem \parencite{kochen-specker-1967} shows that no
+assignment of definite values to all observables can be made consistent
+across the measurement contexts in which those observables appear. The
+honest scope matters here: a single two-outcome measurement in a fixed
+basis does admit a hidden-variable model, so the atom in isolation is
+safe; the obstructions are entanglement (Bell) and dimension at least
+three (Kochen-Specker).
+
+\subsection*{Reading the axioms as physics}
+
+Seen through the framework, \Cref{ax:element-indep} is a locality
+assumption, and the Bell inequality is the exact quantitative bound on
+how far an entangled pair sits outside any factorized Bernoulli
+composition. The pre-axiom existence of a joint distribution is
+non-contextuality. The negative space of this chapter has, in quantum
+contextuality, its most rigorous possible example. The earlier failures
+are cases where the framework estimates a real parameter badly; this is a
+setting where the framework's ontology is provably wrong, with a theorem
+certifying the impossibility rather than an experiment merely exhibiting
+a hard case.
+
+\subsection*{Where the boundary sits}
+
+For the earlier failures the chapter could name a replacement: a
+martingale bound, a correction term, a secret hash family. Here there is
+none within the classical framework. The correct object is a probability
+amplitude, not a probability, and amplitudes can cancel where
+probabilities can only accumulate; the interference this permits has no
+representation in a latent-value-plus-noise model. In the density-matrix
+description \parencite{nielsen-chuang-2010} the framework sees only the
+diagonal of the state in the measurement basis, and the off-diagonal
+coherences that carry interference are invisible to it.
+
+The boundary is therefore sharp and locatable rather than a vague
+caution. The framework is exact precisely where the state is diagonal in
+the measurement basis: an eigenstate, a classical mixture, or a decohered
+state. That is the regime of classical readout, and decoherence is the
+physical process that zeroes the off-diagonals and hands the framework a
+genuine latent value to model. In this precise sense the Bernoulli model
+is the classical shadow of a quantum system: faithful on the diagonal,
+blind to the rest. \Cref{sec:where-framework-helps} takes up what
+survives at this boundary and elsewhere.
