@@ -124,6 +124,13 @@ ARTIFACTS = [
         "keywords": ["data types", "cipher data types", "Count-Min sketch", "error propagation"],
     },
     {
+        "dir": "papers/bernoulli-quantum-readout", "repo": "bernoulli-quantum-readout",
+        "title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
+        "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
+        "description": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps.",
+        "keywords": ["quantum readout error", "measurement error", "asymmetric channel", "syndrome bit", "error propagation"],
+    },
+    {
         "dir": "bernoulli-py", "repo": "bernoulli",
         "title": "bernoulli-types: a Python implementation of random approximate types",
         "type": "software", "license": "MIT", "write_license": False, "zenodo": True,

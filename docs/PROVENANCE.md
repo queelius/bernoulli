@@ -15,6 +15,7 @@ its manifest. Edit the manifest and re-run; do not hand-edit this file.
 | The Algebra of the Random Approximate Map Model | [bernoulli_maps](https://github.com/queelius/bernoulli_maps) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | The Abstract Data Type of the Approximate Relation | [bernoulli_relations](https://github.com/queelius/bernoulli_relations) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | The Bernoulli Model: A Probabilistic Framework for Data Structures and Types | [bernoulli_data_type](https://github.com/queelius/bernoulli_data_type) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
+| A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes | [bernoulli-quantum-readout](https://github.com/queelius/bernoulli-quantum-readout) | article | CC-BY-4.0 | (mint) | (mint) | metadata ready |
 | bernoulli-types: a Python implementation of random approximate types | [bernoulli](https://github.com/queelius/bernoulli/tree/main/bernoulli-py) | software | MIT | (mint) | (mint) | metadata ready subtree split to queelius/bernoulli-types deferred |
 | Bernoulli Types: An Algebra of Approximate Computation | [bernoulli](https://github.com/queelius/bernoulli/tree/main/book) | book | all-rights-reserved | (mint) | (mint) | metadata ready all-rights-reserved (KDP-bound); Zenodo deposit + repo split deferred |
 

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes"
+type: article
+authors:
+  - family-names: Towell
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0001-6443-9897"
+    affiliation: "Southern Illinois University Edwardsville"
+repository-code: "https://github.com/queelius/bernoulli-quantum-readout"
+license: CC-BY-4.0
+keywords:
+  - Bernoulli set
+  - random approximate types
+  - probabilistic data structure
+  - quantum readout error
+  - measurement error
+  - asymmetric channel
+  - syndrome bit
+  - error propagation
