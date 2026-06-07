@@ -1,0 +1,149 @@
+---
+title: "A Forward (ε, ω) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes"
+stage: review
+format: latex
+authors:
+  - name: "Alexander Towell"
+    email: "lex@metafunctor.com"
+    orcid: "0000-0001-6443-9897"
+
+thesis:
+  claim: ""
+  novelty: ""
+  refined: null
+
+prior_art:
+  last_survey: null
+  key_references: []
+  gaps: ""
+
+experiments: []
+
+venue:
+  target: null
+  candidates: []
+
+review_history: []
+
+related_papers:
+  - path: ~/github/bernoulli/papers/bernoulli_sets
+    rel: extends
+    label: "Foundation: the asymmetric (ε,ω) Bernoulli channel and two-axiom error model this paper applies to quantum readout"
+  - path: ~/github/bernoulli/papers/bernoulli_composition
+    rel: extends
+    label: "Composition theory: the forward Boolean (ε,ω) calculus specializes the set-operation error-propagation and composition theorem (eta_total = 1 - prod(1-eta_i)) to readout-derived bits"
+  - path: ~/github/bernoulli/papers/bernoulli_maps
+    rel: companion
+    label: "Bernoulli maps ARE cipher maps; readout-derived bits are Bernoulli-map outputs, same calculus over a different domain"
+  - path: ~/github/bernoulli/book
+    rel: companion
+    label: "Monograph (bookwright): ch9 frames the channel matrix as the classical shadow of quantum readout; ch11 covers amplitude amplification as the coherent upgrade of composition"
+---
+
+## Notes
+
+Initialized by papermill on 2026-06-07.
+
+Fresh init of a complete first draft (committed 2026-06-06, `bafa230`). The
+paper is self-contained: standard `article` class, `amsmath`/`amsthm`,
+`natbib` + bibtex (`plainnat`), `cleveref`. No `sections/`, `research/`,
+`code/`, or `img/` subdirectories. All prose and math live in `main.tex`.
+
+### Build
+
+```bash
+pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+```
+
+- **Engine:** pdflatex
+- **Bibliography:** bibtex + `plainnat` (natbib, `[numbers,square]`)
+- **Notation:** inline macros in the `main.tex` preamble. `\fpr`/`\eps`=`\epsilon`
+  (false-positive rate), `\fnr`=`\omega` (false-negative rate), plus `\ket`/`\bra`,
+  `\tensor`, `\bxor`. This is **not** `alex.sty` and **not** the modular `sty/`
+  packages the other Bernoulli papers use; the paper is deliberately standalone
+  so it reads outside the framework.
+- Last committed build: `main.pdf`, ~13 pp (467 KB), 2026-06-06.
+
+### Structure (single file, `main.tex`)
+
+| § | Label | Content |
+|---|-------|---------|
+| 1 | `sec:intro` | The gap: readout error is asymmetric and derived-bit error is reconstructed numerically; contribution is a reusable forward asymmetric calculus |
+| 2 | `sec:channel` | The Bernoulli readout channel (Def 2.1, asymmetric 2×2 row-stochastic Q); Bayesian recovery; diagonal-sector faithfulness; Kronecker assignment matrix |
+| 3 | `sec:calculus` | The forward (ε,ω) calculus: NOT (swap), AND/OR (Thm), composition theorem (Cor), parity (Thm + asymmetric Cor), tensor factorization (Prop) |
+| 4 | `sec:worked` | Worked example: reliability of a QEC syndrome bit; exact ½(1−(1−2q)^n) vs the linear "n×q" rule; Table 1 (linearization overestimate) |
+| 5 | `sec:related` | Positioning against five neighbors (a through e) plus unification with classical probabilistic data structures |
+| 6 | `sec:scope` | Five explicit limitations: forward-not-inverse, independence assumed, diagonal sector only, precise originality, no empirical validation |
+| 7 | `sec:conclusion` | Synthesis plus next steps (correlated/CTMP lift, empirical calibration) |
+
+Environments: ~2 theorems, ~3 propositions, ~2 corollaries, 1 definition, plus
+remarks. One table (syndrome-bit linearization error).
+
+### Bibliography
+
+`references.bib` holds **16 entries, all cited, zero placeholders**. Citation
+policy stated in the file header: every entry is either a vetted work from the
+concept note or a framework self-citation. No invented citations; uncertain
+fields are omitted and flagged with `% TODO` in `main.tex`, not guessed.
+
+- **Framework self-cites (5):** `bernoulliSets`, `bernoulliComposition`,
+  `bernoulliMaps`, `bernoulliMeasures`, `bernoulliRelations` (all `@unpublished`).
+- **External (11):** `bloom1970`; mitigation `nation2021m3` (M3),
+  `bravyi2021mitigating`; relaxation/asymmetry `tannu2019mitigating`,
+  `hicks2021readout`; effectus/type-theory `adams2015typetheory`,
+  `cho2015effectus`; noisy-formula `vonneumann1956`, `pippenger1988`; hypothesis
+  testing `pucha2021certification`; QEC background `fowler2012surface`.
+
+Two `% TODO` markers remain in `main.tex` (§6 scope): (i) a stable primary
+citation for CTMP-style **correlated readout** (Bravyi et al. continuous-time
+Markov process model) before naming it, and (ii) a note that a hardware/simulator
+**empirical study** would strengthen but is out of scope for this draft.
+
+### Thesis (for context; formalize via `/papermill:thesis`)
+
+Quantum readout error, restricted to the diagonal sector of the density matrix,
+is exactly a classical asymmetric bit-flip channel with distinct false-positive
+rate ε and false-negative rate ω (with ω > ε from T₁ relaxation). The paper
+supplies the missing **forward, asymmetric, closed-form calculus** that
+propagates the pair (ε, ω) through Boolean post-processing (NOT, AND, OR, parity)
+and independent-qubit Kronecker composition, which is precisely the Bernoulli
+random-approximate-set/map error model, thereby unifying a quantum-hardware
+error model with the classical theory of Bloom filters and cipher maps.
+Explicitly **not** claimed as novel: the single-bit asymmetric channel, the
+tensor factorization, the parity identity. **Claimed:** the reusable forward
+asymmetric Boolean calculus, its readout application, and the unification.
+
+## Related Work and Software
+
+This paper is part of the **Bernoulli type theory** program (monorepo at
+`~/github/bernoulli/`). Per the Acknowledgments, the readout connection was
+developed in a concept note dated 2026-06-06.
+
+- **Extends** the core framework: the asymmetric channel and two-axiom error
+  model of `bernoulli_sets`, and the composition/error-propagation theory of
+  `bernoulli_composition` (the chain rule eta_total = 1 - prod(1-eta_i) is
+  reused verbatim as the conjunction false-negative and disjunction
+  false-positive rule).
+- **Companion** to `bernoulli_maps` (Bernoulli maps = cipher maps at the
+  mathematical level) and to the **monograph** in `book/`, whose recent QC
+  chapters (ch9 channel matrix as the classical shadow of quantum readout; ch11
+  amplitude amplification) develop the same bridge pedagogically. It also cites
+  `bernoulli_classification_measures` (Bayesian PPV/NPV recovery, §2.2) and
+  `bernoulli_relations` (unification paragraph, §5).
+- **Reference implementation:** the framework's Python package is
+  `bernoulli-py/` (PyPI `bernoulli-types`); the readout calculus corresponds to
+  the `atom`/`algebra` Boolean layer (Bernoulli Boolean AND/OR/NOT/parity).
+
+**Publication strategy** (see global memory `bernoulli-publication-strategy`):
+the monograph is the primary publication; the focused Bernoulli papers are
+**Zenodo preprints** (no arXiv; mint Zenodo concept + version DOIs via the
+GitHub integration). This paper already carries `CITATION.cff` and `.zenodo.json`
+and is provenance-ready. Note one strategy tension worth revisiting: that memory
+records "QC connections live in the monograph, not the focused papers," yet this
+is itself a focused QC-connection paper, a deliberate standalone bridge whose
+notation is kept independent of `alex.sty` so it reads outside the framework.
+
+A standalone GitHub remote (`queelius/bernoulli-quantum-readout`, per
+`CITATION.cff`) is referenced but **not yet wired** as a monorepo subtree (no
+`bernoulli-quantum-readout` remote on `origin` yet). Adding it follows the
+subtree workflow in `~/github/bernoulli/CLAUDE.md` when ready to publish.
