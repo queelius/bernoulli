@@ -24,6 +24,11 @@
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{cleveref}
 
+\hypersetup{
+  pdftitle={A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes},
+  pdfauthor={Alexander Towell},
+}
+
 \numberwithin{equation}{section}
 
 % --- theorem environments ---
@@ -95,7 +100,8 @@ and error budgeting, complementary to inverse mitigation such as M3; the closed
 forms hold under per-bit channel independence, with correlated-channel
 (crosstalk) extensions left as future work. We position the calculus carefully
 against the matrix-inversion mitigation paradigm, effectus theory, the classical
-noisy-Boolean-formula identities, and asymmetric quantum hypothesis testing.
+noisy-Boolean-formula identities, asymmetric quantum hypothesis testing, and the
+relaxation-physics origin of the readout asymmetry.
 \end{abstract}
 
 \section{Introduction: the gap}
@@ -213,7 +219,10 @@ $(\eps,\omega)\in[0,1]^2$. Two special cases recur.
 \label{rem:t1}
 For superconducting qubits the measurement window is long enough that $T_1$
 relaxation of the excited state contributes to errors, biasing misreads toward
-$\ket{1}\!\to\!\ket{0}$ \citep{tannu2019mitigating,hicks2021readout}. In our
+$\ket{1}\!\to\!\ket{0}$ \citep{tannu2019mitigating,hicks2021readout}. As a
+concrete instance, \citet{tannu2019mitigating} report an IBM device reading the
+all-zero state at $84\%$ fidelity but the all-one state at only $62\%$, precisely
+the relaxation-driven $\ket{1}\!\to\!\ket{0}$ bias. In our
 convention that is the false-negative direction, so readout typically sits in the
 regime $\omega > \eps$, partway toward the dual Z-channel. The calculus below
 never assumes $\eps=\omega$; preserving the inequality is the point.
@@ -267,7 +276,7 @@ practice; our contribution is not the factorization but the symbolic forward
 invert the $2^n\times2^n$ matrix.
 
 
-\section{The forward $(\eps,\omega)$ calculus}
+\section{The forward \texorpdfstring{$(\eps,\omega)$}{(epsilon, omega)} calculus}
 \label{sec:calculus}
 
 Throughout this section, ``bit $b_i$'' denotes a measured bit drawn through an
@@ -425,9 +434,10 @@ $\Prob(\bxor_i X_i=1)=\Prob(S=-1)=\tfrac12(1-\mathbb{E}[S])$,
 equation~\eqref{eq:parity} follows.
 \end{proof}
 
-Theorem~\ref{thm:parity} is classical, it is the noisy-formula / Fourier-analytic
-parity identity used by \citet{vonneumann1956} and \citet{pippenger1988} and
-throughout noisy-Boolean-formula analysis. We now state its asymmetric,
+Theorem~\ref{thm:parity} is classical: the $\pm1$/Fourier parity-bias identity is
+standard in the analysis of Boolean functions \citep{odonnell2014}, and it
+underlies the noisy-Boolean-formula reliability tradition of \citet{vonneumann1956}
+and \citet{pippenger1988}. We now state its asymmetric,
 \emph{conditioned} form, which is what a syndrome bit actually needs and what a
 symmetric single-rate treatment cannot express.
 
@@ -575,6 +585,54 @@ matching \textsc{and}/\textsc{or}/chain forms for majority and feed-forward
 post-processing, directly from the per-qubit rates, asymmetry intact, without
 materializing the assignment matrix.
 
+\subsection{The asymmetric case: a number the symmetric rule cannot give}
+\label{sec:worked-asym}
+
+\Cref{tab:syndrome} is symmetric ($q_i=q$), so every value in it is reproducible
+from the single-rate identity~\eqref{eq:parity} we attribute to prior art; the
+\emph{asymmetric} content of \cref{cor:parity-asym} never appears. We now make it
+appear. Take a four-ancilla syndrome with $T_1$-biased, inhomogeneous channels:
+qubits $1,2$ at $(\eps_i,\omega_i)=(0.02,0.10)$ and qubits $3,4$ at $(0.04,0.12)$,
+each with $\omega_i>\eps_i$ as relaxation dictates. By \cref{cor:parity-asym} the
+syndrome-flip probability depends on the \emph{latent assignment}
+$(t_1,\dots,t_4)$ through the per-bit flip rate $r_i=\eps_i$ when $t_i=0$ and
+$r_i=\omega_i$ when $t_i=1$, not merely on the true syndrome $\tau=\bxor_i t_i$.
+\Cref{tab:syndrome-asym} evaluates it on four assignments and contrasts them with
+the symmetrized single-rate prediction~\eqref{eq:syndrome-exact} at the mean rate
+$q=\bar r=0.07$, the best a one-rate model can do.
+
+\begin{table}[t]
+\centering
+\caption{Asymmetric syndrome-flip probability~\eqref{eq:parity-asym} for a parity
+of four $T_1$-biased ancillas, qubits $1,2$ at $(\eps,\omega)=(0.02,0.10)$ and
+qubits $3,4$ at $(0.04,0.12)$. The error tracks the latent assignment, not just the
+true syndrome $\tau$: the all-excited word $1111$ is misread almost three times as
+often as the all-ground word $0000$ though both carry $\tau=0$. A symmetrized
+single-rate model reports one value ($0.226$) for every assignment, overstating the
+cold corner roughly twofold and understating the hot one.}
+\label{tab:syndrome-asym}
+\small
+\begin{tabular}{c c r}
+\toprule
+latent word $t_1t_2t_3t_4$ & true syndrome $\tau$ & exact flip prob.\ \eqref{eq:parity-asym} \\
+\midrule
+$0000$ & $0$ & 0.110 \\
+$1000$ & $1$ & 0.175 \\
+$0011$ & $0$ & 0.234 \\
+$1111$ & $0$ & 0.315 \\
+\midrule
+symmetrized single rate ($q=0.07$) & any & 0.226 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The three $\tau=0$ rows ($0.110$, $0.234$, $0.315$) already span a factor of nearly
+three, ordered by how many ancillas sit in the relaxation-prone $\ket{1}$ state,
+and the single-rate column collapses all of it to $0.226$, wrong on \emph{both}
+sides at once. This is the bookkeeping \cref{cor:parity-asym} keeps and a symmetric
+treatment throws away, computed from the eight per-qubit rates alone with no
+$2^4\times2^4$ assignment matrix in sight.
+
 \begin{remark}[Majority vote and feed-forward, in one line each]
 A \emph{majority} of $2m+1$ independent measured copies of one latent bit has
 error $\sum_{k=m+1}^{2m+1}\binom{2m+1}{k} r^k (1-r)^{2m+1-k}$ on the conditioned
@@ -602,7 +660,11 @@ M3 \citep{nation2021m3}, the multiqubit treatment of
 \citet{bravyi2021mitigating}, and tensored/local assignment-matrix mitigators
 build the assignment matrix $A$ (our~\eqref{eq:kron}) and approximately invert it
 to recover an ideal distribution from observed counts. This is an \emph{inverse},
-\emph{numerical}, \emph{per-circuit} procedure operating on measured data. Our
+\emph{numerical}, \emph{per-circuit} procedure operating on measured data. The
+work nearest our motivating examples is the mid-circuit-measurement and
+feed-forward readout mitigation of \citet{koh2024readout}, which targets exactly
+the derived and fed-forward readouts we post-process; it too is an inverse
+mitigation of measured outcomes, not a forward symbolic rate calculus. Our
 calculus is its forward complement: given the rates, predict and budget the error
 on a specific derived bit, symbolically, before data. The tensored assignment
 matrix is the linear-algebra shadow of our \cref{prop:tensor}; we add the
@@ -625,8 +687,10 @@ distinguish, and the distinction is precisely \emph{rates}: we propagate numbers
 not just predicate structure.
 
 \paragraph{(c) Classical parity / noisy-Boolean-formula identities.}
-The parity identity~\eqref{eq:parity} and the reliability of noisy Boolean
-formulas are classical \citep{vonneumann1956,pippenger1988}, and the analysis of
+The exact $\pm1$/Fourier parity-bias identity~\eqref{eq:parity} is standard in the
+analysis of Boolean functions \citep{odonnell2014}, while the reliability of noisy
+Boolean formulas under a single symmetric flip rate is the tradition of
+\citet{vonneumann1956} and \citet{pippenger1988}; the analysis of
 XOR-PUFs uses the same product form. That literature owns the parity formula, but
 uses a \emph{single symmetric} flip rate. Our originality on this axis is the
 asymmetric two-rate bookkeeping (\cref{prop:not,thm:andor,cor:parity-asym}), the
@@ -637,7 +701,7 @@ itself, which we cite as prior art.
 A two-sided false-positive/false-negative model of a \emph{single} measurement
 already appears in asymmetric quantum hypothesis testing and channel
 certification, for instance the false-negative-free certification of
-\citet{pucha2021certification}. This is the nearest neighbor of our atom
+\citet{krawiec2021certification}. This is the nearest neighbor of our atom
 (\cref{def:atom}) and we cite it to preempt ``this is just type~I/II error.'' The
 difference is the \emph{composition layer}: those works study one decision, while
 our contribution is the closed-form propagation of the two rates through Boolean
@@ -655,6 +719,13 @@ Finally, the calculus is not new \emph{to us}: it is the error model of Bernoull
 type theory, the framework of random approximate sets, maps, and relations whose
 special cases include Bloom filters \citep{bloom1970}, perfect hash filters, and
 cipher maps \citep{bernoulliSets,bernoulliComposition,bernoulliMaps,bernoulliRelations}.
+For self-containedness the unification needs no external reference: a random
+approximate set is the membership indicator of a set $A$, reported through an
+independent per-element asymmetric channel~\eqref{eq:channel} with false-positive
+rate $\eps$ on nonmembers and false-negative rate $\omega$ on members, and set
+operations compose those two rates by the closed forms of \cref{sec:calculus}. The
+companion papers develop the consequences, but the unification claim rests only on
+this one-line model.
 A Bloom filter is the one-sided ($\omega=0$) corner; a $T_1$-biased syndrome
 ancilla is an asymmetric interior point; both obey the same
 \cref{prop:not,thm:andor,thm:parity,cor:composition}. Recognizing quantum readout
@@ -674,17 +745,24 @@ We state the boundaries plainly, to forestall overclaiming.
         competitor to M3 or other mitigation; it is their design-time complement
         \citep{nation2021m3,bravyi2021mitigating}.
 
-  \item \textbf{Independence is assumed.} Every closed form above holds under
-        per-bit channel independence, equivalently, the tensored assignment
-        matrix~\eqref{eq:kron}. Real devices exhibit \emph{measurement crosstalk}:
-        the readout of one qubit is correlated with the state or readout of its
-        neighbors, which is exactly why correlated models (e.g. the CTMP regime)
-        exist. % TODO: confirm the precise scope/claims and a stable primary
-        % citation for CTMP-style correlated readout (Bravyi et al. discuss a
-        % continuous-time Markov process model; verify before citing by name).
-        A correlated-channel extension, propagating a joint, non-factorized
-        readout model through the same Boolean operations, is future work; the
-        present calculus is the independent/tensor regime.
+  \item \textbf{Independence is assumed, and is the reference point.} Every closed
+        form above holds under per-bit channel independence, equivalently, the
+        tensored assignment matrix~\eqref{eq:kron}. Real devices exhibit
+        \emph{measurement crosstalk}: the readout of one qubit is correlated with
+        the state or readout of its neighbors, which is why correlated models such
+        as the continuous-time Markov process (CTMP) model of
+        \citet{bravyi2021mitigating} exist. The independent prediction is best read
+        as the correlation-free \emph{reference}: it is exact given the per-qubit
+        marginals alone, and a correlated model perturbs it in a sign-determined
+        way rather than by a uniform bias. The sign is legible on a parity, which
+        flips only under an odd number of bit flips: positively correlated misreads
+        make coincident flips more likely and so push the parity error \emph{below}
+        the independent value, while negatively correlated misreads push it
+        \emph{above}. The independent rate is thus a two-sided anchor, not a worst
+        case, and bounding the perturbation for a given CTMP generator is the
+        natural next step. A correlated-channel extension, propagating a joint,
+        non-factorized readout model through the same Boolean operations, is future
+        work; the present calculus is the independent/tensor regime.
 
   \item \textbf{Diagonal (readout) sector only.} The latent-value model is exact
         precisely where the density matrix is diagonal in the measurement basis.
@@ -704,11 +782,10 @@ We state the boundaries plainly, to forestall overclaiming.
         probabilistic data structures.
 
   \item \textbf{Empirical validation.} This is a methods/perspective paper; the
-        closed forms are derived and the syndrome table is computed exactly from
-        them. % TODO: a hardware or simulator study comparing predicted derived-bit
-        % rates against measured ones (and quantifying the independence-violation
-        % gap from crosstalk) would strengthen the claims but is out of scope for
-        % this draft.
+        closed forms are derived and the syndrome tables are computed exactly from
+        them. A hardware or simulator study comparing predicted derived-bit rates
+        against measured ones, and quantifying the independence-violation gap from
+        crosstalk, would strengthen the claims but is out of scope for this draft.
         We make no empirical claim beyond the exactness of the derivations under
         the stated independence assumption.
 \end{enumerate}
