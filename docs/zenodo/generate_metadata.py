@@ -138,6 +138,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps.",
         "keywords": ["quantum readout error", "measurement error", "asymmetric channel", "syndrome bit", "error propagation"],
+        "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.20584895",
+        "url": "https://doi.org/10.5281/zenodo.20584894", "date_released": "2026-06-07",
     },
     {
         "dir": "bernoulli-py", "repo": "bernoulli",

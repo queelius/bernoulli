@@ -57,7 +57,7 @@ Initialized by papermill on 2026-06-07.
 
 **Open minting items:**
 - `bernoulli_relations` (cited as `bernoulliRelations`) is the only cited framework paper still without a DOI. It is **not mint-ready**: build exits non-zero with 8 undefined cross-references (incl. a literal `\ref{?}`, and `sec:powerset`/`sec:bool_search`/`thm:subset`). Needs a cross-ref cleanup pass before minting; cited without a DOI for now.
-- This paper (`bernoulli-quantum-readout`) is revised and builds clean but is **not yet minted**; mint a v1 preprint DOI when ready (manifest entry already present in `docs/zenodo/generate_metadata.py`).
+- This paper (`bernoulli-quantum-readout`) **minted v1** on 2026-06-07 (via `docs/zenodo/mint.py`, direct Zenodo API, GitHub-login account): concept DOI **10.5281/zenodo.20584894**, version DOI **10.5281/zenodo.20584895**, record <https://zenodo.org/record/20584895>. To revise: edit, rebuild, and push a v2 under the same concept DOI.
 
 Fresh init of a complete first draft (committed 2026-06-06, `bafa230`). The
 paper is self-contained: standard `article` class, `amsmath`/`amsthm`,
