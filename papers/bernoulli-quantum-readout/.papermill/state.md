@@ -23,7 +23,14 @@ venue:
   target: null
   candidates: []
 
-review_history: []
+review_history:
+  - date: "2026-06-07"
+    type: "multi-agent-review"
+    findings_major: 4
+    findings_minor: 7
+    recommendation: "minor-revision"
+    notes: "Math core fully verified (all of sec:calculus + Table 1 reproduced by sympy/Monte Carlo); build production-clean (11pp, 0 undefined refs). 4 Majors are demonstrate/verify gaps not correctness: M1 independence failure never bounded, M2 worked example is symmetric so asymmetric machinery never shows a number, M3 no-prior-forward-calculus novelty unverified offline, M4 unification rests on 5 locator-free @unpublished self-cites (add Zenodo DOIs). Citation/novelty findings tagged [needs external verification]; reviewer ran single-context (no recursive Task / live web search)."
+    report_path: ".papermill/reviews/2026-06-07/review.md"
 
 related_papers:
   - path: ~/github/bernoulli/papers/bernoulli_sets
@@ -43,6 +50,8 @@ related_papers:
 ## Notes
 
 Initialized by papermill on 2026-06-07.
+
+- 2026-06-07 (multi-agent review): Recommendation **minor-revision** (0 Critical, 4 Major, 7 Minor, 7 Suggestions). Report at `.papermill/reviews/2026-06-07/review.md`. Math + build verified clean; the 4 Majors are contribution-demonstration/verification gaps (see review_history notes). Next: add an asymmetric worked example (M2), bound/frame the independence assumption (M1), mint Zenodo DOIs for the 5 framework self-cites (M4), and run a targeted prior-art pass on the forward-asymmetric-calculus novelty claim (M3, needs live search).
 
 Fresh init of a complete first draft (committed 2026-06-06, `bafa230`). The
 paper is self-contained: standard `article` class, `amsmath`/`amsthm`,
