@@ -6,7 +6,6 @@
 A random approximate relation $\ARelation{R}$ is a \emph{random approximate set}\cite{aset} of a relation $\Relation{R}$.
 All the results of random approximate sets apply to random approximate relations.
 
-We say that a \emph{positive} tuple is a \emph{correlation} and a \emph{negative} tuple is a \emph{complementary correlation}.
 For instance, consider the binary relation $\leq \subset \Set{X}^2$ given by $x \leq y \implies \Pair{x}{y} \in \, \leq$.
 The complement of $\leq$, denoted by $>$, is thus given by $x > y \implies \Pair{x}{y} \in >$.
 
@@ -35,8 +34,8 @@ Let a tuple that is selected uniformly at random from the universe $\Set{X}[1]
 \times \cdots \times \Set{X}[n]$ be denoted by $\Tuple{\RV{X_1}, \ldots, 
 \RV{X_n}}$.
 The relation $\ARelation{R}[\fprate][\tprate]$ is an approximate relation of $\Relation{R}$
-with a false relation rate $\fprate$ and false complementary relation rate
-$\fnrate$ (so its true relation rate is $\tprate = 1 - \fnrate$) if the following conditions hold:
+with a false-positive rate $\fprate$ and false-negative rate
+$\fnrate$ (so its true-positive rate is $\tprate = 1 - \fnrate$) if the following conditions hold:
 \begin{enumerate}[(i)]
     \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the relation $\Relation{R}$, then it is not in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with probability $\fnrate$,
     \begin{equation}

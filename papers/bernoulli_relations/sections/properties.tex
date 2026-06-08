@@ -187,8 +187,10 @@ reflexivity or the $\binom{\Card{\Set{A}}}{2}$ pair constraints of symmetry, and
 the trials are coupled, so the preservation probability decays the fastest of the
 four and tends to $0$ well before the others. The leading, most fragile behavior
 is governed by the conclusion pairs that must be \emph{manufactured} by false
-positives (those with $\Pair{x}{z} \notin \Relation{R}$), each contributing a
-factor near $\fprate \ll 1$.
+positives (those with $\Pair{x}{z} \notin \Relation{R}$): as a first-order
+heuristic, ignoring the cross-triple coupling just noted, each such conclusion
+contributes a factor near $\fprate \ll 1$, and the true rate is smaller still once
+that coupling is accounted for.
 
 A transitive-closure repair, the analogue of the symmetric closure, is far more
 involved. Adding a manufactured pair $\Pair{x}{z}$ to satisfy one triple can pair
@@ -236,11 +238,7 @@ We consider relations known as \emph{partial functions} as given by the followin
 	\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]\,.
 	\end{equation}
 \end{definition}
-A partial function represents \emph{many}-to-\emph{one} relationships. Consequently, denoting a tuple
-\begin{equation}
-%\Tuple{x_1,\ldots,x_n} \in \Set{X}[1] \times \cdots \times \Set{X}[n]
-\end{equation}
-by its \emph{mapped} value $\Tuple{y_1,\ldots,y_m} = \PFun{f}(x_1,\ldots,x_n) \in \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is ambiguous unless the partial function is a bijection (one-to-one).
+A partial function represents \emph{many}-to-\emph{one} relationships. Consequently, denoting a tuple by its \emph{mapped} value $\Tuple{y_1,\ldots,y_m} = \PFun{f}(x_1,\ldots,x_n) \in \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is ambiguous unless the partial function is a bijection (one-to-one).
 
 In the finite case, the number of partial functions of the type $\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is
 \begin{equation}
@@ -280,7 +278,7 @@ A \emph{table} is a convenient way to represent a partial function, where each t
 \subsubsection{Abstract data type}
 A \emph{type} is a set and the elements of the set are called the \emph{values} of the type. An \emph{abstract data type} is a type and a set of operations on values of the type. For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction. A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types. An \emph{immutable} data structure has static state; once constructed, its state does not change until it is destroyed.
 
-The abstract data type of the \emph{immutable} approximate set is given by the following definition.
+The abstract data type of the \emph{approximate partial function} is given by the following definition.
 \begin{definition}
 	\label{def:approx_pfun}
 	A relation $\APFun{f} = \Set{X}[1] \times \cdots \times \Set{X}[n] \times \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is an \emph{approximate partial function} of $\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ if the following conditions hold:
