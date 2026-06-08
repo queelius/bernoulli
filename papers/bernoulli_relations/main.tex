@@ -93,7 +93,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We define the semantics of \emph{approximate relation}, which follows naturally from the \emph{approximate set}. It is a \emph{probabilistic} relation that \emph{approximates} another relation of objective interest with the possibility of \emph{false correspondences} and \emph{false complementary correspondences}. A special-case of the approximate relation is the approximate partial function (unary partial functions are more widely known as dictionaries). Given specified error rates of these kind, we derive the expected lower-bound on the bits per relation. Furthermore, we consider how these errors \emph{propagate} through relational operators like \emph{join} and \emph{project}, and consider the special case of partial function \emph{composition}. Following from that, we consider an implementation of the approximate relation based on approximate sets. Following from that, we consider an implemention which efficiently permits projections on the relations down to specific attributes based on perfect hash functions, denoted the \emph{perfect hash map}, which is especially useful for implementing approximate unary approximate partial functions. Finally, we demonstrate an application, \emph{trapdoor databases}, which we use to implement rank-ordered Encrypted Search with extensions for the fuzzy set-theoretic model.
+An \emph{approximate relation} is a relation that approximates another relation of objective interest, admitting \emph{false correspondences} and \emph{false complementary correspondences} at specified rates. We model it as a Bernoulli random approximate set over the tuple universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$, so the whole apparatus of the set model (the per-tuple false-positive rate $\fprate$ and true-positive rate $\tprate$, the binomial error counts) transfers to relations at once. On this footing we track how error propagates through the relational operators. Selection is rate-transparent. Projection amplifies the false-positive rate to $1 - (1-\fprate)^{k}$ in the fan-in $k$ and raises the model order while preserving element-wise independence. A join, by contrast, does \emph{not} preserve element-wise independence: output tuples that share an input component are correlated, so a query result that assumes independent rows understates the joint error. We then ask when structural invariants survive approximation: reflexivity, symmetry, single-valuedness, and transitivity are all fragile, their preservation probability tending to zero as the universe grows, with the symmetric closure as the cheap repair. The single-valued special case is the approximate partial function (the dictionary). We close with a trapdoor-database application to encrypted search. Companion papers supply the information-theoretic space bound~\cite{bernoulliEntropy}, the optimal perfect-hash-filter construction, partial-function composition~\cite{bernoulliMaps}, and the set-level subset and equality predicate rates~\cite{bernoulliComposition}.
 \end{abstract}
 
 
@@ -113,9 +113,9 @@ We define the semantics of \emph{approximate relation}, which follows naturally 
 %\listofalgorithms
 
 
-% TODO(2026-05-29 build-repair): sections/intro.tex is referenced but was never written
-% (absent from disk and git history). Excluded so the paper compiles; author the intro.
-%\subfile{sections/intro}
+% Phase C (2026-06-08): intro authored. Follows the bernoulli_sets template (gap,
+% contributions, related work, companions, organization). Goes first, before relations.
+\subfile{sections/intro}
 \subfile{sections/relations}
 \subfile{sections/approx_rel_model}
 \subfile{sections/rel_algebra}

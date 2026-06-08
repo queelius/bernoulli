@@ -7,9 +7,9 @@
 % was removed (it is this paper; no longer cited anywhere). Self-cite style matches
 % papers/bernoulli-phf/paper/references.bib (unpublished, real GitHub URLs).
 %
-% TODO(cite): probabilistic databases (Suciu/Trio/MayBMS). The probabilistic / uncertain
-% database literature is the nearest external neighbor and must be cited in the related-work
-% paragraph (Phase C). Left unfilled here so verified entries can be added rather than invented.
+% Probabilistic / uncertain database literature: the nearest external neighbor, cited in the
+% related-work paragraph (Phase C). The distinction is uncertainty IN THE DATA (these works)
+% versus error injected by a SPACE-SAVING REPRESENTATION over an objective base relation (ours).
 
 @unpublished{aset,
   author = {Alexander Towell},
@@ -77,4 +77,28 @@
   pages   = {377--387},
   year    = {1970},
   doi     = {10.1145/362384.362685}
+}
+
+@book{suciu2011,
+  author = {Dan Suciu and Dan Olteanu and Christopher R\'e and Christoph Koch},
+  title = {Probabilistic Databases},
+  series = {Synthesis Lectures on Data Management},
+  publisher = {Morgan and Claypool},
+  year = {2011}
+}
+
+@inproceedings{widom2005trio,
+  author = {Jennifer Widom},
+  title = {Trio: A System for Integrated Management of Data, Accuracy, and Lineage},
+  booktitle = {Conference on Innovative Data Systems Research (CIDR)},
+  year = {2005}
+}
+
+@inproceedings{huang2009maybms,
+  author = {Jiewen Huang and Lyublena Antova and Christoph Koch and Dan Olteanu},
+  title = {{MayBMS}: A Probabilistic Database Management System},
+  booktitle = {ACM SIGMOD International Conference on Management of Data},
+  pages = {1071--1074},
+  year = {2009},
+  doi = {10.1145/1559845.1559984}
 }

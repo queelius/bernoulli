@@ -1,0 +1,102 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Introduction}
+\label{sec:intro}
+Relational data is everywhere: a relation, in Codd's sense~\cite{codd1970}, is
+just a subset of a product of attribute domains, and tables, indexes, joins, and
+projections are the daily vocabulary of data management. Relations are also sets,
+and a large body of work shows that sets can be represented far more compactly
+than their exact membership tables if one is willing to tolerate a controlled
+rate of error. Bloom filters~\cite{bf} and perfect hash filters~\cite{phf} answer
+membership with a known false-positive rate while storing a small fraction of the
+bits an exact structure would need. Reading a relation through such a structure
+turns an exact relation into an \emph{approximate} one: some tuples are reported
+that do not belong, and some genuine tuples are missed.
+
+\paragraph{The gap.}
+The per-structure error of an approximate set is well understood in isolation,
+but a relation is rarely queried in isolation. It is selected, projected, and
+joined, and the results are projected and joined again. Two questions then have
+no off-the-shelf answer. First, how does the per-tuple error of the operands
+propagate through the relational operators: what false-positive and
+false-negative rates does a projection or a join inherit, and does the clean
+element-wise independence that makes the set model tractable survive the
+operation? Second, relations often carry structural invariants (a relation is
+reflexive, or symmetric, or single-valued, or transitive), and approximation
+tests each tuple independently, so a symmetric relation read through an
+approximate set need not come back symmetric. Does an approximated invariant
+survive, and at what rate? This paper answers both.
+
+\paragraph{Contributions.}
+We treat the approximate relation as a Bernoulli random approximate
+set~\cite{aset} over the tuple universe, the abstract data type of
+\cref{sec:approx_rel_model}, and from that footing we establish the following.
+\begin{enumerate}[nosep]
+    \item \emph{Error propagation through the relational operators}
+    (\cref{sec:rel_algebra}). Selection is rate-transparent. Projection amplifies
+    the false-positive rate to $1 - (1-\fprate)^{k}$ in the fan-in $k$ and raises
+    the model order while preserving element-wise independence. A join does
+    \emph{not} preserve element-wise independence: two output tuples that share an
+    input component reuse the same operand trial and are positively correlated, so
+    the joint law over output tuples does not factor. This is the paper's sharpest
+    finding, and it is the precise reason a join differs from a selection or a
+    projection.
+    \item \emph{Preservation of relational invariants}
+    (\cref{sec:invariants}). Reflexivity, symmetry, single-valuedness, and
+    transitivity are each preserved only with a probability that is a product over
+    the constrained tuples, and so tends to zero as the ground universe grows. We
+    give the per-invariant rate, exhibit the symmetric closure as a cheap
+    deterministic repair (admit a pair if either ordered trial fires, at a doubled
+    rate cost), and state the honest limiting behavior for transitivity, which
+    admits no comparably cheap closure.
+    \item \emph{The approximate partial function} as the single-valued special
+    case of the model (the dictionary), recovered directly from the relational
+    treatment.
+    \item \emph{A trapdoor-database application} (\cref{sec:trapdoor_rel_model}),
+    in which cipher relations and cipher partial functions index an encrypted
+    store and the relational operators run obliviously.
+\end{enumerate}
+
+\paragraph{Related work.}
+The nearest neighbor is the literature on \emph{probabilistic} and
+\emph{uncertain} databases~\cite{suciu2011}, including systems such as
+Trio~\cite{widom2005trio} and MayBMS~\cite{huang2009maybms}. That work models
+uncertainty \emph{in the data}: tuples carry probabilities or lineage, a database
+denotes a distribution over possible worlds, and a query computes the marginal
+probability of each answer over those worlds. The Bernoulli approximate relation
+is a different object. There is an \emph{objective} base relation, exact and
+certain, and the uncertainty is injected entirely by a \emph{space-saving
+representation} of it: the false-positive and false-negative rates are properties
+of the data structure, not of the data. The questions we ask are correspondingly
+different. A probabilistic database does not ask whether an approximated symmetric
+relation stays symmetric, or how a projection's fan-in amplifies a structural
+false-positive rate, because in that setting the relation has no underlying exact
+truth to be faithful to and no representation-induced error to propagate. Our
+operator and invariant results are about the fidelity of a compressed encoding,
+which is orthogonal to possible-worlds semantics.
+
+\paragraph{Companion papers.}
+This paper sits in a family built on the Bernoulli set model~\cite{aset,
+bernoulliSets}. The set-theoretic composition that the join and the subset and
+equality predicates reduce to (closed-form rates for intersection, union, and
+complement) is developed in the composition paper~\cite{bernoulliComposition}.
+Approximate partial functions as first-class maps, and the error rates of map
+\emph{composition}, are the subject of the maps paper~\cite{bernoulliMaps}; here
+the partial function appears only as a single-valued relation. The
+information-theoretic space bound (the bits per relation forced by a given error
+rate) is established in the entropy paper~\cite{bernoulliEntropy}, and the
+space-optimal perfect-hash-filter construction that meets it is the subject of a
+further companion. We cite these rather than re-derive them, and confine this
+paper to the genuinely relational territory: operator propagation, invariant
+preservation, and the relational application.
+
+\paragraph{Organization.}
+\Cref{sec:relations} reviews relations and the relational operators (selection,
+projection, join, composition). \Cref{sec:approx_rel_model} defines the random
+approximate relation as a Bernoulli set over the tuple universe and records the
+error-count machinery it inherits. \Cref{sec:rel_algebra} propagates error through
+the operators. \Cref{sec:invariants} treats invariant preservation and the
+symmetric closure, and arrives at the approximate partial function.
+\Cref{sec:trapdoor_rel_model} develops the trapdoor-database application.
+\end{document}
