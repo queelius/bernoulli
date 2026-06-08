@@ -1,0 +1,87 @@
+% §19.2 The Computational Basis
+%
+% Monograph register: elements and sets as vectors. Element x -> one-hot basis
+% vector |x> in R^|U|. Set A -> occupation/indicator vector 1_A in {0,1}^|U|
+% (sums to |A|, NOT a probability vector). A random element -> probability
+% vector p in the simplex (sums to 1). The occupation-vs-probability distinction
+% is the load-bearing setup for the maps/sets split in §19.3 and §19.4.
+% Cross-refs sec:operator-what-for, sec:operator-maps-stochastic,
+% sec:operator-sets-tensored, ax:element-indep. DEFINED:
+% sec:operator-computational-basis, def:computational-basis,
+% def:occupation-vector.
+
+\section{The Computational Basis}
+\label{sec:operator-computational-basis}
+
+Fix a finite universe $\Universe$ with $\Card{\Universe} = N$ elements, ordered
+once and for all. The operator view begins by giving each element an axis.
+
+\begin{definition}[Computational basis]
+\label{def:computational-basis}
+To each element $x \in \Universe$ assign the basis vector $\ket{x} \in
+\RealSet^{N}$ that is $1$ in the coordinate indexed by $x$ and $0$ elsewhere.
+The family $\{\ket{x} : x \in \Universe\}$ is the \emph{computational basis} of
+$\RealSet^{N}$: $N$ mutually orthogonal one-hot vectors, one per element.
+\end{definition}
+
+The name is borrowed from the measurement basis of a quantum register, and the
+borrowing is deliberate; \Cref{sec:operator-classical-sector} makes the
+correspondence precise. For now $\ket{x}$ is a one-hot indicator and nothing
+more.
+
+\subsection*{A set is its occupation vector}
+
+A classical set is built by superposing the basis vectors of its members.
+
+\begin{definition}[Occupation vector]
+\label{def:occupation-vector}
+For $A \subseteq \Universe$ the \emph{occupation vector} (equivalently the
+indicator vector) is
+\[
+  \SetIndicator{A} \;=\; \sum_{x \in A} \ket{x} \;\in\; \{0,1\}^{N},
+\]
+the $0/1$ vector whose $x$-coordinate is $1$ exactly when $x \in A$.
+\end{definition}
+
+For $\Universe = \{a, b, c\}$ in that order, the set $\{a, b\}$ is
+$\SetIndicator{\{a,b\}} = \ket{a} + \ket{b} = (1, 1, 0)^{\mathsf{T}}$, the full
+universe is $(1,1,1)^{\mathsf{T}}$, and the empty set is the zero vector. This
+is the membership predicate of Part~II written in coordinates: the
+$x$-coordinate of $\SetIndicator{A}$ is the truth value of ``$x \in A$.''
+
+\subsection*{An occupation vector is not a probability vector}
+
+The single distinction that organizes the rest of the chapter is between two
+kinds of vector that both live in $\RealSet^{N}$ and are easy to conflate.
+
+The occupation vector $\SetIndicator{A}$ is a vector of \emph{bits}. Its
+coordinates are independent yes/no answers, and they sum to
+\[
+  \sum_{x} (\SetIndicator{A})_x \;=\; \Card{A},
+\]
+the cardinality of $A$, which is anything from $0$ to $N$. It is a point of the
+Boolean cube $\{0,1\}^{N}$, not a distribution.
+
+A \emph{random element} of $\Universe$ is a different object. It is a
+probability vector
+\[
+  p \;=\; \sum_{x \in \Universe} p_x \ket{x},
+  \qquad
+  p_x \ge 0,
+  \quad
+  \sum_{x} p_x = 1,
+\]
+a point of the simplex, with $p_x$ the probability that the element is $x$. A
+basis vector $\ket{x}$ is the degenerate case, the point mass at $x$, and is the
+only vector that is at once a one-hot occupation vector (the singleton $\{x\}$)
+and a probability vector.
+
+These two readings of $\RealSet^{N}$ pull the framework in two directions, and
+the split is exactly the maps-versus-sets split of the next two sections. A
+\emph{map} sends an input element to an output element, so it transports
+probability mass on the simplex: its natural operator is one $N \times N$
+stochastic matrix, taken up in \Cref{sec:operator-maps-stochastic}. A
+\emph{set}, by contrast, is a vector of bits, and a noisy set flips those bits;
+flipping a coordinate of the cube is not a motion on the simplex, and modeling
+it correctly requires a different operator, taken up in
+\Cref{sec:operator-sets-tensored}. The clean case comes first.

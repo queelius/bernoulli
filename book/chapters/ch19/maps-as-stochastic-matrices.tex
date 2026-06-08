@@ -1,0 +1,150 @@
+% §19.3 Maps as Stochastic Matrices
+%
+% Monograph register: the clean half. Deterministic f: U -> V is a column-
+% stochastic 0/1 matrix M_f with M_f |x> = |f(x)>; the permutation special case.
+% A Bernoulli map is a column-stochastic Q with Q_{yx} = P(ftilde(x)=y), so Q|x>
+% is the output distribution; serial composition of Bernoulli maps is the matrix
+% product Q_g Q_f, and the composition theorem omega = 1-(1-w1)(1-w2) is its
+% consequence (Cref thm:composition / rem:channel-composition). Model order =
+% number of distinct columns. This IS the n-ary channel of sec:n-ary-channels,
+% read as an operator (note the row-stochastic vs column-stochastic convention
+% difference: ch9 uses row-stochastic Q acting on the right; here column-
+% stochastic acting on the left, the transpose). Cross-refs
+% sec:operator-computational-basis, def:computational-basis, sec:n-ary-channels,
+% def:n-ary-channel, sec:composition-theorem, thm:composition,
+% rem:channel-composition, def:model-order, sec:operator-sets-tensored.
+% DEFINED: sec:operator-maps-stochastic, def:operator-map-matrix,
+% def:operator-bernoulli-map, prop:operator-map-composition.
+
+\section{Maps as Stochastic Matrices}
+\label{sec:operator-maps-stochastic}
+
+A function is the cleanest thing to put in operator form, because a function
+moves an element to an element, and an element is a basis vector.
+
+\subsection*{A deterministic function is a $0/1$ matrix}
+
+\begin{definition}[Map matrix]
+\label{def:operator-map-matrix}
+For a function $f : \Universe \to V$ between finite sets, the \emph{map matrix}
+$M_f$ is the $\Card{V} \times \Card{\Universe}$ matrix with a single $1$ in each
+column, placed so that
+\[
+  M_f \ket{x} \;=\; \ket{f(x)}
+  \qquad \text{for every } x \in \Universe.
+\]
+Column $x$ of $M_f$ is the one-hot vector $\ket{f(x)}$; entry $(y, x)$ is $1$
+when $y = f(x)$ and $0$ otherwise.
+\end{definition}
+
+Each column sums to one (a function sends each input somewhere, and to exactly
+one place), so $M_f$ is \emph{column-stochastic} with entries in $\{0, 1\}$.
+Applying $M_f$ to a basis vector reads off the function value; applying it to a
+probability vector $p$ pushes the distribution forward, $M_f p$ being the law of
+$f(X)$ when $X \sim p$. When $\Universe = V$ and $f$ is a bijection, $M_f$ is a
+permutation matrix, the operator face of the user's $f(x) = M\ket{x}$ reading of
+a function: a relabeling of the basis. A non-injective $f$ collapses several
+basis vectors onto one, and $M_f$ then has a repeated column and is singular.
+
+\subsection*{A Bernoulli map is a column-stochastic matrix}
+
+Allowing the columns to be distributions rather than point masses turns a
+function into an approximate one.
+
+\begin{definition}[Bernoulli map matrix]
+\label{def:operator-bernoulli-map}
+A \emph{Bernoulli map} $\tilde{f} : \Universe \to V$ is given by a
+column-stochastic matrix $Q$ of shape $\Card{V} \times \Card{\Universe}$,
+\[
+  Q_{yx} \;=\; \Prob{\tilde{f}(x) = y},
+  \qquad
+  Q_{yx} \ge 0,
+  \quad
+  \sum_{y} Q_{yx} = 1,
+\]
+so that column $x$, namely $Q \ket{x}$, is the output distribution on $V$
+produced by the input $x$. The \emph{model order} (\Cref{def:model-order}) is
+the number of distinct columns of $Q$, the number of input blocks that produce
+genuinely different output distributions.
+\end{definition}
+
+A deterministic $f$ is the special case in which every column is one-hot, so
+\Cref{def:operator-map-matrix} sits inside \Cref{def:operator-bernoulli-map}.
+The matrix here is the n-ary channel of \Cref{def:n-ary-channel}, read as an
+operator. The two definitions are the same object under transposition: the
+channel of \Cref{sec:n-ary-channels} is written row-stochastic, with input
+blocks indexing rows and the matrix acting on row vectors from the right, the
+natural convention when one reads the matrix as a confusion table; the operator
+here is written column-stochastic, with inputs indexing columns and the matrix
+acting on column vectors $\ket{x}$ from the left, the natural convention when
+one reads the matrix as a map. The entries are the same conditional
+probabilities $\Prob{\text{output} \mid \text{input}}$, and ``column-stochastic
+operator'' and ``row-stochastic channel'' name one matrix in two layouts. The
+binary case $\Card{\Universe} = \Card{V} = 2$ recovers the $2 \times 2$ channel
+of Part~II, with $Q \ket{0}$ and $Q \ket{1}$ the two columns carrying
+$(1 - \fprate, \fprate)$ and $(\fnrate, 1 - \fnrate)$.
+
+\subsection*{Composition is the matrix product}
+
+The reason to write a map as a matrix is that composing maps becomes
+multiplying matrices.
+
+\begin{proposition}[Serial composition of Bernoulli maps]
+\label{prop:operator-map-composition}
+Let $\tilde{f} : \Universe \to V$ and $\tilde{g} : V \to W$ be Bernoulli maps
+with column-stochastic matrices $Q_f$ and $Q_g$, and suppose the noise of
+$\tilde{g}$ is independent of the noise of $\tilde{f}$. Then the composite
+$\tilde{g} \circ \tilde{f} : \Universe \to W$ is a Bernoulli map with
+column-stochastic matrix
+\[
+  Q_{g \circ f} \;=\; Q_g\, Q_f,
+  \qquad
+  (Q_g Q_f)_{wx} \;=\; \sum_{v \in V} (Q_g)_{wv}\, (Q_f)_{vx}.
+\]
+\end{proposition}
+
+\begin{proof}
+The composite output law at input $x$ is $\Prob{\tilde{g}(\tilde{f}(x)) = w}$.
+Conditioning on the intermediate value $v = \tilde{f}(x)$ and using the
+independence of the two noise sources,
+\[
+  \Prob{\tilde{g}(\tilde{f}(x)) = w}
+  = \sum_{v \in V} \Prob{\tilde{g}(v) = w}\, \Prob{\tilde{f}(x) = v}
+  = \sum_{v \in V} (Q_g)_{wv} (Q_f)_{vx},
+\]
+the $(w, x)$ entry of $Q_g Q_f$. Each column sums to one because $Q_f$'s column
+$x$ is a distribution and $Q_g$ maps distributions to distributions
+($\sum_w \sum_v (Q_g)_{wv}(Q_f)_{vx} = \sum_v (Q_f)_{vx} = 1$), so $Q_g Q_f$ is
+column-stochastic and is therefore again a Bernoulli map.
+\end{proof}
+
+This is the operator face of serial channel composition
+(\Cref{rem:channel-composition}), transposed to the column-stochastic layout
+(the row-stochastic statement there is $Q_f Q_g$, the same product read in the
+other order). The composition theorem of \Cref{thm:composition} is its
+specialization to the one-sided error direction. Take two one-sided stages on a
+shared codomain, each correct with probability $1 - \fnrate_i$ on a true input
+and never producing a spurious accept. The relevant entry of the product
+$Q_g Q_f$ is the probability that both stages pass the truth through, which by
+the product is $(1 - \fnrate_1)(1 - \fnrate_2)$, so the composite miss rate is
+\[
+  \fnrate_{g \circ f} \;=\; 1 - (1 - \fnrate_1)(1 - \fnrate_2),
+\]
+and for a $k$-stage chain $\fnrate_{\mathrm{total}} = 1 - \prod_i (1 -
+\fnrate_i)$, exactly \Cref{eq:composition-correctness}. The set-theoretic
+chapter proved this by induction on the chain; the operator view gets it as one
+diagonal entry of a matrix product, and the inductive step is the associativity
+of matrix multiplication. The two derivations agree because they are the same
+derivation in two notations.
+
+\subsection*{Deterministic maps as a sanity check}
+
+The product specializes correctly at the deterministic end. If $f$ and $g$ are
+ordinary functions, then $M_g M_f \ket{x} = M_g \ket{f(x)} = \ket{g(f(x))} =
+\ket{(g \circ f)(x)}$, so $M_{g \circ f} = M_g M_f$: the product of two
+permutation matrices is the permutation of the composite, and the product of two
+$0/1$ map matrices is the $0/1$ matrix of the composed function. The
+approximate composition law degenerates to function composition exactly when the
+columns degenerate to point masses, which is the consistency one wants between
+the noisy theory and the exact one it generalizes. The next section turns to the
+case where this clean single-matrix picture is the wrong one.

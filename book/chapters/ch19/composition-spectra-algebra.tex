@@ -1,0 +1,179 @@
+% §19.5 Composition, Spectra, and the Algebra
+%
+% Monograph register: gather the payoff. (a) Axiom 1 <=> product operator;
+% parsimony = factorization (recap from §19.4). (b) Composition = operator
+% product (eigenvalues multiply), giving prod(1-eta_i). (c) Spectral/Walsh view
+% of parity: symmetric q-flip channel [[1-q,q],[q,1-q]] has eigenvalues 1 and
+% 1-2q; 1-2q is simultaneously the +/-1 bias E[(-1)^flip] and the Walsh
+% coefficient, so parity of n independent bits errs with prob
+% (1/2)(1 - prod_i(1-2q_i)) = (1/2)(1 - product of nontrivial eigenvalues).
+% Note: this is the syndrome-bit identity of the quantum-readout companion and
+% the classical noisy-formula tradition (von Neumann/Pippenger); three names
+% (eigenvalue / Walsh coefficient / +/-1 bias) for one quantity. (d) Set
+% operations in the tensor algebra: union = OR on bits, intersection = AND; the
+% intersection FPR is the three-region weighted rate of eq:intersection-fpr
+% (eps_A eps_B is only the sparse corner), so the operator view does not erase
+% that subtlety. Show operator statement ALONGSIDE the set-theoretic one.
+% Cross-refs sec:operator-sets-tensored, prop:set-operator-is-axiom-1,
+% def:set-noise-operator, prop:operator-map-composition, thm:composition,
+% eq:composition-correctness, sec:other-set-ops, prop:intersection-fpr-fnr,
+% eq:intersection-fpr, eq:union-fpr, eq:union-fnr, def:union-of-sets,
+% def:intersection-of-sets. DEFINED: sec:operator-composition-spectra,
+% def:walsh-eigenvalue, prop:parity-spectral.
+
+\section{Composition, Spectra, and the Algebra}
+\label{sec:operator-composition-spectra}
+
+With maps as matrices and sets as tensored channels in place, three things the
+set-theoretic chapters proved separately become facets of one algebraic
+picture. This section collects them, in each case setting the operator statement
+beside the predicate statement it matches.
+
+\subsection*{Independence is a product, and parsimony is the factoring}
+
+The first facet is a recap in one sentence.
+\Cref{prop:set-operator-is-axiom-1} identified element-wise independence with a
+product operator: the set view's ``the errors at distinct elements are
+independent'' is the operator view's ``$Q_{\mathrm{set}} = \bigotimes_x Q_x$.''
+The parsimony that followed, $2N$ parameters in place of $2^N (2^N - 1)$, is the
+arithmetic of a factored operator, whose parameter budget is the sum of its
+factors' budgets. Independence, factorization, and parsimony are three readings
+of the single equation $Q_{\mathrm{set}} = \bigotimes_x Q_x$.
+
+\subsection*{Composition multiplies eigenvalues}
+
+The second facet sharpens \Cref{prop:operator-map-composition}. Serial
+composition of Bernoulli maps is the matrix product $Q_g Q_f$, and a matrix
+product does more than compose: when the factors are simultaneously
+diagonalizable, it multiplies eigenvalues. Each one-sided survival probability
+$1 - \eta_i$ is an eigenvalue of stage $i$ on the eigenvector that carries the
+truth through unflipped, and the chain's survival probability
+$\prod_i (1 - \eta_i)$ is the product of those eigenvalues. The composition
+theorem's
+\[
+  \eta_{\mathrm{total}} \;=\; 1 - \prod_{i=1}^{k}(1 - \eta_i)
+  \tag{\Cref{eq:composition-correctness}}
+\]
+is therefore a spectral statement: one minus a product of eigenvalues. The set
+view obtained it by induction over chained gates; the operator view reads it off
+the spectrum of a product. The next facet makes the spectral reading do work the
+combinatorial form does not display.
+
+\subsection*{Parity: one quantity under three names}
+
+The cleanest place the spectrum earns its keep is the parity of noisy bits. Take
+the symmetric single-bit flip channel
+\[
+  Q(q) \;=\;
+  \begin{pmatrix}
+    1 - q & q \\
+    q & 1 - q
+  \end{pmatrix},
+\]
+which flips a bit with probability $q$.
+
+\begin{definition}[The nontrivial eigenvalue of a flip channel]
+\label{def:walsh-eigenvalue}
+The symmetric flip channel $Q(q)$ has eigenvectors $(1, 1)^{\mathsf{T}}$ and
+$(1, -1)^{\mathsf{T}}$ with eigenvalues $1$ and $1 - 2q$. The first eigenvalue,
+on the all-ones vector, is the stochasticity of the channel and carries no
+information; the second, $\lambda(q) = 1 - 2q$, is the \emph{nontrivial
+eigenvalue}, the factor by which the channel contracts the sign coordinate
+$(1, -1)^{\mathsf{T}}$.
+\end{definition}
+
+The number $\lambda(q) = 1 - 2q$ has two further identities that coincide with
+the eigenvalue. Read the bit through the sign map $b \mapsto (-1)^{b}$, sending
+$\{0, 1\}$ to $\{+1, -1\}$. The expected sign after one flip is
+\[
+  \Expect{(-1)^{\text{flip}}}
+  = (1 - q)(+1) + q(-1)
+  = 1 - 2q,
+\]
+the \emph{$\pm 1$ bias} of the channel. And $1 - 2q$ is the order-one
+\emph{Walsh (Fourier) coefficient} of the channel on the Boolean cube, the
+coefficient of the single-bit character $\chi(b) = (-1)^{b}$ under the
+expansion. Eigenvalue, $\pm 1$ bias, and Walsh coefficient are three names for
+$1 - 2q$, and the names matter because each makes the parity formula obvious
+from a different direction.
+
+\begin{proposition}[Spectral error rate of a noisy parity]
+\label{prop:parity-spectral}
+Let $b_1, \ldots, b_n$ be bits, each flipped independently by a symmetric
+channel of rate $q_i$, and let the output be the parity (XOR) $b_1 \oplus \cdots
+\oplus b_n$. The parity is wrong with probability
+\[
+  \Prob{\text{parity flipped}}
+  \;=\; \frac{1}{2}\Big(1 - \prod_{i=1}^{n}(1 - 2 q_i)\Big)
+  \;=\; \frac{1}{2}\Big(1 - \prod_{i=1}^{n} \lambda(q_i)\Big),
+\]
+half of one minus the product of the channels' nontrivial eigenvalues.
+\end{proposition}
+
+\begin{proof}
+The parity flips iff an odd number of the $n$ bits flip. Pass to signs: the
+output sign is $\prod_i (-1)^{b_i'}$ where $b_i'$ is the flipped bit, and the
+parity is wrong exactly when the product of flip signs is $-1$. By independence
+the expected product of flip signs factors,
+\[
+  \Expect{\textstyle\prod_i (-1)^{\text{flip}_i}}
+  = \prod_{i=1}^{n} \Expect{(-1)^{\text{flip}_i}}
+  = \prod_{i=1}^{n}(1 - 2 q_i),
+\]
+each factor the $\pm 1$ bias of one channel. Writing $P$ for the probability the
+parity is flipped, the expected sign of the error is $(+1)(1 - P) + (-1)P = 1 -
+2P$, so $1 - 2P = \prod_i (1 - 2q_i)$ and $P = \tfrac{1}{2}(1 - \prod_i (1 -
+2q_i))$. Each $1 - 2q_i$ is the nontrivial eigenvalue $\lambda(q_i)$ of
+\Cref{def:walsh-eigenvalue}, giving the spectral form.
+\end{proof}
+
+The product of $\pm 1$ biases is the multiplicativity of the order-one Walsh
+coefficient under XOR, and it is the same multiplicativity as eigenvalues under
+a tensor product, since the parity error operator is built from the per-bit
+channels by the Kronecker product of \Cref{def:set-noise-operator} restricted to
+the sign sector. This identity is the syndrome-bit calculation used in the
+quantum-readout setting, where a measured parity (a stabilizer syndrome) inherits
+$\prod_i (1 - 2q_i)$ from its constituent single-qubit readout errors, and it is
+the classical noisy-formula tradition begun for redundant computation by von
+Neumann and analyzed for bounded-depth circuits by Pippenger, where the
+$\pm 1$-bias product is the standard accounting for error through XOR gates. The
+operator view unifies them: eigenvalue, Walsh coefficient, and $\pm 1$ bias are
+one quantity, and a parity of independent noisy bits contracts the sign sector by
+the product of that quantity over the bits.
+
+\subsection*{Set operations in the tensor algebra}
+
+The last facet returns to the set algebra of \Cref{ch:set-composition} and reads
+it on configurations. Union and intersection of approximate sets are bitwise
+logic on membership configurations: the union $\ASet{A} \cup \ASet{B}$
+(\Cref{def:union-of-sets}) is the OR of the two membership bits at each element,
+and the intersection $\ASet{A} \cap \ASet{B}$ (\Cref{def:intersection-of-sets})
+is the AND. On the tensor space $\mathcal{V}$ both are elementwise (per-factor)
+Boolean operations on the reported configurations, the predicate-level
+operations of chapter~6 written one factor at a time.
+
+The operator view does not, however, erase the subtlety chapter~6 was careful
+about. The intersection's false-positive rate is not the bare product $\fprate_A
+\fprate_B$; it is the partition-weighted three-region sum
+\[
+  \fprate_\cap
+  = w_1 (1 - \fnrate_A)\fprate_B
+  + w_2 \fprate_A (1 - \fnrate_B)
+  + w_3 \fprate_A \fprate_B
+  \tag{\Cref{eq:intersection-fpr}}
+\]
+of \Cref{prop:intersection-fpr-fnr}, where $w_1, w_2, w_3$ weight the regions
+$A \setminus B$, $B \setminus A$, and outside both. The product $\fprate_A
+\fprate_B$ is only the third term, the both-outside corner, exact in the sparse
+limit where almost every non-member of $A \cap B$ lies outside both operands.
+The reason survives translation: a false positive of the intersection requires
+both operands to report membership at an element where the intersection is
+absent, and that element's true status differs across the three regions, so the
+per-element AND consults different entries of $Q_A$ and $Q_B$ depending on the
+region. The elementwise tensor algebra computes the rate correctly only when it
+is fed the right per-element truth, which is the same bookkeeping the predicate
+derivation does by hand. The union is the De~Morgan dual, its false-negative
+rate the three-region sum \Cref{eq:union-fnr} and its false-positive rate the
+clean product $1 - (1 - \fprate_A)(1 - \fprate_B)$ of \Cref{eq:union-fpr}. The
+operator picture makes the logic per-factor and the composition multiplicative;
+it leaves the region accounting exactly where chapter~6 put it.

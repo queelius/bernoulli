@@ -1,0 +1,188 @@
+% §19.4 Sets as Tensored Channels (the load-bearing pedagogy)
+%
+% Monograph register: THE subtle half. A Bernoulli set's noise is per-element:
+% each membership bit flips through its own 2x2 channel Q_x (columns = true out /
+% true in; column-stochastic). So a set lives in (C^2)^{tensor |U|}, one 2-dim
+% membership space per element, and the joint membership channel is the Kronecker
+% product Q_set = tensor_x Q_x (a 2^|U| x 2^|U| stochastic matrix). This tensor
+% product IS Axiom 1 / the Kronecker factorization restated: elementwise
+% independence = the channel is a product operator. Central point made explicit:
+% you CANNOT model a noisy set by one |U|x|U| stochastic matrix on the occupation
+% vector 1_A -- that evolves a random ELEMENT, not membership bits. Maps live in
+% C^|U| (one matrix); sets live in (C^2)^{tensor |U|} (tensored 2x2 channels).
+% Occupation vector = compact encoding; noise operator = tensor product.
+% Parsimony in operator terms: factored operator has 2m parameters not 2^m.
+% Cross-refs sec:operator-computational-basis, def:occupation-vector,
+% def:operator-bernoulli-map, sec:operator-maps-stochastic, ax:element-indep,
+% sec:axiom-1, sec:kronecker, thm:kronecker, cor:parameter-reduction. DEFINED:
+% sec:operator-sets-tensored, def:membership-space, def:set-noise-operator,
+% prop:set-operator-is-axiom-1.
+
+\section{Sets as Tensored Channels}
+\label{sec:operator-sets-tensored}
+
+The map of \Cref{sec:operator-maps-stochastic} was clean because a map moves an
+element, and an element is one basis vector, so one stochastic matrix carries
+the whole story. A set is not like that, and the difference is the most
+important pedagogy in this chapter. A noisy set does not move an element; it
+flips membership bits, one per element of the universe, and that is a different
+operation requiring a different operator.
+
+\subsection*{The temptation, and why it is wrong}
+
+The occupation vector $\SetIndicator{A}$ of \Cref{def:occupation-vector} lives
+in $\RealSet^{N}$, and a Bernoulli map of \Cref{def:operator-bernoulli-map} is
+an $N \times N$ stochastic matrix acting on $\RealSet^{N}$. It is tempting to
+join them: pick one $N \times N$ stochastic matrix $Q$ and write the noisy set
+as $Q\, \SetIndicator{A}$. This is wrong, and seeing why fixes the whole
+picture.
+
+A column-stochastic $Q$ acting on $\RealSet^{N}$ transports probability mass
+among the $N$ coordinates: it sends a distribution over \emph{which single
+element} to another such distribution. Its proper input is a probability vector
+on the simplex, a random element. But $\SetIndicator{A}$ is not a random
+element; it is a vector of $N$ independent bits that sums to $\Card{A}$, not to
+$1$. Feeding it to $Q$ asks $Q$ to move membership mass from one element to
+another, as if a member of $A$ could ``leak'' into being a member somewhere
+else. That is not what noise does to a set. Set noise acts on each element
+\emph{separately}: for each $x$, the bit ``$x \in A$'' is reported correctly or
+flipped, and the flip at $x$ says nothing about the bit at any other element.
+One $N \times N$ matrix on the occupation vector models the wrong dynamics, the
+evolution of a random element rather than the independent corruption of $N$
+membership bits.
+
+\subsection*{One two-dimensional space per element}
+
+The correct operator keeps the elements apart. Each element carries its own
+two-state membership question, in or out, so it carries its own two-dimensional
+space.
+
+\begin{definition}[Per-element membership space]
+\label{def:membership-space}
+For each $x \in \Universe$ let $\ComplexSet^{2}_{x}$ be a two-dimensional space
+with basis $\{\ket{0}_x, \ket{1}_x\}$, where $\ket{1}_x$ encodes ``$x$ is a
+member'' and $\ket{0}_x$ encodes ``$x$ is not.'' A configuration of the whole
+universe, a definite membership status for every element, is a basis vector of
+the tensor product
+\[
+  \mathcal{V} \;=\; \bigotimes_{x \in \Universe} \ComplexSet^{2}_{x}
+  \;\cong\; (\ComplexSet^{2})^{\otimes N},
+  \qquad
+  \dim \mathcal{V} = 2^{N},
+\]
+namely $\bigotimes_{x \in \Universe} \ket{b_x}$ with $b_x \in \{0, 1\}$ the
+membership bit of $x$.
+\end{definition}
+
+The $2^N$ basis vectors of $\mathcal{V}$ are in bijection with the $2^N$ subsets
+of $\Universe$: the subset $A$ is the configuration $\bigotimes_x \ket{(
+\SetIndicator{A})_x}$, member bits set to $\ket{1}$ and the rest to $\ket{0}$.
+This is the same set, now encoded as a tensor of bits rather than packed into a
+single occupation vector. The occupation vector $\SetIndicator{A} \in
+\{0,1\}^N$ is the \emph{compact encoding}, a list of the bits; the tensor basis
+vector $\bigotimes_x \ket{(\SetIndicator{A})_x} \in \mathcal{V}$ is the
+\emph{configuration}, the same bits placed in $N$ separate two-level systems so
+that an operator can act on each independently. The point of moving to the
+$2^N$-dimensional space is precisely that it gives each membership bit its own
+factor for the noise to act on.
+
+\subsection*{The noise operator is a Kronecker product}
+
+Per-element noise is now a per-factor channel.
+
+\begin{definition}[Set noise operator]
+\label{def:set-noise-operator}
+For each element $x$ let $Q_x$ be the $2 \times 2$ column-stochastic single-bit
+channel
+\[
+  Q_x \;=\;
+  \begin{pmatrix}
+    1 - \fprate_x & \fnrate_x \\
+    \fprate_x & 1 - \fnrate_x
+  \end{pmatrix},
+\]
+whose columns are indexed (left to right) by the true status ``out'' then
+``in'': column ``out'' reports membership with probability $\fprate_x$ (a false
+positive), column ``in'' reports non-membership with probability $\fnrate_x$ (a
+false negative). The \emph{set noise operator} is the Kronecker product
+\[
+  Q_{\mathrm{set}} \;=\; \bigotimes_{x \in \Universe} Q_x,
+\]
+a $2^{N} \times 2^{N}$ column-stochastic matrix on $\mathcal{V}$.
+\end{definition}
+
+Acting on a configuration, $Q_{\mathrm{set}}$ flips each membership bit through
+its own channel and reports the joint result. Its $(\,\cdot\,, A)$ column is the
+distribution over reported subsets when the true set is $A$: by the Kronecker
+structure that distribution is the product over elements of the per-element
+report laws, member bits surviving with probability $1 - \fnrate_x$ and
+non-member bits staying silent with probability $1 - \fprate_x$. Under the
+first-order homogeneous model every $Q_x$ equals one channel $Q$ with rates
+$(\fprate, \fnrate)$, and $Q_{\mathrm{set}} = Q^{\otimes N}$.
+
+\subsection*{This Kronecker product is Axiom 1}
+
+The tensor structure is not a new modeling choice. It is element-wise
+independence, restated as a property of an operator.
+
+\begin{proposition}[The set operator factors exactly when Axiom 1 holds]
+\label{prop:set-operator-is-axiom-1}
+The joint membership-report channel of a Bernoulli set is a Kronecker product of
+per-element $2 \times 2$ channels, $Q_{\mathrm{set}} = \bigotimes_{x} Q_x$, if
+and only if the error events $\{E_x : x \in \Universe\}$ are mutually
+independent, that is, if and only if \Cref{ax:element-indep} holds.
+\end{proposition}
+
+\begin{proof}
+If Axiom~1 holds, the per-element reports are mutually independent given the true
+set, so the joint report law factors across elements; the $(\,\cdot\,, A)$
+column of the joint channel is the product of the per-element columns, which is
+the corresponding column of $\bigotimes_x Q_x$. Conversely, if
+$Q_{\mathrm{set}} = \bigotimes_x Q_x$, then every column factors as a product of
+two-dimensional marginals, so the reports are independent across elements, which
+is Axiom~1. A non-factoring joint channel (one with correlation across elements,
+as in \Cref{sec:axiom-1}) is by definition not a Kronecker product of
+$2 \times 2$ matrices.
+\end{proof}
+
+This is the Kronecker factorization theorem (\Cref{thm:kronecker}) read as the
+defining property of the set's noise operator rather than as a statement about
+$m$ parallel queries. The chapter-4 theorem said the joint confusion matrix of
+independent queries factors as a tensor product; \Cref{prop:set-operator-is-axiom-1}
+says the noise operator of an entire set \emph{is} that tensor product, and
+that this factorization is logically the same statement as Axiom~1. Where the
+set view writes ``the errors at distinct elements are independent,'' the
+operator view writes ``the channel is a product operator,'' and the two are
+interchangeable.
+
+\subsection*{Maps and sets live in different spaces}
+
+The contrast with \Cref{sec:operator-maps-stochastic} is now exact, and it is
+the heart of the chapter.
+
+A \emph{map} on $\Universe$ acts on $\ComplexSet^{N}$, one space of dimension
+$N$, by one stochastic matrix; its inputs are random elements (simplex
+vectors). A \emph{set} on $\Universe$ acts on $(\ComplexSet^{2})^{\otimes N}$,
+the tensor of $N$ two-dimensional spaces of total dimension $2^{N}$, by a
+tensored stochastic matrix; its inputs are configurations of $N$ membership
+bits. The map moves one element among $N$ possibilities; the set flips $N$ bits,
+each among $2$ possibilities. The occupation vector is a convenient
+\emph{encoding} of the set's state, but the object that evolves the state is the
+$2^N$-dimensional tensored operator, not an $N \times N$ matrix on the
+occupation vector. Conflating the two, the temptation this section opened with,
+is exactly the confusion of a vector of bits with a probability vector that
+\Cref{sec:operator-computational-basis} warned about.
+
+\subsection*{Parsimony is the factorization}
+
+The two axioms bought parametric parsimony in chapter~4, and in operator terms
+that purchase is the factorization itself. An arbitrary column-stochastic
+$2^{N} \times 2^{N}$ matrix on $\mathcal{V}$ has $2^N$ columns, each a
+distribution over $2^N$ reported subsets, hence $2^N (2^N - 1)$ free parameters,
+a number that is hopeless even for modest $N$. The factored operator
+$\bigotimes_x Q_x$ is fixed by its $N$ factors, each a $2 \times 2$ channel with
+two free rates, for $2N$ parameters in all (and just $2$ in the homogeneous
+case). The reduction from $2^N (2^N - 1)$ to $2N$ is the operator reading of
+\Cref{cor:parameter-reduction}: the parameters add across factors instead of
+multiplying across configurations, because the operator factors. Parsimony and
+factorization are one fact, and Axiom~1 is what supplies it.

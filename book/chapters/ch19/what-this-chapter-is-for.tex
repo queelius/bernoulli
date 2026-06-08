@@ -1,0 +1,88 @@
+% §19.1 What This Chapter Is For
+%
+% Monograph register: motivates the second lens. The whole book has developed
+% the framework set-theoretically (membership predicate, FPR/FNR, set algebra);
+% this chapter re-reads the same objects as vectors and stochastic matrices, a
+% parallel and complementary view, not a replacement. The operator view exposes
+% the linear and spectral structure (composition = product, independence =
+% tensor factorization) the set view leaves implicit; the set view keeps the
+% combinatorial semantics the matrix view flattens. This section also fixes the
+% local bra-ket / tensor notation used throughout the chapter (defined here, not
+% in alex.sty, because the chapter is the only consumer). Cross-refs
+% ax:element-indep, sec:kronecker, sec:composition-theorem, sec:n-ary-channels,
+% sec:quantum-contextuality. DEFINED: sec:operator-what-for.
+%
+% Local notation macros for this chapter (bra-ket and a wider Kronecker spacing).
+% \providecommand keeps the book safe if these names appear elsewhere later.
+\providecommand{\ket}[1]{\lvert #1 \rangle}
+\providecommand{\bra}[1]{\langle #1 \rvert}
+\providecommand{\ketbra}[2]{\lvert #1 \rangle\!\langle #2 \rvert}
+\providecommand{\Kron}{\mathbin{\otimes}}
+
+\section{What This Chapter Is For}
+\label{sec:operator-what-for}
+
+Every preceding chapter developed the framework in one voice. A set is a
+membership predicate; an approximate set is that predicate made noisy; the
+errors are the rates $\fprate$ and $\fnrate$; the operations are union,
+intersection, and complement, with rates that compose by the law of total
+probability. That development is complete on its own terms, and nothing in this
+chapter revises it.
+
+This chapter reads the same objects in a second voice. Each element of the
+universe becomes a basis vector, a set becomes a vector built from those, a
+function becomes a matrix, and a noisy channel becomes a stochastic matrix
+acting on vectors. The bra-ket and tensor notation of finite-dimensional linear
+algebra carries the account. The two voices describe one framework, and the
+point of stating both is that each makes visible what the other leaves
+implicit.
+
+\subsection*{What the operator view exposes}
+
+The set-theoretic development states the composition theorem
+(\Cref{sec:composition-theorem}) and the Kronecker factorization
+(\Cref{sec:kronecker}) as two separate results, proved by two separate
+arguments, one about chained gates and one about parallel queries. In the
+operator view they are one fact read in two geometries: serial composition is a
+matrix product and parallel querying is a tensor product, and both are products
+of operators. The composition theorem's $1 - \prod_i (1 - \eta_i)$ form is then
+not a combinatorial identity to be rediscovered but the multiplicativity of a
+product, and the spectral structure that the product form hides becomes
+available: eigenvalues multiply along a chain, and the error of a parity over
+independent bits is a product of the channels' eigenvalues. The independence
+axiom (\Cref{ax:element-indep}) acquires a one-line restatement, ``the noise
+operator factors,'' and parametric parsimony becomes the statement that a
+factored operator carries the sum of its factors' parameters, not their
+product. None of this is new content; it is the same content with its linear and
+spectral structure made explicit.
+
+\subsection*{What the set view keeps}
+
+The trade runs the other way as well. The matrix view flattens the
+combinatorial semantics that the set view carries on its surface. A
+false-positive rate written as a matrix entry $Q_{yx}$ no longer announces that
+it is the probability of accepting a non-member; a union written as an
+elementwise OR on occupation vectors no longer displays the three truth-regions
+($A \setminus B$, $B \setminus A$, outside both) that
+\Cref{sec:other-set-ops} weights to get the intersection rate right. The
+operator view can compute these quantities, but it does not keep them legible
+the way the predicate language does. Where the combinatorial meaning is the
+point, the set view is the better instrument, and the matrix is the supporting
+calculation.
+
+\subsection*{One framework, two lenses}
+
+So the relationship is parallel and complementary, not hierarchical. A reader
+who wants the meaning of an operation reaches for the predicate; a reader who
+wants its algebraic or spectral structure reaches for the operator. The
+remaining sections build the operator lens in order: the computational basis
+(\Cref{sec:operator-computational-basis}), maps as stochastic matrices
+(\Cref{sec:operator-maps-stochastic}), the subtler case of sets as tensored
+channels (\Cref{sec:operator-sets-tensored}), the algebra and spectra that the
+view exposes (\Cref{sec:operator-composition-spectra}), and a precise account
+of how far the formalism coincides with finite-dimensional quantum mechanics
+and where, at \Cref{sec:quantum-contextuality}, the coincidence stops
+(\Cref{sec:operator-classical-sector}). The bra-ket notation throughout is a
+notational convenience for the classical stochastic algebra, adopted because it
+makes the products and factorizations easy to write, and it is not a claim that
+the framework is quantum mechanical.
