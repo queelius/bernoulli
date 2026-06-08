@@ -1,9 +1,15 @@
 % references.bib for bernoulli_relations.
-% Created 2026-05-29 (build-repair): main.tex declared \bibliography{references} but no
-% .bib existed, so bibtex failed and all \cite rendered as [?]. The four keys below are the
-% only ones cited in the existing section files (aset, bf, phf, approxrel). The three Towell
-% entries are unpublished working papers in the Bernoulli family; reconcile titles/years and
-% the self-referential `approxrel` key during revision.
+%
+% The `aset`, `bf`, `phf` keys predate Phase B and remain cited. Phase B (2026-06-08)
+% added the sibling self-cites now referenced after the predicates/maps subtraction
+% (bernoulliComposition, bernoulliMaps), plus bernoulliEntropy/bernoulliSets and codd1970
+% for the sections to be written in Phase C. The self-referential `approxrel` placeholder
+% was removed (it is this paper; no longer cited anywhere). Self-cite style matches
+% papers/bernoulli-phf/paper/references.bib (unpublished, real GitHub URLs).
+%
+% TODO(cite): probabilistic databases (Suciu/Trio/MayBMS). The probabilistic / uncertain
+% database literature is the nearest external neighbor and must be cited in the related-work
+% paragraph (Phase C). Left unfilled here so verified entries can be added rather than invented.
 
 @unpublished{aset,
   author = {Alexander Towell},
@@ -30,10 +36,45 @@
   year   = {2026}
 }
 
-@unpublished{approxrel,
+@unpublished{bernoulliSets,
   author = {Alexander Towell},
-  title  = {The Abstract Data Type of the Approximate Relation},
-  note   = {Working paper (this paper). Self-reference placeholder inserted during
-            build-repair; replace with the intended external citation during revision},
-  year   = {2026}
+  title  = {Bernoulli Sets: A Model for Random Approximate Sets},
+  year   = {2026},
+  url    = {https://github.com/queelius/bernoulli_sets},
+  note   = {Manuscript in preparation}
+}
+
+@unpublished{bernoulliComposition,
+  author = {Alexander Towell},
+  title  = {Composition of Bernoulli Sets},
+  year   = {2026},
+  url    = {https://github.com/queelius/bernoulli_composition},
+  note   = {Manuscript in preparation}
+}
+
+@unpublished{bernoulliMaps,
+  author = {Alexander Towell},
+  title  = {The Algebra of the Random Approximate Map Model},
+  year   = {2026},
+  url    = {https://github.com/queelius/bernoulli_maps},
+  note   = {Manuscript in preparation}
+}
+
+@unpublished{bernoulliEntropy,
+  author = {Alexander Towell},
+  title  = {Entropy and Space Complexity of Random Approximate Sets},
+  year   = {2026},
+  url    = {https://github.com/queelius/bernoulli_entropy},
+  note   = {Manuscript in preparation}
+}
+
+@article{codd1970,
+  author  = {Codd, E. F.},
+  title   = {A Relational Model of Data for Large Shared Data Banks},
+  journal = {Communications of the ACM},
+  volume  = {13},
+  number  = {6},
+  pages   = {377--387},
+  year    = {1970},
+  doi     = {10.1145/362384.362685}
 }

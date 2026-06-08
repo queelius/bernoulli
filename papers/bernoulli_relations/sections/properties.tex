@@ -26,13 +26,30 @@ Irreflexive.
 Connex. Difficult to satisfy.
 
 
-\begin{theorem}
-	A random approximate relation $\ARelation{R}(\tprate,\fprate)$ of a symmetric relation $\Relation{R}$ induces a random approximate symmetric relation $\ARelation{R}[s]\!\left(\tprate,1-(1-\fprate)^2\right)$ if we say that $(x_1,x_2) \in \ARelation{R}[s]$ if $\Pair{x_1}{x_2} \in \ARelation{R}$ or $\Pair{x_2}{x_1} \in \ARelation{R}$.
+\begin{theorem}[Symmetric closure]
+\label{thm:symmetric_closure}
+	Let $\Relation{R} \subseteq \Set{A} \times \Set{A}$ be a \emph{symmetric} relation and let $\ARelation{R}[\fprate][\tprate]$ be a random approximate relation of $\Relation{R}$ with false-positive rate $\fprate$ and true-positive rate $\tprate$. Define the symmetric closure by
+	\begin{equation}
+		\Pair{x_1}{x_2} \in \ARelation{R}[s] \iff \Pair{x_1}{x_2} \in \ARelation{R} \;\text{ or }\; \Pair{x_2}{x_1} \in \ARelation{R}\,.
+	\end{equation}
+	Then $\ARelation{R}[s]$ is a random approximate symmetric relation
+	\begin{equation*}
+		\ARelation{R}[s]\!\left[1-(1-\fprate)^2\right]\!\left[1-(1-\tprate)^2\right]
+	\end{equation*}
+	with false-positive rate $1-(1-\fprate)^2$ and true-positive rate $1-(1-\tprate)^2$.
 \end{theorem}
 \begin{proof}
+	Because $\Relation{R}$ is symmetric, $\Pair{x}{y} \in \Relation{R}$ if and only if $\Pair{y}{x} \in \Relation{R}$, so each unordered pair is tested through two trials, on $\Pair{x}{y}$ and on $\Pair{y}{x}$, which are independent by \cref{asm:ber_trial}. The closure admits the pair if \emph{either} trial fires.
+
+	For a \emph{negative} pair ($\Pair{x}{y} \notin \Relation{R}$, hence $\Pair{y}{x} \notin \Relation{R}$ too), each trial is a false positive with probability $\fprate$, so the pair is admitted unless both trials miss:
 	\begin{equation}
-	\Prob{\Pair{x}{y} \in \ARelation{R} \SetUnion \Pair{y}{x} \in \ARelation{R} \Given \Pair{x}{y} \notin \Relation{R}}
+		\Prob{\Pair{x}{y} \in \ARelation{R}[s] \Given \Pair{x}{y} \notin \Relation{R}} = 1 - (1-\fprate)^2\,.
 	\end{equation}
+	For a \emph{positive} pair ($\Pair{x}{y} \in \Relation{R}$, hence $\Pair{y}{x} \in \Relation{R}$ too), each trial is a true positive with probability $\tprate$, so the pair is admitted unless both trials miss:
+	\begin{equation}
+		\Prob{\Pair{x}{y} \in \ARelation{R}[s] \Given \Pair{x}{y} \in \Relation{R}} = 1 - (1-\tprate)^2\,.
+	\end{equation}
+	The same doubling that raises the false-positive rate of the \textsc{or} also raises the true-positive rate; the true-positive slot is therefore $1-(1-\tprate)^2$, not the unchanged $\tprate$. For example, at $\tprate = 0.9$ the closure true-positive rate is $1 - (0.1)^2 = 0.99$.
 \end{proof}
 
 We may \emph{compose} these binary relations with any of the properties we wish.
@@ -56,6 +73,10 @@ A random approximate symmetric binary relation must also have this property.
 % 
 A binary relation $\Relation{R} \subset \Set{X} \times \Set{Y}$ is a \emph{functional} relation if $\Selection_{x} \Set{R}$ has a cardinality of $0$ or $1$. If there exists an $x \in \Set{X}$ such that its selection is zero, then the binary relation is a \emph{partial function}.
 
+% TODO(PhaseC): Cartesian-product invariant. The genuinely-relational Cartesian-product
+% preservation result (from the deleted constrained_ras.tex) belongs in the dedicated
+% invariants section to be written in Phase C. The power-set/Jensen and disjoint-union
+% material from that file belongs to the entropy/composition papers and is NOT hosted here.
 
 
 \begin{remark}
@@ -63,103 +84,20 @@ Some of these properties may be difficult to guarantee, especially for cipher re
 However, \emph{tractability} is a separate issue from specification and definition.
 \end{remark}
 
-\subsection{Random approximate maps}
+\subsection{The approximate partial function}
 \label{sec:map}
-The set $\Set{A} \mapsto \Set{B}$ is all functions from domain $\Set{A}$ to codomain $\Set{B}$, which may also be denoted by $\Set{B}^{\Set{A}}$ since there are $\Card{\Set{B}}^{\Card{\Set{A}}}$ functions that take input from $\Set{A}$ and \emph{map} it to output in $\Set{B}$.
-However, we consider the set of \emph{partial functions} $\Set{A} \pfun \Set{B}$, which has a cardinality of $(\Card{\Set{B}}+1)^{\Card{\Set{A}}}$.
+A \emph{partial function} is the single-valued special case of a relation: each tuple in the domain maps to at most one tuple in the range. Approximate-map composition, the error rates that result when two approximate partial functions are composed, is treated in the maps paper~\cite{bernoulliMaps}, whose composition theorem gives a false-negative rate $\fnrate_{g \circ f} = 1 - (1-\fnrate_1)(1-\fnrate_2)$ with an explicit overlap parameter governing the resulting false-positive rate. We do not duplicate that analysis here; what follows is the partial-function abstract data type viewed as a relation.
 
-We restrict our attention to partial functions of \emph{countable domains}, which we refer to as \emph{maps}.
-Suppose we have some map $\PFun{f}$. Then, by definition, any $a \in \Set{A}$ can only map to at most one $b \in \Set{B}$ by $\PFun{f}$, and any random approximate map of $\PFun{f}$, denoted by $\APFun{f}$, must have the same property.
-
-\begin{notation}
-	When we wish to make the true positive and false positive rates explicit, we may denote a random approximate map of $\PFun{f}$ with a true positive rate $\tprate$ and false positive rate $\fprate$ by $\APFun{f}[\tprate][\fprate]$.
-\end{notation}
-Note that if the map $\PFun{f} \colon \Set{A} \mapsto \Set{B}$ is a total function, then $\APFun{f}[\tprate][] \colon \Set{A} \pfun \Set{B} $ is (probably) a map.
-
-Suppose function $\PFun{f}$ has a domain $\Set{A}$ and codomain $\Set{B}$.
-The \emph{domain} of $\PFun{f}$ may be denoted by $\Dom(\PFun{f})$.
-The \emph{codomain} of $\PFun{f}$ may be denoted by $\Codom(\PFun{f})$.
-The \emph{domain of definition} of $\operatorname{f}$ is the subset of the domain for which it is defined and may be denoted by $\Dod(\PFun{f})$.
-The \emph{range} of $\PFun{f}$ is defined as
-\begin{equation}
-\Range(\PFun{f}) \coloneqq
-\SetBuilder{y \in \Codom(\PFun{f})}{(x,y) \in \Dom(\PFun{f}) \times \Codom(\PFun{f}) \land x \in \Dod(\PFun{f})}\,.
-\end{equation}
-
-To address undefined elements in the domain, we implicitly assume the maps are \emph{augmented} in the following two ways:
-\begin{enumerate}
-	\item The \emph{augmented} codomain of $\PFun{f}$ is the sum type (or disjoint union) $\Codom(\PFun{f}) + \{\epsilon\}$, where $\epsilon$ denotes \emph{nothing}.
-	\item The \emph{augmented} function of $\PFun{f}$ maps any element $x \notin \Dod(\PFun{f})$ to $\epsilon$.
-\end{enumerate}
-For simplicity, we implicitly assume the augmented form and keep the notation the same as before.
-
-%In a similar way, the \emph{pre-image} of $\operatorname{f}$ is defined as
-%\begin{equation}
-%\Preimage(\operatorname{f}) =
-%\SetBuilder{x \in \Dom(\operatorname{f})}{(x,y) \in \Dom(\operatorname{f}) \times \Codom(\operatorname{f}) \land y \in \Image(\operatorname{f})}\,.
-%\end{equation}
-
-\begin{remark}
-	Approximation errors of the form $\APFun{f}(x) \neq \PFun{f}(x),x\in \Dod(\operatorname{f})$ and $x \in \Dod(\APFun{f})$, are outside the scope of the random approximate map model.
-	Certainly, these kind of approximation errors may also exist in a map, but the ``approximate'' in random approximate maps deals exclusively with false positives and false negatives on the \emph{domain of definition}, which induces false negatives and false positives on the \emph{range}.
-\end{remark}
-
-The false positive rate is defined as
-\begin{equation}
-\Prob{x \in \Dod(\APFun{f}) \Given x \notin \Dod(\PFun{f})} = \fprate
-\end{equation}
-and the true negative rate is defined as
-\begin{equation}
-\Prob{x \in \Dod(\APFun{f}) \Given x \in \Dod(\PFun{f})} = \tprate\,.
-\end{equation}
-
-With these definitions, we see that random approximate maps have similiar properties to random approximate sets on the domain.
-In particular, the \emph{domain of definition} is the random approximate set $\ASetStyle{\left[\Dod(\PFun{f})\right]}[\tprate][\fprate]$.
-In turn, this induces an approximation of the image of $\PFun{f}$, but the nature of the approximation depends on the way in which the function is defined.
-Two extremes are given by one-to-one and constant functions.
-If $\PFun{f}$ is one-to-one over the domain of definition,, then the image is the random approximate set $\ASetStyle{\left[\Image(\PFun{f})\right]}[\tprate][\fprate]$.
-If $\PFun{f}$ is a constant that maps to $c$, then $c \in \Image(\PFun{f})$ with probability $1 - (1 - \tprate)^d$ where $d$ is the cardinality of the domain.
-
-A primary operation on functions is \emph{composition}, which is a special case of composition of relations.
-The composition of $\PFun{f} \colon \Set{A} \mapsto \Set{B}$ and $\PFun{g} \colon \Set{B} \mapsto \Set{C}$ is the function $\PFun{f} \circ \PFun{g} \colon \Set{A} \mapsto \Set{C}$, defined by
-\begin{equation}
-\left(\PFun{f} \circ \PFun{g}\right)(a) = \SetBuilder{(a,c) \in \Set{A} \times \Set{C}}{(a,b) \in \PFun{f} \land (b,c) \in \PFun{g}}\,.
-\end{equation}
-Since these are partial functions, $a$ may not be defined if either $a \notin \Dom(\PFun{f})$ or $b \notin \Dom(\PFun{g})$.
-
-The composition of random approximate maps is a random approximate map given by the following theorem.
-\begin{theorem}
-	Consider two random approximate maps $\APFun{f}[\tprate_1][\fprate_1] \colon \Set{X} \mapsto \Set{Y}$ and $\APFun{g}[\tprate_2][\fprate_2] \colon \Set{Y} \mapsto \Set{Z}$.
-	The \emph{compositions} $\APFun{f}[\tprate_1][\fprate_1] \circ \APFun{g}[\tprate_2][\fprate_2] \colon \Set{X} \mapsto \Set{Z}$ and $\APFun{g}[\tprate_2][\fprate_2] \circ \APFun{f}[\tprate_1][\fprate_1] \colon \Set{X} \mapsto \Set{Z}$ are random approximate maps with a true positive rate $\tprate_1 \tprate_2$ and a false positive rate in the interval
-	\begin{equation}
-	\IntervalSpan\!\left(\fprate_1 \tprate_2 \SetUnion \tprate_1 \fprate_2 \SetUnion \fprate_1 \fprate_2\right)\,.
-	\end{equation}
-\end{theorem}
-\begin{proof}
-	The composition is defined as
-	\begin{equation}
-	\left(\PFun{f} \circ \PFun{g}\right)(a) = \SetBuilder{(a,c) \in \Set{A} \times \Set{C}}{(a,b) \in \PFun{f} \land (b,c) \in \PFun{g}}\,.
-	\end{equation}
-	Given that $a \in \Dom\!\left(\PFun{f} \circ \PFun{g}\right)$, the probability $a \notin \Dom(\APFun{f} \circ \APFun{g})$ is just the probability that  ...
-\end{proof}
-
-
-
-
-
-Point-wise operations on functions,
-\begin{equation}
-\PFun{f} + \PFun{g} \coloneq \lambda x \mapsto \PFun{f}(x) + \PFun{g}(x)
-\end{equation}
-
-
-
-
-
-
-
+%%% Phase A (2026-06-08): the "Random approximate maps" machinery that stood here (map
+%%% notation; Dom/Codom/Dod/Range; augmented codomain; the map-composition theorem with
+%%% true-positive rate tau1*tau2 and the undefined IntervalSpan false-positive rate; the
+%%% pointwise-operations stub) was cut. That material is owned, and proved correctly, by
+%%% the maps paper (\cite{bernoulliMaps}); the composition theorem there gives
+%%% omega_{g.f} = 1 - (1-omega1)(1-omega2) with an explicit overlap parameter for the FPR.
+%%% Only the genuinely-relational partial-function ADT (def:approx_pfun, below) is kept.
 
 We consider relations known as \emph{partial functions} as given by the following definition.
+
 \begin{definition}
 	A relation
 	\begin{equation}
@@ -230,17 +168,9 @@ The abstract data type of the \emph{immutable} approximate set is given by the f
 		\end{equation}    
 		\item If $\Tuple{\RV{X}}$ is \emph{not} in the domain of $\PFun{f}$, it is in the domain of $\APFun{f}$ with a probability $\fprate$,
 		\begin{equation}
-		\Prob{\Tuple{\RV{X}} \in \Dom(\APFun{f}) \Given \Tuple{\RV{X}} \notin \Dom(\APFun{f})} = \fprate\,.
+		\Prob{\Tuple{\RV{X}} \in \Dom(\APFun{f}) \Given \Tuple{\RV{X}} \notin \Dom(\PFun{f})} = \fprate\,.
 		\end{equation}
 	\end{enumerate}
 \end{definition}
-
-\subsubsection{Composition}
-
-Composition...from relational stuff.
-
-\subsubsection{Currying}
-
-Currying... 
 
 \end{document}

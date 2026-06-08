@@ -17,7 +17,9 @@
 \usepackage{amsmath}
 \usepackage{subfiles}
 \usepackage{booktabs}
-\usepackage[xindy,toc,acronyms,symbols]{glossaries}
+% Phase B (2026-06-08): the glossaries package was loaded [xindy,toc,acronyms,symbols]
+% with \printglossary but no entries were ever defined, yielding an empty glossary and an
+% extra build step. Removed (package load and the \printglossary call) until entries exist.
 \usepackage{latexsym}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -71,7 +73,7 @@
 \PassOptionsToPackage{naturalnames}{hyperref}
 \pgfplotsset{compat=1.14} 
 
-\graphicspath{img}
+\graphicspath{{img/}}
 
 
 \title
@@ -101,12 +103,6 @@ We define the semantics of \emph{approximate relation}, which follows naturally 
 
 
 \newcommand{\ExactMap}[1]{M(#1)}
-% Added 2026-05-29 (build-repair): \tsr is defined in sections/predicates.tex's subfile
-% PREAMBLE, which the subfiles package ignores when building through main.tex, so every use
-% (predicates.tex, ~11x) errored as "Undefined control sequence". Lift the author's own
-% definition here so it exists in the full build. (The standalone predicates build is
-% unaffected; it still uses its local copy.)
-\newcommand{\tsr}{\gamma}
 
 
 %\listoffigures
@@ -118,17 +114,20 @@ We define the semantics of \emph{approximate relation}, which follows naturally 
 %\subfile{sections/intro}
 \subfile{sections/relations}
 \subfile{sections/approx_rel_model}
-% TODO(2026-05-29 build-repair): sections/rel_algebra.tex referenced but never written. Excluded.
+% TODO(PhaseC): sections/rel_algebra.tex (join/project/select error propagation) to be written.
 %\subfile{sections/rel_algebra}
 \subfile{sections/properties}
-\subfile{sections/predicates}
-% TODO(2026-05-29 build-repair): sections/test.tex referenced but never written. Excluded.
+% Phase A (2026-06-08): sections/predicates.tex deleted. The subset and equality
+% predicate rates for approximate relations are exactly the set-level results proved
+% in the composition paper (subset theorem + cor:equality_prob); the deleted draft
+% re-derived them and carried a sign error in the equality formula. A one-paragraph
+% note now cites \cite{bernoulliComposition} at the end of approx_rel_model.tex.
+% TODO(PhaseC): sections/test.tex referenced but never written. Excluded.
 %\subfile{sections/test}
 % TODO(2026-05-29 build-repair): sections/unused/optimality.tex does not exist (no unused/ dir). Excluded.
 %\subfile{sections/unused/optimality}
 % Fixed path 2026-05-29: the file lives at sections/oblivious_rel_model.tex, not sections/unused/.
 \subfile{sections/oblivious_rel_model}
 %\subfile{sections/appendix}
-\printglossary
 \bibliography{references}
 \end{document}

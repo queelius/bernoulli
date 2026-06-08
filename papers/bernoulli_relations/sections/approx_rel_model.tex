@@ -33,19 +33,19 @@ At a minimum, the relation $\ARelation{R}$ has an \emph{is-relation} operator
 Let a tuple that is selected uniformly at random from the universe $\Set{X}[1] 
 \times \cdots \times \Set{X}[n]$ be denoted by $\Tuple{\RV{X_1}, \ldots, 
 \RV{X_n}}$.
-The relation $\ARelation{R}[\fnrate][\fprate]$ is an approximate relation of $\Relation{R}$ 
-with a false relation rate $\fprate$ and false complementary relation rate 
-$\fnrate$ if the following conditions hold:
+The relation $\ARelation{R}[\fprate][\tprate]$ is an approximate relation of $\Relation{R}$
+with a false relation rate $\fprate$ and false complementary relation rate
+$\fnrate$ (so its true relation rate is $\tprate = 1 - \fnrate$) if the following conditions hold:
 \begin{enumerate}[(i)]
-    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the relation $\Relation{R}$, then it is not in the random approximate relation $\ARelation{R}[\fnrate][\fprate]$ with probability $\fnrate$,
+    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the relation $\Relation{R}$, then it is not in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with probability $\fnrate$,
     \begin{equation}
-        \Prob{\AT{\SetComplement[\Relation{R}]}[\fnrate][\fprate](\RV{X_1}, \cdots, \RV{X_n}) \Given 
+        \Prob{\AT{\SetComplement[\Relation{R}]}[\fnrate][\fprate](\RV{X_1}, \cdots, \RV{X_n}) \Given
         \Relation{R}(\RV{X_1}, \cdots, \RV{X_n})} = \fnrate\,.
     \end{equation}
-    
-    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the complementary relation of $\Relation{R}$ then it is in the random approximate relation $\ARelation{R}[\fnrate][\fprate]$ with a probability $\fprate$,
+
+    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the complementary relation of $\Relation{R}$ then it is in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with a probability $\fprate$,
     \begin{equation}
-        \Prob{\ARelation{R}[\fnrate][\fprate](\RV{X_1}, \cdots, \RV{X_n}) \Given \SetComplement[\Relation{R}](\RV{X_1}, \cdots, \RV{X_n})} = \fprate\,.
+        \Prob{\ARelation{R}[\fprate][\tprate](\RV{X_1}, \cdots, \RV{X_n}) \Given \SetComplement[\Relation{R}](\RV{X_1}, \cdots, \RV{X_n})} = \fprate\,.
     \end{equation}
 \end{enumerate}
 \end{definition}
@@ -74,7 +74,7 @@ The uncertain number of false positives is given by the following theorem.
 	By \cref{asm:ber_trial}, the uncertain outcome that a negative element \emph{tests} as positive is a Bernoulli trial with a mean $\fprate$. Since there are $\n$ such independent and identically distributed trials, the number of false positives is binomially distributed with a mean $\n \fprate$.
 \end{proof}
 
-The false positive rate $\fprate$ is an \emph{expectation}. However, the false positive rate of a random approximate relation $\ARelation{R}[\fnrate][\fprate]$ is \emph{uncertain}.
+The false positive rate $\fprate$ is an \emph{expectation}. However, the false positive rate of a random approximate relation $\ARelation{R}[\fprate][\tprate]$ is \emph{uncertain}.
 \begin{theorem}
 	\label{thm:fpr}
 	The false positive rate realizes an uncertain value as given by
@@ -95,6 +95,22 @@ The false positive rate $\fprate$ is an \emph{expectation}. However, the false p
 \end{proof}
 By \cref{thm:fpr}, the more negatives there are, the lower the variance.
 
-
+\subsection{Subset and equality of approximate relations}
+Because an approximate relation is a random approximate set over the product
+universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$, the rates at which the
+\emph{subset} and \emph{equality} predicates are preserved under approximation
+are exactly the set-level results. For two approximate relations
+$\ARelation{R}[\fprate_1][\tprate_1]$ and $\ARelation{S}[\fprate_2][\tprate_2]$
+over a common universe $\Set{U}$, the probability that $\Relation{R} \subseteq
+\Relation{S}$ continues to hold for the approximations, and the probability that
+two independent approximations of the same relation agree, are given by the
+subset theorem and the equality corollary (\texttt{cor:equality\_prob}) of the
+composition paper~\cite{bernoulliComposition}. The per-element agreement
+probability for a positive tuple is $\tprate_1 \tprate_2 + \fnrate_1 \fnrate_2$
+(both approximations report the tuple, or both omit it; these events are mutually
+exclusive, so there is no correction term), and for a negative tuple it is
+$\fprate_1 \fprate_2 + \tnrate_1 \tnrate_2$. We do not re-derive these here; the
+proofs are set-theoretic and carry over verbatim once tuples are read as
+elements of the product universe.
 
 \end{document}

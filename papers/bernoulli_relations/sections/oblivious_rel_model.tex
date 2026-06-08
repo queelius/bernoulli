@@ -4,7 +4,7 @@
 \section{Application: trapdoor relational model}
 The relational model manages data using a structure and language consistent with first-order predicate logic where data is represented in terms of tuples grouped into relations. A database organized according to the relational model is a relational database.
 
-Relations in mathematics as previously defined is a powerful abstraction with wide applicability. However, there are a few key differences between relations in mathematics and relations in the relational model. In the \emph{relational model}, we replace \emph{tuples} with sets of \emph{named} attributes and provide, limit the value types (corresponding to each attribute) to \emph{fundamental value types} like \emph{integers} or \emph{strings}, and provide an interface for \emph{modifying} attributes values and \emph{adding} or \emph{removing} attributes. Some of the key differences are summarized by \cref{table:mathrel_vsrelmodel}.
+Relations in mathematics as previously defined is a powerful abstraction with wide applicability. However, there are a few key differences between relations in mathematics and relations in the relational model. In the \emph{relational model}, we replace \emph{tuples} with sets of \emph{named} attributes and provide, limit the value types (corresponding to each attribute) to \emph{fundamental value types} like \emph{integers} or \emph{strings}, and provide an interface for \emph{modifying} attributes values and \emph{adding} or \emph{removing} attributes. Some of the key differences are summarized by \cref{tab:mathrel_vsrelmodel}.
 \begin{table}
     \label{tab:mathrel_vsrelmodel}
     \centering
@@ -26,9 +26,7 @@ Most relational databases use the SQL data definition and query language; these 
 
 The golden rule is ``every non-key attribute must provide a fact about the key, the whole key, and nothing but the key.''
 
-NOTE: Also cannot do any sort of computations on entire columns, or subsets of columns, unless the corresponding keys are also known.
 
-NOTE: Mention how this is an especially appropriate choice of a relational data structure in the case of Encrypted Search, since it allows \emph{cipher} relations.
 
 If a key needs to map to a variable-sized \emph{array} of elements, that constitutes \emph{multiple} facts about the key. In this case, it is probably better to use a key-value map, where the \emph{value} is an array. An array does too much. It has multiple facts and it stores the order (which is not related to the relation itself). And the performance is poor (see above).
 
@@ -49,31 +47,6 @@ key & attribute$_1$ & $\cdots$ & attribute$_n$\\
 \end{tabular}
 \end{table}
 
-
-TODO: Add (relation, foreign key), give name. Now, another function on a table (relation). get attribute(relation, key)
-
-TODO: The add linked attribute by key is a special linking feature. Since the \emph{key} is not necessarily stored anywhere in the table, but is only used at \emph{query} time to map to the correct row (with a false positive / false negative rate), the add link by key feature allows the key used at query time to be used at query time. Maybe operator overload this, i.e., a general attribute (that no other attribute may be named), say ``key'', that may be used in many of those functions.
-%%%%%%%%%%%%%%%%%%%%%%
-
-If a key needs to map to a variable-sized \emph{array} of elements, that constitutes \emph{multiple} facts about the key. In this case, it is probably better to use a key-value map, where the \emph{value} is an array. An array does too much. It has multiple facts and it stores the order (which is not related to the relation itself). And the performance is poor (see above).
-
-
-TODO: separately, what about a CIPHER TYPE? In an approximate set, the elements are instances of a CIPHER TYPE because:
-(1) You don't know the element x is in the set until you specifically ask if x is in the set. That is, you can't iterate over the set, that is, just by looking at the collection of bits that make up the set, you can't infer what the elements are. You actually have to ask for x specifically, and only then is it revealed to be a member or not. The less you can tell about the elements of the set by looking at the collection of bits that make up the set, the better. In a Perfect Hash Filter, we can know some things... like we can know that there are N or fewer elements if the perfect hash function is 1,...,N. The load factor may not be known, though (although a low load factor makes the distribution of bit lengths assign greater probability to smaller values), so we can only say with certainty that there are N or fewer. Another thing we know is that each actual element of the set
-
-The relational model manages data using a structure and language consistent with first-order predicate logic where data is represented in terms of tuples grouped into relations. A database organized according to the relational model is a relational database.
-
-In the relational model, related records are linked together with a \emph{key}. The purpose of the relational model is to provide a declarative method for specifying data and queries: users directly state what information the database contains and what information they want from it, and let the implementation ake care of describing data structures for storing the data and retrieval procedures for answering queries.
-
-Most relational databases use the SQL data definition and query language; these systems implement what can be regarded as an engineering approximation to the relational model. A table in an SQL database schema corresponds to a predicate variable; the contents of a table to a relation; key constraints, other constraints, and SQL queries correspond to predicates. However, SQL databases deviate from the relational model in many details, and Codd fiercely argued against deviations that compromise the original principles.[4]
-
-The golden rule is ``every non-key attribute must provide a fact about the key, the whole key, and nothing but the key.''
-
-
-NOTE: Also cannot do any sort of computations on entire columns, or subsets of columns, unless the corresponding keys are also known.
-
-NOTE: Mention how this is an especially appropriate choice of a relational data structure in the case of Encrypted Search, since it allows \emph{cipher} relations.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -96,9 +69,7 @@ Cipher relations may be constructed for the \emph{cipher} primary or composite k
 
 
 
-TODO: Add (relation, foreign key), give name. Now, another function on a table (relation). get attribute(relation, key)
 
-TODO: The add linked attribute by key is a special linking feature. Since the \emph{key} is not necessarily stored anywhere in the table, but is only used at \emph{query} time to map to the correct row (with a false positive / false negative rate), the add link by key feature allows the key used at query time to be used at query time. Maybe operator overload this, i.e., a general attribute (that no other attribute may be named), say ``key'', that may be used in many of those functions.
 
 The latter approach that uses multiple maps all indexed by the same key can more fully implement the relational logic. Moreover, if each approximate map has some false positive rate less than $1$, say a false positive rate that is independently useful, then there are fewer restrictions on how the approximate maps may be combined to generate new table views, joins, or compositions.
 

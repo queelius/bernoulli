@@ -4,14 +4,22 @@
 \RequirePackage{relationnotation}
 \RequirePackage{approxsetnotation}
 
+% \ARelation{R}[<fprate>][<tprate>]
+% Both rate slots carry fixed, documented meaning, matching the alex.sty papers'
+% [\fprate][\tprate] convention: the SUBSCRIPT is the false-positive rate and the
+% SUPERSCRIPT is the true-positive rate. With no optional arguments, the bare
+% approximate-relation symbol R^{\pm} (the approximate-set glyph) is used. With one
+% optional argument, it is read as the false-positive rate (subscript). The previous
+% definition hardcoded \sigma in the superscript and silently discarded the second
+% optional argument; that ambiguity is removed here.
 \NewDocumentCommand{\ARelation}{moo}{%
     \IfNoValueTF{#3}
     {
         \IfNoValueTF{#2}
-            {\Relation{#1}[][\sigma]}
-            {\Relation{#1}[#2][\sigma]}
+            {{\relationstyle{#1}}^{\pm}}
+            {\Relation{#1}[#2]}
     }
-    {\Set{#1}[#2][#3]}
+    {\Relation{#1}[#2][#3]}
 }
 
 \NewDocumentCommand{\ARelationType}{m}{%
