@@ -138,9 +138,28 @@ $\rho(x)$ equals $\rho(a^{*})$. If $\rho$ behaves like a uniform $r$-bit
 hash, the two agree with probability $2^{-r}$, so $\fprate = 2^{-r}$,
 exactly the fingerprint-collision probability \Cref{prop:bhf-fpr}
 bounded. The bare BPHF, queried over the full universe with a
-recomputable rank, is the BHF wearing a different label: zero false
-negatives, false positives at $2^{-r}$. Renaming a fingerprint a rank
-changes nothing the query can observe.
+recomputable rank, has the same error profile as a BHF at the same width:
+zero false negatives, false positives at $2^{-r}$. Renaming a fingerprint
+a rank changes nothing the query can observe.
+
+Its rates match a BHF's, but as a \emph{construction} this bare structure
+is not the BHF. A perfect hash with a per-slot fingerprint of width $r =
+\lceil -\log_2 \fprate \rceil$ is the \emph{perfect hash filter}, the
+FNR-zero positive Bernoulli set at false-positive rate $\fprate = 2^{-r}$,
+and it is the \emph{practical} construction of the set abstract data type,
+as against the space-optimal BHF of chapter~14. The two are distinct,
+complementary constructions of the same object, not one an instance of the
+other. The BHF reaches the information-theoretic floor $-\log_2 \fprate$
+exactly, but builds by searching for a salt under which an acceptance
+predicate holds; the perfect hash filter pays a constant $\log_2 e \approx
+1.44$ bits per element above that floor, and in return builds by
+off-the-shelf minimal perfect hashing, which is fast and widely deployed.
+That overhead is a vanishing fraction of the optimum as $\fprate \to 0$, so
+the perfect hash filter is succinct in the relative sense while conceding
+the absolute optimum to the BHF. The rank table of \Cref{def:bphf} is this
+same construction read on the FPR-zero axis: it fixes $r = \lceil \log_2 n
+\rceil$ so the slot can carry a distinct rank, and the witness model of the
+next subsection turns the result into an exact filter.
 
 This is the asymmetry \Cref{sec:bhf-to-bphf} promised. A false positive
 is a coincidence, one stored value colliding with one recomputed value,

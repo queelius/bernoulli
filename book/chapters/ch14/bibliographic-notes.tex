@@ -19,11 +19,13 @@ Function: Optimal Bernoulli Sets and Maps,'' which introduced the BHF as
 the constructive complement to the chapter-8 floor. The manuscript works
 in greater generality, extending the membership construction of
 \Cref{sec:bhf-construction} to approximate maps (each slot storing a
-key-value pair rather than a fingerprint) and to the perfect-hash filter
-of chapter~15; the space and FPR analyses here specialize that framework
-to set membership. A reader wanting the algebraic generalization, with
-the BHF as an instance of the optimal Bernoulli map, should treat the
-manuscript as the next reading.
+key-value pair rather than a fingerprint); the space and FPR analyses here
+specialize that framework to set membership. A reader wanting the algebraic
+generalization, with the BHF as an instance of the optimal Bernoulli map,
+should treat the manuscript as the next reading. The perfect hash filter of
+chapter~15 is a distinct, complementary construction of the same set and map
+ADT, not an instance of the BHF: it builds by off-the-shelf perfect hashing
+at a constant $\log_2 e$ above the floor the BHF reaches by salt search.
 
 \paragraph{The universal-hashing foundation.}
 The fingerprint hash $g$ of \Cref{prop:bhf-fpr} inherits its uniformity

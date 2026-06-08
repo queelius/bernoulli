@@ -11,19 +11,27 @@
 \addcontentsline{toc}{section}{Bibliographic Notes}
 \label{sec:bib-notes-ch15}
 
-\paragraph{The BPHF construction.}
-The construction of \Cref{def:bphf} and the space accounting of
-\Cref{prop:bphf-space} follow \textcite{towell-bernoulli-phf}, ``The
-perfect hash filter,'' which introduced the BPHF as the FPR-zero
-counterpart of the BHF. The manuscript works in greater generality: the
-rank-bearing construction of \Cref{sec:bphf-construction} extends to
-richer per-element values (relevance scores at arbitrary precision,
-sorted positions in any application ordering, vector-valued metadata
-under a chosen encoding), and the ranked search of \Cref{sec:ranked-search}
-is one of several deployment patterns it catalogues. A reader wanting the
-broader framing, with the BPHF as an instance of an optimal
-perfect-hash-addressed Bernoulli map, should treat the manuscript as the
-next reading.
+\paragraph{The perfect hash filter and the BPHF.}
+The bare construction of \Cref{sec:bphf-construction}, a minimal perfect
+hash with a per-slot fingerprint, is the \emph{perfect hash filter} of
+\textcite{towell-bernoulli-phf}, ``The perfect hash filter,'' which develops
+it as the FNR-zero positive Bernoulli set and as the practical,
+off-the-shelf-constructible counterpart to the space-optimal BHF, lifts it
+to a key-value map, and applies it to rank-ordered retrieval. That
+manuscript and the BHF manuscript
+\parencite{towell-bernoulli-hash-function} are explicit that the two are
+distinct, complementary constructions of the same set and map abstract data
+type, not one an instance of the other: the BHF reaches the space floor by
+salt search, the perfect hash filter pays $\log_2 e$ above it for a
+perfect-hash build.
+
+The FPR-zero reading of the structure, the rank table of \Cref{def:bphf},
+and the witness model (\Cref{rem:witness-is-query-model}) that drives the
+false-positive rate to zero are this chapter's own development on the dual
+axis; they extend the manuscript's construction rather than appear in it.
+The ranked search of \Cref{sec:ranked-search} is the witness-model instance
+of the rank-ordered retrieval the manuscript treats through its map
+generalization.
 
 \paragraph{The perfect-hashing literature.}
 The perfect hash $\phi$ inherits its construction and bounds from the
@@ -52,11 +60,12 @@ reduces to a per-document rank at build time. Its contribution is not the
 scoring function but the post-scoring indexing structure for top-$k$
 serving.
 
-\paragraph{The \emph{maph} C++ library.}
-The production-grade implementation is the \emph{maph} C++ library,
-distributed with the \textcite{towell-bernoulli-phf} manuscript: a
-header-only C++17 realization of the BPHF build and query paths over a
-configurable displacement-based perfect-hash backend. It is the reference
-against which the \Cref{prop:bphf-space} bound can be checked empirically;
-the asymptotic constants the chapter reports for the perfect-hash overhead
-match its measured values to within the variation across backend.
+\paragraph{The \emph{maph} reference implementation.}
+The perfect hash filter has a reference implementation, the \emph{maph}
+library (C++), maintained in its own repository rather than bundled with the
+manuscript. It realizes the perfect-hash-plus-fingerprint construction over a
+configurable displacement-based perfect-hash backend, and is the natural
+artifact against which to measure the per-element overhead the chapter
+reports against the \Cref{prop:bphf-space} accounting. The FPR-zero
+rank-table variant of this chapter is not what maph implements; the measured
+comparison against the formula is left to a separate empirical study.
