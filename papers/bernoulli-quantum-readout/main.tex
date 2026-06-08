@@ -511,6 +511,72 @@ structure (of which there is none under independence).
 factorization the mitigation literature exploits numerically, read forward and in
 closed form. The next section shows what it buys.
 
+\subsection{An operator view: assignment matrices and the readout spectrum}
+\label{sec:operator}
+
+It is worth recasting the calculus in the operator language the
+quantum-computing audience already uses, because two of its central objects are
+this paper's objects under another name. The recasting is bookkeeping, not new
+theorems; its value is that it makes the parity result visibly the meeting point
+of two existing traditions.
+
+\paragraph{The dictionary.} The single-bit readout channel of
+\cref{def:atom} is exactly the \emph{assignment matrix} (confusion matrix) that
+readout-error mitigation calibrates and inverts \citep{nation2021m3,bravyi2021mitigating}.
+Writing it in the column-stochastic convention the mitigation literature
+prefers, with the observed distribution as a column vector acted on from the
+left, it is
+\begin{equation}
+\label{eq:assignment}
+  A_i \;=\;
+  \begin{pmatrix} 1-\eps_i & \omega_i \\[2pt] \eps_i & 1-\omega_i \end{pmatrix},
+\end{equation}
+the transpose of \cref{eq:channel}. For $n$ qubits read independently the joint
+assignment matrix is the Kronecker product $A=\bigotimes_i A_i$, which is
+\cref{eq:kron} in the column convention: the tensored (local) assignment matrix
+used in practice. The element-wise independence that makes $A$ factor is the same
+independence that lets the forward calculus of \cref{sec:calculus} factor through
+the per-qubit rates. So the field's assignment matrix is this paper's channel,
+and ``tensored mitigation'' is the Kronecker factorization the forward calculus
+already exploits; the only difference is direction. Mitigation inverts $A$ to
+pull an ideal distribution back from observed counts; the present calculus pushes
+$A$ \emph{forward} through Boolean post-processing, never forming or inverting the
+$2^n\times2^n$ matrix.
+
+\paragraph{The spectrum.} The parity identity has a clean spectral reading in
+this language. For the symmetric per-bit flip channel ($\eps_i=\omega_i=q_i$) the
+$2\times2$ matrix \eqref{eq:assignment} has eigenvalues $1$ and $1-2q_i$: the
+eigenvalue $1$ belongs to the uniform (stationary) mode $(\tfrac12,\tfrac12)$,
+and the nontrivial eigenvalue $1-2q_i$ belongs to the difference, or
+\emph{parity}, mode $(\tfrac12,-\tfrac12)$. That single number $1-2q_i$ is three
+things at once: (i) the channel's nontrivial eigenvalue; (ii) the $\pm1$ bias
+$\mathbb{E}[(-1)^{F_i}]=\mathbb{E}[S_i]$ that the proof of \cref{thm:parity}
+already rides on, with $S_i=1-2F_i$; and (iii) the Walsh--Hadamard (Fourier)
+coefficient of the bit's flip distribution on the parity character. Under the
+Kronecker product these per-bit eigenvalues multiply on the all-bits parity mode,
+so the syndrome/parity identity
+\begin{equation}
+\label{eq:parity-spectral}
+  \Prob\bigl(\text{parity wrong}\bigr)
+  \;=\; \frac12\Bigl(1 - \prod_{i=1}^{n}(1-2q_i)\Bigr)
+\end{equation}
+is exactly one half of one minus the product of the channels' nontrivial
+eigenvalues: the spectral coefficient of the tensored readout channel on the
+parity mode. This is the same Walsh-spectrum object the classical
+noisy-Boolean-formula tradition computes \citep{vonneumann1956,pippenger1988}.
+Read this way, \cref{thm:parity} is visibly where the quantum operator spectrum
+of the assignment matrix and the classical Fourier analysis of noisy Boolean
+formulas coincide; the asymmetric \cref{cor:parity-asym} is the same coefficient
+with the per-bit eigenvalue $1-2q_i$ replaced by the latent-conditioned
+$1-2r_i$, $r_i\in\{\eps_i,\omega_i\}$.
+
+One honesty clause keeps the framing from being mistaken for a coherence claim.
+The bra-ket and operator language here is ordinary finite-dimensional linear
+algebra: the vectors are classical probability distributions, not amplitudes,
+there is no Born-rule square, and the entire discussion lives on the diagonal of
+the density matrix, the readout sector of \cref{sec:channel}. The eigenvalue
+$1-2q_i$ is a relaxation rate of a stochastic matrix, not a quantum phase.
+
 
 \section{Worked example: the reliability of a syndrome bit}
 \label{sec:worked}
