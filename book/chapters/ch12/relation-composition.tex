@@ -67,17 +67,91 @@ either relation has $\fnrate_i > 0$, the join inherits a positive
 $\fnrate_{\bowtie}$ by the full intersection formula; the FNR-zero case is the
 one-sided special case.
 
+\subsection*{A join breaks element-wise independence}
+
+\Cref{thm:join-rates} gives the rate of \emph{one} output triple. It is silent
+on a sharper question: are the output triples independent of one another? They
+are not, and the failure is the one place the lift to relations breaks Axiom~1
+(\Cref{ax:element-indep}) rather than merely re-deriving its consequences.
+
+\begin{theorem}[A join does not preserve element-wise independence]
+\label{thm:join-correlation}
+The approximate join $\tilde R_1 \bowtie \tilde R_2$ is a Bernoulli relation only
+\emph{marginally}. Each output triple carries the rates of
+\Cref{thm:join-rates}, but the joint law over output triples does not factor:
+two output triples that share a component pair are positively correlated, so
+element-wise independence (\Cref{ax:element-indep}) fails for the join.
+\end{theorem}
+
+\begin{proof}
+Take two output triples $(t, u, v_1)$ and $(t, u, v_2)$ with $v_1 \neq v_2$ that
+share the same $R_1$-pair $(t, u)$. Both acceptance events contain the
+\emph{same} trial $A = \{\tilde R_1(t, u) = \top\}$ as a conjunct:
+\[
+  \{(t, u, v_i) \in \tilde R_1 \bowtie \tilde R_2\}
+  = A \cap B_i,
+  \qquad
+  B_i = \{\tilde R_2(u, v_i) = \top\},
+\]
+where $A$, $B_1$, $B_2$ are independent under cross-relation independence. Write
+$a = \Prob{A}$. The two triples are accepted together with probability
+\[
+  \Prob{A \cap B_1 \cap B_2} = a\, \Prob{B_1} \Prob{B_2},
+\]
+whereas the product of their marginals is
+$(a\Prob{B_1})(a\Prob{B_2}) = a^2 \Prob{B_1}\Prob{B_2}$. For $0 < a < 1$ the two
+differ by the factor $1/a > 1$, so the joint acceptance exceeds the
+independent-model value and the triples are positively correlated. The shared
+trial $\tilde R_1(t, u)$ is reused by every output triple built from $(t, u)$,
+welding those triples together; the same holds for triples sharing an
+$R_2$-pair.
+\end{proof}
+
+A concrete reading. Suppose the shared $R_1$-pair fires with probability $a =
+0.9$ and each of $\tilde R_2(u, v_1)$, $\tilde R_2(u, v_2)$ fires with
+probability $0.9$. The two triples are accepted together with probability $0.9
+\cdot 0.9 \cdot 0.9 = 0.729$, whereas an independence assumption would predict
+$0.81 \cdot 0.81 = 0.6561$; the truth exceeds it by the factor $1/0.9 \approx
+1.11$. A query planner that estimated the chance both rows survive as a product
+of per-row probabilities would understate it.
+
+The marginal rates of \Cref{thm:join-rates} remain exactly right for any
+\emph{single} triple, and an expected false-positive count over a join still adds
+tuple by tuple, since linearity of expectation needs no independence. It is the
+higher moments, and any all-correct probability computed as a product over output
+tuples, that feel the correlation. The next two operators do preserve
+independence, which is exactly what makes the join the exception.
+
 \subsection*{Projection and selection}
 
 The projection $\pi_T(R) = \{t : \exists u,\, (t, u) \in R\}$ collapses the $U$
-axis by an existential quantifier, so $t \in \pi_T(\tilde R)$ iff some $(t, u)$
-reports $\top$, the OR of $|U|$ membership tests. An FNR-zero input gives an
-FNR-zero projection (a true $t$ has a witness pair reporting $\top$), but the FPR
-\emph{amplifies}: a non-projecting $t$ has every pair $(t, u)$ outside the
-relation, each false-positive at rate $\fprate$ independently, so $\fprate_\pi =
-1 - (1 - \fprate)^{|U|} \to 1$ as $|U|$ grows. Existential quantification over a
-large co-domain inflates any false-positive bias, the one structural penalty the
-lift to relations adds, and the motivation for the sketch-based projection of
+axis by an existential quantifier, so $t \in \pi_T(\tilde R)$ iff some pair in
+the \emph{fiber} of $t$, its pre-image $\{(t, u) : u \in U\}$, reports $\top$.
+Projection is a logical OR over the fiber, and its \emph{fan-in} is the fiber
+size $k(t)$. An FNR-zero input gives an FNR-zero projection (a true $t$ has a
+witness pair reporting $\top$), but the FPR \emph{amplifies}: a non-projecting
+$t$ has all $k(t)$ fiber pairs outside the relation, each false-positive at rate
+$\fprate$ independently, so
+\[
+  \fprate_\pi(t) = 1 - (1 - \fprate)^{k(t)} \;\ge\; \fprate,
+\]
+climbing toward $1$ with the fan-in. The true-positive side is boosted in step: a
+non-member fiber pair can itself false-positive and so rescue the projection of a
+genuine $t$, giving $\tprate_\pi(t) = 1 - (1 - \tprate)^{j}(1 -
+\fprate)^{k(t) - j}$ when $j \ge 1$ of the fiber pairs are genuine. For a binary
+relation projected onto $T$ the fiber is the whole $U$-axis, so $k(t) = |U|$ is
+uniform and the rate is $1 - (1 - \fprate)^{|U|}$; in a relation of higher arity
+the fan-in varies from one projected tuple to the next.
+
+That variation is structural. Distinct projected elements have \emph{disjoint}
+fibers, so they read disjoint sets of trials and stay mutually independent:
+projection preserves Axiom~1 (\Cref{ax:element-indep}), unlike the join. But the
+per-element rate $1 - (1 - \fprate)^{k(t)}$ depends on the fan-in $k(t)$, which
+need not be constant, so $\pi_T(\tilde R)$ is in general a higher-order Bernoulli
+relation, one rate block per distinct fan-in value, collapsing to a single
+first-order rate only when the fan-in is uniform. Existential quantification over
+a large co-domain inflates any false-positive bias, the one structural penalty
+the lift to relations adds, and the motivation for the sketch-based projection of
 \Cref{sec:approximate-joins}.
 
 The selection $\sigma_P(R) = \{(t, u) \in R : P(t, u) = \top\}$ passes the rates
@@ -109,15 +183,23 @@ and the relations must be sparse enough for the both-absent region to dominate.
 
 \subsection*{Composing the operators}
 
-The three operators compose in any order, with rate propagation by induction on
-the expression tree. A query $\pi_T(\sigma_P(\tilde R_1 \bowtie \tilde R_2))$
-evaluates bottom-up: the join gives \Cref{thm:join-rates}'s rate, the exact
-selection passes it through, the projection inflates the false-positive side by
-the existential factor and preserves the structural zero. Each operator has a
-closed-form rate-update rule, and chaining them gives the rule for the whole
-expression, the same closure-under-composition chapter~6 told for sets. The one
-addition is the projection inflation: a union is a single Boolean OR per query
-with no existential quantifier over a domain of unknown size, while a projection
-quantifies over the full second attribute, and \Cref{sec:approximate-joins}
-replaces it with a sketch that estimates the quantifier without paying the $|U|$
-amplification in full.
+The three operators compose in any order, with the \emph{marginal} rate of any
+single output tuple propagating by induction on the expression tree. A query
+$\pi_T(\sigma_P(\tilde R_1 \bowtie \tilde R_2))$ evaluates bottom-up: the join
+gives \Cref{thm:join-rates}'s rate, the exact selection passes it through, the
+projection inflates the false-positive side by the fan-in factor and preserves
+the structural zero. Each operator has a closed-form rate-update rule for a
+single tuple, and chaining them gives the per-tuple rule for the whole
+expression, the same closure-under-composition chapter~6 told for sets.
+
+Two cautions separate the relational case from the set case. The projection
+inflation is one: a union is a single Boolean OR per query with no existential
+quantifier over a domain of unknown size, while a projection quantifies over the
+full second attribute, and \Cref{sec:approximate-joins} replaces it with a sketch
+that estimates the quantifier without paying the fan-in amplification in full.
+The join correlation is the other and the deeper one. The bottom-up rates above
+are marginal, exact for any single output tuple, but \Cref{thm:join-correlation}
+showed that a join correlates the tuples it produces, so the probability that the
+\emph{whole} result is error-free does not factor as a product of per-tuple
+rates. Composing marginal rates is sound; composing them as though the output
+tuples were independent is not, once a join sits anywhere in the tree.

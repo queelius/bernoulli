@@ -1,0 +1,144 @@
+% §12.3 Preservation of Relational Invariants
+%
+% Monograph register: structural invariants survive approximation only when every
+% constrained trial cooperates, so the preservation probability is a product over
+% the constrained pairs/triples and decays as the universe grows. Reflexive
+% tprate^|A|; symmetric closure as the cheap repair (FPR 1-(1-eps)^2, TPR
+% 1-(1-tau)^2); functional (1-eps)^{|Y|-1} per key; transitive hardest, a
+% first-order heuristic ~eps per manufactured conclusion, no cheap closure. Closes
+% with the model-order reading tying back to the projection fan-in of 12.2.
+% Source: towell-bernoulli-relations sec:invariants. Cross-refs ax:element-indep,
+% sec:relation-composition, thm:join-correlation. DEFINED: sec:relation-invariants,
+% thm:rel-reflexive, thm:rel-symmetric-closure, thm:rel-functional.
+
+\section{Preservation of Relational Invariants}
+\label{sec:relation-invariants}
+
+A relation often carries a structural invariant: reflexivity, symmetry,
+single-valuedness, transitivity. An exact relation either has the property or it
+does not. An approximate relation tests each pair through its own Bernoulli trial
+(\Cref{ax:element-indep}), and a property that constrains \emph{many} pairs at
+once survives only when all of the relevant trials cooperate. The lesson of this
+section is one of fragility: the probability that an approximate relation inherits
+a global invariant is a product over the constrained pairs, and it tends to zero
+as the ground universe grows. Where a cheap repair exists, as for symmetry, we
+exhibit it and pay its rate cost; where none does, as for transitivity, we state
+the honest limiting behavior rather than force a clean formula.
+
+Throughout, $R \subseteq A \times A$ is an exact relation with the named property
+and $\tilde R$ its approximation, with false-positive rate $\fprate$,
+true-positive rate $\tprate = 1 - \fnrate$, and the per-pair trials independent.
+
+\subsection*{Reflexivity}
+
+A relation is \emph{reflexive} when it contains the whole diagonal: $(a, a) \in R$
+for every $a \in A$. The approximation is reflexive only if each of the $|A|$
+diagonal pairs survives as a true positive.
+
+\begin{theorem}[Reflexivity is preserved with vanishing probability]
+\label{thm:rel-reflexive}
+If $R$ is reflexive, then $\tilde R$ is reflexive with probability
+$\tprate^{|A|}$, which tends to $0$ as $|A| \to \infty$ for any $\tprate < 1$.
+\end{theorem}
+
+\begin{proof}
+Each diagonal pair $(a, a)$ is a true positive with probability $\tprate$, and the
+$|A|$ diagonal trials are independent (\Cref{ax:element-indep}). Reflexivity holds
+exactly when all of them fire, with probability $\tprate^{|A|}$, which decays
+geometrically in $|A|$ since $\tprate < 1$.
+\end{proof}
+
+\subsection*{Symmetry and its closure}
+
+A relation is \emph{symmetric} when $(a, b) \in R$ implies $(b, a) \in R$. The two
+ordered trials of an unordered pair are tested independently and need not agree,
+so symmetry, like reflexivity, is preserved only with a probability that vanishes
+as the number of pairs grows. Unlike reflexivity, symmetry admits a cheap repair:
+rather than hope the two ordered trials agree, force agreement by taking the
+\emph{symmetric closure}, which admits a pair when \emph{either} ordered trial
+fires.
+
+\begin{theorem}[Symmetric closure]
+\label{thm:rel-symmetric-closure}
+Let $R$ be symmetric and $\tilde R$ its approximation with rates $(\fprate,
+\tprate)$. The symmetric closure $\tilde R^{s}$, which admits $(x, y)$ when $(x,
+y) \in \tilde R$ or $(y, x) \in \tilde R$, is a symmetric approximate relation
+with false-positive rate $1 - (1 - \fprate)^2$ and true-positive rate $1 - (1 -
+\tprate)^2$.
+\end{theorem}
+
+\begin{proof}
+Because $R$ is symmetric, each unordered pair is tested by two independent trials,
+on $(x, y)$ and on $(y, x)$ (\Cref{ax:element-indep}). The closure admits the pair
+unless both trials miss. For a negative pair each trial false-positives with
+probability $\fprate$, so the closure false-positives with probability $1 - (1 -
+\fprate)^2$; for a positive pair each trial is a true positive with probability
+$\tprate$, so the closure accepts with probability $1 - (1 - \tprate)^2$. The
+closure restores the invariant deterministically, and the same doubling that
+raises the false-positive rate raises the true-positive rate: at $\tprate = 0.9$
+the closure true-positive rate is $1 - 0.1^2 = 0.99$.
+\end{proof}
+
+The closure is the template for repairing a fragile invariant: replace a
+conjunction of hopeful trials by an operator that enforces the property outright,
+and read off the rate it costs.
+
+\subsection*{Single-valuedness}
+
+A relation $f \subseteq X \times Y$ is \emph{functional} (single-valued, a partial
+function) when each key carries at most one value. Approximation breaks this in
+only one direction. A false negative on a key's true value leaves that key with no
+value, which is still single-valued; only a \emph{false positive}, which adds a
+spurious second value, violates functionality. The property survives exactly when
+no key acquires a spurious value.
+
+\begin{theorem}[Single-valuedness is preserved with vanishing probability]
+\label{thm:rel-functional}
+Let $f \subseteq X \times Y$ be functional. A key with a defined value stays
+single-valued with probability $(1 - \fprate)^{|Y| - 1}$, since each of the $|Y| -
+1$ wrong values is an independent false positive at rate $\fprate$. Over the $d$
+keys with a defined value, the probability that $\tilde f$ stays single-valued is
+$(1 - \fprate)^{d\,(|Y| - 1)}$, which tends to $0$ as the value-universe or the
+domain grows.
+\end{theorem}
+
+\begin{proof}
+Fix a key $x$ with true value $y_x$. The $|Y| - 1$ pairs $(x, y)$ with $y \neq
+y_x$ are all negative, each reported with probability $\fprate$ independently, so
+$x$ stays single-valued with probability $(1 - \fprate)^{|Y| - 1}$. Losing $y_x$,
+an event of probability $\fnrate$, leaves $x$ with no value and does not violate
+the property, so it does not enter the product. Distinct keys index disjoint pair
+sets, so the events are independent and the joint probability is the product over
+the $d$ defined keys.
+\end{proof}
+
+\subsection*{Transitivity}
+
+Transitivity is the hardest of the four and, unlike symmetry, has no inexpensive
+closure. The constraint ranges over \emph{triples}: $(x, y) \in R$ and $(y, z) \in
+R$ together require $(x, z) \in R$. A single pair participates in many triples, so
+the implicated trials overlap and the preservation probability does not factor
+into independent per-triple terms. The honest statement is a limiting one. There
+are on the order of $|A|^3$ triple constraints, far more than the $|A|$ diagonal
+constraints of reflexivity or the pair constraints of symmetry, and the trials are
+coupled, so the preservation probability decays the fastest of the four. Its most
+fragile part is the set of conclusion pairs $(x, z) \notin R$ that must be
+\emph{manufactured} by a compensating false positive: as a first-order heuristic,
+ignoring the cross-triple coupling, each such conclusion contributes a factor near
+$\fprate \ll 1$, and the true probability is smaller still once the coupling is
+counted. A transitive-closure repair is far more involved than the symmetric one:
+adding a manufactured pair can create new required conclusions in a cascade with no
+fixed per-pair cost, so we leave transitivity as the honest limiting result rather
+than a doubled rate.
+
+\subsection*{The model-order reading}
+
+The four results share a reading in the language of \Cref{ax:element-indep}. Each
+invariant partitions the universe into pairs or triples that play different error
+roles: diagonal versus off-diagonal, positive versus negative, premise versus
+conclusion. An approximation forced to honor the invariant is therefore a
+higher-order Bernoulli relation whose blocks carry distinct rates, the same
+model-order structure projection produced through its varying fan-in
+(\Cref{sec:relation-composition}). Element-wise independence keeps the parameter
+count linear even as the order grows, so the cost of an invariant is charged to
+the model order, not to an explosion of free rates.

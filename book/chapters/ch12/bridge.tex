@@ -8,19 +8,25 @@
 \section{Bridge}
 \label{sec:ch12-bridge}
 
-The chapter traced one object from three sides.
-\Cref{sec:sets-to-relations} read an approximate relation as the chapter-5
-framework on the pair universe $T \times U$ (\Cref{ch:approximate-sets}), with
-the chapter-9 binary-function view (\Cref{ch:approximate-functions}) an
-equivalent reading. \Cref{sec:relation-composition} added the relational
-operators: by \Cref{thm:join-rates}, the natural join of two FNR-zero relations
-stays FNR-zero with a false-positive rate that is the chapter-6 intersection
-rate on the triple universe (\Cref{ch:set-composition}), the bare product
-$\fprate_1 \fprate_2$ only in the sparse regime where out-of-join triples are
-dominated by the both-unrelated region. \Cref{sec:approximate-joins}
-instantiated the machinery on the MinHash-LSH similarity join
-(\Cref{sec:minhash-lsh}), reading its FPR/FNR as the chapter-12 join rates
-specialized to a sketch-based predicate.
+The chapter read one object, the approximate relation, through its operators and
+its invariants. \Cref{sec:sets-to-relations} cast it as the chapter-5 framework on
+the pair universe $T \times U$ (\Cref{ch:approximate-sets}), with the chapter-9
+binary-function view (\Cref{ch:approximate-functions}) an equivalent reading.
+\Cref{sec:relation-composition} added the relational operators, and they behave
+sharply differently under approximation: selection is rate-transparent, projection
+amplifies the false-positive rate by its fan-in and raises the model order while
+keeping element-wise independence, and a join breaks that independence outright
+(\Cref{thm:join-correlation}), correlating every output tuple built from a shared
+component. The join's marginal rate (\Cref{thm:join-rates}) is the chapter-6
+intersection rate on the triple universe (\Cref{ch:set-composition}), the bare
+product $\fprate_1 \fprate_2$ only in the sparse regime where out-of-join triples
+are dominated by the both-unrelated region. \Cref{sec:relation-invariants} then
+asked which structural invariants survive: reflexivity, symmetry,
+single-valuedness, and transitivity are each preserved only with a probability
+that vanishes as the universe grows, the symmetric closure the one cheap repair.
+\Cref{sec:approximate-joins} instantiated the machinery on the MinHash-LSH
+similarity join (\Cref{sec:minhash-lsh}), reading its FPR/FNR as the chapter-12
+join rates specialized to a sketch-based predicate.
 
 \Cref{ch:algebra-types} closes Part~III with the type algebra that unifies
 approximate sets, functions, relations, and sketches into one algebra of

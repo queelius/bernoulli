@@ -27,6 +27,22 @@ chapter approximates, originate with \textcite{codd-1970}, the foundation of the
 relational-database tradition. The chapter borrows the operators wholesale; the
 only additions are the approximate lift and its rate analysis.
 
+\paragraph{Probabilistic and uncertain databases.}
+A separate tradition also attaches uncertainty to relational data.
+\textcite{suciu-2011} survey probabilistic databases, which assign each tuple a
+probability of belonging to the relation and answer queries over the induced
+distribution of possible worlds; the systems Trio \parencite{widom-2005-trio} and
+MayBMS \parencite{huang-2009-maybms} implement the model. The approximate relation
+here is a different object. Its uncertainty is not a probability that a stored
+fact is true but a per-query error rate of a fixed approximate structure: the
+relation is exact and known, and the randomness lives in the membership test,
+with the rates $\fprate$ and $\fnrate$ describing how a Bernoulli trial reports a
+definite truth. Possible-worlds semantics ask which tuples are probably present;
+the approximate-relation semantics ask, for a given tuple, how reliably its
+membership comes back. The two are complementary rather than competing, one
+modeling uncertain data tested exactly, the other certain data tested
+approximately.
+
 \paragraph{Similarity-join algorithms.}
 The algorithmic instance of \Cref{sec:approximate-joins} combines
 \textcite{broder-1997}'s MinHash with \textcite{indyk-motwani-1998}'s
