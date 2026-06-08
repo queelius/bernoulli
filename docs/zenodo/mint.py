@@ -7,9 +7,10 @@ repo already maintains and sets correct article metadata, then uploads the PDF.
 
 Two-step by design so the irreversible publish is deliberate:
 
-    python3 docs/zenodo/mint.py draft   papers/<dir> <pdf>   # create + upload + metadata, NO publish
-    python3 docs/zenodo/mint.py show    <deposition_id>      # inspect a draft
-    python3 docs/zenodo/mint.py publish <deposition_id>      # irreversible: mint the DOI
+    python3 docs/zenodo/mint.py draft      papers/<dir> <pdf>            # new record draft, NO publish
+    python3 docs/zenodo/mint.py newversion <record_id> <pdf> papers/<dir>  # new-version draft of a published record
+    python3 docs/zenodo/mint.py show       <deposition_id>               # inspect a draft
+    python3 docs/zenodo/mint.py publish    <deposition_id>               # irreversible: mint the DOI
 
 Token: ~/.zenodo.toml [tokens].production (never printed). Production zenodo.org.
 """
@@ -54,7 +55,8 @@ def _req(method: str, url: str, tok: str, data=None, ctype="application/json"):
     req = urllib.request.Request(url, data=body, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req) as r:
-            return json.load(r) if r.length != 0 else {}
+            raw = r.read()
+            return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
         sys.exit(f"HTTP {e.code} on {method} {url}\n{e.read().decode(errors='replace')}")
 
@@ -108,6 +110,42 @@ def draft(paper_dir: str, pdf_path: str) -> None:
     print(f"  Publish: python3 docs/zenodo/mint.py publish {dep_id}")
 
 
+def newversion(record_id: str, pdf_path: str, paper_dir: str, version: str = "v2") -> None:
+    """Create a new-version DRAFT of an existing published record. No publish."""
+    tok = token()
+    print(f"Creating a new version of published record {record_id} ...")
+    r = _req("POST", f"{API}/deposit/depositions/{record_id}/actions/newversion", tok, data={})
+    draft_url = r.get("links", {}).get("latest_draft")
+    if not draft_url:
+        sys.exit("No latest_draft link in newversion response; cannot continue.")
+    draft = _req("GET", draft_url, tok)
+    dep_id = draft["id"]
+    bucket = draft["links"]["bucket"]
+    reserved = (draft.get("metadata", {}).get("prereserve_doi") or {}).get("doi", "?")
+    print(f"  new draft id: {dep_id}")
+    print(f"  reserved version DOI: {reserved}")
+
+    inherited = draft.get("files", [])
+    for f in inherited:
+        _req("DELETE", f"{API}/deposit/depositions/{dep_id}/files/{f['id']}", tok)
+    print(f"  cleared {len(inherited)} inherited file(s)")
+
+    filename = os.path.basename(paper_dir.rstrip("/")) + ".pdf"
+    with open(pdf_path, "rb") as fh:
+        _req("PUT", f"{bucket}/{filename}", tok, data=fh.read(), ctype="application/octet-stream")
+    print(f"  uploaded {filename}")
+
+    md = build_metadata(paper_dir)
+    md["version"] = version
+    final = _req("PUT", f"{API}/deposit/depositions/{dep_id}", tok, data={"metadata": md})
+    m = final["metadata"]
+    print(f"  metadata: license={m.get('license')} version={m.get('version')} "
+          f"files={[f['filename'] for f in final.get('files', [])]}")
+    print(f"\n  NEW-VERSION DRAFT ready (NOT published). Reserved DOI: {reserved}")
+    print(f"  Review:  {final['links'].get('latest_draft_html', final['links'].get('html'))}")
+    print(f"  Publish: python3 docs/zenodo/mint.py publish {dep_id}")
+
+
 def show(dep_id: str) -> None:
     tok = token()
     dep = _req("GET", f"{API}/deposit/depositions/{dep_id}", tok)
@@ -138,6 +176,8 @@ def main() -> None:
     cmd = sys.argv[1]
     if cmd == "draft":
         draft(sys.argv[2], sys.argv[3])
+    elif cmd == "newversion":
+        newversion(sys.argv[2], sys.argv[3], sys.argv[4])
     elif cmd == "show":
         show(sys.argv[2])
     elif cmd == "publish":
