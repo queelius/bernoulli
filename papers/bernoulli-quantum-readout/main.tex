@@ -283,7 +283,13 @@ Throughout this section, ``bit $b_i$'' denotes a measured bit drawn through an
 independent Bernoulli readout channel with rates $(\eps_i,\omega_i)$ over a
 latent value $t_i$, and we compute the rates of a derived bit
 $g(b_1,\dots,b_n)$ relative to its derived latent value $g(t_1,\dots,t_n)$. We
-assume the channels are mutually independent. The reader should read $\eps$ as
+assume the channels are mutually independent, and that each measured bit enters
+$g$ \emph{once}, so the derived bit is a fan-out-free Boolean \emph{tree} of
+distinct inputs. Reusing one readout in several places (reconvergent fan-out)
+correlates those inputs and voids the product and parity rules below: $b\wedge b
+= b$ has false-positive rate $\eps$, not the $\eps^2$ the independent rule would
+report. We flag this structural caveat alongside the physical one in
+\cref{sec:scope}. The reader should read $\eps$ as
 ``error when the true answer is $0$ (a false alarm)'' and $\omega$ as ``error
 when the true answer is $1$ (a miss)'' uniformly across all derived bits.
 
@@ -751,7 +757,12 @@ We state the boundaries plainly, to forestall overclaiming.
         \emph{measurement crosstalk}: the readout of one qubit is correlated with
         the state or readout of its neighbors, which is why correlated models such
         as the continuous-time Markov process (CTMP) model of
-        \citet{bravyi2021mitigating} exist. The independent prediction is best read
+        \citet{bravyi2021mitigating} exist. Independence can also fail
+        \emph{structurally} rather than physically: a single readout reused across
+        several inputs of the derived bit (reconvergent fan-out, \cref{sec:calculus})
+        correlates those inputs exactly as crosstalk does, so a derived bit that is
+        not a fan-out-free tree needs the same non-factorized treatment. The
+        independent prediction is best read
         as the correlation-free \emph{reference}: it is exact given the per-qubit
         marginals alone, and a correlated model perturbs it in a sign-determined
         way rather than by a uniform bias. The sign is legible on a parity, which
