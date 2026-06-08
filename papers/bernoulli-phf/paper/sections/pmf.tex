@@ -19,60 +19,54 @@ A \gls{gls-pmf} that approximates a map with $m$ keys, a \emph{mean} bit length 
 The \emph{minimal} \gls{gls-pmf} has load factor $r=1$ and may be denoted by $\pmapf(m,\mu,\fprate)$.
 \end{definition}
 
+The minimal \gls{gls-pmf} is built exactly as the minimal \gls{gls-phf} of
+\cref{alg:PHF}, with the per-slot fixed-width fingerprint replaced by the
+self-delimiting value codeword: build a minimal perfect hash over the keys, then
+write each value's codeword $v_j^*$ at its key's slot. \Cref{alg:shmap} states
+this; on a query it is the membership test of \cref{alg:PHF_has} with the equality
+check replaced by a decode of the slot codeword.
+
 \begin{algorithm}[h]
-    \caption{Theoretical implementation of \protect\MakeApproxMap}
+    \caption{Construction of the minimal \gls{gls-pmf}}
     \label{alg:shmap}
     \SetKwProg{func}{function}{}{}
     \KwIn
     {
-        $\Mt \in \mathcal{B}^* \times \mathcal{B}^*$ is the \emph{finite map} $\{(k_1,v_1),\ldots,(k_m,v_m)\}$ to approximate and $\fprate$ is the false positive rate.
+        $\Mt = \{(k_1,v_1),\ldots,(k_m,v_m)\} \subset \BitSet^* \times \BitSet^*$ is the \emph{finite map} to approximate; $\fprate$ is the false positive rate; the values are encoded by a prefix-free code with codeword $v_j^*$ for $v_j$ (\cref{def:mu}), under which a proportion $\fprate$ of bit patterns decode to defined values.
     }
     \KwOut
     {
-        A \gls{gls-pmf} $\Mt^* \supset \Mt$ with a false positive rate $\fprate$.
+        A minimal \gls{gls-pmf} $\Mt^* \supset \Mt$ with false positive rate $\fprate$ and false negative rate $0$.
     }
     \func{\MakeApproxMap{$\Mt$, $\fprate$}}
     {
         \tcp{Make a minimal perfect hash function for the keys.}
         $K \gets \left\{k \colon (k,v) \in \Mt\right\}$\;
-        $\ph_{K} \colon \mathcal{B}^* \mapsto \mathbb{Z}^+ \gets$ \MakeMinimalPerfectHash{$K$}\;
-
-        $k \gets \left\lceil \log_2 \frac{1}{\fprate} \right\rceil$\;
-        $\matrx{V} \gets m$-by-$k$ bit matrix\;
+        $\ph_{K} \colon \BitSet^* \mapsto \mathbb{Z}^+ \gets$ \MakeMinimalPerfectHash{$K$}\;
+        $\matrx{V} \gets$ array of $m = \Card{K}$ slots\;
         \For{$j \gets 1$ \KwTo $m$}
         {
-            $\matrx{V}\!\left[\ph_{K}(x_j)\right] \gets \operatorname{h}(k_j) \bmod k$\;
+            \tcp{Store the self-delimiting value codeword at the key's slot.}
+            $\matrx{V}\!\left[\ph_{K}(k_j)\right] \gets v_j^*$\;
         }
-        \For{$n \gets 0$ \KwTo $\infty$}
-        {
-            $\found \gets \True$\;
-            \For{$j \gets 1$ \KwTo $2^n$}
-            {
-                $b_n \gets$ draw random bit string from $\{0,1\}^n$ without replacement\;
-                \For{$i \gets 1$ \KwTo $m$}
-                {
-                    \tcp{The value $v_j$ is \emph{self-delimiting code} so we
-                    check that the first $\operatorname{BL}(v_j)$ bits of the hash is equal to $v_j$.}
-                    \If{$\operatorname{h}(k_j \cat b_n) \bmod \operatorname{BL}(v_j^*) \neq v_j^*$}
-                    {
-                        \label{line:selfterm}
-                        $\found \gets \False$\;
-                        \Break\;
-                    }
-                }
-                \If{not \found}
-                {
-                    \Break\;
-                }
-            }
-            \If{\found}
-            {
-                \tcp{This tuple codes the \gls{gls-pmf}.}
-                \Return $(\matrx{V},b_n)$\;
-            }
-        }
+        \tcp{This pair codes the \gls{gls-pmf}.}
+        \Return $\Tuple{\matrx{V}, \ph_K}$\;
     }
 \end{algorithm}
+
+To query a key $k$, decode the codeword stored at slot $\ph_K(k)$ and return its
+value. A key in the domain decodes to the stored value (no false negatives in the
+minimal construction); a key not in the domain reads whatever codeword occupies
+its slot, which decodes to a defined value with probability $\fprate$ and to
+\emph{undefined} otherwise, exactly the false positive behavior of
+\cref{sec:pmf_rates}. The slot width is set by the codeword: a fixed-width
+$M = \lceil -\log_2\fprate \rceil$ codeword recovers the \gls{gls-phf} fingerprint
+of \cref{alg:PHF} (the $\mu = 0$ case of \cref{rem:pmf_specializes}), and a
+variable-width prefix-free code carries the value content at mean cost $\mu$
+(\cref{def:mu}). Relaxing the minimal perfect hash to a $k$-perfect hash
+introduces a false negative rate $\omega$ by the collision mechanism of
+\cref{thm:k_omega}, the value being the content overwritten on a collision,
+exactly as the fingerprint is in \cref{alg:k_PHF}.
 
 
 \subsection{The two rates of the map}
@@ -131,11 +125,11 @@ Setting $\mu = 0$ (a one-element codomain, so the map carries no value, only mem
 
 \subsection{Upper-bound on entropy}
 \label{sec:pmf_entropy}
-We now show the construction of \cref{alg:shmap} attains the lower bound of \cref{thm:pmf_lower_bound} in expectation: its code carries no more information than the bound permits, so it is a maximum-entropy coder for the Bernoulli map, the map analogue of \cref{thm:max_entropy_coder}.
+We now show the \gls{gls-pmf} construction (\cref{alg:shmap} in the minimal case, and its load-factor-$r$ generalization with a $k$-perfect hash) attains the lower bound of \cref{thm:pmf_lower_bound} in expectation: its code carries no more information than the bound permits, so it is a maximum-entropy coder for the Bernoulli map, the map analogue of \cref{thm:max_entropy_coder}.
 
 \begin{theorem}[Entropy upper bound for the \gls{gls-pmf} code]
 \label{thm:pmf_entropy}
-Conditioned on the key cardinality $m$, the false positive rate $\fprate$, and the value distribution, the random bit string that codes the \gls{gls-pmf} of \cref{alg:shmap} has expected length, equivalently entropy, at most
+Conditioned on the key cardinality $m$, the false positive rate $\fprate$, and the value distribution, the random bit string that codes the \gls{gls-pmf} (\cref{alg:shmap} and its load-factor-$r$ generalization) has expected length, equivalently entropy, at most
 \begin{equation}
 \label{eq:pmf_entropy}
     \Expect{\BL(\Mt^*)}
@@ -144,7 +138,7 @@ Conditioned on the key cardinality $m$, the false positive rate $\fprate$, and t
 with no further structure imposed beyond the Bernoulli-map axioms, so the bound of \cref{thm:pmf_lower_bound} is attained.
 \end{theorem}
 \begin{proof}
-The code is the pair $\Tuple{\matrx{V}, b_n}$ of the value matrix and the seed found by \cref{alg:shmap}. By the argument of \cref{thm:max_entropy_coder}, the seed bits are uniform (the seed is the index of the first acceptable draw among i.i.d.\ uniform candidates), so the perfect-hash component contributes its expected cost $m\bigl(\log_2 e - (\tfrac{1}{r}-1)\log_2(\tfrac{1}{1-r})\bigr)$ bits and no more, this being the same maximum-entropy seed encoding as in the set case.
+The code is the pair $\Tuple{\matrx{V}, \ph_K}$ of the value matrix and the perfect hash, where the load-factor-$r$ perfect hash is itself coded by the seed of its construction (\cref{thm:mPHF_size}). By the argument of \cref{thm:max_entropy_coder}, the seed bits are uniform (the seed is the index of the first acceptable draw among i.i.d.\ uniform candidates), so the perfect-hash component contributes its expected cost $m\bigl(\log_2 e - (\tfrac{1}{r}-1)\log_2(\tfrac{1}{1-r})\bigr)$ bits and no more, this being the same maximum-entropy seed encoding as in the set case.
 
 For the content, each slot of $\matrx{V}$ holds a self-delimiting codeword whose decoding under the prefix-free code realizes the value with mean length $\mu$ (\cref{def:mu}) and realizes the false positive rate $\fprate$ on out-of-domain keys: by the optimality of the entropy-map encoding~\cite{bmaps,emaps}, the expected content per slot is $-\log_2\fprate + \mu$ bits and, conditioned on $m$, $\fprate$, and the value distribution, every coded bit beyond what these constraints fix is an independent fair coin. Hence the content carries maximum conditional entropy at this expected length, and over the $N = m/r$ slots contributes $\tfrac{m}{r}\bigl(-\log_2\fprate+\mu\bigr)$ bits. Summing the two components gives \cref{eq:pmf_entropy}, which equals $m$ times the per-element lower bound of \cref{eq:pmf_lower_bound}; the lower bound is therefore attained in expectation, and since no structure beyond the axioms is imposed, the code is a maximum-entropy coder for the static Bernoulli map.
 \end{proof}

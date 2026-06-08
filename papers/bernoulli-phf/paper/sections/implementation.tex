@@ -13,6 +13,28 @@ PHOBIC~\cite{phobic} and hash, displace, and compress (CHD)~\cite{chd}, which
 build a perfect hash over $m$ keys in linear time and a few bits per key, so the
 dominant cost of the \gls{gls-phf} (the perfect hash) is supplied off the shelf.
 
+\paragraph{Practical space overhead and the break-even with the Bloom filter.}
+The space analysis of \cref{sec:phf} uses the idealized random-oracle floor
+$\log_2 e \approx \num{1.4427}$ bits per element for the minimal perfect hash
+(\cref{cor:mPHF_size}). An off-the-shelf construction pays a larger constant: CHD
+costs $\alpha(r)$ bits per element, where $\alpha$ depends on the load factor $r$
+and exceeds the idealized $\log_2 e$, with $\alpha(1) \approx \num{2.07}$ for the
+minimal case. The practical minimal \gls{gls-phf} therefore stores about
+$-\log_2 \fprate + \alpha(1)$ bits per element, against the $-\log_2 \fprate +
+\log_2 e$ of the idealized bound. This shifts the break-even with the Bloom
+filter (which costs $-\tfrac{1}{\ln 2}\log_2\fprate = \num{1.4427}\,(-\log_2
+\fprate)$ bits per element). Solving $-\log_2\fprate + c = \num{1.4427}\,(-\log_2
+\fprate)$ for the constant $c$ gives the break-even fingerprint width
+$M^* = c/(\num{1.4427} - 1)$: with the idealized $c = \log_2 e$ the two are
+equally efficient near $\fprate \approx 2^{-3}$, while with the CHD overhead
+$c = \alpha(1) \approx \num{2.07}$ the break-even moves to a smaller
+$\fprate \approx 2^{-4}$. In both cases the \gls{gls-phf} is the more
+space-efficient structure once $\fprate$ is small enough, and the margin widens
+as $\fprate \to 0$, where its relative efficiency over the Bloom filter
+approaches $\num{1.44}$; the practical break-even simply sits at a smaller
+$\fprate$ than the idealized one because the practical perfect hash costs more
+bits per element than the random-oracle ideal.
+
 Because the \gls{gls-phf} stores each approximate set as a perfect hash paired
 with a fingerprint array, set-theoretic compositions over non-enumerable
 operands are computed at query time rather than by rebuilding. Given two
