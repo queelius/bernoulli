@@ -93,8 +93,8 @@ model with the classical theory of Bloom filters and cipher maps. Our lead
 example is the reliability of a quantum-error-correction \emph{syndrome bit}: a
 parity of $n$ noisy ancilla measurements has flip probability exactly
 $\tfrac12\bigl(1 - \prod_{i=1}^{n}(1-2q_i)\bigr)$, which we contrast with the
-field's casual ``about $n$ times the per-measurement error'' linearization;
-the linear rule already overstates the true error by up to tens of percent at
+field's casual ``about $n$ times the per-measurement error'' linearization.
+The linear rule already overstates the true error by up to tens of percent at
 modest $n$ and per-measurement rates. The contribution is \emph{forward} prediction
 and error budgeting, complementary to inverse mitigation such as M3; the closed
 forms hold under per-bit channel independence, with correlated-channel
@@ -291,7 +291,9 @@ correlates those inputs and voids the product and parity rules below: $b\wedge b
 report. We flag this structural caveat alongside the physical one in
 \cref{sec:scope}. The reader should read $\eps$ as
 ``error when the true answer is $0$ (a false alarm)'' and $\omega$ as ``error
-when the true answer is $1$ (a miss)'' uniformly across all derived bits.
+when the true answer is $1$ (a miss)'' uniformly across all derived bits. A
+subscript on a rate is either a qubit index ($\eps_i$) or a connective tag
+($\eps_\wedge$, $\eps_\vee$, $\omega_\wedge$); context fixes which.
 
 It is convenient to also track the \emph{conditional flip probabilities} given
 the latent value, which for a single bit are exactly $\eps$ (when $t=0$) and
@@ -521,8 +523,9 @@ error, and decoders consume the syndrome to infer a correction
 \citep{fowler2012surface}. The reliability of a syndrome bit is therefore the
 reliability of a parity of noisy measured bits, precisely
 \cref{cor:parity-asym}. Take $n$ ancillas, each read through an independent
-channel, and consider the symmetric per-measurement rate $q_i=q$ for clarity
-(\cref{cor:parity-asym} handles the asymmetric and inhomogeneous case verbatim).
+channel, and consider the symmetric per-measurement rate $q_i=q$ for clarity, so
+that $r_i=q$ for every $i$ in \cref{cor:parity-asym} (which handles the asymmetric
+and inhomogeneous case verbatim).
 The exact syndrome-flip probability is
 \begin{equation}
 \label{eq:syndrome-exact}
