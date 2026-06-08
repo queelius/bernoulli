@@ -1,0 +1,385 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Error propagation through relational operators}
+\label{sec:rel_algebra}
+The relational operators of \cref{sec:relations} (selection, projection, and
+join) build new relations from old ones. When the operands are random
+approximate relations rather than exact relations, each operator induces a
+\emph{derived} approximate relation whose membership test is a Boolean function
+of the operand membership tests. Two questions then arise for every operator.
+First, what are the derived error rates? Second, does the derived relation still
+satisfy \emph{element-wise independence} (\cref{asm:ber_trial}), the axiom on
+which the binomial error-count machinery of \cref{sec:prob_model} rests? The
+answers differ sharply across the three operators, and the difference is the
+substance of this section: selection is transparent, projection raises the
+\emph{model order} while preserving independence, and join breaks independence
+outright.
+
+Throughout, $\Relation{R}$ and $\Relation{S}$ are exact relations of objective
+interest, approximated by Bernoulli relations
+$\ARelation{R}[\fprate_R][\tprate_R]$ and $\ARelation{S}[\fprate_S][\tprate_S]$
+over their respective tuple universes, with $\tprate_R = 1 - \fnrate_R$ the
+true-positive rate and $\fnrate_R$ the false-negative rate (likewise for
+$\Relation{S}$). The two approximations are taken to be independent of each
+other, and within each, the per-tuple trials are independent and identically
+distributed (\cref{asm:ber_trial}). Any predicate appearing in an operator
+(the selection predicate $\theta$, the join condition, the equality of projected
+attribute values) is an \emph{exact} predicate on known tuple values: it carries
+no randomness. The only randomness in any derived relation is inherited from the
+operand membership tests.
+
+\subsection{Selection}
+\label{sec:select}
+Selection $\Selection_\theta$ keeps exactly those tuples of a relation that
+satisfy a predicate $\theta$ on their values. Because $\theta$ is exact, the
+approximate selection is nothing more than the operand relation read on a
+smaller universe.
+
+\begin{theorem}[Selection is rate-transparent]
+\label{thm:select}
+Let $\theta$ be an exact predicate on the tuples of the universe
+$\Set{U} = \Set{X}[1] \times \cdots \times \Set{X}[n]$, and let
+$\ARelation{R}[\fprate_R][\tprate_R]$ approximate $\Relation{R} \subseteq \Set{U}$.
+Then the approximate selection $\Selection_\theta(\ARelation{R})$ is the
+restriction of $\ARelation{R}$ to the sub-universe
+$\Set{U}_\theta = \SetBuilder{t \in \Set{U}}{\theta(t)}$. It is a Bernoulli
+relation of $\Selection_\theta(\Relation{R})$ over $\Set{U}_\theta$ with the
+\emph{same} rates $(\fprate_R, \tprate_R)$, and element-wise independence
+(\cref{asm:ber_trial}) is preserved.
+\end{theorem}
+\begin{proof}
+A tuple $t \in \Set{U}_\theta$ is accepted by $\Selection_\theta(\ARelation{R})$
+if and only if it is accepted by $\ARelation{R}$, since $\theta(t)$ holds with
+certainty and contributes no further test. For $t \in \Set{U}_\theta$ the
+conditioning on the exact relation is unchanged,
+\begin{equation}
+    \Prob{t \in \Selection_\theta(\ARelation{R}) \Given t \notin \Relation{R}}
+    = \Prob{t \in \ARelation{R} \Given t \notin \Relation{R}} = \fprate_R\,,
+\end{equation}
+and likewise the true-positive rate on $\Set{U}_\theta$ is $\tprate_R$.
+Restricting the universe selects a sub-collection of the original Bernoulli
+trials; it neither rescales any per-tuple rate nor introduces any coupling
+between distinct trials, so the trials on $\Set{U}_\theta$ remain independent and
+identically distributed.
+\end{proof}
+
+Selection is therefore the trivial case: it changes which tuples we ask about,
+never how reliably the answer comes back, and it leaves the model first-order.
+The interesting behavior is reserved for the operators that combine or collapse
+tuples.
+
+\subsection{Projection}
+\label{sec:project}
+Projection $\Proj_Y$ onto an attribute subset $Y$ drops the remaining columns.
+Several distinct tuples of $\Relation{R}$ can agree on their $Y$-components and so
+collapse onto a single projected tuple. The pre-image of a projected tuple is its
+\emph{fiber}.
+
+\begin{definition}[Fiber]
+\label{def:fiber}
+For a projected tuple $s$ in the target universe of $\Proj_Y$, the \emph{fiber}
+of $s$ is the set of operand tuples that project onto it,
+\begin{equation}
+    \fiber(s) = \SetBuilder{t \in \Set{U}}{ t|_Y = s }\,,
+\end{equation}
+and its size is the \emph{fan-in} $k(s) = \Card{\fiber(s)}$.
+\end{definition}
+
+A projected tuple $s$ is accepted by the approximate projection exactly when at
+least one tuple of its fiber is accepted by $\ARelation{R}$: projection is a
+logical \textsc{or} over the fiber. Because the fiber tuples are \emph{distinct}
+elements of $\Set{U}$, their $\ARelation{R}$-memberships are independent
+(\cref{asm:ber_trial}), and the \textsc{or} composes their rates multiplicatively
+on the complementary event.
+
+\begin{theorem}[Projection amplifies the false-positive rate]
+\label{thm:project}
+Let $\ARelation{R}[\fprate_R][\tprate_R]$ approximate $\Relation{R}$, and let
+$s$ be a projected tuple under $\Proj_Y$ with fiber $\fiber(s)$ of size $k(s)$.
+The approximate projection $\Proj_Y(\ARelation{R})$ accepts $s$ if and only if
+some tuple of $\fiber(s)$ is accepted by $\ARelation{R}$. Then:
+\begin{enumerate}[(i)]
+    \item If $s \notin \Proj_Y(\Relation{R})$, every fiber tuple is a true
+    negative, and $s$ is a false positive of the projection unless all $k(s)$
+    independent trials miss:
+    \begin{equation}
+        \fprate_\Proj(s) = 1 - (1-\fprate_R)^{k(s)} \;\geq\; \fprate_R\,.
+    \end{equation}
+    \item If $s \in \Proj_Y(\Relation{R})$, say $j \geq 1$ of the fiber tuples
+    are true members of $\Relation{R}$ and the remaining $k(s)-j$ are non-members,
+    then $s$ is correctly accepted unless every fiber trial misses:
+    \begin{equation}
+        \tprate_\Proj(s) = 1 - (1-\tprate_R)^{j}\,(1-\fprate_R)^{k(s)-j}
+        \;\geq\; \tprate_R\,.
+    \end{equation}
+\end{enumerate}
+The false-positive rate is amplified by the fan-in, and the true-positive rate is
+boosted, because a non-member fiber tuple can itself false-positive and so rescue
+the projection of a genuine member.
+\end{theorem}
+\begin{proof}
+The acceptance event for $s$ is the union, over $t \in \fiber(s)$, of the
+acceptance events $\{ t \in \ARelation{R} \}$. Distinct tuples have independent
+memberships (\cref{asm:ber_trial}), so the probability that the union fails is the
+product of the per-tuple failure probabilities.
+
+If $s \notin \Proj_Y(\Relation{R})$ then no tuple of $\fiber(s)$ lies in
+$\Relation{R}$, so each of the $k(s)$ tuples is accepted independently with
+probability $\fprate_R$ and missed with probability $1-\fprate_R$. The projection
+misses $s$ with probability $(1-\fprate_R)^{k(s)}$, giving
+\begin{equation}
+    \fprate_\Proj(s)
+    = 1 - \prod_{t \in \fiber(s)} \Prob{t \notin \ARelation{R} \Given t \notin \Relation{R}}
+    = 1 - (1-\fprate_R)^{k(s)}\,.
+\end{equation}
+If $s \in \Proj_Y(\Relation{R})$ then at least one fiber tuple lies in
+$\Relation{R}$; partition the fiber into the $j \geq 1$ members, each missed with
+probability $1-\tprate_R$, and the $k(s)-j$ non-members, each missed with
+probability $1-\fprate_R$. By independence the projection misses $s$ with
+probability $(1-\tprate_R)^{j}(1-\fprate_R)^{k(s)-j}$, so
+\begin{equation}
+    \tprate_\Proj(s) = 1 - (1-\tprate_R)^{j}\,(1-\fprate_R)^{k(s)-j}\,.
+\end{equation}
+Both bounds follow since each factor lies in $[0,1]$: dropping factors from a
+product over $[0,1]$ can only increase the complementary rate.
+\end{proof}
+
+The rate formulas depend on $s$ only through its fan-in $k(s)$ (and, for true
+members, the member count $j$), which varies from one projected tuple to the next.
+This is the structural heart of projection.
+
+\begin{theorem}[Projection preserves independence but raises model order]
+\label{thm:project_order}
+Distinct projected tuples have \emph{disjoint} fibers, hence depend on disjoint
+sets of operand trials, so they remain mutually independent: $\Proj_Y(\ARelation{R})$
+satisfies element-wise independence (\cref{asm:ber_trial}). However, because the
+per-tuple rate $\fprate_\Proj(s) = 1 - (1-\fprate_R)^{k(s)}$ depends on the fan-in
+$k(s)$, which is not constant across the target universe, $\Proj_Y(\ARelation{R})$
+is in general a \emph{higher-order} (model-order) Bernoulli relation: one rate
+block per distinct fan-in value, not a single first-order rate.
+\end{theorem}
+\begin{proof}
+If $s \neq s'$ then $t|_Y = s$ and $t|_Y = s'$ cannot both hold, so
+$\fiber(s) \cap \fiber(s') = \EmptySet$. The acceptance of $s$ is a function of
+the trials indexed by $\fiber(s)$ alone, and likewise for $s'$; functions of
+disjoint independent trial sets are independent. Thus no coupling is introduced
+and the product structure across projected tuples survives. The blocks of the
+induced partition are the level sets $\SetBuilder{s}{k(s) = k}$ for each attained
+fan-in $k$; tuples in different blocks carry different false-positive rates
+$1-(1-\fprate_R)^{k}$, which is precisely a model of order equal to the number of
+distinct fan-in values.
+\end{proof}
+
+The first-order case is recovered exactly when the projection has uniform fan-in.
+
+\begin{corollary}[Uniform fan-in]
+\label{cor:uniform_fanin}
+If every projected tuple has the same fiber size $k$, then $\Proj_Y(\ARelation{R})$
+is a first-order Bernoulli relation with false-positive rate
+$\fprate_\Proj = 1 - (1-\fprate_R)^{k}$ and (for single-member fibers, $j=1$)
+true-positive rate $\tprate_\Proj = 1 - (1-\tprate_R)(1-\fprate_R)^{k-1}$.
+\end{corollary}
+
+The terminology here is the one used across the collection (see
+\cite{bernoulliSets}): \emph{model order} counts the number of partition blocks
+that carry distinct rates, and is orthogonal to the \emph{parameter count}, which
+element-wise independence keeps small. Projection illustrates the distinction
+cleanly. It raises the order (one block per fan-in) yet, because the blocks stay
+independent, it does not multiply the number of free parameters beyond the single
+operand rate $\fprate_R$ and the fan-in profile, which is a property of the exact
+relation and not an additional channel parameter.
+
+\subsection{Join}
+\label{sec:join}
+The join $\Relation{R} \Join \Relation{S}$ pairs a tuple $r$ of $\Relation{R}$
+with a tuple $s$ of $\Relation{S}$ whenever they agree on the common attributes,
+and a join tuple is a member if and only if both operand tuples are members
+(the join condition on values is exact). The join is therefore a logical
+\textsc{and} of two independent operand tests. The per-tuple rates follow the
+intersection (\textsc{and}) rules of two Bernoulli sets, which are proved in the
+composition paper.
+
+\begin{theorem}[Join error rates]
+\label{thm:join}
+Let $\ARelation{R}[\fprate_R][\tprate_R]$ and
+$\ARelation{S}[\fprate_S][\tprate_S]$ be independent approximations of
+$\Relation{R}$ and $\Relation{S}$. For a join tuple $(r,s)$ of
+$\Relation{R} \Join \Relation{S}$, conditioning on the latent membership of $r$
+in $\Relation{R}$ and of $s$ in $\Relation{S}$:
+\begin{enumerate}[(i)]
+    \item If $(r,s) \in \Relation{R} \Join \Relation{S}$ (so $r \in \Relation{R}$
+    and $s \in \Relation{S}$), the join tuple is missed exactly when either
+    operand misses its tuple, giving the intersection false-negative rate
+    \begin{equation}
+        \fnrate_\Join = 1 - \tprate_R \tprate_S
+                      = \fnrate_R + \fnrate_S - \fnrate_R \fnrate_S\,.
+    \end{equation}
+    \item If $(r,s) \notin \Relation{R} \Join \Relation{S}$, the false-positive
+    rate depends on \emph{which} operand fails. When both operand tuples are
+    absent ($r \notin \Relation{R}$ and $s \notin \Relation{S}$), the join
+    false-positives only if both operands false-positive, with probability
+    \begin{equation}
+        \fprate_R \fprate_S\,,
+    \end{equation}
+    the sparse, both-absent corner of the three-region weighted intersection
+    false-positive rate. When only one operand tuple is absent, that tuple must
+    false-positive while the present tuple is correctly accepted, contributing the
+    absent operand's false-positive rate weighted by the present operand's
+    true-positive rate.
+\end{enumerate}
+The full weighted false-positive rate, which averages the three negative regions
+(only $r$ absent, only $s$ absent, both absent) by their prevalences, is the
+intersection rate of two Bernoulli sets~\cite{bernoulliComposition}.
+\end{theorem}
+\begin{proof}
+A join tuple $(r,s)$ is reported by $\ARelation{R} \Join \ARelation{S}$ if and
+only if $r \in \ARelation{R}$ and $s \in \ARelation{S}$, since the value-level
+join condition is exact. The two operand tests are independent.
+
+For (i), with $r \in \Relation{R}$ and $s \in \Relation{S}$, the tuple is correctly
+reported with probability $\tprate_R \tprate_S$ and missed otherwise, so
+\begin{equation}
+    \fnrate_\Join = 1 - \tprate_R \tprate_S
+                  = 1 - (1-\fnrate_R)(1-\fnrate_S)
+                  = \fnrate_R + \fnrate_S - \fnrate_R \fnrate_S\,,
+\end{equation}
+which is the false-negative rule for the intersection of two Bernoulli
+sets~\cite{bernoulliComposition}.
+
+For (ii), $(r,s)$ is a non-member when at least one operand tuple is a non-member,
+and it is reported only if \emph{both} operand tests fire. If both tuples are
+non-members the two firings are false positives, occurring independently with
+probability $\fprate_R \fprate_S$. If exactly one tuple is a non-member, say
+$r \notin \Relation{R}$ while $s \in \Relation{S}$, then reporting requires a
+false positive on $r$ (probability $\fprate_R$) and a true positive on $s$
+(probability $\tprate_S$), for $\fprate_R \tprate_S$; symmetrically
+$\tprate_R \fprate_S$ in the other one-absent region. The unconditional
+false-positive rate is the prevalence-weighted average of these three regions,
+which is exactly the intersection false-positive rate
+of~\cite{bernoulliComposition}; the value $\fprate_R \fprate_S$ alone is only the
+both-absent corner and understates the rate whenever a one-absent region has
+positive prevalence.
+\end{proof}
+
+Per-tuple, then, the join is well behaved: every output tuple has a well-defined
+false-negative and false-positive rate. The subtlety is not in the marginal rates
+but in the \emph{dependence} among output tuples.
+
+\begin{theorem}[Join does not preserve element-wise independence]
+\label{thm:join_dependence}
+The approximate join $\ARelation{R} \Join \ARelation{S}$ is a Bernoulli relation
+only \emph{marginally}: each output tuple has well-defined rates
+(\cref{thm:join}), but the joint distribution over output tuples does \emph{not}
+factor into a product over tuples. Two output tuples that share an input
+component are positively correlated, so element-wise independence
+(\cref{asm:ber_trial}) fails.
+\end{theorem}
+\begin{proof}
+Consider two output tuples $(r, s_1)$ and $(r, s_2)$ that share the same
+left component $r$, with $s_1 \neq s_2$. Both acceptance events contain the
+\emph{same} trial $\{ r \in \ARelation{R} \}$ as a conjunct:
+\begin{equation}
+    \{ (r,s_1) \in \ARelation{R} \Join \ARelation{S} \}
+    = \{ r \in \ARelation{R} \} \cap \{ s_1 \in \ARelation{S} \}\,,
+\end{equation}
+and likewise for $(r,s_2)$ with $s_2$. Write $A = \{ r \in \ARelation{R} \}$ with
+$\Prob{A} = a$, and let $B_i = \{ s_i \in \ARelation{S} \}$ be independent of $A$
+and of each other. Then the two output indicators are $\SetIndicator{A \cap B_1}$ and
+$\SetIndicator{A \cap B_2}$, with
+\begin{equation}
+    \Prob{(r,s_1), (r,s_2) \text{ both accepted}} = a\,\Prob{B_1}\Prob{B_2}\,,
+\end{equation}
+whereas the product of the marginals is
+$a\Prob{B_1}\cdot a\Prob{B_2} = a^2 \Prob{B_1}\Prob{B_2}$. For $0 < a < 1$ the
+two differ by a factor $1/a > 1$, so the events are positively correlated and the
+joint probability exceeds the product of marginals. Hence the family of output
+indicators is not independent, and the joint law does not factor as a product over
+tuples.
+\end{proof}
+
+\Cref{thm:join_dependence} is the sharpest result of this section and the precise
+reason a join differs from a selection or a single projection. Selection preserves
+independence because it only discards trials; projection preserves it because
+distinct projected tuples draw on disjoint fibers; but a join \emph{reuses} each
+operand trial across every output tuple built from it, welding those outputs
+together. Downstream formulas that assume independence over the output tuples (for
+instance, the probability that an entire query result is error-free, computed as a
+product of per-tuple correctness probabilities) are therefore not valid for a raw
+join: the shared-component correlation must be carried explicitly. The marginal
+rates of \cref{thm:join} are still exactly right for any \emph{single} output
+tuple, and for the false-positive count of a join one may still take expectations
+tuple by tuple (linearity of expectation does not require independence); it is the
+higher moments and the all-correct probability that feel the correlation.
+
+\subsection{A worked example with rates}
+\label{sec:rel_example}
+We revisit the join-then-project pipeline of \cref{sec:relations} (the relations
+$\Relation{A}$ and $\Relation{B}$ of \cref{tbl:ex_r1,tbl:ex_r2} and their join in
+\cref{tbl:ex_join}), now carrying error rates. Fix symmetric, illustrative rates
+on both operands,
+\begin{equation}
+    \fprate = 0.05\,, \qquad \fnrate = 0.10\,, \qquad
+    \tprate = 1 - \fnrate = 0.90\,,
+\end{equation}
+and treat $\ARelation{A}$ and $\ARelation{B}$ as independent.
+
+\begin{example}
+\emph{A single join tuple.} Take the join tuple
+$(r,s) = \Tuple{a,b,a,c,a}$ from \cref{tbl:ex_join}, formed from $r = \Tuple{a,b,a,c}
+\in \Relation{A}$ and $s = \Tuple{a,c,a} \in \Relation{B}$ (sharing $\Set{X}[3]
+\times \Set{X}[4] = \Pair{a}{c}$). Both source tuples are genuine members, so by
+\cref{thm:join} the join false-negative rate is
+\begin{equation}
+    \fnrate_\Join = 1 - \tprate^2 = 1 - 0.90^2 = 0.19\,,
+\end{equation}
+and the join true-positive rate is $\tprate_\Join = \tprate^2 = 0.81$. Were this
+tuple instead a both-absent non-member, its false-positive rate would be the
+both-absent corner $\fprate^2 = 0.05^2 = 0.0025$, far below the single-operand
+rate $0.05$, which is why a sparse join suppresses false positives on the
+both-absent region.
+
+\emph{Two join tuples sharing a component are correlated.} The join tuples
+$\Tuple{a,c,c,d,b}$ and $\Tuple{a,c,c,d,d}$ of \cref{tbl:ex_join} share the same
+left tuple $r = \Tuple{a,c,c,d} \in \Relation{A}$ (they differ only in the
+$\Set{X}[5]$ value $b$ versus $d$ contributed by $\Relation{B}$). Both acceptance
+events include the single trial $\{ r \in \ARelation{A} \}$, which fires with
+probability $a = \tprate = 0.90$. With $\Prob{B_1} = \Prob{B_2} = \tprate = 0.90$,
+\begin{align}
+    \Prob{\text{both accepted}} &= a\,\Prob{B_1}\Prob{B_2}
+        = 0.90 \cdot 0.90 \cdot 0.90 = 0.729\,, \\
+    \Prob{\text{first}}\Prob{\text{second}} &= (a\Prob{B_1})(a\Prob{B_2})
+        = 0.81 \cdot 0.81 = 0.6561\,,
+\end{align}
+so the joint acceptance probability $0.729$ exceeds the independent-model value
+$0.6561$ by the factor $1/a = 1/0.90 \approx 1.11$, exactly as
+\cref{thm:join_dependence} predicts. A query planner that assumed independence
+here would understate the chance that both rows survive together.
+
+\emph{Projecting onto $\Set{X}[1] \times \Set{X}[2] \times \Set{X}[5]$.} The
+projection in \cref{tbl:ex_proj} sends the two shared-$r$ join tuples
+$\Tuple{a,c,c,d,b}$ and $\Tuple{a,c,c,d,d}$ to the distinct projected tuples
+$\Tuple{a,c,b}$ and $\Tuple{a,c,d}$ (each a fiber of size one here, since the
+join already fixed the columns), while collapsing only occurs where projected
+columns coincide. To exhibit the false-positive amplification of
+\cref{thm:project} concretely, suppose a projected tuple $s^\star \notin
+\Proj_Y(\Relation{R})$ has a fiber of size $k = 3$ in the underlying approximate
+relation, that is, three distinct candidate source tuples all project onto
+$s^\star$. Then its projected false-positive rate is
+\begin{equation}
+    \fprate_\Proj(s^\star) = 1 - (1-\fprate)^{k} = 1 - 0.95^{3}
+        = 1 - 0.857375 = 0.142625\,,
+\end{equation}
+nearly triple the operand rate $\fprate = 0.05$. For a fiber of size $k = 2$ the
+amplification is milder, $1 - 0.95^2 = 0.0975$, but already almost doubles the
+operand false-positive rate. The fan-in, not the operand rate alone, governs how
+much a projection inflates spurious membership.
+\end{example}
+
+The example makes the section's three regimes tangible: the selection step would
+leave every rate untouched, the projection step amplifies the false-positive rate
+from $0.05$ to $1-(1-0.05)^k$, and the join step both raises the false-negative
+rate to $0.19$ and, more consequentially, correlates output rows that share a
+source tuple, so that the result of a join is a Bernoulli relation whose tuples
+are individually well-calibrated but jointly dependent.
+\end{document}

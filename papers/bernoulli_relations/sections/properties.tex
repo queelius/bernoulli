@@ -1,30 +1,96 @@
 \documentclass[ ../main.tex]{subfiles}
 \providecommand{\mainx}{..}
 \begin{document}
-\section{Approximate relations with invariants}
-Sometimes, a set must satisfy certain invariants.
-We have already encountered two invariants in the form of \emph{positive} and \emph{negative} random approximate sets in which if $x \in \Set{A}$ then $x \in \PASet{A}$ and if $x \notin \Set{A}$, then $x \notin \NASet{A}$.
-These invariants rely upon the usual partition of the universal set into \emph{positives} and \emph{negatives}, but now we wish to complicate this somewhat.
+\section{Preservation of relational invariants}
+\label{sec:invariants}
+Sometimes a relation must satisfy a structural invariant: reflexivity,
+symmetry, single-valuedness, transitivity, and so on. An exact relation either
+has such a property or it does not. A random approximate relation, by contrast,
+tests each pair through an independent Bernoulli trial (\cref{asm:ber_trial}),
+and a property that constrains \emph{many} pairs at once is preserved only when
+\emph{all} of the relevant trials cooperate. The recurring lesson of this section
+is a fragility: the probability that an approximate relation inherits a global
+invariant is a product over the constrained pairs, and it tends to zero as the
+ground universe grows. Where a cheap repair exists (as for symmetry) we exhibit
+it and pay its rate cost; where it does not (as for transitivity) we state the
+honest limiting behavior rather than force a clean formula.
 
-Sometimes, a relation must satisfy certain predicates, e.g., if a power set has a member $\{a,b\}$ then by definition it \emph{necessarily} has members $\{a\}$, $\{b\}$, and $\EmptySet$.
-In these cases, if we wish the predicates to hold in the random approximate relation model, we must \emph{relax} the model somewhat so that predicates hold.
-In what follows we consider many predicates with suggestive names.
+Throughout, $\Relation{R} \subseteq \Set{A} \times \Set{A}$ is an exact binary
+relation with the named property, and $\ARelation{R}[\fprate][\tprate]$ is its
+random approximate relation, with $\tprate = 1 - \fnrate$ the true-positive rate.
+We ask, for each property, the probability that $\ARelation{R}$ \emph{also} has it.
 
-\subsection{Properties of binary relations}
-A binary relation $\Relation{R} \subset \Set{A} \times \Set{A}$ is \emph{reflexive} if and only if $\Pair{a}{a} \in \Relation{R}$ for every $a \in \Set{A}$.
+\subsection{Reflexivity}
+\label{sec:reflexive}
+A relation is \emph{reflexive} when it contains the whole diagonal:
+$\Pair{a}{a} \in \Relation{R}$ for every $a \in \Set{A}$. The approximation is
+reflexive only if each of the $\Card{\Set{A}}$ diagonal pairs survives as a true
+positive.
 
+\begin{theorem}[Reflexivity is preserved with vanishing probability]
+\label{thm:reflexive}
+Let $\Relation{R}$ be reflexive. Then $\ARelation{R}[\fprate][\tprate]$ is
+reflexive with probability
+\begin{equation}
+    \Prob{\ARelation{R} \text{ reflexive}} = \tprate^{\Card{\Set{A}}}\,,
+\end{equation}
+which tends to $0$ as $\Card{\Set{A}} \to \infty$ for any $\tprate < 1$.
+\end{theorem}
+\begin{proof}
+Each diagonal pair $\Pair{a}{a}$ is a true positive of $\ARelation{R}$ with
+probability $\tprate$, and the $\Card{\Set{A}}$ diagonal trials are independent
+(\cref{asm:ber_trial}). The approximation is reflexive exactly when all of them
+fire, an event of probability $\tprate^{\Card{\Set{A}}}$. Since $\tprate < 1$,
+this product decays geometrically in $\Card{\Set{A}}$.
+\end{proof}
 
+\subsection{Symmetry}
+\label{sec:symmetric}
+A relation is \emph{symmetric} when $\Pair{a}{b} \in \Relation{R}$ implies
+$\Pair{b}{a} \in \Relation{R}$. In the approximation, the two ordered trials of
+an unordered pair are tested independently and need not agree, so symmetry is a
+constraint that each unordered pair must satisfy on its own.
 
-Transitivity. This is an example of a relation with an invariant that is difficult to satisfy in the random approximation. Show the probability.
-Some types of transitivity can be satisfied, however. For instance, if $a=b$ and $b=c$ then by transitivy $a=c$. This is an equivalence relation and, at the time of construction of a random approximation, we can hash each of these to the same value, i.e., $a$,$b$, and $c$ all hash to $a$.
+\begin{theorem}[Symmetry is preserved with vanishing probability]
+\label{thm:symmetric_preservation}
+Let $\Relation{R}$ be symmetric, and let $P$ and $N$ be the numbers of unordered
+positive and negative pairs (off-diagonal pairs in and out of $\Relation{R}$,
+respectively). Then $\ARelation{R}[\fprate][\tprate]$ is symmetric with
+probability
+\begin{equation}
+    \Prob{\ARelation{R} \text{ symmetric}}
+    = \left(\tprate^2 + \fnrate^2\right)^{P}
+      \left((1-\fprate)^2 + \fprate^2\right)^{N}\,,
+\end{equation}
+which tends to $0$ as the number of pairs grows, since each base lies strictly
+below $1$ whenever $0 < \fprate < 1$ and $0 < \fnrate < 1$.
+\end{theorem}
+\begin{proof}
+Fix an unordered pair $\{a,b\}$ with $a \neq b$. Its two ordered trials, on
+$\Pair{a}{b}$ and on $\Pair{b}{a}$, are independent (\cref{asm:ber_trial}).
+Symmetry of $\ARelation{R}$ on this pair requires the two trials to \emph{agree}:
+both report the pair, or both omit it. For a positive pair (both ordered tuples
+lie in $\Relation{R}$) each trial is a true positive with probability $\tprate$
+and a miss with probability $\fnrate$, so the two agree with probability
+\begin{equation}
+    \tprate^2 + \fnrate^2\,.
+\end{equation}
+For a negative pair each trial is a false positive with probability $\fprate$ and
+a true negative with probability $1-\fprate$, so the two agree with probability
+\begin{equation}
+    (1-\fprate)^2 + \fprate^2\,.
+\end{equation}
+The pairs are disjoint in their trials, so the joint event is the product over all
+$P$ positive and $N$ negative pairs. Each base is a sum of two squares of
+probabilities summing to one, hence strictly less than one unless one probability
+is zero; for interior rates the product vanishes as $P + N \to \infty$.
+\end{proof}
 
-Subset relations are another invariant that cannot be easily satisfied.
-
-
-Irreflexive.
-
-Connex. Difficult to satisfy.
-
+Symmetry, unlike reflexivity, admits a cheap repair. Rather than \emph{hope} the
+two ordered trials of every pair agree, we \emph{force} agreement by taking the
+symmetric closure: admit a pair if either of its ordered trials fires. The next
+theorem (the model worked result of this section) shows the closure restores the
+invariant deterministically, at a quantified cost to the rates.
 
 \begin{theorem}[Symmetric closure]
 \label{thm:symmetric_closure}
@@ -52,32 +118,92 @@ Connex. Difficult to satisfy.
 	The same doubling that raises the false-positive rate of the \textsc{or} also raises the true-positive rate; the true-positive slot is therefore $1-(1-\tprate)^2$, not the unchanged $\tprate$. For example, at $\tprate = 0.9$ the closure true-positive rate is $1 - (0.1)^2 = 0.99$.
 \end{proof}
 
-We may \emph{compose} these binary relations with any of the properties we wish.
+The closure is the template for repairing a fragile invariant: replace a
+conjunction of hopeful trials by an operator that enforces the property outright,
+and read off the rate it costs. We use this same closure freely when composing
+binary relations that must carry the symmetric property.
 
+\subsection{Single-valuedness}
+\label{sec:functional}
+A relation $\Relation{R} \subseteq \Set{X} \times \Set{Y}$ is \emph{functional}
+(single-valued, a partial function) when the selection $\Selection_x \Relation{R}$
+has cardinality $0$ or $1$ for every key $x \in \Set{X}$: each key carries at most
+one value. The approximation can break this property in only one direction. A
+false negative on the true value of a key leaves that key with zero values, which
+is still at most single-valued; only a \emph{false positive}, which adds a
+spurious second value, violates functionality. Single-valuedness is therefore
+preserved exactly when no key acquires a spurious value.
 
+\begin{theorem}[Single-valuedness is preserved with vanishing probability]
+\label{thm:functional}
+Let $\PFun{f} \subseteq \Set{X} \times \Set{Y}$ be functional. For a key $x$, the
+approximation $\ARelation{f}[\fprate][\tprate]$ assigns no spurious value to $x$
+with probability $(1-\fprate)^{\Card{\Set{Y}}-1}$, since each of the
+$\Card{\Set{Y}}-1$ values other than the true one is a false positive with
+probability $\fprate$ and these trials are independent (\cref{asm:ber_trial}). Over
+all keys with a defined value, the probability that $\ARelation{f}$ remains
+single-valued is
+\begin{equation}
+    \prod_{x} (1-\fprate)^{\Card{\Set{Y}}-1}
+    = (1-\fprate)^{\Card{\Dom(\PFun{f})}\,(\Card{\Set{Y}}-1)}\,,
+\end{equation}
+which tends to $0$ as the value-universe $\Set{Y}$ or the domain grows, for any
+$\fprate > 0$.
+\end{theorem}
+\begin{proof}
+Fix a key $x \in \Dom(\PFun{f})$ with true value $y_x$. The pairs
+$\SetBuilder{\Pair{x}{y}}{y \in \Set{Y}, y \neq y_x}$ are all negative for
+$\PFun{f}$, so each is reported by $\ARelation{f}$ with probability $\fprate$,
+independently. The key $x$ stays single-valued exactly when none of these
+$\Card{\Set{Y}}-1$ false-positive trials fires, with probability
+$(1-\fprate)^{\Card{\Set{Y}}-1}$. (Losing the true value $y_x$, an event of
+probability $\fnrate$, leaves $x$ with no value, which does not violate
+single-valuedness, so it does not enter the product.) Distinct keys index disjoint
+pair sets, so the events are independent and the joint probability is the product
+over the $\Card{\Dom(\PFun{f})}$ defined keys. Each factor is below one for
+$\fprate > 0$, so the product vanishes as the exponent grows. This is the
+functional reading of the approximate partial function of
+\cref{def:approx_pfun}.
+\end{proof}
 
+\subsection{Transitivity}
+\label{sec:transitive}
+Transitivity is the hardest of the four to preserve and, unlike symmetry, has no
+inexpensive closure. A relation is \emph{transitive} when
+$\Pair{x}{y} \in \Relation{R}$ and $\Pair{y}{z} \in \Relation{R}$ together imply
+$\Pair{x}{z} \in \Relation{R}$. The constraint ranges over \emph{triples}, not
+pairs, and the implicated trials overlap (a single pair $\Pair{y}{z}$ participates
+in many triples), so the preservation probability does not factor into independent
+per-triple terms the way reflexivity and symmetry do.
 
+We state the honest limiting behavior rather than a spurious closed form. For each
+ordered triple $(x,y,z)$ whose two premises hold in $\Relation{R}$, transitivity
+requires the conclusion $\Pair{x}{z}$ to be reported by $\ARelation{R}$. If
+$\Pair{x}{z} \in \Relation{R}$ the conclusion holds with probability $\tprate$;
+if $\Pair{x}{z} \notin \Relation{R}$ it holds (by a compensating false positive)
+with probability $\fprate$. There are on the order of $\Card{\Set{A}}^3$ such
+triple constraints, far more than the $\Card{\Set{A}}$ diagonal constraints of
+reflexivity or the $\binom{\Card{\Set{A}}}{2}$ pair constraints of symmetry, and
+the trials are coupled, so the preservation probability decays the fastest of the
+four and tends to $0$ well before the others. The leading, most fragile behavior
+is governed by the conclusion pairs that must be \emph{manufactured} by false
+positives (those with $\Pair{x}{z} \notin \Relation{R}$), each contributing a
+factor near $\fprate \ll 1$.
 
+A transitive-closure repair, the analogue of the symmetric closure, is far more
+involved. Adding a manufactured pair $\Pair{x}{z}$ to satisfy one triple can pair
+with existing pairs to create \emph{new} required conclusions, which may in turn
+require further pairs, a cascade with no fixed per-pair rate cost. We therefore
+leave transitivity as the honest limiting result: preservation probability tends
+to zero fastest among the four invariants, and a deterministic repair, if desired,
+must be computed as a genuine closure rather than read off as a doubled rate.
 
-A binary relation is just a set of pairs.
-
-
-A binary relation $\Relation{R} \subset \Set{A} \times \Set{A}$ is \emph{symmetric} if and only if whenever $\Pair{a}{b} \in \Relation{R}$, $\Pair{b}{a} \in \Relation{R}$ for any $a,b \in \Set{A}$.
-
-
-A binary relation $\Relation{R} \subset \Set{A} \times \Set{A}$ is \emph{reflexive} if and only if $\Pair{a}{a} \in \Relation{R}$ for every $a \in \Set{A}$.
-A random approximate symmetric binary relation must also have this property.
-
-
-% do the selection operation
-% 
-A binary relation $\Relation{R} \subset \Set{X} \times \Set{Y}$ is a \emph{functional} relation if $\Selection_{x} \Set{R}$ has a cardinality of $0$ or $1$. If there exists an $x \in \Set{X}$ such that its selection is zero, then the binary relation is a \emph{partial function}.
-
-% TODO(PhaseC): Cartesian-product invariant. The genuinely-relational Cartesian-product
-% preservation result (from the deleted constrained_ras.tex) belongs in the dedicated
-% invariants section to be written in Phase C. The power-set/Jensen and disjoint-union
-% material from that file belongs to the entropy/composition papers and is NOT hosted here.
-
+These four results share a model-order reading. Each invariant partitions the
+universe into pairs (or triples) that play different error roles (diagonal versus
+off-diagonal; positive versus negative; premise versus conclusion), so an
+approximation forced to honor the invariant is a higher-order Bernoulli relation
+whose blocks carry distinct rates, exactly the model-order versus parameter-count
+distinction of the underlying set model~\cite{bernoulliSets}.
 
 \begin{remark}
 Some of these properties may be difficult to guarantee, especially for cipher relations.
