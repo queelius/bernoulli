@@ -33,7 +33,7 @@ This paper was salvaged in phases. Phases A through C are done and committed:
 - **C (completeness)**: dropped the load-bearing dependency on the unpublished
   `oph` manuscript for the headline space theorem (it is now self-contained via
   the random-oracle birthday argument; `oph` survives only as a non-load-bearing
-  aside in the C++ subsection). Derived the $k$-perfect false negative rate
+  aside in `rd_ph_filter.tex`). Derived the $k$-perfect false negative rate
   $\omega = 1 - (1-e^{-r})/r$ from a balls-into-bins model
   (\cref{thm:k_omega}). Completed the PMF space and entropy (PMF) bounds.
 - **E (polish)**: threaded the Five Core Principles and the explicit relation to
@@ -59,7 +59,7 @@ pre-submission polish.
 | 5 | `k_perfect_hashing.tex` | $k$-perfect hashing and false negatives | Two-rate second-order model; $\omega$ derivation; binary asymmetric channel |
 | 6 | `pmf.tex` | Approximate hash map | Perfect Map Filter; two rates; space lower bound; entropy upper bound |
 | 7 | `apps_postings_list.tex` | Applications | Boolean + rank-ordered (fuzzy) retrieval |
-| 8 | `cpp_imp.tex` | A C++ implementation | Dynamic polymorphism, complement; some listings still commented out |
+| 8 | `implementation.tex` | Implementation | Short note: the construction is realized by mature MPHF libraries (maph reference impl; PHOBIC/CHD in deployment). Replaced the dead `cpp_imp.tex` C++ dump (deleted 2026-06). |
 | 9 | `adt.tex` | Abstract data type of the Bernoulli set | $\sigma$-algebra, Boolean algebra, space complexity of unions/differences |
 
 `variation.tex` from the old layout is gone; `adt.tex` is the final section. The
@@ -95,12 +95,16 @@ This is the **concrete implementation** paper for theory developed elsewhere:
 | Space-accuracy duality $-\log_2\fprate+\mu$ | PHF attains $-\log_2\fprate+\log_2 e$ (minimal), succinct as $\fprate\to0$ |
 | Bernoulli map~\cite{bmaps} | Perfect Map Filter (`pmf.tex`) |
 | Entropy / space lower bound~\cite{emaps} | `thm:approx_l_b`, `thm:mPHF_size`, `thm:pmf_lower_bound` |
-| **Space-optimal Bernoulli set/map construction (BHF)**~\cite{shs} | The PHF is the **perfect-hash instance** of the BHF; fingerprint equality is its acceptance predicate |
+| **Space-optimal Bernoulli set/map construction (BHF)**~\cite{shs} | A **distinct, complementary** construction of the same set/map ADT, not a parent of the PHF. BHF hits the floor by salt search; the PHF is suboptimal by $\log_2 e$ but builds by off-the-shelf perfect hashing. |
 
 The `shs` citation is the **Bernoulli Hash Function** paper
-(`papers/bernoulli-hash-function/`): the "singular hash set" is the space-optimal
-construction developed there, and the PHF is one concrete instance of it. The
-Bloom filter's $1.44$ overhead is the gap succinct constructions close.
+(`papers/bernoulli-hash-function/`): the space-optimal construction developed
+there. The PHF is **not** an instance of the BHF; they are two different
+constructions (BHF = salt search + acceptance predicate; PHF = minimal perfect
+hash + per-slot fingerprint) of the same Bernoulli set/map ADT, trading absolute
+space-optimality (BHF) against deployability and a cheap tunable FNR (PHF). The
+Bloom filter's $1.44$ multiplicative overhead is the gap succinct constructions
+close.
 
 ## Bibliography
 
@@ -119,8 +123,10 @@ broken snapshot of the C++ code (a flat `include/maph/*.hpp` layout missing its
 `core.hpp`) once sat at this repo's top level; it was removed as a stale
 duplicate of the maintained `maph`. Phase D experiments (measured FPR versus
 `2^{-M}`, bits per key versus the formula, throughput versus the Bloom filter)
-should draw their numbers from that maintained library, and the C++ section
-(`cpp_imp.tex`) should reference it.
+should draw their numbers from that maintained library, and the short
+`implementation.tex` section (which replaced the dead C++ dump) should reference
+it. That section carries two `% TODO(cite)` markers (PHOBIC, maph) for verified
+bib entries to be added.
 
 ## House style
 

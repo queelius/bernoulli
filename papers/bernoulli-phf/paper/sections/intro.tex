@@ -25,33 +25,60 @@ extending it to a two-rate structure, lifting it to a key-value map, and tying
 its measured space to the framework's space-accuracy bound. \Cref{sec:related}
 situates the \gls{gls-phf} against this prior work in detail.
 
-The \gls{gls-phf} is \emph{succinct}: its expected space complexity approaches
-the information-theoretic lower bound of $-\log_2 \varepsilon$~bits per element
-established by Carter et al.~\cite{carter1978} (\cref{thm:approx_l_b}),
-asymptotically as $\varepsilon \to 0$. It does not attain the bound at finite
-$\varepsilon$. By comparison, the Bloom filter spends $-1.44 \log_2 \varepsilon$
-bits per element, a factor of $1/\ln 2 \approx 1.44$ above the bound. For false
-positive rates $\varepsilon < 2^{-3}$, the idealized \gls{gls-phf} is the more
-space-efficient of the two.
+The space-optimal construction of the Bernoulli set and map is not the
+\gls{gls-phf} but the \emph{Bernoulli hash function}~\cite{shs}, which reaches
+the information-theoretic floor of $-\log_2 \varepsilon + \mu$~bits per element
+exactly, for sets ($\mu = 0$) and maps alike, by searching for a salt under
+which an acceptance predicate holds. The \gls{gls-phf} is instead the
+\emph{practical} construction. It pays a constant $\log_2 e \approx 1.44$~bits
+per element above that floor (\cref{cor:mPHF_size}) and in return is built by
+off-the-shelf minimal perfect hashing, which is fast and widely deployed, and
+admits a cheap tunable false negative rate via $k$-perfect hashing
+(\cref{sec:k_perfect}), where the optimal construction's salt search would have
+to enumerate combinatorially many subsets to admit any false negatives.
+
+We do retain a succinctness claim, but only the relative one. The
+\gls{gls-phf}'s expected space approaches the information-theoretic lower bound
+of $-\log_2 \varepsilon$~bits per element established by Carter et
+al.~\cite{carter1978} (\cref{thm:approx_l_b}) asymptotically as
+$\varepsilon \to 0$: the $\log_2 e$ overhead is a fixed additive cost, so it
+becomes a vanishing \emph{fraction} of the optimum as $\varepsilon \to 0$, and
+the absolute efficiency tends to $1$. The \gls{gls-phf} does not attain the bound
+at finite $\varepsilon$; the absolute optimum belongs to the Bernoulli hash
+function. By comparison, the Bloom filter spends $-1.44 \log_2 \varepsilon$~bits
+per element, a factor of $1/\ln 2 \approx 1.44$ above the bound, a
+\emph{multiplicative} overhead that does not vanish. For false positive rates
+$\varepsilon < 2^{-3}$, the idealized \gls{gls-phf} is the more space-efficient
+of the two.
 
 \paragraph{Contributions.}
 \begin{enumerate}
     \item We realize the \gls{gls-phf}, the minimal-perfect-hash-plus-fingerprint
-    structure, as a faithful implementation of the \emph{positive Bernoulli
+    structure, as a faithful implementation of the static \emph{Bernoulli
+    map}~\cite{bmaps} (the \gls{gls-pmf}), with the \emph{positive Bernoulli
     set}~\cite{bsets} (false positive rate $\varepsilon = 2^{-M}$, zero false
-    negatives), so that it inherits the family's error model, composition theory,
-    and space bounds automatically (\cref{sec:phf}).
+    negatives) as the special case where the stored value is the membership
+    indicator (a zero-length value, $\mu = 0$), the same set-as-map unification
+    the Bernoulli hash function~\cite{shs} uses. The structure thereby inherits
+    the family's error model, composition theory, and space bounds automatically
+    (\cref{sec:phf,sec:pmf}).
     \item We give a \emph{$k$-perfect} extension that admits a tunable false
-    negative rate $\omega$, turning the structure into a genuine two-rate
+    negative rate $\omega$ cheaply, turning the structure into a genuine two-rate
     (second-order) Bernoulli set and a binary asymmetric channel
-    (\cref{sec:k_perfect}).
-    \item We lift the construction from set membership to key-value lookup, the
-    \emph{Perfect Map Filter} (\gls{gls-pmf}) realizing the static \emph{Bernoulli
-    map}~\cite{bmaps}, and apply it to fuzzy set queries for rank-ordered
-    retrieval (\cref{sec:pmf,sec:apps}).
+    (\cref{sec:k_perfect}). This is where the practical construction earns its
+    keep: the space-optimal salt-search construction~\cite{shs} admits a false
+    negative rate only by enumerating combinatorially many subsets of the key
+    set, whereas relaxing the perfect hash to $k$-perfect buys the same tunable
+    rate by a change of hash family.
+    \item We develop the \gls{gls-pmf} for general values, deriving its space
+    lower bound and a matching maximum-entropy coder, and apply it to fuzzy set
+    queries for rank-ordered retrieval (\cref{sec:pmf,sec:apps}).
     \item We tie the construction's space to the Carter et al.~\cite{carter1978}
-    lower bound it approaches as $\varepsilon \to 0$, situating it against the
-    Bloom filter and modern succinct filters (\cref{sec:adt}).
+    lower bound. The \gls{gls-phf}'s $\log_2 e$ overhead is a vanishing fraction
+    of the optimum as $\varepsilon \to 0$, so it is succinct in the relative
+    sense, against the Bloom filter's $1.44$ multiplicative overhead; we concede
+    the absolute optimum to the Bernoulli hash function~\cite{shs}
+    (\cref{sec:adt}).
 \end{enumerate}
 
 The Bernoulli set model~\cite{bsets} is characterized by two axioms:
@@ -84,13 +111,18 @@ minimal-perfect-hash overhead (\cref{cor:mPHF_size}). Fourth, the $k$-perfect
 extension (\cref{sec:k_perfect}) illustrates the framework's parametric
 parsimony: moving from the one-rate positive set to the two-rate
 $(\fprate, \omega)$ model adds exactly one parameter and one partition block, not
-a full second-order channel. The \gls{gls-phf} is, in particular, a concrete
-instance of the space-optimal Bernoulli set and map construction developed in
-the Bernoulli hash function paper~\cite{shs}: there the salt search and an
-acceptance predicate over hash outputs are shown to reach the $-\log_2 \fprate +
-\mu$ bound for sets ($\mu = 0$) and maps alike, and the perfect-hash filter is
-the perfect-hash instance of that construction, with the fingerprint-equality
-test as its acceptance predicate.
+a full second-order channel. The \gls{gls-phf} and the Bernoulli hash
+function~\cite{shs} are, in particular, two \emph{distinct} constructions of the
+same Bernoulli set and map ADT, related by a space-versus-construction tradeoff,
+not one as an instance of the other. The Bernoulli hash function reaches the
+$-\log_2 \fprate + \mu$ floor exactly, for sets ($\mu = 0$) and maps alike, but
+builds by salt search, which needs combinatorial subset enumeration once a
+nonzero false negative rate is required. The \gls{gls-phf} instead pays a
+constant $\log_2 e$ above the floor and builds by perfect hashing plus a per-slot
+fingerprint, a different mechanism entirely (there is no salt and no acceptance
+predicate over hash outputs), gaining off-the-shelf construction and a cheap
+$k$-perfect false negative rate. The two are complementary: one owns the
+absolute optimum, the other owns deployability.
 
 The paper is organized as follows.
 \Cref{sec:phf} derives the \gls{gls-phf} construction, proves its false
@@ -102,7 +134,8 @@ negative rate.
 \Cref{sec:pmf} generalizes to the approximate hash map.
 \Cref{sec:apps} demonstrates applications to fuzzy set queries for
 rank-ordered search.
-\Cref{sec:impl} provides a C++ implementation.
+\Cref{sec:impl} notes the off-the-shelf perfect-hash libraries that realize the
+construction.
 \Cref{sec:adt} discusses the abstract data type of the Bernoulli set, including
 space efficiency bounds and algebraic properties.
 

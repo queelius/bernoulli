@@ -1,0 +1,27 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Implementation}
+\label{sec:impl}
+The \gls{gls-phf} construction (a minimal perfect hash followed by a per-slot
+fingerprint, \cref{sec:phf}) is realized directly by mature minimal-perfect-hash
+libraries: the perfect hash is built once over the static key set, and the
+fingerprint matrix $\matrx{V}$ is a flat array of $M$-bit words indexed by the
+hash. The reference implementation is the \texttt{maph} library~\cite{maph}.
+Practical deployments use established minimal-perfect-hash constructions such as
+PHOBIC~\cite{phobic} and hash, displace, and compress (CHD)~\cite{chd}, which
+build a perfect hash over $m$ keys in linear time and a few bits per key, so the
+dominant cost of the \gls{gls-phf} (the perfect hash) is supplied off the shelf.
+
+Because the \gls{gls-phf} stores each approximate set as a perfect hash paired
+with a fingerprint array, set-theoretic compositions over non-enumerable
+operands are computed at query time rather than by rebuilding. Given two
+approximate sets $\ASet{S}[1]$ and $\ASet{S}[2]$, the union is the disjunction of
+the two membership tests,
+\begin{equation}
+\SetContains[x][\left(\SetUnion[\ASet{S}[1]][\ASet{S}[2]]\right)] \equiv \left(\SetContains[x][\ASet{S}[1]]\right) \lor \left(\SetContains[x][\ASet{S}[2]]\right)\,,
+\end{equation}
+and any set-theoretic composition reduces to unions and complements over the
+stored operands. The space and induced-rate consequences of these
+stored-and-composed operations are analyzed in \cref{sec:adt}.
+\end{document}

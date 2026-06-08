@@ -332,9 +332,14 @@ A practical implementation of the \emph{positive Bernoulli set} abstract data
 type is given by the \emph{Perfect Hash Filter}\cite{phf}, which compares
 favorably to the Bloom filter in many circumstances.
 
-The \emph{Singular Hash Set}\cite{shs} is a \emph{theoretical} data structure
-that optimally implements the abstract data types of the \emph{Bernoulli set}
-and the \emph{cipher set}\cite{obset}.
+The \emph{Bernoulli hash function}~\cite{shs} is the space-optimal construction
+of the same abstract data types, the \emph{Bernoulli set} and the \emph{Bernoulli
+map} (and, with a confidentiality reading, the \emph{cipher set}~\cite{obset}):
+it attains the information-theoretic floor exactly by salt search. The
+\gls{gls-phf} and the Bernoulli hash function are thus two distinct constructions
+of the same ADT, the former practical and suboptimal by $\log_2 e$, the latter
+optimal but built by an exhaustive salt search; they are complementary, not one
+an instance of the other.
 
 \subsection{Space efficiency of \emph{unions} and \emph{differences}}
 As a way to implement \emph{insertions} and \emph{deletions}, we consider the 
