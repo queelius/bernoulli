@@ -2,29 +2,40 @@
 
 ## Project Overview
 
-Research paper: **"The abstract data type of the approximate relation"** by Alexander Towell. Defines the semantics of *approximate relations* — probabilistic relations that approximate objective relations with false correspondences and false complementary correspondences. Derives entropy lower bounds, error propagation through relational operators (join, project), partial function composition, and demonstrates applications to trapdoor databases and Encrypted Search.
+Research paper: **"The abstract data type of the approximate relation"** by Alexander Towell. Models the approximate relation as a Bernoulli random approximate set over the tuple universe, then derives how error propagates through the relational operators (selection is rate-transparent; projection amplifies the false-positive rate to `1-(1-eps)^k` in the fan-in and raises the model order; a join breaks element-wise independence), and when structural invariants (reflexive, symmetric, functional, transitive) survive approximation, with a trapdoor-database / encrypted-search application. The entropy space bound, the perfect-hash-map construction, and map composition are deferred to the companion papers (`bernoulli_entropy`, `bernoulli-phf`, `bernoulli_maps`).
 
 ## Build
 
+Modular-sty paper: every `pdflatex` invocation needs `TEXINPUTS=".:./sty:"` (the
+`.sty` packages live in `sty/`) and `-shell-escape` (minted is loaded).
+
 ```bash
-pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && bibtex main && \
+  TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && \
+  TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
 ```
 
-Uses modular `sty/` packages from local `sty/` directory (self-contained, no external dependencies).
+Uses modular `sty/` packages from the local `sty/` directory (self-contained, no
+external dependencies). As of the 2026-06 salvage the build is clean: 21 pages,
+0 undefined references, 0 LaTeX warnings.
 
 ## Structure
 
-- `main.tex` — Document root, uses `\subfile{}` includes
-- `sections/` — Active section files:
-  - `intro.tex` — Introduction
-  - `relations.tex` — Classical relation definitions
-  - `approx_rel_model.tex` — Approximate relation model
-  - `rel_algebra.tex` — Relational algebra (join, project, select)
-  - `properties.tex` — Properties of approximate relations
-  - `predicates.tex` — Approximate predicates
-  - `test.tex` — Testing framework
-  - `unused/optimality.tex` — Entropy/optimality bounds (included but in unused/)
-  - `unused/oblivious_rel_model.tex`: Trapdoor relation model (filename retains historical 'oblivious')
+- `main.tex`: document root, uses `\subfile{}` includes.
+- `sections/`: active section files (current as of the 2026-06 salvage).
+  - `intro.tex`: introduction (gap, contributions, related work, companions, organization).
+  - `relations.tex`: classical relations and the relational operators (select, project, join, compose).
+  - `approx_rel_model.tex`: the random approximate relation model (ADT, Bernoulli set over the tuple universe; subset/equality predicates deferred to `bernoulliComposition`).
+  - `rel_algebra.tex`: error propagation through the operators (selection transparent; projection amplifies FPR and raises model order; join breaks element-wise independence), the worked example, the pgfplots fan-in figure, and the Monte Carlo "Empirical validation" subsection (cites `code/validate.py`).
+  - `properties.tex`: invariant preservation (reflexive, symmetric plus symmetric closure, single-valued/functional, transitive) and the approximate partial function.
+  - `oblivious_rel_model.tex`: application, the trapdoor relational database (cipher relation, rank-ordered encrypted search, threat/leakage model). Filename retains historical 'oblivious'; the prose uses trapdoor/cipher.
+- `code/validate.py`: Monte Carlo validation harness for the Phase-C results (projection amplification, join independence-failure correlation, symmetric closure, reflexive/functional preservation). Pure Python plus numpy; prints an analytical-vs-empirical table.
+
+**Deleted in the 2026-06 salvage** (superseded/orphaned): `predicates.tex` (its
+subset/equality rates are the set-level results of the composition paper, and the
+draft carried a sign error in the equality formula; now a one-paragraph cite of
+`bernoulliComposition` at the end of `approx_rel_model.tex`); `test.tex` and
+`constrained_ras.tex` (never written / orphaned). There is no `unused/` directory.
 
 ## Key Notation
 

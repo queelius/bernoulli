@@ -1,15 +1,29 @@
 \documentclass[ ../main.tex]{subfiles}
 \providecommand{\mainx}{..}
 \begin{document}
-\section{Application: trapdoor relational model}
+\section{Application: the trapdoor relational database}
 \label{sec:trapdoor_rel_model}
-The relational model manages data using a structure and language consistent with first-order predicate logic where data is represented in terms of tuples grouped into relations. A database organized according to the relational model is a relational database.
+We close with one application, stated modestly: the approximate relation of the
+preceding sections, realized as a \emph{cipher relation} that backs a queryable
+encrypted store. The construction is not new machinery; it is the relational
+reading of the perfect hash filter~\cite{phf} layered on the Bernoulli set
+foundation~\cite{bernoulliSets}. The point of the section is to show that the
+error model developed here is exactly the leakage model of such a store.
 
-Relations in mathematics as previously defined is a powerful abstraction with wide applicability. However, there are a few key differences between relations in mathematics and relations in the relational model. In the \emph{relational model}, we replace \emph{tuples} with sets of \emph{named} attributes and provide, limit the value types (corresponding to each attribute) to \emph{fundamental value types} like \emph{integers} or \emph{strings}, and provide an interface for \emph{modifying} attributes values and \emph{adding} or \emph{removing} attributes. Some of the key differences are summarized by \cref{tab:mathrel_vsrelmodel}.
-\begin{table}
-    \label{tab:mathrel_vsrelmodel}
+\subsection{From relation to cipher relation}
+The relational model organizes data as tuples grouped into relations and queried
+through a declarative algebra~\cite{codd1970}; an SQL table is the engineering
+realization of one relation, and joins and projections are the operators of
+\cref{sec:rel_algebra}. \Cref{tab:mathrel_vsrelmodel} records the differences
+between the mathematical relation and the relational-model table that matter here:
+named rather than positional columns, a restricted set of value types, and
+mutability. None of these affects the error analysis, which sees only the
+underlying set of tuples.
+
+\begin{table}[ht]
     \centering
-    \caption{Relations in mathematics versus relations in the relational model}
+    \caption{Relations in mathematics versus relations in the relational model.}
+    \label{tab:mathrel_vsrelmodel}
     \begin{tabular}{l l}
         \toprule
         mathematics & relational model\\
@@ -21,87 +35,75 @@ Relations in mathematics as previously defined is a powerful abstraction with wi
     \end{tabular}
 \end{table}
 
-The purpose of the relational model is to provide a declarative method for specifying data and queries: users directly state what information the database contains and what information they want from it, and the implementation takes care of describing data structures for storing the data and retrieval procedures for answering queries.
+A \emph{cipher relation} is a representation of an exact relation $\Relation{R}$
+that answers the membership query ``is this tuple in $\Relation{R}$?'' without
+storing the tuples in the clear. Concretely, a perfect hash filter~\cite{phf}
+hashes each key under a secret salt and stores only a short fingerprint per stored
+key; a query hashes the queried tuple under the same salt and accepts on a
+fingerprint match. A genuine member is accepted with probability $\tprate$, and a
+non-member collides and is wrongly accepted with probability $\fprate$, so the
+structure is precisely a Bernoulli relation
+$\ARelation{R}[\fprate][\tprate]$~\cite{bernoulliSets} over the tuple universe.
+The secret salt is the trapdoor: without it an adversary cannot form the query
+hashes, and the false-positive rate $\fprate$ buys the space saving (a fingerprint
+rather than a key) that motivated the approximation in the first place. The
+single-valued case of \cref{sec:functional} gives the cipher \emph{partial
+function}: a dictionary that maps an encrypted key to a stored value, with a false
+domain rate $\fprate$ and a false complementary domain rate $\fnrate$
+(\cref{def:approx_pfun}).
 
-Most relational databases use the SQL data definition and query language; these systems implement what can be regarded as an engineering approximation to the relational model. A table in an SQL database schema corresponds to a predicate variable; the contents of a table to a relation; key constraints, other constraints, and SQL queries correspond to predicates. However, SQL databases deviate from the relational model in many details, and Codd fiercely argued against deviations that compromise the original principles.
+\subsection{Rank-ordered encrypted search}
+A search index is a relation between query terms and the documents that contain
+them, and reading it through a cipher relation yields an encrypted search index:
+the server holds the filtered structure, a client holding the salt forms term
+queries, and the structure returns the matching document identifiers at the
+model's error rates. Because the per-term answers are Bernoulli memberships, the
+returned set for a multi-term query is a composition of approximate sets, and its
+rates follow the operator results of \cref{sec:rel_algebra}: an intersection of
+posting lists is a join, with the false-negative rate $1 - \tprate_R\tprate_S$ of
+\cref{thm:join}, and any projection onto a coarser key amplifies the
+false-positive rate by its fan-in (\cref{thm:project}). Ranking the surviving
+documents by a revealed score (a per-document attribute the schema chooses to
+expose) gives rank-ordered retrieval over the encrypted store; the perfect hash
+filter paper~\cite{phf} develops this ranked-search construction in full, and we
+defer the details there.
 
-The golden rule is ``every non-key attribute must provide a fact about the key, the whole key, and nothing but the key.''
+\subsection{Threat and leakage model}
+The application is honest only if we say what an adversary holding the structure
+learns. We take the standard honest-but-curious server: the adversary holds the
+cipher relation and observes the queries issued against it, but does not hold the
+salt. Then the leakage is exactly the membership answers at the model's rates.
 
+\begin{itemize}
+    \item \emph{What leaks.} For each issued query the adversary learns the
+    structure's Boolean answer, which equals the true membership with the
+    Bernoulli rates: a positive answer is correct with the precision induced by
+    $\fprate$, $\tprate$, and the prevalence~\cite{bernoulliSets}, and a negative
+    answer misses a true member with probability $\fnrate$. Repeated or composed
+    queries leak the corresponding composed answer, with the propagated rates of
+    \cref{sec:rel_algebra}; in particular the join correlation of
+    \cref{thm:join_dependence} means that answers to queries sharing a component
+    are statistically linked, which a leakage analysis must carry.
+    \item \emph{What does not leak (without the salt).} The plaintext tuples are
+    not stored, so the structure does not reveal the keys, the non-queried
+    members, or the attribute values beyond any the schema deliberately exposes
+    for ranking. The trapdoor salt gates query formation: an adversary without it
+    cannot manufacture the query hashes and so cannot enumerate membership at
+    will.
+    \item \emph{What the error rates buy.} The false-positive rate $\fprate$ is
+    not only the space-accuracy knob of the underlying construction but also a
+    confidentiality knob: a larger $\fprate$ injects more spurious positives,
+    degrading what a single answer reveals about true membership, at the cost of
+    retrieval precision. The quantitative confidentiality-versus-accuracy
+    trade-off is the subject of the encrypted-search literature and is outside the
+    scope of this paper; here we only locate it in the Bernoulli rates.
+\end{itemize}
 
-
-If a key needs to map to a variable-sized \emph{array} of elements, that constitutes \emph{multiple} facts about the key. In this case, it is probably better to use a key-value map, where the \emph{value} is an array. An array does too much. It has multiple facts and it stores the order (which is not related to the relation itself). And the performance is poor (see above).
-
-\Cref{tbl:relation} depicts a \emph{relation} where the \emph{key} column consists of unique identifiers and the \emph{values} column must consist of (possibly repeated) elements from $\mathbb{Z}$.
-\begin{table}[h]
-\centering
-\caption{A table representing a relation of $p$ tuples each with $n$ attributes about each key}
-\label{tbl:relation}
-\begin{tabular}{|c c c c|} 
-\hline
-key & attribute$_1$ & $\cdots$ & attribute$_n$\\
-\hline
-    $k_1$ & $a_{1 1}$ & $\cdots$ & $a_{1 n}$\\
-    $k_2$ & $a_{2 1}$ & $\cdots$ & $a_{2 n}$\\
-    $\vdots$ & $\vdots$& $\vdots$ & $\vdots$\\
-    $k_p$ & $a_{p 1}$ & $\cdots$ & $a_{p n}$\\
-\hline
-\end{tabular}
-\end{table}
-
-
-
-
-
-
-
-
-%The \HasKey function tests whether a particular \emph{key} is in the relation, i.e., \HasKey{$\ASet{R}$,$x$}, $x \in \Set{X}$, returns \True if $x \in \Keys(\ASet{R})$ and otherwise returns \False.
-%The \GetAttributes function retrieves the \emph{attributes}, a set of iterable key-value pairs, where the key is the \emph{name} of the attribute, about a particular \emph{key}. If a key has no associated attributes, \Null is returned.
-
-
-\subsection{Derived attributes}
-Cipher partial functions may be constructed for primary or composite keys, or mapped-values that are revealed.
-
-\subsection{Attribute comparisons}
-Cipher relations may be constructed for the \emph{cipher} primary or composite keys. (They may also be constructed for the mapped-to values that are revealed (some columns may be chosen to be revealed for various reasons), but still choose to make the relational operators trapdoor.) So, relations all the way down?
-
-
-
-
-
-
-
-
-The latter approach that uses multiple maps all indexed by the same key can more fully implement the relational logic. Moreover, if each approximate map has some false positive rate less than $1$, say a false positive rate that is independently useful, then there are fewer restrictions on how the approximate maps may be combined to generate new table views, joins, or compositions.
-
-However, note that since we have the restriction that we may only index based off of a single key, we cannot do certain types of joins.
-
-
-\begin{table}[h]
-\centering
-\caption{A derived \emph{attribute} based on the \emph{composition} $\operatorname{g}(\text{attribute$_2$})$.}
-\label{tbl:relation_derived}
-\begin{tabular}{|c c|} 
-\hline
-key & derived attribute\\
-\hline
-    $k_1$ & $\operatorname{g} \circ \ExactMap{2}(a_{1 2})$\\
-    $k_2$ & $\operatorname{g} \circ \ExactMap{2}(a_{2 2})$\\
-    $\vdots$ & $\vdots$\\
-    $k_p$ & $\operatorname{g} \circ \ExactMap{2}(a_{p 2})$\\
-\hline
-\end{tabular}
-\begin{tabular}{l l} 
-\toprule
-key & $\operatorname{g}(\text{key})$\\
-\midrule
-    $k_1$ & $v_1$\\
-    $k_2$ & $v_2$\\
-    $\vdots$ & $\vdots$\\
-    $k_t$ & $v_t$\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
+This is the whole of the application. The cipher relation does not add a security
+argument beyond what its components supply; it observes that the abstract data
+type of \cref{sec:approx_rel_model}, together with the operator and invariant
+results of \cref{sec:rel_algebra,sec:invariants}, is already the right language
+for the leakage profile of a perfect-hash-filter-backed encrypted relational
+store. The relational operators run over the cipher relation, and their error
+rates are the rates this paper computed.
 \end{document}

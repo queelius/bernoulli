@@ -32,7 +32,7 @@ survive, and at what rate? This paper answers both.
 We treat the approximate relation as a Bernoulli random approximate
 set~\cite{aset} over the tuple universe, the abstract data type of
 \cref{sec:approx_rel_model}, and from that footing we establish the following.
-\begin{enumerate}[nosep]
+\begin{enumerate}
     \item \emph{Error propagation through the relational operators}
     (\cref{sec:rel_algebra}). Selection is rate-transparent. Projection amplifies
     the false-positive rate to $1 - (1-\fprate)^{k}$ in the fan-in $k$ and raises
@@ -55,7 +55,8 @@ set~\cite{aset} over the tuple universe, the abstract data type of
     treatment.
     \item \emph{A trapdoor-database application} (\cref{sec:trapdoor_rel_model}),
     in which cipher relations and cipher partial functions index an encrypted
-    store and the relational operators run obliviously.
+    store, the relational operators run over the cipher relation, and the leakage
+    profile is exactly the Bernoulli error rates of the model.
 \end{enumerate}
 
 \paragraph{Related work.}

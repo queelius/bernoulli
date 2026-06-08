@@ -254,8 +254,7 @@ A \emph{table} is a convenient way to represent a partial function, where each t
 	Suppose we have a partial function $\PFun{f} \colon \Set{Z}[1] \times \Set{Z}[2] \mapsto \Set{Q}$ defined by the table below.
 	\begin{table}[h]
 		\centering
-		\label{tbl:partialfunc}
-		\begin{tabular}{l l l} 
+		\begin{tabular}{l l l}
 			\toprule
 			$\Set{Z}[1]$ & $\Set{Z}[2]$ & $\Set{Q}$\\
 			\midrule
@@ -264,9 +263,9 @@ A \emph{table} is a convenient way to represent a partial function, where each t
 			$10$ & $2$ & $5$\\
 			\bottomrule
 		\end{tabular}
-		\caption*{$\Set{Z}[1] \times \Set{Z}[2] \mapsto \Set{Q}$.}
+		\caption{A partial function $\Set{Z}[1] \times \Set{Z}[2] \mapsto \Set{Q}$ as a table.}
 	\end{table}
-	We see that $\Dom(\PFun{f}) = \{\Pair{1}{5},\Pair{2}{10},\Pair{10}{2}\}$ and $\Image(\PFun{f}) = \left\{\frac{1}{5},5\right\}$. As a partial function, we may umambiguously denote any value in the \nth{3} position of the relation by the unique combination of tuple values in the \nth{1} and \nth{2} positions, i.e., $\PFun{f}(10,2)=5$.
+	We see that $\Dom(\PFun{f}) = \{\Pair{1}{5},\Pair{2}{10},\Pair{10}{2}\}$ and $\Image(\PFun{f}) = \left\{\frac{1}{5},5\right\}$. As a partial function, we may unambiguously denote any value in the \nth{3} position of the relation by the unique combination of tuple values in the \nth{1} and \nth{2} positions, i.e., $\PFun{f}(10,2)=5$.
 \end{example}
 
 \emph{Maps} and \emph{partial functions} are synonymous, but the term \emph{map} is more common in the context of a partial function of order $2$ where the elements of the domain are denoted \emph{keys} and the elements of the range may be denoted \emph{values}.

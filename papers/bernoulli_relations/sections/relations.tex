@@ -33,7 +33,7 @@ We are now ready to define the concept of a relation.
 Let $\Set{X}[1],\ldots,\Set{X}[n]$ be sets. A \emph{relation} is any subset of $\Set{X}[1] \times \cdots \times \Set{X}[n]$.
 \end{definition}
 %In a relation $\Relation{R} \subseteq \Set{X}[1] \times \cdots \times \Set{X}[n]$, the domain of the relation is each $\Set{X}[j]$, $1 \leq j %\leq n$, a domain of the relation. 
-We denote that a particular tuple $\Tuple{x_1,\ldots,x_n}$ is in a relation $\Relation{R}$ using either notation $\Relation{R}(x_1,\ldots,x_n)$ or $\Tuple{x_1,\ldots,x_n} \in \Set{R}$. If the relation is \emph{binary}, then may denote that two elements $x$ and $y$ are related by $x \Relation{R} y$.
+We denote that a particular tuple $\Tuple{x_1,\ldots,x_n}$ is in a relation $\Relation{R}$ using either notation $\Relation{R}(x_1,\ldots,x_n)$ or $\Tuple{x_1,\ldots,x_n} \in \Set{R}$. If the relation is \emph{binary}, we may denote that two elements $x$ and $y$ are related by $x \Relation{R} y$.
 
 The set of possible relations over $\Set{X}[1],\ldots,\Set{X}[n]$ is the \emph{power set} $\PS{\Set{X}[1] \times \cdots \times \Set{X}[n]}$, which has a cardinality of $2^{\Card{\Set{X}[1]} \cdots \Card{\Set{X}[n]}}$. As a \emph{base case}, we have \emph{unitary} relations, e.g., $\Relation{R} \subseteq \Set{X}$.
 
@@ -45,7 +45,7 @@ Tables are a convenient way to represent relations. When a relation $\Relation{R
 \begin{enumerate}
 \item Each row of the table represents a tuple of $\Relation{R}$.
 \item The row order is unimportant.\footnote{That is, given a table representing $\Relation{R}$, if we exchange any two rows the table still represents $\Relation{R}$.}
-\item The multipicity of a row is unimportant.\footnote{That is, given a table representing $\Relation{R}$, if we duplicate any row the table still represents $\Relation{R}$.}
+\item The multiplicity of a row is unimportant.\footnote{That is, given a table representing $\Relation{R}$, if we duplicate any row the table still represents $\Relation{R}$.}
 \item The column order is important.\footnote{The set of values in the $j$-th column correspond to the set of values of the $j$-th component of each tuple.}
 \end{enumerate}
 

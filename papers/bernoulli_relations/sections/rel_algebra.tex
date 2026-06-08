@@ -147,7 +147,56 @@ product over $[0,1]$ can only increase the complementary rate.
 
 The rate formulas depend on $s$ only through its fan-in $k(s)$ (and, for true
 members, the member count $j$), which varies from one projected tuple to the next.
-This is the structural heart of projection.
+This is the structural heart of projection. \Cref{fig:proj_fpr} plots the
+amplified false-positive rate $1-(1-\fprate)^{k}$ against the fan-in $k$ for three
+operand rates, making the growth with $k$ explicit: even a modest operand rate is
+driven up steeply once several tuples share a projected image.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.82\linewidth,
+            height=6cm,
+            xlabel={fan-in $k$},
+            ylabel={projected false-positive rate $1-(1-\fprate)^{k}$},
+            xmin=1, xmax=8,
+            ymin=0, ymax=0.65,
+            xtick={1,2,3,4,5,6,7,8},
+            legend pos=north west,
+            legend cell align={left},
+            grid=major,
+            grid style={gray!25},
+            mark size=1.6pt,
+        ]
+        \addplot[mark=*, thick, blue]
+            coordinates {
+                (1,0.010000) (2,0.019900) (3,0.029701) (4,0.039404)
+                (5,0.049010) (6,0.058520) (7,0.067935) (8,0.077255)
+            };
+        \addlegendentry{$\fprate = 0.01$}
+        \addplot[mark=square*, thick, red]
+            coordinates {
+                (1,0.050000) (2,0.097500) (3,0.142625) (4,0.185494)
+                (5,0.226219) (6,0.264908) (7,0.301663) (8,0.336580)
+            };
+        \addlegendentry{$\fprate = 0.05$}
+        \addplot[mark=triangle*, thick, black!70!green]
+            coordinates {
+                (1,0.100000) (2,0.190000) (3,0.271000) (4,0.343900)
+                (5,0.409510) (6,0.468559) (7,0.521703) (8,0.569533)
+            };
+        \addlegendentry{$\fprate = 0.10$}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{False-positive amplification under projection
+    (\cref{thm:project}). A projected tuple whose fiber has fan-in $k$ acquires
+    false-positive rate $1-(1-\fprate)^{k}$, the probability that at least one of
+    its $k$ independent fiber trials fires. The rate climbs with the fan-in and
+    approaches $1$, so projection onto an attribute subset with large fibers can
+    turn a small operand false-positive rate into a substantial one.}
+    \label{fig:proj_fpr}
+\end{figure}
 
 \begin{theorem}[Projection preserves independence but raises model order]
 \label{thm:project_order}
@@ -382,4 +431,58 @@ from $0.05$ to $1-(1-0.05)^k$, and the join step both raises the false-negative
 rate to $0.19$ and, more consequentially, correlates output rows that share a
 source tuple, so that the result of a join is a Bernoulli relation whose tuples
 are individually well-calibrated but jointly dependent.
+
+\subsection{Empirical validation}
+\label{sec:rel_validation}
+The closed-form rates above are checked by direct Monte Carlo simulation in the
+script \texttt{validate.py} (in the paper's \texttt{code/} directory). Each
+approximate relation is realized as one independent Bernoulli trial per tuple: a
+genuine member is reported with probability $\tprate = 1 - \fnrate$ and a
+non-member with probability $\fprate$, exactly the per-tuple law of
+\cref{asm:ber_trial}. The script then assembles the operator outputs (the fiber
+\textsc{or} of a projection, the operand \textsc{and} of a join, the ordered-pair
+\textsc{or} of a symmetric closure) and estimates each reported rate over
+$2\times 10^{6}$ trials. \Cref{tbl:validation} transcribes the headline
+comparisons at the illustrative rates $\fprate = 0.05$, $\fnrate = 0.10$
+($\tprate = 0.90$); the empirical estimates agree with the analytical formulas to
+three to four decimal places throughout.
+
+\begin{table}[ht]
+    \centering
+    \caption{Analytical rates versus Monte Carlo estimates ($2\times 10^{6}$
+    trials per row, $\fprate = 0.05$, $\fnrate = 0.10$, $\tprate = 0.90$;
+    \texttt{code/validate.py}). The projection rows exhibit the fan-in
+    amplification of \cref{thm:project}; the join rows exhibit both the
+    intersection false-negative rate of \cref{thm:join} and the
+    independence-failure correlation of \cref{thm:join_dependence}; the closure
+    rows exhibit the doubled rates of \cref{thm:symmetric_closure}.}
+    \label{tbl:validation}
+    \begin{tabular}{l l c c}
+        \toprule
+        result & formula & analytical & empirical\\
+        \midrule
+        Projection $\fprate$, $k=2$ & $1-(1-\fprate)^2$ & $0.097500$ & $0.097320$\\
+        Projection $\fprate$, $k=3$ & $1-(1-\fprate)^3$ & $0.142625$ & $0.142734$\\
+        Projection $\fprate$, $k=8$ & $1-(1-\fprate)^8$ & $0.336580$ & $0.336913$\\
+        Projection $\tprate$, $k=3,\,j=1$ & $1-(1-\tprate)(1-\fprate)^2$ & $0.909750$ & $0.909563$\\
+        \midrule
+        Join $\fnrate$ (both members) & $\fnrate_R+\fnrate_S-\fnrate_R\fnrate_S$ & $0.190000$ & $0.189941$\\
+        Join $\fprate$ (both-absent) & $\fprate_R\fprate_S$ & $0.002500$ & $0.002453$\\
+        Join shared-$r$ $\Prob{\text{both}}$ & $a\,\Prob{B_1}\Prob{B_2}$ & $0.729000$ & $0.728758$\\
+        \quad independent model & $a^2\Prob{B_1}\Prob{B_2}$ & $0.656100$ & ($0.728758$)\\
+        \quad correlation factor & $1/a$ & $1.111111$ & $1.110742$\\
+        \midrule
+        Symmetric closure $\fprate$ & $1-(1-\fprate)^2$ & $0.097500$ & $0.097444$\\
+        Symmetric closure $\tprate$ & $1-(1-\tprate)^2$ & $0.990000$ & $0.990078$\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The independent-model row is the one deliberate non-match. The empirical joint
+acceptance $0.728758$ tracks the correlated value $a\,\Prob{B_1}\Prob{B_2} =
+0.729$, not the product of marginals $a^2\Prob{B_1}\Prob{B_2} = 0.6561$ that an
+independence assumption would predict; the ratio of the two is the factor $1/a
+\approx 1.111$ of \cref{thm:join_dependence}, confirmed empirically as $1.110742$.
+The simulation thus reproduces not only the marginal operator rates but also the
+precise way in which a join breaks element-wise independence.
 \end{document}

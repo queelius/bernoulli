@@ -8,20 +8,65 @@ authors:
     orcid: "0000-0001-6443-9897"
 
 thesis:
-  claim: ""
-  novelty: ""
-  refined: null
+  claim: >-
+    An approximate relation is a Bernoulli random approximate set over the tuple
+    universe, so the set model's per-tuple false-positive and true-positive rates
+    transfer wholesale to relations. From that footing the relational operators
+    have closed-form error propagation: selection is rate-transparent; projection
+    amplifies the false-positive rate to 1-(1-eps)^k in the fan-in k and raises
+    the model order while preserving element-wise independence; and a join does
+    NOT preserve element-wise independence (output tuples sharing an input
+    component are positively correlated by the factor 1/a, so a query result that
+    assumes independent rows understates the joint error). Structural invariants
+    (reflexivity, symmetry, single-valuedness, transitivity) survive approximation
+    only with probability tending to zero as the universe grows, with the
+    symmetric closure as the cheap deterministic repair at a doubled rate cost.
+  novelty: >-
+    Operator-level and invariant-level error propagation for approximate
+    relations: in particular the join independence-failure correlation and the
+    projection fan-in amplification, plus the per-invariant preservation rates.
+    Distinct from probabilistic/uncertain databases (Trio, MayBMS), which model
+    uncertainty IN THE DATA; here an objective base relation is exact and the
+    error is injected by a space-saving representation of it.
+  refined: true
 
 prior_art:
   last_survey: null
-  key_references: []
-  gaps: ""
+  key_references:
+    - "Towell, Bernoulli Sets (foundation)"
+    - "Towell, Composition of Bernoulli Sets (intersection/union/subset/equality rates)"
+    - "Towell, The Algebra of the Random Approximate Map Model (map composition)"
+    - "Towell, The Perfect Hash Filter (the cipher-relation construction)"
+    - "Suciu et al., Probabilistic Databases; Widom (Trio); Huang et al. (MayBMS)"
+  gaps: >-
+    The probabilistic-database literature does not ask whether an approximated
+    invariant survives, nor how a projection's fan-in amplifies a structural FPR,
+    because in that setting the relation has no underlying exact truth to be
+    faithful to and no representation-induced error to propagate.
 
-experiments: []
+experiments:
+  - id: "mc-validation"
+    kind: "monte-carlo"
+    script: "code/validate.py"
+    status: "passing"
+    notes: >-
+      Validates the Phase-C results by direct per-tuple Bernoulli simulation
+      (2e6 trials/estimate, eps=0.05, omega=0.10): projection FPR/TPR by fan-in,
+      join FNR and the both-absent FPR corner, the join shared-component
+      correlation (empirical P(both)=0.7288 matches the correlated model 0.729,
+      NOT the independent 0.6561; factor 1/a=1.111 confirmed), symmetric closure
+      FPR/TPR, reflexive tau^|A|, functional (1-eps)^(|Y|-1). All fit rows agree
+      to 3-4 digits (worst abs error 0.000686).
 
 venue:
   target: null
-  candidates: []
+  candidates:
+    - name: "ICDT (International Conference on Database Theory)"
+      rationale: "Database-theory venue; the relational-algebra error-propagation angle fits."
+    - name: "PODS (ACM Symposium on Principles of Database Systems)"
+      rationale: "Foundations-of-databases venue; operator/invariant theory over approximate relations."
+    - name: "Zenodo preprint (Bernoulli type theory collection)"
+      rationale: "Default for the family; the monograph is the primary publication and the focused papers are Zenodo preprints."
 
 review_history:
   - date: "2026-05-29"
@@ -55,6 +100,33 @@ related_papers:
 ---
 
 ## Notes
+
+### 2026-06-08 salvage Phase D (current status; supersedes the stale sections below)
+Build is clean and the core is complete. The "KNOWN ISSUES" and "working thesis"
+notes further down are historical (pre-salvage) and are kept only for provenance.
+
+- **Build**: `TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && bibtex main`
+  then two more `pdflatex` passes. Status: 21 pages, 0 undefined references,
+  0 LaTeX warnings, 0 duplicate-destination warnings (added
+  `hypertexnames=false` to the hypersetup to clear the subfiles+hyperref
+  duplicate anchors), one negligible 3.31pt overfull box (sub-character,
+  pre-existing).
+- **Sections on disk** (6, all built): intro, relations, approx_rel_model,
+  rel_algebra, properties, oblivious_rel_model. `predicates.tex`, `test.tex`,
+  and `constrained_ras.tex` were deleted as superseded/orphaned; there is no
+  `unused/` directory.
+- **Phase D additions**: `code/validate.py` (Monte Carlo harness validating the
+  Phase-C results; all fit rows agree to 3-4 digits, the join independence
+  failure is demonstrated); an "Empirical validation" subsection with a results
+  table in `rel_algebra.tex`; a pgfplots fan-in figure (`fig:proj_fpr`)
+  referenced from the projection theorem; a rehabbed trapdoor-database
+  application (cipher relation, rank-ordered encrypted search, threat/leakage
+  model) in `oblivious_rel_model.tex`; a typo and grammar sweep.
+- **Thesis and venue**: now filled in the YAML frontmatter above.
+- **Not yet done**: external prior-art survey (papermill:prior-art), a full
+  editorial review pass on the salvaged draft.
+
+---
 
 Initialized by papermill on 2026-05-29.
 
