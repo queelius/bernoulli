@@ -39,9 +39,10 @@ set~\cite{bernoulliSets} over the tuple universe, the abstract data type of
     the model order while preserving element-wise independence. A join does
     \emph{not} preserve element-wise independence: two output tuples that share an
     input component reuse the same operand trial and are positively correlated, so
-    the joint law over output tuples does not factor. This is the paper's sharpest
-    finding, and it is the precise reason a join differs from a selection or a
-    projection.
+    the joint law over output tuples does not factor, and we carry the correlation
+    as a closed-form factor. This is the operators' sharpest contrast, and (as the
+    related work discusses) the representation-error face of the lineage dependence
+    known from probabilistic databases.
     \item \emph{Preservation of relational invariants}
     (\cref{sec:invariants}). Reflexivity, symmetry, single-valuedness, and
     transitivity are each preserved only with a probability that is a product over
@@ -69,13 +70,30 @@ probability of each answer over those worlds. The Bernoulli approximate relation
 is a different object. There is an \emph{objective} base relation, exact and
 certain, and the uncertainty is injected entirely by a \emph{space-saving
 representation} of it: the false-positive and false-negative rates are properties
-of the data structure, not of the data. The questions we ask are correspondingly
-different. A probabilistic database does not ask whether an approximated symmetric
-relation stays symmetric, or how a projection's fan-in amplifies a structural
-false-positive rate, because in that setting the relation has no underlying exact
-truth to be faithful to and no representation-induced error to propagate. Our
-operator and invariant results are about the fidelity of a compressed encoding,
-which is orthogonal to possible-worlds semantics.
+of the data structure, not of the data.
+
+Two technical points keep the relationship honest. First, the per-tuple marginal
+rates we derive are not new. A join's product false-negative rate and a
+projection's $1-(1-\fprate)^{k}$ false-positive rate are exactly the marginals a
+tuple-independent probabilistic database obtains by extensional evaluation, the
+latter being the familiar union-of-filters identity; we claim no credit for them.
+Second, our sharpest operator result, that a join's output tuples sharing an input
+component are correlated, is in possible-worlds language the well-known fact that
+query answers sharing lineage are dependent, the same dependence that makes
+extensional evaluation of self-joins fail and that the dichotomy theory of
+probabilistic query evaluation is built to handle~\cite{suciu2011}. What this
+paper adds on the operator side is narrower and concrete: it carries that
+dependence explicitly through the Bernoulli error model, as a closed-form
+correlation factor ($1/a$) in a setting where the rows are membership tests of a
+compressed encoding rather than uncertain facts.
+
+The genuinely new territory is the \emph{invariant} side. A probabilistic database
+does not ask whether an approximated symmetric relation stays symmetric, or how a
+projection's fan-in amplifies a structural false-positive rate, because in that
+setting the relation has no underlying exact truth to be faithful to and no
+representation-induced error to propagate. Those questions, and the per-invariant
+preservation rates and closures that answer them, are about the fidelity of a
+compressed encoding, orthogonal to possible-worlds semantics.
 
 \paragraph{Companion papers.}
 This paper sits in a family built on the Bernoulli set model~\cite{bernoulliSets}. The set-theoretic composition that the join and the subset and
@@ -97,6 +115,7 @@ projection, join, composition). \Cref{sec:approx_rel_model} defines the random
 approximate relation as a Bernoulli set over the tuple universe and records the
 error-count machinery it inherits. \Cref{sec:rel_algebra} propagates error through
 the operators. \Cref{sec:invariants} treats invariant preservation and the
-symmetric closure, and arrives at the approximate partial function.
+symmetric closure. \Cref{sec:map} presents the approximate partial function as
+the single-valued special case.
 \Cref{sec:trapdoor_rel_model} develops the trapdoor-database application.
 \end{document}

@@ -212,7 +212,7 @@ Some of these properties may be difficult to guarantee, especially for cipher re
 However, \emph{tractability} is a separate issue from specification and definition.
 \end{remark}
 
-\subsection{The approximate partial function}
+\section{The approximate partial function}
 \label{sec:map}
 A \emph{partial function} is the single-valued special case of a relation: each tuple in the domain maps to at most one tuple in the range. Approximate-map composition, the error rates that result when two approximate partial functions are composed, is treated in the maps paper~\cite{bernoulliMaps}, whose composition theorem gives a false-negative rate $\fnrate_{g \circ f} = 1 - (1-\fnrate_1)(1-\fnrate_2)$ with an explicit overlap parameter governing the resulting false-positive rate. We do not duplicate that analysis here; what follows is the partial-function abstract data type viewed as a relation.
 
@@ -275,7 +275,7 @@ A \emph{table} is a convenient way to represent a partial function, where each t
 
 
 
-\subsubsection{Abstract data type}
+\subsection{Abstract data type}
 A \emph{type} is a set and the elements of the set are called the \emph{values} of the type. An \emph{abstract data type} is a type and a set of operations on values of the type. For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction. A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types. An \emph{immutable} data structure has static state; once constructed, its state does not change until it is destroyed.
 
 The abstract data type of the \emph{approximate partial function} is given by the following definition.
