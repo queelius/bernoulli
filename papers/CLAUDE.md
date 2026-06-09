@@ -50,27 +50,34 @@ Collection of related research papers by Alexander Towell on **random approximat
 ## Build Commands
 
 ```bash
-# bernoulli_sets (no Makefile)
+# alex.sty papers: alex.sty lives at the paper ROOT, so bare pdflatex works.
+# (bernoulli_sets, bernoulli_composition, bernoulli_classification_measures, bernoulli_entropy)
 cd bernoulli_sets && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
 
-# bernoulli_composition (companion to bernoulli_sets)
-cd bernoulli_composition && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-
-# bernoulli_classification_measures (companion to bernoulli_sets)
-cd bernoulli_classification_measures && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-
-# bernoulli_entropy (companion to bernoulli_sets)
-cd bernoulli_entropy && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-
-# bernoulli-hash-function (has Makefile)
+# bernoulli-hash-function (Makefile; alex.sty + defs.tex; the Makefile sets TEXINPUTS for you)
 cd bernoulli-hash-function && make
 
-# bernoulli-phf (requires shell-escape, glossaries)
-cd bernoulli-phf/paper && pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && pdflatex -shell-escape main.tex && pdflatex -shell-escape main.tex
+# MODULAR-STY PAPERS: their .sty packages live in a sty/ SUBDIR, so EVERY pdflatex
+# invocation needs TEXINPUTS=".:./sty:" or it aborts ("file not found"). Applies to
+# bernoulli_maps, bernoulli_relations, bernoulli-phf/paper, bernoulli_data_type/algebraic_types.
+cd bernoulli_maps && TEXINPUTS=".:./sty:" pdflatex main.tex && bibtex main \
+  && TEXINPUTS=".:./sty:" pdflatex main.tex && TEXINPUTS=".:./sty:" pdflatex main.tex
 
-# All others: same pattern as bernoulli_sets
-cd <paper_dir> && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+# bernoulli-phf (modular sty + minted [needs -shell-escape] + glossaries; LaTeX is in paper/)
+cd bernoulli-phf/paper && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
+  && makeglossaries main && bibtex main \
+  && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
+  && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
+
+# bernoulli_data_type/algebraic_types (modular sty + minted [needs -shell-escape])
+cd bernoulli_data_type/algebraic_types && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
+  && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
+
+# bernoulli_data_type/bernoulli_model (inline macros, subfiles; no sty/ subdir, no TEXINPUTS)
+cd bernoulli_data_type/bernoulli_model && pdflatex main.tex && pdflatex main.tex
 ```
+
+**Build gotchas** (verified 2026-05-31): every modular-sty paper needs `TEXINPUTS=".:./sty:"` (none build with bare `pdflatex`); `bernoulli_maps` had `minted`/`multicol` removed so it no longer needs `-shell-escape`; `bernoulli_relations` now ships a `references.bib` and comments out four never-written sections (intro, rel_algebra, test, unused/optimality) so it compiles. Per-paper build status and page counts live in each `<paper>/.papermill/state.md`.
 
 ## Notation Systems
 
@@ -163,11 +170,29 @@ Each paper owns a specific domain. When deciding where new content belongs:
 
 The Bernoulli framework provides the error model for the trapdoor computing paradigm (`~/github/trapdoor-computing/`). Bernoulli maps ARE cipher maps at the mathematical level: the BHF salt is the trapdoor key, the acceptance predicate implements the cipher map, and the space formula -log2(epsilon) + mu governs both. The composition theorem is Property 4 of cipher maps. The Bernoulli Boolean algebra is the trapdoor Boolean algebra.
 
+**Terminology: do not reintroduce "oblivious".** The "oblivious computing" paradigm was renamed **trapdoor computing**; the bernoulli papers were swept on 2026-05-31. Use **cipher** for concrete constructs (cipher set, cipher map, cipher type, cipher relation, cipher partial function) and **trapdoor** for the paradigm, property, model, and applications (trapdoor computing, trapdoor property, trapdoor databases, trapdoor relational model). Keep "oblivious" ONLY for external standard terms (ORAM, oblivious transfer) and the ordinary English idiom "oblivious to X" (= unaware of). Source of truth: `~/github/trapdoor-computing/papers/cipher-maps` (see `DESIGN-trapdoor-reframing.md`). Some filenames and code identifiers intentionally still contain "oblivious" and were deliberately NOT renamed: `oblivious_rel_model.tex`, `obliviousnotation.sty`, the `MakeObliviousSet` macro, and the `obset` cite key plus its bib title.
+
 ## Things Not To Edit
 
 - `pdf-archive/`: compiled PDFs of superseded drafts (e.g., `bernoulli_sets_higher_order.pdf`, `bernoulli-sets.pdf`). Read for reference, do not regenerate, do not delete.
 - LaTeX build artifacts inside paper directories (`main.aux`, `main.log`, `main.bbl`, `main.pdf`, `_minted-*/`, `main.synctex.gz`). Covered by per-paper `.gitignore` files; never `git add` them by hand.
 - `bernoulli_sets/sections/unused/`: archived content from earlier paper splits. Useful as a reference for what was moved where, but not part of the current build.
+
+## Venue-Specialized Versions
+
+The base paper at each repo root (`main.tex`) is **venue-neutral** and is the
+single source of truth. When preparing a paper for a specific venue (porting to a
+venue document class such as `quantumarticle`, applying page limits, or venue
+bibliography styling), write the specialized version into a venue subdirectory,
+`<paper>/venues/<venue-slug>/`, derived from the base; never edit the base in
+place for a venue. This keeps one canonical manuscript that any new venue target
+can be regenerated from, and lets multiple venue targets coexist. Build and submit
+from the venue subdir, and regenerate the venue versions after a substantive base
+revision.
+
+Example: `bernoulli-quantum-readout/venues/quantum/` holds the `quantumarticle`
+port for the journal *Quantum*; the base `bernoulli-quantum-readout/main.tex`
+stays `article`-class and venue-neutral.
 
 ## Repository Structure
 
