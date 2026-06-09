@@ -1,7 +1,7 @@
 {
   "title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
   "upload_type": "publication",
-  "description": "The perfect hash filter (PHF): a succinct static positive Bernoulli set reaching the -log2(epsilon) bits-per-element bound, extended to the perfect hash map, with a C++ implementation.",
+  "description": "The perfect hash filter (PHF): a practical static positive Bernoulli set built by off-the-shelf minimal perfect hashing, approaching the -log2(epsilon) bits-per-element bound to within a constant log2(e), and extended to the perfect hash map; the deployable counterpart to the space-optimal Bernoulli hash function.",
   "creators": [
     {
       "name": "Towell, Alexander",

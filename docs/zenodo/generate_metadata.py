@@ -91,6 +91,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with a closed-form asymptotic expansion and the -log2(epsilon) bits-per-element space bound.",
         "keywords": ["entropy", "space complexity", "information-theoretic bound"],
+        "concept_doi": "10.5281/zenodo.20602259", "version_doi": "10.5281/zenodo.20602260",
+        "url": "https://doi.org/10.5281/zenodo.20602259", "date_released": "2026-06-08",
     },
     {
         "dir": "papers/bernoulli-hash-function", "repo": "bernoulli-hash-function",
@@ -98,13 +100,17 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The Bernoulli hash function (BHF): hash-based constructions that optimally implement the Bernoulli set and map at the information-theoretic space bound.",
         "keywords": ["perfect hash", "fingerprint", "space-optimal", "succinct data structure"],
+        "concept_doi": "10.5281/zenodo.20602261", "version_doi": "10.5281/zenodo.20602262",
+        "url": "https://doi.org/10.5281/zenodo.20602261", "date_released": "2026-06-08",
     },
     {
         "dir": "papers/bernoulli-phf", "repo": "bernoulli-phf",
         "title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The perfect hash filter (PHF): a succinct static positive Bernoulli set reaching the -log2(epsilon) bits-per-element bound, extended to the perfect hash map, with a C++ implementation.",
+        "description": "The perfect hash filter (PHF): a practical static positive Bernoulli set built by off-the-shelf minimal perfect hashing, approaching the -log2(epsilon) bits-per-element bound to within a constant log2(e), and extended to the perfect hash map; the deployable counterpart to the space-optimal Bernoulli hash function.",
         "keywords": ["perfect hash filter", "succinct data structure", "encrypted search"],
+        "concept_doi": "10.5281/zenodo.20602263", "version_doi": "10.5281/zenodo.20602264",
+        "url": "https://doi.org/10.5281/zenodo.20602263", "date_released": "2026-06-08",
     },
     {
         "dir": "papers/bernoulli_maps", "repo": "bernoulli_maps",
@@ -121,6 +127,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
         "keywords": ["approximate relation", "relational algebra", "join", "trapdoor database"],
+        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20602266",
+        "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-08",
     },
     {
         "dir": "papers/bernoulli_data_type", "repo": "bernoulli_data_type",
