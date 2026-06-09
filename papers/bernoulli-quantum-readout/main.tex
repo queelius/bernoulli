@@ -721,7 +721,7 @@ $2^4\times2^4$ assignment matrix in sight.
 The tables above used illustrative rates; the calculus is meant for real ones.
 \Cref{fig:realcalib} applies it to the published readout calibration of a real
 $27$-qubit superconducting processor (the \texttt{ibm\_hanoi} snapshot shipped
-with qiskit's fake-provider, dated $2025$-$02$-$26$), whose per-qubit asymmetric
+with qiskit's fake-provider~\citep{qiskit2024}, dated $2025$-$02$-$26$), whose per-qubit asymmetric
 rates $(\eps_i, \omega_i)$ carry the $T_1$ bias $\omega_i > \eps_i$, on average by
 a factor near $2.4$. For a syndrome that is the parity of the first $n$ of those
 qubits, the figure plots the forward prediction~\eqref{eq:parity-asym} against the
@@ -929,13 +929,16 @@ We state the boundaries plainly, to forestall overclaiming.
         a quantum-hardware error model with the Bernoulli error model of classical
         probabilistic data structures.
 
-  \item \textbf{Empirical validation.} This is a methods/perspective paper; the
-        closed forms are derived and the syndrome tables are computed exactly from
-        them. A hardware or simulator study comparing predicted derived-bit rates
-        against measured ones, and quantifying the independence-violation gap from
-        crosstalk, would strengthen the claims but is out of scope for this draft.
-        We make no empirical claim beyond the exactness of the derivations under
-        the stated independence assumption.
+  \item \textbf{Empirical validation.} This is a methods/perspective paper.
+        \Cref{sec:worked-real} checks the closed forms against a direct Monte Carlo
+        simulation on the published readout calibration of a real device,
+        confirming them on hardware-realistic rates. What remains open is a
+        \emph{live-hardware} study comparing predicted derived-bit rates against
+        \emph{measured} ones, and quantifying the independence-violation gap from
+        crosstalk; that would strengthen the claims further but is beyond this
+        draft. We make no empirical claim beyond the exactness of the derivations
+        under the stated independence assumption and the simulation check of
+        \cref{sec:worked-real}.
 \end{enumerate}
 
 
@@ -961,8 +964,9 @@ sector. Its value is that it is \emph{reusable} and \emph{symbolic}, the same
 object that governs Bloom filters and cipher maps now budgets the error of a
 quantum-measurement post-processing pipeline, asymmetry preserved, without ever
 forming the exponential assignment matrix. The natural next steps are a
-correlated-channel (CTMP-regime) lift of the same operations and an empirical
-calibration of predicted against measured derived-bit rates.
+correlated-channel (CTMP-regime) lift of the same operations and a
+\emph{live-hardware} study of predicted against measured derived-bit rates,
+beyond the simulation validation of \cref{sec:worked-real}.
 
 \paragraph{Acknowledgments.} This work is part of the Bernoulli type theory
 program; the readout connection was developed in a concept note dated 2026-06-06.
