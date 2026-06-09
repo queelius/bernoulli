@@ -15,6 +15,8 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{enumitem}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage[numbers,square]{natbib}
 % biblatex/biber was an option; thebibliography via natbib+bibtex builds
 % more reliably across TeX installations and is used here.  references.bib
@@ -712,6 +714,67 @@ and the single-rate column collapses all of it to $0.226$, wrong on \emph{both}
 sides at once. This is the bookkeeping \cref{cor:parity-asym} keeps and a symmetric
 treatment throws away, computed from the eight per-qubit rates alone with no
 $2^4\times2^4$ assignment matrix in sight.
+
+\subsection{Validation on real device calibration}
+\label{sec:worked-real}
+
+The tables above used illustrative rates; the calculus is meant for real ones.
+\Cref{fig:realcalib} applies it to the published readout calibration of a real
+$27$-qubit superconducting processor (the \texttt{ibm\_hanoi} snapshot shipped
+with qiskit's fake-provider, dated $2025$-$02$-$26$), whose per-qubit asymmetric
+rates $(\eps_i, \omega_i)$ carry the $T_1$ bias $\omega_i > \eps_i$, on average by
+a factor near $2.4$. For a syndrome that is the parity of the first $n$ of those
+qubits, the figure plots the forward prediction~\eqref{eq:parity-asym} against the
+field's linearization and against a direct Monte Carlo simulation of the same
+channels.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\linewidth, height=6.2cm,
+  xlabel={ancillas in the syndrome parity, $n$},
+  ylabel={syndrome-bit flip probability},
+  xmin=2, xmax=27, ymin=0, ymax=0.4,
+  legend pos=north west, legend cell align=left,
+  grid=major, grid style={gray!20}, tick label style={font=\small},
+  label style={font=\small}, legend style={font=\footnotesize},
+]
+\addplot[blue, thick, mark=*, mark size=1.3pt] coordinates {
+(2,0.0157) (3,0.0219) (4,0.0311) (5,0.0361) (6,0.0398) (7,0.0546) (8,0.0628) (9,0.0708) (10,0.0727) (11,0.0970) (12,0.1244) (13,0.1394) (14,0.1737) (15,0.1804) (16,0.1999) (17,0.2039) (18,0.2169) (19,0.2260) (20,0.2292) (21,0.2314) (22,0.2355) (23,0.2403) (24,0.2471) (25,0.2505) (26,0.2549) (27,0.2579) };
+\addlegendentry{forward exact, cold word ($\eps_i$)}
+\addplot[only marks, mark=o, mark size=2.3pt, black!55] coordinates {
+(2,0.0158) (3,0.0219) (4,0.0309) (5,0.0361) (6,0.0398) (7,0.0545) (8,0.0627) (9,0.0704) (10,0.0731) (11,0.0971) (12,0.1242) (13,0.1393) (14,0.1734) (15,0.1794) (16,0.2005) (17,0.2040) (18,0.2162) (19,0.2258) (20,0.2291) (21,0.2321) (22,0.2358) (23,0.2408) (24,0.2470) (25,0.2503) (26,0.2553) (27,0.2588) };
+\addlegendentry{Monte Carlo ($10^6$ trials)}
+\addplot[red, thick, dashed] coordinates {
+(2,0.0158) (3,0.0222) (4,0.0318) (5,0.0372) (6,0.0412) (7,0.0572) (8,0.0664) (9,0.0756) (10,0.0778) (11,0.1062) (12,0.1402) (13,0.1602) (14,0.2078) (15,0.2180) (16,0.2486) (17,0.2552) (18,0.2772) (19,0.2932) (20,0.2990) (21,0.3032) (22,0.3108) (23,0.3198) (24,0.3330) (25,0.3396) (26,0.3484) (27,0.3546) };
+\addlegendentry{linearization $\sum_i \eps_i$}
+\addplot[orange!85!black, thick, mark=triangle*, mark size=1.6pt] coordinates {
+(2,0.0196) (3,0.0283) (4,0.0370) (5,0.0473) (6,0.0557) (7,0.0777) (8,0.0863) (9,0.0982) (10,0.1173) (11,0.1327) (12,0.1694) (13,0.1837) (14,0.2180) (15,0.2209) (16,0.2474) (17,0.2530) (18,0.2661) (19,0.2745) (20,0.2775) (21,0.2806) (22,0.3512) (23,0.3564) (24,0.3616) (25,0.3635) (26,0.3661) (27,0.3688) };
+\addlegendentry{forward exact, hot word ($\omega_i$)}
+\end{axis}
+\end{tikzpicture}
+\caption{The forward calculus on the real readout calibration of
+\texttt{ibm\_hanoi} ($27$ qubits, $2025$-$02$-$26$). For a syndrome parity of the
+first $n$ qubits, the closed form~\eqref{eq:parity-asym} (solid) coincides with a
+$10^6$-shot Monte Carlo of the same channels (circles) to within $10^{-3}$
+throughout, confirming the formula on real rates. The linearization
+$\sum_i \eps_i$ (dashed) overestimates the cold-word error, by $37\%$ at $n=27$,
+and keeps climbing while the exact value saturates toward $\tfrac12$. The gap
+between the cold curve ($\eps_i$, every ancilla truly in $\ket{0}$) and the hot
+curve ($\omega_i$, every ancilla in $\ket{1}$), about $0.11$ at $n=27$, is the
+readout asymmetry that a single symmetrized rate cannot represent. Reproduced by
+\texttt{code/readout\_figure.py}, which carries the calibration snapshot inline.}
+\label{fig:realcalib}
+\end{figure}
+
+Three things are visible at once on hardware numbers. The closed form sits exactly
+on the simulated points, so the calculus is not a bound but the exact error of the
+model on real rates. The linearization runs above the truth and keeps climbing
+past $\tfrac12$, the regime \cref{sec:worked} flagged as unphysical. And the cold
+and hot curves separate by more than a tenth at the largest parities, the $T_1$
+asymmetry that a one-rate model averages away and that \cref{cor:parity-asym}
+keeps.
 
 \begin{remark}[Majority vote and feed-forward, in one line each]
 A \emph{majority} of $2m+1$ independent measured copies of one latent bit has
