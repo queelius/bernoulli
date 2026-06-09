@@ -127,8 +127,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
         "keywords": ["approximate relation", "relational algebra", "join", "trapdoor database"],
-        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20602266",
-        "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-08",
+        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20604246",
+        "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-09",
     },
     {
         "dir": "papers/bernoulli_data_type", "repo": "bernoulli_data_type",
@@ -146,8 +146,8 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps.",
         "keywords": ["quantum readout error", "measurement error", "asymmetric channel", "syndrome bit", "error propagation"],
-        "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.20586587",
-        "url": "https://doi.org/10.5281/zenodo.20584894", "date_released": "2026-06-07",
+        "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.20604243",
+        "url": "https://doi.org/10.5281/zenodo.20584894", "date_released": "2026-06-09",
     },
     {
         "dir": "bernoulli-py", "repo": "bernoulli",

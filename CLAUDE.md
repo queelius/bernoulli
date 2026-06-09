@@ -107,6 +107,7 @@ Current remotes (prefix → upstream repo):
 | `bernoulli-maps` | `papers/bernoulli_maps` | `queelius/bernoulli_maps` |
 | `bernoulli-relations` | `papers/bernoulli_relations` | `queelius/bernoulli_relations` |
 | `bernoulli-data-type` | `papers/bernoulli_data_type` | `queelius/bernoulli_data_type` |
+| `bernoulli-quantum-readout` | `papers/bernoulli-quantum-readout` | `queelius/bernoulli-quantum-readout` |
 
 Push a single subtree's changes upstream:
 
