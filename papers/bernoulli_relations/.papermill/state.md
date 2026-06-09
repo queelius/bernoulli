@@ -59,14 +59,36 @@ experiments:
       to 3-4 digits (worst abs error 0.000686).
 
 venue:
-  target: null
+  target: "Information Systems (Elsevier)"
+  decided: "2026-06-09"
   candidates:
-    - name: "ICDT (International Conference on Database Theory)"
-      rationale: "Database-theory venue; the relational-algebra error-propagation angle fits."
-    - name: "PODS (ACM Symposium on Principles of Database Systems)"
-      rationale: "Foundations-of-databases venue; operator/invariant theory over approximate relations."
+    - name: "Information Systems (Elsevier)"
+      tier: primary
+      fit: "best match. Scope explicitly covers foundational data-management work from SIGMOD/PODS/VLDB/ICDE/ICDT/EDBT plus algorithms and data models, with no systems-implementation requirement. The post-review reframing (concede the marginal rates as standard probabilistic-DB extensional marginals, credit the shared-lineage correlation, pin the contribution on the invariant-preservation fidelity analysis) fits a foundations-of-approximate-relational-data paper."
+    - name: "EDBT (conference)"
+      tier: alternative
+      fit: "the realistic conference route, more accessible than ICDT/PODS and within Information Systems' cited scope; faster and more visible in the DB community than a journal cycle."
+    - name: "Information Processing Letters (Elsevier)"
+      tier: backup-short
+      fit: "the invariant-preservation rates (reflexive tau^|A|, symmetric closure, functional, transitive) are crisp, short, self-contained results that fit IPL's short-paper format; fast turnaround."
+    - name: "ACM TODS"
+      tier: stretch
+      fit: "top DB journal, theory-friendly, but very selective; the join independence-failure is conceptually known probabilistic-DB territory, so only with a very strong framing."
     - name: "Zenodo preprint (Bernoulli type theory collection)"
-      rationale: "Default for the family; the monograph is the primary publication and the focused papers are Zenodo preprints."
+      tier: default
+      fit: "the family's default; the monograph is the primary publication and the focused papers are Zenodo preprints. Already minted (concept 10.5281/zenodo.20602265)."
+  avoid:
+    - name: "VLDB Journal"
+      reason: "requires a systems component the pure-theory paper does not have."
+    - name: "ICDT / PODS"
+      reason: "top database-theory venues; the headline join result is conceptually the known probabilistic-DB shared-lineage correlation, so a stretch (per the 2026-06-09 review)."
+  strategy: >
+    Primary: Information Systems, framed as foundations of approximate-relational
+    data, with the invariant-preservation analysis as the contribution and the
+    probabilistic-DB concession up front. For speed or DB-community visibility,
+    EDBT (conference) or IPL (short) are faster routes. The post-review reframing
+    is a prerequisite for any of these; it pre-empts the known-PDB-territory
+    objection.
 
 review_history:
   - date: "2026-05-29"

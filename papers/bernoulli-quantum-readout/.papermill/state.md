@@ -44,8 +44,29 @@ prior_art:
 experiments: []
 
 venue:
-  target: null
-  candidates: []
+  target: "Quantum (quantum-journal.org)"
+  decided: "2026-06-09"
+  candidates:
+    - name: "Quantum"
+      tier: primary
+      fit: "excellent. Community-run open-access journal, methods/theory friendly, broad QC scope; low and often waivable fee (matters for a self-funded author). Referee reports typically 2 to 4 months. A reusable forward calculus is exactly the kind of useful tool Quantum publishes, and the tool nature is a feature here, not a weakness."
+      action: "port the article class to quantumarticle; an empirical readout-calibration figure (predicted vs measured derived-bit rates on real hardware) strengthens but is not required."
+    - name: "New Journal of Physics (IOP) / Quantum Science and Technology (IOP)"
+      tier: backup
+      fit: "strong. Methods-friendly, open access; both publish readout-error-mitigation work. Slightly lower prestige than Quantum, comparable rigor."
+    - name: "Physical Review A (APS) / Quantum Information Processing (Springer)"
+      tier: fallback
+      fit: "reliable safe harbor for sound theory/methods; less selective gatekeeping than the top tier."
+    - name: "PRX Quantum (APS) / npj Quantum Information (Nature)"
+      tier: stretch
+      fit: "high prestige but demand lasting/profound impact and usually stronger empirical or broader results; competitive only with the empirical figure added and a broader-impact framing."
+  strategy: >
+    Ladder: Quantum (primary) -> NJP/QST -> PRA/QIP. Cover-letter angle: the
+    missing forward, symbolic complement to the dominant inverse mitigation
+    (M3 / Bravyi), with the syndrome-bit reliability as the lead concrete result
+    and the quantified linearization overestimate as the practical hook. Only
+    reach for PRX Quantum / npj after adding the empirical readout-calibration
+    figure.
 
 review_history:
   - date: "2026-06-07"
