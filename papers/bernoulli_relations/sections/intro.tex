@@ -43,14 +43,18 @@ set~\cite{bernoulliSets} over the tuple universe, the abstract data type of
     as a closed-form factor. This is the operators' sharpest contrast, and (as the
     related work discusses) the representation-error face of the lineage dependence
     known from probabilistic databases.
-    \item \emph{Preservation of relational invariants}
+    \item \emph{Preservation of relational invariants, and a closure dichotomy}
     (\cref{sec:invariants}). Reflexivity, symmetry, single-valuedness, and
     transitivity are each preserved only with a probability that is a product over
     the constrained tuples, and so tends to zero as the ground universe grows. We
-    give the per-invariant rate, exhibit the symmetric closure as a cheap
-    deterministic repair (admit a pair if either ordered trial fires, at a doubled
-    rate cost), and state the honest limiting behavior for transitivity, which
-    admits no comparably cheap closure.
+    give the per-invariant rate, and then a sharper structural result: an invariant
+    whose constraints decompose into independent bounded orbits (reflexivity,
+    symmetry, single-valuedness) admits a one-pass closure that restores it at a
+    fixed rate cost, $1-(1-\fprate)^{m}$ in the orbit size $m$, which by the
+    space-accuracy duality is a surcharge of only $\log_2 m$ bits per element;
+    whereas transitivity, whose triples chain, admits no bounded closure at all,
+    its repair cascading to depth $\lceil \log_2 k \rceil$. The cut is
+    decomposability, not arity.
     \item \emph{The approximate partial function} as the single-valued special
     case of the model (the dictionary), recovered directly from the relational
     treatment.

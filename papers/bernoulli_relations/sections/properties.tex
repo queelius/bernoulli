@@ -200,6 +200,102 @@ leave transitivity as the honest limiting result: preservation probability tends
 to zero fastest among the four invariants, and a deterministic repair, if desired,
 must be computed as a genuine closure rather than read off as a doubled rate.
 
+\subsection{A closure dichotomy}
+\label{sec:closure_dichotomy}
+
+The symmetric closure of \cref{thm:symmetric_closure} repaired a fragile invariant
+at a fixed rate cost, while transitivity (\cref{sec:transitive}) admitted no
+comparable repair. The contrast is not an accident of two examples; it is a
+dichotomy, and the dividing line is whether the invariant's constraints
+\emph{decompose into independent, bounded groups} or \emph{cascade}.
+
+Call an invariant \emph{local} if the pairs it constrains partition into disjoint
+\emph{orbits} of at most $m$ ordered pairs, with the invariant holding for
+$\ARelation{R}$ exactly when every orbit is admissible on its own. A local
+invariant is \emph{monotone} when admissibility is upward closed (adding a
+reported pair never breaks it) and \emph{antitone} when it is downward closed.
+Reflexivity is monotone-local with $m=1$: each diagonal pair $\Pair{a}{a}$ is its
+own orbit, admissible when present. Symmetry is monotone-local with $m=2$: the
+orbit of $\{a,b\}$ is $\{\Pair{a}{b}, \Pair{b}{a}\}$, admissible when its two
+trials agree. Single-valuedness is antitone-local: the orbit of a key $x$ is its
+row $\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present.
+
+\begin{theorem}[Monotone local invariants admit a one-pass closure]
+\label{thm:local_closure}
+Let $P$ be a monotone local invariant with orbits of size at most $m$, repaired by
+the \emph{OR-closure} that admits every pair of an orbit as soon as any pair of
+that orbit is reported. The closure restores $P$ deterministically in a single
+pass, with false-positive rate $1-(1-\fprate)^{m}$ and true-positive rate
+$1-(1-\tprate)^{m}$, a cost independent of $\Card{\Set{A}}$.
+\end{theorem}
+
+\begin{proof}
+Within an orbit the at most $m$ ordered trials are independent
+(\cref{asm:ber_trial}), and the OR-closure admits the orbit unless all of them
+miss. For an orbit of true non-members each trial is a false positive with
+probability $\fprate$, giving closed rate $1-(1-\fprate)^{m}$; for an orbit of true
+members each trial is a true positive with probability $\tprate$, giving
+$1-(1-\tprate)^{m}$. The orbits are disjoint and admissibility is upward closed, so
+forcing each orbit admissible forces $P$ on the whole relation and no orbit's
+repair disturbs another; one pass suffices. Reflexivity ($m=1$) is the identity at
+no cost, and symmetry ($m=2$) recovers \cref{thm:symmetric_closure}.
+\end{proof}
+
+The single-valued (antitone) case is repaired in one pass the other way, by
+\emph{deletion}: keep at most one reported value per key. It too is local and
+$\Card{\Set{A}}$-independent, trading a lowered false-positive rate against the
+risk of dropping the true value, the selection counterpart of \cref{thm:functional}.
+
+The monotone cost has a clean reading in the space-accuracy duality of the entropy
+companion~\cite{bernoulliEntropy}, where a positive approximate set spends
+$-\log_2 \fprate$ bits per element.
+
+\begin{corollary}[The space cost of a local invariant]
+\label{cor:invariant_space_cost}
+To hold the OR-closure of a monotone local invariant of orbit size $m$ at a target
+false-positive rate $\fprate'$, the underlying structure must run at base rate
+$\fprate = 1-(1-\fprate')^{1/m} \approx \fprate'/m$, which by the space-accuracy
+duality costs
+\begin{equation}
+  -\log_2 \fprate \;=\; -\log_2 \fprate' + \log_2 m + o(1)
+\end{equation}
+bits per element: an additive surcharge of $\log_2 m$ bits to buy the invariant.
+Symmetry costs one extra bit per element; reflexivity is free.
+\end{corollary}
+
+Transitivity sits on the other side of the line, and the obstruction is exactly
+the failure of decomposability.
+
+\begin{theorem}[Transitivity cascades]
+\label{thm:transitivity_cascade}
+The transitive closure is not a one-pass repair. On the path relation
+$\Relation{R} = \{\Pair{1}{2}, \Pair{2}{3}, \ldots, \Pair{k}{k+1}\}$ over
+$\Card{\Set{A}} = k+1$ elements, reaching the transitive closure takes
+$\lceil \log_2 k \rceil$ successive passes and manufactures $\binom{k+1}{2} =
+\Theta(k^2)$ pairs. Both grow with $\Card{\Set{A}}$, so no fixed-cost,
+$\Card{\Set{A}}$-independent repair of the form of \cref{thm:local_closure} exists.
+\end{theorem}
+
+\begin{proof}
+One pass adds $\Pair{x}{z}$ whenever $\Pair{x}{y}$ and $\Pair{y}{z}$ are present,
+producing on the path the distance-two pairs $\Pair{i}{i+2}$. A distance-four pair
+needs a present distance-two pair, so it appears only on the second pass, and in
+general distance-$2^{j}$ pairs appear on pass $j$; the longest distance $k$ is
+reached after $\lceil \log_2 k \rceil$ passes. The closure is the full strict order
+$\{\Pair{i}{j} : i < j\}$, of size $\binom{k+1}{2}$. The triples of transitivity
+share pairs and chain, so the constraints cannot be partitioned into independent
+orbits, which is the hypothesis \cref{thm:local_closure} requires.
+\end{proof}
+
+The four invariants therefore split on one line. Reflexivity, symmetry, and
+single-valuedness are \emph{local}: their constraints decompose into independent
+bounded orbits, so each is repaired in a single pass at a cost independent of the
+universe, by addition for the monotone two (with a $\log_2 m$ space surcharge,
+\cref{cor:invariant_space_cost}) and by deletion for the antitone one. Transitivity
+is \emph{global}: its triples chain, the repair cascades to depth
+$\lceil \log_2 k \rceil$, and no bounded closure exists. The cut is decomposability,
+not the superficial pair-versus-triple arity.
+
 These four results share a model-order reading. Each invariant partitions the
 universe into pairs (or triples) that play different error roles (diagonal versus
 off-diagonal; positive versus negative; premise versus conclusion), so an
