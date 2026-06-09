@@ -41,6 +41,29 @@ def forward_exact(rates, n):
     return 0.5 * (1.0 - np.prod(1.0 - 2.0 * rates[:n]))
 
 
+def print_tables():
+    """Reproduce Table 1 (tab:syndrome) and Table 2 (tab:syndrome-asym)."""
+    print("Table 1: exact vs linear, symmetric rate q over n ancillas")
+    for q in (0.01, 0.05):
+        for n in (2, 4, 8):
+            exact = 0.5 * (1.0 - (1.0 - 2.0 * q) ** n)
+            lin = n * q
+            print(f"  q={q:4.2f} n={n}  exact={exact:.6f}  lin={lin:.6f}  "
+                  f"rel-over={100*(lin/exact-1):5.1f}%")
+
+    print("Table 2: asymmetric four-ancilla syndrome, latent-word dependent")
+    e = np.array([0.02, 0.02, 0.04, 0.04])
+    w = np.array([0.10, 0.10, 0.12, 0.12])
+    for word in ("0000", "1000", "0011", "1111"):
+        t = np.array([int(c) for c in word])
+        r = np.where(t == 1, w, e)
+        flip = 0.5 * (1.0 - np.prod(1.0 - 2.0 * r))
+        print(f"  word={word}  tau={t.sum() % 2}  flip={flip:.3f}")
+    qbar = float(np.concatenate([e, w]).mean())
+    sym = 0.5 * (1.0 - (1.0 - 2.0 * qbar) ** 4)
+    print(f"  symmetrized single rate q={qbar:.2f}: flip={sym:.3f} (any word)")
+
+
 def main():
     rng = np.random.default_rng(7)
     ns = list(range(2, len(RATES) + 1))
@@ -62,6 +85,8 @@ def main():
           f"linearization overestimates cold by {100*(lin[-1]/cold[-1]-1):.0f}%")
     for name, ys in [("cold", cold), ("mc", mc), ("lin", lin), ("hot", hot)]:
         print(f"%% {name}\n" + " ".join(f"({n},{y:.4f})" for n, y in zip(ns, ys)))
+    print()
+    print_tables()
 
 
 if __name__ == "__main__":

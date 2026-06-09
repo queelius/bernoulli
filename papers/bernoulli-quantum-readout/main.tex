@@ -95,12 +95,13 @@ model with the classical theory of Bloom filters and cipher maps. Our lead
 example is the reliability of a quantum-error-correction \emph{syndrome bit}: a
 parity of $n$ noisy ancilla measurements has flip probability exactly
 $\tfrac12\bigl(1 - \prod_{i=1}^{n}(1-2q_i)\bigr)$, which we contrast with the
-field's casual ``about $n$ times the per-measurement error'' linearization.
-The linear rule already overstates the true error by up to tens of percent at
-modest $n$ and per-measurement rates. The contribution is \emph{forward} prediction
+``about $n$ times the per-measurement error'' rule of thumb, an overestimate of
+tens of percent at modest sizes; detector-error-model tooling composes such
+parities exactly but numerically, per circuit, and with a single symmetric rate
+per mechanism. The contribution is \emph{forward} prediction
 and error budgeting, complementary to inverse mitigation such as M3; the closed
-forms hold under per-bit channel independence, with correlated-channel
-(crosstalk) extensions left as future work. We position the calculus carefully
+forms hold under per-bit channel independence, with an exact dependence
+expansion whose first-order term quantifies weak crosstalk. We position the calculus carefully
 against the matrix-inversion mitigation paradigm, effectus theory, the classical
 noisy-Boolean-formula identities, asymmetric quantum hypothesis testing, and the
 relaxation-physics origin of the readout asymmetry.
@@ -144,7 +145,12 @@ Mitigation is an \emph{inverse} procedure: given an observed distribution, recov
 an estimate of the ideal one. It is numerical, it is per-circuit, and it answers
 a different question from the one a circuit designer asks at design time, namely:
 \emph{given} per-qubit readout rates, what is the predicted error on this
-particular derived bit, symbolically and before any data are taken? There is at
+particular derived bit, symbolically and before any data are taken? On the
+design-time side the state of practice is the \emph{detector error model}: the
+circuit is compiled to a list of independent error mechanisms whose flip
+probabilities are composed exactly through each detector parity, but
+numerically, per circuit, and with a single symmetric rate per mechanism
+\citep{gidney2021stim}. There is at
 present no reusable, closed-form, forward calculus that answers this question
 while preserving the asymmetry.
 
@@ -153,10 +159,13 @@ $2\times2$ row-stochastic channel with false-positive rate $\eps$ and
 false-negative rate $\omega$, we derive closed forms for how the pair
 $(\eps,\omega)$ propagates through the Boolean connectives and through
 independent (Kronecker) composition of qubits, carrying both rates
-asymmetrically through an entire Boolean tree. The calculus is precisely the
-error model of \emph{Bernoulli type theory}, the theory of random approximate
-sets, maps, and relations that has Bloom filters, perfect hash filters, and
-cipher maps as special cases \citep{bernoulliSets,bernoulliComposition,bernoulliMaps}.
+asymmetrically through an entire Boolean tree; an exact expansion in the
+dependence structure extends the parity rule beyond independence, its
+first-order term quantifying weak readout crosstalk (\cref{sec:crosstalk}). The calculus is precisely the
+error model of \emph{Bernoulli type theory}, the author's framework of random
+approximate sets, maps, and relations, whose special cases include the classical
+Bloom filter \citep{bloom1970} alongside perfect hash filters and
+cipher maps \citep{bernoulliSets,bernoulliComposition,bernoulliMaps}.
 The single-bit asymmetric channel and the fact that independent-qubit errors
 tensor are \emph{not} new (see \cref{sec:related}); the new artifact is the
 \emph{forward asymmetric Boolean calculus}, its application to quantum readout,
@@ -170,9 +179,9 @@ readout sector, where the state has no off-diagonal coherences to interfere.
 A latent-value-plus-noise model can only \emph{add} probabilities; it can never
 make them cancel, so it has no slot for interference and is silent about the
 pre-measurement state. We say this plainly in \cref{sec:channel}, and we keep
-the scope honest in \cref{sec:scope}: the contribution is forward budgeting
-under per-bit independence, complementary to (not competitive with) inverse
-mitigation, and blind by construction to measurement crosstalk.
+the scope honest in \cref{sec:scope}: the contribution is forward budgeting,
+complementary to (not competitive with) inverse mitigation, exact under per-bit
+independence and first-order under weak crosstalk.
 
 \Cref{sec:channel} sets up the Bernoulli readout channel. \Cref{sec:calculus}
 derives the forward $(\eps,\omega)$ calculus. \Cref{sec:worked} works the
@@ -337,8 +346,10 @@ $(\eps_i,\omega_i)$ for latent values $t_i$.
           \eps_{\wedge} \;=\; \prod_{i=1}^{n} \eps_i ;
         \end{equation}
         this product is the all-negative corner of the general
-        latent-assignment-weighted rate, the smallest such corner rather than a
-        worst case (see the proof). Its false-negative rate, which conditions on
+        latent-assignment-weighted rate, and for informative channels
+        ($\eps_i+\omega_i\le1$, equivalently a nonnegative channel eigenvalue
+        $1-\eps_i-\omega_i$, the regime of any useful readout) it is the
+        smallest such corner rather than a worst case (see the proof). Its false-negative rate, which conditions on
         the only latent assignment making the conjunction true (all $t_i=1$), is
         \begin{equation}
         \label{eq:and-fnr}
@@ -362,13 +373,17 @@ assignment. The event $c=1$ requires every $b_i=1$; if some $t_j=0$ then
 producing $b_j=1$ costs a factor $\eps_j$, while producing $b_i=1$ for the other
 indices costs $\eps_i$ when $t_i=0$ and $1-\omega_i$ when $t_i=1$. When
 \emph{all} $t_i=0$ this product is $\prod_i \eps_i$, giving~\eqref{eq:and-fpr}.
-That all-negative corner is the \emph{smallest}, not the largest, such rate: an
-input whose latent value is true replaces its $\eps_i$ by $1-\omega_i$ and so
-raises the conjunction's false-positive rate toward the rates of the remaining
-inputs. The unconditional rate is the cardinality-weighted average of these
-corners derived for the intersection of approximate sets by
-\citet{bernoulliComposition}; we quote the all-negative corner because it is the
-case that governs a conjunction of independently-false readouts. \emph{(i), false negatives.} A false
+For informative channels that all-negative corner is the \emph{smallest}, not
+the largest, such rate: an input whose latent value is true replaces its
+$\eps_i$ by $1-\omega_i$, and $1-\omega_i\ge\eps_i$ exactly when
+$\eps_i+\omega_i\le1$, so each such replacement raises the conjunction's
+false-positive rate. (An anti-informative channel, $\eps_i+\omega_i>1$, would
+reverse the comparison; no readout of interest operates there.) The
+unconditional rate over a population of queries is the cardinality-weighted
+average of these corners derived for the intersection of approximate sets by
+\citet{bernoulliComposition}; the readout instance has no query population, only
+a fixed latent assignment, so we quote the all-negative corner, the case that
+governs a conjunction of independently-false readouts. \emph{(i), false negatives.} A false
 negative is $c=0$ while $\bigwedge_i t_i=1$, i.e. all $t_i=1$ but at least one
 $b_i=0$. With all $t_i=1$ the bits flip independently to $0$ with probability
 $\omega_i$, so $\Prob(c=0)=1-\prod_i(1-\omega_i)$, giving~\eqref{eq:and-fnr}.
@@ -584,6 +599,75 @@ there is no Born-rule square, and the entire discussion lives on the diagonal of
 the density matrix, the readout sector of \cref{sec:channel}. The eigenvalue
 $1-2q_i$ is a relaxation rate of a stochastic matrix, not a quantum phase.
 
+\subsection{Beyond independence: the exact dependence expansion}
+\label{sec:crosstalk}
+
+Every result so far assumes the readout channels are independent. The same
+$\pm1$ algebra that proved \cref{thm:parity} yields, at no extra cost, the exact
+correction when they are not, and with it the first-order sensitivity of a
+parity to readout crosstalk.
+
+\begin{proposition}[Correlated parity]
+\label{prop:corrparity}
+Let $F_1,\dots,F_n$ be (possibly dependent) flip indicators with means $r_i$,
+pairwise covariances $c_{ij} = \operatorname{Cov}(F_i, F_j)$, and biases
+$\mu_i = 1-2r_i$. Write $S_i = 1-2F_i$ and $\delta_i = S_i - \mu_i$, so
+$\mathbb{E}[S_i] = \mu_i$ and
+$\mathbb{E}[\delta_i\delta_j] = \operatorname{Cov}(S_i,S_j) = 4c_{ij}$. The
+parity $\bigxor_i F_i$ equals $1$ with probability
+$P = \tfrac12\bigl(1 - \mathbb{E}\bigl[\prod_i S_i\bigr]\bigr)$, and exactly
+\begin{equation}
+\label{eq:corrparity}
+  \mathbb{E}\Bigl[\prod_{i=1}^{n} S_i\Bigr]
+  \;=\; \prod_{i=1}^{n} \mu_i
+  \;+\; 4\!\!\sum_{1\le i<j\le n}\!\! c_{ij} \prod_{k\notin\{i,j\}} \mu_k
+  \;+\; R,
+  \qquad
+  R = \sum_{\substack{T\subseteq\{1,\dots,n\}\\ |T|\ge3}} m_T \prod_{k\notin T}\mu_k,
+\end{equation}
+where $m_T = \mathbb{E}\bigl[\prod_{i\in T}\delta_i\bigr]$ are the central
+cross-moments of order three and higher. In particular, for $n=2$ the remainder
+is empty and $P = \tfrac12(1-\mu_1\mu_2) - 2c_{12}$ exactly; and dropping $R$
+gives the \emph{first-order rate}
+\begin{equation}
+\label{eq:corrparity-fo}
+  P^{(1)} \;=\; \frac12\Bigl(1-\prod_{i=1}^{n}\mu_i\Bigr)
+  \;-\; 2\!\!\sum_{1\le i<j\le n}\!\! c_{ij}\prod_{k\notin\{i,j\}}\mu_k .
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Expand $\prod_i S_i = \prod_i(\mu_i + \delta_i)$ and take expectations. The
+terms with exactly one $\delta$ factor vanish since $\mathbb{E}[\delta_i]=0$;
+the terms with exactly two carry $\mathbb{E}[\delta_i\delta_j] = 4c_{ij}$ (the
+remaining $\mu_k$ are constants and factor out of the expectation); the
+rest are $R$. The identity $P = \tfrac12(1-\mathbb{E}\prod_i S_i)$ is the proof
+of \cref{thm:parity}, which never used independence. For $n=2$ no subset of size
+three or more exists.
+\end{proof}
+
+Applied to measured bits, $r_i$ is the latent-conditioned flip rate of
+\cref{cor:parity-asym} ($\eps_i$ or $\omega_i$), and $c_{ij}$ is the readout
+crosstalk covariance between qubits $i$ and $j$. Independence is the case
+$c_{ij}=0$ and $R=0$, recovering \cref{eq:parity-asym}.
+
+\begin{corollary}[First-order sign of crosstalk]
+\label{cor:crosstalk-sign}
+If $r_k<\tfrac12$ for every $k$ (each bit better than a coin), every weight
+$\prod_{k\notin\{i,j\}}\mu_k$ in \cref{eq:corrparity-fo} is positive, so to
+first order positively correlated misreads \emph{lower} the parity error below
+the independent value and negatively correlated misreads \emph{raise} it, with
+explicit slope $-2\prod_{k\notin\{i,j\}}\mu_k$ per unit covariance on each
+pair. The qualifier ``to first order'' is essential: a dependence structure
+whose higher-order cumulants are of the same magnitude as its covariances can
+overwhelm the pairwise term, and \cref{sec:worked-crosstalk} exhibits both the
+regime where the first-order rate is accurate and the regime where it fails.
+\end{corollary}
+
+In the spectral language of \cref{sec:operator}, independence made the parity
+coefficient a product of per-bit biases; dependence perturbs the same parity
+mode by the covariance terms of \cref{eq:corrparity}.
+
 
 \section{Worked example: the reliability of a syndrome bit}
 \label{sec:worked}
@@ -760,7 +844,9 @@ first $n$ qubits, the closed form~\eqref{eq:parity-asym} (solid) coincides with 
 $10^6$-shot Monte Carlo of the same channels (circles) to within $10^{-3}$
 throughout, confirming the formula on real rates. The linearization
 $\sum_i \eps_i$ (dashed) overestimates the cold-word error, by $37\%$ at $n=27$,
-and keeps climbing while the exact value saturates toward $\tfrac12$. The gap
+and keeps climbing while the exact value saturates toward $\tfrac12$; it is the
+\emph{cold} parity's linearization, and the hot parity's own linearization
+$\sum_i \omega_i$ (not drawn) lies above the hot curve. The gap
 between the cold curve ($\eps_i$, every ancilla truly in $\ket{0}$) and the hot
 curve ($\omega_i$, every ancilla in $\ket{1}$), about $0.11$ at $n=27$, is the
 readout asymmetry that a single symmetrized rate cannot represent. Reproduced by
@@ -768,7 +854,7 @@ readout asymmetry that a single symmetrized rate cannot represent. Reproduced by
 \label{fig:realcalib}
 \end{figure}
 
-Three things are visible at once on hardware numbers. The closed form sits exactly
+Three things are visible at once on real calibration numbers. The closed form sits exactly
 on the simulated points, so the calculus is not a bound but the exact error of the
 model on real rates. The linearization runs above the truth and keeps climbing
 past $\tfrac12$, the regime \cref{sec:worked} flagged as unphysical. And the cold
@@ -788,15 +874,81 @@ $\omega$ when it should fire; these compose by \cref{cor:composition} down a
 chain of conditionals. Both are immediate instances of the calculus.
 \end{remark}
 
+\subsection{Crosstalk sensitivity, quantified}
+\label{sec:worked-crosstalk}
+
+How wrong is the independent prediction when the channels are correlated, and
+how much of the gap does the first-order rate of \cref{prop:corrparity}
+recover? \Cref{tab:crosstalk} answers on the same real rates (the first $8$
+qubits of the \texttt{ibm\_hanoi} calibration), for two dependence structures
+chosen to bracket the answer, each with an exact ground truth computed by
+conditioning on the crosstalk events.
+
+\paragraph{Chain crosstalk (pairwise-dominated).} A shared flip-cause
+$C_e\sim\mathrm{Bern}(\lambda)$ on each adjacent pair $e=(i,i+1)$, OR'd into
+both endpoints, models readout crosstalk between neighboring resonators:
+adjacent covariances are $O(\lambda)$ while all higher central cross-moments
+are $O(\lambda^2)$. Two things happen at once in \cref{tab:crosstalk}. First,
+the parity is nearly immune to this crosstalk: the correlated flips arrive in
+adjacent \emph{pairs} and cancel in the parity, so the exact error barely moves
+from its crosstalk-free value of $\approx0.063$. Second, the \emph{independent}
+prediction, computed from the model's own (crosstalk-inflated) marginal rates,
+overestimates badly, by a factor of $2.8$ at $\lambda=0.01$ and $5.8$ at
+$\lambda=0.05$. This is exactly the situation of a practitioner who calibrates
+per-qubit marginal rates on hardware (marginals silently absorb crosstalk) and
+then assumes independence. The first-order rate recovers the bulk of the gap,
+with the $O(\lambda^2)$ residual visible in the table.
+
+\paragraph{Global common cause (all-order).} One event OR'd into every bit
+puts \emph{every} central cross-moment at $\Theta(\lambda)$, each order $|T|$
+entering at first order in $\lambda$, the structure a pairwise truncation
+cannot see.
+The first-order rate fails immediately, even leaving $[0,1]$, while the full
+expansion of \cref{eq:corrparity}, all terms kept, equals the
+directly-conditioned truth by construction. The contrast is the point: the
+validity of the first-order correction is a property of the dependence
+\emph{structure}, pairwise-dominated or not, and not merely of the correlation
+strength. At extreme coupling the dependence can even overturn the first-order
+sign: on nine qubits at $\lambda=\tfrac12$ the global model's exact error
+($0.535$) sits \emph{above} its independent anchor ($0.500$), the reversal
+\cref{cor:crosstalk-sign} warns of.
+
+\begin{table}[t]
+\centering
+\caption{Correlated-parity validation on the first $8$ qubits of the
+\texttt{ibm\_hanoi} calibration. For each crosstalk-event rate $\lambda$: the
+prediction assuming independence at the model's own marginals, the first-order
+rate~\eqref{eq:corrparity-fo}, and the exact error by conditioning on the
+crosstalk events (a $2\times10^6$-trial Monte Carlo agrees to within
+$10^{-3}$). Chain crosstalk: adjacent flips cancel in the parity, the
+independent prediction overestimates up to $5.8\times$, and the first-order
+rate tracks the truth with $O(\lambda^2)$ error. Global common cause: every
+cumulant order is $O(\lambda)$ and the first-order rate fails, even leaving
+$[0,1]$. Reproduced by \texttt{code/crosstalk\_validation.py}.}
+\label{tab:crosstalk}
+\small
+\begin{tabular}{c rrr @{\hskip 2em} rrr}
+\toprule
+ & \multicolumn{3}{c}{chain crosstalk} & \multicolumn{3}{c}{global common cause} \\
+\cmidrule(r{2em}){2-4} \cmidrule{5-7}
+$\lambda$ & indep. & first order & exact & indep. & first order & exact \\
+\midrule
+0.001 & 0.0749 & 0.0628 & 0.0626 & 0.0698 & \phantom{$-$}0.0206 & 0.0627 \\
+0.005 & 0.1207 & 0.0654 & 0.0624 & 0.0968 & $-$0.1364 & 0.0624 \\
+0.010 & 0.1717 & 0.0735 & 0.0623 & 0.1285 & $-$0.3078 & 0.0621 \\
+0.020 & 0.2556 & 0.1019 & 0.0628 & 0.1855 & $-$0.5770 & 0.0615 \\
+0.050 & 0.4050 & 0.2283 & 0.0703 & 0.3132 & $-$0.9370 & 0.0596 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 
 \section{Related work and positioning}
 \label{sec:related}
 
 We situate the calculus against five neighbors, citing each and stating the
-distinction. We claim neither the single-bit asymmetric channel nor the
-independent-qubit tensor factorization as original; the claim is the reusable
-\emph{forward asymmetric Boolean calculus}, its readout application, and the
-unification with classical probabilistic data structures.
+distinction; the claimed-versus-not-claimed boundary itself is collected once,
+in \cref{sec:scope}.
 
 \paragraph{(a) Matrix-inversion readout mitigation (the inverse paradigm).}
 M3 \citep{nation2021m3}, the multiqubit treatment of
@@ -809,7 +961,11 @@ feed-forward readout mitigation of \citet{koh2024readout}, which targets exactly
 the derived and fed-forward readouts we post-process; it too is an inverse
 mitigation of measured outcomes, not a forward symbolic rate calculus. Our
 calculus is its forward complement: given the rates, predict and budget the error
-on a specific derived bit, symbolically, before data. The tensored assignment
+on a specific derived bit, symbolically, before data. On the design-time side,
+detector-error-model tooling \citep{gidney2021stim} composes per-mechanism flip
+probabilities through parities exactly, but numerically, per circuit, and
+symmetrically; the present calculus is its symbolic, asymmetric counterpart.
+The tensored assignment
 matrix is the linear-algebra shadow of our \cref{prop:tensor}; we add the
 symbolic forward layer over it and never invert anything. The two are
 complementary, not competing, one designs the budget, the other cleans the
@@ -833,8 +989,7 @@ not just predicate structure.
 The exact $\pm1$/Fourier parity-bias identity~\eqref{eq:parity} is standard in the
 analysis of Boolean functions \citep{odonnell2014}, while the reliability of noisy
 Boolean formulas under a single symmetric flip rate is the tradition of
-\citet{vonneumann1956} and \citet{pippenger1988}; the analysis of
-XOR-PUFs uses the same product form. That literature owns the parity formula, but
+\citet{vonneumann1956} and \citet{pippenger1988}. That literature owns the parity formula, but
 uses a \emph{single symmetric} flip rate. Our originality on this axis is the
 asymmetric two-rate bookkeeping (\cref{prop:not,thm:andor,cor:parity-asym}), the
 quantum-measurement application, and the unification, not the parity formula
@@ -901,16 +1056,20 @@ We state the boundaries plainly, to forestall overclaiming.
         not a fan-out-free tree needs the same non-factorized treatment. The
         independent prediction is best read
         as the correlation-free \emph{reference}: it is exact given the per-qubit
-        marginals alone, and a correlated model perturbs it in a sign-determined
-        way rather than by a uniform bias. The sign is legible on a parity, which
-        flips only under an odd number of bit flips: positively correlated misreads
-        make coincident flips more likely and so push the parity error \emph{below}
-        the independent value, while negatively correlated misreads push it
-        \emph{above}. The independent rate is thus a two-sided anchor, not a worst
-        case, and bounding the perturbation for a given CTMP generator is the
-        natural next step. A correlated-channel extension, propagating a joint,
-        non-factorized readout model through the same Boolean operations, is future
-        work; the present calculus is the independent/tensor regime.
+        marginals alone, and the leading correction is now quantified rather
+        than merely signed. \Cref{prop:corrparity} expands a parity's error
+        exactly in the dependence structure; \cref{cor:crosstalk-sign} reads
+        off the first-order sign (positively correlated misreads make
+        coincident flips more likely and push the parity error \emph{below}
+        the independent value, negatively correlated ones push it \emph{above},
+        to first order); and \cref{sec:worked-crosstalk} shows the first-order
+        rate tracking the exact one under pairwise-dominated (neighbor-chain)
+        crosstalk while failing, honestly and visibly, under a global common
+        cause whose higher cumulants enter at the same order. The independent
+        rate is thus a first-order anchor, not a worst case. Bounding the
+        remainder for a given CTMP generator, and a non-factorized lift of the
+        remaining Boolean operations, stay future work; the present calculus is
+        exact in the independent/tensor regime and first-order beyond it.
 
   \item \textbf{Diagonal (readout) sector only.} The latent-value model is exact
         precisely where the density matrix is diagonal in the measurement basis.
@@ -953,20 +1112,22 @@ $\omega$ through negation, conjunction, disjunction, parity, chained composition
 and independent-qubit tensoring, carrying both rates intact, as the $T_1$-driven
 asymmetry of real readout demands. The lead example, the reliability of a
 syndrome bit, is exactly $\tfrac12\bigl(1-\prod_i(1-2q_i)\bigr)$, a single product
-that the field's ``$n$ times the per-measurement error'' rule overestimates by
+that the folklore ``$n$ times the per-measurement error'' rule overestimates by
 tens of percent at modest sizes and rates, and that the asymmetric form
 generalizes to inhomogeneous, relaxation-biased ancillas.
 
 The calculus is deliberately bounded: forward rather than inverse,
-complementary to matrix-inversion mitigation; valid under per-bit independence,
-with correlated-crosstalk extension left open; and faithful only on the readout
-sector. Its value is that it is \emph{reusable} and \emph{symbolic}, the same
+complementary to matrix-inversion mitigation; exact under per-bit independence
+and first-order beyond it (\cref{sec:crosstalk}); and faithful only on the
+readout sector. Its value is that it is \emph{reusable} and \emph{symbolic}, the same
 object that governs Bloom filters and cipher maps now budgets the error of a
 quantum-measurement post-processing pipeline, asymmetry preserved, without ever
 forming the exponential assignment matrix. The natural next steps are a
-correlated-channel (CTMP-regime) lift of the same operations and a
-\emph{live-hardware} study of predicted against measured derived-bit rates,
-beyond the simulation validation of \cref{sec:worked-real}.
+beyond-first-order correlated-channel (CTMP-regime) lift of the same
+operations, seeded by the exact dependence expansion of \cref{prop:corrparity},
+and a \emph{live-hardware} study of predicted against measured derived-bit
+rates, beyond the simulation validation of
+\cref{sec:worked-real,sec:worked-crosstalk}.
 
 \paragraph{Acknowledgments.} This work is part of the Bernoulli type theory
 program; the readout connection was developed in a concept note dated 2026-06-06.

@@ -44,8 +44,16 @@ prior_art:
 experiments: []
 
 venue:
-  target: "Quantum (quantum-journal.org)"
+  target: "Quantum Science and Technology (IOP)"
   decided: "2026-06-09"
+  note: >
+    Quantum (quantum-journal.org) was the original primary but requires the
+    manuscript on arXiv/quant-ph, blocked by the no-arXiv-endorser constraint;
+    its quantumarticle port (venues/quantum/) is on hold pending arXiv access.
+    QST chosen 2026-06-09: strong scope fit, free subscription-access route, no
+    preprint requirement. Initial submission = single 12pt PDF
+    (venues/quantum-science-technology/, regenerate.py) + cover-letter.md;
+    iopart deferred to acceptance.
   candidates:
     - name: "Quantum"
       tier: primary
