@@ -521,20 +521,21 @@ theorems; its value is that it makes the parity result visibly the meeting point
 of two existing traditions.
 
 \paragraph{The dictionary.} The single-bit readout channel of
-\cref{def:atom} is exactly the \emph{assignment matrix} (confusion matrix) that
-readout-error mitigation calibrates and inverts \citep{nation2021m3,bravyi2021mitigating}.
-Writing it in the column-stochastic convention the mitigation literature
-prefers, with the observed distribution as a column vector acted on from the
-left, it is
+\cref{def:atom} carries exactly the information in the \emph{assignment matrix}
+(confusion matrix) that readout-error mitigation calibrates and inverts
+\citep{nation2021m3,bravyi2021mitigating}, differing from it only by the
+transpose convention. Writing it in the column-stochastic convention the
+mitigation literature prefers, with the observed distribution as a column vector
+acted on from the left, it is
 \begin{equation}
 \label{eq:assignment}
   A_i \;=\;
   \begin{pmatrix} 1-\eps_i & \omega_i \\[2pt] \eps_i & 1-\omega_i \end{pmatrix},
 \end{equation}
 the transpose of \cref{eq:channel}. For $n$ qubits read independently the joint
-assignment matrix is the Kronecker product $A=\bigotimes_i A_i$, which is
-\cref{eq:kron} in the column convention: the tensored (local) assignment matrix
-used in practice. The element-wise independence that makes $A$ factor is the same
+assignment matrix is the Kronecker product $\bigotimes_i A_i$, the transpose of
+the row-stochastic $A$ of \cref{eq:kron}: the same tensored (local) assignment
+matrix used in practice, written in the column convention. The element-wise independence that makes $A$ factor is the same
 independence that lets the forward calculus of \cref{sec:calculus} factor through
 the per-qubit rates. So the field's assignment matrix is this paper's channel,
 and ``tensored mitigation'' is the Kronecker factorization the forward calculus
@@ -562,13 +563,17 @@ so the syndrome/parity identity
 \end{equation}
 is exactly one half of one minus the product of the channels' nontrivial
 eigenvalues: the spectral coefficient of the tensored readout channel on the
-parity mode. This is the same Walsh-spectrum object the classical
-noisy-Boolean-formula tradition computes \citep{vonneumann1956,pippenger1988}.
+parity mode. This is the same $\pm1$-bias product the classical
+noisy-Boolean-formula tradition computes \citep{vonneumann1956,pippenger1988},
+the order-one Walsh coefficient in the modern Fourier framing \citep{odonnell2014}.
 Read this way, \cref{thm:parity} is visibly where the quantum operator spectrum
 of the assignment matrix and the classical Fourier analysis of noisy Boolean
 formulas coincide; the asymmetric \cref{cor:parity-asym} is the same coefficient
-with the per-bit eigenvalue $1-2q_i$ replaced by the latent-conditioned
-$1-2r_i$, $r_i\in\{\eps_i,\omega_i\}$.
+with the symmetric bias $1-2q_i$ replaced by the latent-conditioned flip bias
+$1-2r_i$, $r_i\in\{\eps_i,\omega_i\}$. Only in the symmetric case does this bias
+coincide with the channel's nontrivial eigenvalue; the asymmetric assignment
+matrix~\eqref{eq:assignment} has eigenvalues $1$ and $1-\eps_i-\omega_i$, so it
+is the $\pm1$ bias, not that eigenvalue, that the parity formula carries.
 
 One honesty clause keeps the framing from being mistaken for a coherence claim.
 The bra-ket and operator language here is ordinary finite-dimensional linear

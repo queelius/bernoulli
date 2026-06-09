@@ -8,9 +8,33 @@ authors:
     orcid: "0000-0001-6443-9897"
 
 thesis:
-  claim: ""
-  novelty: ""
-  refined: null
+  claim: >
+    There is a reusable, forward, closed-form calculus that propagates an
+    asymmetric rate pair (false-positive eps, false-negative omega) through the
+    Boolean post-processing of quantum measurements (NOT, AND, OR, parity,
+    chained composition, independent-qubit Kronecker tensoring), carrying both
+    rates intact rather than symmetrizing them or reconstructing the result
+    numerically per circuit. Lead result: the exact reliability of a QEC syndrome
+    bit, a parity of n noisy ancilla measurements, with flip probability
+    (1/2)(1 - prod_i (1 - 2 q_i)) that the field's "about n times the
+    per-measurement error" linearization overstates by tens of percent at modest
+    n. The same calculus is the Bernoulli approximate-set/map error model, so it
+    unifies a quantum-hardware readout-error model with the classical theory of
+    Bloom filters and cipher maps.
+  novelty: >
+    The new artifact is the forward, asymmetric, symbolic Boolean calculus and
+    its application to quantum readout, plus the cross-domain unification. The
+    paper is explicit about what is established and not claimed as original: the
+    single-bit 2x2 asymmetric readout channel and the tensoring of
+    independent-qubit errors. The contribution is positioned against the dominant
+    INVERSE paradigm (matrix-inversion mitigation: M3, Bravyi et al.), which
+    answers a different question (recover an ideal distribution from observed
+    counts, per circuit, numerically) than the design-time FORWARD question
+    answered here (given per-qubit rates, predict a derived bit's error
+    symbolically). The 2026-06-07 prior-art pass (live web search) found no
+    competing reusable forward asymmetric calculus; koh2024readout is the nearest
+    inverse neighbor.
+  refined: true
 
 prior_art:
   last_survey: null
@@ -38,6 +62,13 @@ review_history:
     recommendation: "ready"
     notes: "Re-review of same-day revision (commit 6f136b7). All 4 Majors RESOLVED, verified not just present: M1 independence framed as correlation-free reference + parity sign rule (sign independently verified) + CTMP cite discharged; M2 new Subsection 4.4 + Table 2 (asymmetric T1-biased syndrome, all 5 values recomputed exact: 0.110/0.175/0.234/0.315/sym 0.226, ratio 1111/0000=2.866, sym wrong on both sides); M3 koh2024readout named as nearest inverse neighbor, prior-art pass confirms no competitor; M4 four framework Zenodo DOIs wired + self-contained Bernoulli-model paragraph. Blocking minors resolved: m1 (FPR clause now conditioned), m3 (parity attribution split O'Donnell vs vonNeumann/Pippenger), m7 (0 hyperref PDF-string warnings). Build production-clean (13pp, 0 undefined refs/cites, 0 bad boxes, 0 bibtex warnings). NO regressions; 0 new findings (1 pre-existing uncited XOR-PUF aside noted, predates revision). Remaining open items all optional stylistic (m4/m5 notation bridges, m6/P5/P6, S1/S2). Recommendation: ready."
     report_path: ".papermill/reviews/2026-06-07-rereview/review.md"
+  - date: "2026-06-09"
+    type: "multi-agent-review"
+    findings_major: 0
+    findings_minor: 4
+    recommendation: "ready"
+    notes: "Targeted review of the new Subsection 3.6 (sec:operator, commit 0761d3d) plus a full regression pass. Section 3.6's three load-bearing claims independently re-verified: eq:assignment IS the transpose of eq:channel (column-stochastic); symmetric channel eigenvalues {1, 1-2q} with parity eigenvector (1/2,-1/2); eq:parity-spectral matches Monte Carlo (2M trials). Honesty clause (no Born square, classical prob vectors, diagonal sector, eigenvalue-not-phase) adequately prevents a coherence/quantum-advantage misread. 3.6 STRENGTHENS the paper (venue-language dictionary + parity-as-intersection framing) and honestly disclaims theorem-level novelty. NO build/label/citation/math regression (14pp, 0 undefined refs/cites, 0 bad boxes, 0 bibtex warnings; both worked tables reproduce exact). 4 minors, none correctness-blocking: M-1 (line 569-571) asymmetric 1-2r_i mislabeled 'per-bit eigenvalue' (asymmetric assignment eigenvalue is 1-eps-om, not 1-2r_i; the corollary/proof are correct, only the prose label overreaches; cross-verified independently); M-2 (line 269/271 vs 535) symbol A overloaded across row- vs column-stochastic conventions; M-3 (line 523-533) 'is exactly the assignment matrix ... the transpose' surface contradiction; M-4 pre-existing arXiv-as-journal bib hygiene (koh2024/adams2015/cho2015). Novelty claim (no forward asymmetric calculus) intact, tagged [needs external verification] (N1); spectral attribution to vonNeumann/Pippenger and the nation/bravyi/koh/tannu cites tagged [needs external verification] (C2-C4) for the orchestrator's live web pass. Recommendation: ready, conditional on the M-1 one-line relabel + M-2/M-3 disambiguation before journal submission; venue Quantum (port article->quantumarticle at submission)."
+    report_path: ".papermill/reviews/2026-06-09/review.md"
 
 related_papers:
   - path: ~/github/bernoulli/papers/bernoulli_sets
@@ -64,6 +95,8 @@ Initialized by papermill on 2026-06-07.
 - 2026-06-07 (Zenodo reconcile, commit fa3cc42): Discovered the framework papers were already minted; the monorepo ledger was stale. Wired real concept+version DOIs into the generator manifest. Added `docs/zenodo/audit.py` + `resolve_dois.py`. Mints go to the GitHub-login Zenodo account (owner 1003873).
 
 - 2026-06-07 (post-ready addition, working copy now ahead of the minted v1): Added the **fan-out-free tree** caveat per an author question on classical Boolean composition of Bernoulli bools. `sec:calculus` intro now states each measured bit enters the derived function once (a fan-out-free tree of distinct inputs) and gives the `b AND b = b` example (rate eps, not eps^2); `sec:scope` item 2 adds reconvergent fan-out as the **structural** counterpart to (physical) crosstalk. Clean build (13pp, 0 undefined, 0 hyperref warnings). **Done (commits f7843fb, b9fbd1b):** applied the fan-out caveat plus the optional minors m4 (subscript index-vs-connective note), m5 (q-to-r bridge in the worked example), and m6 (split the abstract's longest sentence), and minted **v2** (`10.5281/zenodo.20586587`) under the same concept DOI. Skipped S7 (title-shortening would diverge the v2 title from v1) and proof-prose splitting (churn risk). Remaining optional items (P5 folklore repetition, P6 other long sentences, S2 audience framing) left as-is.
+
+- 2026-06-09 (multi-agent review of the operator-view addition, commit 0761d3d): Recommendation **ready** (0 Critical, 0 Major, 4 Minor, 5 Suggestions). Report at `.papermill/reviews/2026-06-09/review.md`. Reviewed the NEW Subsection 3.6 (`sec:operator`) and ran a full regression pass. Section 3.6's three load-bearing claims independently re-verified (exact arithmetic + 2M-trial Monte Carlo): eq:assignment is the transpose of eq:channel (column-stochastic); symmetric-channel eigenvalues {1, 1-2q} with parity eigenvector (1/2,-1/2); eq:parity-spectral matches MC. The honesty clause adequately blocks a coherence/quantum-advantage misread (classical prob vectors, no Born square, diagonal sector, eigenvalue-not-phase). 3.6 STRENGTHENS the paper and honestly disclaims theorem-level novelty. NO build/label/citation/math regression (14pp, 0 undefined refs/cites, 0 bad boxes, 0 bibtex warnings; both worked tables reproduce exact). **4 minors**, none correctness-blocking: M-1 (line 569-571) the asymmetric `1-2r_i` is mislabeled 'per-bit eigenvalue' (asymmetric assignment eigenvalue is `1-eps-om`, not `1-2r_i`; corollary/proof are correct, only the prose label overreaches; one-line fix); M-2 symbol `A` overloaded across row- vs column-stochastic conventions; M-3 'is exactly the assignment matrix ... the transpose' surface contradiction; M-4 pre-existing arXiv-as-journal bib hygiene. Novelty claim (no forward asymmetric calculus) intact, tagged [needs external verification] (N1); spectral attribution + nation/bravyi/koh/tannu cites tagged [needs external verification] (C2-C4) for the live web pass. **Verdict:** ready for *Quantum*, conditional on the M-1 relabel + M-2/M-3 disambiguation and the pre-submission `article`->`quantumarticle` port.
 
 **Open minting items:**
 - `bernoulli_relations` (cited as `bernoulliRelations`) is the only cited framework paper still without a DOI. It is **not mint-ready**: build exits non-zero with 8 undefined cross-references (incl. a literal `\ref{?}`, and `sec:powerset`/`sec:bool_search`/`thm:subset`). Needs a cross-ref cleanup pass before minting; cited without a DOI for now.
