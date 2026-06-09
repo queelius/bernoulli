@@ -8,7 +8,7 @@ repo already maintains and sets correct article metadata, then uploads the PDF.
 Two-step by design so the irreversible publish is deliberate:
 
     python3 docs/zenodo/mint.py draft      papers/<dir> <pdf>            # new record draft, NO publish
-    python3 docs/zenodo/mint.py newversion <record_id> <pdf> papers/<dir>  # new-version draft of a published record
+    python3 docs/zenodo/mint.py newversion <record_id> <pdf> papers/<dir> [version]  # new-version draft under the same concept DOI (version label defaults to v2)
     python3 docs/zenodo/mint.py show       <deposition_id>               # inspect a draft
     python3 docs/zenodo/mint.py publish    <deposition_id>               # irreversible: mint the DOI
 
@@ -177,7 +177,7 @@ def main() -> None:
     if cmd == "draft":
         draft(sys.argv[2], sys.argv[3])
     elif cmd == "newversion":
-        newversion(sys.argv[2], sys.argv[3], sys.argv[4])
+        newversion(sys.argv[2], sys.argv[3], sys.argv[4], *sys.argv[5:6])
     elif cmd == "show":
         show(sys.argv[2])
     elif cmd == "publish":

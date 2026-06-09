@@ -127,7 +127,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
         "keywords": ["approximate relation", "relational algebra", "join", "trapdoor database"],
-        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20605744",
+        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20608092",
         "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-09",
     },
     {
