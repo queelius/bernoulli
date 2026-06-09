@@ -89,6 +89,33 @@ review_history:
       least developed and partly duplicates the sibling maps and composition
       papers.
     report_path: ".papermill/reviews/2026-05-29/review.md"
+  - date: "2026-06-09"
+    type: "multi-agent-review"
+    findings_critical: 0
+    findings_major: 5
+    findings_minor: 9
+    findings_suggestions: 4
+    recommendation: "minor-revision (Zenodo/IS-journal); major-revision (ICDT/PODS)"
+    notes: >-
+      Full editorial pass on the salvaged draft. Build production-clean (21 pp,
+      0 undefined refs/cites, 0 warnings, 0 overfull boxes); validate.py passes
+      23/23 fit rows (worst abs err 0.000686); all 11 closed forms independently
+      re-derived incl. the harness-skipped thm:symmetric_preservation and the
+      covariance form. Zero critical, zero major LOGIC findings: every proof is
+      correct. The 5 majors are positioning/structure: (1) marginal operator
+      rates may be tuple-independent-PDB-recoverable [verify]; (2) projection
+      1-(1-eps)^k is a known OR-of-filters identity presented as new [verify];
+      (3) load-bearing asm:ber_trial wording is garbled; (4) Section 2
+      mis-titled "Relational algebra" (it is preliminaries); (5) partial-function
+      ADT mis-nested under invariants. Differentiated core (thm:join_dependence
+      joint-law correlation + invariant preservation/closure) is real and
+      validated. DB-theory-venue verdict: READY as Zenodo preprint;
+      minor-revision for an IS journal; major-revision and a stretch for
+      ICDT/PODS (lacks a complexity/lower-bound/dichotomy result). External
+      prior-art [verify] items (Bloomjoin dependence; independent-tuple PDB
+      marginals; AQP; searchable encryption) handed to the area chair, who has
+      web access. Bib clean except one duplicate entry (aset = bernoulliSets).
+    report_path: ".papermill/reviews/2026-06-09/review.md"
 
 related_papers:
   - path: "~/github/bernoulli/papers/bernoulli_sets"
