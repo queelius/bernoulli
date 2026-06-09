@@ -184,6 +184,46 @@ def validate_symmetric_closure(rng, trials, results):
 
 
 # ---------------------------------------------------------------------------
+# CLOSURE DICHOTOMY (thm:local_closure, thm:transitivity_cascade)
+# ---------------------------------------------------------------------------
+def validate_closure_dichotomy(rng, trials, results):
+    """Generalize the symmetric closure and separate it from transitivity.
+
+    thm:local_closure: a monotone local invariant with orbits of m ordered pairs
+    has OR-closure FPR 1-(1-eps)^m and TPR 1-(1-tau)^m (m=1 reflexive, m=2 the
+    symmetric closure). Checked by Monte Carlo for m in {1,3,4}.
+
+    thm:transitivity_cascade: the transitive closure of a path of length k needs
+    ceil(log2 k) passes and C(k+1,2) pairs -- a DETERMINISTIC, structural check
+    (no rate) that no bounded one-pass closure of the local form exists.
+    """
+    # Generalized OR-closure over an orbit of m ordered trials.
+    for m in (1, 3, 4):
+        neg = np.zeros((trials, m), dtype=bool)
+        emp_fpr = draw_membership(rng, neg, EPS, TAU).any(axis=1).mean()
+        results.append((f"Local-closure FPR, orbit m={m}", 1.0 - (1.0 - EPS) ** m, emp_fpr))
+        pos = np.ones((trials, m), dtype=bool)
+        emp_tpr = draw_membership(rng, pos, EPS, TAU).any(axis=1).mean()
+        results.append((f"Local-closure TPR, orbit m={m}", 1.0 - (1.0 - TAU) ** m, emp_tpr))
+
+    # Transitivity cascade: path 1->2->...->(k+1); iterate the one-pass rule to
+    # the fixed point and count passes and manufactured pairs (exact integers).
+    for k in (4, 8, 16):
+        R = {(i, i + 1) for i in range(1, k + 1)}
+        passes = 0
+        while True:
+            new = {(x, z) for (x, y) in R for (y2, z) in R if y == y2 and (x, z) not in R}
+            if not new:
+                break
+            R |= new
+            passes += 1
+        results.append((f"Transitivity cascade passes, path k={k}",
+                        float(int(np.ceil(np.log2(k)))), float(passes)))
+        results.append((f"Transitivity cascade |closure|, path k={k}",
+                        float((k + 1) * k // 2), float(len(R))))
+
+
+# ---------------------------------------------------------------------------
 # REFLEXIVE
 # ---------------------------------------------------------------------------
 def validate_reflexive(rng, trials, results):
@@ -246,6 +286,7 @@ def main() -> int:
     validate_projection(rng, args.trials, results)
     validate_join(rng, args.trials, results)
     validate_symmetric_closure(rng, args.trials, results)
+    validate_closure_dichotomy(rng, args.trials, results)
     validate_reflexive(rng, args.trials, results)
     validate_functional(rng, args.trials, results)
 

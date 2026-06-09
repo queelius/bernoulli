@@ -138,6 +138,39 @@ review_history:
       marginals; AQP; searchable encryption) handed to the area chair, who has
       web access. Bib clean except one duplicate entry (aset = bernoulliSets).
     report_path: ".papermill/reviews/2026-06-09/review.md"
+  - date: "2026-06-09-rereview"
+    type: "focused-rereview"
+    findings_critical: 0
+    findings_major: 0
+    findings_minor: 4
+    findings_suggestions: 3
+    recommendation: "minor-revision (IS-journal/Zenodo); major-revision-but-now-reachable (EDBT/ICDT)"
+    notes: >-
+      Focused re-review of the post-2026-06-09 changes. All five prior majors
+      RESOLVED (framing concession crediting suciu2011 for the join/lineage
+      correlation and disclaiming the marginal rates; asm:ber_trial restated;
+      Section 2 retitled; ADT promoted to top-level Section 6; duplicate bib
+      entry merged). The KEY addition is new Section 5.5 "A closure dichotomy"
+      (thm:local_closure: monotone local invariant with orbit size m admits a
+      one-pass OR-closure at FPR 1-(1-eps)^m, TPR 1-(1-tau)^m, |A|-independent;
+      cor:invariant_space_cost: +log2 m bits/element via the entropy duality;
+      thm:transitivity_cascade: path closure needs ceil(log2 k) passes and
+      Theta(k^2) pairs, no bounded closure). Build regression-clean (22 pp, 0
+      undefined/collision/warning/overfull; new labels 5.5 / 5.5.1 / 5.6 unique).
+      Orchestrator independently re-verified ceil(log2 k) and C(k+1,2) for
+      k=1..64 and the o(1) surcharge algebra. VERDICT: the dichotomy lifts the
+      contribution from modest to solid; IS-journal effectively ready; EDBT/ICDT
+      now reachable (it was a stretch before), gated on ONE external check.
+      4 minors: (1) cor:invariant_space_cost wording overclaims a lower bound
+      (it is achievability only); (2) thm:local_closure proof should state the
+      within-orbit-closedness it relies on; (3) shipped validate.py covers only
+      the m=2 closure case, not general-m or the cascade; (4) carried prior
+      MINOR-4/5 (symmetric-preservation + asymmetric-join harness gaps).
+      3 [needs external verification] items handed to the area chair: is the
+      local-vs-cascading closure dichotomy genuinely new vs database-repair /
+      consistent-query-answering / integrity-constraint-maintenance? This single
+      check determines the EDBT/ICDT verdict.
+    report_path: ".papermill/reviews/2026-06-09-rereview/review.md"
 
 related_papers:
   - path: "~/github/bernoulli/papers/bernoulli_sets"

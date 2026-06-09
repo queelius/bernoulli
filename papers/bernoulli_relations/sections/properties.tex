@@ -236,8 +236,9 @@ miss. For an orbit of true non-members each trial is a false positive with
 probability $\fprate$, giving closed rate $1-(1-\fprate)^{m}$; for an orbit of true
 members each trial is a true positive with probability $\tprate$, giving
 $1-(1-\tprate)^{m}$. The orbits are disjoint and admissibility is upward closed, so
-forcing each orbit admissible forces $P$ on the whole relation and no orbit's
-repair disturbs another; one pass suffices. Reflexivity ($m=1$) is the identity at
+forcing each orbit admissible forces $P$ on the whole relation. The OR-closure of
+an orbit adds only pairs belonging to that same orbit, so repairs on disjoint
+orbits do not interfere and a single pass suffices. Reflexivity ($m=1$) is the identity at
 no cost, and symmetry ($m=2$) recovers \cref{thm:symmetric_closure}.
 \end{proof}
 
@@ -252,15 +253,17 @@ $-\log_2 \fprate$ bits per element.
 
 \begin{corollary}[The space cost of a local invariant]
 \label{cor:invariant_space_cost}
-To hold the OR-closure of a monotone local invariant of orbit size $m$ at a target
-false-positive rate $\fprate'$, the underlying structure must run at base rate
-$\fprate = 1-(1-\fprate')^{1/m} \approx \fprate'/m$, which by the space-accuracy
-duality costs
+It suffices to run the underlying structure at base rate $\fprate =
+1-(1-\fprate')^{1/m} \approx \fprate'/m$ for the OR-closure of a monotone local
+invariant of orbit size $m$ to hold at a target false-positive rate $\fprate'$,
+which by the space-accuracy duality costs
 \begin{equation}
   -\log_2 \fprate \;=\; -\log_2 \fprate' + \log_2 m + o(1)
 \end{equation}
-bits per element: an additive surcharge of $\log_2 m$ bits to buy the invariant.
-Symmetry costs one extra bit per element; reflexivity is free.
+bits per element: an additive surcharge of $\log_2 m$ bits buys the invariant
+through this closure. Symmetry costs one extra bit per element, reflexivity is
+free. This is the achievable cost of the OR-closure; whether a different
+invariant-preserving structure can do better, a matching lower bound, is open.
 \end{corollary}
 
 Transitivity sits on the other side of the line, and the obstruction is exactly
@@ -295,6 +298,16 @@ universe, by addition for the monotone two (with a $\log_2 m$ space surcharge,
 is \emph{global}: its triples chain, the repair cascades to depth
 $\lceil \log_2 k \rceil$, and no bounded closure exists. The cut is decomposability,
 not the superficial pair-versus-triple arity.
+
+That some integrity constraints are far cheaper to repair than others is a
+familiar theme in the database-repair and consistent-query-answering
+tradition~\cite{bertossi-2011-repairing}, where the complexity of repairing or
+querying an inconsistent database turns on the constraint class. The dichotomy
+here runs on a different axis. It is not the computational complexity of a repair
+over an exact database, but the closed-form \emph{rate and space cost} of
+restoring an invariant in the representation-error setting, where the relation is
+a compressed approximate structure and the repair is a one-pass closure whose
+price is the $\log_2 m$ surcharge of \cref{cor:invariant_space_cost}.
 
 These four results share a model-order reading. Each invariant partitions the
 universe into pairs (or triples) that play different error roles (diagonal versus
