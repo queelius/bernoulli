@@ -212,34 +212,44 @@ dichotomy, and the dividing line is whether the invariant's constraints
 Call an invariant \emph{local} if the pairs it constrains partition into disjoint
 \emph{orbits} of at most $m$ ordered pairs, with the invariant holding for
 $\ARelation{R}$ exactly when every orbit is admissible on its own. A local
-invariant is \emph{monotone} when admissibility is upward closed (adding a
-reported pair never breaks it) and \emph{antitone} when it is downward closed.
-Reflexivity is monotone-local with $m=1$: each diagonal pair $\Pair{a}{a}$ is its
-own orbit, admissible when present. Symmetry is monotone-local with $m=2$: the
-orbit of $\{a,b\}$ is $\{\Pair{a}{b}, \Pair{b}{a}\}$, admissible when its two
-trials agree. Single-valuedness is antitone-local: the orbit of a key $x$ is its
-row $\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present.
+invariant is \emph{monotone} when \emph{filling} an orbit (admitting all of its
+pairs) makes it admissible, so the invariant is repaired by adding pairs, and
+\emph{antitone} when \emph{emptying} an orbit (down to at most one pair) makes it
+admissible, so it is repaired by deletion. Symmetry is monotone-local with $m=2$:
+the orbit of $\{a,b\}$ is $\{\Pair{a}{b}, \Pair{b}{a}\}$, admissible when its two
+trials agree, which filling the orbit secures. Reflexivity is the degenerate
+monotone case $m=1$: each diagonal pair $\Pair{a}{a}$ is its own orbit, a known
+required member that is admissible only when present. Single-valuedness is
+antitone-local: the orbit of a key $x$ is its row
+$\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present.
 
 \begin{theorem}[Monotone local invariants admit a one-pass closure]
 \label{thm:local_closure}
-Let $P$ be a monotone local invariant with orbits of size at most $m$, repaired by
-the \emph{OR-closure} that admits every pair of an orbit as soon as any pair of
-that orbit is reported. The closure restores $P$ deterministically in a single
-pass, with false-positive rate $1-(1-\fprate)^{m}$ and true-positive rate
-$1-(1-\tprate)^{m}$, a cost independent of $\Card{\Set{A}}$.
+Let $P$ be a monotone local invariant whose orbits each hold $m \ge 2$ mutually
+independent trials, repaired by the \emph{OR-closure} that admits every pair of an
+orbit as soon as any pair of that orbit is reported. The closure makes every orbit
+internally consistent in one pass, so its output satisfies $P$ deterministically,
+as a random approximate relation of false-positive rate $1-(1-\fprate)^{m}$ and
+true-positive rate $1-(1-\tprate)^{m}$, a cost independent of $\Card{\Set{A}}$. The
+degenerate case $m=1$ (reflexivity) carries no second trial to combine: its orbit
+is a single known required pair, restored exactly by inserting the fixed diagonal
+at true-positive rate $1$ and no false positives, which is free.
 \end{theorem}
 
 \begin{proof}
-Within an orbit the at most $m$ ordered trials are independent
-(\cref{asm:ber_trial}), and the OR-closure admits the orbit unless all of them
-miss. For an orbit of true non-members each trial is a false positive with
-probability $\fprate$, giving closed rate $1-(1-\fprate)^{m}$; for an orbit of true
-members each trial is a true positive with probability $\tprate$, giving
-$1-(1-\tprate)^{m}$. The orbits are disjoint and admissibility is upward closed, so
-forcing each orbit admissible forces $P$ on the whole relation. The OR-closure of
-an orbit adds only pairs belonging to that same orbit, so repairs on disjoint
-orbits do not interfere and a single pass suffices. Reflexivity ($m=1$) is the identity at
-no cost, and symmetry ($m=2$) recovers \cref{thm:symmetric_closure}.
+Within an orbit the $m$ ordered trials are independent (\cref{asm:ber_trial}), and
+the OR-closure admits the whole orbit unless all $m$ miss. For an orbit of true
+non-members each trial is a false positive with probability $\fprate$, so the orbit
+is admitted with probability $1-(1-\fprate)^{m}$; for an orbit of true members each
+trial is a true positive with probability $\tprate$, so it is admitted with
+probability $1-(1-\tprate)^{m}$. An admitted orbit is filled and hence internally
+consistent, so the output satisfies $P$ on every orbit; the orbits are disjoint and
+the OR-closure of an orbit adds only pairs of that same orbit, so the repairs do
+not interfere and one pass suffices. For $m=2$ this recovers
+\cref{thm:symmetric_closure}. The $m=1$ orbit has a single trial and no agreement
+to enforce, so the OR-closure cannot lift its true-positive rate above $\tprate$;
+reflexivity is instead secured by inserting the known diagonal outright, exactly
+and at no rate cost.
 \end{proof}
 
 The single-valued (antitone) case is repaired in one pass the other way, by
