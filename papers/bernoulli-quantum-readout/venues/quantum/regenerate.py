@@ -42,10 +42,14 @@ VENUE_PREAMBLE = r"""\pdfoutput=1
 VENUE_TITLE = r"""\title{A Forward \texorpdfstring{$(\eps,\omega)$}{(epsilon, omega)} Calculus for
 Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes}
 
+% quantumarticle renders \email as a page-bottom footnote and \orcid only as a
+% hyperlink on the author's name (no visible number). To keep the contact block
+% visible (parity with the base title page), the affiliation also shows the email
+% and ORCID as text; \orcid is kept so the name still links to the ORCID record.
 \author{Alexander Towell}
-\affiliation{Southern Illinois University Edwardsville}
-\email{atowell@siue.edu}
 \orcid{0000-0001-6443-9897}
+\affiliation{Southern Illinois University Edwardsville \\
+  \texttt{atowell@siue.edu} \\ ORCID: 0000-0001-6443-9897}
 
 \date{\today}
 
