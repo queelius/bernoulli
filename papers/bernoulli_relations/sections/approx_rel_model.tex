@@ -39,7 +39,7 @@ $\fnrate$ (so its true-positive rate is $\tprate = 1 - \fnrate$) if the followin
 \begin{enumerate}[(i)]
     \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the relation $\Relation{R}$, then it is not in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with probability $\fnrate$,
     \begin{equation}
-        \Prob{\AT{\SetComplement[\Relation{R}]}[\fnrate][\fprate](\RV{X_1}, \cdots, \RV{X_n}) \Given
+        \Prob{\lnot\ARelation{R}[\fprate][\tprate](\RV{X_1}, \cdots, \RV{X_n}) \Given
         \Relation{R}(\RV{X_1}, \cdots, \RV{X_n})} = \fnrate\,.
     \end{equation}
 

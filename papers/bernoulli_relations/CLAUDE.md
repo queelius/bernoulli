@@ -16,8 +16,8 @@ TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && bibtex main && \
 ```
 
 Uses modular `sty/` packages from the local `sty/` directory (self-contained, no
-external dependencies). As of the 2026-06 salvage the build is clean: 21 pages,
-0 undefined references, 0 LaTeX warnings.
+external dependencies). As of the 2026-06-09 deepening round the build is clean:
+24 pages, 0 undefined references, 0 LaTeX warnings.
 
 ## Structure
 
@@ -27,9 +27,11 @@ external dependencies). As of the 2026-06 salvage the build is clean: 21 pages,
   - `relations.tex`: classical relations and the relational operators (select, project, join, compose).
   - `approx_rel_model.tex`: the random approximate relation model (ADT, Bernoulli set over the tuple universe; subset/equality predicates deferred to `bernoulliComposition`).
   - `rel_algebra.tex`: error propagation through the operators (selection transparent; projection amplifies FPR and raises model order; join breaks element-wise independence), the worked example, the pgfplots fan-in figure, and the Monte Carlo "Empirical validation" subsection (cites `code/validate.py`).
-  - `properties.tex`: invariant preservation (reflexive, symmetric plus symmetric closure, single-valued/functional, transitive) and the approximate partial function.
+  - `properties.tex`: invariant preservation (reflexive, symmetric plus symmetric closure, single-valued/functional, transitive), the closure dichotomy (sec 5.5: class-induced invariants, the OR-closure, the canonical test `thm:canonical_test` showing the invariant itself is free, the `log2 m` recall surcharge, `lem:no_quotient`, the transitivity cascade, the deletion closed form), and the approximate partial function (compressed; classical recap deferred to the maps companion).
   - `oblivious_rel_model.tex`: application, the trapdoor relational database (cipher relation, rank-ordered encrypted search, threat/leakage model). Filename retains historical 'oblivious'; the prose uses trapdoor/cipher.
-- `code/validate.py`: Monte Carlo validation harness for the Phase-C results (projection amplification, join independence-failure correlation, symmetric closure, reflexive/functional preservation). Pure Python plus numpy; prints an analytical-vs-empirical table.
+  - `conclusion.tex`: contributions, the "decomposability, not arity" takeaway, CQA positioning, open directions (added 2026-06-09).
+- `code/validate.py`: Monte Carlo validation harness (projection amplification, join incl. asymmetric operands and independence-failure correlation, symmetric closure and preservation, OR-closure m=2..4, canonical test, deletion rate, reflexive/functional preservation, deterministic transitivity cascade incl. non-power-of-2 k). Pure Python plus numpy; prints an analytical-vs-empirical table.
+- `code/validate_quotient.py`: canonical test vs OR-closure vs naive comparison (rates, storage halving, deterministic symmetry).
 
 **Deleted in the 2026-06 salvage** (superseded/orphaned): `predicates.tex` (its
 subset/equality rates are the set-level results of the composition paper, and the

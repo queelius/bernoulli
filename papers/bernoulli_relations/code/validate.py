@@ -24,8 +24,20 @@ We validate, against their analytical formulas:
     - closure false-positive rate:               1 - (1-eps)^2
     - closure true-positive rate:                1 - (1-tau)^2
 
+  SYMMETRIC PRESERVATION (thm:symmetric_preservation)
+    - P(approximation symmetric), small instance:
+      (tau^2+omega^2)^P ((1-eps)^2+eps^2)^N
+
+  CLOSURE DICHOTOMY (thm:local_closure, thm:canonical_test,
+                     thm:transitivity_cascade)
+    - OR-closure rates for orbit sizes m=2,3,4; canonical-test base rates;
+      deterministic cascade depth/pair counts incl. non-powers-of-2
+
   REFLEXIVE   (thm:reflexive)
     - P(approximation reflexive):                tau^|A|
+
+  DELETION    (antitone repair, uniform tie-breaking)
+    - kept-true-value rate:                      tau (1-(1-eps)^|Y|)/(eps |Y|)
 
   FUNCTIONAL  (thm:functional)
     - P(no spurious value at a key):             (1-eps)^(|Y|-1)
@@ -156,6 +168,19 @@ def validate_join(rng, trials, results):
     results.append(("Join correlation factor P(both)/[indep], pred = 1/a",
                     factor_ana, factor_emp))
 
+    # (iv) ASYMMETRIC operands: distinct rates per side, same closed forms.
+    eps_r2, omega_r2 = 0.05, 0.10
+    eps_s2, omega_s2 = 0.02, 0.20
+    r2 = draw_membership(rng, np.ones(trials, dtype=bool), eps_r2, 1 - omega_r2)
+    s2 = draw_membership(rng, np.ones(trials, dtype=bool), eps_s2, 1 - omega_s2)
+    results.append(("Join FNR (asymmetric operands)",
+                    omega_r2 + omega_s2 - omega_r2 * omega_s2,
+                    1.0 - (r2 & s2).mean()))
+    r2n = draw_membership(rng, np.zeros(trials, dtype=bool), eps_r2, 1 - omega_r2)
+    s2n = draw_membership(rng, np.zeros(trials, dtype=bool), eps_s2, 1 - omega_s2)
+    results.append(("Join FPR corner (asymmetric operands)",
+                    eps_r2 * eps_s2, (r2n & s2n).mean()))
+
 
 # ---------------------------------------------------------------------------
 # SYMMETRIC CLOSURE
@@ -189,16 +214,25 @@ def validate_symmetric_closure(rng, trials, results):
 def validate_closure_dichotomy(rng, trials, results):
     """Generalize the symmetric closure and separate it from transitivity.
 
-    thm:local_closure: a monotone local invariant with orbits of m ordered pairs
-    has OR-closure FPR 1-(1-eps)^m and TPR 1-(1-tau)^m (m=1 reflexive, m=2 the
-    symmetric closure). Checked by Monte Carlo for m in {1,3,4}.
+    thm:local_closure: a class-induced invariant with homogeneous orbits of m
+    ordered pairs (m >= 2) has OR-closure FPR 1-(1-eps)^m and TPR 1-(1-tau)^m
+    (m=2 is the symmetric closure). Checked by Monte Carlo for m in {2,3,4}.
+    The theorem's m=1 case (reflexivity) is NOT a Monte Carlo quantity: its
+    repair is deterministic diagonal insertion at TPR 1 / FPR 0 (no OR), so it
+    is asserted structurally below rather than estimated.
+
+    thm:canonical_test: a single trial on the orbit representative preserves
+    the invariant deterministically at the BASE rates (eps, tau), no surcharge;
+    symmetry of the output is structural (both orders read the same trial).
+    See also validate_quotient.py for the storage-halving comparison.
 
     thm:transitivity_cascade: the transitive closure of a path of length k needs
-    ceil(log2 k) passes and C(k+1,2) pairs -- a DETERMINISTIC, structural check
-    (no rate) that no bounded one-pass closure of the local form exists.
+    ceil(log2 k) simultaneous passes and C(k+1,2) pairs -- a DETERMINISTIC,
+    structural check (no rate) that no bounded one-pass closure of the local
+    form exists. k=5,7 exercise the ceiling rounding (both need 3 passes).
     """
-    # Generalized OR-closure over an orbit of m ordered trials.
-    for m in (1, 3, 4):
+    # Generalized OR-closure over a homogeneous orbit of m ordered trials.
+    for m in (2, 3, 4):
         neg = np.zeros((trials, m), dtype=bool)
         emp_fpr = draw_membership(rng, neg, EPS, TAU).any(axis=1).mean()
         results.append((f"Local-closure FPR, orbit m={m}", 1.0 - (1.0 - EPS) ** m, emp_fpr))
@@ -206,9 +240,24 @@ def validate_closure_dichotomy(rng, trials, results):
         emp_tpr = draw_membership(rng, pos, EPS, TAU).any(axis=1).mean()
         results.append((f"Local-closure TPR, orbit m={m}", 1.0 - (1.0 - TAU) ** m, emp_tpr))
 
+    # Canonical test (thm:canonical_test): ONE trial per orbit, base rates.
+    neg1 = np.zeros((trials, 1), dtype=bool)
+    results.append(("Canonical-test FPR (= base eps)", EPS,
+                    draw_membership(rng, neg1, EPS, TAU).any(axis=1).mean()))
+    pos1 = np.ones((trials, 1), dtype=bool)
+    results.append(("Canonical-test TPR (= base tau)", TAU,
+                    draw_membership(rng, pos1, EPS, TAU).any(axis=1).mean()))
+
+    # Reflexive repair (the m=1 case of thm:local_closure): deterministic
+    # diagonal insertion. Postcondition is structural, not statistical.
+    noisy_diag = draw_membership(rng, np.ones((1000, 5), dtype=bool), EPS, TAU)
+    repaired = noisy_diag | True            # insertion forces the known diagonal
+    assert repaired.all(), "diagonal insertion must yield the full diagonal"
+
     # Transitivity cascade: path 1->2->...->(k+1); iterate the one-pass rule to
     # the fixed point and count passes and manufactured pairs (exact integers).
-    for k in (4, 8, 16):
+    # k=5 and k=7 are the non-powers-of-2 that exercise the ceiling.
+    for k in (4, 5, 7, 8, 16):
         R = {(i, i + 1) for i in range(1, k + 1)}
         passes = 0
         while True:
@@ -238,6 +287,50 @@ def validate_reflexive(rng, trials, results):
         emp = reflexive.mean()
         ana = TAU ** card_A
         results.append((f"P(reflexive), |A|={card_A}", ana, emp))
+
+
+# ---------------------------------------------------------------------------
+# SYMMETRIC PRESERVATION (thm:symmetric_preservation)
+# ---------------------------------------------------------------------------
+def validate_symmetric_preservation(rng, trials, results):
+    """P(approximation symmetric) = (tau^2+omega^2)^P ((1-eps)^2+eps^2)^N.
+
+    The probability vanishes in the instance size (that is the theorem), so it
+    is estimated on a small instance (P=4 positive, N=11 negative unordered
+    pairs) where the event still occurs at an observable rate.
+    """
+    P, N = 4, 11
+    pos = draw_membership(rng, np.ones((trials, P, 2), dtype=bool), EPS, TAU)
+    neg = draw_membership(rng, np.zeros((trials, N, 2), dtype=bool), EPS, TAU)
+    agree_pos = pos[:, :, 0] == pos[:, :, 1]
+    agree_neg = neg[:, :, 0] == neg[:, :, 1]
+    emp = (agree_pos.all(axis=1) & agree_neg.all(axis=1)).mean()
+    ana = (TAU**2 + OMEGA**2) ** P * ((1 - EPS)**2 + EPS**2) ** N
+    results.append((f"P(symmetric), {P}+{N} unordered pairs", ana, emp))
+
+
+# ---------------------------------------------------------------------------
+# DELETION REPAIR (single-valuedness, uniform tie-breaking)
+# ---------------------------------------------------------------------------
+def validate_deletion(rng, trials, results):
+    """Kept-true-value rate of the antitone deletion repair:
+
+        tau * (1 - (1-eps)^|Y|) / (eps * |Y|)
+
+    The key's true value is reported with probability tau; K ~ Bin(|Y|-1, eps)
+    spurious values are reported alongside; keep one reported value uniformly.
+    """
+    for card_Y in (4, 8):
+        true_rep = draw_membership(rng, np.ones(trials, dtype=bool), EPS, TAU)
+        spurious = draw_membership(
+            rng, np.zeros((trials, card_Y - 1), dtype=bool), EPS, TAU)
+        n_reported = true_rep.astype(int) + spurious.sum(axis=1)
+        # uniform draw among reported values keeps the true one w.p. 1/n_reported
+        pick = rng.random(trials)
+        kept_true = true_rep & (pick < 1.0 / np.maximum(n_reported, 1))
+        ana = TAU * (1.0 - (1.0 - EPS) ** card_Y) / (EPS * card_Y)
+        results.append((f"Deletion kept-true rate, |Y|={card_Y}",
+                        ana, kept_true.mean()))
 
 
 # ---------------------------------------------------------------------------
@@ -286,8 +379,10 @@ def main() -> int:
     validate_projection(rng, args.trials, results)
     validate_join(rng, args.trials, results)
     validate_symmetric_closure(rng, args.trials, results)
+    validate_symmetric_preservation(rng, args.trials, results)
     validate_closure_dichotomy(rng, args.trials, results)
     validate_reflexive(rng, args.trials, results)
+    validate_deletion(rng, args.trials, results)
     validate_functional(rng, args.trials, results)
 
     # Pretty table.

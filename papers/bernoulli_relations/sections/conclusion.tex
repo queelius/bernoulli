@@ -1,0 +1,48 @@
+\documentclass[ ../main.tex]{subfiles}
+\providecommand{\mainx}{..}
+\begin{document}
+\section{Conclusion}
+\label{sec:conclusion}
+
+We modeled the approximate relation as a Bernoulli random approximate set over
+the tuple universe and traced one question through the relational algebra: what
+happens to error that a representation injects at the tuple level when the
+relation is consumed at the level of operators and invariants?
+
+Three clusters of results answer it. Through the \emph{operators}, error
+propagates with sharply different signatures: selection is rate-transparent,
+projection amplifies the false-positive rate by its fan-in while preserving
+element-wise independence, and a join breaks element-wise independence, its
+output tuples correlated through shared components, in possible-worlds terms the
+shared-lineage dependence of probabilistic databases, here carried as a
+closed-form factor. The \emph{invariants} are uniformly fragile: reflexivity,
+symmetry, single-valuedness, and transitivity each survive approximation only
+with probability tending to zero in the universe, at per-invariant rates we give
+exactly. And the \emph{closure dichotomy} sorts the repairs. A class-induced
+invariant is free: one canonical trial per orbit preserves it deterministically
+at base rates and base space (\cref{thm:canonical_test}), and an optional
+$\log_2 m$-bit surcharge buys an $m$-trial recall boost
+(\cref{cor:invariant_space_cost}). Transitivity, which no equivalence induces
+(\cref{lem:no_quotient}), cascades to depth $\lceil \log_2 k \rceil$ and admits
+no bounded repair (\cref{thm:transitivity_cascade}). The cut is decomposability,
+not arity: that is the paper's takeaway.
+
+The dichotomy should be read beside, not inside, the database-repair and
+consistent-query-answering tradition~\cite{bertossi-2011-repairing}. There, an
+exact database violates an integrity constraint and the question is the
+\emph{computational complexity} of repairing or querying it. Here, the relation
+is a compressed approximate representation of an exact, consistent base, and the
+question is the \emph{rate and space price} of restoring an invariant that the
+representation itself broke. The axes are independent: a constraint class can be
+cheap on one and expensive on the other.
+
+Three directions stay open. The deletion repair of single-valuedness is priced
+under uniform tie-breaking; whether a value-aware tie-breaker does better, and
+what the matching converse is, we did not pursue. The trials here are
+independent (\cref{asm:ber_trial}). A correlated-trial model would need the
+dichotomy re-examined, and a join output read back as the base relation for
+further algebra is exactly such a model. And the trapdoor application of
+\cref{sec:trapdoor_rel_model} invites an empirical study at database scale,
+where the constants behind these closed forms meet real workloads.
+
+\end{document}

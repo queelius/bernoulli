@@ -47,14 +47,15 @@ set~\cite{bernoulliSets} over the tuple universe, the abstract data type of
     (\cref{sec:invariants}). Reflexivity, symmetry, single-valuedness, and
     transitivity are each preserved only with a probability that is a product over
     the constrained tuples, and so tends to zero as the ground universe grows. We
-    give the per-invariant rate, and then a sharper structural result: an invariant
-    whose constraints decompose into independent bounded orbits (reflexivity,
-    symmetry, single-valuedness) admits a one-pass closure that restores it at a
-    fixed rate cost, $1-(1-\fprate)^{m}$ in the orbit size $m$, which by the
-    space-accuracy duality is a surcharge of only $\log_2 m$ bits per element;
-    whereas transitivity, whose triples chain, admits no bounded closure at all,
-    its repair cascading to depth $\lceil \log_2 k \rceil$. The cut is
-    decomposability, not arity.
+    give the per-invariant rate, and then a sharper structural result, a closure
+    dichotomy. A class-induced invariant (reflexivity, symmetry) is \emph{free}:
+    one canonical trial per orbit preserves it deterministically at the base
+    rates with no space surcharge, and an optional one-pass OR-closure trades a
+    $\log_2 m$-bit surcharge, in the orbit size $m$, for an $m$-trial recall
+    boost. The antitone case (single-valuedness) is repaired by deletion at a
+    closed-form rate. Transitivity, by contrast, is induced by no equivalence at
+    all, and admits no bounded closure: its repair cascades to depth
+    $\lceil \log_2 k \rceil$. The cut is decomposability, not arity.
     \item \emph{The approximate partial function} as the single-valued special
     case of the model (the dictionary), recovered directly from the relational
     treatment.
@@ -121,5 +122,7 @@ error-count machinery it inherits. \Cref{sec:rel_algebra} propagates error throu
 the operators. \Cref{sec:invariants} treats invariant preservation and the
 symmetric closure. \Cref{sec:map} presents the approximate partial function as
 the single-valued special case.
-\Cref{sec:trapdoor_rel_model} develops the trapdoor-database application.
+\Cref{sec:trapdoor_rel_model} develops the trapdoor-database application, and
+\cref{sec:conclusion} concludes with the dichotomy as the takeaway and the open
+problems.
 \end{document}

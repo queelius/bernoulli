@@ -210,30 +210,43 @@ dichotomy, and the dividing line is whether the invariant's constraints
 \emph{decompose into independent, bounded groups} or \emph{cascade}.
 
 Call an invariant \emph{local} if the pairs it constrains partition into disjoint
-\emph{orbits} of at most $m$ ordered pairs, with the invariant holding for
-$\ARelation{R}$ exactly when every orbit is admissible on its own. A local
-invariant is \emph{monotone} when \emph{filling} an orbit (admitting all of its
-pairs) makes it admissible, so the invariant is repaired by adding pairs, and
-\emph{antitone} when \emph{emptying} an orbit (down to at most one pair) makes it
-admissible, so it is repaired by deletion. Symmetry is monotone-local with $m=2$:
-the orbit of $\{a,b\}$ is $\{\Pair{a}{b}, \Pair{b}{a}\}$, admissible when its two
-trials agree, which filling the orbit secures. Reflexivity is the degenerate
-monotone case $m=1$: each diagonal pair $\Pair{a}{a}$ is its own orbit, a known
-required member that is admissible only when present. Single-valuedness is
-antitone-local: the orbit of a key $x$ is its row
-$\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present.
+bounded groups, the \emph{orbits}, of at most $m$ ordered pairs, with the
+invariant holding for $\ARelation{R}$ exactly when every orbit is admissible on
+its own. The monotone local invariants we treat are \emph{class-induced}: the
+orbits are the classes of an equivalence on the tuple universe, and a relation
+satisfies the invariant exactly when it is a \emph{union of orbits}. Symmetry is
+class-induced with $m=2$: the orbit of $\{a,b\}$ is
+$\{\Pair{a}{b}, \Pair{b}{a}\}$, and a relation is symmetric exactly when it
+contains both elements of every orbit it meets. Reflexivity is the degenerate
+\emph{forced} case $m=1$: each diagonal pair $\Pair{a}{a}$ is its own orbit,
+whose value the invariant forces to true. Larger orbits arise as soon as the
+invariant quotients by a larger symmetry: a $k$-ary relation required to be
+invariant under cyclic shifts of its coordinates has orbits of size dividing
+$k$, and one required to be invariant under all coordinate permutations (a
+relation of multisets) has orbits of size up to $k!$. Two consequences of the
+class-induced definition do the work below. First, because the exact
+$\Relation{R}$ satisfies the invariant, $\Relation{R}$ is itself a union of
+orbits, so every orbit is \emph{homogeneous}: wholly inside $\Relation{R}$ or
+wholly outside it. Second, the constraints decompose orbit by orbit, so a repair
+may treat orbits independently. A repair that adds pairs is \emph{monotone};
+one that deletes pairs is \emph{antitone}. Single-valuedness is the antitone
+case and is \emph{not} class-induced: the orbit of a key $x$ is its row
+$\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present,
+a cardinality cap rather than a union-of-classes condition.
 
-\begin{theorem}[Monotone local invariants admit a one-pass closure]
+\begin{theorem}[Class-induced invariants admit a one-pass closure]
 \label{thm:local_closure}
-Let $P$ be a monotone local invariant whose orbits each hold $m \ge 2$ mutually
-independent trials, repaired by the \emph{OR-closure} that admits every pair of an
+Let $P$ be a class-induced invariant with orbits of size at most $m$ (so that,
+$\Relation{R}$ satisfying $P$, every orbit is homogeneous), repaired by
+the \emph{OR-closure} that admits every pair of an
 orbit as soon as any pair of that orbit is reported. The closure makes every orbit
-internally consistent in one pass, so its output satisfies $P$ deterministically,
-as a random approximate relation of false-positive rate $1-(1-\fprate)^{m}$ and
+internally consistent in one pass, so its output satisfies $P$ deterministically.
+For $m \ge 2$ it combines the orbit's $m$ trials, yielding a random approximate
+relation of false-positive rate $1-(1-\fprate)^{m}$ and
 true-positive rate $1-(1-\tprate)^{m}$, a cost independent of $\Card{\Set{A}}$. The
-degenerate case $m=1$ (reflexivity) carries no second trial to combine: its orbit
-is a single known required pair, restored exactly by inserting the fixed diagonal
-at true-positive rate $1$ and no false positives, which is free.
+degenerate orbit size $m=1$ (reflexivity) carries no second trial to combine: its
+orbit is a single known required pair, restored exactly by inserting the fixed
+diagonal at true-positive rate $1$ and no false positives, which is free.
 \end{theorem}
 
 \begin{proof}
@@ -249,13 +262,69 @@ not interfere and one pass suffices. For $m=2$ this recovers
 \cref{thm:symmetric_closure}. The $m=1$ orbit has a single trial and no agreement
 to enforce, so the OR-closure cannot lift its true-positive rate above $\tprate$;
 reflexivity is instead secured by inserting the known diagonal outright, exactly
-and at no rate cost.
+and at no rate cost. Homogeneity is what makes the two rates clean; were an
+orbit permitted to straddle $\Relation{R}$, its fill probability would be the
+heterogeneous product $1-(1-\tprate)^{j}(1-\fprate)^{m-j}$ in the member count
+$j$, the same form as the mixed-fiber projection rate, but a class-induced
+invariant never produces such an orbit.
 \end{proof}
+
+The OR-closure restores the invariant by spending: it consults all $m$ trials of
+an orbit and moves both rates. It is natural to ask what the invariant alone
+costs, and the answer is nothing.
+
+\begin{theorem}[The canonical test: the invariant itself is free]
+\label{thm:canonical_test}
+Let $P$ be class-induced with orbits of size at most $m$. Fix a representative
+$\operatorname{rep}(O)$ in each orbit $O$, and let the \emph{canonical test} report
+$t \in \ARelation{R}[c]$ exactly when the single trial on
+$\operatorname{rep}(\operatorname{orbit}(t))$ fires. Then $\ARelation{R}[c]$ satisfies $P$
+deterministically, with false-positive rate $\fprate$ and true-positive rate
+$\tprate$ unchanged, and a structure built for the canonical test stores one
+element per member orbit, $\Card{\Relation{R}}/2$ elements for a symmetric
+relation with empty diagonal, rather than $\Card{\Relation{R}}$. Forced orbits
+(the reflexive diagonal) need no trial at all: answer true, exactly. The
+invariant itself therefore costs nothing, in rate or in space.
+\end{theorem}
+
+\begin{proof}
+Membership under the canonical test depends only on $\operatorname{orbit}(t)$, so
+$\ARelation{R}[c]$ is a union of orbits and satisfies $P$ in every realization.
+By homogeneity, $\operatorname{rep}(\operatorname{orbit}(t)) \in \Relation{R}$ if and only if
+$t \in \Relation{R}$, so the canonical trial is a true-positive trial (rate
+$\tprate$) precisely on members and a false-positive trial (rate $\fprate$)
+precisely on non-members. Only representatives are ever consulted, so a
+purpose-built structure stores one element per member orbit. The same test
+applies post hoc to an approximation built without regard to orbits, by
+rewriting each query to its representative: the invariant is restored with no
+rebuild and no rate movement.
+\end{proof}
+
+The two repairs now sit side by side. The canonical test secures the invariant
+at base rates and base space, and is available both at construction time and,
+by query rewriting, post hoc. The OR-closure spends more to get more: it
+consults all $m$ trials of the orbit and lifts the true-positive rate from
+$\tprate$ to $1-(1-\tprate)^{m}$, at the false-positive cost
+$1-(1-\fprate)^{m}$. The surcharge computed next is therefore the price of the
+\emph{recall boost}, not of the invariant.
 
 The single-valued (antitone) case is repaired in one pass the other way, by
 \emph{deletion}: keep at most one reported value per key. It too is local and
 $\Card{\Set{A}}$-independent, trading a lowered false-positive rate against the
 risk of dropping the true value, the selection counterpart of \cref{thm:functional}.
+The rate is closed-form under uniform tie-breaking: a defined key keeps its true
+value exactly when the value is reported (probability $\tprate$) and survives a
+uniform draw among the $1+K$ reported candidates, where $K$ counts the spurious
+reports, $K \sim \operatorname{Binomial}(\Card{\Set{Y}}-1, \fprate)$; averaging
+$1/(1+K)$ over the binomial gives the kept-value rate
+\begin{equation}
+  \tprate \, \frac{1-(1-\fprate)^{\Card{\Set{Y}}}}{\fprate \, \Card{\Set{Y}}}\,,
+\end{equation}
+which tends to $\tprate$ as $\fprate \to 0$ and decays like
+$\tprate/(\fprate \Card{\Set{Y}})$ once $\fprate \Card{\Set{Y}} \gg 1$. Securing
+single-valuedness \emph{by construction} is instead a change of type: store the
+partial function as a map, key to value, rather than as a relation, the object
+of the maps companion~\cite{bernoulliMaps}.
 
 The monotone cost has a clean reading in the space-accuracy duality of the entropy
 companion~\cite{bernoulliEntropy}, where a positive approximate set spends
@@ -270,21 +339,43 @@ which by the space-accuracy duality costs
 \begin{equation}
   -\log_2 \fprate \;=\; -\log_2 \fprate' + \log_2 m + o(1)
 \end{equation}
-bits per element: an additive surcharge of $\log_2 m$ bits buys the invariant
-through this closure. Symmetry costs one extra bit per element, reflexivity is
-free. This is the achievable cost of the OR-closure; whether a different
-invariant-preserving structure can do better, a matching lower bound, is open.
+bits per element: an additive surcharge of $\log_2 m$ bits per element buys the
+OR-closure's recall boost at an unmoved false-positive target. Symmetry's boost
+costs one extra bit per element; reflexivity is free outright. The surcharge
+prices the boost, not the invariant: \cref{thm:canonical_test} settles in the
+negative the question of whether the invariant itself forces any surcharge,
+since the canonical test preserves it at base rate and base space. The
+OR-closure remains the right tool when the $m$ orbit trials already exist and
+recall is worth buying.
 \end{corollary}
 
 Transitivity sits on the other side of the line, and the obstruction is exactly
-the failure of decomposability.
+the failure of decomposability. It fails in the strongest sense: not only does
+the OR-closure not apply, no canonical test can exist at all.
+
+\begin{lemma}[No equivalence induces transitivity]
+\label{lem:no_quotient}
+For $\Card{\Set{A}} \ge 2$, no equivalence on $\Set{A} \times \Set{A}$ has the
+transitive relations as its unions of classes. Transitivity therefore admits no
+canonical test, and the cascade below is not an artifact of choosing a poor
+repair.
+\end{lemma}
+
+\begin{proof}
+Unions of classes of a fixed equivalence are closed under arbitrary union. The
+transitive relations are not: $\{\Pair{a}{b}\}$ and $\{\Pair{b}{a}\}$ are each
+transitive, and their union omits $\Pair{a}{a}$ and so is not.
+\end{proof}
 
 \begin{theorem}[Transitivity cascades]
 \label{thm:transitivity_cascade}
 The transitive closure is not a one-pass repair. On the path relation
 $\Relation{R} = \{\Pair{1}{2}, \Pair{2}{3}, \ldots, \Pair{k}{k+1}\}$ over
 $\Card{\Set{A}} = k+1$ elements, reaching the transitive closure takes
-$\lceil \log_2 k \rceil$ successive passes and manufactures $\binom{k+1}{2} =
+$\lceil \log_2 k \rceil$ successive \emph{simultaneous} passes, each pass adding
+at once every pair the current relation implies,
+$\Relation{R} \gets \Relation{R} \cup (\Relation{R} \circ \Relation{R})$, and
+manufactures $\binom{k+1}{2} =
 \Theta(k^2)$ pairs. Both grow with $\Card{\Set{A}}$, so no fixed-cost,
 $\Card{\Set{A}}$-independent repair of the form of \cref{thm:local_closure} exists.
 \end{theorem}
@@ -302,10 +393,13 @@ orbits, which is the hypothesis \cref{thm:local_closure} requires.
 
 The four invariants therefore split on one line. Reflexivity, symmetry, and
 single-valuedness are \emph{local}: their constraints decompose into independent
-bounded orbits, so each is repaired in a single pass at a cost independent of the
-universe, by addition for the monotone two (with a $\log_2 m$ space surcharge,
-\cref{cor:invariant_space_cost}) and by deletion for the antitone one. Transitivity
-is \emph{global}: its triples chain, the repair cascades to depth
+bounded orbits, so each is secured in a single pass at a cost independent of the
+universe, for free by the canonical test where the invariant is class-induced
+(\cref{thm:canonical_test}), at a $\log_2 m$ surcharge where the OR-closure's
+recall boost is wanted (\cref{cor:invariant_space_cost}), and by deletion at a
+closed-form rate for the antitone one. Transitivity
+is \emph{global}: no equivalence induces it (\cref{lem:no_quotient}), its
+triples chain, the repair cascades to depth
 $\lceil \log_2 k \rceil$, and no bounded closure exists. The cut is decomposability,
 not the superficial pair-versus-triple arity.
 
@@ -316,8 +410,9 @@ querying an inconsistent database turns on the constraint class. The dichotomy
 here runs on a different axis. It is not the computational complexity of a repair
 over an exact database, but the closed-form \emph{rate and space cost} of
 restoring an invariant in the representation-error setting, where the relation is
-a compressed approximate structure and the repair is a one-pass closure whose
-price is the $\log_2 m$ surcharge of \cref{cor:invariant_space_cost}.
+a compressed approximate structure and the repair is a one-pass canonical test or
+closure whose price is zero (\cref{thm:canonical_test}) or the $\log_2 m$ recall
+surcharge of \cref{cor:invariant_space_cost}.
 
 These four results share a model-order reading. Each invariant partitions the
 universe into pairs (or triples) that play different error roles (diagonal versus
@@ -357,47 +452,7 @@ We consider relations known as \emph{partial functions} as given by the followin
 	\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]\,.
 	\end{equation}
 \end{definition}
-A partial function represents \emph{many}-to-\emph{one} relationships. Consequently, denoting a tuple by its \emph{mapped} value $\Tuple{y_1,\ldots,y_m} = \PFun{f}(x_1,\ldots,x_n) \in \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is ambiguous unless the partial function is a bijection (one-to-one).
-
-In the finite case, the number of partial functions of the type $\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is
-\begin{equation}
-\left(\Card{\Set{Y}} + 1\right)^{\Card{\Set{X}}}\,.
-\end{equation}
-
-The projection $\Proj_{\Set{X}[1] \times \cdots \times \Set{X}[n]}(\PFun{f})$ is also called the \emph{domain} of $\PFun{f}$, denoted by $\Dom(\PFun{f})$. The projection $\Proj_{\Set{Y}[1] \times \cdots \times \Set{Y}[m]}(\PFun{f})$ is also called the \emph{image} of $\PFun{f}$, denoted by $\Image(\PFun{f})$. The \emph{range} of $\PFun{f}$ is denoted by $\Range(\PFun{f}) = \Set{Y}[1] \times \cdots \times \Set{Y}[m]$.
-
-A \emph{table} is a convenient way to represent a partial function, where each tuple $\Tuple{x} \in \Dom(\PFun{f})$ is associated with $\PFun{f}(\Tuple{x}) \in \Image(\PFun{f})$. The column for the keys consists of \emph{unique} values from $\Set{X}$ and column for the values consists of (possibly repeated) values from $\Set{Y}$.
-\begin{example}
-	Suppose we have a partial function $\PFun{f} \colon \Set{Z}[1] \times \Set{Z}[2] \mapsto \Set{Q}$ defined by the table below.
-	\begin{table}[h]
-		\centering
-		\begin{tabular}{l l l}
-			\toprule
-			$\Set{Z}[1]$ & $\Set{Z}[2]$ & $\Set{Q}$\\
-			\midrule
-			$1$ & $5$ & $\frac{1}{5}$\\
-			$2$ & $10$ & $\frac{1}{5}$\\
-			$10$ & $2$ & $5$\\
-			\bottomrule
-		\end{tabular}
-		\caption{A partial function $\Set{Z}[1] \times \Set{Z}[2] \mapsto \Set{Q}$ as a table.}
-	\end{table}
-	We see that $\Dom(\PFun{f}) = \{\Pair{1}{5},\Pair{2}{10},\Pair{10}{2}\}$ and $\Image(\PFun{f}) = \left\{\frac{1}{5},5\right\}$. As a partial function, we may unambiguously denote any value in the \nth{3} position of the relation by the unique combination of tuple values in the \nth{1} and \nth{2} positions, i.e., $\PFun{f}(10,2)=5$.
-\end{example}
-
-\emph{Maps} and \emph{partial functions} are synonymous, but the term \emph{map} is more common in the context of a partial function of order $2$ where the elements of the domain are denoted \emph{keys} and the elements of the range may be denoted \emph{values}.
-
-
-
-
-
-
-
-
-\subsection{Abstract data type}
-A \emph{type} is a set and the elements of the set are called the \emph{values} of the type. An \emph{abstract data type} is a type and a set of operations on values of the type. For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction. A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types. An \emph{immutable} data structure has static state; once constructed, its state does not change until it is destroyed.
-
-The abstract data type of the \emph{approximate partial function} is given by the following definition.
+A partial function represents \emph{many}-to-\emph{one} relationships, so a tuple in its domain unambiguously names its mapped value. The projection $\Proj_{\Set{X}[1] \times \cdots \times \Set{X}[n]}(\PFun{f})$ is the \emph{domain} of $\PFun{f}$, denoted $\Dom(\PFun{f})$; the projection $\Proj_{\Set{Y}[1] \times \cdots \times \Set{Y}[m]}(\PFun{f})$ is its \emph{image}, $\Image(\PFun{f})$; the \emph{range} is $\Range(\PFun{f}) = \Set{Y}[1] \times \cdots \times \Set{Y}[m]$. \emph{Maps} and \emph{partial functions} are synonymous; \emph{map} is the more common term when the domain elements are called \emph{keys} and the range elements \emph{values}. The classical development (counting, table representation, worked examples) belongs to the maps companion~\cite{bernoulliMaps}; here we need only the abstract data type of the approximate partial function, which the single-valuedness results of \cref{sec:functional,sec:closure_dichotomy} ground.
 \begin{definition}
 	\label{def:approx_pfun}
 	A relation $\APFun{f} = \Set{X}[1] \times \cdots \times \Set{X}[n] \times \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is an \emph{approximate partial function} of $\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ if the following conditions hold:

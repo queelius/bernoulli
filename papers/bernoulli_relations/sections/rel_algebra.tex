@@ -284,7 +284,10 @@ intersection rate of two Bernoulli sets~\cite{bernoulliComposition}.
 \begin{proof}
 A join tuple $(r,s)$ is reported by $\ARelation{R} \Join \ARelation{S}$ if and
 only if $r \in \ARelation{R}$ and $s \in \ARelation{S}$, since the value-level
-join condition is exact. The two operand tests are independent.
+join condition is exact. The two operand tests are independent, by the
+\emph{inter-relation} independence assumed at the start of this section, a
+standing assumption distinct from the per-tuple independence of
+\cref{asm:ber_trial}.
 
 For (i), with $r \in \Relation{R}$ and $s \in \Relation{S}$, the tuple is correctly
 reported with probability $\tprate_R \tprate_S$ and missed otherwise, so
@@ -442,7 +445,14 @@ non-member with probability $\fprate$, exactly the per-tuple law of
 \cref{asm:ber_trial}. The script then assembles the operator outputs (the fiber
 \textsc{or} of a projection, the operand \textsc{and} of a join, the ordered-pair
 \textsc{or} of a symmetric closure) and estimates each reported rate over
-$2\times 10^{6}$ trials. \Cref{tbl:validation} transcribes the headline
+$2\times 10^{6}$ trials. The same harness covers the invariant results of
+\cref{sec:invariants}: the preservation probabilities, the general-$m$
+OR-closure and the base-rate canonical test of the closure dichotomy
+(\cref{sec:closure_dichotomy}; the companion script
+\texttt{validate\_quotient.py} adds the storage-halving comparison), the
+deletion repair's kept-value rate, and the deterministic
+$\lceil \log_2 k \rceil$-pass transitivity cascade, including the non-power-of-two
+fan lengths that exercise the ceiling. \Cref{tbl:validation} transcribes the headline
 comparisons at the illustrative rates $\fprate = 0.05$, $\fnrate = 0.10$
 ($\tprate = 0.90$); the empirical estimates agree with the analytical formulas to
 three to four decimal places throughout.
