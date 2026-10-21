@@ -55,3 +55,7 @@ bounded-discovery/manuscript/venues/entropy-comment/declarations.md
 # page captures; keep only result figures
 *.png
 !comparison.png
+
+# Unconfirmed suspected flaws in other authors' published papers stay local
+# until confirmed and the authors have been notified (responsible disclosure)
+attack-screening/
