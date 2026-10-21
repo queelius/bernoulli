@@ -99,6 +99,11 @@ per-paper state under `papers/<paper>/.papermill/state.md`.
 
 ## Subtree Workflow
 
+**The ten paper repos were archived read-only on 2026-10-21** after the freeze
+(final Zenodo versions recorded in `papers/freeze-manifest.json`). Subtree
+pushes to them now fail by design; unarchive a repo on GitHub first if a paper
+ever needs another push. The retired `bernoulli-cpp` remote is unaffected.
+
 Each top-level component has a dedicated GitHub remote. From the monorepo
 root (`/home/spinoza/github/bernoulli`):
 
