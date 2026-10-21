@@ -22,7 +22,7 @@ The coincidence-oracle attacker predicts ``k in S`` iff ``C``. At balanced prior
 
 **Asymptotic decay.** ``sum_v q_v^t`` is dominated by ``(max_v q_v)^t``. So accuracy approaches 1 - ``(max_v q_v)^t / 2`` exponentially in ``t``. The *base* of the decay is ``max_v q_v``.
 
-**Setup.** ``|S| = 2000`` keys, ``|V| = 8`` values, n_test_per_class = 5000, seed = 2026, elapsed = 10.3s.
+**Setup.** ``|S| = 2000`` keys, ``|V| = 8`` values, n_test_per_class = 5000, seed = 2026, elapsed = 10.2s.
 
 ## Headline table: predicted vs empirical
 
@@ -102,10 +102,10 @@ As ``t`` grows, ``sum_v q_v^t`` is asymptotically dominated by the largest term 
 
 | codec | max q_v | (max q_v)^5 | sum q_v^5 | attacker error rate at t=5 |
 |---|--:|--:|--:|--:|
-| Dense(M=3) | 0.125 | 3.052e-05 | 0.0002441 | 0.000122 |
+| Dense(M=3) | 0.125 | 3.052e-05 | 0.0002441 | 0.0001221 |
 | Dense(M=4) | 0.5625 | 0.05631 | 0.05632 | 0.02816 |
 | Padded(M=4,v0) | 0.5625 | 0.05631 | 0.05632 | 0.02816 |
-| Huffman(M=4,p_f) | 0.5 | 0.03125 | 0.03129 | 0.01565 |
+| Huffman(M=4,p_f) | 0.5 | 0.03125 | 0.03129 | 0.01564 |
 | AntiHuffman(M=4) | 0.25 | 0.0009766 | 0.002018 | 0.001009 |
 
 **Reading the table.** Higher attacker error rate = better defense. Concentrated codecs (Padded(v0), Dense(M=4), Huffman) have the largest ``sum_v q_v^t`` and therefore the highest attacker error rate. Uniform Dense(M=3) and AntiHuffman both spread the codespace across many values and have very small ``sum_v q_v^t``, giving very low attacker error rate (near-certain inference). The BASE of the exponential decay in the attacker's coincidence probability is ``max_v q_v``; the defender wants this LARGE.

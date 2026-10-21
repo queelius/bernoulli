@@ -139,3 +139,51 @@ class TestBitsPerKey:
         entropy = algebra.bits_per_key_for_fpr(target)
         bloom = algebra.bloom_bits_per_key_for_fpr(target)
         assert math.isclose(bloom / entropy, 1.0 / math.log(2.0), abs_tol=1e-12)
+
+
+class TestArgumentValidation:
+    """Every public helper rejects out-of-range arguments with ValueError."""
+
+    @pytest.mark.parametrize(
+        ("func", "kwargs"),
+        [
+            (algebra.composition_homogeneous, {"rate": 1.5, "k": 2}),
+            (algebra.k_for_and_chain_target, {"per_round_rate": 1.0, "target_rate": 0.1}),
+            (algebra.k_for_and_chain_target, {"per_round_rate": 0.5, "target_rate": 0.0}),
+            (algebra.max_k_for_or_chain_budget, {"per_stage_rate": 1.0, "error_budget": 0.1}),
+            (algebra.max_k_for_or_chain_budget, {"per_stage_rate": 0.1, "error_budget": 1.5}),
+            (algebra.miller_rabin_error, {"k": -1}),
+            (algebra.miller_rabin_error, {"k": 2, "single_witness_fpr": 1.5}),
+            (algebra.bloom_filter_fpr, {"num_keys": -1, "num_bits": 8, "num_hashes": 1}),
+            (algebra.bloom_filter_optimal_k, {"num_keys": 0, "num_bits": 8}),
+            (algebra.bits_per_key_for_fpr, {"target_fpr": 0.0}),
+            (algebra.bloom_bits_per_key_for_fpr, {"target_fpr": 1.5}),
+        ],
+    )
+    def test_rejects(self, func: object, kwargs: dict[str, float]) -> None:
+        assert callable(func)
+        with pytest.raises(ValueError):
+            func(**kwargs)
+
+
+class TestBoundaryCases:
+    def test_and_chain_needs_no_rounds_for_perfect_witness_or_trivial_target(self) -> None:
+        assert algebra.k_for_and_chain_target(per_round_rate=0.0, target_rate=1e-9) == 0
+        assert algebra.k_for_and_chain_target(per_round_rate=0.5, target_rate=1.0) == 0
+
+    def test_or_chain_budget_limits(self) -> None:
+        unbounded = algebra.max_k_for_or_chain_budget(per_stage_rate=0.0, error_budget=0.1)
+        assert unbounded == algebra.max_k_for_or_chain_budget(
+            per_stage_rate=0.1, error_budget=1.0
+        )
+        assert unbounded > 10**6
+        assert algebra.max_k_for_or_chain_budget(per_stage_rate=0.1, error_budget=0.0) == 0
+
+    def test_bloom_degenerate_sizes(self) -> None:
+        assert algebra.bloom_filter_fpr(num_keys=10, num_bits=0, num_hashes=3) == 1.0
+        assert algebra.bloom_filter_fpr(num_keys=0, num_bits=64, num_hashes=3) == 0.0
+        assert algebra.bloom_filter_fpr(num_keys=10, num_bits=64, num_hashes=0) == 0.0
+
+    def test_bloom_bits_per_key_is_log2e_times_floor(self) -> None:
+        floor = algebra.bits_per_key_for_fpr(0.001)
+        assert math.isclose(algebra.bloom_bits_per_key_for_fpr(0.001), floor / math.log(2.0))

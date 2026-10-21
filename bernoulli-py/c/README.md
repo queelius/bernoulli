@@ -1,8 +1,9 @@
 # C source for the bernoulli package
 
-This directory holds the C source compiled into ``_bernoulli_c.so`` via cffi
-(api mode) when the ``[c]`` extra is installed. Phase 1 ships zero C code;
-the directory is reserved.
+This directory is reserved for the C source to be compiled into
+``_bernoulli_c.so`` via cffi (api mode) by a future ``[c]`` extra. As of 0.3.0
+there is no C code and no ``[c]`` extra; every module is pure Python. What
+follows is the plan.
 
 ## What lives here
 

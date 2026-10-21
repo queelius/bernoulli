@@ -39,6 +39,21 @@ The other two are genuine three-region weighted sums (book section 6.2):
       fnr = w1 fnr_A (1 - fpr_B) + w2 fnr_B (1 - fpr_A) + w3 fnr_A fnr_B
 
 ``complement`` swaps the two axes; ``difference`` is ``A and complement(B)``.
+
+Nesting operations
+------------------
+Each function is exact for **one** operation, given the partition and
+independent operand errors. Its result is a mass-weighted average over cells,
+so using it as an operand of a further operation is exact only when the inner
+partition describes the queries the outer operation conditions on. A point-mass
+partition (one known latent cell per level) is exact; the ``Partition.sparse()``
+default and other mixtures discard the information the next level needs. A set
+that appears twice in an expression, as in ``(A and B) or (A and C)``, also
+breaks the independence of operand errors. For ``(A and B) or C`` with every
+operand at ``(0.02, 0.10)`` and a query in ``B`` only, point-mass partitions
+give the exact 0.03764 while sparse partitions give 0.020392.
+:mod:`bernoulli.formula` evaluates such expressions exactly at any latent word
+and gives sound worst-case rates.
 """
 
 from __future__ import annotations

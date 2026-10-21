@@ -85,3 +85,74 @@ class TestSampleUniqueBytes:
         samples = sample_unique_bytes(10, length=16, rng=random.Random(0))
         for s in samples:
             assert len(s) == 16
+
+
+class TestNormalQuantile:
+    """The inverse-normal approximation behind non-tabulated confidence levels."""
+
+    @pytest.mark.parametrize(
+        ("p", "z"),
+        [
+            (0.5, 0.0),
+            (0.975, 1.959963984540054),
+            (0.995, 2.5758293035489004),
+            (0.9, 1.2815515655446004),
+            (0.001, -3.090232306167813),  # lower tail branch
+            (0.999, 3.090232306167813),  # upper tail branch
+        ],
+    )
+    def test_known_values(self, p: float, z: float) -> None:
+        from bernoulli.harness import _normal_quantile
+
+        assert math.isclose(_normal_quantile(p), z, abs_tol=1e-6)
+
+    def test_symmetry(self) -> None:
+        from bernoulli.harness import _normal_quantile
+
+        for p in (0.01, 0.2, 0.4):
+            assert math.isclose(_normal_quantile(p), -_normal_quantile(1.0 - p), abs_tol=1e-9)
+
+    @pytest.mark.parametrize("p", [0.0, 1.0, -0.1])
+    def test_out_of_range(self, p: float) -> None:
+        from bernoulli.harness import _normal_quantile
+
+        with pytest.raises(ValueError):
+            _normal_quantile(p)
+
+    def test_untabulated_confidence_uses_quantile(self) -> None:
+        # 80% two-sided: z = 1.2815515655446004.
+        z = 1.2815515655446004
+        n, k = 400, 100
+        p = k / n
+        denom = 1.0 + z * z / n
+        centre = (p + z * z / (2.0 * n)) / denom
+        half = z * math.sqrt(p * (1.0 - p) / n + z * z / (4.0 * n * n)) / denom
+        low, high = wilson_ci(k, n, confidence=0.80)
+        assert math.isclose(low, centre - half, abs_tol=1e-6)
+        assert math.isclose(high, centre + half, abs_tol=1e-6)
+
+    @pytest.mark.parametrize("confidence", [0.90, 0.99])
+    def test_tabulated_levels_widen_with_confidence(self, confidence: float) -> None:
+        low, high = wilson_ci(30, 100, confidence=confidence)
+        base_low, base_high = wilson_ci(30, 100)
+        if confidence > 0.95:
+            assert low < base_low and high > base_high
+        else:
+            assert low > base_low and high < base_high
+
+
+class TestRateEstimateAndCompositionCheck:
+    def test_ci_width_and_str(self) -> None:
+        r = estimate_rate(10, 100)
+        assert math.isclose(r.ci_width, r.ci_high - r.ci_low)
+        assert "n=100" in str(r) and "CI=95%" in str(r)
+
+    def test_composition_check_flags(self) -> None:
+        from bernoulli.harness import CompositionCheck
+
+        emp = EmpiricalRates(fpr=estimate_rate(10, 1000), fnr=estimate_rate(50, 1000))
+        hit = CompositionCheck(predicted_fpr=0.01, predicted_fnr=0.05, empirical=emp)
+        miss = CompositionCheck(predicted_fpr=0.5, predicted_fnr=0.5, empirical=emp)
+        assert hit.fpr_within_ci and hit.fnr_within_ci
+        assert not miss.fpr_within_ci and not miss.fnr_within_ci
+        assert "[OK]" in str(hit) and "[MISS]" in str(miss)

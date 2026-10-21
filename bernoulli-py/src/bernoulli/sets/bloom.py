@@ -1,7 +1,7 @@
 """Pure-Python Bloom filter as a Bernoulli<set>.
 
-A small, dependency-free reference implementation. Phase 2 will add a
-C-accelerated variant in ``c/bloom.c`` with the same public surface.
+A small, dependency-free reference implementation. A C-accelerated variant
+with the same public surface is planned (``c/bloom.c``); none exists yet.
 
 Design notes
 ------------

@@ -52,10 +52,11 @@ specified in `docs/superpowers/specs/2026-06-05-bernoulli-package-unification.md
 
 The single Python tree. Import name `bernoulli`; PyPI distribution name
 `bernoulli-types` (the bare `bernoulli` is taken on PyPI). Zero runtime
-dependencies; optional plain-C acceleration via cffi (the `[c]` extra) with
-pure-Python fallbacks. Built atom-outward in phases mirroring the book's five
-parts; see `bernoulli-py/PHASING.md`. Status: alpha 0.2.0 (Phase 1, the atom,
-complete; sets / maps / sketches partially landed).
+dependencies; a plain-C acceleration path is planned but none exists yet (the
+`[c]` extra was removed in 0.3.0). Built atom-outward in phases mirroring the
+book's five parts; see `bernoulli-py/PHASING.md`. Status: 0.3.0 (all five phases
+present in pure Python; `bernoulli.formula` gives exact per-latent-word error
+for Boolean formulas). CI: `.github/workflows/bernoulli-py.yml`.
 
 Layout: `src/bernoulli/` (the package, src-layout), `tests/` (pytest +
 hypothesis), `experiments/` (16 validation experiments, the research layer),
@@ -73,7 +74,7 @@ VIRTUAL_ENV="$PWD/.venv" uv pip install -e ".[dev]"   # package + pytest/ruff/my
 ```
 
 Extras: `[dev]` (test/lint/type), `[notebooks]` (jupyter, numpy, scipy,
-matplotlib, sympy), `[c]` (cffi, Phase 2+).
+matplotlib, sympy).
 
 ### Archived C++ reference
 

@@ -6,16 +6,33 @@ a binary channel parameterized by:
 - ``fpr`` (alpha): false-positive rate, ``P(observe true | true value false)``
 - ``fnr`` (beta):  false-negative rate, ``P(observe false | true value true)``
 
-The framework treats ``BernoulliBool`` as a single algebraic type closed under
-AND, OR, and NOT, with closed-form rate composition derived in book chapter 3.
+The operators ``~``, ``&`` and ``|`` return another :class:`BernoulliBool`, and
+book chapter 3 derives their rates. Which formula is exact depends on what the
+operands observe, so the semantics are stated per method:
 
-Two flavors of binary composition are exposed:
+1. ``~b`` swaps the two rates. Exact for any single observation.
+2. ``a & b`` and ``a | b`` use the **shared-truth** reading: both operands are
+   independent noisy observations of the *same* latent truth value (``k``
+   Miller-Rabin rounds on one ``n``, two classifiers on one input). The rates
+   are then prior-free products, and a read-once AND/OR tree of independent
+   observations of one latent bit composes exactly node by node.
+3. ``and_with_prior`` and ``or_with_prior`` use the **independent-truths**
+   reading: each operand observes its own latent bit, true with probability
+   ``prior``. The returned prior-dependent rate is the exact marginal for that
+   one gate, averaged over the input words.
 
-1. ``__and__`` / ``__or__``: distribution-free formulas for one rate, with the
-   conservative ``min`` bound for the other. Cheap; never wrong; not always
-   tight.
-2. ``and_with_prior`` / ``or_with_prior``: the closed-form prior-dependent
-   formulas. Tight when the prior is known.
+What does *not* hold is exact composition through an arbitrary Boolean formula.
+Over different latent bits, a gate's output is not a two-rate bit: the AND's
+false-positive rate is ``fpr_1 * (1 - fnr_2)`` when the true inputs are
+``(False, True)`` and ``fpr_1 * fpr_2`` when they are ``(False, False)``. A
+later gate that receives one summary number cannot tell these apart. For
+``(b0 & b1) | b2`` with every channel at ``(0.02, 0.10)`` and true inputs
+``(False, True, False)``, the exact error is 0.03764 while chaining the
+operators reports 0.020392. The operators also cannot detect a reused operand:
+``b & b`` treats one observation as two independent ones, and ``a & ~b`` of two
+observations of one bit violates the shared-truth premise. Use
+:mod:`bernoulli.formula` for exact per-word rates, a sound worst-case pair, or
+prior-weighted marginals through a whole formula.
 
 Two structurally important specializations:
 
@@ -26,9 +43,10 @@ Two structurally important specializations:
 - ``one_sided_fnr(value, fnr)``: dual; ``fpr == 0``. Las Vegas algorithms and
   any "answer is always correct, but might fail to answer" structure.
 
-Both one-sided forms compose cleanly: AND of two ``one_sided_fpr`` instances
-is again ``one_sided_fpr`` with ``fpr_combined`` independent of any input
-prior, which is why Miller-Rabin's ``alpha^k`` bound holds in closed form.
+Under the shared-truth reading, the AND of two ``one_sided_fpr`` instances is
+again ``one_sided_fpr`` with ``fpr_1 * fpr_2``, independent of any prior, which
+is why Miller-Rabin's ``alpha^k`` bound holds in closed form: its rounds all
+test the same ``n``.
 """
 
 from __future__ import annotations
@@ -128,7 +146,9 @@ class BernoulliBool:
 
         For the alternative scenario in which the two inputs are independent
         truths drawn from a shared prior pi (e.g., AND-ing two distinct
-        boolean facts about a query), use :meth:`and_with_prior`.
+        boolean facts about a query), use :meth:`and_with_prior`. Neither
+        reading makes the result exact as an input to further gates over other
+        latent bits; see the module docstring and :mod:`bernoulli.formula`.
         """
         v = self.value and other.value
         fpr = self.fpr * other.fpr
@@ -146,7 +166,8 @@ class BernoulliBool:
         The duality with AND is exact: OR's FNR mirrors AND's FPR, and
         vice versa, as expected from De Morgan's law.
 
-        For independent-truths semantics, use :meth:`or_with_prior`.
+        For independent-truths semantics, use :meth:`or_with_prior`; for exact
+        rates through a larger formula, use :mod:`bernoulli.formula`.
         """
         v = self.value or other.value
         fpr = self.fpr + other.fpr - self.fpr * other.fpr
@@ -160,7 +181,10 @@ class BernoulliBool:
         identical across the two inputs and independent.
 
         Returns the same FNR as ``__and__`` (which is prior-free) plus the
-        exact FPR for the given prior.
+        exact FPR for the given prior. That FPR is an average over the three
+        negative input words, so it is the right rate for this one gate and
+        the wrong one to feed into another gate; :func:`bernoulli.formula.marginal_rates`
+        computes the marginal for a whole formula.
         """
         if not 0.0 <= prior <= 1.0:
             raise ValueError(f"prior must be in [0, 1], got {prior!r}")
@@ -168,19 +192,21 @@ class BernoulliBool:
         v = self.value and other.value
         fnr = self.fnr + other.fnr - self.fnr * other.fnr
 
-        # P[true AND = False] = 1 - prior^2
-        # The three contributing patterns are weighted equally by prior(1-prior),
-        # prior(1-prior), and (1-prior)^2.
-        denom = 1.0 - prior * prior
-        if denom <= 0.0:
-            fpr = 0.0
+        # P[true AND = False] = 1 - prior^2 = (1 - prior)(1 + prior). The three
+        # negative words carry weights prior(1-prior), (1-prior)prior and
+        # (1-prior)^2, so the common factor (1 - prior) cancels analytically.
+        # Cancelling it in code avoids the precision lost to 1 - prior^2 near
+        # prior = 1, and mirrors or_with_prior, where the uncancelled form
+        # rounds to 0 for tiny priors.
+        if prior >= 1.0:
+            fpr = 0.0  # the negative class is empty
         else:
             num = (
-                prior * (1.0 - prior) * (1.0 - self.fnr) * other.fpr
-                + (1.0 - prior) * prior * self.fpr * (1.0 - other.fnr)
-                + (1.0 - prior) * (1.0 - prior) * self.fpr * other.fpr
+                prior * (1.0 - self.fnr) * other.fpr
+                + prior * self.fpr * (1.0 - other.fnr)
+                + (1.0 - prior) * self.fpr * other.fpr
             )
-            fpr = num / denom
+            fpr = min(1.0, num / (1.0 + prior))
         return BernoulliBool(value=v, fpr=fpr, fnr=fnr)
 
     def or_with_prior(self, other: BernoulliBool, prior: float) -> BernoulliBool:
@@ -189,7 +215,8 @@ class BernoulliBool:
         ``prior`` is ``P(true value of either input == True)``.
 
         Returns the same FPR as ``__or__`` (prior-free) plus the exact FNR
-        for the given prior.
+        for the given prior, averaged over the three positive input words (the
+        same caveat as :meth:`and_with_prior` applies to further composition).
         """
         if not 0.0 <= prior <= 1.0:
             raise ValueError(f"prior must be in [0, 1], got {prior!r}")
@@ -197,17 +224,19 @@ class BernoulliBool:
         v = self.value or other.value
         fpr = self.fpr + other.fpr - self.fpr * other.fpr
 
-        # P[true OR = True] = 1 - (1 - prior)^2
-        denom = 1.0 - (1.0 - prior) * (1.0 - prior)
-        if denom <= 0.0:
-            fnr = 0.0
+        # P[true OR = True] = 1 - (1 - prior)^2 = prior(2 - prior). The three
+        # positive words carry weights prior^2, prior(1-prior) and
+        # (1-prior)prior, so the common factor prior cancels analytically,
+        # which keeps tiny priors from cancelling or underflowing to 0.
+        if prior <= 0.0:
+            fnr = 0.0  # the positive class is empty
         else:
             num = (
-                prior * prior * self.fnr * other.fnr
-                + prior * (1.0 - prior) * self.fnr * (1.0 - other.fpr)
-                + (1.0 - prior) * prior * (1.0 - self.fpr) * other.fnr
+                prior * self.fnr * other.fnr
+                + (1.0 - prior) * self.fnr * (1.0 - other.fpr)
+                + (1.0 - prior) * (1.0 - self.fpr) * other.fnr
             )
-            fnr = num / denom
+            fnr = min(1.0, num / (2.0 - prior))
         return BernoulliBool(value=v, fpr=fpr, fnr=fnr)
 
     NOT = __invert__

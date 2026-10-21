@@ -3,11 +3,18 @@
 A single-document orientation to the 16 experiments built in `experiments/`,
 their findings, and the publishable threads that emerge from them.
 
+> **Revised 2026-10-21.** The Exp 14 codec ordering was stated backwards here
+> from May until this revision ("Dense wins at t >= 2"); it is corrected below
+> in the Exp 14 findings, Thread A claim 6, the resolved-questions list and the
+> closing summary, matching `RESULTS_14.md` and its regenerated generator. The
+> Exp 11 Le Cam agreement is now described as a consistency check. Counts and
+> paths are updated to the 0.3.0 package.
+
 ## Scope
 
 The Bernoulli framework treats Bloom filters, perfect-hash filters, ribbon
 retrieval, sketches, and noisy classifiers as instances of a single algebraic
-type system: random approximate types with quantifiable error rates. The 10
+type system: random approximate types with quantifiable error rates. The 16
 experiments validate framework predictions empirically and identify regimes
 where they break or where the predictions are loose. This document is the
 synthesis layer over the per-experiment `RESULTS_NN.md` reports.
@@ -25,7 +32,13 @@ Atom-outward, matching the textbook:
 | Sketches | `sketches.hyperloglog` | 09 |
 | Composition (cross-cutting) | (algebra) | 01, 06 |
 
-440 tests pass. Ruff and mypy strict clean across 19 source files.
+The table lists the modules the experiments exercise. The package also has
+`formula`, `sets.composition`, `sets.entropy_bound`, `maps.perfect_hash`,
+`maps.perfect_filter`, `maps.retrieval`, `relations`, `sketches.countmin` and
+`sketches.minhash`, which are covered by the test suite rather than by a
+numbered experiment. As of 0.3.0 (2026-10-21): 621 tests pass (3 skipped),
+branch coverage is 94%, and ruff and mypy --strict are clean across 30 source
+files.
 
 ## Findings by theme
 
@@ -119,15 +132,18 @@ eliminates by construction. This is a real security-relevant property of
 minimal-PHF retrieval that was not previously articulated in the maph
 research.
 
-**Exp 11 confirmed Le Cam tightness.** Three attackers (Bayes, logistic
-regression, k-nearest-neighbor) all converge to the same accuracy and
-respect `accuracy <= 1/2 + TV/2` across 10 codec configurations. Across
-TV ranging from 0.10 (Huffman M=5) to 0.62 (anti-Huffman M=5), the
-empirical max-attacker accuracy tracks `1/2 + TV/2` with max deviation
-0.014 (sampling noise). At |V| = 8 the feature space is small enough that
-all reasonable attackers reduce to per-value majority vote and tie at the
-Le Cam bound. **The codec controls a fundamental information-theoretic
-security parameter, not a heuristic.**
+**Exp 11 is a consistency check, not a finding.** With a finite output
+alphabet and balanced classes, the Bayes-optimal value-only attacker's
+accuracy is `1/2 + TV/2` by definition: the likelihood-ratio rule attains
+Le Cam's two-point bound exactly. At |V| = 8 the three attackers (count-based
+Bayes, logistic regression on one-hot values, 1-nearest-neighbor) all reduce
+to that per-value majority vote, so their agreement with `1/2 + TV/2` (max
+deviation 0.014 across 10 codec configurations, TV from 0.10 to 0.62) checks
+the implementation and the TV estimates. It does not show anything new about
+attackers. What carries over is the standard fact that for value-only
+attackers the distance `TV(member output, non-member output)` fixes the best
+achievable accuracy, and the codec sets that distance. (`RESULTS_11.md` also
+says Huffman provably minimizes TV; Exp 13 below shows it does not.)
 
 **Exp 12 found a catastrophic multi-instance leak.** Publishing the SAME
 cipher-map twice (same f, possibly different codecs) takes single-instance
@@ -174,22 +190,31 @@ accuracy(t, q_codec) = 1 - (sum_v q_v^t) / 2     (at balanced class prior)
 ```
 
 This closed form matches empirical in 24 of 25 cells (one miss at 0.003
-sampling noise). Stronger: **the coincidence oracle saturates the Le Cam
-upper bound at t >= 2 across every codec.** All Bayes signal IS the
-coincidence statistic in the shared-f regime.
+sampling noise). At t >= 2 the coincidence oracle comes within 0.004 of the
+Le Cam bound in 19 of 20 cells (the bound is a plug-in value from the
+empirical joint TV, so small negative gaps are sampling noise); AntiHuffman
+at t = 2 leaves a gap of 0.026. In the shared-f regime nearly all of the
+Bayes signal is the coincidence statistic.
 
-**The geometric corollary is a t-dependent codec choice.** As t grows,
+**The geometric corollary: concentrated codecs defend best at every t.**
+Attacker accuracy is `1 - (sum_v q_v^t) / 2`, so a LARGER `sum_v q_v^t`
+means LOWER attacker accuracy and a better defense, and as t grows
 `sum_v q_v^t` is dominated by `(max_v q_v)^t`. Therefore:
 
-- **At t=1**: Huffman wins (low TV at t=1 is the relevant objective).
-- **At t >= 2 with shared-f**: the codec with smallest `max_v q_v` wins.
-  This is uniform Dense (max q_v = 1/|V|), NOT Huffman (max q_v ~ p_max).
+- **At t=1**: Huffman wins (lowest TV).
+- **At t >= 2 with shared-f**: the codecs with the largest `max_v q_v`
+  defend best: Padded(v0), Dense(M=4) with its surplus folded onto v0, and
+  Huffman (max q_v ~ p_max). Uniform Dense(M=3) (max q_v = 1/|V|) defends
+  worst.
 
-For |V| = 8: Dense max q_v = 0.125, Huffman max q_v ~ 0.5 (Zipf head).
-At t=5: Dense accuracy ~0.9999 vs Huffman ~0.984. **The codec that leaks
-most at t=1 (Dense, mismatching p_f) defends best at t >= 2.** This is a
-sharp single-vs-multi-instance design trade-off the original Thread A
-claim did not anticipate.
+For |V| = 8: Dense(M=3) max q_v = 0.125, Huffman max q_v = 0.5 (Zipf head).
+At t=5: Dense(M=3) attacker accuracy ~0.9999 vs Huffman ~0.984. **There is no
+single-versus-multi-instance trade-off: Huffman-style concentration is
+favored at t=1 and at t >= 2.** Concentration only slows the attacker; every
+codec's attacker accuracy still approaches 1, so the defenses that matter
+are an independent f per instance (Exp 12) and randomized encoding (Exp 15).
+Until this revision the paragraph stated the reverse ("Dense defends best at
+t >= 2"); the sign of the comparison was inverted.
 
 **Exp 15 found a SECOND defense, free at t=1.** Randomized encoding
 (`PrefixCodec.encode_random`, which encodes a value as a uniformly random
@@ -259,21 +284,24 @@ Bloom.
 
 ### Thread A: Codec choice as a security primitive in approximate maps
 
-**Paper-ready as of Exp 11 through 16.** Eight experiments form the
-complete empirical/theoretical case for the paper.
+**Empirical case assembled in Exp 11 through 16**; see the caveats in the
+closing summary before calling it paper-ready. The claims concern an
+idealized model in which non-member queries decode a uniformly random
+pattern. The package's hashing (FNV-1a, splitmix64) is not cryptographic and
+does not instantiate that model securely.
 
-Headline claims (all empirically validated):
+Headline claims (all empirically checked):
 
 1. **Codec controls TV.** For approximate maps with codec-controlled
    non-member output, the codec's codespace allocation determines the
    distribution of non-member outputs. Member outputs follow `p_f`. The
    distance `TV(p_f, q_codec)` is the leakage parameter (Exp 04, 07).
-2. **TV upper-bounds attacker accuracy via Le Cam.** No attacker, however
-   clever, can exceed `1/2 + TV/2` accuracy. Multiple attacker classes
-   (Bayes, logistic regression, kNN) achieve this bound to within sampling
-   noise across all tested codecs (Exp 11). The bound applies to value-only
-   attackers; key-feature attackers can exceed it on structured key
-   universes (Exp 16, the scope clarification).
+2. **TV fixes the best value-only attacker's accuracy (Le Cam).** At
+   balanced prior no value-only attacker exceeds `1/2 + TV/2`, and the Bayes
+   rule attains it. This is a standard identity; Exp 11 reproduces it as a
+   consistency check. The bound applies to value-only attackers; key-feature
+   attackers can exceed it on structured key universes (Exp 16, the scope
+   clarification).
 3. **Huffman is L-Pareto-optimal but NOT TV-optimal.** Codec choice along
    the (TV, L) Pareto frontier is a tunable knob. For heavy-tailed `p_f`,
    the TV-min codec achieves a 42x reduction in leakage at only 17% L
@@ -287,11 +315,15 @@ Headline claims (all empirically validated):
    is independent f per instance (Exp 12).
 5. **Closed-form coincidence-oracle bound.** For t shared-f instances:
    `accuracy(t, q) = 1 - (sum_v q_v^t)/2`. Matches empirical in 24/25
-   cells. Saturates Le Cam at t >= 2 (Exp 14).
-6. **t-dependent codec choice.** Dominated by `(max_v q_v)^t` at large t.
-   Huffman wins at t=1; uniform Dense wins at t >= 2 with shared-f.
-   The codec that leaks most at t=1 defends best at t >= 2. Sharp
-   single-vs-multi design trade-off (Exp 14).
+   cells, and comes within 0.004 of the plug-in Le Cam bound in 19 of the
+   20 cells at t >= 2 (Exp 14).
+6. **Concentrated codecs defend best at every t.** `sum_v q_v^t` is
+   dominated by `(max_v q_v)^t`, and a larger `sum_v q_v^t` lowers attacker
+   accuracy, so the codec with the largest `max_v q_v` defends best. Huffman
+   wins at t=1 (lowest TV) and concentrated codecs win at t >= 2 with
+   shared-f; uniform Dense is the worst defense at t >= 2. There is no
+   single-versus-multi-instance trade-off (Exp 14). Corrected 2026-10-21;
+   the earlier text inverted this.
 7. **Randomized encoding as a free defense at t=1.** `encode_random`
    encodes each value as a random pattern within its codespace class.
    Zero TV cost at t=1; breaks pattern-coincidence at t >= 2 in the
@@ -308,7 +340,7 @@ Paper outline:
 | 4. Single-instance security | Codec sweep; AUC vs TV; multiple attackers | Exp 07, 11 |
 | 5. (TV, L) Pareto frontier | Huffman vs TV-min; design space; mechanism | Exp 13 |
 | 6. Multi-instance leakage | Coincidence oracle; closed form; geometric corollary | Exp 12, 14 |
-| 7. Defenses | Independent-f, randomized encoding, t-aware codec choice | Exp 12, 14, 15 |
+| 7. Defenses | Independent-f, randomized encoding, codec concentration | Exp 12, 14, 15 |
 | 8. Threat model scope | Value-only vs key-feature attackers | Exp 16 |
 | 9. Related work | Naor-Yogev indistinguishable Bloom; oblivious data structures | (TBD) |
 | 10. Conclusions | | |
@@ -368,14 +400,18 @@ novel than threads A and B, but contrarian and clarifying.
 
 Questions resolved by Exp 11 through 16:
 
-- **Le Cam bound tight?** Yes (Exp 11). Multiple attackers converge to it.
+- **Le Cam agreement?** Reproduced as a consistency check (Exp 11): at a
+  finite alphabet the Bayes rule attains `1/2 + TV/2` by definition.
 - **Multi-instance leakage compounding?** Yes catastrophically for
   shared-f (Exp 12). Coincidence-oracle mechanism identified.
 - **Adversarial codec design?** Anti-Huffman maximizes TV (Exp 13);
   TV-min length assignment minimizes TV (Exp 13).
 - **Closed form for coincidence-oracle accuracy?** Yes,
-  `1 - (sum_v q_v^t)/2` (Exp 14). Saturates Le Cam at t >= 2.
-- **t-dependent codec choice?** Huffman at t=1, Dense at t >= 2 (Exp 14).
+  `1 - (sum_v q_v^t)/2` (Exp 14). Within 0.004 of the plug-in Le Cam bound
+  in 19 of 20 cells at t >= 2.
+- **t-dependent codec choice?** No (Exp 14, corrected 2026-10-21):
+  concentrated codecs defend best at every t, and uniform Dense is worst at
+  t >= 2.
 - **Randomized encoding defense?** Works against private-codec attackers,
   not public-codec; zero TV cost at t=1 (Exp 15).
 - **Scope of value-only Le Cam?** Holds for unstructured key universes;
@@ -396,15 +432,16 @@ Still open (across all threads):
 
 ## Reproducibility
 
-All 10 experiments are runnable from the package root:
+All 16 experiments are runnable from the package root:
 
 ```bash
-cd ~/github/bernoulli/src/bernoulli
+cd ~/github/bernoulli/bernoulli-py
 .venv/bin/python experiments/NN_*.py
 ```
 
-Each writes a structured `RESULTS_NN.md` to `experiments/`. Seeds are
-fixed; results are reproducible.
+Each writes a structured `RESULTS_NN.md` to `experiments/` (Exp 14 also
+accepts `--output PATH`). Seeds are fixed. Exp 14 was re-run on 2026-10-21
+and reproduces its report except for the elapsed time.
 
 ## What this body of work establishes
 
@@ -412,24 +449,26 @@ The framework's predictions are correct upper bounds in most experiments;
 tighter typical-case bounds are open research. Three publishable threads
 have emerged.
 
-**Thread A (codec choice as security primitive) is paper-ready** as of
-Exp 11 through 16. Seven headline claims, all empirically validated:
-codec controls TV, TV upper-bounds attack accuracy via Le Cam (validated
-across attacker classes), Huffman is L-Pareto-optimal but not TV-optimal
-(a 42x leakage reduction is available at 17% L overhead), shared-f
-multi-instance deployment is catastrophically vulnerable via the
-coincidence oracle (codec rotation does not defend), the coincidence
-oracle has a clean closed form `1 - (sum q_v^t)/2`, the geometric
-corollary gives a sharp t-dependent codec choice (Huffman at t=1, Dense
-at t >= 2), randomized encoding provides a free defense at t=1 in the
-private-codec threat model, and the entire claim is scoped to value-only
-attackers.
+**Thread A (codec choice as security primitive)** rests on Exp 11 through
+16 and seven empirically checked claims: the codec controls TV; TV fixes the
+best value-only attack accuracy via Le Cam (a standard identity, reproduced
+in Exp 11 as a consistency check); Huffman is L-Pareto-optimal but not
+TV-optimal (a 42x leakage reduction is available at 17% L overhead);
+shared-f multi-instance deployment is catastrophically vulnerable via the
+coincidence oracle (codec rotation does not defend); the coincidence oracle
+has a closed form `1 - (sum q_v^t)/2`; concentrated codecs defend best at
+every t, so there is no t-dependent codec choice (corrected 2026-10-21; the
+earlier text inverted this); and randomized encoding provides a free
+defense at t=1 in the private-codec threat model. The whole claim is scoped
+to value-only attackers in an idealized model.
 
-This is the strongest candidate for a single paper, with a clear story
-arc, theoretical spine (Le Cam, closed-form bounds), three surprising
-empirical findings (the coincidence oracle, the t-dependent codec choice,
-and the 42x heavy-tail TV reduction), and an honest threat model scope.
-Eight experiments form the empirical/theoretical case.
+This remains the strongest candidate for a single paper, with two
+surprising empirical findings (the coincidence oracle and the 42x heavy-tail
+TV reduction) and an honest threat-model scope. Before it is called
+paper-ready it needs the prior-art check recorded in
+`.research/program-strategy/README.md` (homophonic substitution,
+honey-encryption DTEs, OKVS) and a stated security model; the package's
+non-cryptographic hashing does not instantiate the idealized one.
 
 **Thread B (partially-shared Bloom AND-FPR closed form)** remains an open
 theoretical problem with a clean empirical characterization. Smaller

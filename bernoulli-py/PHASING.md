@@ -4,6 +4,22 @@ The package implements the framework atom-outward, mirroring the textbook's
 five parts. Each phase ships a coherent slice and yields one or two natural
 blog posts.
 
+## Status at 0.3.0
+
+All five phases have a pure-Python implementation. No C code exists yet, so
+every "C-backed" item below is still planned.
+
+| Phase | Implemented (pure Python) | Planned, not implemented |
+|---|---|---|
+| 1 Atom | `BernoulliBool`, `algebra`, `measures`, `formula` (exact rates through Boolean formulas) | |
+| 2 Sets | `MembershipOracle`, `BloomFilter`, `sets.composition`, `sets.entropy_bound`, cascade and shared-salt research helpers | C bit array, hashing and Bloom core |
+| 3 Maps | protocols, `MinimalPerfectHash` (BBHash), `PerfectFilter`, codecs, `GF2Retrieval` (peeling), `EncodedRetrieval` | ribbon (banded) solver; C GF(2), codec and fingerprint cores |
+| 4 Relations | `BernoulliRelation` (exact tuples carrying rates through select, project, join) | an approximate relation store; join error under correlated approximations |
+| 5 Sketches | `CountMinSketch`, `HyperLogLog`, `MinHash`; Miller-Rabin in `bernoulli.algorithms` | `LasVegas` / `MonteCarlo` adapters; C counter and register cores |
+
+Cross-cutting gaps: serialization (save and load) and set operations on live
+filter objects. Composition works on rate pairs.
+
 ## Phase 1: The atom (book Part I, ch. 1 to 4, 7). Implemented in 0.2.0.
 
 - `bernoulli.atom.BernoulliBool`: value with channel matrix `(alpha, beta)`
@@ -96,10 +112,11 @@ C-backed: counter arrays, register update, hash-permutation evaluation.
 ## C build strategy
 
 - **Phase 1:** no C, pure Python.
-- **Phase 2+:** opt-in `cffi` (api mode) build at install time. C source lives
-  in `c/`. Pure-Python fallbacks for every operation, so `pip install bernoulli`
-  succeeds even without a working C toolchain. `pip install bernoulli[c]`
-  enables compilation and binds the accelerated implementations.
+- **Phase 2+ (planned):** opt-in `cffi` (api mode) build at install time. C
+  source will live in `c/`. Pure-Python fallbacks for every operation, so
+  `pip install bernoulli-types` succeeds even without a working C toolchain. A
+  `bernoulli-types[c]` extra will enable compilation and bind the accelerated
+  implementations; it is not offered until the C core exists.
 - **Why cffi over Cython or pybind11:** cffi keeps the C side as portable C
   source (no Python.h tangle, no C++ ABI drift), the Python side remains
   pure-Python except for one `_c.so`, and the binding code is generated, not

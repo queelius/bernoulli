@@ -214,6 +214,28 @@ class TestPriorEdgeCases:
         result = b1.and_with_prior(b2, prior=1.0)
         assert result.fpr == 0.0
 
+    def test_or_fnr_at_tiny_prior_does_not_cancel(self) -> None:
+        """Regression: ``1 - (1 - pi)**2`` used to round to 0 for tiny pi.
+
+        As pi -> 0 the positive class is dominated by the two one-true words,
+        so the FNR tends to the average of ``fnr_1 (1 - fpr_2)`` and
+        ``(1 - fpr_1) fnr_2``.
+        """
+        b1 = BernoulliBool(value=False, fpr=0.0, fnr=0.0)
+        b2 = BernoulliBool(value=False, fpr=0.0, fnr=1.0)
+        for prior in (1e-50, 5e-324):  # the second is the smallest subnormal
+            result = b1.or_with_prior(b2, prior=prior)
+            assert math.isclose(result.fnr, 0.5, rel_tol=1e-12)
+
+    def test_and_fpr_near_prior_one_stays_accurate(self) -> None:
+        """Precision check at pi within an ulp of 1 (the cancelled form)."""
+        b1 = BernoulliBool(value=True, fpr=0.0, fnr=0.0)
+        b2 = BernoulliBool(value=True, fpr=1.0, fnr=0.0)
+        prior = math.nextafter(1.0, 0.0)
+        result = b1.and_with_prior(b2, prior=prior)
+        # Negative words are dominated by (True, False) and (False, True).
+        assert math.isclose(result.fpr, 0.5, rel_tol=1e-9)
+
     def test_invalid_prior_raises(self) -> None:
         b1 = BernoulliBool(value=True, fpr=0.1, fnr=0.05)
         b2 = BernoulliBool(value=True, fpr=0.2, fnr=0.07)
@@ -221,3 +243,19 @@ class TestPriorEdgeCases:
             b1.and_with_prior(b2, prior=-0.1)
         with pytest.raises(ValueError):
             b1.and_with_prior(b2, prior=1.1)
+
+
+class TestOrWithPriorValidationAndStr:
+    def test_or_invalid_prior_raises(self) -> None:
+        b = BernoulliBool(value=True, fpr=0.1, fnr=0.05)
+        with pytest.raises(ValueError):
+            b.or_with_prior(b, prior=1.5)
+
+    def test_or_prior_zero_has_empty_positive_class(self) -> None:
+        b = BernoulliBool(value=False, fpr=0.1, fnr=0.05)
+        assert b.or_with_prior(b, prior=0.0).fnr == 0.0
+
+    def test_str(self) -> None:
+        assert str(BernoulliBool(value=True, fpr=0.1, fnr=0.05)) == (
+            "Bernoulli<bool>(True, fpr=0.1, fnr=0.05)"
+        )

@@ -74,8 +74,8 @@ def wilson_ci(successes: int, n: int, confidence: float = 0.95) -> tuple[float, 
     elif math.isclose(confidence, 0.90):
         z = 1.6448536269514722
     else:
-        # Approximate via the rational approximation of the standard normal
-        # quantile (Abramowitz & Stegun 26.2.23).
+        # Approximate via a rational approximation of the standard normal
+        # quantile (Acklam's algorithm; see _normal_quantile).
         z = _normal_quantile((1.0 + confidence) / 2.0)
 
     z2 = z * z
@@ -88,8 +88,8 @@ def wilson_ci(successes: int, n: int, confidence: float = 0.95) -> tuple[float, 
 def _normal_quantile(p: float) -> float:
     """Inverse of the standard normal CDF at probability ``p``.
 
-    Uses the Beasley-Springer-Moro approximation; accurate to ~1e-7 for
-    the central region. Sufficient for confidence-interval z-scores.
+    Uses Peter Acklam's piecewise rational approximation (relative error
+    about 1e-9). Sufficient for confidence-interval z-scores.
     """
     if not 0.0 < p < 1.0:
         raise ValueError(f"p must be in (0, 1), got {p!r}")

@@ -5,7 +5,8 @@ protocol answers ``contains(x)`` with bounded false-positive rate (and, by
 convention, zero false-negative rate, which is the standard "Bloom-style"
 contract).
 
-Phase 2 will add concrete implementations (Bloom, BHF, xor filter, ribbon).
+Implementations include :class:`bernoulli.sets.BloomFilter` and
+:class:`bernoulli.maps.PerfectFilter`.
 """
 
 from __future__ import annotations

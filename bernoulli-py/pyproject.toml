@@ -1,50 +1,52 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "bernoulli-types"
-version = "0.2.0"
-description = "Random approximate types: a Bernoulli framework for principled error propagation across data structures and algorithms"
-readme = "README.md"
+dynamic = ["version"]
+description = "Approximate membership, perfect hashing, retrieval and sketches under one two-rate (false-positive, false-negative) error model"
+readme = { file = "README.md", content-type = "text/markdown" }
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Alexander Towell", email = "lex@metafunctor.com" }
 ]
 requires-python = ">=3.11"
 keywords = [
-  "bernoulli",
-  "bloom-filter",
-  "perfect-hash-filter",
-  "approximate-data-structures",
-  "probabilistic-data-structures",
-  "ribbon-retrieval",
-  "type-theory",
-  "error-propagation"
+  "approximate membership",
+  "Bloom filter",
+  "perfect hashing",
+  "probabilistic data structures",
+  "minimal perfect hash",
+  "retrieval data structure",
+  "false positive rate",
+  "error propagation",
+  "Count-Min sketch",
+  "HyperLogLog",
+  "MinHash",
+  "randomized response",
+  "Bernoulli types"
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Programming Language :: C",
-  "Topic :: Scientific/Engineering :: Mathematics",
   "Topic :: Scientific/Engineering :: Information Analysis",
-  "Topic :: Software Development :: Libraries :: Python Modules"
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed"
 ]
 dependencies = []
 
 [project.optional-dependencies]
-c = [
-  # Phase 2+: cffi-backed C primitives (Bloom filter, hashing, fingerprint storage)
-  "cffi >= 1.16"
-]
-numerics = [
-  "numpy >= 1.26"
-]
 dev = [
   "pytest >= 8.0",
   "pytest-cov >= 5.0",
@@ -61,22 +63,30 @@ notebooks = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/queelius/bernoulli"
-Documentation = "https://github.com/queelius/bernoulli/tree/main/book"
+Homepage = "https://metafunctor.com/research/bernoulli/"
+Documentation = "https://metafunctor.com/latex/bernoulli-monograph/book.html"
 Source = "https://github.com/queelius/bernoulli/tree/main/bernoulli-py"
 Issues = "https://github.com/queelius/bernoulli/issues"
+Changelog = "https://github.com/queelius/bernoulli/blob/main/bernoulli-py/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/bernoulli/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bernoulli"]
 
 [tool.hatch.build.targets.sdist]
+# Leading slashes anchor the patterns to the project root (they are
+# gitignore-style, so a bare "README.md" would also match notebooks/README.md).
 include = [
-  "src/bernoulli",
-  "c",
-  "tests",
-  "README.md",
-  "LICENSE",
-  "PHASING.md",
+  "/src/bernoulli",
+  "/c",
+  "/tests",
+  "/README.md",
+  "/LICENSE",
+  "/PHASING.md",
+  "/CHANGELOG.md",
+  "/CITATION.cff",
 ]
 
 [tool.pytest.ini_options]

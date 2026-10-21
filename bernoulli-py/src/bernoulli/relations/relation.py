@@ -21,7 +21,13 @@ are the Bernoulli set algebra of book chapter 6 lifted to tuples:
   approximations).
 
 Tuples are tracked exactly, so the operators produce the correct result relation;
-the rate fields propagate the membership approximation alongside.
+the rate fields propagate the membership approximation alongside. This class is
+therefore not an approximate store: :meth:`BernoulliRelation.contains` is exact,
+and ``rates`` describes the error profile an approximate representation of the
+relation would have. The rates are two-rate summaries, so chaining operators
+(a join of joins, a projection of a join) reuses them under the conditions
+stated in :mod:`bernoulli.sets.composition`; see :mod:`bernoulli.formula` for
+exact per-word evaluation.
 """
 
 from __future__ import annotations

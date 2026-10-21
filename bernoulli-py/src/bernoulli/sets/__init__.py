@@ -8,14 +8,14 @@ Phase 2 components:
 - :class:`MembershipOracle`: protocol for any approximate-set implementation.
   Mirrors maph's ``concepts/membership_oracle.hpp``.
 - :class:`BloomFilter`: the canonical k-hash Bloom filter (pure Python; a C
-  accelerator lands with the cffi core).
+  accelerator is planned, none exists yet).
 - :class:`SetRates`, :class:`Partition`, and :mod:`bernoulli.sets.composition`:
   union, intersection, complement, and difference rate propagation (book
   chapter 6), including the three-region intersection FPR and its sparse limit.
 - :mod:`bernoulli.sets.entropy_bound`: the ``-log2(fpr)`` floor, the Bloom
   ``1.44x`` overhead, and the BHF model (book chapters 8 and 14).
-- ``SpaceOptimalBloomFilter`` (forthcoming): the explicit BHF construction
-  reaching the entropy floor.
+- The explicit BHF construction near the entropy floor is
+  :class:`bernoulli.maps.PerfectFilter` (a static structure).
 
 Many natural objects are Bernoulli sets with structurally zero FNR:
 
@@ -25,8 +25,10 @@ Many natural objects are Bernoulli sets with structurally zero FNR:
   by sizing.
 - A perfect filter's positive predicate: ``fnr = 0``, ``fpr = 2^-fp_bits``.
 
-These are :func:`bernoulli.atom.BernoulliBool.one_sided_fpr` instances; AND
-chains of them stay one-sided and drive FPR multiplicatively to zero.
+These are :func:`bernoulli.atom.BernoulliBool.one_sided_fpr` instances. AND
+chains of independent observations of the same element stay one-sided and
+drive FPR multiplicatively to zero; formulas over different elements do not
+reduce to one pair (see :mod:`bernoulli.formula`).
 """
 
 from bernoulli.sets import composition, entropy_bound

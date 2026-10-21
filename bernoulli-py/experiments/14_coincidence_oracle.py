@@ -45,6 +45,8 @@ regime change between t=1 and t>=2.
 
 from __future__ import annotations
 
+import argparse
+import itertools
 import math
 import random
 import sys
@@ -397,19 +399,49 @@ def render_main_table(results: Sequence[CellResult]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def attacker_error_rate(r: CellResult) -> float:
+    """Coincidence-oracle error rate, ``1 - accuracy`` (the defender's payoff)."""
+    return 1.0 - r.accuracy_predicted
+
+
+def check_defense_ordering(results: Sequence[CellResult]) -> None:
+    """Refuse to report a codec ordering that the numbers contradict.
+
+    The report's conclusion is that, at the largest ``t``, the attacker's error
+    rate (higher is a better defense) rises with ``max_v q_v``: concentrated
+    codecs defend best and uniform ones worst. An earlier version of this
+    script printed the opposite ordering; this check makes the generated
+    prose depend on the computed values.
+    """
+    t_max = max(r.t for r in results)
+    cells = sorted((r for r in results if r.t == t_max), key=lambda r: r.max_q)
+    errors = [attacker_error_rate(r) for r in cells]
+    for lower, higher in itertools.pairwise(errors):
+        if higher < lower - 1e-12:
+            raise RuntimeError(
+                "attacker error rate is not monotone in max_v q_v at "
+                f"t={t_max}; the 'concentrated codecs defend best' conclusion "
+                "does not hold for these codecs, so the report text must change"
+            )
+
+
 def render_geometric_argument(results: Sequence[CellResult]) -> str:
-    """Show that as t grows, the codec with smallest max_q wins."""
+    """Show that as t grows, the codec with the LARGEST max_q defends best."""
+    check_defense_ordering(results)
     out: list[str] = []
     out.append("### Geometric argument: max_v q_v dominates at large t\n\n")
     out.append(
         "As ``t`` grows, ``sum_v q_v^t`` is asymptotically dominated by "
-        "the largest term ``(max_v q_v)^t``. The codec with the LOWEST "
-        "``max_v q_v`` therefore defends best against multi-instance "
-        "attacks.\n\n"
+        "the largest term ``(max_v q_v)^t``. Attacker accuracy is "
+        "``1 - (sum_v q_v^t) / 2``, so SMALLER ``sum_v q_v^t`` means HIGHER "
+        "attacker accuracy and WORSE defense. The codec with the LARGEST "
+        "``max_v q_v`` (concentrated, Huffman-style) therefore defends BEST "
+        "against multi-instance attacks; the codec with the SMALLEST "
+        "``max_v q_v`` (uniform Dense) defends WORST.\n\n"
     )
     out.append(
         "| codec | max q_v | (max q_v)^5 | sum q_v^5 | "
-        "ratio (asymptotic tightness) |\n"
+        "attacker error rate at t=5 |\n"
     )
     out.append("|---|--:|--:|--:|--:|\n")
     # group by codec, pull t=5.
@@ -421,19 +453,21 @@ def render_geometric_argument(results: Sequence[CellResult]) -> str:
         max_q = r.max_q
         sum_q5 = r.pc_nonmember_predicted
         max_q5 = max_q**5
-        ratio = max_q5 / sum_q5 if sum_q5 > 0 else 0.0
         out.append(
             f"| {label} | {fmt(max_q)} | {fmt(max_q5)} | "
-            f"{fmt(sum_q5)} | {fmt(ratio)} |\n"
+            f"{fmt(sum_q5)} | {fmt(attacker_error_rate(r))} |\n"
         )
     out.append("\n")
     out.append(
-        "**Reading the ratio.** A ratio close to 1 means the largest "
-        "codespace fraction dominates the sum; the asymptotic decay "
-        "rate is ``max q_v``. A ratio well below 1 means several "
-        "values share comparable mass and the geometric bound is "
-        "looser. Either way, the BASE of the exponential decay is "
-        "``max_v q_v``.\n\n"
+        "**Reading the table.** Higher attacker error rate = better "
+        "defense. Concentrated codecs (Padded(v0), Dense(M=4), Huffman) "
+        "have the largest ``sum_v q_v^t`` and therefore the highest "
+        "attacker error rate. Uniform Dense(M=3) and AntiHuffman both "
+        "spread the codespace across many values and have very small "
+        "``sum_v q_v^t``, giving very low attacker error rate "
+        "(near-certain inference). The BASE of the exponential decay in "
+        "the attacker's coincidence probability is ``max_v q_v``; the "
+        "defender wants this LARGE.\n\n"
     )
     return "".join(out)
 
@@ -492,29 +526,44 @@ def render_findings(results: Sequence[CellResult]) -> str:
 
     out.append("### Defense implications\n\n")
     out.append(
-        "* **Single-instance regime.** Huffman codecs minimize ``TV(p_f, q_codec)``. "
-        "Dense (uniform) codecs maximize it. So at ``t=1``, Huffman "
-        "defends best.\n"
+        "* **Single-instance regime.** Huffman codecs minimize "
+        "``TV(p_f, q_codec)``. Dense (uniform) codecs maximize it. So at "
+        "``t=1``, Huffman defends best (lower Le Cam attacker accuracy).\n"
         "* **Multi-instance regime (``t >= 2``).** The coincidence "
-        "oracle's accuracy depends only on ``sum_v q_v^t``. The "
-        "codec with the SMALLEST ``max_v q_v`` defends best at "
-        "large ``t``. Uniform codecs (Dense) on a large value "
-        "alphabet have ``max_v q_v = 1/|V|``, much smaller than "
-        "Huffman's ``max_v q_v ~= max_v p_v``.\n"
-        "* **Tradeoff.** A codec that defends best at ``t=1`` "
-        "(Huffman) defends *worst* at large ``t`` whenever ``p_f`` is "
-        "skewed (because the dominant-value codespace fraction "
-        "matches the dominant-value frequency). The best codec "
-        "depends on the deployment scale: how many instances will "
-        "ever be observed by the same attacker? At ``t=1``, prefer "
-        "Huffman; at large ``t``, prefer Dense.\n"
-        "* **No codec defeats the coincidence oracle.** As ``t`` "
-        "grows, every codec's ``sum_v q_v^t`` decays to zero, so "
-        "the oracle's accuracy approaches 1. The only true defense "
-        "is correlating non-member outputs across instances "
-        "(shared seed) so that members and non-members share the "
-        "coincidence statistic, OR not redeploying the same "
-        "``(S, f)`` pair.\n"
+        "oracle's accuracy is ``1 - (sum_v q_v^t) / 2``. The codec with "
+        "the LARGEST ``max_v q_v`` (concentrated, Huffman-style) defends "
+        "best at large ``t`` by maximizing the non-member coincidence "
+        "probability. Huffman's ``max_v q_v ~= max_v p_v`` is large "
+        "precisely because Huffman concentrates on the heavy mode.\n"
+        "* **No tradeoff.** Both single-instance (Le Cam) and "
+        "multi-instance (coincidence oracle) optima favor Huffman-style "
+        "concentrated codecs; there is no codec-choice regime change "
+        "between ``t=1`` and ``t >= 2``. The Dense codec, which seemed "
+        "superficially attractive because it minimizes ``sum_v q_v^t``, "
+        "is actually the WORST defense at any ``t >= 2`` (lowest "
+        "attacker error rate).\n"
+        "* **The deployment-side defense for multi-instance leakage is "
+        "randomized encoding** (multiplicity ``K(x) > 1`` per Experiment "
+        "15), not codec retuning.\n"
+        "* **No codec defeats the coincidence oracle entirely.** As ``t`` "
+        "grows, every codec's attacker accuracy approaches 1. Defenses "
+        "are randomized encoding (private-codec threat), correlating "
+        "non-member outputs across instances (shared seed) so members "
+        "and non-members share the coincidence statistic, or not "
+        "redeploying the same ``(S, f)`` pair across multiple ``t`` "
+        "instances.\n"
+    )
+    out.append(
+        "\n**Correction note (2026-05-17, R7 CRIT-1):** An earlier version "
+        "of this writeup (and the matching docstring in "
+        "`14_coincidence_oracle.py`) inverted the defender direction, "
+        "claiming Dense defends best at large ``t``. That was wrong: "
+        "smaller ``sum_v q_v^t`` means HIGHER attacker accuracy, not "
+        "lower. The formula and numerical values are correct; only the "
+        "recommendation was inverted. The cipher-maps paper "
+        "(`papers/cipher-maps/paper/cipher_maps.tex`) carried the same "
+        "inversion in its abstract, Corollary 8.x, and \u00a710.6 paragraph "
+        "until the 2026-05-17 commit fixed all five locations.\n"
     )
     return "".join(out)
 
@@ -577,7 +626,15 @@ def render_report(
     return "".join(out)
 
 
-def main() -> int:
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=HERE / "RESULTS_14.md",
+        help="where to write the report (default: experiments/RESULTS_14.md)",
+    )
+    args = parser.parse_args(argv)
     seed = 2026
     n_keys = 2000
     n_test_per_class = 5000
@@ -598,7 +655,7 @@ def main() -> int:
     )
     print(report)
     print(f"\nElapsed: {elapsed:.1f}s")
-    out_path = HERE / "RESULTS_14.md"
+    out_path: Path = args.output
     out_path.write_text(report)
     print(f"Report written to {out_path}")
     return 0
