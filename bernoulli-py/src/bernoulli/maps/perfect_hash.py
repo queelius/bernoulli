@@ -2,9 +2,10 @@
 
 A perfect hash maps each key of a build set ``S`` to a distinct slot, and is
 *minimal* when the slots are exactly ``{0, ..., n-1}``. This is the slot-
-assignment layer of the Bernoulli hash function (book chapter 14): a perfect
-hash plus a per-slot fingerprint gives a space-near-optimal approximate set
-(see :class:`bernoulli.maps.PerfectFilter`).
+assignment layer of the perfect hash filter (book chapter 14): a minimal perfect
+hash plus a per-slot fingerprint gives an approximate set within the hash's own
+cost (at least ``log2(e)`` bits per key) of the ``-log2 epsilon`` floor (see
+:class:`bernoulli.maps.PerfectFilter`).
 
 Construction (BBHash, Limasset et al. 2017)
 -------------------------------------------

@@ -16,9 +16,10 @@ are the Bernoulli set algebra of book chapter 6 lifted to tuples:
 - **project** (pi): a projected tuple is a member iff *any* tuple in its fiber is
   a member, a disjunction over the fiber. Folding several source tuples onto one
   projected tuple drives the false-negative rate down multiplicatively
-  (``fnr ** fiber_size``); the false-positive amplification is domain-dependent
-  and left as the chapter's open question (join/projection error under correlated
-  approximations).
+  (``fnr ** fiber_size``). The false-positive side depends on how many fiber
+  tuples are non-members; book chapter 12 gives the rates per (fan-in, true
+  count) and query-level error contracts, and notes that shared sources make
+  outputs dependent.
 
 Tuples are tracked exactly, so the operators produce the correct result relation;
 the rate fields propagate the membership approximation alongside. This class is

@@ -8,18 +8,25 @@ rate, the information-theoretic floor on space is::
 (book chapter 8, the counting / pigeonhole argument). A classical Bloom filter
 at its optimal hash count pays a *constant multiplicative* overhead of
 ``log2(e) = 1 / ln(2) ~= 1.4427`` above the floor, independent of ``fpr``. The
-Bernoulli hash function (BHF, book chapter 14) instead pays an *additive*
-overhead: ``ceil(-log2 fpr)`` bits for an integer fingerprint width plus a
-sublinear perfect-hash term ``mu`` that vanishes as the key count grows.
+perfect hash filter (PHF; Dietzfelbinger and Pagh 2008, Sec. 1; book chapter
+14) instead pays an *additive* overhead: ``ceil(-log2 fpr)`` bits for an integer
+fingerprint width plus the minimal perfect hash's own cost ``c`` bits per key.
+That cost does not vanish: any minimal perfect hash needs at least
+``log2(e) ~= 1.4427`` bits per key (Fredman and Komlos 1984), and practical ones
+use about 2 to 3.5. The PHF therefore beats a Bloom filter only when
+``(log2(e) - 1) * log2(1/fpr) > c`` (see :func:`phf_beats_bloom`).
 
 This module is the executable form of those comparisons. It builds on the
-primitives in :mod:`bernoulli.algebra` and adds the BHF model, efficiency, and
-the Bloom-versus-BHF savings.
+primitives in :mod:`bernoulli.algebra` and adds the PHF model, efficiency, and
+the Bloom-versus-PHF savings. The ``bhf_*`` names are deprecated aliases from
+0.3.0, which mislabeled the PHF as the Bernoulli hash function and defaulted its
+perfect-hash cost to zero, below the lower bound.
 """
 
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 
 from bernoulli.algebra import (
@@ -30,6 +37,11 @@ from bernoulli.algebra import (
 #: The constant multiplicative overhead a classical Bloom filter pays over the
 #: entropy floor at optimal k: ``log2(e) = 1 / ln(2)``.
 BLOOM_OVERHEAD_FACTOR: float = 1.0 / math.log(2.0)
+
+#: Lower bound on the bits per key of any minimal perfect hash function,
+#: ``log2(e)`` (Fredman and Komlos 1984). A PHF pays at least this over its
+#: fingerprints.
+MPHF_LOWER_BOUND_BITS: float = math.log2(math.e)
 
 
 def entropy_floor_bits_per_key(fpr: float) -> float:
@@ -63,31 +75,66 @@ def bloom_overhead_bits_per_key(fpr: float) -> float:
     return bloom_bits_per_key(fpr) - entropy_floor_bits_per_key(fpr)
 
 
-def bhf_bits_per_key(fpr: float, perfect_hash_overhead: float = 0.0) -> float:
-    """Bits per key for the Bernoulli hash function (book chapter 14).
+def phf_bits_per_key(fpr: float, mphf_bits_per_key: float = MPHF_LOWER_BOUND_BITS) -> float:
+    """Bits per key for the perfect hash filter (book chapter 14).
 
     The fingerprint width is the integer ``r = ceil(-log2 fpr)`` (the smallest
-    ``r`` with ``2**-r <= fpr``); the ``perfect_hash_overhead`` (``mu``) is the
-    sublinear per-key cost of the perfect-hash representation, a small constant
-    at finite key counts that vanishes asymptotically.
+    ``r`` with ``2**-r <= fpr``) and ``mphf_bits_per_key`` is the minimal perfect
+    hash's cost ``c``. The default is the lower bound ``log2(e)``; pass the
+    measured cost of a real construction (BBHash, RecSplit, ...) for a
+    realistic figure.
 
     Examples
     --------
-    >>> bhf_bits_per_key(0.01)            # ceil(6.6439) = 7
-    7.0
-    >>> bhf_bits_per_key(0.01, perfect_hash_overhead=2.5)
+    >>> round(phf_bits_per_key(0.01), 4)            # 7 + log2(e)
+    8.4427
+    >>> phf_bits_per_key(0.01, mphf_bits_per_key=2.5)
     9.5
     """
+    if mphf_bits_per_key < 0.0:
+        raise ValueError(f"mphf_bits_per_key must be non-negative, got {mphf_bits_per_key!r}")
+    return float(fingerprint_width(fpr)) + mphf_bits_per_key
+
+
+def phf_beats_bloom(fpr: float, mphf_bits_per_key: float = MPHF_LOWER_BOUND_BITS) -> bool:
+    """Whether a PHF uses fewer bits per key than an optimal Bloom filter at ``fpr``.
+
+    Compares the two space models exactly, including the fingerprint
+    ceiling. With continuous fingerprint widths this is the book's rule
+    ``(log2(e) - 1) * log2(1/fpr) > c``.
+
+    Examples
+    --------
+    >>> phf_beats_bloom(2.0 ** -7, mphf_bits_per_key=3.23)    # 10.23 vs 10.10
+    False
+    >>> phf_beats_bloom(2.0 ** -10, mphf_bits_per_key=3.23)   # 13.23 vs 14.43
+    True
+    """
+    return phf_bits_per_key(fpr, mphf_bits_per_key) < bloom_bits_per_key(fpr)
+
+
+def bhf_bits_per_key(fpr: float, perfect_hash_overhead: float = 0.0) -> float:
+    """Deprecated alias for :func:`phf_bits_per_key` with the 0.3.0 default.
+
+    0.3.0 called the perfect hash filter "the Bernoulli hash function" and
+    defaulted the perfect-hash cost to 0, below the ``log2(e)`` lower bound.
+    This alias keeps that exact behavior; use :func:`phf_bits_per_key`.
+    """
+    warnings.warn(
+        "bhf_bits_per_key is deprecated: it models the perfect hash filter; "
+        "use phf_bits_per_key (whose default perfect-hash cost is log2(e))",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if perfect_hash_overhead < 0.0:
         raise ValueError(
             f"perfect_hash_overhead must be non-negative, got {perfect_hash_overhead!r}"
         )
-    fingerprint_width = math.ceil(bits_per_key_for_fpr(fpr))
-    return float(fingerprint_width) + perfect_hash_overhead
+    return float(fingerprint_width(fpr)) + perfect_hash_overhead
 
 
 def fingerprint_width(fpr: float) -> int:
-    """The integer fingerprint width ``r = ceil(-log2 fpr)`` for a BHF.
+    """The integer fingerprint width ``r = ceil(-log2 fpr)`` for a PHF.
 
     The achieved FPR is ``2**-r <= fpr``, generally strictly below the target by
     the ceiling-rounding slack.
@@ -117,40 +164,77 @@ def efficiency(bits_per_key: float, fpr: float) -> float:
     return entropy_floor_bits_per_key(fpr) / bits_per_key
 
 
+def bloom_vs_phf_savings_bits(
+    fpr: float, mphf_bits_per_key: float = MPHF_LOWER_BOUND_BITS
+) -> float:
+    """Bits per key the PHF saves over a classical Bloom filter (negative: Bloom wins)."""
+    return bloom_bits_per_key(fpr) - phf_bits_per_key(fpr, mphf_bits_per_key)
+
+
 def bloom_vs_bhf_savings_bits(fpr: float, perfect_hash_overhead: float = 0.0) -> float:
-    """Bits per key the BHF saves over a classical Bloom filter at ``fpr``."""
-    return bloom_bits_per_key(fpr) - bhf_bits_per_key(fpr, perfect_hash_overhead)
+    """Deprecated alias for :func:`bloom_vs_phf_savings_bits` with the 0.3.0 default."""
+    warnings.warn(
+        "bloom_vs_bhf_savings_bits is deprecated; use bloom_vs_phf_savings_bits",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return bloom_bits_per_key(fpr) - (float(fingerprint_width(fpr)) + perfect_hash_overhead)
 
 
 @dataclass(frozen=True, slots=True)
 class SpaceComparison:
-    """A side-by-side space comparison at one target FPR (book chapter 8 / 14)."""
+    """A side-by-side space comparison at one target FPR (book chapters 8 and 14)."""
 
     fpr: float
     floor_bits_per_key: float
     bloom_bits_per_key: float
-    bhf_bits_per_key: float
+    phf_bits_per_key: float
     bloom_efficiency: float
-    bhf_efficiency: float
+    phf_efficiency: float
+
+    @property
+    def bhf_bits_per_key(self) -> float:
+        """Deprecated alias for :attr:`phf_bits_per_key`."""
+        return self.phf_bits_per_key
+
+    @property
+    def bhf_efficiency(self) -> float:
+        """Deprecated alias for :attr:`phf_efficiency`."""
+        return self.phf_efficiency
 
 
-def compare(fpr: float, perfect_hash_overhead: float = 0.0) -> SpaceComparison:
-    """Build a :class:`SpaceComparison` of floor, Bloom, and BHF at ``fpr``.
+def compare(
+    fpr: float,
+    mphf_bits_per_key: float = MPHF_LOWER_BOUND_BITS,
+    *,
+    perfect_hash_overhead: float | None = None,
+) -> SpaceComparison:
+    """Build a :class:`SpaceComparison` of floor, Bloom, and PHF at ``fpr``.
+
+    ``perfect_hash_overhead`` is the deprecated 0.3.0 name for
+    ``mphf_bits_per_key``; passing it warns and overrides the default.
 
     Examples
     --------
     >>> c = compare(0.01)
-    >>> round(c.floor_bits_per_key, 2), round(c.bloom_bits_per_key, 2), c.bhf_bits_per_key
-    (6.64, 9.59, 7.0)
+    >>> round(c.floor_bits_per_key, 2), round(c.bloom_bits_per_key, 2), round(c.phf_bits_per_key, 2)
+    (6.64, 9.59, 8.44)
     """
+    if perfect_hash_overhead is not None:
+        warnings.warn(
+            "compare(perfect_hash_overhead=...) is deprecated; use mphf_bits_per_key",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        mphf_bits_per_key = perfect_hash_overhead
     floor = entropy_floor_bits_per_key(fpr)
     bloom = bloom_bits_per_key(fpr)
-    bhf = bhf_bits_per_key(fpr, perfect_hash_overhead)
+    phf = phf_bits_per_key(fpr, mphf_bits_per_key)
     return SpaceComparison(
         fpr=fpr,
         floor_bits_per_key=floor,
         bloom_bits_per_key=bloom,
-        bhf_bits_per_key=bhf,
+        phf_bits_per_key=phf,
         bloom_efficiency=floor / bloom,
-        bhf_efficiency=floor / bhf,
+        phf_efficiency=floor / phf,
     )

@@ -79,14 +79,14 @@ class TestQueryAndContainer:
 
 
 class TestSpace:
-    def test_bits_per_key_matches_bhf_model(self) -> None:
+    def test_bits_per_key_matches_phf_model(self) -> None:
         r = 10
         pf = PerfectFilter(_keys(8000), fingerprint_bits=r)
         assert pf._phf is not None
         mu = pf._phf.bits_per_key()
         assert math.isclose(pf.bits_per_key(), mu + r)
         assert math.isclose(
-            pf.bits_per_key(), eb.bhf_bits_per_key(2.0 ** -r, perfect_hash_overhead=mu)
+            pf.bits_per_key(), eb.phf_bits_per_key(2.0 ** -r, mphf_bits_per_key=mu)
         )
         assert pf.memory_bytes() > 0
 

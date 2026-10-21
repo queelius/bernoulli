@@ -5,6 +5,38 @@ Format loosely follows Keep a Changelog; this project uses semantic versioning.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-21
+
+### Changed
+- `bernoulli.sets.entropy_bound` now models the perfect hash filter under its
+  correct name and cost. The structure 0.3.0 called "the Bernoulli hash
+  function" (a minimal perfect hash plus fingerprints) is the perfect hash
+  filter of Dietzfelbinger and Pagh (2008, Sec. 1), and its perfect-hash cost
+  does not vanish: any minimal perfect hash needs at least `log2(e)` bits per
+  key (Fredman and Komlos 1984). `compare()` now defaults that cost to
+  `log2(e)` instead of 0, so its PHF figures rise by about 1.44 bits per key.
+- `SpaceComparison` fields are now `phf_bits_per_key` and `phf_efficiency`.
+
+### Added
+- `phf_bits_per_key`, `bloom_vs_phf_savings_bits`, `phf_beats_bloom`, and the
+  constant `MPHF_LOWER_BOUND_BITS`. `phf_beats_bloom` decides the
+  PHF-versus-Bloom crossover; at continuous widths it is the rule
+  `(log2(e) - 1) * log2(1/fpr) > c`.
+
+### Deprecated
+- `bhf_bits_per_key`, `bloom_vs_bhf_savings_bits`, the
+  `compare(perfect_hash_overhead=...)` keyword, and the
+  `SpaceComparison.bhf_*` properties. They keep their 0.3.0 behavior (the
+  function aliases still default the perfect-hash cost to 0) and warn.
+
+### Fixed
+- Docstrings in `maps.perfect_filter`, `maps.perfect_hash` and
+  `relations.relation` no longer call the PHF the Bernoulli hash function, claim
+  a vanishing perfect-hash overhead, or describe projection error as an open
+  question.
+- Companion notebooks re-synced with the corrected monograph (October 2026
+  edition); all 15 execute cleanly.
+
 ## [0.3.0] - 2026-10-21
 
 First release intended for PyPI. Phases 1 through 5 are implemented in pure

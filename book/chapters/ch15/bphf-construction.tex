@@ -349,8 +349,8 @@ Fix $n = 1000$. The rank width is
 since $2^{10} = 1024 \ge 1000 > 2^9 = 512$. The rank table occupies
 $n r = 10{,}000$ bits ($1250$ bytes), plus a minimal perfect hash of at
 least $\log_2 e \approx 1.44$ and in practice $2$ to $3.3$ bits per
-element (\Cref{prop:phf-space}), for a total of roughly $11{,}500$ to
-$13{,}300$ bits. At the corner, a true perfect hash with distinct ranks
+element (\Cref{prop:phf-space}), for a total of at least about $11{,}440$
+bits and in practice $12{,}000$ to $13{,}300$ bits. At the corner, a true perfect hash with distinct ranks
 in the witness model, $\fprate = \fnrate = 0$: the structure never
 accepts a non-corpus candidate and never misses a corpus member, a
 perfect-hash dictionary viewed as the corner of the line. To make it a

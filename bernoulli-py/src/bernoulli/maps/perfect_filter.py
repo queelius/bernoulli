@@ -1,4 +1,4 @@
-"""The perfect-hash filter: the Bernoulli hash function of book chapter 14.
+"""The perfect hash filter (PHF) of book chapter 14 (Dietzfelbinger and Pagh 2008, Sec. 1).
 
 A :class:`PerfectFilter` is a static approximate set built from a known key set.
 It pairs a minimal perfect hash (slot assignment) with an ``r``-bit fingerprint
@@ -14,16 +14,18 @@ a member always matches: ``fnr = 0`` exactly. A non-member lands on some slot
 holding an unrelated fingerprint, which matches its own with probability
 ``2^-r``: ``fpr = 2^-r``.
 
-Space is ``mu + r`` bits per key, where ``mu`` is the perfect hash's overhead
-(a few bits, see :class:`bernoulli.maps.MinimalPerfectHash`) and ``r`` is the
-fingerprint width. With ``r = ceil(-log2 epsilon)`` this is
-``-log2 epsilon + mu``, the chapter 14 / chapter 8 bound, below the Bloom
-filter's ``1.44 * (-log2 epsilon)`` whenever ``mu`` is smaller than Bloom's
-``0.44 * (-log2 epsilon)`` slack. The price is that the set must be known up
+Space is ``c + r`` bits per key, where ``c`` is the minimal perfect hash's cost
+(at least ``log2(e) ~= 1.44`` bits per key for any construction, Fredman and
+Komlos 1984; a few bits in practice, see :class:`bernoulli.maps.MinimalPerfectHash`)
+and ``r`` is the fingerprint width. With ``r = ceil(-log2 epsilon)`` this is
+about ``-log2 epsilon + c``. It beats the Bloom filter's
+``1.44 * (-log2 epsilon)`` only when ``c`` is smaller than Bloom's
+``0.44 * (-log2 epsilon)`` slack, so at moderate error rates a Bloom filter
+can win. The price is that the set must be known up
 front: unlike a Bloom filter, a PerfectFilter is not incrementally insertable.
 
 See :mod:`bernoulli.sets.entropy_bound` for the matching space model
-(``bhf_bits_per_key(epsilon, perfect_hash_overhead=mu)``).
+(``phf_bits_per_key(epsilon, mphf_bits_per_key=c)``).
 """
 
 from __future__ import annotations
