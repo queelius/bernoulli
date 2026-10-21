@@ -25,3 +25,14 @@ _minted-*/
 
 # Final PDF is committed; intermediate PDFs are not
 book.pdf.bak
+
+# make4ht HTML build (make html)
+_html_build/
+_html/
+*.4ct
+*.4tc
+*.dvi
+*.idv
+*.lg
+*.tmp
+*.xref
