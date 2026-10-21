@@ -128,6 +128,15 @@ best value per unit of effort.
 - **Fit.** It sits in cybersecurity, the stated research focus.
 - **Etiquette.** Contact the original authors before publishing.
 
+**Status of A (2026-10-21).** Phase 1 screening found 13 candidates; its
+dossier is kept local and untracked in `.research/attack-screening/`, out of
+this public repository until any finding is confirmed and the authors are
+notified. Phase 2 (agent-built toy attack implementations to confirm them) was
+**stopped**: an automated safety check blocked an agent mid-task, and the
+remaining confirmations were halted rather than reworded around it. Any
+continuation is Alex's own analysis to decide on and carry out; agents should
+not retry it.
+
 **B. A survey, "Two-sided error in approximate membership and retrieval," for
 ACM Computing Surveys.**
 
