@@ -7,7 +7,7 @@ Alexander Towell.
 - **Final version DOI:** [10.5281/zenodo.23531323](https://doi.org/10.5281/zenodo.23531323) (all versions: [10.5281/zenodo.20602263](https://doi.org/10.5281/zenodo.20602263))
 - **Superseded by:** ch. 15 (Perfect Hash Filters (BPHF))
 - **Errata:** [`ERRATA.md`](ERRATA.md)
-- **Build** (in `paper/`): `cd paper && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex`
+- **Build** (from the repository root): `cd paper && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex`
 
 ## License
 
