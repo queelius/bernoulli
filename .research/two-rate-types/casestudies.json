@@ -1,0 +1,323 @@
+[
+  {
+    "key": "prefilter-same",
+    "title": "Bloom pre-filter + exact check (same fact)",
+    "program": "bloom(S,x) && disk_lookup(S,x)",
+    "note": "equal erasures: the composite is exact",
+    "two_rate": [
+      "0",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "0"
+    ],
+    "decaf_derived": "1/100",
+    "decaf_annotated": null,
+    "single_sound": "1/100",
+    "single_union": "1/100",
+    "exact": [
+      "0",
+      "0"
+    ]
+  },
+  {
+    "key": "prefilter-diff",
+    "title": "Bloom answer AND exact predicate (different facts)",
+    "program": "bloom(S,x) && policy(x)",
+    "note": "FPR equal to Decaf; only the one-sidedness is new",
+    "two_rate": [
+      "1/100",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "0"
+    ],
+    "decaf_derived": "1/100",
+    "decaf_annotated": null,
+    "single_sound": "1/100",
+    "single_union": "1/100",
+    "exact": [
+      "1/100",
+      "0"
+    ]
+  },
+  {
+    "key": "and-two-blooms",
+    "title": "AND of two Bloom answers (different sets)",
+    "program": "bloom(A,x) && bloom(B,x)",
+    "note": "eps = max, not the sum",
+    "two_rate": [
+      "1/100",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "0"
+    ],
+    "decaf_derived": "199/10000",
+    "decaf_annotated": null,
+    "single_sound": "199/10000",
+    "single_union": "1/50",
+    "exact": [
+      "1/100",
+      "0"
+    ]
+  },
+  {
+    "key": "cascade-same",
+    "title": "Cascade of 3 independent filters on one set",
+    "program": "bloom1(S,x) && bloom2(S,x) && bloom3(S,x)",
+    "note": "equal erasures + disjoint seeds: product",
+    "two_rate": [
+      "1/1000000",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "0"
+    ],
+    "decaf_derived": "29701/1000000",
+    "decaf_annotated": null,
+    "single_sound": "29701/1000000",
+    "single_union": "3/100",
+    "exact": [
+      "1/1000000",
+      "0"
+    ]
+  },
+  {
+    "key": "cascade-shared-seed",
+    "title": "Same cascade, shared hash seed",
+    "program": "bloom1..3 sharing one seed",
+    "note": "no independence certificate: min",
+    "two_rate": [
+      "1/100",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "0"
+    ],
+    "decaf_derived": "29701/1000000",
+    "decaf_annotated": null,
+    "single_sound": "3/100",
+    "single_union": "3/100",
+    "exact": [
+      "1/100",
+      "0"
+    ]
+  },
+  {
+    "key": "mr-alone",
+    "title": "Miller-Rabin alone (10 rounds, same n)",
+    "program": "mr(n,a1) && ... && mr(n,a10)",
+    "note": "amplification derived from equal erasures + disjoint witnesses",
+    "two_rate": [
+      "1/1048576",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/4",
+      "0"
+    ],
+    "decaf_derived": "989527/1048576",
+    "decaf_annotated": "1/1048576",
+    "single_sound": "989527/1048576",
+    "single_union": "1",
+    "exact": null
+  },
+  {
+    "key": "mr4-alone",
+    "title": "Miller-Rabin alone (4 rounds, same n)",
+    "program": "mr(n,a1) && ... && mr(n,a4)",
+    "note": "small instance, enumerated",
+    "two_rate": [
+      "1/256",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/4",
+      "0"
+    ],
+    "decaf_derived": "175/256",
+    "decaf_annotated": "1/256",
+    "single_sound": "175/256",
+    "single_union": "1",
+    "exact": [
+      "1/256",
+      "0"
+    ]
+  },
+  {
+    "key": "mr-and-set",
+    "title": "Miller-Rabin (10 rounds) AND set query",
+    "program": "mr_k(n) && bloom(S,n)",
+    "note": "two-rate derives amplification; Decaf needs a hand annotation",
+    "two_rate": [
+      "1/100",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/4",
+      "0"
+    ],
+    "decaf_derived": "99011749/104857600",
+    "decaf_annotated": "41947/4194304",
+    "single_sound": "99011749/104857600",
+    "single_union": "1",
+    "exact": null
+  },
+  {
+    "key": "mr4-and-set",
+    "title": "Miller-Rabin (4 rounds) AND set query",
+    "program": "mr_4(n) && bloom(S,n)",
+    "note": "small instance, enumerated",
+    "two_rate": [
+      "1/100",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "1/4",
+      "0"
+    ],
+    "decaf_derived": "17581/25600",
+    "decaf_annotated": "71/5120",
+    "single_sound": "17581/25600",
+    "single_union": "1",
+    "exact": [
+      "1/100",
+      "0"
+    ]
+  },
+  {
+    "key": "or-shards",
+    "title": "OR over 8 sharded filters",
+    "program": "bloom(S1,x) || ... || bloom(S8,x)",
+    "note": "same FPR as Decaf; adds omg = 0",
+    "two_rate": [
+      "7972055930055972007999/1000000000000000000000000",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "7972055930055972007999/1000000000000000000000000",
+      "0"
+    ],
+    "decaf_derived": "7972055930055972007999/1000000000000000000000000",
+    "decaf_annotated": null,
+    "single_sound": "7972055930055972007999/1000000000000000000000000",
+    "single_union": "1/125",
+    "exact": null
+  },
+  {
+    "key": "or-shards-3",
+    "title": "OR over 3 sharded filters",
+    "program": "bloom(S1,x) || bloom(S2,x) || bloom(S3,x)",
+    "note": "small instance, enumerated",
+    "two_rate": [
+      "2997001/1000000000",
+      "0"
+    ],
+    "two_rate_without_same_truth": [
+      "2997001/1000000000",
+      "0"
+    ],
+    "decaf_derived": "2997001/1000000000",
+    "decaf_annotated": null,
+    "single_sound": "2997001/1000000000",
+    "single_union": "3/1000",
+    "exact": [
+      "2997001/1000000000",
+      "0"
+    ]
+  },
+  {
+    "key": "blocklist",
+    "title": "Blocklist gate !bloom(Block,x) && auth(x)",
+    "program": "!bloom(Block,x) && auth(x)",
+    "note": "static 'never admits a blocked item' (eps = 0)",
+    "two_rate": [
+      "0",
+      "1/100"
+    ],
+    "two_rate_without_same_truth": [
+      "0",
+      "1/100"
+    ],
+    "decaf_derived": "1/100",
+    "decaf_annotated": null,
+    "single_sound": "1/100",
+    "single_union": "1/100",
+    "exact": [
+      "0",
+      "1/100"
+    ]
+  },
+  {
+    "key": "blocklist-approx-auth",
+    "title": "Blocklist gate with approximate auth",
+    "program": "!bloom(Block,x) && auth~(x)",
+    "note": "eps comes only from auth~",
+    "two_rate": [
+      "1/50",
+      "119/2000"
+    ],
+    "two_rate_without_same_truth": [
+      "1/50",
+      "119/2000"
+    ],
+    "decaf_derived": "119/2000",
+    "decaf_annotated": null,
+    "single_sound": "119/2000",
+    "single_union": "3/50",
+    "exact": [
+      "1/50",
+      "119/2000"
+    ]
+  },
+  {
+    "key": "symmetric-and",
+    "title": "AND of symmetric-noise bits",
+    "program": "cmp1 && cmp2 (bit-flip hardware)",
+    "note": "max(eps,omg) equals Decaf",
+    "two_rate": [
+      "1/100",
+      "199/10000"
+    ],
+    "two_rate_without_same_truth": [
+      "1/100",
+      "199/10000"
+    ],
+    "decaf_derived": "199/10000",
+    "decaf_annotated": null,
+    "single_sound": "199/10000",
+    "single_union": "1/50",
+    "exact": [
+      "1/100",
+      "199/10000"
+    ]
+  },
+  {
+    "key": "xor-blooms",
+    "title": "XOR (symmetric difference) of two Bloom answers",
+    "program": "bloom(A,x) != bloom(B,x)",
+    "note": "XOR destroys one-sidedness",
+    "two_rate": [
+      "99/5000",
+      "1/100"
+    ],
+    "two_rate_without_same_truth": [
+      "99/5000",
+      "1/100"
+    ],
+    "decaf_derived": "199/10000",
+    "decaf_annotated": null,
+    "single_sound": "199/10000",
+    "single_union": "1/50",
+    "exact": [
+      "99/5000",
+      "1/100"
+    ]
+  }
+]
