@@ -57,7 +57,8 @@
         "pages": 20,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531295"
     },
     {
       "id": "composition",
@@ -105,7 +106,8 @@
         "pages": 16,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531300"
     },
     {
       "id": "classification",
@@ -146,7 +148,8 @@
         "pages": 15,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531308"
     },
     {
       "id": "entropy",
@@ -189,7 +192,8 @@
         "pages": 8,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531319"
     },
     {
       "id": "bhf",
@@ -231,7 +235,8 @@
         "pages": 30,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531320"
     },
     {
       "id": "phf",
@@ -269,7 +274,8 @@
         "pages": 37,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531323"
     },
     {
       "id": "maps",
@@ -323,7 +329,8 @@
         "pages": 26,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531328"
     },
     {
       "id": "relations",
@@ -364,7 +371,8 @@
         "pages": 28,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531330"
     },
     {
       "id": "data-type-model",
@@ -427,7 +435,8 @@
         "pages": 24,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531335"
     },
     {
       "id": "data-type-algebraic",
@@ -472,7 +481,8 @@
         "pages": 20,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531336"
     },
     {
       "id": "quantum-readout",
@@ -528,7 +538,8 @@
         "pages": 20,
         "status_box_on_page_1_or_2": true,
         "clean": true
-      }
+      },
+      "final_version_doi": "10.5281/zenodo.23531276"
     }
   ]
 }

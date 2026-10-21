@@ -68,7 +68,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "A probabilistic framework for random approximate sets with independent element-wise false-positive and false-negative errors; two axioms yield the error-count distributions, their normal limits, and confidence intervals.",
         "keywords": ["false positive rate", "false negative rate", "Bloom filter", "axioms"],
-        "concept_doi": "10.5281/zenodo.19105381", "version_doi": "10.5281/zenodo.19105382",
+        "concept_doi": "10.5281/zenodo.19105381", "version_doi": "10.5281/zenodo.23531295",
         "url": "https://doi.org/10.5281/zenodo.19105381",
     },
     {
@@ -77,7 +77,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Error rates for complement, union, intersection, and difference of Bernoulli sets, computed per region of the true sets; marginal rate pairs do not compose exactly through nested expressions. Credits independent-event evaluation in probabilistic databases and Bloom-filter set operations.",
         "keywords": ["set composition", "error propagation", "union", "intersection"],
-        "concept_doi": "10.5281/zenodo.19105387", "version_doi": "10.5281/zenodo.19105388",
+        "concept_doi": "10.5281/zenodo.19105387", "version_doi": "10.5281/zenodo.23531300",
         "url": "https://doi.org/10.5281/zenodo.19105387",
     },
     {
@@ -86,7 +86,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Distributions, expectations, and variances of binary classification measures (PPV, NPV, accuracy, F1, Youden's J) for the Bernoulli set model, via standard delta-method expansions validated by Monte Carlo; no novelty is claimed for the technique.",
         "keywords": ["binary classification", "positive predictive value", "F1-score", "delta method"],
-        "concept_doi": "10.5281/zenodo.19104549", "version_doi": "10.5281/zenodo.19104550",
+        "concept_doi": "10.5281/zenodo.19104549", "version_doi": "10.5281/zenodo.23531308",
         "url": "https://doi.org/10.5281/zenodo.19104549", "date_released": "2026-03-18",
     },
     {
@@ -95,7 +95,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with an asymptotic expansion, and the space lower bound for approximate membership: the one-sided -log2(epsilon) bound of Carter et al. (1978) and the two-sided bound with false negatives of Pagh and Rodler (2001).",
         "keywords": ["entropy", "space complexity", "information-theoretic bound"],
-        "concept_doi": "10.5281/zenodo.20602259", "version_doi": "10.5281/zenodo.20602260",
+        "concept_doi": "10.5281/zenodo.20602259", "version_doi": "10.5281/zenodo.23531319",
         "url": "https://doi.org/10.5281/zenodo.20602259", "date_released": "2026-06-08",
     },
     {
@@ -104,7 +104,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The Bernoulli hash function (BHF): seed-search constructions of Bernoulli sets and maps whose expected salt length matches the known -log2(epsilon)+mu scale, in exponential expected time, in the lineage of RecSplit and ShockHash. This version corrects the order-statistic law and withdraws the adaptive-threshold space saving.",
         "keywords": ["perfect hash", "fingerprint", "seed search", "succinct data structure"],
-        "concept_doi": "10.5281/zenodo.20602261", "version_doi": "10.5281/zenodo.20602262",
+        "concept_doi": "10.5281/zenodo.20602261", "version_doi": "10.5281/zenodo.23531320",
         "url": "https://doi.org/10.5281/zenodo.20602261", "date_released": "2026-06-08",
     },
     {
@@ -113,7 +113,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The perfect hash filter (PHF): the minimal-perfect-hash-plus-fingerprint filter described by Dietzfelbinger and Pagh (2008), restated as a positive Bernoulli set and map, about log2(e) bits per element above the bound, with a corrected k-perfect false-negative analysis.",
         "keywords": ["perfect hash filter", "succinct data structure", "encrypted search"],
-        "concept_doi": "10.5281/zenodo.20602263", "version_doi": "10.5281/zenodo.20602264",
+        "concept_doi": "10.5281/zenodo.20602263", "version_doi": "10.5281/zenodo.23531323",
         "url": "https://doi.org/10.5281/zenodo.20602263", "date_released": "2026-06-08",
     },
     {
@@ -122,7 +122,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, closed-form marginal rates under composition (element-wise independence holds only without shared intermediate values), and a seed-search construction approaching -log2(epsilon)+mu bits per element.",
         "keywords": ["approximate map", "model order", "composition", "channel"],
-        "concept_doi": "10.5281/zenodo.19105389", "version_doi": "10.5281/zenodo.19105390",
+        "concept_doi": "10.5281/zenodo.19105389", "version_doi": "10.5281/zenodo.23531328",
         "url": "https://doi.org/10.5281/zenodo.19105389",
     },
     {
@@ -131,7 +131,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Separates exact relation truth, construction randomness, and shared source identity; gives scoped operator and invariant-preservation formulas, one-sided query error contracts, and a stored-filter calibration study. Credits probabilistic relational algebra and probabilistic databases.",
         "keywords": ["approximate relation", "relational algebra", "join", "query error contract"],
-        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20618109",
+        "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.23531330",
         "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-09",
     },
     {
@@ -140,7 +140,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "An overview of the Bernoulli model of approximate data types: values observed through binary channels with false-positive and false-negative rates, trading space for accuracy. Credits probability-typed approximate computing (Decaf, Rely, Uncertain<T>).",
         "keywords": ["data types", "cipher data types", "error propagation"],
-        "concept_doi": "10.5281/zenodo.19105398", "version_doi": "10.5281/zenodo.19105399",
+        "concept_doi": "10.5281/zenodo.19105398", "version_doi": "10.5281/zenodo.23531335",
         "url": "https://doi.org/10.5281/zenodo.19105398",
         "manuscript": "papers/bernoulli_data_type/bernoulli_model",
     },
@@ -150,7 +150,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Random approximate values over algebraic data types (sums, products, functions) with per-type error rates, credited against probability-typed approximate computing (Decaf, Rely, Uncertain<T>, EnerJ, Chisel) and the Giry monad.",
         "keywords": ["algebraic data types", "approximate computing", "probability types"],
-        "concept_doi": "10.5281/zenodo.19105395", "version_doi": "10.5281/zenodo.19105396",
+        "concept_doi": "10.5281/zenodo.19105395", "version_doi": "10.5281/zenodo.23531336",
         "url": "https://doi.org/10.5281/zenodo.19105395",
         "repo_url_override": "https://github.com/queelius/bernoulli_data_type/tree/main/algebraic_types",
     },
@@ -160,7 +160,7 @@ ARTIFACTS = [
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "description": "Applies known forward error-propagation tools (signal-probability analysis, probabilistic transfer matrices, Gallager's parity lemma) to Boolean post-processing of asymmetric quantum readout error, computed per latent assignment, with worked ibm_hanoi syndrome-bit numbers. A two-rate pair does not propagate through Boolean trees as a pair.",
         "keywords": ["quantum readout error", "measurement error", "asymmetric channel", "syndrome bit", "error propagation"],
-        "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.20618108",
+        "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.23531276",
         "url": "https://doi.org/10.5281/zenodo.20584894", "date_released": "2026-06-09",
     },
     {
