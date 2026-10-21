@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-15",
+  "usenix": {
+    "url": "https://www.usenix.org/conference/usenixsecurity24/presentation/hao-meng-unbalanced",
+    "primary_bibtex_matches": true,
+    "fields": [
+      "title",
+      "all seven authors",
+      "conference",
+      "year",
+      "pages"
+    ]
+  },
+  "access_failures": [
+    "IEEE DOI unavailable through web tool",
+    "ACM DOI redirect blocked by web tool",
+    "MDPI author instructions429"
+  ],
+  "scope": "No inferred bibliographic error from access failure; scientific source review delegated independently."
+}

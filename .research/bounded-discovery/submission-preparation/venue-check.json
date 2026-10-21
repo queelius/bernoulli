@@ -1,0 +1,19 @@
+{
+  "checked_on": "2026-10-15",
+  "method": "live Chrome UI for MDPI policies and APC; official/author-primary web sources for possible reviewer contacts",
+  "requirements": [
+    {
+      "url": "https://www.mdpi.com/journal/entropy/apc",
+      "finding": "General APC CHF 2600; tax may apply; invoices after acceptance; no Comment-specific exemption observed."
+    },
+    {
+      "url": "https://www.mdpi.com/ethics",
+      "finding": "Substantive AI use disclosed in methods and acknowledgments with human responsibility. Comments receive preliminary editorial assessment. Author facts and approval must be accurate."
+    },
+    {
+      "url": "https://www.mdpi.com/journal/Entropy/instructions",
+      "finding": "Free-format initial submission; PDF plus collated LaTeX source ZIP; cover letter and declarations; three suggested reviewers and conflict screening. Author should approve content and read instructions. Submission system also offers journal transfers; no transfer permission inferred for this Comment."
+    }
+  ],
+  "access_note": "web.run direct opens returned 429; these pages were subsequently inspected successfully in the author's Chrome browser."
+}

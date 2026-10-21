@@ -1,0 +1,60 @@
+{
+  "purpose": "Validate reviewer counterexample to interpreting suffix masks as concealing the entire XOR word without prefix independence. Does not affect either disclosure proposition.",
+  "identifier_and_mask_independent_uniform": true,
+  "prefix_equals_mask": true,
+  "conditional_suffix_counts": {
+    "0": {
+      "0": 1,
+      "1": 1
+    },
+    "1": {
+      "1": 1,
+      "0": 1
+    }
+  },
+  "conditional_full_word_supports": {
+    "0": [
+      0,
+      3
+    ],
+    "1": [
+      1,
+      2
+    ]
+  },
+  "rows": [
+    {
+      "identifier": 0,
+      "mask": 0,
+      "prefix": 0,
+      "suffix": 0,
+      "full_word": 0,
+      "public_recovered_identifier": 0
+    },
+    {
+      "identifier": 0,
+      "mask": 1,
+      "prefix": 1,
+      "suffix": 1,
+      "full_word": 3,
+      "public_recovered_identifier": 0
+    },
+    {
+      "identifier": 1,
+      "mask": 0,
+      "prefix": 0,
+      "suffix": 1,
+      "full_word": 1,
+      "public_recovered_identifier": 1
+    },
+    {
+      "identifier": 1,
+      "mask": 1,
+      "prefix": 1,
+      "suffix": 0,
+      "full_word": 2,
+      "public_recovered_identifier": 1
+    }
+  ],
+  "conclusion": "Uniform suffix marginals coexist with exact identifier recovery from prefix plus suffix."
+}

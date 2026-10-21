@@ -1,0 +1,8 @@
+{
+  "K4_edge_covers": 41,
+  "K4_prequotient_FPR": "1695/4096",
+  "K4_quotient_FPR": "23/64",
+  "projection_covariances": 256,
+  "weighted_cycles": 87,
+  "weighted_paths": 8
+}

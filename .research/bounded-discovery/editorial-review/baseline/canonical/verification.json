@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-14",
+  "build_command": "make -C .research/bounded-discovery/manuscript",
+  "build_exit_code": 0,
+  "pages": 5,
+  "unresolved_citations_references_or_layout_warnings": [],
+  "visual_review": "All five pages inspected at 1200px; after final bibliography page break pages 1\u20133 were byte-identical renders and pages 4\u20135 re-inspected. No clipped text, overlaps, missing glyphs or broken tables.",
+  "sha256": {
+    "main.tex": "7678422b618792791fa8998c9b1ba3b3603f97abb7f71332b4d298c1f59f4e89",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "main.pdf": "1f35a1f840748ee1de13cd5b5fa8db7f79e57a47aa76d1a35c33eef50d5f74bc"
+  },
+  "review": "../review.md",
+  "not_submitted": true
+}

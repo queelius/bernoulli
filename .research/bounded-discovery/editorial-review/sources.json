@@ -1,0 +1,26 @@
+{
+  "checked_on": "2026-10-15",
+  "sources": [
+    {
+      "title": "Ten simple rules for structuring papers",
+      "authors": ["Brett Mensh", "Konrad Kording"],
+      "year": 2017,
+      "doi": "10.1371/journal.pcbi.1005619",
+      "url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005619",
+      "access": "Primary full text read this turn",
+      "application": "Central contribution, reader orientation, logical evidence order, deliberate outline and iterative independent feedback. Do not impose a rigid empirical-paper structure on a short theoretical Comment."
+    },
+    {
+      "title": "MDPI Research and Publication Ethics: Comments and Replies",
+      "url": "https://www.mdpi.com/ethics",
+      "access": "Prior same-day official indexed text; direct open this turn returned internal error",
+      "application": "Keep the critique focused on significant aspects of the original article, and direct criticism at the work."
+    },
+    {
+      "title": "Entropy Instructions for Authors",
+      "url": "https://www.mdpi.com/journal/Entropy/instructions",
+      "access": "Prior same-day official indexed text; direct open this turn returned internal error",
+      "application": "Free-format initial manuscript and supplementary code are acceptable; do not invent missing author declarations."
+    }
+  ]
+}

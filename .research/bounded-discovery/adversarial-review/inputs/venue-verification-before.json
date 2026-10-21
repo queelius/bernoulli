@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-15",
+  "scope": "Iterative editorial revision of existing GBFPlus Comment; three independent review lenses, two rounds and targeted closures.",
+  "status": "editorial work complete; author review and declarations pending; not submitted",
+  "paths_relative_to": "venue directory or extracted review bundle root unless explicitly research-relative",
+  "python": "3.12.3",
+  "tools": {
+    "pytest": "9.0.3",
+    "coverage": "7.14.1",
+    "ruff": "0.15.16",
+    "mypy": "2.1.0"
+  },
+  "tests": {
+    "passed": 17,
+    "unchanged_scientific_tests": 10,
+    "artifact_tests": 7,
+    "unit_and_subprocess_integration": true,
+    "clean_extraction_passed": 17,
+    "log": "validation/editorial-final/tests.txt",
+    "independent_log": "editorial-review/methods/evidence-round-2/final/command-results.json"
+  },
+  "coverage": {
+    "modules": [
+      "gbfplus_probe.py",
+      "reproduce.py"
+    ],
+    "normal_compilation_totals": {
+      "covered_lines": 121,
+      "num_statements": 121,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 48,
+      "num_partial_branches": 0,
+      "covered_branches": 48,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "scope": "The __debug__ guard is folded at compilation; optimized rejection is outside this normal-compilation denominator and verified separately. 100% does not mean complete protocol validation.",
+    "separate_optimized_execution_expected_exit": 1,
+    "separate_optimized_execution_output_created": false,
+    "log": "validation/editorial-final/optimized-guard.txt"
+  },
+  "ruff": "passed local and independent clean extraction",
+  "mypy_strict": "passed all four files local and independent clean extraction",
+  "reproduction": {
+    "returncode": 0,
+    "singleton_cases": 256,
+    "disjoint_batch_cases": 1024,
+    "seeded_arrays": 64,
+    "all_deterministic_fields_match": true,
+    "timing_compared": false,
+    "site_packages_disabled": true
+  },
+  "optimization_regression": {
+    "previous_defect_reproduced": true,
+    "guard": "module-local if not __debug__",
+    "regression_modes": [
+      "-O",
+      "PYTHONOPTIMIZE=1",
+      "precompiled optimize=1 bytecode in normal interpreter"
+    ],
+    "independent_challenge": "20 optimized script/module/import/runpy cases plus precompiled bytecode; nonzero exit, no new output, existing output preserved"
+  },
+  "oracle_check": {
+    "hand_derived_full_array": true,
+    "deliberate_prefix_bit_mutation_detected": true,
+    "independent_review_transition_cases": 244816,
+    "independent_review_transition_mismatches": 0,
+    "scope": "Review evidence, not added paper result."
+  },
+  "scientific_preservation": {
+    "mathematical_module_and_original_tests_byte_identical": true,
+    "two_experiment_functions_ast_identical": true,
+    "historical_function_digest_method_documented_and_reproduced": true,
+    "scientific_identities_and_numerical_counts_preserved": true,
+    "canonical_manuscript_revised": true,
+    "venue_uses_shared_scientific_inputs": true,
+    "package_core_untouched": true,
+    "preservation": {
+      "checked_paths": 92,
+      "mismatches": [],
+      "all_match": true,
+      "baseline": "editorial-review/baseline/preserved-files.json"
+    }
+  },
+  "pdf": {
+    "pages": 5,
+    "canonical_pages": 5,
+    "all_ten_pages_visually_inspected": true,
+    "visual_findings": "No clipping, overlap, missing glyph, broken reference, or unreadable table; normal page/float transitions retained.",
+    "final_build_warnings": [],
+    "clean_source_build_pdf_text_identical": true,
+    "venue_sha256": "596500fa15a03357c85284e436d73a5fd3d894bc20d069dfb0bc444c6bb91810",
+    "canonical_sha256": "2549724465a1df3a803aa89ca27d9549f21de945e782d4a40befbe82661d549a",
+    "rendered_evidence": "editorial-review/{canonical,venue}-final-page-{1..5}.png"
+  },
+  "source_sha256": {
+    "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+    "README.md": "716a1cedb76ef806becf48ff3492bd1dd837f4c2e35a17f334db0d98b6b927d3",
+    "REVIEW-PACKAGE.md": "ae9b86f7de45811a1178ed3deccc782cbf783a4e1fde25a40b16d4068e7d50a7",
+    "abstract.tex": "eed7f877efc750ea50955db666a767931c6c1591bfb3b52451312761d85164b7",
+    "backmatter.tex": "660c1a9e68858a306e94da4558d44c6a726895db1df499e2ef65cc536c975045",
+    "body.tex": "f82b746de224af858f5f77087027f17ce2a51b52b6fc50a00060472dfb19bf27",
+    "cover-letter.md": "48644f7c72a623768bfa2f27543ce7d2d1a87e1558877eec0be2aa15f0d0c93d",
+    "declarations.md": "65daee21b8e46186a1443f4870ecc1c034d4191c7aaefd94f1f1bbd38addcd75",
+    "main.pdf": "596500fa15a03357c85284e436d73a5fd3d894bc20d069dfb0bc444c6bb91810",
+    "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/README.md": "dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/provenance.json": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+    "supplement/reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+    "supplement/requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+    "supplement/source-premises.md": "9662847f47e1f2cb344de3771546fc5b7fcdebf20b75852c3e266829836a7168",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+  },
+  "archives": {
+    "gbfplus-comment-source.zip": {
+      "sha256": "054a7028902acaaf8a250158d6b365ef639f91374a2ed10c614ce7d1f32ddd09",
+      "bytes": 8567,
+      "files": [
+        "Makefile",
+        "abstract.tex",
+        "backmatter.tex",
+        "body.tex",
+        "main.tex",
+        "references.bib"
+      ]
+    },
+    "gbfplus-comment-supplement.zip": {
+      "sha256": "b53663fc475519a669af2f0c8831dc6a91e73333dc05114ef4263a232fc2727b",
+      "bytes": 23025,
+      "files": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ]
+    }
+  },
+  "review": {
+    "independent_initial_reports": 3,
+    "revision_reports": 3,
+    "all_material_findings_closed": true,
+    "reports": {
+      "readability/round-1.md": "8d478accbf637bf320560615946e8e8f72e915924ecdaebe4c0c112934754b7d",
+      "readability/round-2.md": "cdd1a0047d8baa34a5599b1de6d635f93239a277459e90ab557b086f287ed40d",
+      "validity/round-1.md": "4db6351abb4af72884d1340199e4a1ce6ec4aca2946a5cc99bcf86654d5a628a",
+      "validity/round-2.md": "f8a724d0948cae49b071f1a0758915039a8a33fea62d738366f8f4fef37039b7",
+      "methods/round-1.md": "3bc16b70e530d6b5e3fb1fd425cf4854709e1d7c32bfb577e30bb86b9f640a18",
+      "methods/round-2.md": "4cfd76c627f43efc25f5f48c052e26dab164a18d5e801abbfc7cd787c2b5bf22"
+    },
+    "response_ledger": "editorial-review/response-ledger.md",
+    "completion_audit": "editorial-review/completion-audit.md",
+    "external_peer_review": false
+  },
+  "historical_checks_not_rerun": [
+    "Original broader 19-test investigation suite",
+    "92 package regressions"
+  ],
+  "remaining_author_items": [
+    "Human scientific/source review",
+    "Accurate contribution, funding, conflicts, publication history and approval declarations",
+    "Assistance disclosure and artifact release terms",
+    "Applicable Comment fee and decision whether to proceed"
+  ],
+  "external_actions": [],
+  "finalization_does_not_assert_submission_readiness": true
+}

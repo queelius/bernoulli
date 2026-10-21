@@ -1,0 +1,13 @@
+{
+  "papers/bernoulli-hash-function/sections/appendix.tex": "5a1d508553638bcdfa1462844650a753688434822ad1ea48759d761d41f479ae",
+  "papers/bernoulli-hash-function/sections/operations.tex": "26febc1fa6b2d10a6ba92d314a7f02196ab0abd482ce4047ca5abaac49bf6deb",
+  "papers/bernoulli-hash-function/sections/space.tex": "a912ae9835f366f20314fa68b166ae4149946eb718c4cfabebff77575e56bb05",
+  "papers/bernoulli-hash-function/sections/entropy.tex": "90bfaa8ebb59efbf8a09bb673912c88b4fad319553822d0358dd7bd61642304c",
+  "papers/bernoulli-hash-function/sections/intro.tex": "ce27ee724ee747b88b0da2562bace859504190deb967718c0713a88b054ed4dc",
+  "papers/bernoulli-hash-function/sections/discussion.tex": "bf026f0f80cbcafbc99e51bd7f11d4d21b4ae055fc52dd6565d3a50be7ca9042",
+  "papers/bernoulli-hash-function/sections/shf.tex": "398a5d8158d7b397ac6d673eeb05f6d07e4d7b870b45c873b9a78bc92edd9196",
+  "papers/bernoulli-hash-function/sections/prob_model.tex": "e228df32a9aa6716c8b80b44ad8ee7e00f936d83b3426684c048550aa74e30e2",
+  "papers/bernoulli-hash-function/sections/prelim.tex": "0e244bdfdab80514c8694fb383469b7a2f01ab80f191b2fbfcb4b49d575960d3",
+  "papers/bernoulli-hash-function/sections/construction.tex": "710ba331096629668c3e8b8766c6c245cd5bd17d5e80c6e3ef76f5928205de8f",
+  "papers/bernoulli-phf/paper/sections/k_perfect_hashing.tex": "c2e15a7581cf296720ff4762dbdbbb7638f26d36dd03d214ef70fddcebaf04a0"
+}

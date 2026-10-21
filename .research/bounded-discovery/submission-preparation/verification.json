@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-15",
+  "scope": "Submission preparation: disclosure edits only; not a new mathematical review or test run",
+  "checks": {
+    "supplement_archive_unchanged": true,
+    "supplement_sources_unchanged": true,
+    "92_unrelated_preservation_paths": true,
+    "baseline_saved_exactly": true,
+    "all_preceding_scientific_text_unchanged": true,
+    "implications_unchanged": true,
+    "clean_source_pdf_text_matches_current": true,
+    "canonical_build_no_warnings": true,
+    "canonical_five_pages": true,
+    "venue_build_no_warnings": true,
+    "venue_five_pages": true,
+    "clean_source_build_no_warnings": true,
+    "clean_source_five_pages": true
+  },
+  "all_passed": true,
+  "pdf": {
+    "canonical": {
+      "sha256": "bd356ff278292a3675e160a004b6de7bb6c63ea0f7f743f1f7e1ad54f31968e2",
+      "pages": 5,
+      "warnings": []
+    },
+    "venue": {
+      "sha256": "5efca43769831bd824e9cbae81fa05a53dc91d70abb7af7a675188a5867128e4",
+      "pages": 5,
+      "warnings": []
+    },
+    "clean_source": {
+      "sha256": "d1b2e40901945b1991da6ef25088ce33a88dcd211c626090a41989ed904c8124",
+      "pages": 5,
+      "warnings": []
+    }
+  },
+  "visual_qa": "All five venue pages and canonical pages 1-2 inspected. Canonical pages 3-5 have byte-identical rendered PNGs to inspected venue pages. No clipping or illegibility; a normal paragraph continuation crosses pages 4-5.",
+  "code_validation": "Previous 17 tests and finite oracle checks remain historical, with exact supplement bytes verified unchanged; tests were not repeated for disclosure-only changes.",
+  "remaining": "Author review and declarations, confirmed fee-free route, then authenticated submission; no manuscript submitted."
+}

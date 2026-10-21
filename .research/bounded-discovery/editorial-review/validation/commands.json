@@ -1,0 +1,59 @@
+[
+  {
+    "name": "tests",
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-m",
+      "coverage",
+      "run",
+      "--branch",
+      "--source=gbfplus_probe,reproduce",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "name": "optimized-guard",
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-O",
+      "-m",
+      "coverage",
+      "run",
+      "--append",
+      "--branch",
+      "--source=gbfplus_probe,reproduce",
+      "/home/spinoza/github/bernoulli/.research/bounded-discovery/manuscript/venues/entropy-comment/supplement/reproduce.py"
+    ],
+    "returncode": 1,
+    "expected_returncode": 1
+  },
+  {
+    "name": "coverage-report",
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-m",
+      "coverage",
+      "report",
+      "-m"
+    ],
+    "returncode": 0,
+    "expected_returncode": 0
+  },
+  {
+    "name": "coverage-json",
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-m",
+      "coverage",
+      "json",
+      "-o",
+      "/home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/validation/coverage.json"
+    ],
+    "returncode": 0,
+    "expected_returncode": 0
+  }
+]

@@ -1,0 +1,11 @@
+--- author-approved/main.tex
++++ archival/main.tex
+@@ -16,7 +16,7 @@
+ \small Edwardsville, IL 62026, USA\\
+ \small Correspondence: \href{mailto:lex@metafunctor.com}{lex@metafunctor.com}\\
+ \small ORCID: \href{https://orcid.org/0000-0001-6443-9897}{0000-0001-6443-9897}}
+-\date{October 15, 2026\\\small Author-review draft; not submitted}
++\date{October 20, 2026\\\small Archival preprint, version 1.0.0; not peer reviewed}
+ \begin{document}
+ \maketitle
+ \begin{abstract}

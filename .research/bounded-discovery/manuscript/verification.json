@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-15",
+  "scope": "Submission-preparation AI disclosure; scientific claims unchanged",
+  "build_command": "make -C .research/bounded-discovery/manuscript",
+  "build_exit_code": 0,
+  "pages": 5,
+  "warnings": [],
+  "all_pages_visually_inspected": true,
+  "sha256": {
+    "main.tex": "39b9ad3708042666a12c958be495bd0abbe95053f58afd08fe96e1ba93230202",
+    "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "body.tex": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc",
+    "backmatter.tex": "0ab601fef429f696a9d18c1f8f7b7ea29f61fe522d365759fa7163649dec4408",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "main.pdf": "bd356ff278292a3675e160a004b6de7bb6c63ea0f7f743f1f7e1ad54f31968e2"
+  },
+  "review": "../adversarial-review/assessment.md",
+  "verification": "venues/entropy-comment/validation/verification.json",
+  "not_submitted": true,
+  "human_review_pending": true,
+  "current_stage": "../submission-preparation/verification.json"
+}

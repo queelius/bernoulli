@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-20",
+  "scope": "First archival release; scientific files unchanged from author-approved manuscript and tested supplement",
+  "scientific_files_preserved": {
+    "manuscript/abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "manuscript/body.tex": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc",
+    "manuscript/references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+  },
+  "written_proofs": 2,
+  "formal_verification": false,
+  "human_peer_review": false,
+  "author_approval": "2026-10-18",
+  "archival_release_authorization": "2026-10-20",
+  "unit_integration_tests": 17,
+  "normal_coverage": {
+    "statements": 121,
+    "covered_statements": 121,
+    "branches": 48,
+    "covered_branches": 48,
+    "compile_time_guard": "Excluded from denominator; separately rejected by subprocess tests, including optimized bytecode"
+  },
+  "independent_oracle": {
+    "updates": 771787,
+    "successful_updates": 133163,
+    "certificate_successes": 14889,
+    "atomic_failures": 638624,
+    "overlap_abstentions": 118274,
+    "saved_full_word_arrays": 64
+  },
+  "pdf": {
+    "pages": 5,
+    "sha256": "4df2802bad70cd87f46aa0c9109b75a950b3290bd508c50170f906edf0a79e69",
+    "build_commands": [
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "bibtex main",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex"
+    ],
+    "warnings": [],
+    "visual_check": "All five rendered pages inspected: readable title, formulas, tables, bibliography and archival declarations; no clipping, overlap, missing glyphs or orphaned reference page."
+  },
+  "citation_validation": "cffconvert --validate: valid against schema 1.2.0",
+  "novelty": "Protocol-specific contribution supported by bounded searches; not an exhaustive priority claim",
+  "public_source": "The archived packet, rather than a claim that these uncommitted source files existed in a published Git commit"
+}

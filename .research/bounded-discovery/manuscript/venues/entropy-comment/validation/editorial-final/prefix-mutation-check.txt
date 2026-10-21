@@ -1,0 +1,20 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_full_stored_array_includes_prefix_and_preserves_occupied_zero ______
+
+    def test_full_stored_array_includes_prefix_and_preserves_occupied_zero() -> None:
+        # Expected full words are hand-derived from the row equations, independently
+        # of the suffix decoder. Flipping a prefix bit must also fail this check.
+        cells: list[int | None] = [None] * 7
+        success = insert(cells, (5, 1, 3), 0b101, (0b010, 0b111), 3)
+        assert success
+>       assert cells == [None, 0b010, None, 0b111, None, 0b000, None]
+E       assert [None, 2, Non... None, 4, ...] == [None, 2, Non... None, 0, ...]
+E         
+E         At index 5 diff: 4 != 0
+E         Use -v to get more diff
+
+test_reproduction.py:66: AssertionError
+=========================== short test summary info ============================
+FAILED test_reproduction.py::test_full_stored_array_includes_prefix_and_preserves_occupied_zero
+1 failed, 5 deselected in 0.13s

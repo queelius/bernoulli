@@ -1,0 +1,16 @@
+{
+  "local_markdown_links_checked": 60,
+  "broken_local_links": [],
+  "json_files_parsed": 24,
+  "codec_source_hashes_unchanged": 6,
+  "hash_manuscript_source_hashes_unchanged": 11,
+  "new_audit_tests_passed": {
+    "codec": 7,
+    "hash": 20,
+    "readout": 17
+  },
+  "existing_codec_retrieval_tests_passed": 62,
+  "global_diff_check": "Pre-existing trailing whitespace in papers/.papermill/state.md; preserved.",
+  "canonical_audited_component_diff_stat": "Empty for bernoulli-py, hash, PHF and quantum-readout tracked files.",
+  "manuscript_and_venue_stage": "Not warranted; no finalist selected."
+}

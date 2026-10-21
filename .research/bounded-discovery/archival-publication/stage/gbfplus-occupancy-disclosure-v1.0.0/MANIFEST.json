@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "version": "1.0.0",
+  "scope": "Every other regular file in this archive; MANIFEST.json excludes itself.",
+  "files": [
+    {
+      "path": "CITATION.bib",
+      "bytes": 347,
+      "sha256": "6c60f2916813094db69fe68bd11dc6a7c8947d9d15282b464f8158fafe92b9bf"
+    },
+    {
+      "path": "CITATION.cff",
+      "bytes": 1021,
+      "sha256": "7bf2410d1eb60a5c1aacdf82db333e7b8abdcadabfe40b67f416267d9af7d215"
+    },
+    {
+      "path": "LICENSE-MIT.txt",
+      "bytes": 1081,
+      "sha256": "0bc7f950be7c67cd218b910b42527e71099c9ef3cf9bc1c1bf77e99468fda2ec"
+    },
+    {
+      "path": "LICENSE.md",
+      "bytes": 927,
+      "sha256": "c9e3688f3d88798eca9a3074562206ee4b1abd29833697ffad48767fb6f13c82"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7312,
+      "sha256": "336bc8866f45677758ad0c20f37ba15a06cee35f18ce6913e086a834f68bf2c8"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 5064,
+      "sha256": "e8721d2e9e4d790b02a49103f76c024f8de560351a3c938936c7139bec1b30fd"
+    },
+    {
+      "path": "SOURCE-PINS.json",
+      "bytes": 2386,
+      "sha256": "38b1d7a1755fe2355d8b70a89724bf2067f661526459ae8034d086c5b4b4fd82"
+    },
+    {
+      "path": "manuscript/Makefile",
+      "bytes": 326,
+      "sha256": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66"
+    },
+    {
+      "path": "manuscript/abstract.tex",
+      "bytes": 1050,
+      "sha256": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70"
+    },
+    {
+      "path": "manuscript/backmatter.tex",
+      "bytes": 1225,
+      "sha256": "cdb6c160a9cb9e5ff5aa556065c7d432b9ad3760618a991daaae64927a47ab24"
+    },
+    {
+      "path": "manuscript/body.tex",
+      "bytes": 13260,
+      "sha256": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc"
+    },
+    {
+      "path": "manuscript/main.pdf",
+      "bytes": 289070,
+      "sha256": "4df2802bad70cd87f46aa0c9109b75a950b3290bd508c50170f906edf0a79e69"
+    },
+    {
+      "path": "manuscript/main.tex",
+      "bytes": 1277,
+      "sha256": "e8099ccb597f3617ad708349c4460426a41d422e99dc915eef58f30aff544f24"
+    },
+    {
+      "path": "manuscript/references.bib",
+      "bytes": 1758,
+      "sha256": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+    },
+    {
+      "path": "review/independent_checks.py",
+      "bytes": 6307,
+      "sha256": "ba2785dd8b448ae0c4b7166674a733f06dc0ea0a97ec0f18b4905a78fea53cc5"
+    },
+    {
+      "path": "supplement/README.md",
+      "bytes": 7143,
+      "sha256": "ece7bf789a543548ed0d1dc7cad7ae5ff2a3674c1691ac7297a79e407ec716f2"
+    },
+    {
+      "path": "supplement/gbfplus_probe.py",
+      "bytes": 2791,
+      "sha256": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a"
+    },
+    {
+      "path": "supplement/provenance.json",
+      "bytes": 1898,
+      "sha256": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32"
+    },
+    {
+      "path": "supplement/reference-results.json",
+      "bytes": 92141,
+      "sha256": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+    },
+    {
+      "path": "supplement/reproduce.py",
+      "bytes": 5371,
+      "sha256": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f"
+    },
+    {
+      "path": "supplement/requirements-validation.txt",
+      "bytes": 57,
+      "sha256": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2"
+    },
+    {
+      "path": "supplement/source-premises.md",
+      "bytes": 3361,
+      "sha256": "fc8d1bea102f688c0e589c490181401654cabfc7adacbd800e5871ae6afaae25"
+    },
+    {
+      "path": "supplement/test_gbfplus_probe.py",
+      "bytes": 5436,
+      "sha256": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d"
+    },
+    {
+      "path": "supplement/test_reproduction.py",
+      "bytes": 4010,
+      "sha256": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+    },
+    {
+      "path": "verification/checks.json",
+      "bytes": 1353,
+      "sha256": "a53dd8d282b0b89eef2ef669c9b7c0f5c42cb3e0324f4dbdc8649532bd0d2758"
+    },
+    {
+      "path": "verification/coverage-json.txt",
+      "bytes": 57,
+      "sha256": "7c98eab2011aea8aa163a3f54ec82ae27d85df0cda7ef4c676b1a4b3c8e426a5"
+    },
+    {
+      "path": "verification/coverage.json",
+      "bytes": 10675,
+      "sha256": "df177ec63332450930db34590e87b75e7da31e084df74767e551569cf1428c66"
+    },
+    {
+      "path": "verification/coverage.txt",
+      "bytes": 348,
+      "sha256": "aec16f753b84ca9b4215c3a58973460e31723be594f22bf381fd704c0e718edb"
+    },
+    {
+      "path": "verification/independent-oracle.json",
+      "bytes": 519,
+      "sha256": "bfbc3c927db20f87202910a93f04fbf835bb05e5217e7f153c99f7c0a5b28863"
+    },
+    {
+      "path": "verification/independent-oracle.txt",
+      "bytes": 519,
+      "sha256": "bfbc3c927db20f87202910a93f04fbf835bb05e5217e7f153c99f7c0a5b28863"
+    },
+    {
+      "path": "verification/lint.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "verification/release-checks.json",
+      "bytes": 2589,
+      "sha256": "8ec26a5004ee0690e1837c5c793608f9d9686b03f7dbe54270bca9da75abc9bf"
+    },
+    {
+      "path": "verification/reproduced-results.json",
+      "bytes": 92453,
+      "sha256": "84e1d54884e6f6825db0e0221ba952e0c61e8c8a93d234f80960dde738cc511b"
+    },
+    {
+      "path": "verification/source-refresh.json",
+      "bytes": 640,
+      "sha256": "6f5b3b326ab5dfb0b68824e9217392fc086adcc8b524e2920df7258185f32b88"
+    },
+    {
+      "path": "verification/standalone.txt",
+      "bytes": 44,
+      "sha256": "d271a2d78d8837ce204236b380b5607d0514f836eae473a18e2c2ae110565e2c"
+    },
+    {
+      "path": "verification/tests.txt",
+      "bytes": 99,
+      "sha256": "4e4c8b99ea7e5ca7da082806f5b398c7eb497d31f60276c2b563ea41291d4bf3"
+    },
+    {
+      "path": "verification/types.txt",
+      "bytes": 43,
+      "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb"
+    }
+  ]
+}

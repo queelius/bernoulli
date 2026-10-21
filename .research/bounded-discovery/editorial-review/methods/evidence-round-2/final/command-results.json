@@ -1,0 +1,136 @@
+{
+  "validation": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "standalone",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -S reproduce.py",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/supplement",
+        "result": {
+          "chunk_id": "265d37",
+          "wall_time_seconds": 0.000014557,
+          "exit_code": 0,
+          "original_token_count": 18,
+          "output": "/tmp/gbfplus-methods-final-vxxeikdm/supplement/reproduced-results.json\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "coverage",
+        "cmd": "COVERAGE_FILE=/home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-2/final/.coverage /home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -m coverage run --branch --source=gbfplus_probe,reproduce -m pytest -q",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/supplement",
+        "result": {
+          "chunk_id": "d7841a",
+          "wall_time_seconds": 1.661252173,
+          "exit_code": 0,
+          "original_token_count": 25,
+          "output": ".................                                                        [100%]\n17 passed in 1.11s\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "lint",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/ruff check .",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/supplement",
+        "result": {
+          "chunk_id": "805e75",
+          "wall_time_seconds": 0.000013936,
+          "exit_code": 0,
+          "original_token_count": 5,
+          "output": "All checks passed!\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "types",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/mypy --strict gbfplus_probe.py reproduce.py test_gbfplus_probe.py test_reproduction.py",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/supplement",
+        "result": {
+          "chunk_id": "4a6593",
+          "wall_time_seconds": 4.112699673,
+          "exit_code": 0,
+          "original_token_count": 11,
+          "output": "Success: no issues found in 4 source files\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "clean-source-build",
+        "cmd": "make",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/source",
+        "result": {
+          "chunk_id": "e7e79f",
+          "wall_time_seconds": 1.905492072,
+          "exit_code": 0,
+          "original_token_count": 4421,
+          "output": "Warning: truncated output (original token count: 4421)\nTotal output lines: 333\n\npdflatex -interaction=nonstopmode -halt-on-error main.tex\nThis is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex)\n restricted \\write18 enabled.\nentering extended mode\n(./main.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls\nDocument Class: article 2023/05/17 v1.4n Standard LaTeX document class\n(/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo))\n(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)\n(/usr/share/texmf/tex/latex/lm/lmodern.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty\n(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty\nFor additional information on amsmath, use the `?' option.\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty\n(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty\n(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty\n(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty\n(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)\n(/usr/share/texlive/texmf-dist…3221 tokens truncated…ive/texmf-dist/tex/generic/bitset/bitset.sty\n(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def\n(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty\n(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))\n(/usr/share/texmf/tex/latex/lm/t1lmr.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)\n(./main.aux)\n*geometry* driver: auto-detecting\n*geometry* detected driver: pdftex\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg) (./main.out)\n(./main.out) (/usr/share/texmf/tex/latex/lm/ot1lmr.fd)\n(/usr/share/texmf/tex/latex/lm/omllmm.fd)\n(/usr/share/texmf/tex/latex/lm/omslmsy.fd)\n(/usr/share/texmf/tex/latex/lm/omxlmex.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg) (./abstract.tex)\n (./body.tex [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/t\nexmf/fonts/enc/dvips/lm/lm-ec.enc}] [2{/usr/share/texmf/fonts/enc/dvips/lm/lm-m\nathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/font\ns/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc\n}] [3] (/usr/share/texmf/tex/latex/lm/t1lmtt.fd)) (./backmatter.tex [4])\n(./main.bbl) [5] (./main.aux) )</usr/share/texmf/fonts/type1/public/lm/lmbx10.p\nfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/t\nype1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></\nusr/share/texmf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/p\nublic/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/shar\ne/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm\n/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fo\nnts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.p\nfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/ty\npe1/public/lm/lmtt10.pfb>\nOutput written on main.pdf (5 pages, 264545 bytes).\nTranscript written on main.log.\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "review-revision",
+        "cmd": "python3 - <<'PY'\nfrom pathlib import Path\nimport difflib\nold=Path('/tmp/gbfplus-methods-review-r2-n53qewnm')\nnew=Path('/tmp/gbfplus-methods-final-vxxeikdm')\nfor relative in ('supplement/reproduce.py','supplement/test_reproduction.py','supplement/provenance.json','supplement/README.md','source/body.tex'):\n    print(''.join(difflib.unified_diff((old/relative).read_text().splitlines(keepends=True),(new/relative).read_text().splitlines(keepends=True),fromfile='initial/'+relative,tofile='final/'+relative)))\nPY",
+        "cwd": "/tmp/gbfplus-methods-final-vxxeikdm/supplement",
+        "result": {
+          "chunk_id": "e7f845",
+          "wall_time_seconds": 0.00001068,
+          "exit_code": 0,
+          "original_token_count": 2063,
+          "output": "--- initial/supplement/reproduce.py\n+++ final/supplement/reproduce.py\n@@ -10,7 +10,6 @@\n import json\n import platform\n import random\n-import sys\n from collections import Counter\n from functools import reduce\n from itertools import product\n@@ -21,7 +20,7 @@\n from gbfplus_probe import Snapshot, insert, recover_domain_xor\n \n \n-if sys.flags.optimize:\n+if not __debug__:\n     raise RuntimeError(\n         \"This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.\"\n     )\n\n--- initial/supplement/test_reproduction.py\n+++ final/supplement/test_reproduction.py\n@@ -3,6 +3,7 @@\n import hashlib\n import json\n import os\n+import py_compile\n import runpy\n import subprocess\n import sys\n@@ -87,3 +88,21 @@\n     assert completed.returncode != 0\n     assert \"requires assertions\" in completed.stderr\n     assert not (tmp_path / \"reproduced-results.json\").exists()\n+\n+\n+def test_optimized_bytecode_fails_even_in_unoptimized_interpreter(tmp_path: Path) -> None:\n+    for name in (\"gbfplus_probe.py\", \"reproduce.py\"):\n+        (tmp_path / name).write_bytes((HERE / name).read_bytes())\n+    bytecode = tmp_path / \"reproduce.pyc\"\n+    py_compile.compile(str(tmp_path / \"reproduce.py\"), cfile=str(bytecode),\n+                       doraise=True, optimize=1)\n+    env = os.environ.copy()\n+    env.pop(\"PYTHONOPTIMIZE\", None)\n+    env.pop(\"PYTHONPATH\", None)\n+    completed = subprocess.run(\n+        [sys.executable, \"-S\", str(bytecode)], cwd=tmp_path, env=env,\n+        capture_output=True, text=True, check=False,\n+    )\n+    assert completed.returncode != 0\n+    assert \"requires assertions\" in completed.stderr\n+    assert not (tmp_path / \"reproduced-results.json\").exists()\n\n--- initial/supplement/provenance.json\n+++ final/supplement/provenance.json\n@@ -19,5 +19,11 @@\n     \"pdf_url\": \"https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf\",\n     \"sha256\": \"83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417\"\n   },\n-  \"editorial_revision_date\": \"2026-10-15\"\n+  \"editorial_revision_date\": \"2026-10-15\",\n+  \"function_hash_method\": {\n+    \"serialization\": \"ast.dump(function_node, annotate_fields=True, include_attributes=False), UTF-8, no trailing newline; SHA-256\",\n+    \"compatibility_normalization\": \"Omit an empty FunctionDef.type_params field from _fields before dumping. This reproduces the historical pre-Python-3.12 AST format. Do not omit nonempty type_params.\",\n+    \"verified_interpreter\": \"CPython 3.12.3\",\n+    \"purpose\": \"Integrity comparison for these two functions, not a general cross-version AST canonicalizer.\"\n+  }\n }\n\n--- initial/supplement/README.md\n+++ final/supplement/README.md\n@@ -21,9 +21,10 @@\n in the current working directory. It does not need the Bernoulli repository,\n network access, cryptographic libraries, or installed site packages. Run without\n Python's `-O` option: the experiment checks use assertions. The runner rejects\n-optimization enabled by `-O`, `-OO`, or `PYTHONOPTIMIZE` before constructing or\n-writing any result. Python 3.12.3 is the\n-verified interpreter. The runner preserves the prior experiment functions\n+optimization enabled by `-O`, `-OO`, or `PYTHONOPTIMIZE`, including precompiled\n+optimized bytecode run in an unoptimized interpreter, before constructing or\n+writing any result. Python 3.12.3 is the verified interpreter. The runner\n+preserves the prior experiment functions\n unchanged; `provenance.json` records their syntax-tree and source-file hashes.\n \n The output must contain:\n@@ -65,15 +66,19 @@\n .venv/bin/mypy --strict gbfplus_probe.py reproduce.py test_gbfplus_probe.py test_reproduction.py\n ```\n \n-There are ten unchanged mathematical/representation tests and six artifact tests.\n+There are ten unchanged mathematical/representation tests and seven artifact tests.\n They cover exhaustive suffix recovery, uniform individual shares versus\n distinct joint supports, overlaps and abstention, unchanged previous rows,\n atomic full-support failure, zero-valued occupied cells, boundary inputs, and\n narrow padding/masking comparisons. The added tests compare every deterministic\n experimental field, test output in a separate working directory, and execute\n the runner with site packages disabled. The additional tests reject both\n-command-line and environment-based optimization and check a hand-derived full\n+command-line, environment-based, and precompiled-bytecode optimization and check a hand-derived full\n array, including the prefix, an occupied zero, and a subsequent overlapping row.\n+Coverage reports all 121 statements and 48 branches under normal compilation.\n+The compile-time `__debug__` guard's rejection path does not appear in that\n+normal-compilation total; subprocess regressions and a separately recorded\n+optimized execution verify its nonzero exit and absence of result output.\n The final validation record accompanies the author-review package. Coverage\n describes execution of this small implementation; it does not validate the\n unimplemented cryptography, ledger, or publication policy.\n@@ -102,7 +107,7 @@\n ## Files and provenance\n \n - `gbfplus_probe.py`: unchanged share update and public-only recovery operation.\n-- `reproduce.py`: two unchanged experiment functions plus a standalone result writer.\n+- `reproduce.py`: two unchanged experiment functions, optimization guard, and standalone result writer.\n - `test_gbfplus_probe.py`, `test_reproduction.py`: correctness and portability checks.\n - `reference-results.json`: exact checks and all 64 saved arrays.\n - `provenance.json`: original source/result hashes and the publisher PDF URL/hash.\n@@ -113,3 +118,10 @@\n Author review and release declarations remain pending. No public distribution\n license has been selected for this new supplement. The source paper is linked,\n attributed, and not bundled in this archive.\n+\n+The historical function hashes use `ast.dump` without location attributes,\n+with the empty Python 3.12 `FunctionDef.type_params` field omitted for\n+compatibility with the earlier AST format. `provenance.json` specifies the\n+serialization, normalization, and verified interpreter. A raw Python 3.12 dump\n+includes the new field and therefore has a different digest; direct AST equality\n+between the historical and portable functions was also checked.\n\n--- initial/source/body.tex\n+++ final/source/body.tex\n@@ -75,8 +75,9 @@\n \n The observer therefore needs only the occupied words and the suffix width.\n It does not have to guess the data identifier, the prefix, or the selected\n-positions. Figure~\\ref{fig:example} illustrates why a zero-valued occupied\n-cell must still be included. A scan takes\n+positions. Figure~\\ref{fig:example} distinguishes an occupied zero word from\n+an empty cell: the zero word counts toward occupancy but does not change the XOR.\n+A scan takes\n $O(m+\\kappa\\lambda)$ elementary bit operations and\n $O(\\lambda+\\log m)$ auxiliary bits for a singleton; ledger transfer,\n parsing, and authentication are outside this scan cost.\n@@ -208,7 +209,6 @@\n The supplement supplies all arrays and a standalone command,\n \\texttt{python3 -S reproduce.py}, verified with Python~3.12.3. The runner\n rejects optimized execution because its checked experiments require assertions.\n-No statistical confidence interval is inferred from these checks.\n \n \\section{Implications and existing protections}\n \n@@ -226,9 +226,10 @@\n For the all-cell XOR alone, one independent uniform padding word makes the\n statistic uniform. An observer who retains the genuine occupancy selector\n can still omit the padding and recover the original occupied-cell XOR.\n-Secret masks on the adjacent identifiers also hide this statistic when the\n-masks are independent; PRF masking of arbitrary values is already used in\n-oblivious key-value retrieval~\\cite{hao2024okvr}. Neither observation proves\n+Fresh uniform secret masks on the adjacent identifiers also hide this statistic\n+when the masks are independent of the identifiers and one another. Secret PRF\n+masking of arbitrary values is already used in oblivious key-value\n+retrieval~\\cite{hao2024okvr}. Neither observation proves\n a complete repair of GBFPlus. A repair must account for the entire public view,\n authorized recovery, and key and mask reuse across releases.\n \n\n"
+        }
+      }
+    }
+  ],
+  "challenge_and_coverage": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "8a759c",
+        "wall_time_seconds": 4.190480493,
+        "exit_code": 0,
+        "original_token_count": 537,
+        "output": "{\n  \"python\": \"3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]\",\n  \"artifact\": \"/tmp/gbfplus-methods-final-vxxeikdm/supplement\",\n  \"files_sha256\": {\n    \"reproduce.py\": \"b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f\",\n    \"gbfplus_probe.py\": \"ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a\",\n    \"test_reproduction.py\": \"474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a\",\n    \"test_gbfplus_probe.py\": \"c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d\",\n    \"README.md\": \"dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8\",\n    \"provenance.json\": \"2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32\",\n    \"reference-results.json\": \"70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5\"\n  },\n  \"provenance_checks\": {\n    \"experiment_ast_hashes\": {\n      \"exact_gbf_checks\": \"a03fa3e0a69de3bc70c683332d7406b7050059a40130401131d82f69fba38f73\",\n      \"stored_constructions\": \"3b2f06d4d96f1da1bd25d8b2d5aee7f02b760847772803cf8a644d2f4f42e5a5\"\n    },\n    \"equal_to_round_1\": true,\n    \"equal_to_original_driver\": true,\n    \"equal_to_recorded_hashes\": false,\n    \"matches_recorded_without_python312_empty_type_params\": true,\n    \"original_driver_hash_matches\": true,\n    \"unchanged_files_match\": true\n  },\n  \"normal_results\": {\n    \"deterministic_fields_match\": true,\n    \"source_hashes_match\": true,\n    \"arrays_reconstructed\": 64,\n    \"exact\": {\n      \"singleton_cases\": 256,\n      \"singleton_errors\": 0,\n      \"disjoint_batch_cases\": 1024,\n      \"disjoint_batch_errors\": 0,\n      \"all_individual_share_marginals_uniform\": true,\n      \"two_recipient_view_support_sizes\": [\n        64,\n        64\n      ],\n      \"two_recipient_view_supports_disjoint\": true,\n      \"interpretation\": \"Finite verification of proved identities, not a sampled privacy proof.\"\n    }\n  },\n  \"optimized_existing_output_untouched\": true,\n  \"externally_precompiled_optimized_bytecode_edge_case\": {\n    \"exit_code\": 1,\n    \"output_json_created\": false\n  },\n  \"new_full_array_oracle_rejects_prefix_only_corruption\": true\n}\nOptimization entry-point rejection cases: 20\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "16f812",
+        "wall_time_seconds": 0.000009979,
+        "exit_code": 0,
+        "original_token_count": 87,
+        "output": "Name               Stmts   Miss Branch BrPart  Cover   Missing\n--------------------------------------------------------------\ngbfplus_probe.py      53      0     32      0   100%\nreproduce.py          68      0     16      0   100%\n--------------------------------------------------------------\nTOTAL                121      0     48      0   100%\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "4b5adc",
+        "wall_time_seconds": 0.000014767,
+        "exit_code": 0,
+        "original_token_count": 36,
+        "output": "Wrote JSON report to /home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-2/final/coverage.json\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "0170eb",
+        "wall_time_seconds": 0.256063911,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ]
+}

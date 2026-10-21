@@ -1,0 +1,14 @@
+{
+  "gbfplus-comment-review.zip": {
+    "sha256": "99faeceee74e2cf794149522f20dc472d7c68942675af257fc21404d2f9db8f0",
+    "bytes": 277916
+  },
+  "gbfplus-comment-source.zip": {
+    "sha256": "3fe6d0ce52f9acf50109f4eff51bce637d60a407ae80387a929486c5b7339039",
+    "bytes": 7664
+  },
+  "gbfplus-comment-supplement.zip": {
+    "sha256": "6bc35e4b9b26a56f56ae2432a5a2ebca13392286daac8ff462a34bd282a3c281",
+    "bytes": 20853
+  }
+}

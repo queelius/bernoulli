@@ -1,0 +1,12 @@
+{
+  "arithmetic": "exact rational",
+  "degree_at_most_two_graphs": 305,
+  "exact_contract_checks": 1970,
+  "maximum_variables": 4,
+  "monotone_function_counts": {
+    "1": 3,
+    "2": 6,
+    "3": 20,
+    "4": 168
+  }
+}

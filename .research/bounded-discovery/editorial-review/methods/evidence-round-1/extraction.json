@@ -1,0 +1,31 @@
+{
+  "work_directory": "/tmp/gbfplus-methods-review-osxxcyi4",
+  "archives": [
+    {
+      "kind": "supplement",
+      "archive": "/home/spinoza/github/bernoulli/.research/bounded-discovery/manuscript/venues/entropy-comment/packages/gbfplus-comment-supplement.zip",
+      "sha256": "6bc35e4b9b26a56f56ae2432a5a2ebca13392286daac8ff462a34bd282a3c281",
+      "members": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ]
+    },
+    {
+      "kind": "source",
+      "archive": "/home/spinoza/github/bernoulli/.research/bounded-discovery/manuscript/venues/entropy-comment/packages/gbfplus-comment-source.zip",
+      "sha256": "3fe6d0ce52f9acf50109f4eff51bce637d60a407ae80387a929486c5b7339039",
+      "members": [
+        "Makefile",
+        "main.tex",
+        "references.bib"
+      ]
+    }
+  ]
+}

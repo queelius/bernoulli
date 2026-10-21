@@ -1,0 +1,77 @@
+{
+  "package_matches": [
+    {
+      "kind": "source",
+      "name": "Makefile",
+      "matches_current_tree": true,
+      "sha256": "36230542a2d88bbae03b65ec0bdb2b733994c01c55efc1106cd70da3152999fb"
+    },
+    {
+      "kind": "source",
+      "name": "main.tex",
+      "matches_current_tree": true,
+      "sha256": "0afc54c4b3f506ffbefb83fd90a596ce44b97179e66b8d44ea6ddf0063b9cfc0"
+    },
+    {
+      "kind": "source",
+      "name": "references.bib",
+      "matches_current_tree": true,
+      "sha256": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+    },
+    {
+      "kind": "supplement",
+      "name": "README.md",
+      "matches_current_tree": true,
+      "sha256": "e1f733e99ae919b1b561d6694792b33b5f89bf105e972ec491b722c7d5ad3279"
+    },
+    {
+      "kind": "supplement",
+      "name": "gbfplus_probe.py",
+      "matches_current_tree": true,
+      "sha256": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a"
+    },
+    {
+      "kind": "supplement",
+      "name": "provenance.json",
+      "matches_current_tree": true,
+      "sha256": "fc596555f1299d176ea9cc5eca4eda5152e2fea69ba8937902d2900484ae8fcf"
+    },
+    {
+      "kind": "supplement",
+      "name": "reference-results.json",
+      "matches_current_tree": true,
+      "sha256": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+    },
+    {
+      "kind": "supplement",
+      "name": "reproduce.py",
+      "matches_current_tree": true,
+      "sha256": "4603a3e54550ef3d7262a41fa73e0a382fb7a3e6224a4d2ef62c67cc41e63293"
+    },
+    {
+      "kind": "supplement",
+      "name": "requirements-validation.txt",
+      "matches_current_tree": true,
+      "sha256": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2"
+    },
+    {
+      "kind": "supplement",
+      "name": "source-premises.md",
+      "matches_current_tree": true,
+      "sha256": "df6c187b76110fd9326c7dbc1a2ebc73e159cf385837b51ff1567ccf89a51b50"
+    },
+    {
+      "kind": "supplement",
+      "name": "test_gbfplus_probe.py",
+      "matches_current_tree": true,
+      "sha256": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d"
+    },
+    {
+      "kind": "supplement",
+      "name": "test_reproduction.py",
+      "matches_current_tree": true,
+      "sha256": "f4c330e9d8a2af9864b150ae77034108be258365a99109f28440c1d53421ab12"
+    }
+  ],
+  "source_build_warning_lines": []
+}

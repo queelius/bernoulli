@@ -1,0 +1,10 @@
+{
+  "source": [
+    "abstract.tex",
+    "backmatter.tex",
+    "body.tex"
+  ],
+  "supplement": [
+    "source-premises.md"
+  ]
+}

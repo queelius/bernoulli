@@ -1,0 +1,15 @@
+--- canonical/main.tex
++++ venue/main.tex
+@@ -7,10 +7,10 @@
+ \newtheorem{proposition}{Proposition}
+ \newcommand{\xor}{\mathbin{\oplus}}
+ \newcommand{\suffix}{\operatorname{suffix}}
+-\hypersetup{pdftitle={Adjacent-Domain Disclosure from Public Occupancy in GBFPlus},
++\hypersetup{pdftitle={Comment on Qin et al. Privacy-Preserving On-Chain Attestation for Cross-Domain Data Flows via GBFPlus. Entropy 2026, 28, 947},
+ pdfauthor={Alexander Richard Towell},
+ pdfkeywords={garbled Bloom filter, metadata confidentiality, public occupancy, GBFPlus}}
+-\title{Adjacent-Domain Disclosure from Public Occupancy in GBFPlus}
++\title{\Large Comment on Qin et al. Privacy-Preserving On-Chain Attestation for Cross-Domain Data Flows via GBFPlus. Entropy 2026, 28, 947}
+ \author{Alexander Richard Towell\\
+ \small Southern Illinois University Edwardsville\\
+ \small Edwardsville, IL 62026, USA\\

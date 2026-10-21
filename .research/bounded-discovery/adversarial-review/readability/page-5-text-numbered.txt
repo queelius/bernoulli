@@ -1,0 +1,42 @@
+001 remain unmeasured. The exact singleton counterexample nevertheless shows that the published
+002 controlled-recovery claim for adjacent identifiers does not hold for every allowed release. A revised
+003 claim or construction must address these partial batches explicitly.
+004 
+005 Data and code availability. Supplement S1 accompanies this local draft with source code, tests,
+006 all recorded arrays, reproduction instructions, and provenance hashes. It is prepared for journal
+007 supplementary information and has not been publicly deposited.
+008 
+009 Ethics. This analysis uses a published specification and synthetic data, with no human or animal
+010 subjects; institutional review and informed consent are not applicable.
+011 
+012 AI assistance. OpenAI Codex assisted with literature work, derivations, implementation, testing,
+013 drafting, and packaging on October 14–15, 2026. Separate AI agents assessed exposition, scientific
+014 validity, and reproducibility through successive revisions. These checks are not external peer review.
+015 Final human review remains pending.
+016 
+017 Draft declarations. The author contribution, funding, conflicts of interest, and approval for
+018 submission remain to be confirmed by the named author.
+019 
+020 
+021 References
+022 [1] Sihang Qin, Yang Zhou, Weiqi Dai, Yiming Sun, and Weizhong Qiang. Privacy-preserving
+023     on-chain attestation for cross-domain data flows via GBFPlus. Entropy, 28(9):947, 2026.
+024     https://doi.org/10.3390/e28090947.
+025 
+026 [2] Danilo Silva and Frank R. Kschischang. Universal secure network coding via rank-metric codes.
+027     IEEE Transactions on Information Theory, 57(2):1124–1135, 2011. https://doi.org/10.1109/
+028     TIT.2010.2090212.
+029 
+030 [3] Changyu Dong, Liqun Chen, and Zikai Wen. When private set intersection meets big data:
+031     An efficient and scalable protocol. In Proceedings of the 2013 ACM SIGSAC Conference on
+032     Computer and Communications Security, pages 789–800, 2013. https://doi.org/10.1145/
+033     2508859.2516701.
+034 
+035 [4] Meng Hao, Weiran Liu, Liqiang Peng, Hongwei Li, Cong Zhang, Hanxiao Chen, and Tianwei
+036     Zhang. Unbalanced circuit-PSI from oblivious key-value retrieval. In 33rd USENIX Security
+037     Symposium (USENIX Security 24), pages 6435–6451, 2024.
+038 
+039 
+040 
+041 
+042                                                   5

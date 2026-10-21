@@ -1,0 +1,55 @@
+001                                   Cell      0        1     2       3         4      5     6
+002                                Payload      –   010        –       111       –      000   –
+003 
+004                                     010 ⊕ 111 ⊕ 000 = 101 = 1 ∥ 01.
+005 
+006 
+007 Figure 1: A singleton with three 3-bit shares and a 2-bit domain identifier. An empty cell is marked
+008 “–”; 000 is an occupied payload. Public occupancy selects all three shares, so the observer reads the
+009 identifier 01 from their XOR. The prefix 1 need not be known or validated.
+010 
+011 
+012 A limited extension to larger batches. Let w = |O| be the public occupied-cell count. The
+013 same scan has a useful sufficient condition for recovering an aggregate.
+014 
+015 Proposition 2 (Disjoint-position certificate). For an honest snapshot with c ≥ 1, if w = cκ, then
+016                                                               
+017                                                      M                 c
+018                                                                        M
+019                                          suffixℓ          Zj  =            Ni .                     (3)
+020                                                      j∈O               i=1
+021 
+022 Proof. Equality in | i Si | ≤ i |Si | = cκ implies that the selected position sets are pairwise disjoint.
+023                      S        P
+024                                                                               L
+025 XORing the occupied words therefore adds each row equation once, giving i Ti . Taking the suffix
+026 commutes with XOR and yields (3).
+027 
+028     For c > 1, this is an aggregate, not a reconstruction of the individual identifiers or their multiset.
+029 The condition requires cκ ≤ m; otherwise it is impossible. Its informational value also depends on
+030 the candidate histories. For example, in a reachable disjoint history, changing one eligible adjacent
+031 identifier while fixing the others changes the aggregate and is distinguishable. If all admissible
+032 histories already have the same aggregate, the statistic adds no information. The attack abstains
+033 when w ̸= cκ; no distribution or frequency of disjoint batches is assumed.
+034 
+035 Which confidentiality claim is challenged? Consider a publisher with two eligible neighboring
+036 domains distinct from it. Fix the public registration table. Internally fix the same publisher, its
+037 secret state, data identifier, direction, window, and configuration, and choose either neighboring
+038 identifier with equal probability for a singleton insertion. The observer is not given the publisher’s
+039 identity or secret state. In source Algorithm 4, the adjacent identifier affects the target suffix but
+040 not the derived positions or prefix. Those quantities can therefore be the same in both cases, while
+041 the free shares are sampled in each case. Equation (2) identifies the choice with probability one.
+042 This comparison concerns one snapshot and its authenticating transaction; digests, signatures, and
+043 other ledger records need not be identical between cases.
+044     The recovered identifier names the neighbor encoded in that attestation. It does not identify
+045 the anonymous publisher, associate the transfer with a particular data identifier, or reconstruct a
+046 complete named edge or path. This is also distinct from the source’s Gqpriv game and Theorem 4,
+047 which concern distinguishing data identifiers. Separately, source Equation (27) analyzes guessed
+048 tuples passing prefix and domain-membership checks under its random-share model. The observer
+049 here performs neither validation test: it reads a suffix from a complete share set already identified
+050 by occupancy. Those analyses do not establish confidentiality of this suffix.
+051 
+052 
+053 
+054 
+055                                                            3

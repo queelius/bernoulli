@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-15",
+  "scope": "Fresh adversarial review by three new independent agents, targeted corrections, all-page readability/layout review, and final package validation.",
+  "status": "internal review complete; final human scientific review and declarations pending; not submitted",
+  "paths": "Research evidence paths are relative to .research/bounded-discovery or the extracted review bundle. source_sha256 keys identify files relative to the WORKSPACE venue directory; bundle README mapping is explicit below.",
+  "prior_verification": "adversarial-review/inputs/venue-verification-before.json",
+  "review": {
+    "fresh_independent_initial_reports": 3,
+    "targeted_closure_reports": 3,
+    "reports_sha256": {
+      "source/report.md": "dbd104fbdb23dc1c1db0964a45f97dd3a348c0a8c5e45fac668ca50fbf80a5fa",
+      "source/closure.md": "68d8bb0d4bf7fc216dbf1e7ee7b963876b41de8cf28a21026f7f85ee6a038056",
+      "methods/report.md": "d9e32dfa0bc1701b1d78fefb62311c04cda19bf62f7d9dcb44e03adacdc0dca5",
+      "methods/closure.md": "ac1fc2325e295040dfcdfc18c58273f82a5d5019b405bef73587e72d0b2e7eca",
+      "readability/report.md": "cca7409e2947e404e47187e4b5edafc21a279f4e7e13a838c1dc01e671143b4c",
+      "readability/closure.md": "1f553392d56af4c6546eadf171ed7b71b4c95a9a05c23e5144a82ef334021694"
+    },
+    "assessment": "adversarial-review/assessment.md",
+    "external_peer_review": false,
+    "all_review_findings_addressed": true,
+    "version_boundary": "Source/methods closures checked body 66f0be224c7683c7d8eabfed97dc022e8bbcfca6d5e1b258d2e5d768d6cc414e. Later ordering, explicit source notation, optimizer-sentence removal, and paragraph break yield final a9f2748ec68ccb865be5c39b03dc14112e9d73b0e7b7ae8577fca26f8260dd97. Coordinator checked scientific passages preserved; readability closure checks exact final PDF and body."
+  },
+  "tools": {
+    "python": "3.12.3",
+    "pytest": "9.0.3",
+    "coverage": "7.14.1",
+    "ruff": "0.15.16",
+    "mypy": "2.1.0"
+  },
+  "tests": {
+    "passed": 17,
+    "unit_and_subprocess_integration": true,
+    "fresh_clean_extraction_by": "fresh_methods_reviewer",
+    "evidence": "adversarial-review/methods/report.md",
+    "code_changed_during_this_review": false,
+    "coordinator_did_not_repeat_tests_after_document_only_repackaging": true
+  },
+  "coverage": {
+    "modules": [
+      "gbfplus_probe.py",
+      "reproduce.py"
+    ],
+    "normal_compilation_totals": {
+      "covered_lines": 121,
+      "num_statements": 121,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 48,
+      "num_partial_branches": 0,
+      "covered_branches": 48,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "scope": "121 statements and 48 branches under normal compilation. Compile-time __debug__ rejection is outside this denominator and separately tested under optimized execution. This does not validate cryptography or the ledger."
+  },
+  "ruff": "passed independently on frozen artifact code, identical to final package",
+  "mypy_strict": "passed independently on all four Python files, identical to final package",
+  "independent_whole_array_checks": {
+    "counts": {
+      "updates": 771787,
+      "successful_updates": 133163,
+      "certificate_successes": 14889,
+      "atomic_failures": 638624,
+      "overlap_abstentions": 118274,
+      "saved_full_word_arrays": 64
+    },
+    "mismatches": 0,
+    "evidence": "adversarial-review/methods/evidence/independent-checks.json",
+    "script": "adversarial-review/methods/scripts/independent_checks.py",
+    "scope": "Finite two-attempt small-history enumeration and one three-row overlap; 64 full saved arrays independently reconstructed. Review evidence, not new paper results or security proof."
+  },
+  "guards_and_provenance": {
+    "gbfplus_probe.py": {
+      "actual": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+      "matches": true
+    },
+    "test_gbfplus_probe.py": {
+      "actual": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+      "matches": true
+    },
+    "exact_gbf_checks": {
+      "actual": "2c311fc86f7b2936d0e02c38139cf3e0f3c190f18ed1fcb94ac8b0f699c39677",
+      "matches": true
+    },
+    "stored_constructions": {
+      "actual": "2c4b7109bd62da746bb6d47159772a3db5d0439e24955c1c364054424764e501",
+      "matches": true
+    },
+    "source_zip_matches_frozen_files": true,
+    "rebuilt_pdf_text_equals_frozen": true,
+    "all_deterministic_recorded_data_match": true,
+    "wrong_decoder_fault_rejected_before_zero_error_report": true,
+    "-O": {
+      "returncode": 1,
+      "requires_assertions": true,
+      "output_written": false
+    },
+    "-OO": {
+      "returncode": 1,
+      "requires_assertions": true,
+      "output_written": false
+    }
+  },
+  "final_clean_extraction": {
+    "checks": {
+      "exact_results": true,
+      "all_stored_deterministic_fields": true,
+      "clean_source_pdf_text_matches_final": true,
+      "canonical_no_warnings": true,
+      "venue_no_warnings": true,
+      "clean_source_no_warnings": true
+    },
+    "all_passed": true,
+    "warnings": {
+      "canonical": [],
+      "venue": [],
+      "clean_source": []
+    },
+    "commands": {
+      "source": "make",
+      "standalone": "python -B -S reproduce.py"
+    },
+    "reproduction_scope": "All gbfplus_exact fields and all gbfplus_stored fields except descriptive runtime; environment and runner descriptors are not historical scientific results.",
+    "log_screen_note": "Initial case-insensitive substring search also matched the infwarerr package description (Providing info/warning/error messages). Corrected the diagnostic screen to actual LaTeX/BibTeX warning and box-warning markers; the initial result is retained separately. No manuscript or build defect occurred."
+  },
+  "pdf": {
+    "canonical": {
+      "sha256": "48e690829377a4275dacc196664a0e21b31beea291adf19caacc560624f4162e",
+      "pages": 5,
+      "all_pages_visually_inspected_by_coordinator": true
+    },
+    "venue": {
+      "sha256": "6abdc1c0b9613699bc4aabc8d6a872ba2785e9c27585452f743347d061859e46",
+      "pages": 5,
+      "all_pages_visually_inspected_by_coordinator": true
+    }
+  },
+  "pdf_visual_scope": "All ten final pages inspected by coordinator; all five final venue pages independently inspected by fresh readability reviewer. No clipping, overlap, unreadable table, missing glyph, or required layout correction.",
+  "source_sha256": {
+    "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+    "README.md": "39a0ef29df293384cbb6b1cbe58d4d2ea857896e91a13592bccbb2b933267094",
+    "REVIEW-PACKAGE.md": "912f834697977f4517eb1c2356235f71edb8e7d2804f88903cec4bb51c89765a",
+    "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "backmatter.tex": "86d67d8e14f1f1eb5269cf66b2c95193844c7b332ce0dc0201692d18518cc7a0",
+    "body.tex": "a9f2748ec68ccb865be5c39b03dc14112e9d73b0e7b7ae8577fca26f8260dd97",
+    "cover-letter.md": "48644f7c72a623768bfa2f27543ce7d2d1a87e1558877eec0be2aa15f0d0c93d",
+    "declarations.md": "65daee21b8e46186a1443f4870ecc1c034d4191c7aaefd94f1f1bbd38addcd75",
+    "main.pdf": "6abdc1c0b9613699bc4aabc8d6a872ba2785e9c27585452f743347d061859e46",
+    "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/README.md": "dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/provenance.json": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+    "supplement/reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+    "supplement/requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+    "supplement/source-premises.md": "fc8d1bea102f688c0e589c490181401654cabfc7adacbd800e5871ae6afaae25",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+  },
+  "archives": {
+    "gbfplus-comment-source.zip": {
+      "sha256": "0b615d2540ff19f24e930e58131c90c37deeb3bb1239a1a8fcdcc14f66949697",
+      "bytes": 8813,
+      "files": [
+        "Makefile",
+        "abstract.tex",
+        "backmatter.tex",
+        "body.tex",
+        "main.tex",
+        "references.bib"
+      ],
+      "member_sha256": {
+        "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+        "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+        "backmatter.tex": "86d67d8e14f1f1eb5269cf66b2c95193844c7b332ce0dc0201692d18518cc7a0",
+        "body.tex": "a9f2748ec68ccb865be5c39b03dc14112e9d73b0e7b7ae8577fca26f8260dd97",
+        "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+        "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+      }
+    },
+    "gbfplus-comment-supplement.zip": {
+      "sha256": "cb330561cd3ecfa270907175c86f40e40ccc3544b2fe497a7d700e7722126e25",
+      "bytes": 23284,
+      "files": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ],
+      "member_sha256": {
+        "README.md": "dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8",
+        "gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+        "provenance.json": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32",
+        "reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+        "reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+        "requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+        "source-premises.md": "fc8d1bea102f688c0e589c490181401654cabfc7adacbd800e5871ae6afaae25",
+        "test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+        "test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+      }
+    }
+  },
+  "changed_archive_members_since_independent_methods_test": {
+    "source": [
+      "abstract.tex",
+      "backmatter.tex",
+      "body.tex"
+    ],
+    "supplement": [
+      "source-premises.md"
+    ]
+  },
+  "review_bundle_path_mapping": {
+    "README.md": "workspace venue REVIEW-PACKAGE.md",
+    "START-HERE.md": "workspace venue REVIEW-PACKAGE.md",
+    "REVIEW-PACKAGE.md": "workspace venue REVIEW-PACKAGE.md",
+    "verification.json": "workspace venue validation/verification.json",
+    "source-premises.md": "workspace venue supplement/source-premises.md"
+  },
+  "preservation": {
+    "checked_paths": 92,
+    "mismatches": [],
+    "all_match": true,
+    "baseline": "adversarial-review/preservation-before.json"
+  },
+  "historical_checks_not_rerun": [
+    "Original broader 19-test investigation suite",
+    "92 package regressions",
+    "Earlier 244,816-transition oracle"
+  ],
+  "remaining_author_items": [
+    "Human scientific/source review",
+    "Accurate contribution, funding, conflicts, publication history and approval declarations",
+    "Assistance disclosure and artifact release terms",
+    "Applicable Comment fee and decision whether to proceed"
+  ],
+  "external_actions": [],
+  "finalization_does_not_assert_submission_readiness": true
+}

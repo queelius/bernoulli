@@ -1,0 +1,55 @@
+001 model (Section 4.3) and these rules admit this execution; they do not establish how often it occurs
+002 in deployment.
+003     We consider one honestly generated, authentically committed snapshot. The observer reads its
+004 public cells and metadata, with no regulator secret or query token. It need not identify the publishing
+005 administrator. Repeated reads expose the same frozen array. Authenticity and a well-formed count
+006 alone would not establish an honest insertion history; that history is an explicit premise here.
+007 
+008 
+009 2    Exact disclosure and its scope
+010 A filter has m cells. An occupied cell j stores a λ-bit word Zj ; its occupancy marker distinguishes
+011 even an all-zero word from an empty cell. Let Si be the set of κ distinct positions selected by
+012 successful insertion i. Write Ni for its ℓ-bit adjacent-domain identifier and Pi for its (λ − ℓ)-bit
+013 secret-derived hash prefix, where 0 < ℓ < λ. Algorithm 4 enforces
+014                              M
+015                                     Zj = Ti ,    Ti = Pi ∥ Ni ,           |Si | = κ,                 (1)
+016                              j∈Si
+017 
+018 where ∥ denotes concatenation. Registered domain identifiers and their associations are public in
+019 source Section 5.1.
+020     The filter starts empty. A successful insertion reserves one empty selected cell, fills the other
+021 empty selected cells with independent uniform words, and sets the reserved word to the XOR
+022 residual required by (1). Already occupied words are reused and never overwritten. An insertion
+023 whose selected cells are all occupied fails without changing the array. Consequently, after c successful
+024 insertions, the public occupied set is O = ci=1 Si and every successful row equation still holds. Let
+025                                              S
+026 
+027 suffixℓ (x) denote the final ℓ bits of x.
+028 
+029 Proposition 1 (Singleton disclosure). Every honest snapshot with c = 1 reveals its adjacent-domain
+030 identifier:                                       
+031                                                       M
+032                                           suffixℓ          Zj  = N1 .                              (2)
+033                                                       j∈O
+034 
+035 This equality holds for every selected position set, prefix, and share realization admitted by the
+036 construction.
+037 
+038 Proof. For the first successful insertion, all selected positions were empty and all become occupied,
+039 so O = S1 . Their XOR is T1 = P1 ∥N1 by (1); taking its suffix gives N1 .
+040 
+041     The observer therefore needs only the occupied words and the suffix width. It does not have to
+042 guess the data identifier, the prefix, or the selected positions. Figure 1 distinguishes an occupied
+043 zero word from an empty cell: the zero word counts toward occupancy but does not change the
+044 XOR. A scan takes O(m + κλ) elementary bit operations and O(λ + log m) auxiliary bits for a
+045 singleton; ledger transfer, parsing, and authentication are outside this scan cost.
+046     The disclosure is compatible with uniform individual shares. Conditional on any honestly
+047 reached singleton position set and prefix, and for κ ≥ 2, each free word is uniform, and the residual
+048 is uniform because its XOR includes at least one independent uniform word. Nevertheless, the
+049 complete array always satisfies (2). Two different identifiers therefore give disjoint sets of possible
+050 complete views, even though each individual share has the same distribution.
+051 
+052 
+053 
+054 
+055                                                         2

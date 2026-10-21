@@ -1,0 +1,65 @@
+{
+  "record_id": 23497466,
+  "version_doi": "10.5281/zenodo.23497466",
+  "concept_doi": "10.5281/zenodo.23497465",
+  "state": "done",
+  "submitted": true,
+  "observed_publication_at": "2026-10-20T11:20:33.980269+00:00",
+  "publication_date": "2026-10-20",
+  "record_url": "https://zenodo.org/record/23497466",
+  "public_downloads_verified": true,
+  "authorization": "User explicitly requested carrying out archival policy; no payment involved.",
+  "public_api_url": "https://zenodo.org/api/records/23497466",
+  "public_metadata": {
+    "title": "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus",
+    "creators": [
+      {
+        "name": "Towell, Alexander Richard",
+        "affiliation": "Southern Illinois University Edwardsville",
+        "orcid": "0000-0001-6443-9897"
+      }
+    ],
+    "resource_type": {
+      "title": "Preprint",
+      "type": "publication",
+      "subtype": "preprint"
+    },
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "version": "1.0.0",
+    "publication_date": "2026-10-20"
+  },
+  "artifacts": [
+    {
+      "filename": "CITATION.cff",
+      "bytes": 1021,
+      "sha256": "7bf2410d1eb60a5c1aacdf82db333e7b8abdcadabfe40b67f416267d9af7d215",
+      "public_url": "https://zenodo.org/api/records/23497466/files/CITATION.cff/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.pdf",
+      "bytes": 289070,
+      "sha256": "4df2802bad70cd87f46aa0c9109b75a950b3290bd508c50170f906edf0a79e69",
+      "public_url": "https://zenodo.org/api/records/23497466/files/gbfplus-occupancy-disclosure-v1.0.0.pdf/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.tar.gz",
+      "bytes": 338427,
+      "sha256": "1276f3d2fa6fa92dc552209590a5c7e833d2cadac01bd4fbd2c94ecab5efddb5",
+      "public_url": "https://zenodo.org/api/records/23497466/files/gbfplus-occupancy-disclosure-v1.0.0.tar.gz/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "SHA256SUMS",
+      "bytes": 294,
+      "sha256": "443731ac104c58ec80073dba01ef83fe8dec1f044cd9b2de1e9a3922f038277b",
+      "public_url": "https://zenodo.org/api/records/23497466/files/SHA256SUMS/content",
+      "verified_without_authentication": true
+    }
+  ],
+  "landing_page_verified": true,
+  "verification_completed_at": "2026-10-20T11:20:41.242998+00:00"
+}

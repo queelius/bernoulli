@@ -1,0 +1,119 @@
+{
+  "adaptive_tradeoff": [
+    {
+      "mean_fpr": 0.625,
+      "mean_recall": 0.75,
+      "members": 2,
+      "modulus": 2,
+      "nonmember_covariance": 0.046875,
+      "rank": 1,
+      "youden_J": 0.125
+    },
+    {
+      "mean_fpr": 0.015721140663705488,
+      "mean_recall": 0.015812206997600754,
+      "members": 100,
+      "modulus": 100,
+      "nonmember_covariance": 8.832238202892748e-05,
+      "rank": 1,
+      "youden_J": 9.106633389526586e-05
+    },
+    {
+      "mean_fpr": 0.9942788593362946,
+      "mean_recall": 1.0,
+      "members": 100,
+      "modulus": 100,
+      "nonmember_covariance": 8.832238202892748e-05,
+      "rank": 100,
+      "youden_J": 0.005721140663705488
+    }
+  ],
+  "exact_order_statistic_grid_cases": 40,
+  "geometric_moments": {
+    "expected_floor_log2_Q_numerical": 0.6328430180437863,
+    "expected_log2_Q_numerical": 0.7326494821174842,
+    "geometric_entropy_bits": 2.0,
+    "paper_entropy_claim": 0.0,
+    "paper_expected_log2_Q_claim": 2.0,
+    "success_probability": 0.5
+  },
+  "nearby_salvage": {
+    "expected_trials": {
+      "decimal": 36.76470588235294,
+      "denominator": 17,
+      "numerator": 625
+    },
+    "fpr": 0.2,
+    "members": 4,
+    "rank": 3,
+    "success_probability": {
+      "decimal": 0.0272,
+      "denominator": 625,
+      "numerator": 17
+    },
+    "success_within_8_trials": {
+      "decimal": 0.19797391135477935,
+      "denominator": 23283064365386962890625,
+      "numerator": 4609439320740740263809
+    },
+    "zero_false_negatives_expected_trials_at_m100_fpr001": "10^200",
+    "zero_false_negatives_success_at_m100_fpr001": "10^-200"
+  },
+  "paper_tiny_pmf": [
+    1,
+    0
+  ],
+  "phf_counterexamples": [
+    {
+      "actual_fnr": {
+        "decimal": 0.0,
+        "denominator": 1,
+        "numerator": 0
+      },
+      "cap": 1,
+      "conditional_displacement": {
+        "decimal": 0.0,
+        "denominator": 1,
+        "numerator": 0
+      },
+      "fingerprint_values": 2,
+      "members": 2,
+      "paper_unconditional_loss_formula": 0.25,
+      "slots": 2
+    },
+    {
+      "actual_fnr": {
+        "decimal": 0.125,
+        "denominator": 8,
+        "numerator": 1
+      },
+      "cap": 2,
+      "conditional_displacement": {
+        "decimal": 0.25,
+        "denominator": 4,
+        "numerator": 1
+      },
+      "fingerprint_values": 2,
+      "members": 2,
+      "paper_unconditional_loss_formula": 0.25,
+      "slots": 2
+    }
+  ],
+  "tiny_best_of_3_probability_threshold_zero": {
+    "decimal": 0.984375,
+    "denominator": 64,
+    "numerator": 63
+  },
+  "tiny_pmf": [
+    {
+      "decimal": 0.75,
+      "denominator": 4,
+      "numerator": 3
+    },
+    {
+      "decimal": 0.25,
+      "denominator": 4,
+      "numerator": 1
+    }
+  ]
+}

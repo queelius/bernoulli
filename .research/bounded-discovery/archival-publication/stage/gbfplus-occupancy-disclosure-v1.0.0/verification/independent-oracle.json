@@ -1,0 +1,37 @@
+{
+  "counts": {
+    "updates": 771787,
+    "successful_updates": 133163,
+    "certificate_successes": 14889,
+    "atomic_failures": 638624,
+    "overlap_abstentions": 118274,
+    "saved_full_word_arrays": 64
+  },
+  "mask_prefix_correlation_views": {
+    "0": [
+      0,
+      5,
+      10,
+      15
+    ],
+    "1": [
+      1,
+      4,
+      11,
+      14
+    ],
+    "2": [
+      2,
+      7,
+      8,
+      13
+    ],
+    "3": [
+      3,
+      6,
+      9,
+      12
+    ]
+  },
+  "malformed_history_is_not_validated": true
+}

@@ -1,0 +1,10 @@
+{
+  "snapshot_date": "2026-10-14",
+  "canonical_sources_sha256": {
+    "papers/bernoulli-quantum-readout/main.tex": "58811b6ebdeabc38dff93f2d24c0c1ceace07cb7ae7efe1f4e95f52700043383",
+    "papers/bernoulli-quantum-readout/references.bib": "85e9952cc10479632c9b48faf284430a9222db558219c437e99d9a0a65e1243d",
+    "papers/bernoulli-quantum-readout/code/readout_figure.py": "f55066a6949afc3b4af7952b3d9a291316a9b69ca89330b33977d012bb680b53",
+    "papers/bernoulli-quantum-readout/code/crosstalk_validation.py": "59d8cb9f21a9db7a2c97b05793b9c32c5aab0292dcd432c882f55b6567b74b8f",
+    "papers/bernoulli-quantum-readout/.papermill/state.md": "ea3de63b8873176af7aa1cc7a81062210e4d4f408b5e33017eb729d3034ffa8d"
+  }
+}

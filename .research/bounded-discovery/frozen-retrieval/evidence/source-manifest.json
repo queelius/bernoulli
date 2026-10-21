@@ -1,0 +1,37 @@
+{
+  "license": "GBFPlus article is CC BY 4.0; source attribution retained",
+  "files": [
+    {
+      "file": "gbfplus-2026.pdf",
+      "url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+      "bytes": 3149279,
+      "sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417",
+      "accessed": "2026-10-14",
+      "derived_from": null
+    },
+    {
+      "file": "gbfplus-2026.xml",
+      "url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.xml",
+      "bytes": 371429,
+      "sha256": "bb766d99b8364d2c2bc7c6d1eebeb4dfbd8af6cd3a7abf87840195edc5545655",
+      "accessed": "2026-10-14",
+      "derived_from": null
+    },
+    {
+      "file": "gbfplus-2026-layout.txt",
+      "url": null,
+      "bytes": 121822,
+      "sha256": "9313d8291e3eb021f2efc0ea6bb3113332bab5899e83be0b042b14aff212b02d",
+      "accessed": "2026-10-14",
+      "derived_from": "gbfplus-2026.pdf"
+    },
+    {
+      "file": "gbfplus-crossref.json",
+      "url": "https://api.crossref.org/works/10.3390/e28090947",
+      "bytes": 23814,
+      "sha256": "7fc65f5270c1527896ea1e94cdb75beb1fe07781d9f13b2ddb60d1df7be95f2e",
+      "accessed": "2026-10-14",
+      "derived_from": null
+    }
+  ]
+}

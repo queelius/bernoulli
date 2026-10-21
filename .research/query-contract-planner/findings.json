@@ -1,0 +1,23 @@
+{
+  "bloom_constraint_payload_saving": 1464,
+  "bloom_sharp_incremental_bytes": 6,
+  "bloom_sharp_incremental_total_percent": 0.00348638566398215,
+  "finite_vs_exact_bytes": 880,
+  "finite_vs_exact_total_percent": 0.5104201105523558,
+  "finite_vs_exact_payload_percent": 37.98014674147605,
+  "finite_vs_exact_latency_ratio_with_preparation": 7.974877916266638,
+  "continuous_sharp_vs_union_bit_limit_at_005": 0.03684213862227199,
+  "repeated_operand_example": {
+    "rate": "1/64",
+    "candidates": 64,
+    "copies_of_each_atom": 3,
+    "correct_independent_distinct_source_probability": 0.04556456488733847,
+    "incorrect_independent_occurrence_probability": 7.63028219119516e-06,
+    "scope": "Exact rational independent-source calculations; not a product theorem for four-wise fingerprints."
+  },
+  "constructions": 2304,
+  "primary_queries": 368640,
+  "false_negatives": 0,
+  "repeat_mismatches": 0,
+  "cases": 4
+}

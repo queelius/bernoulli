@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "counts": {
+    "multiway_parameter_cases": 216,
+    "false_profiles_enumerated": 19502,
+    "independent_noise_oracle_cases": 384,
+    "heterogeneous_dp_cases": 1100,
+    "onehot_heterogeneous_cases": 100,
+    "linear_hash_cases": 327,
+    "polynomial_four_point_images": 625,
+    "finite_polynomial_query_cases": 240
+  },
+  "counterexamples": {
+    "source_alias": {
+      "actual": "7/8",
+      "invalid_unaliased_formula": "13/16"
+    },
+    "linear_triangle": {
+      "actual": "1",
+      "invalid_independence_formula": "7/8"
+    },
+    "postselected_linear_collision": "1"
+  },
+  "mersenne_prime_modulo_collision_rates": [
+    {
+      "bits": 1,
+      "collision_rate": "2658455991569831743501771111346995201/5316911983139663487003542222693990401",
+      "float": 0.5
+    },
+    {
+      "bits": 4,
+      "collision_rate": "332306998946228967937721388918374401/5316911983139663487003542222693990401",
+      "float": 0.0625
+    },
+    {
+      "bits": 8,
+      "collision_rate": "20769187434139310496107586807398401/5316911983139663487003542222693990401",
+      "float": 0.00390625
+    },
+    {
+      "bits": 16,
+      "collision_rate": "81129638414606681625420260966401/5316911983139663487003542222693990401",
+      "float": 1.52587890625e-05
+    },
+    {
+      "bits": 32,
+      "collision_rate": "1237940039285380273825382401/5316911983139663487003542222693990401",
+      "float": 2.3283064365386963e-10
+    },
+    {
+      "bits": 61,
+      "collision_rate": "1/2305843009213693951",
+      "float": 4.336808689942018e-19
+    }
+  ],
+  "scope": "Exact rational finite enumeration; no manuscript or package changes; no empirical independence inference."
+}

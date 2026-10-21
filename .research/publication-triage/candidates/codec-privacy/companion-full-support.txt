@@ -1,0 +1,20 @@
+(A) FULL-SUPPORT sufficiency, exhaustive over complete (Kraft-tight) codes:
+   lengths=[1, 2, 3, 3] M=4: 128 draws, designed-law-invariant, breaking=0
+   lengths=[1, 2, 3, 4, 4] M=4: 64 draws, designed-law-invariant, breaking=0
+   lengths=[2, 2, 2, 2] M=2: 1 draws, designed-law-invariant, breaking=0
+   lengths=[1, 2, 2] M=2: 2 draws, designed-law-invariant, breaking=0
+   lengths=[3, 3, 3, 3, 3, 3, 3, 3] M=3: 1 draws, designed-law-invariant, breaking=0
+   lengths=[1, 3, 3, 3, 3] M=3: 4 draws, designed-law-invariant, breaking=0
+   lengths=[2, 2, 3, 3, 3, 3] M=4: 256 draws, designed-law-invariant, breaking=0
+   lengths=[2, 2, 2, 3, 3] M=4: 256 draws, designed-law-invariant, breaking=0
+   => full support is sufficient on every complete code tested.
+
+(B) SATURATION refutation, codec {2,2,2,3,3}, store {B,C,E}:
+   canonical patterns: {'B': '0100', 'C': '1000', 'E': '1110'}
+   saturated? True  full support? False
+   canonical law: ('1/4', '1/4', '1/4', '1/8', '1/8')
+   distinct laws over all 32 draws: 2; breaking: 16
+   draw C->1010 gives: ('1/4', '1/4', '1/4', '0', '1/4') (D collapses)
+   => saturated yet not invariant: SATURATION IS NOT SUFFICIENT.
+
+PASS: full support sufficient (complete codes); saturation not sufficient.

@@ -1,0 +1,10 @@
+{
+  "review_zip_sha256": "05debe74dade3f96bc51dd837a38c005407ee69fbf5b621039166e05108f6247",
+  "workspace_relative_link": "../../../editorial-review/response-ledger.md",
+  "present_in_root_readme": true,
+  "bundled_correct_destination": "editorial-review/response-ledger.md",
+  "correct_destination_exists": true,
+  "standalone_start_here_present": true,
+  "readme_tells_user_about_start_here": false,
+  "original_archive_retained": "../inputs/gbfplus-comment-review.zip"
+}

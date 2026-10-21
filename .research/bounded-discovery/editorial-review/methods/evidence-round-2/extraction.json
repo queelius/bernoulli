@@ -1,0 +1,42 @@
+{
+  "work_directory": "/tmp/gbfplus-methods-review-r2-n53qewnm",
+  "archives": [
+    {
+      "kind": "supplement",
+      "archive": "/home/spinoza/github/bernoulli/.research/bounded-discovery/manuscript/venues/entropy-comment/packages/gbfplus-comment-supplement.zip",
+      "sha256": "1e6ede360cfe120c3ab3acbd8c966034fa2669be654b7a65a843733efc86d556",
+      "members": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ]
+    },
+    {
+      "kind": "source",
+      "archive": "/home/spinoza/github/bernoulli/.research/bounded-discovery/manuscript/venues/entropy-comment/packages/gbfplus-comment-source.zip",
+      "sha256": "e12017495f6f64780104ef118d0de763c38b1355481121140bdac347fc9a054c",
+      "members": [
+        "Makefile",
+        "abstract.tex",
+        "backmatter.tex",
+        "body.tex",
+        "main.tex",
+        "references.bib"
+      ]
+    }
+  ],
+  "current_manuscript_files": {
+    "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+    "body.tex": "26e7cf8a78e9f6e07802a5bc4d3a70cd9bcf7b34dbb0498f86466fdda2523fb8",
+    "abstract.tex": "eed7f877efc750ea50955db666a767931c6c1591bfb3b52451312761d85164b7",
+    "backmatter.tex": "660c1a9e68858a306e94da4558d44c6a726895db1df499e2ef65cc536c975045",
+    "main.pdf": "5ba44973cd90a4e16e33248e89a6934a94ca99d7cb64d6f11911d39f07cd49bf",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+  }
+}

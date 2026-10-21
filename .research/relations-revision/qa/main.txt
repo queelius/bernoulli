@@ -1,0 +1,1375 @@
+                      Error contracts for approximate relations
+                                      Alexander Richard Towell
+                               Southern Illinois University Edwardsville
+                                       lex@metafunctor.com
+                                         ORCID: 0000-0001-6443-9897
+
+                                                 October 2026
+                                                  Working draft
+
+
+
+                                                    Abstract
+          A compact approximate relation can preserve a structural constraint while changing the
+      dependence between query operands. Per-tuple false-positive and false-negative rates therefore
+      do not suffice to specify query error. We separate exact truth, construction randomness, and
+      frozen source identity, and audit the resulting operator and invariant-preservation formulas. For
+      a monotone query with independent one-sided source errors, the sharp worst error over exact
+      truth profiles is 1 − (1 − α)s0 for false positives and 1 − (1 − β)s1 for false negatives, where s0 , s1
+      are one-sided sensitivities. These are elementary consequences of established certificate theory.
+      Marginal-only bounds and a conditional shared-rate extension state what remains sound when
+      independence is unavailable. For normalized binary-witness queries of source occurrence at most
+      two, the required sensitivities have a linear-time graph formula. A stored-filter experiment uses
+      these contracts to calibrate symmetric relation queries, comparing canonical keys with ordered
+      keys followed by symmetric repair. We distinguish exact model guarantees from empirical
+      hash behavior and from existing probabilistic lineage and inference methods. The resulting
+      framework supports a narrow, reproducible query-calibration study; it does not establish a
+      universal probability calculus or cryptographic security.
+
+
+Contents
+1 Introduction                                                                                                   2
+
+2 Relations, queries, and source identity                                                                        3
+
+3 Construction randomness and error semantics                                                                    4
+  3.1 Sources, aliases, and independence . . . . . . . . . . . . . . . . . . . . . . . . . . . .                 4
+  3.2 Conditioning and repeated queries . . . . . . . . . . . . . . . . . . . . . . . . . . . .                  5
+
+4 Error propagation through relational operators                                                      6
+  4.1 Selection . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+  4.2 Projection . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+  4.3 Join . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+  4.4 A worked example with rates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+  4.5 Independent-trial validation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+
+
+
+
+                                                         1
+5 Preservation of relational invariants                                                                 13
+  5.1 Reflexivity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   13
+  5.2 Symmetry . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      14
+  5.3 Single-valuedness . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     14
+  5.4 Transitivity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    15
+  5.5 Canonical representation and specific repair operators . . . . . . . . . . . . . . . . .          15
+  5.6 The approximate partial function . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        18
+
+6 Truth-uniform query error contracts                                                                   18
+  6.1 Boundary certificates give sharp one-sided contracts . . . . . . . . . . . . . . . . . .          19
+  6.2 Binary witnesses of occurrence at most two . . . . . . . . . . . . . . . . . . . . . . .          20
+  6.3 Why preserving tuple rates does not preserve inference cost . . . . . . . . . . . . . .           21
+
+7 Stored-filter calibration and verification                                                            21
+  7.1 Construction and model guarantee . . . . . . . . . . . . . . . . . . . . . . . . . . . .          21
+  7.2 Fixed query workload and baselines . . . . . . . . . . . . . . . . . . . . . . . . . . . .        22
+  7.3 Mathematical checks and inference comparisons . . . . . . . . . . . . . . . . . . . . .           23
+
+8 Scope of an encrypted-search application                                                              24
+
+9 Conclusion                                                                                            24
+
+
+1     Introduction
+Approximate membership structures trade space for errors [6]. Using them to represent relations
+introduces a further question: what error guarantee applies to a query that combines their answers?
+A tuple false-positive rate of α becomes α2 for a conjunction of two independent absent sources,
+but remains α if both operands read the same source. Canonicalizing a symmetric pair deliberately
+creates such reuse. It can preserve the relation’s symmetry and its tuple marginals, while changing
+both query error and the difficulty of exact inference.
+    This paper develops the relational part of the Bernoulli-set model [27] around that distinction.
+Exact relations are fixed; randomness belongs to a constructed approximate representation. Re-
+peated probes read frozen outcomes. We treat selection, projection, and join, then examine which
+invariant-preserving constructions require shared sources. The main query question is deliberately
+limited: for positive monotone lineage, what per-source error budget guarantees a desired query
+error for every exact truth profile with the relevant answer? We assume no prior distribution over
+exact databases.
+    Our contribution is a scoped synthesis and calibration study:
+
+    1. We give explicit source semantics and operator formulas, distinguishing independence of tuples
+       from independence of sources. This identifies the assumptions needed by familiar product
+       formulas and clarifies when canonical constraint preservation changes them.
+
+    2. We derive sharp one-sided truth-uniform contracts from monotone boundary certificates,
+       together with marginal-only and shared-rate bounds. For binary witnesses of source occurrence
+       at most two, elementary graph structure makes the homogeneous contract inexpensive to
+       compute.
+
+
+
+
+                                                    2
+    3. We connect the contract to a concrete partitioned Bloom representation of a symmetric
+       relation, including a construction check based only on occupied bits, and compare it with
+       ordered-tuple storage followed by symmetric repair.
+
+The certificate identities, graph techniques, and probability machinery are not claimed as new
+general theory. The study tests whether combining them gives a useful specification for approximate
+relational representations.
+
+Position relative to probabilistic databases. Boolean lineage and provenance semirings
+already record how tuples contribute to an answer [16]. Weighted evaluation, tractability boundaries,
+materialized views, and correlated lineage are well developed [10, 22, 17, 23]. Once a truth profile
+and a construction law are fixed, our query probability is an instance of probabilistic inference over
+that lineage. The origin of uncertainty in a representation does not evade this prior art. Integrity
+constraints and conditioning also have substantial prior treatment [12, 18]; constraint preservation
+is not a territory unique to approximate data structures.
+
+Probability bounds and program logics. Dissociation provides sound bounds by replacing
+shared occurrences with appropriately parameterized copies [13]; subsequent work develops relational
+evaluation, weighted model counting, and anytime refinement [14, 8, 29]. Union-bound program
+logics account for failure probabilities without asserting independence [2], while separation logics
+reason explicitly about independence and conditional probability [19]. Recent imprecise probabilistic
+programming also supports structured uncertain inference [20]. Our marginal-only bound is a
+certificate application of the union bound, not a replacement for these calculi.
+
+Sensitivity and approximate membership. For monotone Boolean functions, certificate com-
+plexity and sensitivity coincide [5]; pointwise noise bounds in terms of sensitivity are established [15].
+The exact one-sided extremal formulas below follow directly from maximal false and minimal true
+inputs. A targeted literature search did not locate the identical query-calibration formulation, but
+this does not establish originality. Bloom filters supply the implemented membership mechanism [6].
+Adaptivity is a separate concern [3]: our guarantees do not allow a query to be selected from
+observed errors and then treated as an independent fixed probe.
+    The companion manuscripts develop set-level composition, maps, and information-theoretic
+storage analysis [24, 26, 25]. Here storage claims are limited to explicit constructions and measured
+payloads. A tuple-rate identity is not by itself a total-memory comparison. Sections 2 and 3 specify
+the semantics; sections 4 and 5 audit operators and structural constraints; section 6 develops the
+contracts; and section 7 reports their empirical use and limitations.
+
+
+2     Relations, queries, and source identity
+We use finite relations with set semantics, following the relational model [9]. There are no duplicate
+rows, null values, or approximate comparisons of attribute values. A schema A assigns each named
+attribute a ∈ A a finite domain Da ; its tuple universe is UA = a∈A Da . A relation R is a subset
+                                                                   Q
+
+of UA . We write t|B for restriction of a tuple to attributes B ⊆ A.
+    For a deterministic predicate P and B ⊆ A, selection and projection are
+
+                        σP (R) = {t ∈ R : P (t)},       πB (R) = {t|B : t ∈ R}.
+
+
+
+
+                                                    3
+If S has schema C, natural join is
+
+                              R 1 S = {t ∈ UA∪C : t|A ∈ R, t|C ∈ S}.
+
+Binary relational composition is the existential join (R; S)(x, z) = y [R(x, y) ∧ S(y, z)]. These
+                                                                        W
+
+definitions fix the candidate universe even when an implementation answers membership probes
+without enumerating the relation.
+    A fixed answer to a positive query built from selection, projection, join, and union has a monotone
+Boolean lineage: conjunction combines the facts needed for a witness, and disjunction combines
+alternative witnesses. This is established provenance machinery [16, 23]. The relevant variables
+name distinct stored random outcomes. Reusing a tuple, reusing a relation, or evaluating the same
+membership probe twice does not create a fresh variable.
+    For example, a symmetry-preserving representation may answer both R(u, v) and R(v, u) using
+the same bit X{u,v} . Then the query R(u, v) ∧ R(v, u) has lineage X{u,v} , not a conjunction of
+independent bits. More generally a family of binary witnesses gives
+                                                   _
+                                     FG (X) =            (Xi ∧ Xj ).
+                                                {i,j}∈E(G)
+
+The graph records reuse between witnesses. Paths and cycles of witnesses will provide a tractable
+query class in section 6. The restriction concerns lineage after identifying aliases, not merely the
+number of occurrences in the query text. Negation and arbitrary aggregates are outside the contract
+results below.
+
+
+3     Construction randomness and error semantics
+Definition 3.1 (Random approximate relation). Fix a finite tuple universe U and an exact relation
+R ⊆ U . A random approximate relation is a random variable with values in 2U , equivalently a
+family of membership functions R±     θ : U → {0, 1} indexed by a construction seed θ. The seed is
+sampled once; each subsequent probe reads the resulting frozen representation. For a fixed t ∈  / R its
+                             ±                                                      ±
+false-positive rate is Prθ {Rθ (t) = 1}; for t ∈ R its false-negative rate is Prθ {Rθ (t) = 0}.
+
+    Unless stated otherwise, probabilities refer to construction randomness with the exact relation
+and query held fixed. The notation Rτε denotes homogeneous per-tuple rates ε on nonmembers
+and τ = 1 − ω on members. These are pointwise construction probabilities, not the probability
+that an observed positive is false. Population-average rates require a separate query distribution;
+conditional rates on an empty class are undefined. For a fixed realization, its fraction of errors over
+a finite candidate set is a deterministic quantity, varying across constructions.
+
+3.1   Sources, aliases, and independence
+Assumption 1 (Independent frozen sources). There is a known source map κ : U → I and fixed
+exact bits xi ∈ {0, 1} such that R(t) = xκ(t) . The random source bits Xi are mutually independent
+with                                  
+                                      ϵ ,        xi = 0,
+                                         i
+                         Pr(Xi = 1) =                        R±θ (t) = Xκ(t) .
+                                      1 − ωi , xi = 1.
+
+Every occurrence of a source reads the same bit. Distinct relations may share sources, and joint
+calculations use their combined source map.
+
+
+                                                    4
+   Aliases must have the same exact truth value for this model. For a symmetric exact relation,
+unordered-pair classes satisfy this requirement. Deterministic tuples, such as forced diagonal mem-
+bers, can be included as degenerate sources. Independent sources need not imply independent
+output tuples after a query.
+
+Assumption 2 (Independent tuple specialization). The source map is injective, ϵi = ε for exact
+nonmembers, and ωi = ω for exact members. All distinct tuple outcomes are mutually independent,
+including across truth classes.
+
+   This is a useful idealized channel, not a consequence of having a Bloom filter [6] or a salted hash
+function. Shared bit arrays, construction events, and finite hash families can introduce dependence.
+A concrete implementation must justify the assumptions it uses; section 7 separates an ideal hash
+model from measurements of an implemented filter.
+
+Shared storage versus shared outcomes. The standard perfect-hash-plus-fingerprint construc-
+tion, also discussed in the companion filter manuscript [28], illustrates this distinction [11]. Place
+member keys injectively with g, store their M -bit fingerprints V [g(x)] = H(x), and accept a key
+when H(x) = V [g(x)]. Assume H is an ideal random function independent of g, and construction
+inspects H only on members. Conditional on g and the stored fingerprints, distinct absent keys
+have independent uniform fingerprints. Each match has probability 2−M , even if the keys share
+a slot. Since this probability is constant, independence survives averaging. Thus shared physical
+storage need not imply dependent answers; repeated canonical keys do share an outcome. This
+idealized realization does not prove that a particular finite hash implementation meets the same
+law.
+
+Theorem 3.1 (Error counts under independent tuples). Under assumption 2, for N distinct exact
+nonmembers the number of false positives has distribution Binomial(N, ε).
+
+Proof. It is the sum of N independent Bernoulli variables with parameter ε.
+
+Theorem 3.2 (Realized error fraction). For N > 0 under the same assumptions, the realized
+fraction ϵbN = FPN /N has mean ε and variance ε(1 − ε)/N . For fixed 0 < ε < 1, along growing
+collections of independent distinct nonmembers,
+                                      √
+                                       N (ϵbN − ε) d
+                                       p           −
+                                                   → N (0, 1).
+                                         ε(1 − ε)
+
+At ε ∈ {0, 1} the fraction is deterministic.
+
+Proof. The moment identities follow from the binomial distribution; the standardized limit is the
+independent, identically distributed central limit theorem.
+
+    The analogous statement holds for false negatives. With aliases, tuple counts are weighted sums
+of source outcomes and need not be binomial. Repeating one probe N times supplies one source
+outcome, not N trials.
+
+3.2   Conditioning and repeated queries
+All later fixed-query guarantees are unconditional over construction, or conditional on explicitly
+declared construction information. A query chosen after observing answers can select a known
+false positive. Thus a pointwise construction FPR does not imply the same FPR conditional
+
+                                                  5
+on a transcript, or a bound on every query in an adaptive workload; adaptive filters address a
+separate problem [3]. For a fixed finite workload, a union bound on per-query errors remains
+valid without independence between queries. Conditioning on a relation-wide property can also
+destroy the independent-source law; it must be modeled explicitly, as in conditioning probabilistic
+databases [18].
+    Subset and equality tests remain ordinary Boolean lineages over the joint source space. For
+example, two independent approximations agree on one true tuple with probability τ1 τ2 + ω1 ω2 ;
+the product over tuples additionally requires tuple independence. The companion set composition
+manuscript [24] supplies the corresponding set-level calculations. An approximation compared with
+itself agrees with probability one, regardless of its marginal error rates.
+
+
+4     Error propagation through relational operators
+The relational operators of section 2 (selection, projection, and join) build new relations from old
+ones. When the operands are random approximate relations rather than exact relations, each
+operator induces a derived approximate relation whose membership test is a Boolean function of the
+operand membership tests. Two questions then arise for every operator. First, what are the derived
+error rates? Second, does the derived relation still satisfy element-wise independence (assumption 2),
+the axiom on which the binomial error-count machinery of section 3.1 rests? The answers depend
+on which random sources the outputs use. Selection restricts the existing tests. Projection of an
+independent-tuple input preserves independence, although its rates can vary by fiber. A join can
+reuse an input source in several outputs and thereby correlate them. Canonical representations also
+share sources; projection of such a representation need not preserve tuple independence.
+    Throughout, R and S are exact relations of objective interest, approximated by Bernoulli
+relations RτεRR and SετSS over their respective tuple universes, with τR = 1 − ωR the true-positive
+rate and ωR the false-negative rate (likewise for S). Except in the explicitly identified source-
+sharing extension below, the two approximations are independent of each other and each satisfies
+assumption 2: distinct tuple trials are mutually independent, with common rates within each exact
+membership class. This does not include a self-join using the same construction as both operands.
+Any predicate appearing in an operator (the selection predicate θ, the join condition, the equality
+of projected attribute values) is an exact predicate on known tuple values: it carries no randomness.
+The only randomness in any derived relation is inherited from the operand membership tests.
+
+4.1   Selection
+Selection σθ keeps exactly those tuples of a relation that satisfy a predicate θ on their values.
+Because θ is exact, the approximate selection is nothing more than the operand relation read on a
+smaller universe.
+Theorem 4.1 (Selection is rate-transparent). Let θ be an exact predicate on the tuples of the
+universe U = X1 × · · · × Xn , and let RτεRR approximate R ⊆ U. Then the approximate selection
+σθ (R± ) is the restriction of R± to the sub-universe Uθ = { t ∈ U | θ(t) }. It is a Bernoulli relation
+of σθ (R) over Uθ with the same rates (εR , τR ), and element-wise independence (assumption 2) is
+preserved.
+Proof. A tuple t ∈ Uθ is accepted by σθ (R± ) if and only if it is accepted by R± , since θ(t) holds
+with certainty and contributes no further test. For t ∈ Uθ the conditioning on the exact relation is
+unchanged,                h                   i     h               i
+                        P t ∈ σθ (R± ) t ∈/ R = P t ∈ R± t ∈    / R = εR ,                       (a)
+
+                                                   6
+and likewise the true-positive rate on Uθ is τR . Restricting the universe selects a sub-collection
+of the original Bernoulli trials; it neither rescales any per-tuple rate nor introduces any coupling
+between distinct trials. Thus independence and the rates within each exact membership class are
+preserved.
+
+    Selection preserves this marginal-rate partition; it does not turn a two-rate model into a one-
+rate model. If the output is instead viewed over the original universe U, tuples outside Uθ are
+deterministic negatives. For a source-sharing input, selection retains any dependence among the
+selected tuples.
+
+4.2   Projection
+Projection ΠY onto an attribute subset Y drops the remaining columns. Several distinct tuples of
+R can agree on their Y -components and so collapse onto a single projected tuple. The pre-image
+of a projected tuple is its fiber.
+
+Definition 4.1 (Fiber). For a projected tuple s in the target universe of ΠY , the fiber of s is the
+set of operand tuples that project onto it,
+
+                                     ϕ(s) = { t ∈ U | t|Y = s } ,                                  (1)
+
+and its size is the fan-in k(s) = |ϕ(s)|. We use the image of the candidate universe as the target
+universe, so every fiber considered is nonempty. A target tuple with an empty fiber is rejected
+deterministically.
+
+    A projected tuple s is accepted by the approximate projection exactly when at least one tuple
+of its fiber is accepted by R± : projection is a logical o r over the fiber. Because the fiber tuples
+are distinct elements of U, their R± -memberships are independent (assumption 2), and the o r
+composes their rates multiplicatively on the complementary event.
+
+Theorem 4.2 (Projection amplifies the false-positive rate). Let RτεRR approximate R, and let s be a
+projected tuple under ΠY with fiber ϕ(s) of size k(s). The approximate projection ΠY (R± ) accepts
+s if and only if some tuple of ϕ(s) is accepted by R± . Then:
+
+  (i) If s ∈
+           / ΠY (R), every fiber tuple is a true negative, and s is a false positive of the projection
+      unless all k(s) independent trials miss:
+
+                                     εΠ (s) = 1 − (1 − εR )k(s) ≥ εR .                             (2)
+
+ (ii) If s ∈ ΠY (R), say j ≥ 1 of the fiber tuples are true members of R and the remaining k(s) − j
+      are non-members, then s is correctly accepted unless every fiber trial misses:
+
+                               τΠ (s) = 1 − (1 − τR )j (1 − εR )k(s)−j ≥ τR .                      (3)
+
+The false-positive rate is amplified by the fan-in, and the true-positive rate is boosted, because a
+non-member fiber tuple can itself false-positive and so rescue the projection of a genuine member.
+
+Proof. The acceptance event for s is the union, over t ∈ ϕ(s), of the acceptance events {t ∈ R± }.
+Distinct tuples have independent memberships (assumption 2), so the probability that the union
+fails is the product of the per-tuple failure probabilities.
+
+
+                                                  7
+    If s ∈
+         / ΠY (R) then no tuple of ϕ(s) lies in R, so each of the k(s) tuples is accepted independently
+with probability εR and missed with probability 1 − εR . The projection misses s with probability
+(1 − εR )k(s) , giving
+                                                                                          h                i
+                                                                                            / R± t ∈
+                                                                                 Y
+                                                                 εΠ (s) = 1 −            P t∈      / R = 1 − (1 − εR )k(s) .           (a)
+                                                                                t∈ϕ(s)
+
+If s ∈ ΠY (R) then at least one fiber tuple lies in R; partition the fiber into the j ≥ 1 members,
+each missed with probability 1 − τR , and the k(s) − j non-members, each missed with probability
+1 − εR . By independence the projection misses s with probability (1 − τR )j (1 − εR )k(s)−j , so
+                                                                          τΠ (s) = 1 − (1 − τR )j (1 − εR )k(s)−j .                    (b)
+Both bounds follow since each factor lies in [0, 1]: including additional factors can only decrease
+the product and increase the complementary rate.
+    The rate formulas depend on s only through its fan-in k(s) (and, for true members, the member
+count j), which varies from one projected tuple to the next. This is the structural heart of projection.
+Figure 1 plots the amplified false-positive rate 1 − (1 − ε)k against the fan-in k for three operand
+rates, making the growth with k explicit: even a modest operand rate is driven up steeply once
+several tuples share a projected image.
+          projected false-positive rate 1 − (1 − ε)k
+
+
+
+
+                                                       0.6         ε = 0.01
+                                                                   ε = 0.05
+                                                                   ε = 0.10
+                                                       0.4
+
+
+                                                       0.2
+
+
+                                                        0
+                                                             1        2            3            4              5      6        7   8
+                                                                                                    fan-in k
+
+Figure 1: False-positive amplification under projection (theorem 4.2). A projected tuple whose
+fiber has fan-in k acquires false-positive rate 1 − (1 − ε)k , the probability that at least one of its k
+independent fiber trials fires. The rate climbs with the fan-in and approaches 1 for fixed ε > 0, so
+projection onto an attribute subset with large fibers can turn a small operand false-positive rate
+into a substantial one.
+
+Theorem 4.3 (Projection of independent tuples). Under assumption 2, distinct projected tuples
+have mutually independent membership indicators. A sufficient partition into homogeneous marginal-
+rate blocks is given by the attained pairs (k(s), j(s)), where j(s) = |ϕ(s) ∩ R|. The acceptance rate
+on such a block is
+                                   1 − (1 − τR )j(s) (1 − εR )k(s)−j(s) .                         (4)
+The block is negative when j(s) = 0 and positive otherwise. Different pairs may give the same rate,
+so the number of distinct profiles need not equal the minimal number of rate blocks.
+
+                                                                                                    8
+            ̸ s′ then t|Y = s and t|Y = s′ cannot both hold, so ϕ(s) ∩ ϕ(s′ ) = ∅. The acceptance
+Proof. If s =
+of s is a function of the trials indexed by ϕ(s) alone. The whole family of fibers is disjoint, so
+functions of their mutually independent trial sets are mutually independent. The rate formula and
+its constancy on the stated blocks follow from theorem 4.2.
+
+    On a full Cartesian candidate universe, coordinate projection has constant fan-in equal to the
+product of the discarded domain sizes. Nonuniform fan-in can arise after restricting that universe,
+for example by selection. In either case the true-member count j(s) can vary.
+Corollary 4.3.1 (Uniform fiber profiles). If every fiber has size k, negative projected tuples have
+common false-positive rate 1−(1−εR )k . If in addition every positive fiber has the same true-member
+count j⋆ ≥ 1, those tuples have common true-positive rate 1 − (1 − τR )j⋆ (1 − εR )k−j⋆ . Uniform
+fan-in alone need not give a common true-positive rate.
+    For example, at (εR , τR ) = (0.05, 0.90), fibers with (k, j) = (3, 1) and (3, 2) have true-positive
+rates 0.90975 and 0.9905. The rates use the same two input parameters but differ because the exact
+fiber profiles differ. In the collection’s terminology [27], model order concerns the rate partition,
+while the number of free channel parameters and the independence structure are separate questions.
+
+Projection after source sharing. The preceding independence statement cannot be applied
+unchanged after a canonical representation identifies different tuples with the same source. Let As
+                                                                                              W
+be the set of distinct source IDs appearing in the fiber of s, so its output indicator is Ys = i∈As Zi .
+This setting covers canonical membership bits, not arbitrary Boolean formulas already produced
+by a join.
+Theorem 4.4 (Projection with shared independent sources). Under assumption 1, assume the
+distinct source bits Zi are mutually independent, with P[Zi = 1] = pi . For a source set C put
+qC = i∈C (1 − pi ), with q∅ = 1. Then
+      Q
+
+
+                             P[Ys = 1] = 1 − qAs ,                                                    (5)
+                           Cov(Ys , Yt ) = qAs \At qAt \As qAs ∩At (1 − qAs ∩At ).                    (6)
+
+If every participating source has 0 < pi < 1, the projected indicators are mutually independent
+exactly when their nonempty source supports are pairwise disjoint.
+Proof. The projection rejects exactly when all its distinct sources reject, proving the first formula.
+Complementation of both indicators preserves covariance, so
+
+                                    Cov(Ys , Yt ) = qAs ∪At − qAs qAt .                               (a)
+
+Factoring over the three disjoint sets As \ At , At \ As , and As ∩ At gives the result. At interior
+rates any shared source makes the covariance strictly positive. Conversely, disjoint supports give
+functions of disjoint independent source sets, hence mutual independence. Empty supports produce
+constant-zero indicators.
+
+    At boundary rates an overlapping support can still give zero covariance; the formula remains
+valid, but the disjointness criterion needs the interior-rate assumption. For a two-tuple candidate
+universe {⟨a , b⟩, ⟨b , a⟩}, a ̸= b, a symmetry-preserving canonical test uses one source Z for both
+tuples. Projection onto the first coordinate has disjoint tuple fibers but identical source supports. Its
+two outputs both equal Z and have covariance p(1 − p). Distinct tuples are therefore not necessarily
+distinct random trials.
+
+                                                     9
+4.3    Join
+The join R 1 S pairs a tuple r of R with a tuple s of S whenever they agree on the common
+attributes, and a join tuple is a member if and only if both operand tuples are members (the join
+condition on values is exact). The join is therefore a logical a n d of two independent operand tests.
+The per-tuple rates follow the intersection (a n d) rules of two Bernoulli sets, which are proved in
+the composition paper.
+Theorem 4.5 (Join error rates). Let RτεRR and SετSS be independent approximations of R and S. For
+a candidate output tuple (r, s) whose component values satisfy the exact join condition, distinguish
+the exact memberships of r in R and s in S:
+  (i) If (r, s) ∈ R 1 S (so r ∈ R and s ∈ S), the join tuple is missed exactly when either operand
+      misses its tuple, giving the intersection false-negative rate
+                                     ω1 = 1 − τR τS = ωR + ωS − ωR ωS .                                 (7)
+
+                / R 1 S, the false-positive rate depends on which operand fails. When both operand
+ (ii) If (r, s) ∈
+      tuples are absent (r ∈
+                           / R and s ∈ / S), the join false-positives only if both operands false-positive,
+      with probability
+                                                     εR εS ,                                            (8)
+      the sparse, both-absent corner of the three-region weighted intersection false-positive rate. When
+      only one operand tuple is absent, that tuple must false-positive while the present tuple is correctly
+      accepted, contributing the absent operand’s false-positive rate weighted by the present operand’s
+      true-positive rate.
+If a specified distribution on negative candidate outputs assigns weights w01 , w10 , w00 to the three
+exact-membership regions, its average false-positive rate is
+                      w01 εR τS + w10 τR εS + w00 εR εS ,    w01 + w10 + w00 = 1.                       (9)
+This is the weighted intersection rate [24]; without a query distribution or region counts, the three
+pointwise regimes remain distinct.
+Proof. A join tuple (r, s) is reported by R± 1 S ± if and only if r ∈ R± and s ∈ S ± , since the
+value-level join condition is exact. The two operand tests are independent, by the inter-relation
+independence assumed at the start of this section, a standing assumption distinct from the per-tuple
+independence of assumption 2.
+    For (i), with r ∈ R and s ∈ S, the tuple is correctly reported with probability τR τS and missed
+otherwise, so
+                     ω1 = 1 − τR τS = 1 − (1 − ωR )(1 − ωS ) = ωR + ωS − ωR ωS ,                  (a)
+which is the false-negative rule for the intersection of two Bernoulli sets [24].
+    For (ii), (r, s) is a non-member when at least one operand tuple is a non-member, and it is
+reported only if both operand tests fire. If both tuples are non-members the two firings are false
+positives, occurring independently with probability εR εS . If exactly one tuple is a non-member, say
+r∈/ R while s ∈ S, then reporting requires a false positive on r (probability εR ) and a true positive
+on s (probability τS ), for εR τS ; symmetrically τR εS in the other one-absent region. The average
+false-positive rate under the specified query distribution is the weighted average of these three
+regions, which is exactly the intersection false-positive rate of [24]. The value εR εS alone is only
+the both-absent corner. It understates the average when a one-absent region has positive weight
+and a strictly larger acceptance rate; that comparison requires the corresponding true-positive rate
+to exceed the false-positive rate.
+
+                                                    10
+   Per-tuple, then, the join is well behaved: every output tuple has a well-defined false-negative
+and false-positive rate. The subtlety is not in the marginal rates but in the dependence among
+output tuples.
+Theorem 4.6 (Joins can destroy element-wiseh independence). i     Consider
+                                                                     h      compatible
+                                                                               i       output tuples
+                                                          ±                  ±
+(r, s1 ) and (r, s2 ), with s1 ̸= s2 , and put a = P r ∈ R and bi = P si ∈ S . Under the standing
+independent-input assumptions, their indicators have covariance
+
+                                             a(1 − a)b1 b2 .                                       (10)
+
+It is strictly positive when 0 < a < 1 and b1 b2 > 0, proving that joins do not preserve tuple
+independence in general. A join whose output tuples use pairwise disjoint input trials does preserve
+independence.
+Proof. Consider two output tuples (r, s1 ) and (r, s2 ) that share the same left component r, with
+s1 ̸= s2 . Both acceptance events contain the same trial {r ∈ R± } as a conjunct:
+
+                           {(r, s1 ) ∈ R± 1 S ± } = {r ∈ R± } ∩ {s1 ∈ S ± } ,                       (a)
+
+and likewise for (r, s2 ) with s2 . Write A = {r ∈ R± } with P[A] = a, and let Bi = {si ∈ S ± } be
+independent of A and of each other. Then the two output indicators are 1A∩B1 and 1A∩B2 , with
+                                                          
+                          P (r, s1 ), (r, s2 ) both accepted = a P[B1 ] P[B2 ] ,                    (b)
+
+whereas the product of the marginals is a P[B1 ] · a P[B2 ] = a2 b1 b2 . Their difference is the stated
+covariance. Under its strict-positivity conditions, the joint probability is 1/a times the product of
+marginals and the two outputs are dependent. The disjoint-input case follows because the output
+indicators are functions of disjoint independent trial sets.
+
+    At a = 0 or a = 1, or when a partner never accepts, this shared-component covariance is zero.
+The theorem establishes a source-reuse mechanism, not a claim that every join produces dependence.
+Downstream formulas that assume independence over the output tuples (for instance, the probability
+that an entire query result is error-free, computed as a product of per-tuple correctness probabilities)
+are therefore not valid for a raw join in general: the shared-component dependence must be carried
+explicitly. The marginal rates of theorem 4.5 are still exactly right for any single output tuple, and
+for the false-positive count of a join one may still take expectations tuple by tuple (linearity of
+expectation does not require independence); it is the higher moments and the all-correct probability
+that feel the correlation.
+
+4.4   A worked example with rates
+Consider the exact relations
+
+                 A = {⟨a , c⟩} ⊆ X × Y,       B = {⟨c , b⟩, ⟨c , d⟩} ⊆ Y × Z,      b ̸= d.         (11)
+
+Their join on Y contains ⟨a, c, b⟩ and ⟨a, c, d⟩. Give each operand an independent-tuple approxima-
+tion, and take the two constructions to be independent, with illustrative rates
+
+                                ε = 0.05,      ω = 0.10,       τ = 0.90.                           (12)
+
+
+Example 1       Single-tuple error and shared-input dependence. Each true join tuple requires
+two true source memberships, so its true-positive rate is τ 2 = 0.81 and its false-negative rate is
+
+                                                   11
+1 − τ 2 = 0.19. For a compatible candidate whose two source tuples are both absent, the false-positive
+rate is instead ε2 = 0.0025.
+    The two true output tuples share the trial on ⟨a , c⟩ but have distinct right-hand trials. Conse-
+quently,
+
+                                    P[both accepted] = τ 3 = 0.729,                                  (a)
+                                   P[first] P[second] = τ 4 = 0.6561.                                (b)
+
+Their covariance is 0.0729, and their joint acceptance probability is 1/τ ≈ 1.11 times the product of
+marginals, as predicted by theorem 4.6.
+     Projection needs candidate fibers. Projection onto X × Z sends the two displayed true rows to
+⟨a , b⟩ and ⟨a , d⟩. These distinct images do not establish singleton candidate fibers: the ambient
+domains can supply additional candidate tuples outside the exact join. Moreover, join outputs
+already share sources, so theorem 4.2 cannot be applied by treating each join row as an independent
+trial.
+     For a separate independent-tuple input T ± , a negative projected tuple with three candidate tuples
+in its fiber has false-positive rate
+
+                              εΠ = 1 − (1 − ε)3 = 1 − 0.953 = 0.142625.                              (c)
+
+This is nearly triple the operand rate. The calculation applies to that independent fiber, not auto-
+matically to a fiber of the dependent join above.
+
+   A full join-then-project calculation must retain the original source identities in its Boolean query
+formula. The contracts of section 6 address such derived outputs.
+
+4.5    Independent-trial validation
+The closed-form rates above are checked by direct Monte Carlo simulation in the script validate.py
+(in the paper’s code/ directory). Each approximate relation is realized as one independent Bernoulli
+trial per tuple: a genuine member is reported with probability τ = 1 − ω and a non-member with
+probability ε, exactly the per-tuple law of assumption 2. The script then assembles the operator
+outputs (the fiber o r of a projection, the operand a n d of a join, the ordered-pair o r of a
+symmetric closure) and estimates each reported rate over 2 × 106 trials, using seed 20260608. The
+same harness checks selected invariant results of section 5: reflexivity, symmetry, single-valuedness
+for defined and undefined keys, OR-closure at actual orbit sizes one through four, the canonical
+test’s base rates (section 5.5), the deletion repair’s retained-true-value rate, and the deterministic
+⌈log2 k⌉-pass transitivity cascade, including the non-power-of-two path lengths that exercise the
+ceiling. Table 1 transcribes the headline comparisons at the illustrative rates ε = 0.05, ω = 0.10
+(τ = 0.90). The largest absolute discrepancy among the fitted rows is 0.000429, below the script’s
+0.005 tolerance. Separate finite-enumeration checks in test_math_validation.py exercise the
+corrected single-valuedness law, variable orbit sizes, source-overlap covariance, and boundary rates
+zero and one.
+    The independent-model row is the one deliberate non-match. The empirical joint accep-
+tance 0.728758 tracks the correlated value a P[B1 ] P[B2 ] = 0.729, not the product of marginals
+a2 P[B1 ] P[B2 ] = 0.6561 that an independence assumption would predict; the ratio of the two is
+the factor 1/a ≈ 1.111 of theorem 4.6, confirmed empirically as 1.110742. The simulation checks
+these identities under the source law used to derive them. It does not establish that a concrete
+compressed filter satisfies that law.
+
+                                                   12
+Table 1: Analytical rates versus Monte Carlo estimates (2 × 106 trials per row, ε = 0.05, ω = 0.10,
+τ = 0.90; code/validate.py). The projection rows exhibit the fan-in amplification of theorem 4.2;
+the join rows exhibit both the intersection false-negative rate of theorem 4.5 and the independence-
+failure correlation of theorem 4.6; the closure rows distinguish off-diagonal pairs from singleton
+diagonal trials in theorem 5.3.
+
+         result                                 formula                analytical   empirical
+         Projection ε, k = 2                    1 − (1 − ε)2           0.097500     0.097320
+         Projection ε, k = 3                    1 − (1 − ε)3           0.142625     0.142734
+         Projection ε, k = 8                    1 − (1 − ε)8           0.336580     0.336913
+         Projection τ , k = 3, j = 1            1 − (1 − τ )(1 − ε)2   0.909750     0.909563
+         Join ω (both members)                  ωR + ωS − ωR ωS        0.190000      0.189941
+         Join ε (both-absent)                   εR εS                  0.002500      0.002453
+         Join shared-r P[both]                  a P[B1 ] P[B2 ]        0.729000      0.728758
+           independent model                    a2 P[B1 ] P[B2 ]       0.656100     (0.728758)
+           correlation factor                   1/a                    1.111111      1.110742
+         Off-diagonal closure ε                 1 − (1 − ε)2           0.097500     0.097752
+         Off-diagonal closure τ                 1 − (1 − τ )2          0.990000     0.990035
+         Diagonal closure ε                     ε                      0.050000     0.049989
+         Diagonal closure τ                     τ                      0.900000     0.899842
+         Defined key single-valued, v = 2       q1                     0.955000     0.954745
+         Undefined key single-valued, v = 2     q0                     0.997500     0.997576
+
+
+5     Preservation of relational invariants
+A relation may be required to satisfy reflexivity, symmetry, single-valuedness, or transitivity in every
+realization. Per-tuple error rates alone do not ensure these global properties. We first compute
+preservation probabilities under the independent-tuple model, then distinguish three ways to enforce
+constraints: sharing a canonical source, adding reported tuples, and deleting reported tuples. The
+constructions have different rate and dependence consequences; they do not give a classification of
+all possible repairs.
+    Throughout the preservation calculations, the universes are finite, R is fixed and satisfies the
+named property, and Rτε satisfies assumption 2, with τ = 1 − ω. Probabilities concern the random
+construction, and each constructed tuple bit is reused. The canonical construction below deliberately
+replaces tuple independence by independence between equivalence classes.
+
+5.1   Reflexivity
+A relation on A is reflexive when it contains every diagonal pair.
+Theorem 5.1 (Reflexivity preservation). For a reflexive R,
+                                         h                i
+                                       P R± reflexive = τ |A| .                                    (13)
+
+For fixed τ < 1 this tends to zero as |A| → ∞; for τ = 1 reflexivity is preserved surely.
+Proof. The diagonal pairs are distinct true members. Reflexivity requires all their independent
+acceptance trials to succeed, giving the product.
+
+                                                     13
+   When reflexivity is known in advance, answering true on the diagonal enforces it exactly. This
+changes the diagonal true-positive rate to one and introduces no false positive there. It is a rule for
+known required tuples, not a consequence of taking an OR over a singleton trial.
+
+5.2    Symmetry
+For a ̸= b, symmetry requires the two ordered membership bits for ⟨a , b⟩ and ⟨b , a⟩ to agree.
+Diagonal pairs impose no constraint.
+
+Theorem 5.2 (Symmetry preservation). Let P and N count the positive and negative unordered
+off-diagonal pairs of a symmetric R. Then
+                           h                i                            N
+                          P R± symmetric = (τ 2 + ω 2 )P (1 − ε)2 + ε2         .                    (14)
+
+For fixed 0 < τ < 1 and 0 < ε < 1, this tends to zero as P + N grows. Decay also follows whenever
+an unbounded number of pairs have agreement probability bounded away from one.
+
+Proof. A positive pair agrees when both trials accept or both reject, with probability τ 2 + ω 2 . A
+negative pair agrees with probability (1 − ε)2 + ε2 . Different unordered pairs involve disjoint trials,
+so these probabilities multiply. Each base is strictly below one at an interior rate, while at rates
+zero and one the corresponding trials agree surely.
+
+Theorem 5.3 (Symmetric closure). Let R be symmetric and define
+
+                           ⟨x , y⟩ ∈ Rs ⇐⇒ ⟨x , y⟩ ∈ R± or ⟨y , x⟩ ∈ R± .                           (15)
+
+Then Rs is symmetric in every realization. Off the diagonal its false-positive and true-positive rates
+are, respectively, 1 − (1 − ε)2 and 1 − (1 − τ )2 . On the diagonal its rates remain ε and τ , where the
+corresponding truth class is present.
+
+Proof. For x ̸= y, symmetry of the exact relation makes the two trials homogeneous in exact
+membership. They are independent under assumption 2, so the OR rejects exactly when both reject.
+For x = y there is only one trial: reading it twice does not create an independent copy. Swapping
+the coordinates leaves the OR unchanged, which proves symmetry.
+
+    The repaired ordered bits within an off-diagonal pair are identical, and are dependent whenever
+their common acceptance probability lies strictly between zero and one. Independence remains
+between distinct unordered pairs. A later operator must therefore use these shared source identities.
+
+5.3    Single-valuedness
+A relation f ⊆ X × Y is single-valued when each key has at most one reported value. Having no
+spurious value is sufficient but not necessary: if the true value is missed, one spurious value alone
+still gives a single-valued row. Undefined keys must also be included.
+
+Theorem 5.4 (Single-valuedness preservation). Let v = |Y| ≥ 2, d = |dom(f)|, and u = |X| − d.
+Define
+
+                                q1 = (1 − ε)v−1 + ω(v − 1)ε(1 − ε)v−2 ,                             (16)
+                                            v              v−1
+                                q0 = (1 − ε) + vε(1 − ε)         .                                  (17)
+
+
+                                                   14
+Under assumption 2,                    h                 i
+                                     P {± single-valued = q1d q0u .                                 (18)
+A factor with no keys is an empty product, equal to one. For v ≤ 1 single-valuedness is automatic.
+For fixed v ≥ 2, 0 < ε < 1, and τ > 0, both q1 and q0 are below one, so the preservation probability
+tends to zero as the number of keys grows.
+Proof. At a defined key the true-value indicator T is Bernoulli with mean τ , independent of the
+spurious count K ∼ Binomial(v − 1, ε). The row is single-valued exactly when T + K ≤ 1: either
+K = 0, or K = 1 and T = 0. Thus its probability is P[K = 0] + ω P[K = 1] = q1 . At an undefined
+key every value is negative, so the reported count is Binomial(v, ε) and the probability of at most
+one is q0 . Different rows have disjoint trials, proving the product.
+
+    The probability of no spurious report at a defined key is still (1 − ε)v−1 . It equals that row’s
+single-valuedness probability when ω = 0, but otherwise can be strictly smaller. At ε = 0 deletions
+of true values preserve single-valuedness surely, regardless of the universe size.
+
+5.4    Transitivity
+Transitivity requires every reported two-edge path to have a reported shortcut. The premises are
+the reported pairs, not merely the true pairs of the exact relation. Triple constraints overlap, so
+their probabilities cannot in general be multiplied. A disjoint subcollection nevertheless gives a
+simple upper bound.
+Theorem 5.5 (A sufficient regime for vanishing transitivity). Suppose the fixed rates satisfy 0 <
+ε, τ < 1. Put p− = min{ε, τ }, p+ = max{ε, τ }, and n = |A|. Then
+                               h               i                     ⌊n/3⌋
+                             P R± transitive ≤ 1 − p2− (1 − p+ )               ,                    (19)
+
+which tends to zero as n → ∞.
+Proof. Choose ⌊n/3⌋ vertex-disjoint ordered triples (a, b, c). On each triple, reporting (a, b) and
+(b, c) but rejecting (a, c) violates transitivity. The three distinct tuple trials are independent, and
+this event has probability at least p2− (1 − p+ ) > 0. Events on the selected triples use disjoint trials
+and are independent. Transitivity excludes every such event, which gives the bound.
+
+    This sufficient condition does not cover all boundary-rate cases. For example, an empty exact
+relation with ε = 0 remains empty and transitive surely. There is no universal ordering of the four
+invariants by preservation probability. Nor does the bound imply a complexity lower bound for
+repairing transitivity.
+
+5.5    Canonical representation and specific repair operators
+Fix an equivalence on a tuple universe U. Call a constraint class-induced when its satisfying relations
+are exactly the unions of equivalence classes, called orbits here. Every orbit O of an admissible
+exact relation is homogeneous: either O ⊆ R or O ∩ R = ∅. Symmetry has orbits {⟨a , b⟩, ⟨b , a⟩}
+of size two off the diagonal and one on it. For invariance under coordinate permutations, repeated
+coordinate values can likewise make actual orbit sizes smaller than the maximum.
+    Reflexivity instead forces a specified collection of tuples to be present; it is not, by itself, a
+class-induced constraint. Single-valuedness imposes a cardinality cap on each row, not equality of
+all bits in an orbit. We treat these constructions separately.
+
+                                                   15
+Theorem 5.6 (Class-induced constraints admit an orbitwise OR-closure). For a class-induced
+constraint, let h(O) = |O|. Starting from an independent-tuple approximation, admit all of O
+whenever at least one of its trials accepts. This operator satisfies the constraint in every realization
+and is idempotent. Its orbit-specific rates are
+
+                           εO = 1 − (1 − ε)h(O) ,         τO = 1 − (1 − τ )h(O) .                   (20)
+
+If 1 ≤ h(O) ≤ m, then ε ≤ εO ≤ 1 − (1 − ε)m and τ ≤ τO ≤ 1 − (1 − τ )m .
+
+Proof. An orbit is rejected exactly when all its h(O) independent, homogeneous trials reject. Filling
+a reported orbit introduces no tuple in another orbit, and every orbit is either empty or full after one
+application. A second application therefore makes no change. The bounds follow from monotonicity
+in the exponent.
+
+   One application here is a structural statement, not a constant-time algorithm: explicit evaluation
+can inspect all h(O) trials for a queried orbit. The output bits within an orbit coincide, so tuple
+independence is lost unless the orbit is a singleton or its output is deterministic.
+
+Theorem 5.7 (Canonical tests preserve the base marginal rates). For a class-induced constraint,
+choose a fixed representative rep(O) of every orbit and answer a query t with the single frozen trial
+on rep(orbit(t)). The resulting Rc satisfies the constraint surely and has the unchanged per-tuple
+rates (ε, τ ). Under assumption 2, different orbits have independent canonical trials.
+
+Proof. All tuples in an orbit receive the same answer, so each realization is a union of orbits.
+Homogeneity makes its representative a true member exactly when the queried tuple is a true
+member, preserving the appropriate marginal rate. Representatives of different orbits are distinct,
+giving independence between orbits under the stated assumption.
+
+    The invariant therefore requires no increase in the marginal error rates. Canonicalization can
+rewrite queries to an existing construction without reducing its storage, or precede construction
+of an approximate set over the quotient universe. The latter has one input key per member orbit;
+for a symmetric relation with empty diagonal this is |R|/2 keys. This key-count reduction is not a
+claim that every implementation halves its allocated bytes: encoding, canonicalization, and fixed
+overhead remain relevant. The common orbit answer is a shared source under assumption 1; a later
+projection can therefore correlate distinct output tuples, as shown in theorem 4.4.
+    The OR-closure has a different purpose. At a fixed raw true-positive rate it raises recall from τ
+to 1 − (1 − τ )h(O) , while increasing the false-positive rate too. The following inversion budgets that
+increase.
+
+Corollary 5.7.1 (Rate budget and conditional space accounting). If all orbit sizes are at most
+m ≥ 1, a raw false-positive rate
+
+                                 ε = 1 − (1 − ε′ )1/m ,       0 < ε′ < 1,                           (21)
+
+ensures every negative orbit’s OR-closure rate is at most ε′ . Equality holds for an orbit of size m.
+For fixed m, as ε′ → 0,
+
+                               ε′                          ε′
+                          ε=      + O((ε′ )2 ),     log2      = log2 m + O(ε′ ).                    (22)
+                               m                           ε
+Thus an accounting model charging − log2 ε bits per stored input key, with other per-key costs held
+fixed, assigns an asymptotic log2 m-bit surcharge per input key to this rate change.
+
+                                                    16
+Proof. Substitution gives 1 − (1 − ε)m = ε′ , and smaller exponents give smaller rates. Taylor
+expansion at ε′ = 0 proves the asymptotics.
+
+    The space statement is conditional accounting, not a universal memory bound for two-sided error
+channels. The familiar one-sided approximate-membership benchmark [25] has τ = 1, so no recall
+improvement is available there. A construction offering τ < 1 requires its own space–rate relation,
+including whether tightening ε can hold τ fixed. Comparing total memory with the canonical
+construction must also account for their different numbers of stored keys.
+
+Deletion for single-valuedness. Keeping at most one reported value per key enforces single-
+valuedness. Use a uniform tie-break, independent of the membership trials, sampled once per row
+and reused. For a defined key with v = |Y| ≥ 1, the retained true-value probability is
+
+                           1     1 − (1 − ε)v
+                              
+                τ E           =τ              ,            K ∼ Binomial(v − 1, ε),   ε > 0.         (23)
+                          1+K         vε
+
+Indeed, conditional on reporting the true value it wins with probability 1/(1 + K). The expectation
+follows from                                    Z      1
+                                                           (1 − ε + εt)v−1 dt.
+                                            
+                                   E 1/(1 + K) =
+                                                   0
+At ε = 0 the continuous extension is τ . This probability tends to zero as v → ∞ for fixed ε > 0
+and τ > 0; neither its rate nor the work to inspect a row is independent of the value-universe size.
+Deleting tuples cannot increase any individual false-positive probability, but it can discard the true
+value. A map representation enforces single-valuedness by its output type instead [26].
+
+Limits of the orbit construction for transitivity.
+
+Lemma 5.1 (No equivalence induces transitivity). For |A| ≥ 2, no fixed equivalence on A × A has
+the transitive relations as exactly its unions of classes.
+
+Proof. Unions of classes of a fixed equivalence are closed under union. For distinct a, b, the relations
+{⟨a , b⟩} and {⟨b , a⟩} are each transitive, but their union omits ⟨a , a⟩ and is not transitive.
+
+    This excludes the particular canonical-source construction of theorem 5.7 as a representation of
+all transitive relations. It does not exclude other encodings, restricted subclasses, or repairs that
+add or delete tuples.
+
+Theorem 5.8 (Depth of simultaneous transitive completion on a path). Let R0 = {⟨1 , 2⟩, . . . , ⟨k , k+
+1⟩}, with k ≥ 1, and iterate
+                                  Rj+1 = Rj ∪ (Rj ◦ Rj ).                                          (24)
+                                                                                              k+1
+The first iterate equal to the transitive closure has index ⌈log2 k⌉. The closure contains     2   pairs,
+adding k+1
+             
+          2    − k pairs to the path.
+
+Proof. Inductively, Rj contains exactly the forward pairs of distance at most min{2j , k}. Composing
+two such paths doubles the maximum distance, and every smaller positive distance is retained or
+obtained by splitting it into two available distances. All forward pairs first appear when 2j ≥ k.
+These pairs form the full strict order on k + 1 elements, giving the count.
+
+
+
+
+                                                   17
+    The iteration has no universe-independent bound on its number of rounds; for k ≥ 2 it can
+add Θ(k 2 ) pairs. The statement concerns this simultaneous addition rule, not every algorithm
+for transitive closure and not every repair objective. In particular, deleting every pair produces
+a transitive relation while sacrificing all true answers. Meaningful claims about repair costs must
+specify the allowed operations and accuracy target.
+    Database repair and consistent query answering already study the dependence of repair problems
+on the constraint class [4]. Here the narrower role of the constructions is to expose how a represen-
+tation choice changes both marginal error and shared sources. A finer marginal-rate partition does
+not restore tuple independence: symmetry may have only a few rate blocks while imposing perfect
+dependence within each orbit. Query-level consequences are treated in section 6.
+
+5.6   The approximate partial function
+For product key and value types, write X = X1 × · · · × Xn and Y = Y1 × · · · × Ym . A partial function
+is a single-valued relation f ⊆ X × Y; it is total when every key has a value. Its domain is ΠX (f) and
+its image is ΠY (f). A partial function may be total; the term does not require an undefined key.
+
+Definition 5.1 (Approximate partial function). A random approximate partial function of f is a
+random relation f ± ⊆ X × Y whose every realization is single-valued, together with specified error
+guarantees relative to f. For a defined key x, its three disjoint outcomes are returning f(x), returning
+a different value, and returning no value. For an undefined key, the outcomes are returning a value
+and returning no value. These probabilities may be specified pointwise or averaged under an explicit
+key distribution.
+
+    Domain false-positive and false-negative rates alone do not determine value accuracy: returning
+a wrong value at every defined key can preserve the domain exactly. A raw tuplewise approximation
+of a function graph need not meet this definition because it can report multiple values. The
+deletion construction above enforces the required type and gives its correct-value probability; map
+constructions and composition are the subject of the companion paper [26].
+
+
+6     Truth-uniform query error contracts
+Tuple marginals alone do not specify a query’s error. Source identity is needed to construct its
+lineage, and the exact truth profile determines which sources can err in each direction. We now ask
+for a contract valid over every exact truth profile giving the specified query answer. This differs
+from exact probability evaluation for one fixed profile, though it uses the same Boolean lineage.
+    Fix a nonconstant monotone function F : {0, 1}n → {0, 1} on distinct sources. In the one-
+sided false-positive model, Yi+ (x) = xi ∨ Ei with independent Ei ∼ Bernoulli(αi ). In the separate
+one-sided false-negative model, Yi− (x) = xi ∧ (1 − Ei′ ) with independent Ei′ ∼ Bernoulli(βi ). Define
+
+        E0 (F ; α) = max Pr{F (Y + (x)) = 1},          E1 (F ; β) = max Pr{F (Y − (x)) = 0}.
+                    x:F (x)=0                                     x:F (x)=1
+
+No distribution over exact truth is assumed. Every source assignment is admissible here. This holds
+for class-induced equality constraints after quotienting; additional constraints such as transitivity
+may exclude the maximizers, leaving upper bounds rather than sharp contracts. For constant
+functions the absent conditioning class has no error rate; setting its extremal envelope to zero is
+only a mathematical convention.
+
+
+
+                                                  18
+6.1   Boundary certificates give sharp one-sided contracts
+Let B0 be the inclusion-maximal false vectors and B1 the inclusion-minimal true vectors. The
+one-sided sensitivities are
+                      sb (F ) = max |{i : F (x ⊕ ei ) ̸= F (x)}|,                         b ∈ {0, 1}.
+                                x:F (x)=b
+
+For monotone functions these equal the corresponding certificate complexities, a standard fact [5].
+We use it to express exact one-sided error envelopes; sensitivity-based bounds for two-sided noise
+are also established [15, Lemma 15].
+Theorem 6.1 (Independent-source boundary contract). For the one-sided models above,
+                                                                                     
+                                                                   Y
+                                 E0 (F ; α) = max 1 −                    (1 − αi ) ,                  (25)
+                                                   b∈B0
+                                                                 i:bi =0
+                                                                                     
+                                                                   Y
+                                 E1 (F ; β) = max 1 −                    (1 − βi ) .                  (26)
+                                                   b∈B1
+                                                                 i:bi =1
+
+For homogeneous rates these specialize to
+
+                   E0 (F ; α) = 1 − (1 − α)s0 (F ) ,             E1 (F ; β) = 1 − (1 − β)s1 (F ) .      (27)
+
+Proof. Couple all truth profiles using the same independent uniforms for the source errors. If x ≤ x′ ,
+then Y + (x) ≤ Y + (x′ ) pointwise. Every false x extends to a maximal false b, so monotonicity reduces
+the maximum false-positive probability to B0 . At such a b, flipping any remaining zero makes F
+true. The query stays false exactly when all those zeros stay zero, giving (25). Shrinking true
+vectors to minimal true vectors gives the dual formula.
+    Every zero of a maximal false vector is pivotal. Conversely, a pivotal zero at an arbitrary false
+vector remains zero and pivotal at every maximal false extension: setting it to one would already
+force the query true. Thus s0 is the maximum number of zeros on B0 . The dual argument gives s1
+as the maximum number of ones on B1 , proving (27).
+    These are elementary consequences of monotone boundary certificates, not a new general in-
+ference algorithm. In a two-sided independent channel the same expressions are upper bounds:
+suppressing false negatives can only increase false positives, and conversely. They need not be
+equalities. For F = X1 ∧ X2 with α ≤ 1 − β, the worst two-sided FPR is α(1 − β), whereas the
+one-sided formula gives α.
+Theorem 6.2 (Marginal-only dependence bound). Without independence, but with per-source
+marginal FP bounds αi , the sharp envelope over exact false profiles and all couplings is
+                                                                             
+                                                               X             
+                                            max min 1,                   αi       .
+                                            b∈B0                             
+                                                               i:bi =0
+
+For homogeneous bounds it is min{1, αs0 (F )}. The FN statement is dual, using B1 , βi , and s1 (F ).
+Proof. Extend a false input to a maximal false b. Its remaining zeros form a zero certificate already
+present in the input. Error requires at least one of these coordinates to flip, so the union bound gives
+the result. At a maximizing boundary profile every one of those flips suffices. Events of prescribed
+probabilities can attain union probability equal to their sum capped at one: use disjoint intervals
+when the sum is at most one, and consecutive intervals on a unit circle otherwise. This coupling
+attains the bound. The true-input argument is dual.
+
+                                                          19
+   The upper bounds also hold with two-sided noise by the same certificate argument. Sharpness
+here is over allowed couplings, not a statement about any particular shared hash construction.
+
+Corollary 6.2.1 (A shared random rate). Fix an exact false input. Suppose that, conditional on a
+construction statistic C, the distinct absent sources are independent with common FPR P (C), and
+true sources are always reported. Then
+
+                Pr{F (Y ) = 1} ≤ E[1 − (1 − P (C))s0 (F ) ] ≤ 1 − (1 − E[P (C)])s0 (F ) .
+
+Proof. Apply theorem 6.1 conditionally and average. The function p 7→ 1 − (1 − p)s is concave for
+integer s ≥ 1, so Jensen’s inequality gives the second bound.
+
+   This conditional model permits marginal dependence. For example two absent sources can have
+conjunction probability E[P 2 ], exceeding (E[P ])2 , while the truth-uniform bound still holds. A
+uniform mean-rate bound over exact inputs therefore yields a uniform contract; equality requires
+additional assumptions. Arbitrary dependence cannot be replaced by this particular common-rate
+model.
+
+6.2   Binary witnesses of occurrence at most two
+                                                                           W V
+Write lineage in normalized positive disjunctive normal form F = j i∈Sj Xi : identify aliases,
+deduplicate sources within each witness, remove duplicate witnesses, and absorb each witness that
+contains another. Then s1 = maxj |Sj |, and s0 is the largest size of an inclusion-minimal hitting
+set of the witness family. It is not the minimum hitting-set size.
+    For binary witnesses, let G be the simple graph whose edges are the supports Sj . False vectors
+correspond to independent sets; maximal false vectors correspond to maximal independent sets.
+Consequently
+                                       s0 (FG ) = |V (G)| − i(G),                              (28)
+where i(G) is the minimum cardinality of a maximal independent set, also called the independent
+domination number. Computing it is hard already on restricted cubic graphs [21]; merely limiting
+witness size to two does not make contracts easy.
+
+Theorem 6.3 (A tractable query class). If normalized witness width and source occurrence are
+at most two, let U1 be the singleton witnesses and Gc the remaining path or cycle components, of
+orders nc . Then                      X          
+                         s0 = |U1 | +    nc − nc /3 ,       s1 = max |Sj |.
+                                                                       j
+                                       c
+
+After normalization, these values require a linear number of graph operations.
+
+Proof. The occurrence restriction makes graph degree at most two. An independent dominating
+vertex covers at most three vertices, giving i(Gc ) ≥ ⌈nc /3⌉. For a path, take every third vertex
+starting at the second when nc ≡ 0, 2 (mod 3), and at the first when nc ≡ 1 (mod 3). For a cycle,
+distribute r = ⌈nc /3⌉ selected vertices with cyclic gaps two or three summing to nc ; this is possible
+because 2r ≤ nc ≤ 3r. These sets are independent and dominating. Equation (28) adds over
+components. Every singleton witness must be hit, and normalization removes its incident supersets,
+giving the singleton contribution.
+
+   For a target query FPR δ ∈ (0, 1), homogeneous independent one-sided source rates satisfying
+
+                                           α ≤ 1 − (1 − δ)1/s0                                    (29)
+
+                                                   20
+suffice when s0 > 0. Under arbitrary dependence, α ≤ δ/s0 suffices instead. A 12-cycle has s0 = 8
+and s1 = 2: a per-source FPR of 0.05 permits worst-case query FPR 1 − 0.958 ≈ 0.337, whereas
+the all-false profile has a much smaller error requiring two adjacent false positives. The extremal
+false profile has true sources at {0, 3, 6, 9} and every other source false. Evaluating only the all-false
+profile therefore does not validate a truth-uniform query contract.
+    For comparison, a fixed-profile query probability on a path has a standard two-state recurrence.
+If a, b are the probabilities of no adjacent ones and a final zero or one, appending a source with
+success probability p gives a′ = (a+b)(1−p) and b′ = ap. Condition on the first bit to handle a cycle.
+This uses linear arithmetic work and constant auxiliary state; the tractability is established finite-
+state inference, not a new algorithm. Heterogeneous contracts can likewise use standard weighted
+independent domination dynamic programming, rather than the homogeneous closed form.
+
+6.3   Why preserving tuple rates does not preserve inference cost
+Canonical symmetry can turn read-once lineage into shared-source lineage. For a simple cubic graph
+G, let the exact relation D(v, a, b, c) list each vertex’s three neighbors. Consider the fixed positive
+query
+                        ∃v, a, b, c : D(v, a, b, c) ∧ R(v, a) ∧ R(v, b) ∧ R(v, c).
+Suppose all queried R tuples are exact nonmembers with FPR p. Independent directed sources yield
+query FPR 1 − (1 − p3 )|V | . After symmetry identifies opposite orientations, each undirected edge is
+one independent bit used twice. Each tuple still has FPR p and each witness still has probability
+p3 . Yet the query is false exactly when the zero edges form an edge cover. At p = 1/2 its FPR is
+
+                                             # EdgeCovers(G)
+                                        1−                   .
+                                                   2|E|
+Edge-cover counting on simple planar cubic graphs is already #P-hard [7, 1]. This is an application
+of known counting hardness, not a new dichotomy. It explains why preserving a structural invariant
+at unchanged tuple rates need not preserve the cost of exact query inference. A compact worst-case
+contract and a fixed-profile exact probability are different objectives.
+
+
+7     Stored-filter calibration and verification
+The previous results are probability statements under declared models. We test their use in a
+concrete representation of a symmetric relation, then distinguish what the experiment establishes
+from what remains assumed.
+
+7.1   Construction and model guarantee
+The implementation is a frozen partitioned Bloom filter: k byte-aligned partitions each have m
+bits, with one key hash per partition. A build inserts n distinct representatives. Membership uses
+only the serialized bit array and a 40-byte header containing shape and salt metadata; it neither
+stores nor consults the exact member set at query time. The canonical/ordered mode is supplied
+by the query context, outside this header. Canonical mode stores unordered tuple keys. Ordered
+mode stores both orientations and answers R(u, v) by OR-ing their probes. Both modes preserve
+symmetry deterministically and have no false negatives.
+    Under independent uniform ideal random functions, conditional on all hashes of inserted keys,
+let oj be the number of occupied bits in partition j. Each fixed distinct absent key then tests
+
+
+                                                   21
+positive independently with probability
+                                                    k
+                                                    Y oj
+                                           p(C) =             .                                   (30)
+                                                    j=1
+                                                          m
+
+Without conditioning the absent-key outcomes can be dependent through p(C), as in corollary 6.2.1.
+We initially size the filter using [1 − (1 − 1/m)n ]k ≤ α and k = ⌈− log2 α⌉, rounding m upward to a
+multiple of eight. Construction retries independent candidate salts until p(C) ≤ α. This acceptance
+test uses only inserted-key hashes. Conditional on the insertion histories of rejected and accepted
+candidates and the stopping index, fixed absent-key hashes of the accepted ideal candidate remain
+independent and uniform. Hence the corresponding conditional contract holds for each accepted
+construction. This is not a guarantee conditional on an entire revealed random function or an
+adaptive query transcript.
+    The executable uses keyed BLAKE2b with domain separation and rejection sampling to map
+digests to partition indices. That is a concrete deterministic hash family, not an independent random
+oracle. Occupancy acceptance therefore certifies the ideal-model comparator; measurements assess
+agreement of this implementation with it. Finite-seed pseudorandomness, domain separation, and
+empirical agreement do not prove the ideal-source hypothesis.
+
+7.2   Fixed query workload and baselines
+Each query is a 12-cycle of binary witnesses, with s0 = 8. We use 128 disjoint bundles for each of
+three profiles: all sources absent; the extremal false profile with true sources at {0, 3, 6, 9}; and a
+true profile containing an adjacent pair. A shared background supplies 2,048 further member orbits.
+The exact relation is fixed across constructions and contains 2,816 member orbits in total. Query
+bundles are fixed before construction.
+    For query target δ = 0.05, the three methods are:
+   1. Canonical, tuple-sized: use source target α = δ.
+
+   2. Canonical, query-sized: use α = 1 − (1 − δ)1/8 .
+
+   3. Ordered with OR repair, query-sized: use the directed-source target α = 1 − (1 − δ)1/16 and
+      store 5,632 ordered keys.
+In the last method an absent orbit has conditional FPR 1 − (1 − p(C))2 , so its query envelope is
+1 − (1 − p(C))16 . All three methods apply insertion-only occupancy acceptance at their respective
+source targets. This is a comparison of two implementations of symmetry at explicit query targets,
+not a comparison against every approximate-membership structure.
+    We run 160 independently seeded accepted builds per method. Every payload is serialized
+and reloaded before queries. Standard errors and approximate 95% normal intervals use the 160
+construction-level mean outcomes as sampling units, allowing dependence among bundles within a
+build. Seeds are generated reproducibly with a pseudorandom generator; this sampling convention
+does not turn concrete hashing into a proof of independence.
+    The tuple-sized baseline passes an all-false-profile check against 0.05 while its boundary error is
+about 0.33. Query calibration corrects this mismatch. The mean conditional boundary probabilities
+are respectively 0.33224, 0.04900, and 0.04919, each within its measured interval. The largest
+conditional envelopes among calibrated builds are 0.04999434 and 0.04999533. The ordered method’s
+observed mean exceeds 0.05 slightly; its interval includes the ideal comparator. The experiment
+demonstrates compatibility, not a statistical certificate that the true concrete-hash rate is at most
+
+                                                  22
+       Method                    Bytes   All-false FPR   Boundary FPR    Approx. 95% interval
+       Canonical, tuple-sized    2,250        0.02646          0.32915      [0.32264, 0.33566]
+       Canonical, query-sized    3,752        0.00049          0.04907      [0.04594, 0.05220]
+       Ordered OR, query-sized   8,482        0.00039          0.05103      [0.04815, 0.05390]
+
+Table 2: Stored-filter results at target query FPR 0.05. Bytes include the serialized header and
+payload, but exclude interpreter and construction memory. Intervals concern the boundary-profile
+measurements.
+
+
+0.05. No member misses, true-query misses, or repeated/reversed probe mismatches occurred; the
+no-FN and symmetry properties also follow directly from the insertion and lookup rules.
+    At equal ideal query targets, canonical storage uses 55.8% fewer serialized bytes than ordered
+storage in this instance. Mean construction times, including rejection, are 41.1, 66.1, and 130.9 ms;
+mean attempts are 1.82, 1.91, and 1.68. Boundary-query times average 59.2, 76.6, and 113.2 µs
+respectively in Python on the recorded Linux environment. These timings characterize this reference
+implementation and workload; they are not database-engine throughput or a universal optimality
+claim. An exact rational audit of the recorded partition occupancies verifies that all 320 calibrated
+builds satisfy their ideal-model query target, with minimum slack 5.66·10−6 (canonical) and 4.67·10−6
+(ordered). The constructor’s floating-point screening alone is not an outward-rounded certificate;
+this additional check certifies the recorded ideal-model bounds.
+    The storage direction follows an ordinary design calculation. Under a filter cost c n log2 (1/α),
+query calibration adds c n log2 (δ/α) bits relative to tuple sizing, while canonicalization changes n
+itself. The companion entropy analysis [25] motivates this membership-space scale. It does not give
+a lower bound for arbitrary encodings designed only to answer a particular query workload. The
+55.8% comparison measures canonical representative reduction and the cost of ordered OR repair.
+To isolate the independent-source contract from the conservative certificate union bound, the latter
+uses α = δ/8 = 0.00625. The same sizing routine allocates 3,768 bytes, versus 3,752 for the sharp
+contract: a 16-byte (0.425%) design difference in this case. This additional comparison is a sizing
+calculation, not a fourth measured filter experiment. It gives only a small benefit from the sharper
+probability budget on this workload.
+
+7.3   Mathematical checks and inference comparisons
+The accompanying exact checker enumerates all 197 monotone functions on one through four vari-
+ables and verifies 1,970 homogeneous and heterogeneous contract identities using rational arithmetic.
+It also checks the graph formula on 305 small labeled graphs of maximum degree two. Additional
+checks cover 256 source-covariance cases, weighted paths and cycles, degenerate rates, and the cubic
+edge-cover example. These finite checks support the implementations; the proofs establish the
+general results.
+    A separate synthetic-lineage benchmark compares occurrence-product estimates, conservative
+dependence bounds, exhaustive joint probabilities, the standard path/cycle recurrence, and the
+symmetric dissociation bounds of Gatterbauer and Suciu [13]. For normalized positive DNF, dis-
+sociation replaces each repeated source with independent copies; copy probabilities pi provide the
+upper bound and 1 − (1 − pi )1/di the symmetric lower bound, where di is its occurrence count. This
+is a published baseline, not an invented independence correction; optimized scaled dissociation [29]
+is not implemented.
+    Across 175 method/case comparisons, asserted bounds contain the reference value to numerical
+
+
+                                                 23
+tolerance 10−12 ; occurrence-product point estimates disagree in 23 cases. Repeating the same absent
+source eight times in a conjunction gives probability 0.05, whereas treating occurrences independently
+gives 0.058 ≈ 3.91 · 10−11 . For an all-false 16-cycle at source rate 0.05, exact probability is 0.0375062
+and symmetric dissociation gives [0.0102089, 0.0392587]. The standard recurrence takes 0.030 ms
+versus 282 ms for exhaustive enumeration, but traced peak allocation is 6.8 KB versus 2.4 KB for
+streaming enumeration. This is an expected advantage of established structured inference, not
+evidence of a new solver.
+
+Reproducibility and limits. The filter code and tests are in code/filter_calibration.py
+and code/test_filter_calibration.py; configuration, seeds, construction records, query records,
+source digest, and platform metadata accompany data/calibration/results.json. Companion
+contract and inference artifacts are in .research/dependence-calculus/ at repository root. The
+paper’s README lists commands. Remaining empirical limits are one synthetic query family, one
+size and target, one concrete hash implementation, and one-sided errors. The separate floating-
+point inference benchmarks are not outward-rounded certificates. Broader workloads, optimized
+membership structures and inference baselines, and construction-specific finite-hash guarantees
+remain future work.
+
+
+8    Scope of an encrypted-search application
+Approximate relations can model the functionality of a private search index: tuples may encode
+document–term incidence, co-occurrence, or candidate matches, and a positive query combines
+approximate probes. The source map must still reflect repeated trapdoors, common stored filters,
+and canonical keys. Subject to a justified construction law, the preceding bounds describe false
+matches and missed answers. They can guide allocation of an error budget before a separate security
+analysis.
+    This functionality model does not specify confidentiality. Two structures with identical FP and
+FN rates can expose different sizes, access patterns, query-equality patterns, or stored representa-
+tions. A secret salt alone does not establish an encrypted-search security theorem. Such a theorem
+needs a concrete construction, adversary, experiment, and declared leakage, including what repeated
+and adaptive queries reveal. In particular, the probability of a false positive on an exact nonmember
+is not the posterior probability that a returned match is false. No cryptographic security claim
+follows from the Bernoulli channel parameters or from the experiments in this paper.
+
+
+9    Conclusion
+An approximate relation needs both an error law and a source map. Relational operators can reuse
+sources, and canonical constraint preservation can create such reuse intentionally. The independent-
+tuple model remains useful for specific calculations, but its assumptions do not automatically survive
+projection, joins, canonicalization, or conditioning.
+    For monotone queries, boundary certificates give sharp one-sided contracts under independent
+sources and sound bounds under weaker assumptions. Binary witnesses of source occurrence at
+most two admit inexpensive contract calculation. A conditional shared-rate model covers a useful
+kind of construction-induced dependence. The stored-filter experiment illustrates the consequence:
+sizing at a tuple FPR of 0.05 produced query FPR about 0.33 on a valid false profile, while query
+calibration was compatible with the 0.05 ideal-model target. Canonical storage used fewer bytes
+than ordered storage with symmetric repair at that target in the measured instance.
+
+
+                                                   24
+    The established lineage, certificate, counting, and membership-structure results used here are
+essential prior art. The current evidence supports a carefully scoped account of their interaction,
+not a claim of a new universal calculus. A stronger publication contribution would require a useful
+contract compiler with broader measured benefit, a nontrivial tractable class under additional
+semantic constraints, or a construction-specific guarantee beyond the ideal hash model. The present
+artifacts make those questions testable without confusing marginal accuracy, query accuracy, and
+structural validity.
+
+
+References
+ [1] Antoine Amarilli and Mikaël Monet. Weighted counting of matchings in unbounded-treewidth
+     graph families. In Proceedings of MFCS, 2022. URL https://arxiv.org/abs/2205.00851.
+
+ [2] Gilles Barthe, Marco Gaboardi, Benjamin Grégoire, Justin Hsu, and Pierre-Yves Strub. A
+     program logic for union bounds. In Proceedings of ICALP, 2016. doi: 10.4230/LIPIcs.ICALP.
+     2016.107. URL https://arxiv.org/abs/1602.05681.
+
+ [3] Michael A. Bender, Martin Farach-Colton, Mayank Goswami, Rob Johnson, Samuel McCauley,
+     and Shikha Singh. Bloom filters, adaptivity, and the dictionary problem, 2017. URL https:
+     //arxiv.org/abs/1711.01616.
+
+ [4] Leopoldo Bertossi. Database Repairing and Consistent Query Answering. Synthesis Lectures
+     on Data Management. Morgan and Claypool, 2011.
+
+ [5] Guy Blanc, Caleb Koch, Jane Lange, and Li-Yang Tan. A query-optimal algorithm for finding
+     counterfactuals. In Proceedings of the 39th International Conference on Machine Learning,
+     volume 162 of Proceedings of Machine Learning Research, pages 2075–2090. PMLR, 2022. URL
+     https://proceedings.mlr.press/v162/blanc22a.html.
+
+ [6] Burton H. Bloom. Space/time trade-offs in hash coding with allowable errors. Communications
+     of the ACM, 13(7):422–426, 1970. doi: 10.1145/362686.362692.
+
+ [7] Jin-Yi Cai, Pinyan Lu, and Mingji Xia. Holographic reduction, interpolation and hardness.
+     Computational Complexity, 21(4):573–604, 2012. URL https://pages.cs.wisc.edu/~jyc/
+     880/HRIH.pdf.
+
+ [8] Li Chou, Wolfgang Gatterbauer, and Vibhav Gogate. Dissociation-based oblivious bounds
+     for weighted model counting. In Proceedings of UAI, pages 866–875, 2018. URL https:
+     //www.auai.org/uai2018/proceedings/papers/312.pdf.
+
+ [9] E. F. Codd. A relational model of data for large shared data banks. Communications of the
+     ACM, 13(6):377–387, 1970. doi: 10.1145/362384.362685.
+
+[10] Nilesh Dalvi and Dan Suciu. The dichotomy of probabilistic inference for unions of conjunctive
+     queries. Journal of the ACM, 59(6), 2012. doi: 10.1145/2395116.2395119. URL https:
+     //homes.cs.washington.edu/~suciu/dichotomyUCQ-with-acm-cls.pdf.
+
+[11] Martin Dietzfelbinger and Rasmus Pagh. Succinct data structures for retrieval and approximate
+     membership (extended abstract). In Automata, Languages and Programming (ICALP), 2008.
+     doi: 10.1007/978-3-540-70575-8_32. URL https://arxiv.org/abs/0803.3693.
+
+
+
+                                                25
+[12] Sergio Flesca, Filippo Furfaro, and Francesco Parisi. Consistency checking and querying in
+     probabilistic databases under integrity constraints, 2013. URL https://arxiv.org/abs/1303.
+     3233.
+
+[13] Wolfgang Gatterbauer and Dan Suciu. Oblivious bounds on the probability of boolean functions.
+     ACM Transactions on Database Systems, 39(1), 2014. URL https://arxiv.org/abs/1409.
+     6052.
+
+[14] Wolfgang Gatterbauer and Dan Suciu. Dissociation and propagation for approximate lifted
+     inference with standard relational database management systems. The VLDB Journal, 2017.
+     URL https://arxiv.org/abs/1310.6257.
+
+[15] Parikshit Gopalan, Noam Nisan, Rocco A. Servedio, Kunal Talwar, and Avi Wigderson.
+     Smooth Boolean functions are easy: Efficient algorithms for low-sensitivity functions. In
+     Proceedings of the 2016 ACM Conference on Innovations in Theoretical Computer Science,
+     pages 59–70, 2016. doi: 10.1145/2840728.2840738. URL https://www.cs.columbia.edu/
+     ~rocco/Public/GNSTW.pdf.
+
+[16] Todd J. Green, Grigoris Karvounarakis, and Val Tannen. Provenance semirings. In Proceedings
+     of PODS, pages 31–40, 2007. doi: 10.1145/1265530.1265535. URL https://www.cs.ucdavis.
+     edu/~green/papers/pods07.pdf.
+
+[17] Bhargav Kanagal and Amol Deshpande.    Lineage processing on correlated probabilistic
+     databases. In Proceedings of SIGMOD, pages 675–686, 2010. URL https://research.
+     google/pubs/lineage-processing-on-correlated-probabilistic-databases/.
+
+[18] Christoph Koch and Dan Olteanu. Conditioning probabilistic databases, 2008. URL https:
+     //arxiv.org/abs/0803.2212.
+
+[19] John M. Li, Amal Ahmed, and Steven Holtzen. Lilac: A modal separation logic for conditional
+     probability. Proceedings of the ACM on Programming Languages, 7(PLDI), 2023. doi:
+     10.1145/3591226. URL https://arxiv.org/abs/2304.01339.
+
+[20] Jack Liell-Cock and Sam Staton. Imprecise probabilistic programming, precisely: Credal sets
+     via graded monads, BDDs, and semiring-parametric inference (functional pearl). Proceedings
+     of the ACM on Programming Languages, 10(ICFP), 2026. doi: 10.1145/3828698. URL
+     https://arxiv.org/abs/2607.20801.
+
+[21] Ching-Hao Liu, Sheung-Hung Poon, and Jin-Yong Lin. Independent dominating set problem
+     revisited. Theoretical Computer Science, 562:1–22, 2015. doi: 10.1016/j.tcs.2014.09.001. URL
+     https://www.sciencedirect.com/science/article/pii/S0304397514006537.
+
+[22] Christopher Ré and Dan Suciu. Materialized views in probabilistic databases: For information
+     exchange and query optimization (full version). Technical Report TR2007-03-02, University
+     of Washington, 2007. URL https://cs.stanford.edu/people/chrismre/papers/prob_
+     materialized_views_TR.pdf.
+
+[23] Dan Suciu, Dan Olteanu, Christopher Ré, and Christoph Koch. Probabilistic Databases.
+     Synthesis Lectures on Data Management. Morgan and Claypool, 2011.
+
+[24] Alexander Richard Towell. Composition of bernoulli sets. Manuscript in preparation, 2026.
+     URL https://github.com/queelius/bernoulli_composition.
+
+                                               26
+[25] Alexander Richard Towell. Entropy and space complexity of random approximate sets.
+     Manuscript in preparation, 2026. URL https://github.com/queelius/bernoulli_entropy.
+
+[26] Alexander Richard Towell. The algebra of the random approximate map model. Manuscript
+     in preparation, 2026. URL https://github.com/queelius/bernoulli_maps.
+
+[27] Alexander Richard Towell. Bernoulli sets: A model for random approximate sets. Manuscript
+     in preparation, 2026. URL https://github.com/queelius/bernoulli_sets.
+
+[28] Alexander Richard Towell. The perfect hash filter. Working paper, Bernoulli type theory
+     collection, 2026.
+
+[29] Maarten Van den Heuvel, Peter Ivanov, Wolfgang Gatterbauer, Floris Geerts, and Martin
+     Theobald. Anytime approximation in probabilistic databases via scaled dissociations. In
+     Proceedings of SIGMOD, 2019. doi: 10.1145/3299869.3319900. URL https://gatterbauer.
+     name/download/sigmod2019_anytime_approximations_scaled_dissociations.pdf.
+
+
+
+
+                                             27
+

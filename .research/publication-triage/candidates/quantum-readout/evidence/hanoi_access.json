@@ -1,0 +1,8 @@
+{
+  "url": "https://raw.githubusercontent.com/Qiskit/qiskit-ibm-runtime/main/qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json",
+  "resolved_url": "https://raw.githubusercontent.com/Qiskit/qiskit-ibm-runtime/main/qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json",
+  "http_status": 200,
+  "content_type": "text/plain; charset=utf-8",
+  "sha256": "17db2080056d895f74012ed0f45ae2cb8e93be564641640fadbd0ae4c28a5211",
+  "bytes": 75233
+}

@@ -1,0 +1,104 @@
+{
+  "validation": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "standalone",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -S reproduce.py",
+        "result": {
+          "chunk_id": "368e4f",
+          "wall_time_seconds": 0.000011011,
+          "exit_code": 0,
+          "original_token_count": 18,
+          "output": "/tmp/gbfplus-methods-review-osxxcyi4/supplement/reproduced-results.json\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "coverage-run",
+        "cmd": "COVERAGE_FILE=/home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-1/.coverage /home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -m coverage run --branch --source=gbfplus_probe,reproduce -m pytest -q",
+        "result": {
+          "chunk_id": "b55b3b",
+          "wall_time_seconds": 0.979171497,
+          "exit_code": 0,
+          "original_token_count": 25,
+          "output": ".............                                                            [100%]\n13 passed in 0.54s\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "lint",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/ruff check .",
+        "result": {
+          "chunk_id": "cdd494",
+          "wall_time_seconds": 0.000017712,
+          "exit_code": 0,
+          "original_token_count": 5,
+          "output": "All checks passed!\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "types",
+        "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/mypy --strict gbfplus_probe.py reproduce.py test_gbfplus_probe.py test_reproduction.py",
+        "result": {
+          "chunk_id": "48ed38",
+          "wall_time_seconds": 4.07692098,
+          "exit_code": 0,
+          "original_token_count": 11,
+          "output": "Success: no issues found in 4 source files\n"
+        }
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "ee3ba5",
+        "wall_time_seconds": 0.000012884,
+        "exit_code": 0,
+        "original_token_count": 87,
+        "output": "Name               Stmts   Miss Branch BrPart  Cover   Missing\n--------------------------------------------------------------\ngbfplus_probe.py      53      0     32      0   100%\nreproduce.py          67      0     16      0   100%\n--------------------------------------------------------------\nTOTAL                120      0     48      0   100%\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "7944ba",
+        "wall_time_seconds": 0.000009958,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": "Wrote JSON report to /home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-1/coverage.json\n"
+      }
+    }
+  ],
+  "independent_validation": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "8ec847",
+        "wall_time_seconds": 1.304664208,
+        "exit_code": 0,
+        "original_token_count": 601,
+        "output": "{\n  \"python\": \"3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]\",\n  \"artifact\": \"/tmp/gbfplus-methods-review-osxxcyi4/supplement\",\n  \"reviewed_files_sha256\": {\n    \"README.md\": \"e1f733e99ae919b1b561d6694792b33b5f89bf105e972ec491b722c7d5ad3279\",\n    \"gbfplus_probe.py\": \"ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a\",\n    \"provenance.json\": \"fc596555f1299d176ea9cc5eca4eda5152e2fea69ba8937902d2900484ae8fcf\",\n    \"reference-results.json\": \"70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5\",\n    \"reproduce.py\": \"4603a3e54550ef3d7262a41fa73e0a382fb7a3e6224a4d2ef62c67cc41e63293\",\n    \"reproduced-results.json\": \"5d22a8cf99fc5e63d330407a1914c59672c12777a4e92706d9b220e67b4e214c\",\n    \"requirements-validation.txt\": \"25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2\",\n    \"source-premises.md\": \"df6c187b76110fd9326c7dbc1a2ebc73e159cf385837b51ff1567ccf89a51b50\",\n    \"test_gbfplus_probe.py\": \"c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d\",\n    \"test_reproduction.py\": \"f4c330e9d8a2af9864b150ae77034108be258365a99109f28440c1d53421ab12\"\n  },\n  \"saved_arrays_independently_reconstructed\": 64,\n  \"fresh_deterministic_results_match_reference\": true,\n  \"table_cases_checked_against_independent_cell_oracle\": {\n    \"singleton\": 256,\n    \"two_disjoint\": 1024\n  },\n  \"independent_transition_checks\": {\n    \"transitions\": 244816,\n    \"atomic_failures\": 82496,\n    \"mismatches\": 0\n  },\n  \"optimization_counterexample\": {\n    \"command\": [\n      \"/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python\",\n      \"-S\",\n      \"/tmp/gbfplus-methods-review-osxxcyi4/supplement/reproduce.py\"\n    ],\n    \"environment_override\": {\n      \"PYTHONOPTIMIZE\": \"1\"\n    },\n    \"exit_code\": 0,\n    \"exact\": {\n      \"singleton_cases\": 256,\n      \"singleton_errors\": 0,\n      \"disjoint_batch_cases\": 1024,\n      \"disjoint_batch_errors\": 0,\n      \"all_individual_share_marginals_uniform\": false,\n      \"two_recipient_view_support_sizes\": [\n        1,\n        1\n      ],\n      \"two_recipient_view_supports_disjoint\": false,\n      \"interpretation\": \"Finite verification of proved identities, not a sampled privacy proof.\"\n    },\n    \"stored_arrays\": 64,\n    \"stored_arrays_with_no_occupied_cells\": 64,\n    \"stored_arrays_with_null_recovery\": 64,\n    \"example_cells\": [\n      null,\n      null,\n      null,\n      null,\n      null,\n      null,\n      null\n    ]\n  }\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "43711b",
+        "wall_time_seconds": 1.567840216,
+        "exit_code": 0,
+        "original_token_count": 4304,
+        "output": "Warning: truncated output (original token count: 4304)\nTotal output lines: 326\n\npdflatex -interaction=nonstopmode -halt-on-error main.tex\nThis is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex)\n restricted \\write18 enabled.\nentering extended mode\n(./main.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls\nDocument Class: article 2023/05/17 v1.4n Standard LaTeX document class\n(/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo))\n(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)\n(/usr/share/texmf/tex/latex/lm/lmodern.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty\n(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty\nFor additional information on amsmath, use the `?' option.\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty\n(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty\n(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty\n(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty\n(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)\n(/usr/share/texlive/texmf-dist…3104 tokens truncated…ex/latex/hyperref/puenc.def)\n(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty\n(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def\n(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty\n(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))\n(/usr/share/texmf/tex/latex/lm/t1lmr.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)\n(./main.aux)\n*geometry* driver: auto-detecting\n*geometry* detected driver: pdftex\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg) (./main.out)\n(./main.out) (/usr/share/texmf/tex/latex/lm/ot1lmr.fd)\n(/usr/share/texmf/tex/latex/lm/omllmm.fd)\n(/usr/share/texmf/tex/latex/lm/omslmsy.fd)\n(/usr/share/texmf/tex/latex/lm/omxlmex.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg) [1{/var/lib/texm\nf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec\n.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts\n/enc/dvips/lm/lm-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}\n{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}] [2] [3] [4] (./main.bbl\n(/usr/share/texmf/tex/latex/lm/t1lmtt.fd)) [5] (./main.aux) )</usr/share/texmf/\nfonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12\n.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts\n/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi6.pfb><\n/usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/\npublic/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/sha\nre/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm\n/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texm\nf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt1\n0.pfb>\nOutput written on main.pdf (5 pages, 241059 bytes).\nTranscript written on main.log.\n"
+      }
+    }
+  ]
+}

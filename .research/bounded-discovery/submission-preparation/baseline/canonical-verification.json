@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-15",
+  "scope": "Shared-text fresh adversarial and readability revision",
+  "build_command": "make -C .research/bounded-discovery/manuscript",
+  "build_exit_code": 0,
+  "pages": 5,
+  "warnings": [],
+  "all_pages_visually_inspected": true,
+  "sha256": {
+    "main.tex": "39b9ad3708042666a12c958be495bd0abbe95053f58afd08fe96e1ba93230202",
+    "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "body.tex": "a9f2748ec68ccb865be5c39b03dc14112e9d73b0e7b7ae8577fca26f8260dd97",
+    "backmatter.tex": "86d67d8e14f1f1eb5269cf66b2c95193844c7b332ce0dc0201692d18518cc7a0",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "main.pdf": "48e690829377a4275dacc196664a0e21b31beea291adf19caacc560624f4162e"
+  },
+  "review": "../adversarial-review/assessment.md",
+  "verification": "venues/entropy-comment/validation/verification.json",
+  "not_submitted": true,
+  "human_review_pending": true
+}

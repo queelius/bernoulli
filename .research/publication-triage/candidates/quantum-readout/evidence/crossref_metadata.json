@@ -1,0 +1,824 @@
+[
+  {
+    "DOI": "10.1145/1297666.1297674",
+    "title": [
+      "Probabilistic transfer matrices in symbolic reliability analysis of logic circuits"
+    ],
+    "author": [
+      {
+        "given": "Smita",
+        "family": "Krishnaswamy",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "University of Michigan, Ann Arbor, MI"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "George F.",
+        "family": "Viamontes",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University of Michigan, Ann Arbor, MI"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Igor L.",
+        "family": "Markov",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University of Michigan, Ann Arbor, MI"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "John P.",
+        "family": "Hayes",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "University of Michigan, Ann Arbor, MI"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "ACM Transactions on Design Automation of Electronic Systems"
+    ],
+    "volume": "13",
+    "issue": "1",
+    "page": "1-35",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2008,
+          1
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1145/1297666.1297674",
+    "metadata_source": "https://api.crossref.org/works/10.1145/1297666.1297674"
+  },
+  {
+    "DOI": "10.1109/qce49297.2020.00060",
+    "title": [
+      "Scalable quantum processor noise characterization"
+    ],
+    "author": [
+      {
+        "given": "Kathleen E.",
+        "family": "Hamilton",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Tyler",
+        "family": "Kharazi",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Titus",
+        "family": "Morris",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Alexander J.",
+        "family": "McCaskey",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Ryan S.",
+        "family": "Bennink",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Raphael C.",
+        "family": "Pooser",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "2020 IEEE International Conference on Quantum Computing and Engineering (QCE)"
+    ],
+    "volume": null,
+    "issue": null,
+    "page": "430-440",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2020,
+          10
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1109/qce49297.2020.00060",
+    "metadata_source": "https://api.crossref.org/works/10.1109/QCE49297.2020.00060"
+  },
+  {
+    "DOI": "10.1126/sciadv.abi8009",
+    "title": [
+      "Qubit readout error mitigation with bit-flip averaging"
+    ],
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0003-1047-726X",
+        "authenticated-orcid": true,
+        "given": "Alistair W. R.",
+        "family": "Smith",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "QOLS, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-4660-7011",
+        "authenticated-orcid": true,
+        "given": "Kiran E.",
+        "family": "Khosla",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "QOLS, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1648-6725",
+        "authenticated-orcid": true,
+        "given": "Chris N.",
+        "family": "Self",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "QOLS, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "M. S.",
+        "family": "Kim",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "QOLS, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK."
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "Science Advances"
+    ],
+    "volume": "7",
+    "issue": "47",
+    "page": null,
+    "article-number": "eabi8009",
+    "published": {
+      "date-parts": [
+        [
+          2021,
+          11,
+          19
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1126/sciadv.abi8009",
+    "metadata_source": "https://api.crossref.org/works/10.1126/sciadv.abi8009"
+  },
+  {
+    "DOI": "10.22331/q-2021-06-01-464",
+    "title": [
+      "Modeling and mitigation of cross-talk effects in readout noise with applications to the Quantum Approximate Optimization Algorithm"
+    ],
+    "author": [
+      {
+        "given": "Filip B.",
+        "family": "Maciejewski",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Center for Theoretical Physics, Polish Academy of Sciences, Al. Lotników 32/46, 02-668 Warsaw, Poland"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Flavio",
+        "family": "Baccari",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Max-Planck-Institut für Quantenoptik, Hans-Kopfermann-Straße 1, 85748 Garching, Germany"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zoltán",
+        "family": "Zimborás",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Wigner Research Centre for Physics, H-1525 Budapest, P.O.Box 49, Hungary"
+          },
+          {
+            "name": "BME-MTA Lendület Quantum Information Theory Research Group, Budapest, Hungary"
+          },
+          {
+            "name": "Mathematical Institute, Budapest University of Technology and Economics, P.O.Box 91, H-1111, Budapest, Hungary"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Michał",
+        "family": "Oszmaniec",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Center for Theoretical Physics, Polish Academy of Sciences, Al. Lotników 32/46, 02-668 Warsaw, Poland"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "Quantum"
+    ],
+    "volume": "5",
+    "issue": null,
+    "page": "464",
+    "article-number": "464",
+    "published": {
+      "date-parts": [
+        [
+          2021,
+          6,
+          1
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.22331/q-2021-06-01-464",
+    "metadata_source": "https://api.crossref.org/works/10.22331/q-2021-06-01-464"
+  },
+  {
+    "DOI": "10.1103/6p6s-t8b7",
+    "title": [
+      "Mitigation of correlated readout errors without randomized measurements"
+    ],
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-6005-6802",
+        "authenticated-orcid": true,
+        "given": "Adrian Skasberg",
+        "family": "Aasen",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/038t36y30",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Universität Heidelberg"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/05qpz1x62",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Friedrich-Schiller-Universität Jena"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0009-0007-2186-1773",
+        "authenticated-orcid": true,
+        "given": "Andras",
+        "family": "Di Giovanni",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/04t3en479",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Karlsruher Institut für Technologie"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0467-2480",
+        "authenticated-orcid": true,
+        "given": "Hannes",
+        "family": "Rotzinger",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/04t3en479",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Karlsruher Institut für Technologie"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/04t3en479",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Karlsruher Institut für Technologie"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Alexey V.",
+        "family": "Ustinov",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/04t3en479",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Karlsruher Institut für Technologie"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/04t3en479",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Karlsruher Institut für Technologie"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-1914-7099",
+        "authenticated-orcid": true,
+        "given": "Martin",
+        "family": "Gärttner",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/05qpz1x62",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Friedrich-Schiller-Universität Jena"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "112",
+    "issue": "2",
+    "page": null,
+    "article-number": "022601",
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          8,
+          4
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1103/6p6s-t8b7",
+    "metadata_source": "https://api.crossref.org/works/10.1103/6p6s-t8b7"
+  },
+  {
+    "DOI": "10.1103/cj89-4h5t",
+    "title": [
+      "Readout Error Mitigation for Mid-Circuit Measurements and Feedforward"
+    ],
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-6130-5591",
+        "authenticated-orcid": true,
+        "given": "Jin Ming",
+        "family": "Koh",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/03vek6s52",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Harvard University"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-8968-591X",
+        "authenticated-orcid": true,
+        "given": "Dax Enshan",
+        "family": "Koh",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/036wvzt09",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Agency for Science, Technology and Research (A*STAR)"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/02n0ejh50",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Institute of High Performance Computing (IHPC)"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/036wvzt09",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Agency for Science, Technology and Research (A*STAR)"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/05j6fvn87",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Singapore University of Technology and Design"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jayne",
+        "family": "Thompson",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "id": [
+              {
+                "id": "https://ror.org/02e7b5302",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Nanyang Technological University"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/02e7b5302",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Nanyang Technological University"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/02n0ejh50",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Institute of High Performance Computing (IHPC)"
+          },
+          {
+            "id": [
+              {
+                "id": "https://ror.org/036wvzt09",
+                "id-type": "ROR",
+                "asserted-by": "publisher"
+              }
+            ],
+            "name": "Agency for Science, Technology and Research (A*STAR)"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "PRX Quantum"
+    ],
+    "volume": "7",
+    "issue": "1",
+    "page": null,
+    "article-number": "010317",
+    "published": {
+      "date-parts": [
+        [
+          2026,
+          1,
+          26
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1103/cj89-4h5t",
+    "metadata_source": "https://api.crossref.org/works/10.1103/cj89-4h5t"
+  },
+  {
+    "DOI": "10.1103/physreva.103.042605",
+    "title": [
+      "Mitigating measurement errors in multiqubit experiments"
+    ],
+    "author": [
+      {
+        "given": "Sergey",
+        "family": "Bravyi",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "IBM Quantum, T. J. Watson Research Center, Yorktown Heights, New York 10598, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Sarah",
+        "family": "Sheldon",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "IBM Quantum, Almaden Research Center, San Jose, California 95120, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Abhinav",
+        "family": "Kandala",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "IBM Quantum, T. J. Watson Research Center, Yorktown Heights, New York 10598, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "David C.",
+        "family": "Mckay",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "IBM Quantum, T. J. Watson Research Center, Yorktown Heights, New York 10598, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jay M.",
+        "family": "Gambetta",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "IBM Quantum, T. J. Watson Research Center, Yorktown Heights, New York 10598, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "103",
+    "issue": "4",
+    "page": null,
+    "article-number": "042605",
+    "published": {
+      "date-parts": [
+        [
+          2021,
+          4,
+          9
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1103/physreva.103.042605",
+    "metadata_source": "https://api.crossref.org/works/10.1103/PhysRevA.103.042605"
+  }
+]

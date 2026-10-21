@@ -1,0 +1,246 @@
+    Adjacent-Domain Disclosure from Public Occupancy in GBFPlus
+                                        Alexander Richard Towell
+                                  Southern Illinois University Edwardsville
+                                       Edwardsville, IL 62026, USA
+                                   Correspondence: lex@metafunctor.com
+                                       ORCID: 0000-0001-6443-9897
+
+                                             October 15, 2026
+                                     Author-review draft; not submitted
+
+
+                                                   Abstract
+          GBFPlus supports authorized tracing of cross-domain data transfers through public ledger
+      attestations. Its published description treats the adjacent-domain identifier as protected metadata.
+      We show that an allowed one-insertion attestation reveals that identifier exactly. Public occupancy
+      identifies all shares of the inserted word; their exclusive-or (XOR) reconstructs the word, including
+      its unmasked identifier suffix. This holds for every construction realization and requires neither
+      a query token nor a candidate data identifier. A public occupancy test also identifies some larger
+      batches in which the same operation reveals an aggregate XOR, rather than individual identifiers.
+      We prove these statements and reproduce them with finite exhaustive checks and stored share
+      arrays. The disclosure concerns adjacent-domain metadata, distinct from the source paper’s
+      data-identifier privacy game and signer anonymity. The stated metadata-confidentiality claim
+      therefore needs to account for allowed partial batches and the complete public payload view.
+
+Keywords: garbled Bloom filter; metadata confidentiality; public occupancy; cross-domain attesta-
+tion; XOR sharing
+
+
+1     The confidentiality claim and public view
+Qin et al.’s GBFPlus protocol records cross-domain data transfers in public ledger attestations while
+supporting authorized tracing [1]. The source article lists the adjacent domain among the protected
+metadata (Table 1 and Section 4.2); Section 6.2 specifically describes recovering its identifier only
+after the consistency-prefix and assigned-domain checks. We identify an allowed execution in which
+an ordinary ledger observer recovers that identifier without either check: a time window closes
+after one successful insertion, and the publicly occupied cells contain exactly that insertion’s shares.
+XORing their payloads reconstructs the inserted word, whose suffix identifies the adjacent domain.
+     Three features of the published specification suffice for this disclosure. First, Algorithm 4 encodes
+an unmasked adjacent-domain identifier in the shared word. Second, Section 5.2 publishes the
+finalized filter and its successful insertion count in the transaction following source Equation (5);
+Sections 5.2 and 6.2 make occupied cells distinguishable from empty cells. Third, Section 5.2 finalizes
+a filter when its time window ends, without specifying a minimum insertion count. Thus an honest
+administrator can initialize a directional filter, insert one transfer, receive no further transfer in
+that direction, and publish the filter when the window closes. The source’s honest-administrator
+model (Section 4.3) and these rules admit this execution; they do not establish how often it occurs
+in deployment.
+
+                                                       1
+   We consider one honestly generated, authentically committed snapshot. The observer reads its
+public cells and metadata, with no regulator secret or query token. It need not identify the publishing
+administrator. Repeated reads expose the same frozen array. Authenticity and a well-formed count
+alone would not establish an honest insertion history; that history is an explicit premise here.
+
+
+2    Exact disclosure and its scope
+A filter has m cells. An occupied cell j stores a λ-bit word Zj ; its occupancy marker distinguishes
+even an all-zero word from an empty cell. Let Si be the set of κ distinct positions selected by
+successful insertion i. Write Ni for its ℓ-bit adjacent-domain identifier and Pi for its (λ − ℓ)-bit
+secret-derived hash prefix, where 0 < ℓ < λ. Algorithm 4 enforces
+                             M
+                                    Zj = Ti ,    Ti = Pi ∥ Ni ,           |Si | = κ,                 (1)
+                             j∈Si
+
+where ∥ denotes concatenation. Registered domain identifiers and their associations are public in
+source Section 5.1.
+    The filter starts empty. A successful insertion reserves one empty selected cell, fills the other
+empty selected cells with independent uniform words, and sets the reserved word to the XOR
+residual required by (1). Already occupied words are reused and never overwritten. An insertion
+whose selected cells are all occupied fails without changing the array. Consequently, after c successful
+insertions, the public occupied set is O = ci=1 Si and every successful row equation still holds. Let
+                                             S
+
+suffixℓ (x) denote the final ℓ bits of x.
+
+Proposition 1 (Singleton disclosure). Every honest snapshot with c = 1 reveals its adjacent-domain
+identifier:                                       
+                                                      M
+                                          suffixℓ          Zj  = N1 .                              (2)
+                                                      j∈O
+
+This equality holds for every selected position set, prefix, and share realization admitted by the
+construction.
+
+Proof. For the first successful insertion, all selected positions were empty and all become occupied,
+so O = S1 . Their XOR is T1 = P1 ∥N1 by (1); taking its suffix gives N1 .
+
+    The observer therefore needs only the occupied words and the suffix width. It does not have to
+guess the data identifier, the prefix, or the selected positions. Figure 1 distinguishes an occupied
+zero word from an empty cell: the zero word counts toward occupancy but does not change the
+XOR. A scan takes O(m + κλ) elementary bit operations and O(λ + log m) auxiliary bits for a
+singleton; ledger transfer, parsing, and authentication are outside this scan cost.
+    The disclosure is compatible with uniform individual shares. Conditional on any honestly
+reached singleton position set and prefix, and for κ ≥ 2, each free word is uniform, and the residual
+is uniform because its XOR includes at least one independent uniform word. Nevertheless, the
+complete array always satisfies (2). Two different identifiers therefore give disjoint sets of possible
+complete views, even though each individual share has the same distribution.
+
+A limited extension to larger batches. Let w = |O| be the public occupied-cell count. The
+same scan has a useful sufficient condition for recovering an aggregate.
+
+
+
+                                                        2
+                                  Cell      0        1     2       3         4      5     6
+                               Payload      –   010        –       111       –      000   –
+
+                                    010 ⊕ 111 ⊕ 000 = 101 = 1 ∥ 01.
+
+
+Figure 1: A singleton with three 3-bit shares and a 2-bit domain identifier. An empty cell is marked
+“–”; 000 is an occupied payload. Public occupancy selects all three shares, so the observer reads the
+identifier 01 from their XOR. The prefix 1 need not be known or validated.
+
+
+Proposition 2 (Disjoint-position certificate). For an honest snapshot with c ≥ 1, if w = cκ, then
+                                                              
+                                                     M                 c
+                                                                       M
+                                         suffixℓ          Zj  =            Ni .                     (3)
+                                                     j∈O               i=1
+
+Proof. Equality in | i Si | ≤ i |Si | = cκ implies that the selected position sets are pairwise disjoint.
+                     S        P
+                                                                              L
+XORing the occupied words therefore adds each row equation once, giving i Ti . Taking the suffix
+commutes with XOR and yields (3).
+
+    For c > 1, this is an aggregate, not a reconstruction of the individual identifiers or their multiset.
+The condition requires cκ ≤ m; otherwise it is impossible. Its informational value also depends on
+the candidate histories. For example, in a reachable disjoint history, changing one eligible adjacent
+identifier while fixing the others changes the aggregate and is distinguishable. If all admissible
+histories already have the same aggregate, the statistic adds no information. The attack abstains
+when w ̸= cκ; no distribution or frequency of disjoint batches is assumed.
+
+Which confidentiality claim is challenged? Consider a publisher with two eligible neighboring
+domains distinct from it. Fix the public registration table. Internally fix the same publisher, its
+secret state, data identifier, direction, window, and configuration, and choose either neighboring
+identifier with equal probability for a singleton insertion. The observer is not given the publisher’s
+identity or secret state. In source Algorithm 4, the adjacent identifier affects the target suffix but
+not the derived positions or prefix. Those quantities can therefore be the same in both cases, while
+the free shares are sampled in each case. Equation (2) identifies the choice with probability one.
+This comparison concerns one snapshot and its authenticating transaction; digests, signatures, and
+other ledger records need not be identical between cases.
+    The recovered identifier names the neighbor encoded in that attestation. It does not identify
+the anonymous publisher, associate the transfer with a particular data identifier, or reconstruct a
+complete named edge or path. This is also distinct from the source’s Gqpriv game and Theorem 4,
+which concern distinguishing data identifiers. Separately, source Equation (27) analyzes guessed
+tuples passing prefix and domain-membership checks under its random-share model. The observer
+here performs neither validation test: it reads a suffix from a complete share set already identified
+by occupancy. Those analyses do not establish confidentiality of this suffix.
+
+
+3    Reproducibility checks
+The proofs establish exact identities. Supplement S1 checks a reference implementation of the
+stored-array update and the public scan; it does not implement cryptographic position derivation,
+
+                                                           3
+pairings, signatures, ledger operations, or finalization. Publication and visibility premises are checked
+against the source specification, rather than inferred from simulation.
+    The small enumerations fix position sets and prefixes and exhaust the stated suffix/free-share
+choices. The larger checks construct 64 separate singleton arrays using seeds 0–63 of Python’s
+general-purpose PRNG. These seeds make the arrays reproducible; they do not model cryptographic
+randomness or an operational workload. Table 1 states the tested equality and input class for each
+row. A mismatch means the returned suffix differs from the encoded identifier or aggregate, as
+applicable.
+
+    Check and input class                                                              Cases   Mismatches
+    Singleton: returned suffix = N1 ; c = 1, κ = 3, λ = 3, ℓ = 2. All 4 suffixes and    256             0
+    82 free-word pairs.
+    Disjoint pair: returned suffix = N1 ⊕ N2 ; c = 2, κ = 2, λ = 3, ℓ = 2. All 42      1,024            0
+    suffix pairs and 82 free-word pairs.
+    Seeded singleton: returned suffix = N1 ; c = 1, κ = 12, λ = 32, ℓ = 20, m = 64.      64             0
+
+Table 1: Finite implementation checks, not estimates of disclosure probability. The small cases use
+m = 7; fixed positions and prefixes are specified in Supplement S1. The seeded case uses the source
+article’s Section 6.3 word widths and κ, with illustrative m = 64.
+
+    Tests also check overlapping insertions, preservation of earlier row equations, atomic failure,
+position order, occupied zero words, and frozen repeated reads. The supplement supplies all arrays
+and a standalone command, python3 -S reproduce.py, verified with Python 3.12.3. The runner
+rejects optimized execution because its checked experiments require assertions.
+
+
+4    Implications and existing protections
+The protocol-specific issue is that public occupancy identifies a complete set of shares in an allowed
+partial batch. The underlying distinction between individual and joint linear observations is
+established; Silva and Kschischang’s coset-encoding analysis provides a general precedent [2]. The
+original garbled Bloom filter is a relevant construction contrast: Dong, Chen, and Wen fill unused
+cells with random words (Algorithm 1, lines 22–26), and their private-set-intersection protocol uses
+oblivious transfer to supply an intersection structure [3]. That protocol does not give the same
+unauthorized observer the full server filter together with genuine insertion occupancy.
+    For the all-cell XOR alone, one independent uniform padding word makes the statistic uniform.
+An observer who retains the genuine occupancy selector can still omit the padding and recover the
+original occupied-cell XOR. Fresh uniform secret masks on the adjacent identifiers also hide this
+statistic when the masks are independent of the identifiers and one another. Secret PRF masking of
+arbitrary values is already used in oblivious key-value retrieval [4]. Neither observation proves a
+complete repair of GBFPlus. A repair must account for the entire public view, authorized recovery,
+and key and mask reuse across releases.
+    A minimum batch size above one excludes the singleton execution. It excludes the disjoint-
+position certificate only if accepted batches cannot satisfy w = cκ, for example when their counts
+always exceed m/κ. The occurrence and impact of either condition in operational workloads
+remain unmeasured. The exact singleton counterexample nevertheless shows that the published
+controlled-recovery claim for adjacent identifiers does not hold for every allowed release. A revised
+claim or construction must address these partial batches explicitly.
+
+
+
+                                                       4
+Data and code availability. Supplement S1 accompanies this local draft with source code, tests,
+all recorded arrays, reproduction instructions, and provenance hashes. It is prepared for journal
+supplementary information and has not been publicly deposited.
+
+Ethics. This analysis uses a published specification and synthetic data, with no human or animal
+subjects; institutional review and informed consent are not applicable.
+
+AI assistance. OpenAI Codex assisted with literature work, derivations, implementation, testing,
+drafting, and packaging on October 14–15, 2026. Separate AI agents assessed exposition, scientific
+validity, and reproducibility through successive revisions. These checks are not external peer review.
+Final human review remains pending.
+
+Draft declarations. The author contribution, funding, conflicts of interest, and approval for
+submission remain to be confirmed by the named author.
+
+
+References
+[1] Sihang Qin, Yang Zhou, Weiqi Dai, Yiming Sun, and Weizhong Qiang. Privacy-preserving
+    on-chain attestation for cross-domain data flows via GBFPlus. Entropy, 28(9):947, 2026.
+    https://doi.org/10.3390/e28090947.
+
+[2] Danilo Silva and Frank R. Kschischang. Universal secure network coding via rank-metric codes.
+    IEEE Transactions on Information Theory, 57(2):1124–1135, 2011. https://doi.org/10.1109/
+    TIT.2010.2090212.
+
+[3] Changyu Dong, Liqun Chen, and Zikai Wen. When private set intersection meets big data:
+    An efficient and scalable protocol. In Proceedings of the 2013 ACM SIGSAC Conference on
+    Computer and Communications Security, pages 789–800, 2013. https://doi.org/10.1145/
+    2508859.2516701.
+
+[4] Meng Hao, Weiran Liu, Liqiang Peng, Hongwei Li, Cong Zhang, Hanxiao Chen, and Tianwei
+    Zhang. Unbalanced circuit-PSI from oblivious key-value retrieval. In 33rd USENIX Security
+    Symposium (USENIX Security 24), pages 6435–6451, 2024.
+
+
+
+
+                                                  5
+

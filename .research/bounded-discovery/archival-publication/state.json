@@ -1,0 +1,38 @@
+{
+  "stage": "complete: published, public files verified, central index verified and local checkout synchronized",
+  "authorization": "User requested carrying out the archival policy on 2026-10-20",
+  "scope": "One coherent GBFPlus disclosure contribution; canonical source remains in Bernoulli workspace, public source archive on Zenodo, curated entry in research-records",
+  "preprint_policy": {
+    "url": "https://www.mdpi.com/ethics",
+    "checked": "2026-10-20",
+    "finding": "MDPI permits preprints; disclose DOI and license at journal submission; do not post peer-review revisions while under review"
+  },
+  "duplicate_check": {
+    "depositions": 113,
+    "pages": [
+      100,
+      13
+    ],
+    "contribution_match": false
+  },
+  "source_repository_visibility": "private; preserve visibility",
+  "review_status": "Written proofs, finite checks, internal AI review and author approval; no human peer review or formal verification",
+  "licenses": {
+    "note_and_data": "CC-BY-4.0",
+    "software": "MIT"
+  },
+  "draft_id": 23497466,
+  "reserved_doi": "10.5281/zenodo.23497466",
+  "next_steps": [
+    "For journal submission, disclose preprint DOI and CC-BY-4.0/MIT licenses; retain zero-charge condition",
+    "Use the same Zenodo concept for substantive corrections; retain this exact version as historical evidence"
+  ],
+  "version_doi": "10.5281/zenodo.23497466",
+  "concept_doi": "10.5281/zenodo.23497465",
+  "publication_receipt": "publication.json",
+  "central_contribution_id": "gbfplus-public-occupancy-disclosure",
+  "central_record_url": "https://github.com/queelius/research-records/tree/main/records/gbfplus-public-occupancy-disclosure",
+  "central_index_commit": "58a9242ab43de0b51695c1f0b13de087729fb857",
+  "index_receipt": "index-publication.json",
+  "journal_submission": "not submitted; zero-cost confirmation and actual author declarations still required"
+}

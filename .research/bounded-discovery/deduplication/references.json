@@ -1,0 +1,90 @@
+[
+  {
+    "id": "dolma-docs",
+    "title": "Dolma: Deduplication documentation",
+    "authors": ["Allen Institute for AI / Dolma contributors"],
+    "type": "official project documentation",
+    "url": "https://github.com/allenai/dolma/blob/main/docs/deduplication.md",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Deduplication opening paragraphs", "Bloom configuration and read_only option"],
+    "supports": "In-memory Bloom tagging can classify documents or paragraphs as duplicates; mixer subsequently drops them; false positives are acknowledged.",
+    "limitations": "Moving main branch; motivates application only. We did not benchmark Dolma or claim its implementation maintains our exact authoritative log."
+  },
+  {
+    "id": "gibbons2001",
+    "title": "Distinct Sampling for Highly-Accurate Answers to Distinct Values Queries and Event Reports",
+    "authors": ["Phillip B. Gibbons"],
+    "year": 2001,
+    "venue": "VLDB",
+    "url": "https://www.vldb.org/conf/2001/P541.pdf",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Sections 3.1 and 3.2, printed pages 544 onward / PDF page 4", "Introduction"],
+    "supports": "Occurrence sampling favors frequent values; hash-consistent sampling can sample distinct IDs with bounded storage. Our bottom-k baseline belongs to this established family.",
+    "limitations": "Its level-based implementation and query-estimation objective differ from our simple bottom-k auditing use; no claim of identical end-to-end application."
+  },
+  {
+    "id": "mo2026",
+    "title": "Mitigating False Positives in Filters: To Adapt or to Cache?",
+    "authors": ["Tianchi Mo", "Michael A. Bender", "Rathish Das", "Martin Farach-Colton", "David Tench"],
+    "year": 2026,
+    "venue": "ACM Transactions on Database Systems 51(3), Article 17",
+    "doi": "10.1145/3786324",
+    "url": "https://doi.org/10.1145/3786324",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Indexed primary publisher abstract, metadata, and Introduction", "Paragraph explaining oracle feedback"],
+    "supports": "Direct modern predecessor for adaptation versus caching under Zipfian and network workloads; explicitly requires an oracle identifying false positives.",
+    "limitations": "Direct open returned an internal error on one attempt; primary publisher indexed text supplied abstract and complete visible introduction. Detailed algorithm limitation is additionally supported by the accessible 2021 full text."
+  },
+  {
+    "id": "bender2021",
+    "title": "Mitigating False Positives in Filters: to Adapt or to Cache?",
+    "authors": ["Michael A. Bender", "Rathish Das", "Martin Farach-Colton", "Tianchi Mo", "David Tench", "Yung Ping Wang"],
+    "year": 2021,
+    "venue": "SIAM ALENEX",
+    "url": "https://par.nsf.gov/servlets/purl/10298693",
+    "local_primary_copy": "../evidence/adaptive-filters-2021.pdf",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Introduction, page 1 including footnote 2", "Introduction page 2 on serendipitous false-positive corrections"],
+    "supports": "Broom fingerprint repair can eliminate other future false positives; backing dictionary supplies a colliding stored element, whose access is accounted for asymptotically in that setting.",
+    "limitations": "Not implemented here. Ordinary-Bloom idempotence and min(B,U) scoped oracle bounds do not cover collateral corrections from these adaptive representations."
+  },
+  {
+    "id": "deng2006",
+    "title": "Approximately Detecting Duplicates for Streaming Data using Stable Bloom Filters",
+    "authors": ["Fan Deng", "Davood Rafiei"],
+    "year": 2006,
+    "venue": "SIGMOD",
+    "url": "https://webdocs.cs.ualberta.ca/~drafiei/papers/DupDetExt.pdf",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Abstract", "Introduction and URL crawling motivating example, PDF page 1"],
+    "supports": "Approximate stream deduplication and the possibility of missed new URLs under limited resources are established applications; stable filters evict old information.",
+    "limitations": "Not the same model: our exact processed log persists and our insert-only Bloom does not evict entries. No quantitative SBF guarantee was reused."
+  },
+  {
+    "id": "cesabianchi2005",
+    "title": "Minimizing Regret With Label Efficient Prediction",
+    "authors": ["Nicolò Cesa-Bianchi", "Gábor Lugosi", "Gilles Stoltz"],
+    "year": 2005,
+    "venue": "IEEE Transactions on Information Theory 51(6):2152–2162",
+    "doi": "10.1109/TIT.2005.847729",
+    "url": "https://cesa-bianchi.di.unimi.it/Pubblicazioni/J22.pdf",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Abstract", "Sections I and II, PDF pages 1–2"],
+    "supports": "Learning from a bounded number of paid outcome observations is an established problem with regret bounds.",
+    "limitations": "Adjacent prior art, not a theorem directly subsuming mutable deduplication: processing changes future membership labels and our loss counts distinct retained documents."
+  },
+  {
+    "id": "khan2026lshbloom",
+    "title": "LSHBloom: Internet-Scale Text Deduplication",
+    "metadata_title": "LSHBloom: Memory-efficient, Extreme-scale Document Deduplication",
+    "authors": ["Arham Khan", "Robert Underwood", "Carlo Siebenschuh", "Yadu Babuji", "Aswathy Ajith", "Kyle Hippe", "Ozan Gokdemir", "Alexander Brace", "Kyle Chard", "Ian Foster"],
+    "year": 2026,
+    "type": "arXiv v4, revised 2026-01-27; initial preprint 2024",
+    "url": "https://arxiv.org/html/2411.04257v4",
+    "metadata_url": "https://arxiv.org/abs/2411.04257v4",
+    "verified_on": "2026-10-14",
+    "inspected_passages": ["Version/title header", "Introduction", "Sections 3.3 and 4.1–4.3"],
+    "supports": "Current probabilistic document-deduplication research evaluates memory/runtime/accuracy and configurable Bloom false-positive overhead. A generic Bloom-for-corpus use is not a novelty claim.",
+    "limitations": "Near-duplicate LSH problem differs from our exact-ID audit allocation. HTML title differs from arXiv metadata title; placeholder PVLDB DOI in source does not establish publication. We did not validate all of its mathematical claims."
+  }
+]

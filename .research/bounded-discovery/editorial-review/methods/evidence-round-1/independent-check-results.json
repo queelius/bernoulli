@@ -1,0 +1,63 @@
+{
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "artifact": "/tmp/gbfplus-methods-review-osxxcyi4/supplement",
+  "reviewed_files_sha256": {
+    "README.md": "e1f733e99ae919b1b561d6694792b33b5f89bf105e972ec491b722c7d5ad3279",
+    "gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "provenance.json": "fc596555f1299d176ea9cc5eca4eda5152e2fea69ba8937902d2900484ae8fcf",
+    "reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+    "reproduce.py": "4603a3e54550ef3d7262a41fa73e0a382fb7a3e6224a4d2ef62c67cc41e63293",
+    "reproduced-results.json": "5d22a8cf99fc5e63d330407a1914c59672c12777a4e92706d9b220e67b4e214c",
+    "requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+    "source-premises.md": "df6c187b76110fd9326c7dbc1a2ebc73e159cf385837b51ff1567ccf89a51b50",
+    "test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "test_reproduction.py": "f4c330e9d8a2af9864b150ae77034108be258365a99109f28440c1d53421ab12"
+  },
+  "saved_arrays_independently_reconstructed": 64,
+  "fresh_deterministic_results_match_reference": true,
+  "table_cases_checked_against_independent_cell_oracle": {
+    "singleton": 256,
+    "two_disjoint": 1024
+  },
+  "independent_transition_checks": {
+    "transitions": 244816,
+    "atomic_failures": 82496,
+    "mismatches": 0
+  },
+  "optimization_counterexample": {
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-S",
+      "/tmp/gbfplus-methods-review-osxxcyi4/supplement/reproduce.py"
+    ],
+    "environment_override": {
+      "PYTHONOPTIMIZE": "1"
+    },
+    "exit_code": 0,
+    "exact": {
+      "singleton_cases": 256,
+      "singleton_errors": 0,
+      "disjoint_batch_cases": 1024,
+      "disjoint_batch_errors": 0,
+      "all_individual_share_marginals_uniform": false,
+      "two_recipient_view_support_sizes": [
+        1,
+        1
+      ],
+      "two_recipient_view_supports_disjoint": false,
+      "interpretation": "Finite verification of proved identities, not a sampled privacy proof."
+    },
+    "stored_arrays": 64,
+    "stored_arrays_with_no_occupied_cells": 64,
+    "stored_arrays_with_null_recovery": 64,
+    "example_cells": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-21",
+  "record": "/home/spinoza/github/pubs/papers/gbfplus-public-occupancy-disclosure.yaml",
+  "commit": "692e006090bf4e8bb2e5d73fe9255bb1d95d38b1",
+  "registered_doi": "10.5281/zenodo.23497466",
+  "derived_status": "posted",
+  "venue": "Zenodo",
+  "journal_submission": "not submitted",
+  "committed_files": [
+    "papers/gbfplus-public-occupancy-disclosure.yaml",
+    "README.md",
+    "pubs.jsonl"
+  ],
+  "concurrent_working_files_preserved": [
+    "CLAUDE.md",
+    "Makefile",
+    "bin/pubs",
+    "schema/paper.schema.json",
+    "papers/codec-controlled-retrieval.yaml",
+    "README.md",
+    "pubs.jsonl",
+    "papers/gbfplus-public-occupancy-disclosure.yaml"
+  ],
+  "committed_renderer_validation": "make and make check passed in a clean worktree using the committed renderer/schema",
+  "working_renderer_validation": "make, make check and 10 unittest cases passed with the concurrent renderer changes",
+  "integration_note": "A file-checkout merge was blocked by concurrent generated-view changes. Advanced to the verified direct child commit without changing any working files; pending renderer/follow-up edits remain unstaged."
+}

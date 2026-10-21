@@ -1,0 +1,14 @@
+{
+  "id": 23497466,
+  "conceptrecid": "23497465",
+  "reserved_doi": "10.5281/zenodo.23497466",
+  "links": {
+    "self": "https://zenodo.org/api/deposit/depositions/23497466",
+    "bucket": "https://zenodo.org/api/files/fa05e396-ecd9-4f81-a597-27b4d2754a58",
+    "publish": "https://zenodo.org/api/deposit/depositions/23497466/actions/publish",
+    "html": "https://zenodo.org/deposit/23497466"
+  },
+  "submitted": false,
+  "created": "2026-10-20T11:10:45.933195+00:00",
+  "purpose": "GBFPlus public-occupancy disclosure preprint and reproducible evidence, version 1.0.0"
+}

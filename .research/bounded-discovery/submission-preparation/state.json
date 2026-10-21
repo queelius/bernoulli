@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-20",
+  "submission_authorized_conditionally": true,
+  "human_review": "Author reviewed and approved the current PDF on 2026-10-18; see author-approval-2026-10-18.json for exact hashes.",
+  "funding_conflicts_authorship_publication_history": "Actual journal declarations remain unconfirmed. Known public disclosure: archival preprint 10.5281/zenodo.23497466, published 2026-10-20; disclose DOI and licenses in any journal submission. Do not assert that no public version exists.",
+  "publication_budget": {
+    "maximum": 0,
+    "currency": "CHF",
+    "tax_or_other_publication_charges_permitted": false
+  },
+  "general_apc_verified_live": {
+    "amount": 2600,
+    "currency": "CHF",
+    "tax": "additional if applicable",
+    "url": "https://www.mdpi.com/journal/entropy/apc",
+    "comment_exemption_verified": false,
+    "checked_date": "2026-10-18"
+  },
+  "formal_submission": {
+    "status": "not submitted",
+    "manuscript_id": null
+  },
+  "fee_inquiry": {
+    "status": "sent; verified by reading the Gmail message; awaiting journal response",
+    "recipient": "entropy@mdpi.com",
+    "attachment": null,
+    "file": "fee-inquiry.txt",
+    "authorized_by": "2026-10-18 user reply: proceed",
+    "from": "queelius@gmail.com",
+    "reply_to": "lex@metafunctor.com",
+    "sent_at": "2026-10-18T08:51:44.000Z",
+    "message_id": "1a14e35b2be23dc3",
+    "thread_id": "1a14e35b2be23dc3",
+    "receipt": "fee-inquiry-sent-2026-10-18.json"
+  },
+  "account_access": {
+    "status": "login required",
+    "url": "https://auth.mdpi.com/login",
+    "chrome_tab_id": "304519990"
+  },
+  "source_policy": {
+    "url": "https://www.mdpi.com/ethics",
+    "comments": "Editorial Office preliminary assessment before potential Comment submission/publication",
+    "ai_use": "Methods disclosure plus acknowledgment and human responsibility required"
+  },
+  "external_actions": [
+    {
+      "action": "sent fee-only inquiry",
+      "recipient": "entropy@mdpi.com",
+      "sent_at": "2026-10-18T08:51:44.000Z",
+      "message_id": "1a14e35b2be23dc3",
+      "receipt": "fee-inquiry-sent-2026-10-18.json",
+      "manuscript_attached": false,
+      "payment_authorized": false
+    },
+    {
+      "action": "published author-authorized archival preprint and evidence packet",
+      "date": "2026-10-20",
+      "doi": "10.5281/zenodo.23497466",
+      "receipt": "../archival-publication/publication.json",
+      "payment_authorized": false
+    }
+  ],
+  "baseline_manifest": "baseline/manifest.json",
+  "current_evidence": "fee-inquiry-sent-2026-10-18.json",
+  "next_action": "Await a confirmed zero-charge journal route; finalize actual author declarations and disclose the archival preprint before any formal submission.",
+  "preprint": {
+    "status": "published",
+    "title": "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus",
+    "version": "1.0.0",
+    "doi": "10.5281/zenodo.23497466",
+    "url": "https://zenodo.org/record/23497466",
+    "publication_date": "2026-10-20",
+    "text_data_license": "CC-BY-4.0",
+    "software_license": "MIT",
+    "record": "../archival-publication/publication.json",
+    "journal_disclosure_required": true
+  }
+}

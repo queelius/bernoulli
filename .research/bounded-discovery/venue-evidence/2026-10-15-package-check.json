@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "purpose": "Bounded preparation check, not a new venue search",
+  "sources": [
+    {
+      "url": "https://www.mdpi.com/journal/Entropy/instructions",
+      "access": "Current official search-index text (crawled 3 days before check); lowercase direct open returned internal error.",
+      "findings": [
+        "Free-format initial submission is accepted.",
+        "LaTeX source should be packaged in a ZIP.",
+        "Code may accompany the article as supplementary information.",
+        "Author declarations and a cover letter are required."
+      ]
+    },
+    {
+      "url": "https://www.mdpi.com/authors/layout",
+      "access": "Official indexed text",
+      "findings": [
+        "Standard Comment-on-original-article title strongly recommended."
+      ]
+    },
+    {
+      "url": "https://www.mdpi.com/ethics",
+      "access": "Official indexed text",
+      "findings": [
+        "Comment route includes preliminary editorial assessment, peer review, and an opportunity for original authors to reply."
+      ]
+    },
+    {
+      "url": "https://staging.core.mdpi.com/journal/entropy/apc",
+      "canonical_url": "https://www.mdpi.com/journal/entropy/apc",
+      "access": "Indexed official MDPI staging page; agrees with main-site Entropy announcement listing.",
+      "findings": [
+        "General APC CHF 2600; local VAT/sales tax may apply.",
+        "No Comment-specific exemption established by this check."
+      ]
+    }
+  ],
+  "fee_searches": [
+    "site:mdpi.com \"Comments and Replies\" \"article processing\"",
+    "site:mdpi.com \"Comment\" \"APC\" \"exempt\"",
+    "site:mdpi.com \"Comment\" \"free of charge\" publication"
+  ],
+  "decision": "Use free-format Comment draft and standalone supplementary code. Keep fee unconfirmed; no editor contact or payment.",
+  "external_actions": []
+}

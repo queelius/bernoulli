@@ -1,0 +1,37 @@
+{
+  "manuscript_sha256": "0afc54c4b3f506ffbefb83fd90a596ce44b97179e66b8d44ea6ddf0063b9cfc0",
+  "source_sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417",
+  "model": "Independent uniform k-subsets for a predetermined sequence of c attempted insertions; unconditional before successful-only selection or rotation. Not a claim about prototype double hashing or operational workloads.",
+  "disjoint_probabilities": [
+    {
+      "m": 2216,
+      "kappa": 12,
+      "attempt_count": 2,
+      "log10_probability_all_disjoint": -0.02836866099722357
+    },
+    {
+      "m": 2216,
+      "kappa": 12,
+      "attempt_count": 8,
+      "log10_probability_all_disjoint": -0.8031388105300046
+    },
+    {
+      "m": 2216,
+      "kappa": 12,
+      "attempt_count": 16,
+      "log10_probability_all_disjoint": -3.4944295770066383
+    },
+    {
+      "m": 2216,
+      "kappa": 12,
+      "attempt_count": 128,
+      "log10_probability_all_disjoint": -316.2799360170492
+    },
+    {
+      "m": 8864,
+      "kappa": 12,
+      "attempt_count": 512,
+      "log10_probability_all_disjoint": -1270.8669155128066
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "checked_at_utc": "2026-10-14T05:27:07.329954+00:00",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "machine": "x86_64",
+  "os": "Linux 7.0.0-31-generic",
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "python_packages": {
+    "pytest": "9.0.3",
+    "pytest-cov": "7.1.0",
+    "coverage": "7.14.1",
+    "matplotlib": "3.10.9",
+    "mistune": "3.2.1"
+  },
+  "borrowed_source": {
+    "path": "papers/bernoulli_relations/code/filter_calibration.py",
+    "sha256": "450db465c25a17d9d19dbd5b42641c339405f058e5897a635461ae2c19d236ed"
+  },
+  "current_source_sha256": {
+    "test_contracts.py": "0e387ccc2cfcb6832b796cd015d4882f8fd725b7d42184a612b6aaf129b94215",
+    "contracts.py": "b422bf441bdf21cf5be6d275b4e440cf369645eae4cb9b2d579b3a63e1db1993",
+    "finite_rows.py": "ed8472917075a24c067dc8786499e7ef4776e07b3a3dee808695bbd1fb59d56d",
+    "fuse_baseline.py": "28be5c5c03ae5a849ad190997db50cd2bb1e734a50842b69f93755db2cf052ba",
+    "experiment.py": "0d7d4927e4363ee0ad269d3b0247659767a012dbff059be9f2dd6afa25ad1671",
+    "value_store.py": "4c68ebb224491b2ee6409c90796fad29f9d5b361394830be9e129e08743158ca",
+    "test_experiment.py": "ba8cbb29e4af5cbb986c5140ab4b7da1613a6fe96403419c53bf9f3b8d86b269",
+    "test_finite_rows.py": "4d99f1806c6cfcba3d9bf29470157c2c4ea130e5a01602f011a5865ed59bec0d",
+    "test_fuse_baseline.py": "f2b9c22785d0ab998c5889b478c33cb23ec36ffd542eb344af18cae6d34d52d4"
+  },
+  "measured_source_sha256_by_case": {
+    "git-manifest-tex-catalog-varying-k64": {
+      "test_contracts.py": "0e387ccc2cfcb6832b796cd015d4882f8fd725b7d42184a612b6aaf129b94215",
+      "contracts.py": "b422bf441bdf21cf5be6d275b4e440cf369645eae4cb9b2d579b3a63e1db1993",
+      "finite_rows.py": "ed8472917075a24c067dc8786499e7ef4776e07b3a3dee808695bbd1fb59d56d",
+      "fuse_baseline.py": "28be5c5c03ae5a849ad190997db50cd2bb1e734a50842b69f93755db2cf052ba",
+      "experiment.py": "eea8864e24a284528418aec35730e157423bf6ec1392d30bbe45bbdeaf000f65",
+      "value_store.py": "4c68ebb224491b2ee6409c90796fad29f9d5b361394830be9e129e08743158ca",
+      "test_experiment.py": "95467e9df7064b0cb7ef821ec8fd58195dda68daf69bdf7e9e9af9f59ed38a83",
+      "test_finite_rows.py": "4d99f1806c6cfcba3d9bf29470157c2c4ea130e5a01602f011a5865ed59bec0d",
+      "test_fuse_baseline.py": "f2b9c22785d0ab998c5889b478c33cb23ec36ffd542eb344af18cae6d34d52d4"
+    },
+    "synthetic-d1024-k512-varying-k64": {
+      "test_contracts.py": "0e387ccc2cfcb6832b796cd015d4882f8fd725b7d42184a612b6aaf129b94215",
+      "contracts.py": "b422bf441bdf21cf5be6d275b4e440cf369645eae4cb9b2d579b3a63e1db1993",
+      "finite_rows.py": "ed8472917075a24c067dc8786499e7ef4776e07b3a3dee808695bbd1fb59d56d",
+      "fuse_baseline.py": "28be5c5c03ae5a849ad190997db50cd2bb1e734a50842b69f93755db2cf052ba",
+      "experiment.py": "eea8864e24a284528418aec35730e157423bf6ec1392d30bbe45bbdeaf000f65",
+      "value_store.py": "4c68ebb224491b2ee6409c90796fad29f9d5b361394830be9e129e08743158ca",
+      "test_experiment.py": "95467e9df7064b0cb7ef821ec8fd58195dda68daf69bdf7e9e9af9f59ed38a83",
+      "test_finite_rows.py": "4d99f1806c6cfcba3d9bf29470157c2c4ea130e5a01602f011a5865ed59bec0d",
+      "test_fuse_baseline.py": "f2b9c22785d0ab998c5889b478c33cb23ec36ffd542eb344af18cae6d34d52d4"
+    },
+    "synthetic-d128-k64-varying-k32": {
+      "test_contracts.py": "0e387ccc2cfcb6832b796cd015d4882f8fd725b7d42184a612b6aaf129b94215",
+      "contracts.py": "b422bf441bdf21cf5be6d275b4e440cf369645eae4cb9b2d579b3a63e1db1993",
+      "finite_rows.py": "ed8472917075a24c067dc8786499e7ef4776e07b3a3dee808695bbd1fb59d56d",
+      "fuse_baseline.py": "28be5c5c03ae5a849ad190997db50cd2bb1e734a50842b69f93755db2cf052ba",
+      "experiment.py": "eea8864e24a284528418aec35730e157423bf6ec1392d30bbe45bbdeaf000f65",
+      "value_store.py": "4c68ebb224491b2ee6409c90796fad29f9d5b361394830be9e129e08743158ca",
+      "test_experiment.py": "95467e9df7064b0cb7ef821ec8fd58195dda68daf69bdf7e9e9af9f59ed38a83",
+      "test_finite_rows.py": "4d99f1806c6cfcba3d9bf29470157c2c4ea130e5a01602f011a5865ed59bec0d",
+      "test_fuse_baseline.py": "f2b9c22785d0ab998c5889b478c33cb23ec36ffd542eb344af18cae6d34d52d4"
+    },
+    "synthetic-d32-k8-varying-k4": {
+      "test_contracts.py": "0e387ccc2cfcb6832b796cd015d4882f8fd725b7d42184a612b6aaf129b94215",
+      "contracts.py": "b422bf441bdf21cf5be6d275b4e440cf369645eae4cb9b2d579b3a63e1db1993",
+      "finite_rows.py": "ed8472917075a24c067dc8786499e7ef4776e07b3a3dee808695bbd1fb59d56d",
+      "fuse_baseline.py": "28be5c5c03ae5a849ad190997db50cd2bb1e734a50842b69f93755db2cf052ba",
+      "experiment.py": "eea8864e24a284528418aec35730e157423bf6ec1392d30bbe45bbdeaf000f65",
+      "value_store.py": "4c68ebb224491b2ee6409c90796fad29f9d5b361394830be9e129e08743158ca",
+      "test_experiment.py": "95467e9df7064b0cb7ef821ec8fd58195dda68daf69bdf7e9e9af9f59ed38a83",
+      "test_finite_rows.py": "4d99f1806c6cfcba3d9bf29470157c2c4ea130e5a01602f011a5865ed59bec0d",
+      "test_fuse_baseline.py": "f2b9c22785d0ab998c5889b478c33cb23ec36ffd542eb344af18cae6d34d52d4"
+    }
+  },
+  "vendor_source": {
+    "repository": "https://github.com/FastFilter/xor_singleheader",
+    "commit": "5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1",
+    "commit_date_utc": "2026-10-09T05:16:18Z",
+    "retrieved_date": "2026-10-13",
+    "license": "Apache-2.0",
+    "files": [
+      {
+        "path": "binaryfusefilter.h",
+        "source_url": "https://github.com/FastFilter/xor_singleheader/blob/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/include/binaryfusefilter.h",
+        "raw_url": "https://raw.githubusercontent.com/FastFilter/xor_singleheader/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/include/binaryfusefilter.h",
+        "upstream_git_blob_sha1": "fef4b107f2ec38ccfd19bead75f60c3f89af28c5",
+        "sha256": "26f192bdff8a971c9db49afce4c9cf51cc17477ca7047c6ae7c5a272a1b6985f",
+        "bytes": 35927,
+        "modified": false
+      },
+      {
+        "path": "LICENSE",
+        "source_url": "https://github.com/FastFilter/xor_singleheader/blob/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/LICENSE",
+        "raw_url": "https://raw.githubusercontent.com/FastFilter/xor_singleheader/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/LICENSE",
+        "upstream_git_blob_sha1": "d266cc9b84b9b10633a49bc7a8d96d08f62cfe43",
+        "sha256": "a111b5902eaeb94cb51b3ead2fef619724817bf55ebe561b3d7caeb1d5305190",
+        "bytes": 10758,
+        "modified": false
+      }
+    ]
+  },
+  "documentation_local_links_checked": 52,
+  "notes": "Runtime context captured at closeout. Timing measurements belong to the archived measured source. All current and measured source hashes match their verification/measurement records."
+}

@@ -1,0 +1,30 @@
+{
+  "checked": "2026-10-14",
+  "pages": [
+    {
+      "id": "scope",
+      "url": "https://www.mdpi.com/journal/entropy/about",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "apc",
+      "url": "https://www.mdpi.com/journal/entropy/apc",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "ethics",
+      "url": "https://www.mdpi.com/ethics",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "types",
+      "url": "https://www.mdpi.com/about/article_types",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "apc_faq",
+      "url": "https://www.mdpi.com/apc",
+      "error": "HTTP Error 403: Forbidden"
+    }
+  ]
+}

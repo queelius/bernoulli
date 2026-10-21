@@ -1,0 +1,47 @@
+{
+  "gbfplus-comment-source.zip": {
+    "sha256": "054a7028902acaaf8a250158d6b365ef639f91374a2ed10c614ce7d1f32ddd09",
+    "members_match_current_files": true,
+    "files": [
+      "Makefile",
+      "abstract.tex",
+      "backmatter.tex",
+      "body.tex",
+      "main.tex",
+      "references.bib"
+    ]
+  },
+  "gbfplus-comment-supplement.zip": {
+    "sha256": "b53663fc475519a669af2f0c8831dc6a91e73333dc05114ef4263a232fc2727b",
+    "members_match_current_files": true,
+    "files": [
+      "README.md",
+      "gbfplus_probe.py",
+      "provenance.json",
+      "reference-results.json",
+      "reproduce.py",
+      "requirements-validation.txt",
+      "source-premises.md",
+      "test_gbfplus_probe.py",
+      "test_reproduction.py"
+    ]
+  },
+  "source_build": {
+    "returncode": 0,
+    "warnings": [],
+    "pdf_text_matches_current": true
+  },
+  "reproduction": {
+    "returncode": 0,
+    "singleton_cases": 256,
+    "disjoint_batch_cases": 1024,
+    "seeded_arrays": 64,
+    "all_deterministic_fields_match": true,
+    "timing_compared": false,
+    "site_packages_disabled": true
+  },
+  "scientific_code_preservation": {
+    "mathematical_module_and_original_tests_byte_identical": true,
+    "two_experiment_functions_ast_identical": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "source_url": "https://raw.githubusercontent.com/Qiskit/qiskit-ibm-runtime/7a99d12423c21a34253342db5a3faf63ab0f8b6e/qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json",
+  "sha256": "17db2080056d895f74012ed0f45ae2cb8e93be564641640fadbd0ae4c28a5211",
+  "last_update_date": "2025-02-26T15:13:14-05:00",
+  "commit": "7a99d12423c21a34253342db5a3faf63ab0f8b6e",
+  "fields": [
+    "prob_meas1_prep0",
+    "prob_meas0_prep1"
+  ],
+  "qubits": 27,
+  "accessed": "2026-10-14"
+}

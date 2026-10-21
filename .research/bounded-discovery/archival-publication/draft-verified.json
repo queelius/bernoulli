@@ -1,0 +1,85 @@
+{
+  "id": 23497466,
+  "submitted": false,
+  "state": "unsubmitted",
+  "metadata": {
+    "title": "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus",
+    "publication_date": "2026-10-20",
+    "description": "<p><strong>Archival preprint and reproducible evidence, version 1.0.0. Not peer reviewed.</strong></p>\n<p>GBFPlus (Qin et al., Entropy 2026, 28:947, DOI 10.3390/e28090947) describes adjacent-domain metadata as protected. This note gives a protocol-specific counterexample: an honestly generated attestation released after one successful insertion exposes the complete share set through public occupancy. XORing its occupied payloads reveals the unmasked adjacent-domain identifier suffix, without a query token or candidate data identifier. If occupied count equals successful insertion count times the share count, the same operation reveals an aggregate XOR for disjoint batches.</p>\n<p>The observer requires permissioned-ledger read access, public widths and occupancy, and the stated honest construction and release rules. Repeated queries read one frozen snapshot. The written identities hold for every admissible share realization. The note does not claim a break of the separate data-identifier game, general publisher deanonymization, full-path recovery, measured deployment prevalence, or a complete repair. XOR sharing, disclosure versus membership acceptance, and masking/padding ideas are established and credited to predecessors.</p>\n<p>The deposit contains a five-page manuscript, self-contained LaTeX and Python source/evidence archive, citation metadata, and SHA-256 checksums. Reproduction includes 256 singleton choices, 1,024 disjoint-pair choices, 64 saved seeded arrays, 17 unit/integration tests, and a separate 771,787-transition finite oracle. Tests, lint, types, coverage, and clean archive reproduction were checked for this release. These are finite computational checks, not formal proofs or security-probability estimates.</p>\n<p>Alexander Richard Towell reviewed and approved the manuscript on October 18, 2026 and authorized archival release on October 20. Substantial OpenAI Codex assistance covered research, derivations, code, testing, writing, internal AI review, and packaging; no external human peer review or formal verification is claimed. The historical model-version record is incomplete. Novelty was assessed through bounded searches, not established exhaustively.</p>\n<p>The preprint, original explanatory text, and generated data are CC BY 4.0; software is MIT licensed as specified inside the packet. The primary article and other third-party publications are cited and linked, not redistributed. The owning workspace remains private; this archive is the canonical public source for this exact contribution. Local development and review dates are separate from this archival release date.</p>",
+    "access_right": "open",
+    "creators": [
+      {
+        "name": "Towell, Alexander Richard",
+        "affiliation": "Southern Illinois University Edwardsville",
+        "orcid": "0000-0001-6443-9897"
+      }
+    ],
+    "keywords": [
+      "GBFPlus",
+      "garbled Bloom filter",
+      "metadata confidentiality",
+      "public occupancy",
+      "cross-domain attestation",
+      "XOR secret sharing",
+      "protocol analysis",
+      "reproducible research"
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "10.3390/e28090947",
+        "relation": "references",
+        "scheme": "doi"
+      },
+      {
+        "identifier": "10.1145/2508859.2516701",
+        "relation": "references",
+        "scheme": "doi"
+      },
+      {
+        "identifier": "10.1109/TIT.2010.2090212",
+        "relation": "references",
+        "scheme": "doi"
+      },
+      {
+        "identifier": "https://www.usenix.org/conference/usenixsecurity24/presentation/hao-meng-unbalanced",
+        "relation": "references",
+        "scheme": "url"
+      }
+    ],
+    "version": "1.0.0",
+    "language": "eng",
+    "license": "cc-by-4.0",
+    "imprint_publisher": "Zenodo",
+    "notes": "This is an archival preprint, not a journal acceptance or statement of legal priority. All statements apply to the pinned published specification and explicit assumptions. The packet licenses distinguish text/data (CC BY 4.0) from original software (MIT).",
+    "upload_type": "publication",
+    "publication_type": "preprint",
+    "prereserve_doi": {
+      "doi": "10.5281/zenodo.23497466",
+      "recid": 23497466
+    }
+  },
+  "files": [
+    {
+      "filename": "CITATION.cff",
+      "remote_md5": "7c149590ab7d5bbb2b145a21245d20d3",
+      "matches_local": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.pdf",
+      "remote_md5": "b91ea35d0cec340ae151072a84ea6263",
+      "matches_local": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.tar.gz",
+      "remote_md5": "2d47cbd09a1a828d5fdd10fc795c6ea7",
+      "matches_local": true
+    },
+    {
+      "filename": "SHA256SUMS",
+      "remote_md5": "dbacb1ce84c3beecda20ae066313ecc5",
+      "matches_local": true
+    }
+  ],
+  "reserved_doi": "10.5281/zenodo.23497466",
+  "local_sha256_manifest": "artifact-manifest.json"
+}

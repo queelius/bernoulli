@@ -1,0 +1,77 @@
+[
+  {
+    "kind": "supplement",
+    "name": "README.md",
+    "sha256": "c3e7f2812547c559a5396129867358b5154dbf4a98594e05dc5390ce851ecb9e"
+  },
+  {
+    "kind": "supplement",
+    "name": "gbfplus_probe.py",
+    "sha256": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a"
+  },
+  {
+    "kind": "supplement",
+    "name": "provenance.json",
+    "sha256": "a039e13474a0fe37b44544bb87b99b2ebc857b5910010558a2f7e7d20f3a502e"
+  },
+  {
+    "kind": "supplement",
+    "name": "reference-results.json",
+    "sha256": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+  },
+  {
+    "kind": "supplement",
+    "name": "reproduce.py",
+    "sha256": "e0f2ab0bbd2fc3c045559a65710ed21df7436cec12adbbe41b818b87d6054fe8"
+  },
+  {
+    "kind": "supplement",
+    "name": "requirements-validation.txt",
+    "sha256": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2"
+  },
+  {
+    "kind": "supplement",
+    "name": "source-premises.md",
+    "sha256": "df6c187b76110fd9326c7dbc1a2ebc73e159cf385837b51ff1567ccf89a51b50"
+  },
+  {
+    "kind": "supplement",
+    "name": "test_gbfplus_probe.py",
+    "sha256": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d"
+  },
+  {
+    "kind": "supplement",
+    "name": "test_reproduction.py",
+    "sha256": "f033600b7474159645a7bbd23f0c55713115a3b1acd88c85e77e04522ec7c37f"
+  },
+  {
+    "kind": "source",
+    "name": "Makefile",
+    "sha256": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66"
+  },
+  {
+    "kind": "source",
+    "name": "abstract.tex",
+    "sha256": "eed7f877efc750ea50955db666a767931c6c1591bfb3b52451312761d85164b7"
+  },
+  {
+    "kind": "source",
+    "name": "backmatter.tex",
+    "sha256": "660c1a9e68858a306e94da4558d44c6a726895db1df499e2ef65cc536c975045"
+  },
+  {
+    "kind": "source",
+    "name": "body.tex",
+    "sha256": "3e5038adfdc354235c0472e53cb87bc8fe7ae51ba61c875bee6babc81499498b"
+  },
+  {
+    "kind": "source",
+    "name": "main.tex",
+    "sha256": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce"
+  },
+  {
+    "kind": "source",
+    "name": "references.bib",
+    "sha256": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+  }
+]

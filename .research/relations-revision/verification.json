@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-13",
+  "pdf_pages": 27,
+  "tests_passed": 540,
+  "coverage_totals": {
+    "covered_lines": 596,
+    "num_statements": 598,
+    "percent_covered": 99.44903581267218,
+    "percent_covered_display": "99",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.66555183946488,
+    "percent_statements_covered_display": "99",
+    "num_branches": 128,
+    "num_partial_branches": 2,
+    "covered_branches": 126,
+    "missing_branches": 2,
+    "percent_branches_covered": 98.4375,
+    "percent_branches_covered_display": "98"
+  },
+  "hashes": {
+    "papers/bernoulli_relations/main.pdf": "f5554eb892522088c3452e9813a536d559d5ae9d7b71dc9aff405a88b4faeaec",
+    "papers/bernoulli_relations/code/filter_calibration.py": "450db465c25a17d9d19dbd5b42641c339405f058e5897a635461ae2c19d236ed",
+    "papers/bernoulli_relations/data/calibration/results.json": "292d2cb9d58ec2dfafe74e40f5c09078bcb3c4df98be36ca9cb2435ee55e1b74"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-14",
+  "python": "3.12.3",
+  "sqlite": "3.45.1",
+  "source_sha256": {
+    "probe.py": "8c2225fcb0a611e5766d3c6d187dd42c9fd93f3dcd127e813fc736aeed5cca8e",
+    "test_probe.py": "451fc8118c8fe7161c3dbbb944722c06612e4d90bd6d8944b0ba6db13a325d64"
+  },
+  "tests_passed": 25,
+  "coverage_totals": {
+    "covered_lines": 264,
+    "num_statements": 265,
+    "percent_covered": 99.44598337950139,
+    "percent_covered_display": "99",
+    "missing_lines": 1,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.62264150943396,
+    "percent_statements_covered_display": "99",
+    "num_branches": 96,
+    "num_partial_branches": 1,
+    "covered_branches": 95,
+    "missing_branches": 1,
+    "percent_branches_covered": 98.95833333333333,
+    "percent_branches_covered_display": "99"
+  },
+  "coverage_gap": "Only the defensive AssertionError for a counterexample to the proved bitmap invariant is unreachable in enumerated cases.",
+  "ruff": "passed",
+  "mypy_strict": "passed",
+  "integration_runs": 168,
+  "rounds_used": 2,
+  "timing": "results.json last overwritten by uninstrumented driver after coverage run"
+}

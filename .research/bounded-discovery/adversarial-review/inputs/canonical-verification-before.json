@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-15",
+  "scope": "Shared-text editorial revision",
+  "build_command": "make -C .research/bounded-discovery/manuscript",
+  "build_exit_code": 0,
+  "pages": 5,
+  "warnings": [],
+  "all_pages_visually_inspected": true,
+  "sha256": {
+    "main.tex": "39b9ad3708042666a12c958be495bd0abbe95053f58afd08fe96e1ba93230202",
+    "abstract.tex": "eed7f877efc750ea50955db666a767931c6c1591bfb3b52451312761d85164b7",
+    "body.tex": "f82b746de224af858f5f77087027f17ce2a51b52b6fc50a00060472dfb19bf27",
+    "backmatter.tex": "660c1a9e68858a306e94da4558d44c6a726895db1df499e2ef65cc536c975045",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "main.pdf": "2549724465a1df3a803aa89ca27d9549f21de945e782d4a40befbe82661d549a"
+  },
+  "review": "../editorial-review/response-ledger.md",
+  "verification": "venues/entropy-comment/validation/verification.json",
+  "not_submitted": true,
+  "human_review_pending": true
+}

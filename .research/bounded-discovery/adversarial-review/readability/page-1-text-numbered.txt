@@ -1,0 +1,49 @@
+001     Comment on Qin et al. Privacy-Preserving On-Chain Attestation for
+002       Cross-Domain Data Flows via GBFPlus. Entropy 2026, 28, 947
+003 
+004                                         Alexander Richard Towell
+005                                   Southern Illinois University Edwardsville
+006                                        Edwardsville, IL 62026, USA
+007                                    Correspondence: lex@metafunctor.com
+008                                        ORCID: 0000-0001-6443-9897
+009 
+010                                              October 15, 2026
+011                                      Author-review draft; not submitted
+012 
+013 
+014 
+015                                                    Abstract
+016           GBFPlus supports authorized tracing of cross-domain data transfers through public ledger
+017       attestations. Its published description treats the adjacent-domain identifier as protected metadata.
+018       We show that an allowed one-insertion attestation reveals that identifier exactly. Public occupancy
+019       identifies all shares of the inserted word; their exclusive-or (XOR) reconstructs the word, including
+020       its unmasked identifier suffix. This holds for every construction realization and requires neither
+021       a query token nor a candidate data identifier. A public occupancy test also identifies some larger
+022       batches in which the same operation reveals an aggregate XOR, rather than individual identifiers.
+023       We prove these statements and reproduce them with finite exhaustive checks and stored share
+024       arrays. The disclosure concerns adjacent-domain metadata, distinct from the source paper’s
+025       data-identifier privacy game and signer anonymity. The stated metadata-confidentiality claim
+026       therefore needs to account for allowed partial batches and the complete public payload view.
+027 
+028 Keywords: garbled Bloom filter; metadata confidentiality; public occupancy; cross-domain attesta-
+029 tion; XOR sharing
+030 
+031 
+032 1    The confidentiality claim and public view
+033 Qin et al.’s GBFPlus protocol records cross-domain data transfers in public ledger attestations while
+034 supporting authorized tracing [1]. The source article lists the adjacent domain among the protected
+035 metadata (Table 1 and Section 4.2); Section 6.2 specifically describes recovering its identifier only
+036 after the consistency-prefix and assigned-domain checks. We identify an allowed execution in which
+037 an ordinary ledger observer recovers that identifier without either check: a time window closes
+038 after one successful insertion, and the publicly occupied cells contain exactly that insertion’s shares.
+039 XORing their payloads reconstructs the inserted word, whose suffix identifies the adjacent domain.
+040      Three features of the published specification suffice for this disclosure. First, Algorithm 4 encodes
+041 an unmasked adjacent-domain identifier in the shared word. Second, Section 5.2 publishes the
+042 finalized filter and its successful insertion count in the transaction following source Equation (5);
+043 Sections 5.2 and 6.2 make occupied cells distinguishable from empty cells. Third, Section 5.2 finalizes
+044 a filter when its time window ends, without specifying a minimum insertion count. Thus an honest
+045 administrator can initialize a directional filter, insert one transfer, receive no further transfer in
+046 that direction, and publish the filter when the window closes. The source’s honest-administrator
+047 
+048 
+049                                                        1

@@ -1,0 +1,125 @@
+{
+  "checked_at": "2026-10-20T11:09:42.293785+00:00",
+  "method": "Authenticated complete deposition pagination; title, description and keywords screened for contribution and related-project terms",
+  "page_size": 100,
+  "page_counts": [
+    100,
+    13
+  ],
+  "total_depositions": 113,
+  "terminal_page_complete": true,
+  "candidates": [
+    {
+      "id": 20618109,
+      "title": "The Abstract Data Type of the Approximate Relation",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20618109",
+      "conceptrecid": "20602265",
+      "description_excerpt": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application."
+    },
+    {
+      "id": 20618108,
+      "title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20618108",
+      "conceptrecid": "20584894",
+      "description_excerpt": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps."
+    },
+    {
+      "id": 20602264,
+      "title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20602264",
+      "conceptrecid": "20602263",
+      "description_excerpt": "The perfect hash filter (PHF): a practical static positive Bernoulli set built by off-the-shelf minimal perfect hashing, approaching the -log2(epsilon) bits-per-element bound to within a constant log2(e), and extended to the perfect hash map; the deployable counterpart to the space-optimal Bernoulli hash function."
+    },
+    {
+      "id": 20602262,
+      "title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20602262",
+      "conceptrecid": "20602261",
+      "description_excerpt": "The Bernoulli hash function (BHF): hash-based constructions that optimally implement the Bernoulli set and map at the information-theoretic space bound."
+    },
+    {
+      "id": 20602260,
+      "title": "Entropy and space complexity of random approximate sets",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20602260",
+      "conceptrecid": "20602259",
+      "description_excerpt": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with a closed-form asymptotic expansion and the -log2(epsilon) bits-per-element space bound."
+    },
+    {
+      "id": 20468529,
+      "title": "Sensitivity of series system reliability estimation to the non-informative masking assumption",
+      "submitted": true,
+      "doi": "10.5281/zenodo.20468529",
+      "conceptrecid": "20414727",
+      "description_excerpt": "Maximum likelihood estimation for series systems with masked failure data relies on the non-informative masking assumption (Condition C2): that the candidate set reported for a failed component is independent of the true cause of failure. This assumption is rarely verifiable and frequently suspect. We characterize the bias that arises when C2 is violated but assumed to hold, proving that the MLE converges to a pseudo-true parameter whose individual component parameters are biased while the system hazard remains consistent. Using a Bernoulli masking model that generates controlled C2 violations of varying severity, we conduct a systematic simulation sweep on a 5-component Weibull series system. The results establish a practical breakdown boundary: system-level reliability estimates are robust to C2 violations across the full severity range, but individual component estimates degrade with severity, with scale parameters showing substantial bias (up to 40 percent relative error) under strong informative masking, compounded by occasional extreme outlier estimates driven by near-singular Fisher information. Since the masking mechanism and component parameters are jointly non-identifiable, we recommend sensitivity analysis over model elaboration. Software is available in the mdrelax R package."
+    },
+    {
+      "id": 19105399,
+      "title": "The Bernoulli model: a probabilistic framework for data structures and types",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19105399",
+      "conceptrecid": "19105398",
+      "description_excerpt": "We introduce the Bernoulli model, a probabilistic framework for approximate data types built on the Boolean case. We define model order as the number of partition blocks, connect to binary symmetric and asymmetric channels, derive Bayesian prediction from noisy observations, and analyze error propagation through function lifting and logic gates. The distinction between function lifting (propagating input noise through an exact function) and function approximation (observing a noisy version of a latent function) provides the conceptual foundation for the companion papers on Bernoulli sets and maps."
+    },
+    {
+      "id": 19105396,
+      "title": "Random approximate values over algebraic types",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19105396",
+      "conceptrecid": "19105395",
+      "description_excerpt": "We define random approximate values over algebraic data types: void, unit, Bool, sum (tagged union), product (Cartesian product), and exponential (function space). Product types preserve a Kronecker factorization of the joint confusion matrix, so parameters grow additively. Sum types break this factorization because tag errors couple the components. Exponential types are precisely Bernoulli maps, where the constructive (type-theoretic) and denotational (function-space) perspectives converge."
+    },
+    {
+      "id": 19105390,
+      "title": "The algebra of the random approximate map model",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19105390",
+      "conceptrecid": "19105389",
+      "description_excerpt": "Every probabilistic approximation of a discrete structure is the same phenomenon: a latent function f: X -&gt; Y approximated with per-input independent errors. We define the Bernoulli map, prove a formal Kronecker factorization theorem showing the joint confusion matrix factors into per-input channels, derive the composition theorem for map composition, and present the entropy map as the information-theoretically optimal construction achieving the space lower bound of -log2(epsilon) + mu bits per element. The singular hash map is a concrete algorithm realizing this bound."
+    },
+    {
+      "id": 19105388,
+      "title": "Composition of Bernoulli sets",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19105388",
+      "conceptrecid": "19105387",
+      "description_excerpt": "We derive the set-theoretic compositional algebra of Bernoulli sets: closed-form error rates for complement, union, intersection, and set difference. The result is a higher-order Bernoulli set whose model order equals the number of distinct partition blocks. We establish monoidal structure under union and intersection, exact formulas for relational predicates (subset and equality probabilities), and interval arithmetic for uncertain rate parameters. The Kronecker factorization of the joint confusion matrix ensures that parameters grow linearly rather than exponentially under composition."
+    },
+    {
+      "id": 19105382,
+      "title": "Bernoulli sets: a model for random approximate sets",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19105382",
+      "conceptrecid": "19105381",
+      "description_excerpt": "We introduce the Bernoulli set model, a probabilistic framework for random approximate sets parameterized by false positive and false negative rates. From two axioms (element-wise independence and conditional independence of block error rates), we derive the binomial distributions of error counts, their asymptotic normal limits, and confidence intervals for the realized error rates. The higher-order composition theorem shows that k-fold compositions yield rates given by products of binary channel transition matrices. The framework is formulated as an abstract data type: any implementation satisfying the Bernoulli axioms inherits the full theory automatically."
+    },
+    {
+      "id": 19104550,
+      "title": "Binary classification measures for random approximate sets",
+      "submitted": true,
+      "doi": "10.5281/zenodo.19104550",
+      "conceptrecid": "19104549",
+      "description_excerpt": "We derive the probability distributions, expected values, and variances of standard binary classification measures \u2014 positive predictive value (precision), negative predictive value, accuracy, the F1-score, and Youden's J statistic \u2014 for the Bernoulli set model, a compositionally closed framework for random approximate sets with independent, element-wise errors. The expected PPV and F1-score are obtained via second-order delta method expansions whose accuracy we validate by Monte Carlo simulation. All measures depend critically on the prevalence (base rate): even a small false positive rate can drive precision to zero when the base rate is low. The results apply to any data structure satisfying the Bernoulli axioms, including Bloom filters and perfect hash filters."
+    },
+    {
+      "id": 18371022,
+      "title": "Cipher Maps: A Unified Framework for Oblivious Function Approximation",
+      "submitted": true,
+      "doi": "10.5281/zenodo.18371022",
+      "conceptrecid": "18371021",
+      "description_excerpt": "<h2>Cipher Maps: A Unified Framework for Oblivious Function Approximation</h2>\n<p>Initial release of the theoretical framework unifying:</p>\n<ul>\n<li><strong>Algebraic cipher types</strong> - cipher functors that lift monoids to cipher monoids</li>\n<li><strong>Bernoulli approximation models</strong> - probabilistic functions with controlled error rates</li>\n<li><strong>Oblivious data structures</strong> - privacy-preserving implementations</li>\n</ul>\n<h3>Key Contributions</h3>\n<ol>\n<li><strong>Unified Mathematical Framework</strong>: Shows how algebraic cipher types induce Bernoulli models, which enable oblivious structures</li>\n<li><strong>Singular Hash Map</strong>: Space-optimal construction achieving <code>-log\u2082\u03b5 + \u03bc</code> bits per element</li>\n<li><strong>Applications</strong>: Encrypted search, secure multi-party computation, differential privacy</li>\n</ol>\n<h3>Paper</h3>\n<p>The included PDF is a 10-page paper presenting the complete framework with formal definitions, theorems, and proofs.</p>\n<h3>Citation</h3>\n<pre><code>@article{towell2025ciphermaps,\n  title={Cipher Maps: A Unified Framework for Oblivious Function Approximation},\n  author={Towell, Alexander},\n  year={2025}\n}\n</code></pre>\n<h3>License</h3>\n<p>CC-BY-4.0</p>"
+    },
+    {
+      "id": 18371014,
+      "title": "Algebraic Cipher Types: A Functorial Framework for Secure Computation",
+      "submitted": true,
+      "doi": "10.5281/zenodo.18371014",
+      "conceptrecid": "18371013",
+      "description_excerpt": "A Python library and LaTeX paper presenting algebraic cipher types - a functorial framework that lifts monoids and other algebraic structures into cryptographically secure representations while preserving their computational properties. The cipher functor provides a systematic construction that maps algebraic structures to cipher structures equipped with homomorphic encoding and decoding operations. Includes connections to Bernoulli approximation models and oblivious computing."
+    }
+  ]
+}

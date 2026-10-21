@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-15",
+  "queries": [
+    "\"10.3390/e28090947\"",
+    "\"GBFPlus\" \"correction\"",
+    "\"garbled Bloom filter\" \"occupancy\"",
+    "\"garbled Bloom filter\" \"singleton\"",
+    "\"When Private Set Intersection Meets Big Data\" pdf",
+    "\"GBFPlus\" privacy attack correction erratum",
+    "\"GBFPlus\" \"singleton\" \"Qin\"",
+    "\"10.3390/e28090947\" correction corrigendum erratum",
+    "\"Universal Secure Network Coding via Rank-Metric Codes\" pdf",
+    "\"garbled Bloom\" \"leakage\" \"linear\"",
+    "\"garbled Bloom\" \"occupancy\" \"attack\"",
+    "\"GBFPlus\" attack",
+    "\"Garbled Bloom Filter\" \"singleton\" privacy",
+    "\"garbled Bloom filters\" \"occupancy\" leakage",
+    "\"GBFPlus\" comment correction erratum"
+  ],
+  "scope": "Primary source retrieval and bounded focused correction/priority search; no exhaustive novelty claim.",
+  "result": "No primary correction or earlier explicit GBFPlus occupancy-selected singleton disclosure found. Dong et al. original collision-disclosure warning and 2016 selective-failure notice examined."
+}

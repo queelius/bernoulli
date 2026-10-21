@@ -1,0 +1,26 @@
+{
+  "all_member_bytes_match": true,
+  "zip_crc_ok": true,
+  "unique_member_names": true,
+  "portable_readme_matches_guide": true,
+  "portable_guide_destinations_checked": [
+    "main.pdf",
+    "source-premises.md",
+    "adversarial-review/assessment.md",
+    "adversarial-review/verification.json",
+    "editorial-review/response-ledger.md",
+    "editorial-review/completion-audit.md",
+    "independent-review.md",
+    "declarations.md",
+    "cover-letter.md",
+    "gbfplus-comment-supplement.zip",
+    "gbfplus-comment-source.zip",
+    "verification.json"
+  ],
+  "missing_destinations": [],
+  "review_archive_sha256": "4d6c2ab550e4a57681fbc081ee0d1c71e941180675e9dbda7f1dac9d5b11253c",
+  "members": 202,
+  "prior_review_records_preserved": true,
+  "full_external_primary_sources_not_added": true,
+  "frozen_manuscript_and_tested_source_and_supplement_inputs_included": true
+}

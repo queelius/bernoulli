@@ -1,0 +1,8 @@
+{
+  "url": "https://api.github.com/repos/Qiskit/qiskit-ibm-runtime/commits?path=qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json&per_page=1",
+  "resolved_url": "https://api.github.com/repos/Qiskit/qiskit-ibm-runtime/commits?path=qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json&per_page=1",
+  "http_status": 200,
+  "content_type": "application/json; charset=utf-8",
+  "sha256": "c886d8c893f9184998d412edd04b1e340cd2564107474e922b695a69c888cd5b",
+  "bytes": 4436
+}

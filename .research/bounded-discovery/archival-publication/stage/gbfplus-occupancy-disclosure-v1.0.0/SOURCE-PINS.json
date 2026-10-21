@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "owning_project": "Bernoulli research workspace",
+  "repository_visibility": "private; unchanged",
+  "owning_repository_head_context": "9d38e038d243c3d0f024050d873cda167b6aba77",
+  "head_scope": "Context only: these research files were uncommitted in the private workspace. The archive manifest and SHA-256 identify the actual published source; this head is not claimed to contain it.",
+  "reviewed_manuscript": {
+    "canonical": {
+      "path": "manuscript/main.pdf",
+      "sha256": "bd356ff278292a3675e160a004b6de7bb6c63ea0f7f743f1f7e1ad54f31968e2"
+    },
+    "venue": {
+      "path": "manuscript/venues/entropy-comment/main.pdf",
+      "sha256": "5efca43769831bd824e9cbae81fa05a53dc91d70abb7af7a675188a5867128e4"
+    }
+  },
+  "scientific_files_unchanged_from_author_approved_version": [
+    "manuscript/body.tex",
+    "manuscript/abstract.tex",
+    "manuscript/references.bib",
+    "supplement/gbfplus_probe.py",
+    "supplement/reproduce.py",
+    "supplement/test_gbfplus_probe.py",
+    "supplement/test_reproduction.py",
+    "supplement/reference-results.json"
+  ],
+  "archival_changes": "Publication metadata, availability, review status and licenses only. No scientific propositions, assumptions, calculations, algorithms or tests changed.",
+  "source_paper": {
+    "doi": "10.3390/e28090947",
+    "pdf_url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+    "sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417"
+  },
+  "scientific_source_hashes": {
+    "manuscript/abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "manuscript/body.tex": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc",
+    "manuscript/references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+  }
+}

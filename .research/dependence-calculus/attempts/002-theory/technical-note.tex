@@ -1,0 +1,358 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\Prb}{\mathbb P}
+\newcommand{\Bzero}{\mathcal B_0}
+\newcommand{\Bone}{\mathcal B_1}
+\newcommand{\errzero}{\mathcal E_0}
+\newcommand{\errone}{\mathcal E_1}
+\title{Truth-uniform error contracts for monotone queries with shared sources}
+\author{Alexander Richard Towell\\Southern Illinois University Edwardsville\\
+\texttt{lex@metafunctor.com}}
+\date{October 13, 2026\\\small Internal research note; originality assessment incomplete}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Approximate-query error propagation usually conditions on a fixed exact
+database or assumes a distribution over exact databases. We consider instead
+the worst error over all exact truth assignments giving the specified answer.
+For a monotone Boolean lineage and independent one-sided source noise of rate
+$\alpha$, the exact worst false-positive probability is
+$1-(1-\alpha)^{s_0}$, where $s_0$ is the function's 0-sensitivity. The dual
+false-negative formula uses 1-sensitivity. Heterogeneous rates give weighted
+optimization over boundary certificates; arbitrary dependence gives the sharp
+homogeneous envelope $\min\{1,\alpha s_0\}$. Shared tuple occurrences must first
+be identified as single sources. On binary-witness lineage of source occurrence
+at most two, the sensitivity has a linear-time graph formula. These elementary
+contract consequences are proved and exhaustively checked on small functions.
+They are not asserted to be a new general probability calculus or a sufficient
+standalone publication contribution.
+\end{abstract}
+
+\section{Question, semantics, and scope}
+
+Fix a monotone function $F:\{0,1\}^n\to\{0,1\}$ describing the Boolean
+lineage of one query answer. The variables index distinct frozen random
+sources, not syntactic tuple occurrences. A canonical constraint such as
+$R(u,v)=R(v,u)$ identifies those two tuple occurrences with one variable.
+Repeated evaluation of that source reads the same bit. Distinct sources are
+independent only where explicitly assumed.
+
+Let $x$ be the exact source-membership vector. We permit every $x\in\{0,1\}^n$.
+This is appropriate for class-induced constraints after quotienting because
+every assignment to the classes defines an admissible exact relation. Additional
+constraints, such as functionality or transitivity, can restrict admissible
+truth vectors. The formulas below then remain upper bounds but need not be sharp.
+
+Under independent one-sided false-positive noise with rates
+$\boldsymbol\alpha=(\alpha_i)_{i=1}^n$, use independent uniforms $U_i$ and set
+\[
+ Y_i^+(x)=x_i\lor\mathbf 1\{U_i\leq\alpha_i\}.
+\]
+Under independent one-sided false-negative noise with rates
+$\boldsymbol\beta$, set
+\[
+ Y_i^-(x)=x_i\land\mathbf 1\{U_i>\beta_i\}.
+\]
+Define the truth-uniform errors
+\begin{align*}
+ \errzero(F;\boldsymbol\alpha)
+ &=\max_{x:F(x)=0}\Prb\{F(Y^+(x))=1\},\\
+ \errone(F;\boldsymbol\beta)
+ &=\max_{x:F(x)=1}\Prb\{F(Y^-(x))=0\}.
+\end{align*}
+If the relevant class of exact inputs is empty, define the corresponding
+error as zero. Constant functions therefore have both errors zero.
+This is a mathematical convention for the extremal formulas; the companion
+prototype returns \texttt{None} when the conditioning class is empty, because
+the corresponding conditional error rate is undefined.
+No prior on $x$ is assumed. This differs from computing the probability of a
+fixed lineage under one known source-probability vector.
+
+Let $\Bzero$ be the inclusion-maximal false vectors and $\Bone$ the
+inclusion-minimal true vectors. The one-sided sensitivities are
+\[
+ s_b(F)=\max_{x:F(x)=b}
+ \bigl|\{i:F(x\mathbin\oplus e_i)\ne F(x)\}\bigr|,
+ \qquad b\in\{0,1\},
+\]
+with value zero when the corresponding input class is empty.
+
+\section{Exact independent-source contracts}
+
+\begin{theorem}[Boundary formula]
+For any monotone nonconstant $F$,
+\begin{align}
+ \errzero(F;\boldsymbol\alpha)
+ &=\max_{b\in\Bzero}
+ \left[1-\prod_{i:b_i=0}(1-\alpha_i)\right],\label{eq:hetero-fp}\\
+ \errone(F;\boldsymbol\beta)
+ &=\max_{b\in\Bone}
+ \left[1-\prod_{i:b_i=1}(1-\beta_i)\right].\label{eq:hetero-fn}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+If $x\leq x'$, the uniform construction gives
+$Y^+(x)\leq Y^+(x')$ pointwise. Monotonicity of $F$ implies that its acceptance
+probability is nondecreasing in the exact profile. Every false $x$ has an
+extension $b\in\Bzero$, so it suffices to maximize over such $b$.
+At a maximal false $b$, turning any remaining zero into a one makes $F$ true.
+Existing ones never disappear. Hence $F(Y^+(b))=0$ if and only if all zeros
+of $b$ stay zero. Independence proves~\eqref{eq:hetero-fp}.
+
+For the false-negative case, shrink every true input to a minimal true input
+and use the same monotone coupling. At a minimal true input, losing any
+remaining one makes $F$ false, and no zero can become one. Independence proves
+\eqref{eq:hetero-fn}. Both maxima are attained on actual exact profiles.
+\end{proof}
+
+\begin{proposition}[Boundary sizes]
+For monotone nonconstant $F$,
+\[
+ s_0(F)=\max_{b\in\Bzero}|\{i:b_i=0\}|,
+ \qquad
+ s_1(F)=\max_{b\in\Bone}|\{i:b_i=1\}|.
+\]
+These are also the standard one-sided certificate complexities.
+\end{proposition}
+
+\begin{proof}
+Every zero at a maximal false vector is pivotal, yielding one inequality.
+Conversely, extend any false vector $x$ to a maximal false vector $b$.
+A pivotal zero of $x$ cannot have been changed to one during that extension:
+otherwise monotonicity would force $F(b)=1$. It remains pivotal at $b$,
+again by monotonicity. Thus no pivotal zero is lost. The true-input case is
+dual. For the certificate statement, the zeros of a maximal false vector
+form a minimal zero certificate, and every false vector has a zero certificate
+arising from some maximal false extension. The true case is analogous.
+\end{proof}
+
+\begin{corollary}[Homogeneous contract]
+When all false-positive rates equal $\alpha$ and all false-negative rates
+equal $\beta$ in their respective one-sided models,
+\[
+ \boxed{\errzero(F;\alpha)=1-(1-\alpha)^{s_0(F)}},\qquad
+ \boxed{\errone(F;\beta)=1-(1-\beta)^{s_1(F)}}.
+\]
+\end{corollary}
+
+\begin{remark}[Two-sided channels]
+The two expressions remain upper bounds when both error types are possible:
+removing false negatives can only increase false positives, and removing
+false positives can only increase false negatives. They need not be sharp.
+For $F=X_1\land X_2$, homogeneous rates with $\alpha\leq1-\beta$ give exact
+worst false-positive probability $\alpha(1-\beta)$, whereas the one-sided
+formula is $\alpha$. False positives can rescue false negatives, so these
+effects cannot be combined by simply declaring both one-sided identities exact.
+\end{remark}
+
+\section{Sharp contracts without independence}
+
+Now allow arbitrary dependence among the one-sided error events, subject
+only to the per-source marginal upper bounds. The supremum is over admissible
+couplings as well as exact profiles.
+
+\begin{theorem}[Dependence-robust contract]
+With homogeneous marginal false-positive bound $\alpha$,
+\[
+ \sup_{x:F(x)=0,\ \text{couplings}}
+ \Prb\{F(Y^+(x))=1\}
+ =\min\{1,\alpha s_0(F)\}.
+\]
+For heterogeneous marginal bounds the sharp expression is
+\[
+ \max_{b\in\Bzero}
+ \min\left\{1,\sum_{i:b_i=0}\alpha_i\right\}.
+\]
+The false-negative statements are dual, using $\Bone$ and $s_1$.
+\end{theorem}
+
+\begin{proof}
+For any false $x$, extend it to a maximal false $b$. Its remaining zero
+coordinates form a zero certificate already present in $x$. If none of
+these coordinates flips, the output stays false, regardless of all other
+coordinates. The union bound proves the proposed upper bound.
+
+At a maximizing maximal false profile, every zero flip is sufficient to
+change the output. Events with prescribed probabilities $a_1,\ldots,a_k$
+can have union probability $\min\{1,\sum_i a_i\}$: put disjoint intervals
+of those lengths in the unit interval if their sum is at most one; otherwise
+lay intervals consecutively on the unit circle, whose union covers the
+circle. This supplies an attaining coupling for the source errors. The
+dual argument handles false negatives.
+\end{proof}
+
+Source identity therefore changes the Boolean function and its certificate
+invariant. Independence is separate information that replaces a union bound
+by an exact product at the extremal certificate. For example, repeating the
+same source $k$ times in an OR leaves $s_0=1$ and error $\alpha$;
+$k$ genuinely distinct sources in an OR have $s_0=k$.
+
+\section{Binary witnesses and practical closed forms}
+
+Write positive query lineage as
+\[
+ F=\bigvee_{j=1}^m\bigwedge_{i\in S_j}X_i.
+\]
+Normalize the supports by identifying source aliases, removing repeated
+sources inside a witness, deleting duplicate witnesses, and absorbing every
+witness containing another. Then $s_1$ is the maximum witness size, while
+$s_0$ is the largest size of an inclusion-minimal hitting set of the
+witness family. The word ``minimal'' refers to inclusion, not cardinality.
+
+For binary witnesses, represent every support $\{u,v\}$ by an edge of a
+simple graph $G$. Maximal false profiles are maximal independent sets, hence
+\begin{equation}
+ s_0(F_G)=|V(G)|-i(G),\label{eq:independent-domination}
+\end{equation}
+where $i(G)$ is the minimum size of a maximal independent set, equivalently
+the independent domination number. If an edge exists, $s_1(F_G)=2$.
+
+\begin{proposition}[Occurrence at most two]
+Suppose normalized witness width and source occurrence are at most two.
+Let $U$ be the singleton witnesses, and let the remaining binary graph
+have path or cycle components $G_c$ of orders $n_c$. Then
+\[
+ s_0=|U|+\sum_c\left(n_c-\left\lceil n_c/3\right\rceil\right),
+ \qquad s_1=\max_j|S_j|.
+\]
+These quantities and the homogeneous one-sided contracts are computable
+with a linear number of graph operations.
+\end{proposition}
+
+\begin{proof}
+The occurrence bound makes graph degree at most two. A selected vertex in
+an independent dominating set of a path or cycle covers at most three
+vertices, so $i(G_c)\geq\lceil n_c/3\rceil$.
+For a path, select every third vertex starting at the second when
+$n_c\equiv0,2\pmod3$, and starting at the first when $n_c\equiv1\pmod3$.
+For a cycle, let $r=\lceil n_c/3\rceil$ and put selected vertices at cyclic
+gaps two or three summing to $n_c$; this is possible because
+$2r\leq n_c\leq3r$. These sets are independent and dominating.
+The invariant adds over components, and every singleton must belong to
+every hitting set. Equation~\eqref{eq:independent-domination} completes the proof.
+\end{proof}
+
+Heterogeneous false-positive rates require weighted optimization over
+minimal vertex covers. On a path, minimize
+$\prod_{i\notin S}(1-\alpha_i)$ over independent dominating sets $S$.
+A three-state dynamic program tracks whether the current vertex is selected,
+unselected and dominated from the left, or unselected and awaiting a selected
+right neighbor. With $q_i=1-\alpha_i$, its state update is
+\[
+ A'=\min(B,C),\qquad B'=q_iA,\qquad C'=q_iB.
+\]
+Initialize $(A,B,C)=(1,\text{unreachable},q_1)$ and accept states $A,B$
+at the end. Unreachable states are not ordinary numerical infinities
+multiplied by zero. Cycles require a constant number of boundary cases.
+This is a standard independent-domination dynamic program with multiplicative
+costs. The homogeneous formula avoids even this optimization.
+
+\section{An adjacent limitation: symmetry and exact inference}
+
+Identifying symmetric tuples preserves marginal rates, but can change the
+complexity of exact inference. Let $G$ be a simple cubic graph, and let an
+exact relation $D$ contain one tuple $(v,a,b,c)$ listing the three neighbors
+of each vertex $v$. Consider the fixed query
+\[
+ \exists v,a,b,c:\quad D(v,a,b,c)\land R(v,a)\land R(v,b)\land R(v,c).
+\]
+Let all queried tuples be exact nonmembers, and let their FPR be $p$.
+Independent directed tuple sources give read-once lineage and false-positive
+probability $1-(1-p^3)^{|V|}$. Canonical symmetry identifies $R(u,v)$ with
+$R(v,u)$; each undirected edge is now a single independent bit used twice.
+Every individual tuple rate $p$ and witness rate $p^3$ is preserved.
+
+The query is false exactly when the zero edges form an edge cover. At
+$p=1/2$ its FPR is therefore
+\[
+ 1-\frac{\#\operatorname{EdgeCovers}(G)}{2^{|E|}}.
+\]
+Counting edge covers on simple planar cubic graphs is already
+\#P-hard~\cite{amarilliMonet,caiLuXia}. This is a consequence of established
+counting results, not a new hardness theorem. It explains why a compact
+worst-case contract and an exact probability for a particular truth profile
+can be very different computational goals. A nonempty exact relation can
+be supplied by adding an unqueried true symmetric sentinel pair, if the
+underlying formalism treats the empty relation as a special exact case.
+
+\section{Verification and novelty assessment}
+
+The companion program \texttt{check\_contracts.py} enumerates every monotone
+function on one through four variables: respectively 3, 6, 20, and 168
+functions. It checks the homogeneous identities at rates
+$0,1/5,1/2,1$, plus heterogeneous identities, using exact rational arithmetic.
+All 1,970 identity checks passed. It also verified the graph invariant on
+305 labeled maximum-degree-two graphs with at most five vertices.
+The separate program \texttt{check\_theory.py} checked 256 projection-covariance
+cases, eight weighted paths, 87 weighted cycles including degenerate rates,
+and the cubic $K_4$ edge-cover construction. The latter has 41 edge covers,
+canonical FPR $23/64$, and prequotient FPR $1695/4096$.
+
+These checks validate implementations on a finite domain; the proofs, not
+the tests, justify the general identities. No implemented approximate filter
+has been shown to satisfy the independent-source model in this note.
+
+Boolean provenance, weighted model counting, and dissociation already provide
+sound ways to evaluate or bound a fixed truth profile~\cite{gatterbauerSuciu}.
+Correlated databases can make even read-once lineage difficult~\cite{kanagalDeshpande}.
+For monotone functions, sensitivity and certificate complexity coincide;
+this is standard and explicitly recalled in recent work~\cite{blanc}.
+Gopalan et al. give pointwise two-sided noise bounds in terms of sensitivity
+\cite[Lemma 15]{gopalan}. The present sharp one-sided extremal formulas are
+elementary certificate consequences. The targeted search did not identify
+a paper stating precisely these contract formulas, but failure to locate
+such a statement does not establish originality.
+
+The next research question is whether their combination with canonical
+source identity enables a useful new contract compiler, a nontrivial tractable
+class under semantic constraints, or an error/storage optimization that existing
+tools do not already provide. Until that is demonstrated, this document should
+be treated as an internal technical note and a possible extension of the
+existing relations manuscript, not a submission-ready standalone contribution.
+
+\begin{thebibliography}{9}
+\bibitem{gatterbauerSuciu}
+Wolfgang Gatterbauer and Dan Suciu.
+Oblivious bounds on the probability of Boolean functions.
+\emph{ACM Transactions on Database Systems}, 39(1), Article 5, 2014.
+\href{https://doi.org/10.1145/2532641}{doi:10.1145/2532641}.
+
+\bibitem{kanagalDeshpande}
+Bhargav Kanagal and Amol Deshpande.
+Lineage processing over correlated probabilistic databases.
+\emph{SIGMOD}, 2010.
+\href{https://research.google/pubs/lineage-processing-on-correlated-probabilistic-databases/}{Author-hosted publication page}.
+
+\bibitem{gopalan}
+Parikshit Gopalan, Noam Nisan, Rocco A. Servedio, Kunal Talwar, and Avi Wigderson.
+Smooth Boolean functions are easy: Efficient algorithms for low-sensitivity
+functions. \emph{ITCS}, pages 59--70, 2016.
+\href{https://doi.org/10.1145/2840728.2840738}{doi:10.1145/2840728.2840738}.
+
+\bibitem{blanc}
+Guy Blanc, Caleb Koch, Jane Lange, and Li-Yang Tan.
+A query-optimal algorithm for finding counterfactuals.
+\emph{Proceedings of Machine Learning Research}, 162:2075--2090, 2022.
+\url{https://proceedings.mlr.press/v162/blanc22a.html}.
+
+\bibitem{amarilliMonet}
+Antoine Amarilli and Mika\"el Monet.
+Weighted counting of matchings in unbounded-treewidth graph families.
+\emph{MFCS}, 2022. Extended version, arXiv:2205.00851v2, 2023, Section 6.
+\url{https://arxiv.org/abs/2205.00851}.
+
+\bibitem{caiLuXia}
+Jin-Yi Cai, Pinyan Lu, and Mingji Xia.
+Holographic reduction, interpolation and hardness.
+\emph{Computational Complexity}, 21(4):573--604, 2012.
+\url{https://pages.cs.wisc.edu/~jyc/880/HRIH.pdf}.
+\end{thebibliography}
+\end{document}

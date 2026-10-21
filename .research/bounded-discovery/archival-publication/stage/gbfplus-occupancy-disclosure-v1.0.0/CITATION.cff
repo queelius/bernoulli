@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "Please cite the exact preprint version in preferred-citation. The associated code is MIT licensed; the preprint and data are CC BY 4.0."
+type: software
+title: "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus: reproducible evidence"
+version: 1.0.0
+authors:
+  - family-names: Towell
+    given-names: Alexander Richard
+    orcid: https://orcid.org/0000-0001-6443-9897
+    affiliation: Southern Illinois University Edwardsville
+    email: lex@metafunctor.com
+doi: 10.5281/zenodo.23497466
+date-released: '2026-10-20'
+url: https://zenodo.org/records/23497466
+license: MIT
+preferred-citation:
+  type: generic
+  title: "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus"
+  authors:
+    - family-names: Towell
+      given-names: Alexander Richard
+      orcid: https://orcid.org/0000-0001-6443-9897
+  year: 2026
+  version: 1.0.0
+  doi: 10.5281/zenodo.23497466
+  publisher:
+    name: Zenodo
+  notes: "Archival preprint; not peer reviewed. Note and data: CC-BY-4.0; software: MIT."

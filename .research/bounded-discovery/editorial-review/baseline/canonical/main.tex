@@ -1,0 +1,262 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,microtype}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Adjacent-Domain Disclosure from Public Occupancy in GBFPlus},
+pdfauthor={Alexander Richard Towell}}
+\newtheorem{proposition}{Proposition}
+\newcommand{\xor}{\mathbin{\oplus}}
+\newcommand{\suffix}{\operatorname{suffix}}
+\title{Adjacent-Domain Disclosure from Public Occupancy in GBFPlus}
+\author{Alexander Richard Towell\\
+\small Southern Illinois University Edwardsville\\
+\small \href{mailto:lex@metafunctor.com}{lex@metafunctor.com}\\
+\small ORCID: \href{https://orcid.org/0000-0001-6443-9897}{0000-0001-6443-9897}}
+\date{October 14, 2026\\\small Working draft for author review; not submitted}
+\begin{document}
+\maketitle
+\begin{abstract}
+GBFPlus publishes occupancy-marked XOR shares to support authorized tracing
+of cross-domain data flows. Its stated confidentiality goals include hiding
+adjacent-domain relationships from ordinary ledger observers. We show that an
+honestly generated filter containing one successful insertion reveals its
+adjacent-domain identifier exactly: the observer XORs its occupied cells and
+reads the identifier suffix. Such a filter is permitted by time-window
+finalization. More generally, a public occupancy count equal to the insertion
+count times the number of shares certifies disjoint insertion supports and
+reveals the XOR of their adjacent-domain identifiers. These results hold for
+every share realization without learning a query token or data identifier.
+We supply finite exhaustive checks and a share-level implementation, distinguish
+this disclosure from the paper's identifier-privacy game, and compare the
+exposure with the padding and access pattern of the original garbled Bloom
+filter. The contribution is a protocol-specific confidentiality counterexample,
+not a new general result about XOR sharing.
+\end{abstract}
+
+\section{The confidentiality claim and public view}
+
+Qin et al. propose GBFPlus for privacy-preserving on-chain attestation of
+cross-domain data transfers~\cite{qin2026gbfplus}. Section 4.2 includes adjacent
+domain relationships among the metadata to be concealed from ordinary ledger
+observers; Table 1 also presents the adjacent domain as protected. The purpose
+of this note is to identify an honest execution in which the public filter
+directly discloses that payload.
+
+The attack uses the published representation and Algorithm 4. A filter has
+$m$ cells, each with an occupancy indicator and a $\lambda$-bit payload. An
+unoccupied cell is distinguishable from an occupied cell containing the all-zero
+word. A successful insertion selects $\kappa$ distinct positions and enforces
+\begin{equation}
+  \bigoplus_{j\in S_i} Z_j = T_i,
+  \qquad T_i=P_i\mathbin\Vert N_i, \qquad |S_i|=\kappa,
+  \label{eq:row}
+\end{equation}
+where $N_i$ is the $\ell$-bit adjacent-domain identifier and $P_i$ is a
+$(\lambda-\ell)$-bit truncated hash of a secret-derived value. Registered
+domain identifiers and their associations are public (Section 5.1).
+The attacker need not know $P_i$, the data identifier, the hidden index seed,
+or the selected positions in advance.
+
+An insertion reserves one empty selected cell, fills the other empty selected
+cells independently at random, reuses previously occupied values, and places
+the required XOR residual in the reserved cell. If no selected cell is empty,
+the insertion fails without modifying the filter. Occupied words are never
+overwritten by a later successful insertion, so previous equations remain
+valid. The filter starts empty.
+
+Section 5.2 permits finalization at the end of a configured time window, as
+well as upon capacity or insertion failure. It does not specify a minimum
+successful insertion count. The transaction described following Equation (5)
+contains the finalized filter and the successful insertion count $c$.
+Section 6.2 explicitly accounts for occupancy and sparse payload storage.
+Thus a time window containing one successful insertion can publish $c=1$ and
+its complete occupied share set. This is an allowed execution, not a claim
+about how often singleton windows occur in any deployment.
+
+We assume an honestly generated, authentically committed snapshot. Public
+dimensions and count alone do not prove that a maliciously formed table has
+such a history. The observer reads the public transaction but has no regulator
+secret, authorization token, or active query capability. The view is frozen:
+reading it twice gives the same cells. The attack already succeeds on one
+snapshot and needs neither adaptive queries nor independent reconstructions.
+
+\section{Exact disclosure from occupancy}
+
+Let $O$ be the publicly occupied set and $w=|O|$. Since the filter starts empty
+and only successful insertions add cells,
+$O=\bigcup_{i=1}^{c}S_i$. Failed insertions do not change this union or $c$.
+Write $\suffix_\ell(x)$ for the final $\ell$ bits of a word $x$.
+
+\begin{proposition}[Publicly certified disjoint supports]
+\label{prop:disjoint}
+For an honestly generated snapshot with $c\geq1$, if $w=c\kappa$, then
+\begin{equation}
+ \suffix_\ell\!\left(\bigoplus_{j\in O}Z_j\right)
+       =\bigoplus_{i=1}^{c}N_i.
+ \label{eq:leak}
+\end{equation}
+In particular, every finalized singleton reveals its adjacent-domain
+identifier with probability one over all construction randomness.
+\end{proposition}
+
+\begin{proof}
+Each support has $\kappa$ distinct positions. Equality in
+$|\bigcup_i S_i|\leq\sum_i|S_i|=c\kappa$ implies that the supports are pairwise
+disjoint. Therefore XORing the occupied words is the same as XORing the
+left-hand sides of~\eqref{eq:row} once each. This gives $\bigoplus_i T_i$.
+Taking the suffix commutes with XOR and proves~\eqref{eq:leak}.
+When $c=1$, the occupied set is exactly $S_1$, so the condition always holds.
+The argument is an identity for every valid realization.
+\end{proof}
+
+The observer scans occupancy, counts occupied cells, and accumulates their
+XOR. It returns the suffix only if $c\geq1$ and $w=c\kappa$; otherwise this
+particular attack abstains. A singleton costs $O(m+\kappa\lambda)$ elementary
+bit operations and $O(\lambda+\log m)$ auxiliary bits when the input can be
+scanned. The general certified case costs $O(m+c\kappa\lambda)$. This does not
+include downloading, parsing, or authenticating a ledger transaction. No
+dictionary of candidate data identifiers or search over hidden supports is
+needed. For $c>1$ the conclusion is an aggregate XOR, not recovery of the
+individual endpoints or their multiset.
+
+\begin{proposition}[Uniform individual shares, distinguishable joint views]
+\label{prop:joint}
+Fix a singleton support, prefix, and $\kappa\geq2$. Each occupied payload word
+is uniformly distributed on $\{0,1\}^{\lambda}$, independently of the adjacent
+identifier. Nevertheless the complete payload views for two distinct adjacent
+identifiers have disjoint supports.
+\end{proposition}
+
+\begin{proof}
+Algorithm 4 samples $\kappa-1$ independent uniform words and fixes the remaining
+word to satisfy~\eqref{eq:row}. Each sampled word is uniform. The residual word
+is uniform because its XOR includes at least one independent uniform word.
+However the suffix of the XOR of the entire view is always the specified
+identifier. Two different identifiers cannot yield the same complete view.
+\end{proof}
+
+This gives a simple confidentiality comparison. Fix the public registration
+table, publishing administrator, data identifier, direction, time window,
+configuration, count, and occupied positions. Choose one of two different
+registered adjacent-domain identifiers with equal probability and construct
+the singleton honestly. The hidden position derivation in Algorithm 4 does
+not use the adjacent-domain suffix, so these structural quantities can be the
+same in both cases. The observer identifies the choice with success
+probability one by Proposition~\ref{prop:disjoint}. Occupancy alone is identical
+between the cases; the leak comes from the public payloads selected by it.
+Digests and signatures authenticate the challenge-dependent filter and are
+part of its public view, not structural metadata required to remain identical.
+
+This comparison formalizes adjacent-payload confidentiality. It is not claimed
+to be the paper's $G_{\mathrm{qpriv}}$ game. That game selects data identifiers,
+and Theorem 4 addresses identifier privacy and fresh blinding. Revealing the
+same adjacent identifier in both worlds would not by itself distinguish those
+identifier choices. Nor does our result identify the anonymous signer, recover
+raw data, reconstruct a complete path, or produce an authorized query token.
+
+\section{Reproduction and established baselines}
+
+The accompanying artifact implements the stored share array and Algorithm 4's
+update, with explicit randomness inputs. It does not implement pairings,
+signatures, the ledger, or the finalization scheduler. Those mechanisms supply
+premises checked against the published specification, rather than assumptions
+about sampled cryptographic behavior. Table~\ref{tab:checks} summarizes checks
+of the new protocol-specific claim. Proofs above establish the general result;
+enumeration checks the implementation.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{p{0.56\linewidth}rr}
+\toprule
+Check & Cases & Failures\\
+\midrule
+Singleton: all four suffixes and all pairs of 3-bit free shares
+($\kappa=3$, $\ell=2$) & 256 & 0\\
+Two disjoint insertions: all suffix pairs and free-share pairs
+($\kappa=2$, $\lambda=3$, $\ell=2$) & 1,024 & 0\\
+Separately seeded stored arrays ($\kappa=12$, $\lambda=32$,
+$\ell=20$, $m=64$) & 64 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Verification of exact suffix recovery or aggregate recovery.
+The larger word widths and $\kappa$ match Section 6.3 of the source paper;
+$m=64$ is an illustrative configuration chosen for this artifact.}
+\label{tab:checks}
+\end{table}
+
+For example, with a 3-bit target $101$ and selected positions $(5,1,3)$,
+free shares $010$ and $111$ give a residual $000$. The publicly occupied
+values XOR to $101$, disclosing the suffix $01$ despite the zero residual.
+Tests also cover overlapping supports, unchanged previous row equations,
+atomic insertion failure, position-order changes, empty filters, and frozen
+repeated reads. The seeded checks use a reproducible general-purpose PRNG;
+the theorem holds for every share choice and does not rely on its security.
+
+The underlying algebra is established. Linear coset-encoding analyses already
+characterize information in joint linear observations by rank deficits; see
+Silva and Kschischang, Lemma 6~\cite{silva2011universal}. Marginal distribution
+shaping does not replace a joint-view argument. Accordingly, this note does not
+claim a new general leakage calculus or a break of oblivious key-value stores
+under their own value-distribution and access assumptions. Its increment is
+the publicly identifiable complete share set in the stated GBFPlus execution.
+
+The original garbled Bloom filter is a necessary contrast. Dong, Chen, and
+Wen's construction fills all remaining empty cells with random words
+(Algorithm 1, lines 22--26); its private-set-intersection protocol uses
+oblivious transfer to deliver the intersection structure~\cite{dong2013gbf}.
+It does not expose an unauthorized observer to the same full server structure
+and genuine occupancy selector as this attack assumes. The authors also
+distinguish recovering a stored value from a false-positive membership answer.
+
+For the specific all-cell XOR statistic, one independent uniform padding word
+makes the result uniform if the observer cannot remove it using a genuine
+occupancy selector. Filling unused GBFPlus cells while retaining that selector
+does not help: the observer still selects exactly $O$. These facts do not
+prove that deleting occupancy alone secures GBFPlus against other attacks.
+Independent secret masks on endpoint suffixes would also hide this statistic,
+but secret masking is an established technique: for example, Hao et al.
+encode arbitrary values after PRF masking in their OKVR construction
+\cite{hao2024okvr}. A protocol repair must specify authorized demasking,
+key management, and separation across instances. Reusing a pad across releases
+can expose differences. No complete repaired GBFPlus protocol is claimed here.
+
+\section{Implication and limits}
+
+Equation (27) of the source paper analyzes acceptance of guessed tuples under
+its random-share model, using both a prefix test and a domain-membership test.
+The observer here
+does not validate the unknown prefix: it reads the adjacent-domain suffix of
+a complete share set identified by public occupancy. Accidental query acceptance
+and confidentiality of that suffix are different events.
+
+The protocol therefore permits endpoint disclosure beyond its explicitly
+visible count, occupancy, direction, and timing. Enforcing a minimum count
+would exclude singleton publication but would not by itself invalidate the
+disjoint-support aggregate in Proposition~\ref{prop:disjoint}. The frequency
+and impact of these conditions in operational workloads remain unmeasured.
+A revised confidentiality claim or construction should address the complete
+public payload view, including admissible partial batches. This narrow
+counterexample does not require a broader attack on the cryptographic primitives.
+
+\paragraph{Reproducibility.}
+The local companion artifact contains source code, tests, seeded arrays, exact
+enumerations, source hashes, and commands. Its local directory is
+\begin{quote}\small
+\path{.research/bounded-discovery/frozen-retrieval/}
+\end{quote}
+It has not been deposited publicly. A public artifact location and final
+disclosures should be set by the author before any submission.
+
+\paragraph{Draft assistance disclosure.}
+OpenAI Codex assisted with literature screening, derivation, implementation,
+testing, and drafting. A separate agent reviewed the premises and code;
+this is not external peer review. This working draft requires the named
+author's review and approval before external use.
+
+\clearpage
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

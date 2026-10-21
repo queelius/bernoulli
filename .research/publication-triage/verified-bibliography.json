@@ -1,0 +1,580 @@
+[
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "juels2014honey",
+    "title": "Honey Encryption: Security Beyond the Brute-Force Bound",
+    "authors": [
+      "Ari Juels",
+      "Thomas Ristenpart"
+    ],
+    "year": 2014,
+    "venue": "EUROCRYPT",
+    "url": "https://pages.cs.wisc.edu/~rist/papers/honeyenc.html",
+    "full_text": "https://pages.cs.wisc.edu/~rist/papers/HoneyEncryptionpre.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Author publication page; full-text Section 4 (DTE and inverse sampling).",
+    "relationship": "Direct predecessor for abstract codec distribution shaping and randomized within-fiber encoding; different cryptographic object."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "cheng2019pmte",
+    "title": "Probability Model Transforming Encoders Against Encoding Attacks",
+    "authors": [
+      "Haibo Cheng",
+      "Zhixiong Zheng",
+      "Wenting Li",
+      "Ping Wang",
+      "Chao-Hsien Chu"
+    ],
+    "year": 2019,
+    "venue": "USENIX Security",
+    "pages": "1573–1590",
+    "url": "https://www.usenix.org/conference/usenixsecurity19/presentation/cheng",
+    "full_text": "https://www.usenix.org/system/files/sec19-cheng.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official proceedings abstract and BibTeX.",
+    "relationship": "Encoding-attack and probability-model precedent; not claimed to solve the same retrieval optimization."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "filic2022pds",
+    "title": "Adversarial Correctness and Privacy for Probabilistic Data Structures",
+    "authors": [
+      "Mia Filić",
+      "Kenneth G. Paterson",
+      "Anupama Unnikrishnan",
+      "Fernando Virdia"
+    ],
+    "year": 2022,
+    "venue": "ACM CCS",
+    "url": "https://arxiv.org/abs/2209.06955",
+    "full_text": "https://arxiv.org/html/2209.06955",
+    "verified_on": "2026-10-14",
+    "examined": "Author preprint metadata, abstract and introductory security-model discussion; abstract says accepted CCS 2022.",
+    "relationship": "API/internal-state and adaptive privacy framework for AMQ; membership rather than identical retrieval-value problem."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "dietzfelbinger2026ribbon",
+    "title": "Ribbon: Fast Succinct Static Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Peter C. Dillinger",
+      "Lorenz Hübschle",
+      "Peter Sanders",
+      "Stefan Walzer"
+    ],
+    "year": 2026,
+    "venue": "Journal of the ACM",
+    "volume": 73,
+    "issue": 1,
+    "article": 7,
+    "pages": "1–45",
+    "doi": "10.1145/3785417",
+    "url": "https://publikationen.bibliothek.kit.edu/1000191446",
+    "full_text": "https://publikationen.bibliothek.kit.edu/1000191446/177619178",
+    "verified_on": "2026-10-14",
+    "examined": "Publisher PDF deposited by authors' institution; Section 1.7 and Section 5.4 Lemma 5.4.",
+    "relationship": "Exact row-span exception with random free variables; different from the companion's zero-filled value-span identity."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "boecherer2010dyadic",
+    "title": "Matching Dyadic Distributions to Channels",
+    "authors": [
+      "Georg Böcherer",
+      "Rudolf Mathar"
+    ],
+    "year": 2010,
+    "venue": "arXiv preprint 1009.3751v4",
+    "url": "https://arxiv.org/abs/1009.3751v4",
+    "verified_on": "2026-10-14",
+    "examined": "Author preprint abstract and metadata; lists planned DCC 2011 presentation.",
+    "relationship": "Geometric Huffman coding optimizes KL over dyadic laws, not the same TV objective."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "cheng2025honeyvault",
+    "title": "Practically Secure Honey Password Vaults: New Design and New Evaluation against Online Guessing",
+    "authors": [
+      "Haibo Cheng",
+      "Fugeng Huang",
+      "Jiahong Yang",
+      "Wenting Li",
+      "Ping Wang"
+    ],
+    "year": 2025,
+    "venue": "USENIX Security",
+    "url": "https://www.usenix.org/conference/usenixsecurity25/presentation/cheng-haibo",
+    "full_text": "https://www.usenix.org/system/files/usenixsecurity25-cheng-haibo.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official proceedings page and abstract.",
+    "relationship": "Recent adjacent operational-security evaluation; not a direct retrieval-codec theorem predecessor."
+  },
+  {
+    "candidate": "codec-privacy",
+    "source_registry": "candidates/codec-privacy/references.json",
+    "id": "bienstock2023okvs",
+    "title": "Near-Optimal Oblivious Key-Value Stores for Efficient PSI, PSU and Volume-Hiding Multi-Maps",
+    "authors": [
+      "Alexander Bienstock",
+      "Sarvar Patel",
+      "Joon Young Seo",
+      "Kevin Yeo"
+    ],
+    "year": 2023,
+    "venue": "USENIX Security",
+    "pages": "301–318",
+    "url": "https://www.usenix.org/conference/usenixsecurity23/presentation/bienstock",
+    "full_text": "https://www.usenix.org/system/files/usenixsecurity23-bienstock.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official primary PDF, Section 2.1 Definition 4 and Algorithm 1; independent reviewer checked Theorem 1.",
+    "relationship": "Non-input-key random decoding is studied under uniformly random input values. Does not subsume arbitrary-value zero-filled codec/span laws."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "lehmann2025seeds",
+    "title": "Combined Search and Encoding for Seeds, with an Application to Minimal Perfect Hashing",
+    "authors": [
+      "Hans-Peter Lehmann",
+      "Peter Sanders",
+      "Stefan Walzer",
+      "Jonatan Ziegler"
+    ],
+    "year": 2025,
+    "venue": "ESA",
+    "doi": "10.4230/LIPIcs.ESA.2025.109",
+    "url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol351-esa2025/html/LIPIcs.ESA.2025.109/LIPIcs.ESA.2025.109.html",
+    "verified_on": "2026-10-14",
+    "examined": "Official full HTML; Section 1.1 UNI and Lemma 3. Root independently checked after investigator run.",
+    "supports": "Existing shared-seed codebook mechanism attains information-scale storage with exponential work; joint seed improvements are not a contradiction to single-seed entropy."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "chazelle2004bloomier",
+    "title": "The Bloomier Filter: An Efficient Data Structure for Static Support Lookup Tables",
+    "authors": [
+      "Bernard Chazelle",
+      "Joe Kilian",
+      "Ronitt Rubinfeld",
+      "Ayellet Tal"
+    ],
+    "year": 2004,
+    "venue": "SODA",
+    "url": "https://www.cs.princeton.edu/~chazelle/pubs/soda04.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Author-hosted full PDF, Section 3 and 3.3; local PDF/text/page image in this directory.",
+    "supports": "Static support maps and valid-range decoding already relate acceptance probability to the size of an interval; not the identical seed-only construction."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "pagh2005optimal",
+    "title": "An Optimal Bloom Filter Replacement",
+    "authors": [
+      "Anna Pagh",
+      "Rasmus Pagh",
+      "S. Srinivasa Rao"
+    ],
+    "year": 2005,
+    "venue": "SODA",
+    "url": "https://www.rasmuspagh.net/papers/bloom.pdf",
+    "metadata_url": "https://rasmuspagh.net/papers/",
+    "verified_on": "2026-10-14",
+    "examined": "Author-hosted primary PDF introduction and author publication list.",
+    "supports": "AMQ definition permits a random superset with per-fixed-nonmember error probability; random realized FPR alone does not escape it."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "dietzfelbinger2008retrieval",
+    "title": "Succinct Data Structures for Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Rasmus Pagh"
+    ],
+    "year": 2008,
+    "venue": "arXiv:0803.3693 (author manuscript)",
+    "url": "https://arxiv.org/abs/0803.3693",
+    "full_text": "https://www.rasmuspagh.net/papers/bloomier.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Primary PDF, Observation 1 and Theorem 1; root independently checked primary abstract/metadata.",
+    "supports": "Retrieval-to-AMQ reduction and succinct constructions; no new originality follows merely from a seed reaching the information scale."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "dietzfelbinger2026ribbon",
+    "title": "Ribbon: Fast Succinct Static Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Peter C. Dillinger",
+      "Lorenz Hübschle",
+      "Peter Sanders",
+      "Stefan Walzer"
+    ],
+    "year": 2026,
+    "venue": "Journal of the ACM",
+    "doi": "10.1145/3785417",
+    "url": "https://publikationen.bibliothek.kit.edu/1000191446/177619178",
+    "verified_on": "2026-10-14",
+    "examined": "Publisher PDF introduction and Section 5.4; independent root and codec-review checks.",
+    "supports": "Current succinct retrieval baseline and row-span exception for homogeneous filtering. No filter-runtime reproduction claimed."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "graf2020xor",
+    "title": "Xor Filters: Faster and Smaller Than Bloom and Cuckoo Filters",
+    "authors": [
+      "Thomas Mueller Graf",
+      "Daniel Lemire"
+    ],
+    "year": 2020,
+    "venue": "Journal of Experimental Algorithmics 25(1)",
+    "doi": "10.1145/3376122",
+    "url": "https://arxiv.org/abs/1912.08258v3",
+    "verified_on": "2026-10-14",
+    "examined": "Primary author abstract and publication metadata only.",
+    "supports": "Practical baseline beyond Bloom; benchmark figures are not reproduced or used as measurements of this project."
+  },
+  {
+    "candidate": "hash-construction",
+    "source_registry": "candidates/hash-construction/references.json",
+    "id": "graf2022binaryfuse",
+    "title": "Binary Fuse Filters: Fast and Smaller Than Xor Filters",
+    "authors": [
+      "Thomas Mueller Graf",
+      "Daniel Lemire"
+    ],
+    "year": 2022,
+    "venue": "Journal of Experimental Algorithmics",
+    "url": "https://arxiv.org/abs/2201.01174",
+    "verified_on": "2026-10-14",
+    "examined": "Primary abstract and publication metadata; no full empirical replication.",
+    "supports": "Modern practical comparison point; no measured performance claim in this triage."
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "ptm2008",
+    "doi": "10.1145/1297666.1297674",
+    "primary_url": "https://web.eecs.umich.edu/~jhayes/SK_PTMsInSymbRelAnal_TODAES-08.pdf",
+    "locators": [
+      "Abstract, p. 8:1",
+      "Introduction and Background, p. 8:2",
+      "Table I, p. 8:19"
+    ],
+    "access": "Bibliographic metadata verified via Crossref; indexed primary PDF text inspected for the listed scope claims. Full PDF not retrieved: certificate-chain validation failed, an unauthenticated diagnostic retry reached 404; publisher returned 403; CiteSeer mirror returned 404. Do not describe this as a full-paper read.",
+    "supports": "Prior symbolic forward reliability calculus accommodates input-pattern-dependent faults, serial/tensor composition and reconvergent fanout. Indexed p. 8:2 explicitly distinguishes conditional input-word errors from averages over a joint input distribution.",
+    "does_not_establish": "No claim that this paper contains the current manuscript's specific quantum example or scalar crosstalk equation.",
+    "verified_on": "2026-10-14",
+    "title": "Probabilistic transfer matrices in symbolic reliability analysis of logic circuits",
+    "authors": [
+      "Smita Krishnaswamy",
+      "George F. Viamontes",
+      "Igor L. Markov",
+      "John P. Hayes"
+    ],
+    "publication": {
+      "container-title": [
+        "ACM Transactions on Design Automation of Electronic Systems"
+      ],
+      "volume": "13",
+      "issue": "1",
+      "page": "1-35",
+      "article-number": null,
+      "published": {
+        "date-parts": [
+          [
+            2008,
+            1
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.1145/1297666.1297674"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "hamilton2020",
+    "doi": "10.1109/QCE49297.2020.00060",
+    "primary_url": "https://arxiv.org/abs/2006.01805",
+    "full_text_url": "https://arxiv.org/pdf/2006.01805",
+    "institutional_metadata_url": "https://impact.ornl.gov/en/publications/scalable-quantum-processor-noise-characterization",
+    "locators": [
+      "Sec. II B, Eq. (1)",
+      "Sec. II B-C, Eqs. (2)-(4)",
+      "Sec. II D, limitation from unmeasured higher-order correlated noise"
+    ],
+    "access": "Full primary arXiv PDF downloaded and targeted sections read; SHA256 recorded in evidence/hamilton2020_access.json. Conference metadata independently verified through Crossref and ORNL.",
+    "supports": "Conditional one- and two-qubit readout matrices, cumulant expansion, reconstruction of larger readout matrices, and explicit limitations when higher-order effects matter.",
+    "inference": "Projection of that standard moment-cumulant construction onto parity motivates the audit's all-partial-matchings baseline; exact occurrence of the draft's scalar first-pair formula is not claimed.",
+    "verified_on": "2026-10-14",
+    "title": "Scalable quantum processor noise characterization",
+    "authors": [
+      "Kathleen E. Hamilton",
+      "Tyler Kharazi",
+      "Titus Morris",
+      "Alexander J. McCaskey",
+      "Ryan S. Bennink",
+      "Raphael C. Pooser"
+    ],
+    "publication": {
+      "container-title": [
+        "2020 IEEE International Conference on Quantum Computing and Engineering (QCE)"
+      ],
+      "volume": null,
+      "issue": null,
+      "page": "430-440",
+      "article-number": null,
+      "published": {
+        "date-parts": [
+          [
+            2020,
+            10
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.1109/QCE49297.2020.00060"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "smith2021",
+    "doi": "10.1126/sciadv.abi8009",
+    "primary_url": "https://arxiv.org/abs/2106.05800",
+    "full_text_url": "https://arxiv.org/pdf/2106.05800",
+    "locators": [
+      "General asymmetric response matrix, Eq. (1)",
+      "Tensor-product single-qubit channels, Eq. (2)",
+      "Response-matrix structure and spectrum, Eqs. (9)-(12)",
+      "Sec. IV B, derivation via Hadamard transforms"
+    ],
+    "access": "Full arXiv v2 PDF downloaded and targeted sections read; SHA256 recorded in evidence/smith2021_access.json. PMC direct open returned a bot check; no dependence on bypassing it. Published metadata verified via Crossref and arXiv.",
+    "supports": "Asymmetry is already represented before active bit-flip averaging; Walsh/Hadamard readout-channel diagonalization and correlated error-pattern probabilities are established.",
+    "does_not_establish": "Bit-flip averaging changes the effective experimental channel; it is not identical to merely replacing rates by their average in an unchanged experiment.",
+    "verified_on": "2026-10-14",
+    "title": "Qubit readout error mitigation with bit-flip averaging",
+    "authors": [
+      "Alistair W. R. Smith",
+      "Kiran E. Khosla",
+      "Chris N. Self",
+      "M. S. Kim"
+    ],
+    "publication": {
+      "container-title": [
+        "Science Advances"
+      ],
+      "volume": "7",
+      "issue": "47",
+      "page": null,
+      "article-number": "eabi8009",
+      "published": {
+        "date-parts": [
+          [
+            2021,
+            11,
+            19
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.1126/sciadv.abi8009"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "maciejewski2021",
+    "doi": "10.22331/q-2021-06-01-464",
+    "primary_url": "https://quantum-journal.org/papers/q-2021-06-01-464/",
+    "locators": [
+      "Publisher abstract"
+    ],
+    "access": "Publisher abstract and metadata read; no complete technical proof audit performed.",
+    "supports": "Efficient correlated readout models and diagonal detector overlapping tomography precede this draft. Used for landscape only, not as an exact-equation novelty knockout.",
+    "verified_on": "2026-10-14",
+    "title": "Modeling and mitigation of cross-talk effects in readout noise with applications to the Quantum Approximate Optimization Algorithm",
+    "authors": [
+      "Filip B. Maciejewski",
+      "Flavio Baccari",
+      "Zoltán Zimborás",
+      "Michał Oszmaniec"
+    ],
+    "publication": {
+      "container-title": [
+        "Quantum"
+      ],
+      "volume": "5",
+      "issue": null,
+      "page": "464",
+      "article-number": "464",
+      "published": {
+        "date-parts": [
+          [
+            2021,
+            6,
+            1
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.22331/q-2021-06-01-464"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "tuziemski2023",
+    "title": "Efficient reconstruction, benchmarking and validation of cross-talk models in readout noise in near-term quantum devices",
+    "authors": [
+      "Jan Tuziemski",
+      "Filip B. Maciejewski",
+      "Joanna Majsak",
+      "Oskar Słowik",
+      "Marcin Kotowski",
+      "Katarzyna Kowalczyk-Murynka",
+      "Piotr Podziemski",
+      "Michał Oszmaniec"
+    ],
+    "publication": "arXiv:2311.10661v1 (2023); no later peer-reviewed status asserted",
+    "doi": "10.48550/arXiv.2311.10661",
+    "primary_url": "https://arxiv.org/abs/2311.10661",
+    "full_text_url": "https://arxiv.org/html/2311.10661v1",
+    "locators": [
+      "Sec. I.0.1, Eq. (1), POVM/Born-rule definitions",
+      "Sec. I.0.2, stochastic relation M=Lambda P and p_noisy=Lambda p_ideal",
+      "Sec. II.2, correlations and coherences in readout noise"
+    ],
+    "access": "Primary arXiv abstract and full HTML available; targeted definitions and readout-noise passages inspected.",
+    "supports": "Classical assignment models concern diagonal detector effects; coherent input states are not categorically excluded. Also supplies current correlated-readout characterization context.",
+    "verified_on": "2026-10-14"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "aasen2025",
+    "doi": "10.1103/6p6s-t8b7",
+    "primary_url": "https://journals.aps.org/pra/abstract/10.1103/6p6s-t8b7",
+    "locators": [
+      "Publisher abstract"
+    ],
+    "access": "Publisher abstract and bibliographic information read; metadata verified via Crossref. Full proofs not reviewed.",
+    "supports": "A 2025 correlated-readout mitigation study uses few-qubit POVMs and overlapping detector tomography, with simulations to 100 qubits and experimentally obtained noise. Landscape evidence only.",
+    "verified_on": "2026-10-14",
+    "title": "Mitigation of correlated readout errors without randomized measurements",
+    "authors": [
+      "Adrian Skasberg Aasen",
+      "Andras Di Giovanni",
+      "Hannes Rotzinger",
+      "Alexey V. Ustinov",
+      "Martin Gärttner"
+    ],
+    "publication": {
+      "container-title": [
+        "Physical Review A"
+      ],
+      "volume": "112",
+      "issue": "2",
+      "page": null,
+      "article-number": "022601",
+      "published": {
+        "date-parts": [
+          [
+            2025,
+            8,
+            4
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.1103/6p6s-t8b7"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "koh2026",
+    "doi": "10.1103/cj89-4h5t",
+    "primary_url": "https://arxiv.org/abs/2406.07611",
+    "full_text_url": "https://arxiv.org/html/2406.07611v2",
+    "locators": [
+      "Sec. I, confusion matrices and feedforward",
+      "Sec. II.1, Walsh-Hadamard inversion",
+      "Appendix A.3, symmetrized spectrum",
+      "Appendix A.4, tensored channels"
+    ],
+    "access": "Primary abstract and targeted HTML passages inspected. Published record confirmed via arXiv and Crossref: PRX Quantum 7, 010317, 26 January 2026. The repository still cites the 2024 preprint.",
+    "supports": "The nearby feedforward literature is now published and explicitly handles correlated channels, transformations and tensored simplifications. Forward-versus-inverse direction alone is insufficient positioning.",
+    "verified_on": "2026-10-14",
+    "title": "Readout Error Mitigation for Mid-Circuit Measurements and Feedforward",
+    "authors": [
+      "Jin Ming Koh",
+      "Dax Enshan Koh",
+      "Jayne Thompson"
+    ],
+    "publication": {
+      "container-title": [
+        "PRX Quantum"
+      ],
+      "volume": "7",
+      "issue": "1",
+      "page": null,
+      "article-number": "010317",
+      "published": {
+        "date-parts": [
+          [
+            2026,
+            1,
+            26
+          ]
+        ]
+      }
+    },
+    "metadata_url": "https://api.crossref.org/works/10.1103/cj89-4h5t"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "nachman2021",
+    "title": "Categorizing Readout Error Correlations on Near Term Quantum Computers",
+    "authors": [
+      "Benjamin Nachman",
+      "Michael R. Geller"
+    ],
+    "publication": "arXiv:2104.04607v1 (2021); only this primary record checked",
+    "doi": "10.48550/arXiv.2104.04607",
+    "primary_url": "https://arxiv.org/abs/2104.04607",
+    "locators": [
+      "Abstract"
+    ],
+    "access": "Primary abstract read; full text not inspected in this bounded audit.",
+    "supports": "Readout correlation studies distinguish spectator-state sensitivity from measurement-operator covariance; used as context rather than direct theorem comparison.",
+    "verified_on": "2026-10-14"
+  },
+  {
+    "candidate": "quantum-readout",
+    "source_registry": "candidates/quantum-readout/references.json",
+    "id": "calibration2025",
+    "title": "Qiskit IBM Runtime FakeHanoi properties snapshot",
+    "authors": [
+      "Qiskit contributors"
+    ],
+    "publication": "Snapshot last updated 2025-02-26T15:13:14-05:00; repository commit 7a99d12423c21a34253342db5a3faf63ab0f8b6e",
+    "primary_url": "https://raw.githubusercontent.com/Qiskit/qiskit-ibm-runtime/7a99d12423c21a34253342db5a3faf63ab0f8b6e/qiskit_ibm_runtime/fake_provider/backends/hanoi/props_hanoi.json",
+    "locators": [
+      "qubits[i] entries named prob_meas1_prep0 and prob_meas0_prep1, i=0,...,26"
+    ],
+    "access": "Primary JSON fetched from main and the immutable last-changing commit; bytes match. Parsed with JSON. SHA256: 17db2080056d895f74012ed0f45ae2cb8e93be564641640fadbd0ae4c28a5211.",
+    "supports": "All 54 hardcoded marginal error rates and the claimed snapshot date are authentic. Does not supply joint counts or independence validation.",
+    "verified_on": "2026-10-14"
+  }
+]

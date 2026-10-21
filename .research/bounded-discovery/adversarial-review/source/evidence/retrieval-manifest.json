@@ -1,0 +1,50 @@
+[
+  {
+    "name": "dong2013-ccs.pdf",
+    "url": "https://changyudong.site/assets/pdf/ccs13.pdf",
+    "final_url": "https://changyudong.site/assets/pdf/ccs13.pdf",
+    "bytes": 501615,
+    "sha256": "3f6a9bc53126ea4c39f10bef0c2f38624d00fe23ab3f0d7b8e09d1f343c62e8b",
+    "retrieved_utc": "2026-10-15T08:23:41.729723+00:00"
+  },
+  {
+    "name": "dong2013-corrected.pdf",
+    "url": "https://faculty.washington.edu/zkwen/articles/dong13psi.pdf",
+    "final_url": "https://faculty.washington.edu/zkwen/articles/dong13psi.pdf",
+    "bytes": 491014,
+    "sha256": "cb5003088610fc838ab379bc1ba14aa2fece5ff6aa3e18ffeff4c3d35233aab9",
+    "retrieved_utc": "2026-10-15T08:23:47.147863+00:00"
+  },
+  {
+    "name": "silva2011.pdf",
+    "url": "https://arxiv.org/pdf/0809.3546",
+    "final_url": "https://arxiv.org/pdf/0809.3546",
+    "bytes": 268080,
+    "sha256": "e479cad724ff954a02714708418106440c449b8417ef7fe5c2e0c4de520996bb",
+    "retrieved_utc": "2026-10-15T08:23:41.434503+00:00"
+  },
+  {
+    "name": "qin-crossref-fresh.json",
+    "url": "https://api.crossref.org/works/10.3390/e28090947",
+    "final_url": "https://api.crossref.org/works/10.3390/e28090947",
+    "bytes": 18838,
+    "sha256": "43407b71941900a07f555c0c6b807507bc44592391fa7844094f7f62d0c7b9ba",
+    "retrieved_utc": "2026-10-15T08:23:41.517803+00:00"
+  },
+  {
+    "name": "qin-pmc-fresh.html",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13605127/",
+    "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13605127/",
+    "bytes": 411496,
+    "sha256": "28d65b966280521f59bb2e33415a89419e679ae5e2b3ccb2fdc56f9c3da7112a",
+    "retrieved_utc": "2026-10-15T08:23:41.769985+00:00"
+  },
+  {
+    "name": "hao2024.pdf",
+    "url": "https://www.usenix.org/system/files/usenixsecurity24-hao-meng-unbalanced.pdf",
+    "final_url": "https://www.usenix.org/system/files/usenixsecurity24-hao-meng-unbalanced.pdf",
+    "bytes": 539943,
+    "sha256": "b2b141e8c0e9c10a4c7dc9fc146070dcfbfa5b93458b8574eb2a7c6a6aa4094f",
+    "retrieved_utc": "2026-10-15T08:29:13.518942+00:00"
+  }
+]

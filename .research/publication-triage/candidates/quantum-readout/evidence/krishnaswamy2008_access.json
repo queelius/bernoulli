@@ -1,0 +1,19 @@
+[
+  {
+    "url": "http://web.eecs.umich.edu/~jhayes/SK_PTMsInSymbRelAnal_TODAES-08.pdf",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>"
+  },
+  {
+    "url": "https://www.eecs.umich.edu/~jhayes/SK_PTMsInSymbRelAnal_TODAES-08.pdf",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>"
+  },
+  {
+    "url": "https://citeseerx.ist.psu.edu/document?doi=fdc2cc296ef9b9465720dc0c5bc566525b71b744&repid=rep1&type=pdf",
+    "error": "HTTP Error 404: NOT FOUND"
+  },
+  {
+    "url": "https://web.eecs.umich.edu/~jhayes/SK_PTMsInSymbRelAnal_TODAES-08.pdf",
+    "error": "HTTP Error 404: Not Found",
+    "note": "One public unauthenticated diagnostic request skipped local TLS chain verification after verified retrieval failed. No PDF obtained."
+  }
+]

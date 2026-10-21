@@ -1,0 +1,113 @@
+[
+  {
+    "id": "lehmann2025seeds",
+    "title": "Combined Search and Encoding for Seeds, with an Application to Minimal Perfect Hashing",
+    "authors": [
+      "Hans-Peter Lehmann",
+      "Peter Sanders",
+      "Stefan Walzer",
+      "Jonatan Ziegler"
+    ],
+    "year": 2025,
+    "venue": "ESA",
+    "doi": "10.4230/LIPIcs.ESA.2025.109",
+    "url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol351-esa2025/html/LIPIcs.ESA.2025.109/LIPIcs.ESA.2025.109.html",
+    "verified_on": "2026-10-14",
+    "examined": "Official full HTML; Section 1.1 UNI and Lemma 3. Root independently checked after investigator run.",
+    "supports": "Existing shared-seed codebook mechanism attains information-scale storage with exponential work; joint seed improvements are not a contradiction to single-seed entropy."
+  },
+  {
+    "id": "chazelle2004bloomier",
+    "title": "The Bloomier Filter: An Efficient Data Structure for Static Support Lookup Tables",
+    "authors": [
+      "Bernard Chazelle",
+      "Joe Kilian",
+      "Ronitt Rubinfeld",
+      "Ayellet Tal"
+    ],
+    "year": 2004,
+    "venue": "SODA",
+    "url": "https://www.cs.princeton.edu/~chazelle/pubs/soda04.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Author-hosted full PDF, Section 3 and 3.3; local PDF/text/page image in this directory.",
+    "supports": "Static support maps and valid-range decoding already relate acceptance probability to the size of an interval; not the identical seed-only construction."
+  },
+  {
+    "id": "pagh2005optimal",
+    "title": "An Optimal Bloom Filter Replacement",
+    "authors": [
+      "Anna Pagh",
+      "Rasmus Pagh",
+      "S. Srinivasa Rao"
+    ],
+    "year": 2005,
+    "venue": "SODA",
+    "url": "https://www.rasmuspagh.net/papers/bloom.pdf",
+    "metadata_url": "https://rasmuspagh.net/papers/",
+    "verified_on": "2026-10-14",
+    "examined": "Author-hosted primary PDF introduction and author publication list.",
+    "supports": "AMQ definition permits a random superset with per-fixed-nonmember error probability; random realized FPR alone does not escape it."
+  },
+  {
+    "id": "dietzfelbinger2008retrieval",
+    "title": "Succinct Data Structures for Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Rasmus Pagh"
+    ],
+    "year": 2008,
+    "venue": "arXiv:0803.3693 (author manuscript)",
+    "url": "https://arxiv.org/abs/0803.3693",
+    "full_text": "https://www.rasmuspagh.net/papers/bloomier.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Primary PDF, Observation 1 and Theorem 1; root independently checked primary abstract/metadata.",
+    "supports": "Retrieval-to-AMQ reduction and succinct constructions; no new originality follows merely from a seed reaching the information scale."
+  },
+  {
+    "id": "dietzfelbinger2026ribbon",
+    "title": "Ribbon: Fast Succinct Static Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Peter C. Dillinger",
+      "Lorenz Hübschle",
+      "Peter Sanders",
+      "Stefan Walzer"
+    ],
+    "year": 2026,
+    "venue": "Journal of the ACM",
+    "doi": "10.1145/3785417",
+    "url": "https://publikationen.bibliothek.kit.edu/1000191446/177619178",
+    "verified_on": "2026-10-14",
+    "examined": "Publisher PDF introduction and Section 5.4; independent root and codec-review checks.",
+    "supports": "Current succinct retrieval baseline and row-span exception for homogeneous filtering. No filter-runtime reproduction claimed."
+  },
+  {
+    "id": "graf2020xor",
+    "title": "Xor Filters: Faster and Smaller Than Bloom and Cuckoo Filters",
+    "authors": [
+      "Thomas Mueller Graf",
+      "Daniel Lemire"
+    ],
+    "year": 2020,
+    "venue": "Journal of Experimental Algorithmics 25(1)",
+    "doi": "10.1145/3376122",
+    "url": "https://arxiv.org/abs/1912.08258v3",
+    "verified_on": "2026-10-14",
+    "examined": "Primary author abstract and publication metadata only.",
+    "supports": "Practical baseline beyond Bloom; benchmark figures are not reproduced or used as measurements of this project."
+  },
+  {
+    "id": "graf2022binaryfuse",
+    "title": "Binary Fuse Filters: Fast and Smaller Than Xor Filters",
+    "authors": [
+      "Thomas Mueller Graf",
+      "Daniel Lemire"
+    ],
+    "year": 2022,
+    "venue": "Journal of Experimental Algorithmics",
+    "url": "https://arxiv.org/abs/2201.01174",
+    "verified_on": "2026-10-14",
+    "examined": "Primary abstract and publication metadata; no full empirical replication.",
+    "supports": "Modern practical comparison point; no measured performance claim in this triage."
+  }
+]

@@ -1,0 +1,13 @@
+--- reviewed/body.tex
++++ current/body.tex
+@@ -213,6 +213,10 @@
+ The supplement supplies all arrays and a standalone command,
+ \texttt{python3 -S reproduce.py}, verified with Python~3.12.3.
+ 
++OpenAI Codex assisted with proof development, code and test generation, and
++interpretation. The reported arrays and counts were produced by the executable
++supplement; these implementation checks are distinct from the proofs.
++
+ \section{Implications and existing protections}
+ 
+ The protocol-specific issue is that public occupancy identifies a complete

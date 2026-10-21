@@ -1,0 +1,7 @@
+Inspected archive member names and README.md only for navigation; no code, results, provenance record, source-premise file, or test executed/read.
+
+Archive: gbfplus-comment-supplement.zip
+Archive SHA256: b53663fc475519a669af2f0c8831dc6a91e73333dc05114ef4263a232fc2727b
+README.md SHA256: dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8
+
+Navigation result: README heading explicitly says Supplement S1; first substantive section gives the standalone command; Files and provenance lists roles; source-premises.md is identified for claims that computation cannot establish. The PDF itself names S1 without the archive filename or title, but the supplied package resolves this without ambiguity.

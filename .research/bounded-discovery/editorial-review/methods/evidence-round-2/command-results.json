@@ -1,0 +1,77 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "standalone",
+      "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -S reproduce.py",
+      "cwd": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement",
+      "result": {
+        "chunk_id": "793424",
+        "wall_time_seconds": 0.000010069,
+        "exit_code": 0,
+        "original_token_count": 19,
+        "output": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduced-results.json\n"
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "coverage",
+      "cmd": "COVERAGE_FILE=/home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-2/.coverage /home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python -m coverage run --branch --source=gbfplus_probe,reproduce -m pytest -q",
+      "cwd": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement",
+      "result": {
+        "chunk_id": "d2b5ca",
+        "wall_time_seconds": 1.532387443,
+        "exit_code": 0,
+        "original_token_count": 25,
+        "output": "................                                                         [100%]\n16 passed in 1.01s\n"
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "lint",
+      "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/ruff check .",
+      "cwd": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement",
+      "result": {
+        "chunk_id": "cde58c",
+        "wall_time_seconds": 0.00001037,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "All checks passed!\n"
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "types",
+      "cmd": "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/mypy --strict gbfplus_probe.py reproduce.py test_gbfplus_probe.py test_reproduction.py",
+      "cwd": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement",
+      "result": {
+        "chunk_id": "3aa5e5",
+        "wall_time_seconds": 4.042899718,
+        "exit_code": 0,
+        "original_token_count": 11,
+        "output": "Success: no issues found in 4 source files\n"
+      }
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "clean-source-build",
+      "cmd": "make",
+      "cwd": "/tmp/gbfplus-methods-review-r2-n53qewnm/source",
+      "result": {
+        "chunk_id": "9e9a07",
+        "wall_time_seconds": 1.805112243,
+        "exit_code": 0,
+        "original_token_count": 4421,
+        "output": "Warning: truncated output (original token count: 4421)\nTotal output lines: 333\n\npdflatex -interaction=nonstopmode -halt-on-error main.tex\nThis is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex)\n restricted \\write18 enabled.\nentering extended mode\n(./main.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls\nDocument Class: article 2023/05/17 v1.4n Standard LaTeX document class\n(/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo))\n(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)\n(/usr/share/texmf/tex/latex/lm/lmodern.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty\n(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty\n(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty\nFor additional information on amsmath, use the `?' option.\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amssymb.sty\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/amsfonts.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty\n(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty\n(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty\n(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty\n(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty\n(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty\n(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)\n(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)\n(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty\n(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/big…2921 tokens truncated…olor.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty\n(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty\n(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)\n(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)\n(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)\n(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty\n(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def\n(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty\n(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))\n(/usr/share/texmf/tex/latex/lm/t1lmr.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)\n(./main.aux)\n*geometry* driver: auto-detecting\n*geometry* detected driver: pdftex\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-cmr.cfg) (./main.out)\n(./main.out) (/usr/share/texmf/tex/latex/lm/ot1lmr.fd)\n(/usr/share/texmf/tex/latex/lm/omllmm.fd)\n(/usr/share/texmf/tex/latex/lm/omslmsy.fd)\n(/usr/share/texmf/tex/latex/lm/omxlmex.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msa.cfg)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-msb.cfg) (./abstract.tex)\n (./body.tex [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/t\nexmf/fonts/enc/dvips/lm/lm-ec.enc}] [2{/usr/share/texmf/fonts/enc/dvips/lm/lm-m\nathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/font\ns/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc\n}] [3] (/usr/share/texmf/tex/latex/lm/t1lmtt.fd)) (./backmatter.tex [4])\n(./main.bbl) [5] (./main.aux) )</usr/share/texmf/fonts/type1/public/lm/lmbx10.p\nfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/t\nype1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></\nusr/share/texmf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/p\nublic/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/shar\ne/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm\n/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fo\nnts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.p\nfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/ty\npe1/public/lm/lmtt10.pfb>\nOutput written on main.pdf (5 pages, 264492 bytes).\nTranscript written on main.log.\n"
+      }
+    }
+  }
+]

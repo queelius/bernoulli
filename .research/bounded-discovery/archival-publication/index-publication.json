@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-10-20T11:23:48.637422+00:00",
+  "commit": "58a9242ab43de0b51695c1f0b13de087729fb857",
+  "record_url": "https://github.com/queelius/research-records/tree/main/records/gbfplus-public-occupancy-disclosure",
+  "files_verified": [
+    {
+      "path": "records/gbfplus-public-occupancy-disclosure/CITATION.bib",
+      "sha256": "6c60f2916813094db69fe68bd11dc6a7c8947d9d15282b464f8158fafe92b9bf",
+      "matches_prepared": true
+    },
+    {
+      "path": "records/gbfplus-public-occupancy-disclosure/CITATION.cff",
+      "sha256": "7bf2410d1eb60a5c1aacdf82db333e7b8abdcadabfe40b67f416267d9af7d215",
+      "matches_prepared": true
+    },
+    {
+      "path": "records/gbfplus-public-occupancy-disclosure/README.md",
+      "sha256": "dec718c09f27e75f31ad83d6581401b1383fd9f0d48d24130a37200d82b7685f",
+      "matches_prepared": true
+    },
+    {
+      "path": "records/gbfplus-public-occupancy-disclosure/publication.json",
+      "sha256": "fa0db495444a8ab2f1940684a2700e50618b40f5ab81da35ced61eef238799c0",
+      "matches_prepared": true
+    },
+    {
+      "path": "records/gbfplus-public-occupancy-disclosure/record.json",
+      "sha256": "26e473ce8d3ca61d8312f46556534ffd3981f554197dcc78cf4efefabef840bc",
+      "matches_prepared": true
+    }
+  ],
+  "catalog_record_ids": [
+    "tetrahedron-fixed-axis-barrier",
+    "harv2020-survey-structure-audit",
+    "smooth-strong-convex-interpolation",
+    "computational-explorations-coprime-paths",
+    "boolean-degree-five-spectral-exclusions",
+    "sidorenko-integer-full-slack",
+    "competing-supply-chain-equilibrium",
+    "gbfplus-public-occupancy-disclosure"
+  ],
+  "catalog_entry": {
+    "id": "gbfplus-public-occupancy-disclosure",
+    "metadata": "records/gbfplus-public-occupancy-disclosure/record.json",
+    "readme": "records/gbfplus-public-occupancy-disclosure/README.md"
+  },
+  "readme_entry_verified": true,
+  "verification_without_authentication": true,
+  "doi_resolver_destination": "https://zenodo.org/records/23497466"
+}

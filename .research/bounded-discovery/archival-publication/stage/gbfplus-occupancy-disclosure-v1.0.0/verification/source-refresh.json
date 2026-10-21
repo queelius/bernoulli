@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-20T11:14:21.310695+00:00",
+  "source_doi": "10.3390/e28090947",
+  "publisher_pdf": {
+    "url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+    "sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417",
+    "matches_audited_source": true
+  },
+  "crossref": {
+    "title": [
+      "Privacy-Preserving On-Chain Attestation for Cross-Domain Data Flows via GBFPlus"
+    ],
+    "published_online": {
+      "date-parts": [
+        [
+          2026,
+          8,
+          23
+        ]
+      ]
+    },
+    "update_to": [],
+    "relation": {}
+  }
+}

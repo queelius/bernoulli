@@ -1,0 +1,417 @@
+{
+  "checked_on": "2026-10-14",
+  "scope": "Verification status and access limits are per record; inherited codec references are explicitly marked, not freshly re-audited.",
+  "references": [
+    {
+      "id": "dolma-docs",
+      "title": "Dolma: Deduplication documentation",
+      "authors": [
+        "Allen Institute for AI / Dolma contributors"
+      ],
+      "type": "official project documentation",
+      "url": "https://github.com/allenai/dolma/blob/main/docs/deduplication.md",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Deduplication opening paragraphs",
+        "Bloom configuration and read_only option"
+      ],
+      "supports": "In-memory Bloom tagging can classify documents or paragraphs as duplicates; mixer subsequently drops them; false positives are acknowledged.",
+      "limitations": "Moving main branch; motivates application only. We did not benchmark Dolma or claim its implementation maintains our exact authoritative log.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "gibbons2001",
+      "title": "Distinct Sampling for Highly-Accurate Answers to Distinct Values Queries and Event Reports",
+      "authors": [
+        "Phillip B. Gibbons"
+      ],
+      "year": 2001,
+      "venue": "VLDB",
+      "url": "https://www.vldb.org/conf/2001/P541.pdf",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Sections 3.1 and 3.2, printed pages 544 onward / PDF page 4",
+        "Introduction"
+      ],
+      "supports": "Occurrence sampling favors frequent values; hash-consistent sampling can sample distinct IDs with bounded storage. Our bottom-k baseline belongs to this established family.",
+      "limitations": "Its level-based implementation and query-estimation objective differ from our simple bottom-k auditing use; no claim of identical end-to-end application.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "mo2026",
+      "title": "Mitigating False Positives in Filters: To Adapt or to Cache?",
+      "authors": [
+        "Tianchi Mo",
+        "Michael A. Bender",
+        "Rathish Das",
+        "Martin Farach-Colton",
+        "David Tench"
+      ],
+      "year": 2026,
+      "venue": "ACM Transactions on Database Systems 51(3), Article 17",
+      "doi": "10.1145/3786324",
+      "url": "https://doi.org/10.1145/3786324",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Indexed primary publisher abstract, metadata, and Introduction",
+        "Paragraph explaining oracle feedback"
+      ],
+      "supports": "Direct modern predecessor for adaptation versus caching under Zipfian and network workloads; explicitly requires an oracle identifying false positives.",
+      "limitations": "Direct open returned an internal error on one attempt; primary publisher indexed text supplied abstract and complete visible introduction. Detailed algorithm limitation is additionally supported by the accessible 2021 full text.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "bender2021",
+      "title": "Mitigating False Positives in Filters: to Adapt or to Cache?",
+      "authors": [
+        "Michael A. Bender",
+        "Rathish Das",
+        "Martin Farach-Colton",
+        "Tianchi Mo",
+        "David Tench",
+        "Yung Ping Wang"
+      ],
+      "year": 2021,
+      "venue": "SIAM ALENEX",
+      "url": "https://par.nsf.gov/servlets/purl/10298693",
+      "local_primary_copy": "../evidence/adaptive-filters-2021.pdf",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Introduction, page 1 including footnote 2",
+        "Introduction page 2 on serendipitous false-positive corrections"
+      ],
+      "supports": "Broom fingerprint repair can eliminate other future false positives; backing dictionary supplies a colliding stored element, whose access is accounted for asymptotically in that setting.",
+      "limitations": "Not implemented here. Ordinary-Bloom idempotence and min(B,U) scoped oracle bounds do not cover collateral corrections from these adaptive representations.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "deng2006",
+      "title": "Approximately Detecting Duplicates for Streaming Data using Stable Bloom Filters",
+      "authors": [
+        "Fan Deng",
+        "Davood Rafiei"
+      ],
+      "year": 2006,
+      "venue": "SIGMOD",
+      "url": "https://webdocs.cs.ualberta.ca/~drafiei/papers/DupDetExt.pdf",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Abstract",
+        "Introduction and URL crawling motivating example, PDF page 1"
+      ],
+      "supports": "Approximate stream deduplication and the possibility of missed new URLs under limited resources are established applications; stable filters evict old information.",
+      "limitations": "Not the same model: our exact processed log persists and our insert-only Bloom does not evict entries. No quantitative SBF guarantee was reused.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "cesabianchi2005",
+      "title": "Minimizing Regret With Label Efficient Prediction",
+      "authors": [
+        "Nicol\u00f2 Cesa-Bianchi",
+        "G\u00e1bor Lugosi",
+        "Gilles Stoltz"
+      ],
+      "year": 2005,
+      "venue": "IEEE Transactions on Information Theory 51(6):2152\u20132162",
+      "doi": "10.1109/TIT.2005.847729",
+      "url": "https://cesa-bianchi.di.unimi.it/Pubblicazioni/J22.pdf",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Abstract",
+        "Sections I and II, PDF pages 1\u20132"
+      ],
+      "supports": "Learning from a bounded number of paid outcome observations is an established problem with regret bounds.",
+      "limitations": "Adjacent prior art, not a theorem directly subsuming mutable deduplication: processing changes future membership labels and our loss counts distinct retained documents.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "khan2026lshbloom",
+      "title": "LSHBloom: Internet-Scale Text Deduplication",
+      "metadata_title": "LSHBloom: Memory-efficient, Extreme-scale Document Deduplication",
+      "authors": [
+        "Arham Khan",
+        "Robert Underwood",
+        "Carlo Siebenschuh",
+        "Yadu Babuji",
+        "Aswathy Ajith",
+        "Kyle Hippe",
+        "Ozan Gokdemir",
+        "Alexander Brace",
+        "Kyle Chard",
+        "Ian Foster"
+      ],
+      "year": 2026,
+      "type": "arXiv v4, revised 2026-01-27; initial preprint 2024",
+      "url": "https://arxiv.org/html/2411.04257v4",
+      "metadata_url": "https://arxiv.org/abs/2411.04257v4",
+      "verified_on": "2026-10-14",
+      "inspected_passages": [
+        "Version/title header",
+        "Introduction",
+        "Sections 3.3 and 4.1\u20134.3"
+      ],
+      "supports": "Current probabilistic document-deduplication research evaluates memory/runtime/accuracy and configurable Bloom false-positive overhead. A generic Bloom-for-corpus use is not a novelty claim.",
+      "limitations": "Near-duplicate LSH problem differs from our exact-ID audit allocation. HTML title differs from arXiv metadata title; placeholder PVLDB DOI in source does not establish publication. We did not validate all of its mathematical claims.",
+      "candidate_artifact": "deduplication/references.json"
+    },
+    {
+      "id": "juels2014honey",
+      "title": "Honey Encryption: Security Beyond the Brute-Force Bound",
+      "authors": [
+        "Ari Juels",
+        "Thomas Ristenpart"
+      ],
+      "year": 2014,
+      "venue": "EUROCRYPT",
+      "url": "https://pages.cs.wisc.edu/~rist/papers/honeyenc.html",
+      "full_text": "https://pages.cs.wisc.edu/~rist/papers/HoneyEncryptionpre.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Author publication page; full-text Section 4 (DTE and inverse sampling).",
+      "relationship": "Direct predecessor for abstract codec distribution shaping and randomized within-fiber encoding; different cryptographic object.",
+      "inherited_from": "../../publication-triage/candidates/codec-privacy/references.json",
+      "scope_for_this_candidate": "DTE marginal shaping does not supply a joint frozen-table guarantee. Inherited verification; not re-audited here.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "cheng2019pmte",
+      "title": "Probability Model Transforming Encoders Against Encoding Attacks",
+      "authors": [
+        "Haibo Cheng",
+        "Zhixiong Zheng",
+        "Wenting Li",
+        "Ping Wang",
+        "Chao-Hsien Chu"
+      ],
+      "year": 2019,
+      "venue": "USENIX Security",
+      "pages": "1573\u20131590",
+      "url": "https://www.usenix.org/conference/usenixsecurity19/presentation/cheng",
+      "full_text": "https://www.usenix.org/system/files/sec19-cheng.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Official proceedings abstract and BibTeX.",
+      "relationship": "Encoding-attack and probability-model precedent; not claimed to solve the same retrieval optimization.",
+      "inherited_from": "../../publication-triage/candidates/codec-privacy/references.json",
+      "scope_for_this_candidate": "Encoding-attack precedent from the completed codec audit, not asserted to contain this occupancy attack. Inherited verification.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "filic2022pds",
+      "title": "Adversarial Correctness and Privacy for Probabilistic Data Structures",
+      "authors": [
+        "Mia Fili\u0107",
+        "Kenneth G. Paterson",
+        "Anupama Unnikrishnan",
+        "Fernando Virdia"
+      ],
+      "year": 2022,
+      "venue": "ACM CCS",
+      "url": "https://arxiv.org/abs/2209.06955",
+      "full_text": "https://arxiv.org/html/2209.06955",
+      "verified_on": "2026-10-14",
+      "examined": "Author preprint metadata, abstract and introductory security-model discussion; abstract says accepted CCS 2022.",
+      "relationship": "API/internal-state and adaptive privacy framework for AMQ; membership rather than identical retrieval-value problem.",
+      "inherited_from": "../../publication-triage/candidates/codec-privacy/references.json",
+      "scope_for_this_candidate": "Re-read primary full text Section 5 and Theorems 5.4/5.6: snapshot/adaptive whole-view privacy, with permitted leakage explicit.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "dietzfelbinger2026ribbon",
+      "title": "Ribbon: Fast Succinct Static Retrieval and Approximate Membership",
+      "authors": [
+        "Martin Dietzfelbinger",
+        "Peter C. Dillinger",
+        "Lorenz H\u00fcbschle",
+        "Peter Sanders",
+        "Stefan Walzer"
+      ],
+      "year": 2026,
+      "venue": "Journal of the ACM",
+      "volume": 73,
+      "issue": 1,
+      "article": 7,
+      "pages": "1\u201345",
+      "doi": "10.1145/3785417",
+      "url": "https://publikationen.bibliothek.kit.edu/1000191446",
+      "full_text": "https://publikationen.bibliothek.kit.edu/1000191446/177619178",
+      "verified_on": "2026-10-14",
+      "examined": "Publisher PDF deposited by authors' institution; Section 1.7 and Section 5.4 Lemma 5.4.",
+      "relationship": "Exact row-span exception with random free variables; different from the companion's zero-filled value-span identity.",
+      "inherited_from": "../../publication-triage/candidates/codec-privacy/references.json",
+      "scope_for_this_candidate": "Reopened current publisher PDF metadata; row-span Lemma 5.4 was verified in previous audit. Not a general multi-query privacy theorem.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "bienstock2023okvs",
+      "title": "Near-Optimal Oblivious Key-Value Stores for Efficient PSI, PSU and Volume-Hiding Multi-Maps",
+      "authors": [
+        "Alexander Bienstock",
+        "Sarvar Patel",
+        "Joon Young Seo",
+        "Kevin Yeo"
+      ],
+      "year": 2023,
+      "venue": "USENIX Security",
+      "pages": "301\u2013318",
+      "url": "https://www.usenix.org/conference/usenixsecurity23/presentation/bienstock",
+      "full_text": "https://www.usenix.org/system/files/usenixsecurity23-bienstock.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Official primary PDF, Section 2.1 Definition 4 and Algorithm 1; independent reviewer checked Theorem 1.",
+      "relationship": "Non-input-key random decoding is studied under uniformly random input values. Does not subsume arbitrary-value zero-filled codec/span laws.",
+      "inherited_from": "../../publication-triage/candidates/codec-privacy/references.json",
+      "scope_for_this_candidate": "Re-read full-text Definitions 3/4, Algorithm 1, and double-obliviousness proof; uniformly random values are an explicit assumption.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "silva2011universal",
+      "title": "Universal Secure Network Coding via Rank-Metric Codes",
+      "authors": [
+        "Danilo Silva",
+        "Frank R. Kschischang"
+      ],
+      "year": 2011,
+      "venue": "IEEE Transactions on Information Theory",
+      "volume": "57",
+      "issue": "2",
+      "pages": "1124\u20131135",
+      "doi": "10.1109/TIT.2010.2090212",
+      "url": "https://arxiv.org/abs/0809.3546",
+      "full_text": "https://arxiv.org/pdf/0809.3546",
+      "verified_on": "2026-10-14",
+      "examined": "arXiv v2 full text, Lemma 6 and appendix proof; Theorem 7; arXiv journal-reference metadata.",
+      "relationship": "Exact rank-deficit information bound for uniform coset encoding, equality with uniform message, and rank-metric-code protection. Decisive predecessor for generic joint affine theorem.",
+      "access_limits": "Full author preprint read; published journal version not compared line-by-line.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "ozarow1984wiretap",
+      "title": "Wire-Tap Channel II",
+      "authors": [
+        "L. H. Ozarow",
+        "A. D. Wyner"
+      ],
+      "year": 1984,
+      "venue": "AT&T Bell Laboratories Technical Journal",
+      "doi": "10.1002/j.1538-7305.1984.tb00072.x",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1002/j.1538-7305.1984.tb00072.x",
+      "verified_on": "2026-10-14",
+      "examined": "Publisher-indexed metadata; role as coset-coding predecessor explicitly discussed in Silva\u2013Kschischang full text.",
+      "relationship": "Historical coordinate-observation/coset-coding predecessor.",
+      "access_limits": "Original full text not read in this bounded screen; no precise theorem attributed solely to it.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "wei1991weights",
+      "title": "Generalized Hamming weights for linear codes",
+      "authors": [
+        "V. K. Wei"
+      ],
+      "year": 1991,
+      "venue": "IEEE Transactions on Information Theory",
+      "doi": "10.1109/18.133259",
+      "url": "https://ieeexplore.ieee.org/abstract/document/133259/",
+      "verified_on": "2026-10-14",
+      "examined": "Publisher abstract linking generalized weights to wiretap-II performance; contemporary primary network-coding paper discussion.",
+      "relationship": "Classical predecessor to minimum-observation leakage hierarchies.",
+      "access_limits": "Original full text not read; no novel generalized-weight result is claimed here.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "qin2026gbfplus",
+      "title": "Privacy-Preserving On-Chain Attestation for Cross-Domain Data Flows via GBFPlus",
+      "authors": [
+        "Sihang Qin",
+        "Yang Zhou",
+        "Weiqi Dai",
+        "Yiming Sun",
+        "Weizhong Qiang"
+      ],
+      "year": 2026,
+      "venue": "Entropy",
+      "volume": "28",
+      "issue": "9",
+      "article_number": "947",
+      "published": "2026-08-23",
+      "doi": "10.3390/e28090947",
+      "url": "https://www.mdpi.com/1099-4300/28/9/947",
+      "full_text": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+      "xml": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.xml",
+      "verified_on": "2026-10-14",
+      "examined": "Actual publisher PDF and XML: Table 1 p4; Sections 4.2/4.3 pp7\u20138; Section 5.1 p9; Section 5.2 pp10\u201311, Equation5 and Algorithm4; Section 6.1.4 pp17\u201318, Equation27; Section 6.2 p19, Equation28. Crossref metadata also checked.",
+      "relationship": "Concrete candidate target: public occupancy plus raw XOR shares and count can disclose adjacent-domain payloads in admissible low-load snapshots. Its formal identifier game is narrower than payload confidentiality; no unqualified game break claimed.",
+      "access_limits": "HTML returned 403. Official PDF/XML access succeeded and bytes are preserved. No author implementation was obtained; reproduction is from published algorithm.",
+      "evidence": [
+        "evidence/gbfplus-2026.pdf",
+        "evidence/gbfplus-2026.xml",
+        "evidence/gbfplus-2026-layout.txt",
+        "evidence/gbfplus-crossref.json",
+        "evidence/source-manifest.json"
+      ],
+      "correction_check": "Exact title/DOI searches found no occupancy-leak correction/comment; Crossref relation empty, no update-to/updated-by. This is bounded search evidence, not an absence proof.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "dong2013gbf",
+      "title": "When private set intersection meets big data: an efficient and scalable protocol",
+      "authors": [
+        "Changyu Dong",
+        "Liqun Chen",
+        "Zikai Wen"
+      ],
+      "year": 2013,
+      "venue": "ACM CCS",
+      "pages": "789\u2013800",
+      "doi": "10.1145/2508859.2516701",
+      "url": "https://doi.org/10.1145/2508859.2516701",
+      "full_text": "https://changyudong.site/assets/pdf/ccs13.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Author PDF, Algorithm1 lines22\u201326 and explanation (PDF p4, printed p792); PSI receiver security and OT context. Publisher metadata confirms title/authors/pages.",
+      "relationship": "Original GBF final-fills empty cells with random words; the PSI protocol controls exposed shares with OT. A contrast to GBFPlus occupancy disclosure, not a generic arbitrary-value encryption theorem.",
+      "access_limits": "Selected relevant full-text sections read, not a fresh complete proof audit of the original PSI protocol.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "hao2024okvr",
+      "title": "Unbalanced Circuit-PSI from Oblivious Key-Value Retrieval",
+      "authors": [
+        "Meng Hao",
+        "Weiran Liu",
+        "Liqiang Peng",
+        "Hongwei Li",
+        "Cong Zhang",
+        "Hanxiao Chen",
+        "Tianwei Zhang"
+      ],
+      "year": 2024,
+      "venue": "33rd USENIX Security Symposium",
+      "pages": "6435\u20136451",
+      "url": "https://www.usenix.org/conference/usenixsecurity24/presentation/hao-meng-unbalanced",
+      "full_text": "https://www.usenix.org/system/files/usenixsecurity24-hao-meng-unbalanced.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Official proceedings BibTeX; full-text Section4.1 arbitrary-value functionality, Section4.2 PRF-masked input pairs, Theorem1, Figure5.",
+      "relationship": "Competent arbitrary-value masking baseline: encode v_i+F(k,k_i), obtain per-query PRF values through OPRF and use PIR. Does not establish a drop-in proof for GBFPlus.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    },
+    {
+      "id": "niedermeyer2014bloom",
+      "title": "Cryptanalysis of Basic Bloom Filters Used for Privacy Preserving Record Linkage",
+      "authors": [
+        "Frank Niedermeyer",
+        "Simone Steinmetzer",
+        "Martin Kroll",
+        "Rainer Schnell"
+      ],
+      "year": 2014,
+      "venue": "Journal of Privacy and Confidentiality",
+      "volume": "6",
+      "issue": "2",
+      "pages": "59\u201379",
+      "url": "https://openaccess.city.ac.uk/id/eprint/14304/",
+      "full_text": "https://openaccess.city.ac.uk/id/eprint/14304/7/Niedermeyer_2014_Cryptanalysis_Of_Basic_Bloom_Filters_Used_For_Privacy_Preserving_Record_Linkage_2.pdf",
+      "verified_on": "2026-10-14",
+      "examined": "Institution-hosted full text, Section3 keyed double hashing and Section4.2 enumerating all m\u00b2 pairs of hash outputs.",
+      "relationship": "Double-hash support enumeration despite unknown cryptographic keys is established; no claim that this work analyzes GBFPlus or public XOR payloads.",
+      "access_limits": "This alternative was not implemented in the bounded screen.",
+      "candidate_artifact": "frozen-retrieval/references.json"
+    }
+  ]
+}

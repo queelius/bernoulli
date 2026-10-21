@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "gbfplus-public-occupancy-disclosure",
+  "title": "Adjacent-Domain Disclosure from Public Occupancy in GBFPlus",
+  "contribution_type": "protocol-specific confidentiality counterexample; archival preprint with reproducible evidence",
+  "authors": [
+    {
+      "name": "Alexander Richard Towell",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "claim": "For an honest GBFPlus snapshot with one successful insertion, publicly distinguishable occupancy selects the complete share set. XORing its occupied words reveals the unmasked adjacent-domain suffix exactly. For c successful insertions, occupied count w=c*kappa certifies disjoint supports and the same scan reveals the aggregate identifier XOR.",
+  "assumptions": [
+    "Honest construction starting empty; occupied words never overwritten; failed insertions do not mutate the snapshot.",
+    "Authentic successful-insertion count; genuine occupancy including occupied zero words and public word widths/share count.",
+    "Observer has permissioned-ledger read access; no regulator secret or query token.",
+    "The pinned specification permits timeout publication without a positive minimum batch count.",
+    "Repeated reads observe a frozen array; written identities hold for every admissible share realization."
+  ],
+  "predecessor_credit": [
+    "Qin, Zhou, Dai, Sun and Qiang (2026), doi:10.3390/e28090947: analyzed GBFPlus specification; no endorsement implied.",
+    "Dong, Chen and Wen (2013), doi:10.1145/2508859.2516701: garbled Bloom filters and disclosure versus false-positive acceptance.",
+    "Silva and Kschischang (2011), doi:10.1109/TIT.2010.2090212: established joint linear disclosure and coset encoding.",
+    "Hao et al. (USENIX Security 2024): masking in oblivious key-value retrieval."
+  ],
+  "ai_assistance": "Substantial OpenAI Codex assistance with literature, derivations, code, tests, drafting, separate-context AI reviews and archival preparation. AI review is not human peer review; complete historical model-version provenance is unavailable.",
+  "sources": {
+    "owning_project": "Bernoulli research workspace",
+    "source_repository_visibility": "private; unchanged",
+    "canonical_source_archive": "https://zenodo.org/api/records/23497466/files/gbfplus-occupancy-disclosure-v1.0.0.tar.gz/content",
+    "archive_sha256": "1276f3d2fa6fa92dc552209590a5c7e833d2cadac01bd4fbd2c94ecab5efddb5",
+    "source_git_commit": null,
+    "source_identity_note": "The research source was uncommitted in the private owning workspace. The canonical public source is this exact archive, with per-file hashes and pinned primary-source DOI/PDF hash. A private repository HEAD is recorded as context only, not claimed to contain the contribution.",
+    "primary_source_doi": "10.3390/e28090947",
+    "primary_source_pdf_sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417"
+  },
+  "public_disclosure": {
+    "date": "2026-10-20",
+    "url": "https://zenodo.org/record/23497466",
+    "observed_public_at": "2026-10-20T11:20:33.980269+00:00",
+    "basis": "First verified public release of this contribution through this Zenodo record. Earlier local research/review dates are not substituted for public disclosure dates."
+  },
+  "development_events": [
+    {
+      "date": "2026-10-15",
+      "kind": "internal AI review and scientific revision",
+      "public_disclosure": false
+    },
+    {
+      "date": "2026-10-18",
+      "kind": "author manuscript review and approval",
+      "public_disclosure": false
+    },
+    {
+      "date": "2026-10-20",
+      "kind": "author-authorized archival release"
+    }
+  ],
+  "scientific_status": {
+    "written_proofs": 2,
+    "formal_verification": false,
+    "human_peer_review": false,
+    "author_manuscript_review": "approved 2026-10-18",
+    "ai_review": "Several separate-context internal reviews; corrections documented in archived REVIEW.md",
+    "novelty": "Potential protocol-specific contribution, bounded-search evidence; elementary mathematics and generic defenses are established.",
+    "journal_submission": "not submitted",
+    "journal_acceptance": false
+  },
+  "verification": {
+    "date": "2026-10-20",
+    "unit_integration_tests": 17,
+    "normal_statements_covered": 121,
+    "normal_branches_covered": 48,
+    "normal_coverage_percent": 100,
+    "coverage_limit": "Compile-time optimization guard is excluded from denominator and separately tested by rejected subprocess executions.",
+    "paper_cases": {
+      "singleton": 256,
+      "disjoint_pairs": 1024,
+      "seeded_stored_arrays": 64,
+      "mismatches": 0
+    },
+    "independent_oracle_updates": 771787,
+    "saved_full_word_arrays_reconstructed": 64,
+    "lint": "Ruff passed",
+    "types": "strict mypy passed",
+    "clean_archive_reproduction": true,
+    "clean_pdf_text_matches": true,
+    "pdf_pages": 5,
+    "all_pages_visually_inspected": true,
+    "current_publisher_pdf_matches_pin": true,
+    "public_downloads_verified_without_authentication": true
+  },
+  "publication": {
+    "state": "published",
+    "version": "1.0.0",
+    "archive_publication_date": "2026-10-20",
+    "version_doi": "10.5281/zenodo.23497466",
+    "concept_doi": "10.5281/zenodo.23497465",
+    "zenodo_record": "https://zenodo.org/record/23497466",
+    "receipt": "publication.json",
+    "public_downloads_verified": true
+  },
+  "license": {
+    "note_and_synthetic_data": "CC-BY-4.0",
+    "software": "MIT",
+    "third_party_papers": "Linked and credited, not redistributed."
+  },
+  "limitations": [
+    "No operational deployment frequency or end-to-end cryptographic/ledger implementation.",
+    "Does not break the distinct data-identifier game or generally recover the publisher, complete named paths or individual identifiers in arbitrary batches.",
+    "The aggregate can be uninformative when all admissible histories have the same XOR.",
+    "Padding/masking controls concern specific statistics; no complete repair is proved.",
+    "A different enforced release rule or hidden/masked payload requires separate analysis.",
+    "No exhaustive novelty, external peer review, or legal priority claim."
+  ],
+  "artifacts": [
+    {
+      "filename": "CITATION.cff",
+      "bytes": 1021,
+      "sha256": "7bf2410d1eb60a5c1aacdf82db333e7b8abdcadabfe40b67f416267d9af7d215",
+      "public_url": "https://zenodo.org/api/records/23497466/files/CITATION.cff/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.pdf",
+      "bytes": 289070,
+      "sha256": "4df2802bad70cd87f46aa0c9109b75a950b3290bd508c50170f906edf0a79e69",
+      "public_url": "https://zenodo.org/api/records/23497466/files/gbfplus-occupancy-disclosure-v1.0.0.pdf/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "gbfplus-occupancy-disclosure-v1.0.0.tar.gz",
+      "bytes": 338427,
+      "sha256": "1276f3d2fa6fa92dc552209590a5c7e833d2cadac01bd4fbd2c94ecab5efddb5",
+      "public_url": "https://zenodo.org/api/records/23497466/files/gbfplus-occupancy-disclosure-v1.0.0.tar.gz/content",
+      "verified_without_authentication": true
+    },
+    {
+      "filename": "SHA256SUMS",
+      "bytes": 294,
+      "sha256": "443731ac104c58ec80073dba01ef83fe8dec1f044cd9b2de1e9a3922f038277b",
+      "public_url": "https://zenodo.org/api/records/23497466/files/SHA256SUMS/content",
+      "verified_without_authentication": true
+    }
+  ]
+}

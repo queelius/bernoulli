@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-15",
+  "temporary_directory": "/tmp/gbfplus-comment-clean-aw3d7mx9",
+  "temporary_directory_removed_after_validation": true,
+  "commands": [
+    {
+      "label": "standalone",
+      "argv": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "reproduce.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "tests",
+      "argv": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "lint",
+      "argv": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "types",
+      "argv": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/mypy",
+        "--strict",
+        "gbfplus_probe.py",
+        "reproduce.py",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "source-build",
+      "argv": [
+        "make"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "deterministic_results_match": true,
+  "rebuilt_pdf_text_matches": true,
+  "portable_runtime_uses_site_packages": false,
+  "scientific_algorithm_files_unchanged": true,
+  "experiment_function_ASTs_unchanged": true,
+  "archives": {
+    "gbfplus-comment-supplement.zip": {
+      "sha256": "6bc35e4b9b26a56f56ae2432a5a2ebca13392286daac8ff462a34bd282a3c281",
+      "bytes": 20853,
+      "files": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ]
+    },
+    "gbfplus-comment-source.zip": {
+      "sha256": "3fe6d0ce52f9acf50109f4eff51bce637d60a407ae80387a929486c5b7339039",
+      "bytes": 7664,
+      "files": [
+        "Makefile",
+        "main.tex",
+        "references.bib"
+      ]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/spinoza/github/bernoulli/.research/publication-triage/candidates/hash-construction
+plugins: cov-7.1.0, hypothesis-6.155.2, anyio-4.13.0
+collected 20 items
+
+test_audit_hash.py ....................                                  [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name            Stmts   Miss Branch BrPart  Cover   Missing
+-----------------------------------------------------------
+audit_hash.py      73      1     18      1    98%   165
+-----------------------------------------------------------
+TOTAL              73      1     18      1    98%
+Coverage JSON written to file coverage.json
+============================== 20 passed in 1.51s ==============================

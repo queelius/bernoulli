@@ -1,0 +1,126 @@
+[
+  {
+    "id": "juels2014honey",
+    "title": "Honey Encryption: Security Beyond the Brute-Force Bound",
+    "authors": [
+      "Ari Juels",
+      "Thomas Ristenpart"
+    ],
+    "year": 2014,
+    "venue": "EUROCRYPT",
+    "url": "https://pages.cs.wisc.edu/~rist/papers/honeyenc.html",
+    "full_text": "https://pages.cs.wisc.edu/~rist/papers/HoneyEncryptionpre.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Author publication page; full-text Section 4 (DTE and inverse sampling).",
+    "relationship": "Direct predecessor for abstract codec distribution shaping and randomized within-fiber encoding; different cryptographic object."
+  },
+  {
+    "id": "cheng2019pmte",
+    "title": "Probability Model Transforming Encoders Against Encoding Attacks",
+    "authors": [
+      "Haibo Cheng",
+      "Zhixiong Zheng",
+      "Wenting Li",
+      "Ping Wang",
+      "Chao-Hsien Chu"
+    ],
+    "year": 2019,
+    "venue": "USENIX Security",
+    "pages": "1573–1590",
+    "url": "https://www.usenix.org/conference/usenixsecurity19/presentation/cheng",
+    "full_text": "https://www.usenix.org/system/files/sec19-cheng.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official proceedings abstract and BibTeX.",
+    "relationship": "Encoding-attack and probability-model precedent; not claimed to solve the same retrieval optimization."
+  },
+  {
+    "id": "filic2022pds",
+    "title": "Adversarial Correctness and Privacy for Probabilistic Data Structures",
+    "authors": [
+      "Mia Filić",
+      "Kenneth G. Paterson",
+      "Anupama Unnikrishnan",
+      "Fernando Virdia"
+    ],
+    "year": 2022,
+    "venue": "ACM CCS",
+    "url": "https://arxiv.org/abs/2209.06955",
+    "full_text": "https://arxiv.org/html/2209.06955",
+    "verified_on": "2026-10-14",
+    "examined": "Author preprint metadata, abstract and introductory security-model discussion; abstract says accepted CCS 2022.",
+    "relationship": "API/internal-state and adaptive privacy framework for AMQ; membership rather than identical retrieval-value problem."
+  },
+  {
+    "id": "dietzfelbinger2026ribbon",
+    "title": "Ribbon: Fast Succinct Static Retrieval and Approximate Membership",
+    "authors": [
+      "Martin Dietzfelbinger",
+      "Peter C. Dillinger",
+      "Lorenz Hübschle",
+      "Peter Sanders",
+      "Stefan Walzer"
+    ],
+    "year": 2026,
+    "venue": "Journal of the ACM",
+    "volume": 73,
+    "issue": 1,
+    "article": 7,
+    "pages": "1–45",
+    "doi": "10.1145/3785417",
+    "url": "https://publikationen.bibliothek.kit.edu/1000191446",
+    "full_text": "https://publikationen.bibliothek.kit.edu/1000191446/177619178",
+    "verified_on": "2026-10-14",
+    "examined": "Publisher PDF deposited by authors' institution; Section 1.7 and Section 5.4 Lemma 5.4.",
+    "relationship": "Exact row-span exception with random free variables; different from the companion's zero-filled value-span identity."
+  },
+  {
+    "id": "boecherer2010dyadic",
+    "title": "Matching Dyadic Distributions to Channels",
+    "authors": [
+      "Georg Böcherer",
+      "Rudolf Mathar"
+    ],
+    "year": 2010,
+    "venue": "arXiv preprint 1009.3751v4",
+    "url": "https://arxiv.org/abs/1009.3751v4",
+    "verified_on": "2026-10-14",
+    "examined": "Author preprint abstract and metadata; lists planned DCC 2011 presentation.",
+    "relationship": "Geometric Huffman coding optimizes KL over dyadic laws, not the same TV objective."
+  },
+  {
+    "id": "cheng2025honeyvault",
+    "title": "Practically Secure Honey Password Vaults: New Design and New Evaluation against Online Guessing",
+    "authors": [
+      "Haibo Cheng",
+      "Fugeng Huang",
+      "Jiahong Yang",
+      "Wenting Li",
+      "Ping Wang"
+    ],
+    "year": 2025,
+    "venue": "USENIX Security",
+    "url": "https://www.usenix.org/conference/usenixsecurity25/presentation/cheng-haibo",
+    "full_text": "https://www.usenix.org/system/files/usenixsecurity25-cheng-haibo.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official proceedings page and abstract.",
+    "relationship": "Recent adjacent operational-security evaluation; not a direct retrieval-codec theorem predecessor."
+  },
+  {
+    "id": "bienstock2023okvs",
+    "title": "Near-Optimal Oblivious Key-Value Stores for Efficient PSI, PSU and Volume-Hiding Multi-Maps",
+    "authors": [
+      "Alexander Bienstock",
+      "Sarvar Patel",
+      "Joon Young Seo",
+      "Kevin Yeo"
+    ],
+    "year": 2023,
+    "venue": "USENIX Security",
+    "pages": "301–318",
+    "url": "https://www.usenix.org/conference/usenixsecurity23/presentation/bienstock",
+    "full_text": "https://www.usenix.org/system/files/usenixsecurity23-bienstock.pdf",
+    "verified_on": "2026-10-14",
+    "examined": "Official primary PDF, Section 2.1 Definition 4 and Algorithm 1; independent reviewer checked Theorem 1.",
+    "relationship": "Non-input-key random decoding is studied under uniformly random input values. Does not subsume arbitrary-value zero-filled codec/span laws."
+  }
+]

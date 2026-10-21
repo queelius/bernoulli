@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-15",
+  "author": "Alexander Richard Towell",
+  "original_driver": "frozen-retrieval/run_probe.py",
+  "original_driver_sha256": "88e735746c2cfd7ce6372fa706f572b9d4bbfbcc130484db074c0d2bf254ac79",
+  "original_results_sha256": "7f62fe8caeb95afd0e090632902ab4c982e41bddee94ec672a5abc76f4038fcd",
+  "unchanged_functions": {
+    "exact_gbf_checks": "2c311fc86f7b2936d0e02c38139cf3e0f3c190f18ed1fcb94ac8b0f699c39677",
+    "stored_constructions": "2c4b7109bd62da746bb6d47159772a3db5d0439e24955c1c364054424764e501"
+  },
+  "unchanged_files": {
+    "gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d"
+  },
+  "new_work": "Standalone result writer, early optimization-mode rejection, portability tests, and a hand-derived full-array test; no share algorithm or experiment function changes.",
+  "excluded_diagnostics": "Generic affine laws and GF2Retrieval witnesses are prior-art/background diagnostics, not this Comment contribution.",
+  "source_paper": {
+    "doi": "10.3390/e28090947",
+    "pdf_url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+    "sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417"
+  },
+  "editorial_revision_date": "2026-10-15",
+  "function_hash_method": {
+    "serialization": "ast.dump(function_node, annotate_fields=True, include_attributes=False), UTF-8, no trailing newline; SHA-256",
+    "compatibility_normalization": "Omit an empty FunctionDef.type_params field from _fields before dumping. This reproduces the historical pre-Python-3.12 AST format. Do not omit nonempty type_params.",
+    "verified_interpreter": "CPython 3.12.3",
+    "purpose": "Integrity comparison for these two functions, not a general cross-version AST canonicalizer."
+  }
+}

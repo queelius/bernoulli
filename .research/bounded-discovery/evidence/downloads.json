@@ -1,0 +1,23 @@
+[
+  {
+    "name": "adaptive-filters-2021",
+    "url": "https://cs.uwaterloo.ca/~r27das/zipfian_filters.pdf",
+    "path": ".research/bounded-discovery/evidence/adaptive-filters-2021.pdf",
+    "bytes": 6450940,
+    "sha256": "82c333b8eb8eb357dc430995993829d95ca94246eac0bdbe5df6f78f6fce8348"
+  },
+  {
+    "name": "label-efficient-2005",
+    "url": "https://stoltz.perso.math.cnrs.fr/Publications/CBLS-LabelEff.pdf",
+    "path": ".research/bounded-discovery/evidence/label-efficient-2005.pdf",
+    "bytes": 173747,
+    "sha256": "02522e5343d3fbb6e30ce2d7002f04bf4dfcd32861daa581d841bb18a45bf963"
+  },
+  {
+    "name": "one-sided-feedback-2021",
+    "url": "https://proceedings.mlr.press/v130/jiang21b/jiang21b.pdf",
+    "path": ".research/bounded-discovery/evidence/one-sided-feedback-2021.pdf",
+    "bytes": 565476,
+    "sha256": "da6d96d6b8a1d1d042e672e645355b17f372c8c25234a87582ad6743efb5b6ab"
+  }
+]

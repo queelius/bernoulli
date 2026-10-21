@@ -1,0 +1,21 @@
+two-bit identity, worst |enumeration - formula| over grid: 1.11e-16
+
+CHAIN crosstalk (pairwise-dominated), n=8, ibm_hanoi cold rates
+  lambda   P_indep   P_first   P_exact    fo_err      P_MC
+   0.001   0.07494   0.06278   0.06265  1.28e-04   0.06274
+   0.005   0.12071   0.06540   0.06237  3.03e-03   0.06231
+   0.010   0.17168   0.07353   0.06226  1.13e-02   0.06223
+   0.020   0.25561   0.10187   0.06283  3.90e-02   0.06254
+   0.050   0.40496   0.22831   0.07033  1.58e-01   0.07028
+
+GLOBAL common cause (all-order dependence), n=8, same rates
+  lambda   P_indep   P_first   P_exact    fo_err
+   0.001   0.06976   0.02060   0.06269  4.21e-02
+   0.005   0.09681  -0.13635   0.06244  1.99e-01
+   0.010   0.12852  -0.30780   0.06213  3.70e-01
+   0.020   0.18546  -0.57702   0.06150  6.39e-01
+   0.050   0.31319  -0.93696   0.05962  9.97e-01
+
+Sign check (chain, lambda=0.01): exact below independent anchor: True
+global n=9 lambda=0.1: exact=0.1637 indep=0.4435
+global n=9 lambda=0.5: exact=0.5354 indep=0.5000

@@ -1,0 +1,10 @@
+{
+  "source": "/home/spinoza/github/trapdoor-computing/papers/codec-controlled-retrieval/artifact/python/verification/randomized_full_support.py",
+  "sha256": "8706e4a218d2c690dd11fd0438b573d282ba62c5f382b71bfeed736ccefb5278",
+  "command": "PYTHONDONTWRITEBYTECODE=1 bernoulli-py/.venv/bin/python /home/spinoza/github/trapdoor-computing/papers/codec-controlled-retrieval/artifact/python/verification/randomized_full_support.py",
+  "exit_code": 0,
+  "full_support_draws": 712,
+  "complete_codes": 8,
+  "saturation_draws": 32,
+  "saturation_changed_laws": 16
+}

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-15",
+  "files_sha256": {
+    "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+    "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "body.tex": "a9f2748ec68ccb865be5c39b03dc14112e9d73b0e7b7ae8577fca26f8260dd97",
+    "backmatter.tex": "86d67d8e14f1f1eb5269cf66b2c95193844c7b332ce0dc0201692d18518cc7a0",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "main.pdf": "6abdc1c0b9613699bc4aabc8d6a872ba2785e9c27585452f743347d061859e46",
+    "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+    "gbfplus-comment-review.zip": "4d6c2ab550e4a57681fbc081ee0d1c71e941180675e9dbda7f1dac9d5b11253c",
+    "gbfplus-comment-source.zip": "0b615d2540ff19f24e930e58131c90c37deeb3bb1239a1a8fcdcc14f66949697",
+    "gbfplus-comment-supplement.zip": "cb330561cd3ecfa270907175c86f40e40ccc3544b2fe497a7d700e7722126e25",
+    "venue-verification.json": "4f2bc6a491e0640ff5a22b743fac6bbbb9953926d77654b62a2c470bfdb79baf",
+    "canonical-verification.json": "32e990f88e4d401fd8d6dda2842dc1115cb6b1af4ae688d173c55e2b29a582ab",
+    "package-manifest.json": "dd6b80d41d5c47c8436ddf41a1a7880a3b70d919cacfa551bc2ea275dd4b89d9"
+  }
+}

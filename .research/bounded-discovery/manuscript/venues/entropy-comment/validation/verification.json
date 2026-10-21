@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-15",
+  "scope": "Submission-preparation disclosure changes; main result and code unchanged",
+  "status": "not submitted; author review/declarations and confirmed free publication pending",
+  "paths": "Evidence paths relative to .research/bounded-discovery or extracted review bundle root; source hashes relative to workspace venue directory.",
+  "submission_constraints": {
+    "date": "2026-10-15",
+    "submission_authorized_conditionally": true,
+    "human_review": "author explicitly still needs to review PDF",
+    "funding_conflicts_authorship_publication_history": "not confirmed",
+    "publication_budget": {
+      "maximum": 0,
+      "currency": "CHF",
+      "tax_or_other_publication_charges_permitted": false
+    },
+    "general_apc_verified_live": {
+      "amount": 2600,
+      "currency": "CHF",
+      "tax": "additional if applicable",
+      "url": "https://www.mdpi.com/journal/entropy/apc",
+      "comment_exemption_verified": false
+    },
+    "formal_submission": {
+      "status": "not submitted",
+      "manuscript_id": null
+    },
+    "fee_inquiry": {
+      "status": "local draft; sending permission requested",
+      "recipient": "entropy@mdpi.com",
+      "attachment": null,
+      "file": "fee-inquiry.txt"
+    },
+    "account_access": {
+      "status": "login required",
+      "url": "https://auth.mdpi.com/login",
+      "chrome_tab_id": "304519990"
+    },
+    "source_policy": {
+      "url": "https://www.mdpi.com/ethics",
+      "comments": "Editorial Office preliminary assessment before potential Comment submission/publication",
+      "ai_use": "Methods disclosure plus acknowledgment and human responsibility required"
+    },
+    "external_actions": [],
+    "baseline_manifest": "baseline/manifest.json"
+  },
+  "current_checks": {
+    "date": "2026-10-15",
+    "scope": "Submission preparation: disclosure edits only; not a new mathematical review or test run",
+    "checks": {
+      "supplement_archive_unchanged": true,
+      "supplement_sources_unchanged": true,
+      "92_unrelated_preservation_paths": true,
+      "baseline_saved_exactly": true,
+      "all_preceding_scientific_text_unchanged": true,
+      "implications_unchanged": true,
+      "clean_source_pdf_text_matches_current": true,
+      "canonical_build_no_warnings": true,
+      "canonical_five_pages": true,
+      "venue_build_no_warnings": true,
+      "venue_five_pages": true,
+      "clean_source_build_no_warnings": true,
+      "clean_source_five_pages": true
+    },
+    "all_passed": true,
+    "pdf": {
+      "canonical": {
+        "sha256": "bd356ff278292a3675e160a004b6de7bb6c63ea0f7f743f1f7e1ad54f31968e2",
+        "pages": 5,
+        "warnings": []
+      },
+      "venue": {
+        "sha256": "5efca43769831bd824e9cbae81fa05a53dc91d70abb7af7a675188a5867128e4",
+        "pages": 5,
+        "warnings": []
+      },
+      "clean_source": {
+        "sha256": "d1b2e40901945b1991da6ef25088ce33a88dcd211c626090a41989ed904c8124",
+        "pages": 5,
+        "warnings": []
+      }
+    },
+    "visual_qa": "All five venue pages and canonical pages 1-2 inspected. Canonical pages 3-5 have byte-identical rendered PNGs to inspected venue pages. No clipping or illegibility; a normal paragraph continuation crosses pages 4-5.",
+    "code_validation": "Previous 17 tests and finite oracle checks remain historical, with exact supplement bytes verified unchanged; tests were not repeated for disclosure-only changes.",
+    "remaining": "Author review and declarations, confirmed fee-free route, then authenticated submission; no manuscript submitted."
+  },
+  "source_sha256": {
+    "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+    "README.md": "9962a0439a9c7568681764657fa37e4ce0c6808868b97822902a165cb4f75781",
+    "REVIEW-PACKAGE.md": "5fa13dd5c476ae6f83fdbf2ebf653814770c87d5377b06c7bff91d76c2f3884c",
+    "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+    "backmatter.tex": "0ab601fef429f696a9d18c1f8f7b7ea29f61fe522d365759fa7163649dec4408",
+    "body.tex": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc",
+    "cover-letter.md": "48644f7c72a623768bfa2f27543ce7d2d1a87e1558877eec0be2aa15f0d0c93d",
+    "declarations.md": "4bc549e930f35b7bfad60acc569d69ec8a53ef1cb90b5a735177cad066b4aecc",
+    "main.pdf": "5efca43769831bd824e9cbae81fa05a53dc91d70abb7af7a675188a5867128e4",
+    "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/README.md": "dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/provenance.json": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+    "supplement/reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+    "supplement/requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+    "supplement/source-premises.md": "fc8d1bea102f688c0e589c490181401654cabfc7adacbd800e5871ae6afaae25",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+  },
+  "archives": {
+    "gbfplus-comment-source.zip": {
+      "sha256": "3eb42a97c40f79184ef27e0e76d5fb91691ac74d5a9158d36cfa753b2f8826b8",
+      "bytes": 8954,
+      "files": [
+        "Makefile",
+        "abstract.tex",
+        "backmatter.tex",
+        "body.tex",
+        "main.tex",
+        "references.bib"
+      ],
+      "member_sha256": {
+        "Makefile": "9677eeee3e6a69fe724c129043026c7e18ecf53b7c8b19bdc08b711bb47d0c66",
+        "abstract.tex": "ed9594b82370715761474e26b04a7219a781dbcbca9475444d636e6e77a81e70",
+        "backmatter.tex": "0ab601fef429f696a9d18c1f8f7b7ea29f61fe522d365759fa7163649dec4408",
+        "body.tex": "2947559faf2e7c53dcec28060dbf6584b48dc08eefd82587fbf67190e6c03cbc",
+        "main.tex": "d258eec2b1a8a1bdd656a6e06ba9bb5fe44bc2d8d4ed8d4f46bf9dd4cb6dbbce",
+        "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca"
+      }
+    },
+    "gbfplus-comment-supplement.zip": {
+      "sha256": "cb330561cd3ecfa270907175c86f40e40ccc3544b2fe497a7d700e7722126e25",
+      "bytes": 23284,
+      "files": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ],
+      "member_sha256": {
+        "README.md": "dcfa62a7c8ad1510dc124eaef492bf2a5ffbd5552845d70a37af775f0121c8a8",
+        "gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+        "provenance.json": "2e917455f0dac52fef67445eee261964f6998600c10e8e17175f75fa86ff4a32",
+        "reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+        "reproduce.py": "b6a3ccc1a021f7340ddf924f86178d8409c24a38676c2eaf612441e093b4fc1f",
+        "requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+        "source-premises.md": "fc8d1bea102f688c0e589c490181401654cabfc7adacbd800e5871ae6afaae25",
+        "test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+        "test_reproduction.py": "474f8340aedcd765af768d2ef71e0efecfa987f9e80ff7c51d65658e5fc1e80a"
+      }
+    }
+  },
+  "historical_scientific_review": "adversarial-review/assessment.md",
+  "historical_scientific_verification": "adversarial-review/verification.json",
+  "immediate_previous_verification": "submission-preparation/baseline/venue-verification.json",
+  "test_run_this_stage": false,
+  "reason": "Only manuscript disclosures and preparation documentation changed. Every supplement byte matches the previously tested artifact.",
+  "review_bundle_path_mapping": {
+    "README.md": "workspace venue REVIEW-PACKAGE.md",
+    "START-HERE.md": "workspace venue REVIEW-PACKAGE.md",
+    "REVIEW-PACKAGE.md": "workspace venue REVIEW-PACKAGE.md",
+    "verification.json": "workspace venue validation/verification.json",
+    "source-premises.md": "workspace venue supplement/source-premises.md"
+  },
+  "human_review_pending": true,
+  "submission_receipt": null
+}

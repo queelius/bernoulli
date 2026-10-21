@@ -1,0 +1,11 @@
+{
+  "manifest_members_verified": 37,
+  "safe_regular_members_only": true,
+  "public_text_scan": "No home paths, authorization headers or private correspondence message ID in text members",
+  "standalone_without_site_packages": true,
+  "deterministic_results_match": true,
+  "clean_latex_build_command": "make -B (force rebuilding the distributed PDF)",
+  "pdf_text_identical": true,
+  "deterministic_archive_rebuild": true,
+  "archive_sha256": "1276f3d2fa6fa92dc552209590a5c7e833d2cadac01bd4fbd2c94ecab5efddb5"
+}

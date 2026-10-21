@@ -1,0 +1,10 @@
+{
+  "publication_verified": true,
+  "doi_resolves": true,
+  "public_files_sha256_verified": 4,
+  "public_index_files_verified": 5,
+  "local_index_matches_published_record": true,
+  "deterministic_archive_rebuild": true,
+  "clean_pdf_text_matches": true,
+  "scope": "Final metadata/artifact identity verification; prior staged tests not rerun because scientific code is unchanged"
+}

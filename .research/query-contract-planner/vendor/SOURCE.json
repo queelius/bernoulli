@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/FastFilter/xor_singleheader",
+  "commit": "5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1",
+  "commit_date_utc": "2026-10-09T05:16:18Z",
+  "retrieved_date": "2026-10-13",
+  "license": "Apache-2.0",
+  "files": [
+    {
+      "path": "binaryfusefilter.h",
+      "source_url": "https://github.com/FastFilter/xor_singleheader/blob/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/include/binaryfusefilter.h",
+      "raw_url": "https://raw.githubusercontent.com/FastFilter/xor_singleheader/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/include/binaryfusefilter.h",
+      "upstream_git_blob_sha1": "fef4b107f2ec38ccfd19bead75f60c3f89af28c5",
+      "sha256": "26f192bdff8a971c9db49afce4c9cf51cc17477ca7047c6ae7c5a272a1b6985f",
+      "bytes": 35927,
+      "modified": false
+    },
+    {
+      "path": "LICENSE",
+      "source_url": "https://github.com/FastFilter/xor_singleheader/blob/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/FastFilter/xor_singleheader/5b6b321aa5c0c8ef5b5fb3145206f07f3754a0a1/LICENSE",
+      "upstream_git_blob_sha1": "d266cc9b84b9b10633a49bc7a8d96d08f62cfe43",
+      "sha256": "a111b5902eaeb94cb51b3ead2fef619724817bf55ebe561b3d7caeb1d5305190",
+      "bytes": 10758,
+      "modified": false
+    }
+  ]
+}

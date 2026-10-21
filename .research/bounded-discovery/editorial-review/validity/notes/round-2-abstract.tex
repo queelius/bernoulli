@@ -1,0 +1,14 @@
+GBFPlus supports authorized tracing of cross-domain data transfers through
+public ledger attestations. Its published description treats the adjacent-domain
+identifier as protected metadata. We show that an allowed one-insertion
+attestation reveals that identifier exactly. Public occupancy identifies all
+shares of the inserted word; their exclusive-or (XOR) reconstructs the word,
+including its unmasked identifier suffix. This holds for every construction
+realization and requires neither a query token nor a candidate data identifier.
+A public occupancy test also identifies some larger batches in which the same
+operation reveals an aggregate XOR, rather than individual identifiers.
+We prove these statements and reproduce them with finite exhaustive checks and
+stored share arrays. The disclosure concerns adjacent-domain metadata, distinct
+from the source paper's data-identifier privacy game and signer anonymity.
+The stated metadata-confidentiality claim therefore needs to account for allowed
+partial batches and the complete public payload view.

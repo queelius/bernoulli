@@ -1,0 +1,170 @@
+{
+  "checks": [
+    {
+      "group": "tracked_modified_sha256",
+      "path": "book/book.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/.papermill/state.md",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_composition/main.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_entropy/main.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/.papermill/state.md",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/CLAUDE.md",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/code/validate.py",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/code/validate_quotient.py",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/main.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/references.bib",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/approx_rel_model.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/conclusion.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/intro.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/oblivious_rel_model.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/properties.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/rel_algebra.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/bernoulli_relations/sections/relations.tex",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli-data-type.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli-maps.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli-relations.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli-sets-higher-order.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli-sets.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli_data_type.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli_sets.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/bernoulli_sets_higher_order.pdf",
+      "unchanged": true
+    },
+    {
+      "group": "tracked_modified_sha256",
+      "path": "papers/pdf-archive/source_archive_20260124.tar.gz",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": "bernoulli-py/src/bernoulli/sets/bloom.py",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": "bernoulli-py/src/bernoulli/maps/retrieval.py",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": "bernoulli-py/src/bernoulli/maps/codec.py",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": ".research/publication-triage/assessment.md",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": ".research/query-contract-planner/assessment.md",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": ".research/dependence-calculus/synthesis.md",
+      "unchanged": true
+    },
+    {
+      "group": "research_inputs_sha256",
+      "path": ".research/relations-revision/assessment.md",
+      "unchanged": true
+    }
+  ],
+  "all_unchanged": true
+}

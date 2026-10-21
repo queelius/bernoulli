@@ -1,0 +1,319 @@
+{
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "artifact": "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement",
+  "files_sha256": {
+    "reproduce.py": "e0f2ab0bbd2fc3c045559a65710ed21df7436cec12adbbe41b818b87d6054fe8",
+    "gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "test_reproduction.py": "f033600b7474159645a7bbd23f0c55713115a3b1acd88c85e77e04522ec7c37f",
+    "test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "README.md": "c3e7f2812547c559a5396129867358b5154dbf4a98594e05dc5390ce851ecb9e",
+    "provenance.json": "a039e13474a0fe37b44544bb87b99b2ebc857b5910010558a2f7e7d20f3a502e",
+    "reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5"
+  },
+  "provenance_checks": {
+    "experiment_ast_hashes": {
+      "exact_gbf_checks": "a03fa3e0a69de3bc70c683332d7406b7050059a40130401131d82f69fba38f73",
+      "stored_constructions": "3b2f06d4d96f1da1bd25d8b2d5aee7f02b760847772803cf8a644d2f4f42e5a5"
+    },
+    "equal_to_round_1": true,
+    "equal_to_original_driver": true,
+    "equal_to_recorded_hashes": false,
+    "matches_recorded_without_python312_empty_type_params": true,
+    "original_driver_hash_matches": true,
+    "unchanged_files_match": true
+  },
+  "normal_results": {
+    "deterministic_fields_match": true,
+    "source_hashes_match": true,
+    "arrays_reconstructed": 64,
+    "exact": {
+      "singleton_cases": 256,
+      "singleton_errors": 0,
+      "disjoint_batch_cases": 1024,
+      "disjoint_batch_errors": 0,
+      "all_individual_share_marginals_uniform": true,
+      "two_recipient_view_support_sizes": [
+        64,
+        64
+      ],
+      "two_recipient_view_supports_disjoint": true,
+      "interpretation": "Finite verification of proved identities, not a sampled privacy proof."
+    }
+  },
+  "optimization_rejections": [
+    {
+      "mode": "flag_O",
+      "entry": "script",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-O",
+        "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_O",
+      "entry": "module",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-O",
+        "-m",
+        "reproduce"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_O",
+      "entry": "import_result_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-O",
+        "-c",
+        "from reproduce import reproduce; print(reproduce())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_O",
+      "entry": "import_experiment_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-O",
+        "-c",
+        "from reproduce import exact_gbf_checks; print(exact_gbf_checks())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_O",
+      "entry": "runpy",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-O",
+        "-c",
+        "import runpy; runpy.run_path('/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py', run_name='__main__')"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_OO",
+      "entry": "script",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-OO",
+        "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_OO",
+      "entry": "module",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-OO",
+        "-m",
+        "reproduce"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_OO",
+      "entry": "import_result_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-OO",
+        "-c",
+        "from reproduce import reproduce; print(reproduce())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_OO",
+      "entry": "import_experiment_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-OO",
+        "-c",
+        "from reproduce import exact_gbf_checks; print(exact_gbf_checks())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "flag_OO",
+      "entry": "runpy",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-OO",
+        "-c",
+        "import runpy; runpy.run_path('/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py', run_name='__main__')"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_1",
+      "entry": "script",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_1",
+      "entry": "module",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-m",
+        "reproduce"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_1",
+      "entry": "import_result_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "from reproduce import reproduce; print(reproduce())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_1",
+      "entry": "import_experiment_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "from reproduce import exact_gbf_checks; print(exact_gbf_checks())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_1",
+      "entry": "runpy",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "import runpy; runpy.run_path('/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py', run_name='__main__')"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_2",
+      "entry": "script",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_2",
+      "entry": "module",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-m",
+        "reproduce"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_2",
+      "entry": "import_result_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "from reproduce import reproduce; print(reproduce())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_2",
+      "entry": "import_experiment_function",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "from reproduce import exact_gbf_checks; print(exact_gbf_checks())"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    },
+    {
+      "mode": "environment_2",
+      "entry": "runpy",
+      "command": [
+        "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+        "-S",
+        "-c",
+        "import runpy; runpy.run_path('/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py', run_name='__main__')"
+      ],
+      "exit_code": 1,
+      "diagnostic": "RuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.",
+      "output_json_created": false
+    }
+  ],
+  "optimized_existing_output_untouched": true,
+  "externally_precompiled_optimized_bytecode_edge_case": {
+    "exit_code": 0,
+    "output_json_created": true,
+    "empty_stored_arrays": 64,
+    "singleton_errors": 0
+  },
+  "new_full_array_oracle_rejects_prefix_only_corruption": true
+}

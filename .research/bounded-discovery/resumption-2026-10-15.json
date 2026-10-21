@@ -1,0 +1,63 @@
+{
+  "checked_at": "2026-10-15T05:53:22.724793+00:00",
+  "user_preference": "PhD credit is secondary for this result",
+  "decision": "Prioritize the existing GBFPlus Comment for author review; no additional discovery round",
+  "publisher_source_refresh": [
+    {
+      "file": "gbfplus-2026.pdf",
+      "url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.pdf",
+      "sha256": "83d28e4460ac017a9117acbd80f06db37a70dffc04536e8ae68904448efc1417",
+      "unchanged": true
+    },
+    {
+      "file": "gbfplus-2026.xml",
+      "url": "https://mdpi-res.com/d_attachment/entropy/entropy-28-00947/article_deploy/entropy-28-00947.xml",
+      "sha256": "bb766d99b8364d2c2bc7c6d1eebeb4dfbd8af6cd3a7abf87840195edc5545655",
+      "unchanged": true
+    }
+  ],
+  "crossref": {
+    "url": "https://api.crossref.org/works/10.3390/e28090947",
+    "observed_response_sha256": "43407b71941900a07f555c0c6b807507bc44592391fa7844094f7f62d0c7b9ba",
+    "relation": {},
+    "update-to": null,
+    "updated-by": null,
+    "published_date": [
+      2026,
+      8,
+      23
+    ],
+    "interpretation": "Compared semantic fields agree with the saved record; raw response hash differs from saved formatted JSON. No linked correction is recorded; absence is not proof of no prior disclosure."
+  },
+  "search_scope": [
+    "Exact DOI with correction/comment/critique terms",
+    "GBFPlus with correction, comment, occupancy, singleton",
+    "Official Entropy Comment/APC/exemption terms"
+  ],
+  "search_result": "No matching prior disclosure or verified Comment fee exemption found in this bounded search",
+  "venue": {
+    "general_apc_chf": 2600,
+    "comment_specific_fee": null,
+    "fee_source": "https://staging.core.mdpi.com/journal/entropy/apc",
+    "direct_main_mdpi_html": "HTTP 429; indexed official text inspected",
+    "editor_contacted": false
+  },
+  "preservation_checks": {
+    "gbfplus_probe.py": true,
+    "joint_probe.py": true,
+    "run_probe.py": true,
+    "stored_probe.py": true,
+    "test_gbfplus_probe.py": true,
+    "test_joint_probe.py": true,
+    "test_stored_probe.py": true,
+    "results.json": true
+  },
+  "tests_rerun": false,
+  "reason": "Only research documentation changed; source and result hashes match the prior successful validation.",
+  "external_actions": {
+    "submitted": false,
+    "published": false,
+    "contacted_editor": false,
+    "spent_money": false
+  }
+}

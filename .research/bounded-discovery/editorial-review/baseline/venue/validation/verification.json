@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-15",
+  "scope": "Local Entropy Comment adaptation and portable reproduction; no new research discovery round.",
+  "status": "prepared for author review, not submitted",
+  "python": "3.12.3",
+  "tools": {
+    "pytest": "9.0.3",
+    "coverage": "7.14.1",
+    "ruff": "0.15.16",
+    "mypy": "2.1.0"
+  },
+  "tests": {
+    "passed": 13,
+    "unchanged_scientific_tests": 10,
+    "new_portability_tests": 3,
+    "clean_extraction_passed": 13,
+    "logs": [
+      "coverage-0.txt",
+      "clean-tests.txt"
+    ]
+  },
+  "coverage": {
+    "modules": [
+      "gbfplus_probe.py",
+      "reproduce.py"
+    ],
+    "totals": {
+      "covered_lines": 120,
+      "num_statements": 120,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100",
+      "num_branches": 48,
+      "num_partial_branches": 0,
+      "covered_branches": 48,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100"
+    },
+    "log": "coverage-1.txt"
+  },
+  "ruff": "passed both local and clean extraction",
+  "mypy_strict": "passed on four files both local and clean extraction",
+  "reproduction": {
+    "singleton_cases": 256,
+    "singleton_errors": 0,
+    "disjoint_batch_cases": 1024,
+    "disjoint_batch_errors": 0,
+    "seeded_stored_arrays": 64,
+    "all_deterministic_fields_match_prior_results": true,
+    "timing_compared": false,
+    "site_packages_disabled_run": true,
+    "repository_required": false,
+    "details": "clean-extraction.json"
+  },
+  "scientific_preservation": {
+    "algorithm_and_original_tests_byte_identical": true,
+    "two_experiment_functions_ast_identical": true,
+    "propositions_and_proofs_unchanged_on_diff_review": true,
+    "canonical_manuscript_untouched": true,
+    "package_core_untouched": true,
+    "prior_negative_assessments_untouched": true,
+    "preserved_paths_checked": 101,
+    "all_match": true
+  },
+  "pdf": {
+    "pages": 5,
+    "all_pages_visually_inspected": true,
+    "rendered_images": [
+      "final-page-1.png",
+      "final-page-2.png",
+      "final-page-3.png",
+      "final-page-4.png",
+      "final-page-5.png"
+    ],
+    "visual_findings": "No clipping, overlap, missing glyphs or references; table spacing improved; unnecessary reference-page break removed.",
+    "final_build_unresolved_references_or_citations": false,
+    "final_build_layout_warnings": false,
+    "clean_build_pdf_text_identical": true,
+    "sha256": "230f71acbd1cf28c1f7a9a9b0c7504be1f1a5f1ce2e0b4ed277d0a55da4a4177"
+  },
+  "source_sha256": {
+    "Makefile": "36230542a2d88bbae03b65ec0bdb2b733994c01c55efc1106cd70da3152999fb",
+    "cover-letter.md": "48644f7c72a623768bfa2f27543ce7d2d1a87e1558877eec0be2aa15f0d0c93d",
+    "declarations.md": "f2e5ffcc195028de7f44f4d15fc50c289b6b2970583f4c3fc8937bde5c56a1a1",
+    "main.pdf": "230f71acbd1cf28c1f7a9a9b0c7504be1f1a5f1ce2e0b4ed277d0a55da4a4177",
+    "main.tex": "0afc54c4b3f506ffbefb83fd90a596ce44b97179e66b8d44ea6ddf0063b9cfc0",
+    "references.bib": "6d1e8e75f0bd202a93ef93ee678627dd68967429ae20aede98e3f71aada704ca",
+    "supplement/README.md": "e1f733e99ae919b1b561d6694792b33b5f89bf105e972ec491b722c7d5ad3279",
+    "supplement/gbfplus_probe.py": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "supplement/provenance.json": "fc596555f1299d176ea9cc5eca4eda5152e2fea69ba8937902d2900484ae8fcf",
+    "supplement/reference-results.json": "70d6bcd182f2800ac8e5e69f2a99bcfc76c41cf6414868dc660e263b155dd1f5",
+    "supplement/reproduce.py": "4603a3e54550ef3d7262a41fa73e0a382fb7a3e6224a4d2ef62c67cc41e63293",
+    "supplement/requirements-validation.txt": "25c58f22923d3d4e0a13bc30da58fcf71ffd1d2d8c5f60a20bb8212d96af3fd2",
+    "supplement/source-premises.md": "df6c187b76110fd9326c7dbc1a2ebc73e159cf385837b51ff1567ccf89a51b50",
+    "supplement/test_gbfplus_probe.py": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "supplement/test_reproduction.py": "f4c330e9d8a2af9864b150ae77034108be258365a99109f28440c1d53421ab12"
+  },
+  "archives": {
+    "gbfplus-comment-supplement.zip": {
+      "sha256": "6bc35e4b9b26a56f56ae2432a5a2ebca13392286daac8ff462a34bd282a3c281",
+      "bytes": 20853,
+      "files": [
+        "README.md",
+        "gbfplus_probe.py",
+        "provenance.json",
+        "reference-results.json",
+        "reproduce.py",
+        "requirements-validation.txt",
+        "source-premises.md",
+        "test_gbfplus_probe.py",
+        "test_reproduction.py"
+      ]
+    },
+    "gbfplus-comment-source.zip": {
+      "sha256": "3fe6d0ce52f9acf50109f4eff51bce637d60a407ae80387a929486c5b7339039",
+      "bytes": 7664,
+      "files": [
+        "Makefile",
+        "main.tex",
+        "references.bib"
+      ]
+    }
+  },
+  "review": "Scientific scope reuses the separate AI-agent review of 2026-10-14; venue diff manually checked. No new external or independent-agent review claimed for the wrapper.",
+  "historical_checks_not_rerun": [
+    "Original broader 19-test investigation suite",
+    "92 package regressions"
+  ],
+  "remaining_author_items": [
+    "Review mathematical/source premises and final text",
+    "Accurate contribution, funding, conflicts and publication-history declarations",
+    "Approve assistance disclosure and artifact release terms",
+    "Determine applicable Comment fee and decide whether to proceed"
+  ],
+  "external_actions": [],
+  "finalization_does_not_assert_publication_readiness": true
+}

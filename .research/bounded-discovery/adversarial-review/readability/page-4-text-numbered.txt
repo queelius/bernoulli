@@ -1,0 +1,50 @@
+001 3    Reproducibility checks
+002 The proofs establish exact identities. Supplement S1 checks a reference implementation of the
+003 stored-array update and the public scan; it does not implement cryptographic position derivation,
+004 pairings, signatures, ledger operations, or finalization. Publication and visibility premises are checked
+005 against the source specification, rather than inferred from simulation.
+006     The small enumerations fix position sets and prefixes and exhaust the stated suffix/free-share
+007 choices. The larger checks construct 64 separate singleton arrays using seeds 0–63 of Python’s
+008 general-purpose PRNG. These seeds make the arrays reproducible; they do not model cryptographic
+009 randomness or an operational workload. Table 1 states the tested equality and input class for each
+010 row. A mismatch means the returned suffix differs from the encoded identifier or aggregate, as
+011 applicable.
+012 
+013     Check and input class                                                              Cases   Mismatches
+014     Singleton: returned suffix = N1 ; c = 1, κ = 3, λ = 3, ℓ = 2. All 4 suffixes and    256             0
+015     82 free-word pairs.
+016     Disjoint pair: returned suffix = N1 ⊕ N2 ; c = 2, κ = 2, λ = 3, ℓ = 2. All 42      1,024            0
+017     suffix pairs and 82 free-word pairs.
+018     Seeded singleton: returned suffix = N1 ; c = 1, κ = 12, λ = 32, ℓ = 20, m = 64.      64             0
+019 
+020 Table 1: Finite implementation checks, not estimates of disclosure probability. The small cases use
+021 m = 7; fixed positions and prefixes are specified in Supplement S1. The seeded case uses the source
+022 article’s Section 6.3 word widths and κ, with illustrative m = 64.
+023 
+024     Tests also check overlapping insertions, preservation of earlier row equations, atomic failure,
+025 position order, occupied zero words, and frozen repeated reads. The supplement supplies all arrays
+026 and a standalone command, python3 -S reproduce.py, verified with Python 3.12.3. The runner
+027 rejects optimized execution because its checked experiments require assertions.
+028 
+029 
+030 4    Implications and existing protections
+031 The protocol-specific issue is that public occupancy identifies a complete set of shares in an allowed
+032 partial batch. The underlying distinction between individual and joint linear observations is
+033 established; Silva and Kschischang’s coset-encoding analysis provides a general precedent [2]. The
+034 original garbled Bloom filter is a relevant construction contrast: Dong, Chen, and Wen fill unused
+035 cells with random words (Algorithm 1, lines 22–26), and their private-set-intersection protocol uses
+036 oblivious transfer to supply an intersection structure [3]. That protocol does not give the same
+037 unauthorized observer the full server filter together with genuine insertion occupancy.
+038     For the all-cell XOR alone, one independent uniform padding word makes the statistic uniform.
+039 An observer who retains the genuine occupancy selector can still omit the padding and recover the
+040 original occupied-cell XOR. Fresh uniform secret masks on the adjacent identifiers also hide this
+041 statistic when the masks are independent of the identifiers and one another. Secret PRF masking of
+042 arbitrary values is already used in oblivious key-value retrieval [4]. Neither observation proves a
+043 complete repair of GBFPlus. A repair must account for the entire public view, authorized recovery,
+044 and key and mask reuse across releases.
+045     A minimum batch size above one excludes the singleton execution. It excludes the disjoint-
+046 position certificate only if accepted batches cannot satisfy w = cκ, for example when their counts
+047 always exceed m/κ. The occurrence and impact of either condition in operational workloads
+048 
+049 
+050                                                        4

@@ -1,0 +1,20 @@
+{
+  "checks": {
+    "verification_copies_equal": true,
+    "current_source_hashes": true,
+    "six_review_hashes": true,
+    "final_body_matches_readability_closure": true,
+    "final_pdf_matches_readability_closure": true,
+    "all_archives_match_manifest": true,
+    "nested_archives_match_current": true,
+    "bundled_verification_current": true,
+    "bundled_assessment_current": true,
+    "bundled_pdf_current": true,
+    "portable_entrypoints_current": true,
+    "92_preservation_checks": true
+  },
+  "all_passed": true,
+  "final_review_archive_sha256": "4d6c2ab550e4a57681fbc081ee0d1c71e941180675e9dbda7f1dac9d5b11253c",
+  "verification_sha256": "4f2bc6a491e0640ff5a22b743fac6bbbb9953926d77654b62a2c470bfdb79baf",
+  "assessment_sha256": "2862aec2de07cf6ddaca386de27938c9432a42bfcb6f6029c19e8dcce103cca9"
+}

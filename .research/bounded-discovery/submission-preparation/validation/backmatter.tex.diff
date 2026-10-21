@@ -1,0 +1,16 @@
+--- reviewed/backmatter.tex
++++ current/backmatter.tex
+@@ -8,11 +8,12 @@
+ This analysis uses a published specification and synthetic data, with no human
+ or animal subjects; institutional review and informed consent are not applicable.
+ 
+-\paragraph{AI assistance.}
++\paragraph{Acknowledgments and AI assistance.}
+ OpenAI Codex assisted with literature work, derivations, implementation, testing,
+ drafting, and packaging on October~14--15, 2026. Separate AI agents assessed
+ exposition, scientific validity, and reproducibility through successive revisions.
+ These checks are not external peer review. Final human review remains pending.
++The research artifacts do not retain a complete underlying model-version history.
+ 
+ \paragraph{Draft declarations.}
+ The author contribution, funding, conflicts of interest, and approval for

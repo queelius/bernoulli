@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "exact_results": true,
+    "all_stored_deterministic_fields": true,
+    "clean_source_pdf_text_matches_final": true,
+    "canonical_no_warnings": true,
+    "venue_no_warnings": true,
+    "clean_source_no_warnings": true
+  },
+  "all_passed": true,
+  "warnings": {
+    "canonical": [],
+    "venue": [],
+    "clean_source": []
+  },
+  "commands": {
+    "source": "make",
+    "standalone": "python -B -S reproduce.py"
+  },
+  "reproduction_scope": "All gbfplus_exact fields and all gbfplus_stored fields except descriptive runtime; environment and runner descriptors are not historical scientific results.",
+  "log_screen_note": "Initial case-insensitive substring search also matched the infwarerr package description (Providing info/warning/error messages). Corrected the diagnostic screen to actual LaTeX/BibTeX warning and box-warning markers; the initial result is retained separately. No manuscript or build defect occurred."
+}

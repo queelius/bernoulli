@@ -1,0 +1,57 @@
+# Research audit trail: commit the text evidence (notes, ledgers, code, tests,
+# structured results), not caches, build outputs, third-party texts, or private
+# venue correspondence. This repository is public.
+
+# Python, test and type-check caches (some captured with absolute paths)
+__pycache__/
+pycache/
+*.pyc
+.mypy_cache/
+mypy-cache/
+.pytest_cache/
+pytest-tmp/
+.coverage
+.coverage.*
+.coverage-worker
+
+# LaTeX build outputs and PDFs. Own manuscripts rebuild from source; the
+# archival GBFPlus PDF is deposited at doi:10.5281/zenodo.23497466.
+*.pdf
+*.aux
+*.log
+*.out
+*.blg
+*.bbl
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+
+# Packaged duplicates of committed sources (the deposited archive is on Zenodo)
+*.zip
+*.tar.gz
+
+# Full-text extractions of third-party papers (copyright): cite the DOI instead
+adaptive-filters-2021.txt
+bloomier-2004.txt
+dong2013-ccs.txt
+dong2013-corrected.txt
+gbfplus-2026-layout.txt
+hamilton2020.txt
+label-efficient-2005.txt
+one-sided-feedback-2021.txt
+qin-pmc-fresh-text.txt
+silva2011.txt
+smith2021.txt
+source-paper.txt
+
+# Private venue correspondence, declarations and suggested reviewers
+bounded-discovery/submission-preparation/fee-inquiry*
+bounded-discovery/submission-preparation/author-approval-*.json
+bounded-discovery/submission-preparation/reviewer-candidates.json
+bounded-discovery/manuscript/venues/entropy-comment/declarations.md
+
+# Page renders from manuscript QA (regenerable from source) and third-party
+# page captures; keep only result figures
+*.png
+!comparison.png

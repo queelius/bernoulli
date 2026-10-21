@@ -1,0 +1,55 @@
+{
+  "python": "3.12.3",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "tools": {
+    "pytest": "9.0.3",
+    "coverage": "7.14.1",
+    "ruff": "0.15.16",
+    "mypy": "2.1.0"
+  },
+  "checks": [
+    {
+      "name": "tests",
+      "command": "python -m coverage run --branch --source=gbfplus_probe,reproduce -m pytest -q",
+      "exit_code": 0,
+      "seconds": 3.018
+    },
+    {
+      "name": "coverage",
+      "command": "python -m coverage report -m",
+      "exit_code": 0,
+      "seconds": 0.208
+    },
+    {
+      "name": "coverage-json",
+      "command": "python -m coverage json -o <packet>/verification/coverage.json",
+      "exit_code": 0,
+      "seconds": 0.217
+    },
+    {
+      "name": "lint",
+      "command": "python -m ruff check .",
+      "exit_code": 0,
+      "seconds": 0.039
+    },
+    {
+      "name": "types",
+      "command": "python -m mypy --strict gbfplus_probe.py reproduce.py test_gbfplus_probe.py test_reproduction.py",
+      "exit_code": 0,
+      "seconds": 4.462
+    },
+    {
+      "name": "standalone",
+      "command": "python -S reproduce.py",
+      "exit_code": 0,
+      "seconds": 0.073
+    },
+    {
+      "name": "independent-oracle",
+      "command": "python -S <packet>/review/independent_checks.py <packet>/supplement",
+      "exit_code": 0,
+      "seconds": 5.009
+    }
+  ],
+  "all_passed": true
+}

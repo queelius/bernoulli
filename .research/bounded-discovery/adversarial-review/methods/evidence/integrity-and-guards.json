@@ -1,0 +1,32 @@
+{
+  "gbfplus_probe.py": {
+    "actual": "ffe9e4c05a73787a2b7ffbb2337bcda118d1eaa0a2a4783d99255be216e1100a",
+    "matches": true
+  },
+  "test_gbfplus_probe.py": {
+    "actual": "c69c2775d8e8fd45a4ad1e78c76da890a841333bb923fa08d7ed8c2f3eb2b96d",
+    "matches": true
+  },
+  "exact_gbf_checks": {
+    "actual": "2c311fc86f7b2936d0e02c38139cf3e0f3c190f18ed1fcb94ac8b0f699c39677",
+    "matches": true
+  },
+  "stored_constructions": {
+    "actual": "2c4b7109bd62da746bb6d47159772a3db5d0439e24955c1c364054424764e501",
+    "matches": true
+  },
+  "source_zip_matches_frozen_files": true,
+  "rebuilt_pdf_text_equals_frozen": true,
+  "all_deterministic_recorded_data_match": true,
+  "wrong_decoder_fault_rejected_before_zero_error_report": true,
+  "-O": {
+    "returncode": 1,
+    "requires_assertions": true,
+    "output_written": false
+  },
+  "-OO": {
+    "returncode": 1,
+    "requires_assertions": true,
+    "output_written": false
+  }
+}

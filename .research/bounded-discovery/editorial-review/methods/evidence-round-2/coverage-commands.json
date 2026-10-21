@@ -1,0 +1,45 @@
+[
+  {
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-O",
+      "-m",
+      "coverage",
+      "run",
+      "--append",
+      "--branch",
+      "--source=gbfplus_probe,reproduce",
+      "/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/tmp/gbfplus-methods-review-r2-n53qewnm/supplement/reproduce.py\", line 25, in <module>\n    raise RuntimeError(\nRuntimeError: This reproduction requires assertions: run without -O/-OO and unset PYTHONOPTIMIZE.\n",
+    "expected_failure": true,
+    "no_results_json": true
+  },
+  {
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-m",
+      "coverage",
+      "report",
+      "-m"
+    ],
+    "exit_code": 0,
+    "stdout": "Name               Stmts   Miss Branch BrPart  Cover   Missing\n--------------------------------------------------------------\ngbfplus_probe.py      53      0     32      0   100%\nreproduce.py          70      0     18      0   100%\n--------------------------------------------------------------\nTOTAL                123      0     50      0   100%\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/spinoza/github/bernoulli/bernoulli-py/.venv/bin/python",
+      "-m",
+      "coverage",
+      "json",
+      "-o",
+      "/home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-2/coverage.json"
+    ],
+    "exit_code": 0,
+    "stdout": "Wrote JSON report to /home/spinoza/github/bernoulli/.research/bounded-discovery/editorial-review/methods/evidence-round-2/coverage.json\n",
+    "stderr": ""
+  }
+]
