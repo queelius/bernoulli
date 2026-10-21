@@ -3,471 +3,374 @@
 \begin{document}
 \section{Preservation of relational invariants}
 \label{sec:invariants}
-Sometimes a relation must satisfy a structural invariant: reflexivity,
-symmetry, single-valuedness, transitivity, and so on. An exact relation either
-has such a property or it does not. A random approximate relation, by contrast,
-tests each pair through an independent Bernoulli trial (\cref{asm:ber_trial}),
-and a property that constrains \emph{many} pairs at once is preserved only when
-\emph{all} of the relevant trials cooperate. The recurring lesson of this section
-is a fragility: the probability that an approximate relation inherits a global
-invariant is a product over the constrained pairs, and it tends to zero as the
-ground universe grows. Where a cheap repair exists (as for symmetry) we exhibit
-it and pay its rate cost; where it does not (as for transitivity) we state the
-honest limiting behavior rather than force a clean formula.
+A relation may be required to satisfy reflexivity, symmetry, single-valuedness,
+or transitivity in every realization. Per-tuple error rates alone do not ensure
+these global properties. We first compute preservation probabilities under the
+independent-tuple model, then distinguish three ways to enforce constraints:
+sharing a canonical source, adding reported tuples, and deleting reported tuples.
+The constructions have different rate and dependence consequences; they do not
+give a classification of all possible repairs.
 
-Throughout, $\Relation{R} \subseteq \Set{A} \times \Set{A}$ is an exact binary
-relation with the named property, and $\ARelation{R}[\fprate][\tprate]$ is its
-random approximate relation, with $\tprate = 1 - \fnrate$ the true-positive rate.
-We ask, for each property, the probability that $\ARelation{R}$ \emph{also} has it.
+Throughout the preservation calculations, the universes are finite,
+$\Relation{R}$ is fixed and satisfies the named property, and
+$\ARelation{R}[\fprate][\tprate]$ satisfies \cref{asm:ber_trial}, with
+$\tprate=1-\fnrate$. Probabilities concern the random construction, and each
+constructed tuple bit is reused. The canonical construction below deliberately
+replaces tuple independence by independence between equivalence classes.
 
 \subsection{Reflexivity}
 \label{sec:reflexive}
-A relation is \emph{reflexive} when it contains the whole diagonal:
-$\Pair{a}{a} \in \Relation{R}$ for every $a \in \Set{A}$. The approximation is
-reflexive only if each of the $\Card{\Set{A}}$ diagonal pairs survives as a true
-positive.
+A relation on $\Set{A}$ is reflexive when it contains every diagonal pair.
 
-\begin{theorem}[Reflexivity is preserved with vanishing probability]
+\begin{theorem}[Reflexivity preservation]
 \label{thm:reflexive}
-Let $\Relation{R}$ be reflexive. Then $\ARelation{R}[\fprate][\tprate]$ is
-reflexive with probability
+For a reflexive $\Relation{R}$,
 \begin{equation}
-    \Prob{\ARelation{R} \text{ reflexive}} = \tprate^{\Card{\Set{A}}}\,,
+  \Prob{\ARelation{R}\text{ reflexive}}=\tprate^{\Card{\Set{A}}}.
 \end{equation}
-which tends to $0$ as $\Card{\Set{A}} \to \infty$ for any $\tprate < 1$.
+For fixed $\tprate<1$ this tends to zero as $\Card{\Set{A}}\to\infty$;
+for $\tprate=1$ reflexivity is preserved surely.
 \end{theorem}
 \begin{proof}
-Each diagonal pair $\Pair{a}{a}$ is a true positive of $\ARelation{R}$ with
-probability $\tprate$, and the $\Card{\Set{A}}$ diagonal trials are independent
-(\cref{asm:ber_trial}). The approximation is reflexive exactly when all of them
-fire, an event of probability $\tprate^{\Card{\Set{A}}}$. Since $\tprate < 1$,
-this product decays geometrically in $\Card{\Set{A}}$.
+The diagonal pairs are distinct true members. Reflexivity requires all their
+independent acceptance trials to succeed, giving the product.
 \end{proof}
+
+When reflexivity is known in advance, answering true on the diagonal enforces it
+exactly. This changes the diagonal true-positive rate to one and introduces no
+false positive there. It is a rule for known required tuples, not a consequence
+of taking an OR over a singleton trial.
 
 \subsection{Symmetry}
 \label{sec:symmetric}
-A relation is \emph{symmetric} when $\Pair{a}{b} \in \Relation{R}$ implies
-$\Pair{b}{a} \in \Relation{R}$. In the approximation, the two ordered trials of
-an unordered pair are tested independently and need not agree, so symmetry is a
-constraint that each unordered pair must satisfy on its own.
+For $a\ne b$, symmetry requires the two ordered membership bits for
+$\Pair{a}{b}$ and $\Pair{b}{a}$ to agree. Diagonal pairs impose no constraint.
 
-\begin{theorem}[Symmetry is preserved with vanishing probability]
+\begin{theorem}[Symmetry preservation]
 \label{thm:symmetric_preservation}
-Let $\Relation{R}$ be symmetric, and let $P$ and $N$ be the numbers of unordered
-positive and negative pairs (off-diagonal pairs in and out of $\Relation{R}$,
-respectively). Then $\ARelation{R}[\fprate][\tprate]$ is symmetric with
-probability
+Let $P$ and $N$ count the positive and negative unordered off-diagonal pairs of
+a symmetric $\Relation{R}$. Then
 \begin{equation}
-    \Prob{\ARelation{R} \text{ symmetric}}
-    = \left(\tprate^2 + \fnrate^2\right)^{P}
-      \left((1-\fprate)^2 + \fprate^2\right)^{N}\,,
+  \Prob{\ARelation{R}\text{ symmetric}}
+  =(\tprate^2+\fnrate^2)^P
+   \bigl((1-\fprate)^2+\fprate^2\bigr)^N.
 \end{equation}
-which tends to $0$ as the number of pairs grows, since each base lies strictly
-below $1$ whenever $0 < \fprate < 1$ and $0 < \fnrate < 1$.
+For fixed $0<\tprate<1$ and $0<\fprate<1$, this tends to zero as $P+N$ grows.
+Decay also follows whenever an unbounded number of pairs have agreement
+probability bounded away from one.
 \end{theorem}
 \begin{proof}
-Fix an unordered pair $\{a,b\}$ with $a \neq b$. Its two ordered trials, on
-$\Pair{a}{b}$ and on $\Pair{b}{a}$, are independent (\cref{asm:ber_trial}).
-Symmetry of $\ARelation{R}$ on this pair requires the two trials to \emph{agree}:
-both report the pair, or both omit it. For a positive pair (both ordered tuples
-lie in $\Relation{R}$) each trial is a true positive with probability $\tprate$
-and a miss with probability $\fnrate$, so the two agree with probability
-\begin{equation}
-    \tprate^2 + \fnrate^2\,.
-\end{equation}
-For a negative pair each trial is a false positive with probability $\fprate$ and
-a true negative with probability $1-\fprate$, so the two agree with probability
-\begin{equation}
-    (1-\fprate)^2 + \fprate^2\,.
-\end{equation}
-The pairs are disjoint in their trials, so the joint event is the product over all
-$P$ positive and $N$ negative pairs. Each base is a sum of two squares of
-probabilities summing to one, hence strictly less than one unless one probability
-is zero; for interior rates the product vanishes as $P + N \to \infty$.
+A positive pair agrees when both trials accept or both reject, with probability
+$\tprate^2+\fnrate^2$. A negative pair agrees with probability
+$(1-\fprate)^2+\fprate^2$. Different unordered pairs involve disjoint trials,
+so these probabilities multiply. Each base is strictly below one at an interior
+rate, while at rates zero and one the corresponding trials agree surely.
 \end{proof}
-
-Symmetry, unlike reflexivity, admits a cheap repair. Rather than \emph{hope} the
-two ordered trials of every pair agree, we \emph{force} agreement by taking the
-symmetric closure: admit a pair if either of its ordered trials fires. The next
-theorem (the model worked result of this section) shows the closure restores the
-invariant deterministically, at a quantified cost to the rates.
 
 \begin{theorem}[Symmetric closure]
 \label{thm:symmetric_closure}
-	Let $\Relation{R} \subseteq \Set{A} \times \Set{A}$ be a \emph{symmetric} relation and let $\ARelation{R}[\fprate][\tprate]$ be a random approximate relation of $\Relation{R}$ with false-positive rate $\fprate$ and true-positive rate $\tprate$. Define the symmetric closure by
-	\begin{equation}
-		\Pair{x_1}{x_2} \in \ARelation{R}[s] \iff \Pair{x_1}{x_2} \in \ARelation{R} \;\text{ or }\; \Pair{x_2}{x_1} \in \ARelation{R}\,.
-	\end{equation}
-	Then $\ARelation{R}[s]$ is a random approximate symmetric relation
-	\begin{equation*}
-		\ARelation{R}[s]\!\left[1-(1-\fprate)^2\right]\!\left[1-(1-\tprate)^2\right]
-	\end{equation*}
-	with false-positive rate $1-(1-\fprate)^2$ and true-positive rate $1-(1-\tprate)^2$.
+Let $\Relation{R}$ be symmetric and define
+\begin{equation}
+  \Pair{x}{y}\in\ARelation{R}[s]
+  \iff \Pair{x}{y}\in\ARelation{R}
+        \text{ or }\Pair{y}{x}\in\ARelation{R}.
+\end{equation}
+Then $\ARelation{R}[s]$ is symmetric in every realization. Off the diagonal its
+false-positive and true-positive rates are, respectively,
+$1-(1-\fprate)^2$ and $1-(1-\tprate)^2$. On the diagonal its rates remain
+$\fprate$ and $\tprate$, where the corresponding truth class is present.
 \end{theorem}
 \begin{proof}
-	Because $\Relation{R}$ is symmetric, $\Pair{x}{y} \in \Relation{R}$ if and only if $\Pair{y}{x} \in \Relation{R}$, so each unordered pair is tested through two trials, on $\Pair{x}{y}$ and on $\Pair{y}{x}$, which are independent by \cref{asm:ber_trial}. The closure admits the pair if \emph{either} trial fires.
-
-	For a \emph{negative} pair ($\Pair{x}{y} \notin \Relation{R}$, hence $\Pair{y}{x} \notin \Relation{R}$ too), each trial is a false positive with probability $\fprate$, so the pair is admitted unless both trials miss:
-	\begin{equation}
-		\Prob{\Pair{x}{y} \in \ARelation{R}[s] \Given \Pair{x}{y} \notin \Relation{R}} = 1 - (1-\fprate)^2\,.
-	\end{equation}
-	For a \emph{positive} pair ($\Pair{x}{y} \in \Relation{R}$, hence $\Pair{y}{x} \in \Relation{R}$ too), each trial is a true positive with probability $\tprate$, so the pair is admitted unless both trials miss:
-	\begin{equation}
-		\Prob{\Pair{x}{y} \in \ARelation{R}[s] \Given \Pair{x}{y} \in \Relation{R}} = 1 - (1-\tprate)^2\,.
-	\end{equation}
-	The same doubling that raises the false-positive rate of the \textsc{or} also raises the true-positive rate; the true-positive slot is therefore $1-(1-\tprate)^2$, not the unchanged $\tprate$. For example, at $\tprate = 0.9$ the closure true-positive rate is $1 - (0.1)^2 = 0.99$.
+For $x\ne y$, symmetry of the exact relation makes the two trials homogeneous
+in exact membership. They are independent under \cref{asm:ber_trial}, so the
+OR rejects exactly when both reject. For $x=y$ there is only one trial: reading
+it twice does not create an independent copy. Swapping the coordinates leaves
+the OR unchanged, which proves symmetry.
 \end{proof}
 
-The closure is the template for repairing a fragile invariant: replace a
-conjunction of hopeful trials by an operator that enforces the property outright,
-and read off the rate it costs. We use this same closure freely when composing
-binary relations that must carry the symmetric property.
+The repaired ordered bits within an off-diagonal pair are identical, and are
+dependent whenever their common acceptance probability lies strictly between
+zero and one. Independence remains between distinct unordered pairs. A later
+operator must therefore use these shared source identities.
 
 \subsection{Single-valuedness}
 \label{sec:functional}
-A relation $\Relation{R} \subseteq \Set{X} \times \Set{Y}$ is \emph{functional}
-(single-valued, a partial function) when the selection $\Selection_x \Relation{R}$
-has cardinality $0$ or $1$ for every key $x \in \Set{X}$: each key carries at most
-one value. The approximation can break this property in only one direction. A
-false negative on the true value of a key leaves that key with zero values, which
-is still at most single-valued; only a \emph{false positive}, which adds a
-spurious second value, violates functionality. Single-valuedness is therefore
-preserved exactly when no key acquires a spurious value.
+A relation $\PFun{f}\subseteq\Set{X}\times\Set{Y}$ is single-valued when each
+key has at most one reported value. Having no spurious value is sufficient but
+not necessary: if the true value is missed, one spurious value alone still
+gives a single-valued row. Undefined keys must also be included.
 
-\begin{theorem}[Single-valuedness is preserved with vanishing probability]
+\begin{theorem}[Single-valuedness preservation]
 \label{thm:functional}
-Let $\PFun{f} \subseteq \Set{X} \times \Set{Y}$ be functional. For a key $x$, the
-approximation $\ARelation{f}[\fprate][\tprate]$ assigns no spurious value to $x$
-with probability $(1-\fprate)^{\Card{\Set{Y}}-1}$, since each of the
-$\Card{\Set{Y}}-1$ values other than the true one is a false positive with
-probability $\fprate$ and these trials are independent (\cref{asm:ber_trial}). Over
-all keys with a defined value, the probability that $\ARelation{f}$ remains
-single-valued is
+Let $v=\Card{\Set{Y}}\ge2$, $d=\Card{\Dom(\PFun{f})}$, and
+$u=\Card{\Set{X}}-d$. Define
+\begin{align}
+ q_1&=(1-\fprate)^{v-1}
+       +\fnrate(v-1)\fprate(1-\fprate)^{v-2},\\
+ q_0&=(1-\fprate)^v+v\fprate(1-\fprate)^{v-1}.
+\end{align}
+Under \cref{asm:ber_trial},
 \begin{equation}
-    \prod_{x} (1-\fprate)^{\Card{\Set{Y}}-1}
-    = (1-\fprate)^{\Card{\Dom(\PFun{f})}\,(\Card{\Set{Y}}-1)}\,,
+ \Prob{\ARelation{f}\text{ single-valued}}=q_1^d q_0^u.
 \end{equation}
-which tends to $0$ as the value-universe $\Set{Y}$ or the domain grows, for any
-$\fprate > 0$.
+A factor with no keys is an empty product, equal to one.
+For $v\le1$ single-valuedness is automatic. For fixed $v\ge2$,
+$0<\fprate<1$, and $\tprate>0$, both $q_1$ and $q_0$ are below one, so the
+preservation probability tends to zero as the number of keys grows.
 \end{theorem}
 \begin{proof}
-Fix a key $x \in \Dom(\PFun{f})$ with true value $y_x$. The pairs
-$\SetBuilder{\Pair{x}{y}}{y \in \Set{Y}, y \neq y_x}$ are all negative for
-$\PFun{f}$, so each is reported by $\ARelation{f}$ with probability $\fprate$,
-independently. The key $x$ stays single-valued exactly when none of these
-$\Card{\Set{Y}}-1$ false-positive trials fires, with probability
-$(1-\fprate)^{\Card{\Set{Y}}-1}$. (Losing the true value $y_x$, an event of
-probability $\fnrate$, leaves $x$ with no value, which does not violate
-single-valuedness, so it does not enter the product.) Distinct keys index disjoint
-pair sets, so the events are independent and the joint probability is the product
-over the $\Card{\Dom(\PFun{f})}$ defined keys. Each factor is below one for
-$\fprate > 0$, so the product vanishes as the exponent grows. This is the
-functional reading of the approximate partial function of
-\cref{def:approx_pfun}.
+At a defined key the true-value indicator $T$ is Bernoulli with mean $\tprate$,
+independent of the spurious count $K\sim\operatorname{Binomial}(v-1,\fprate)$.
+The row is single-valued exactly when $T+K\le1$: either $K=0$, or $K=1$ and
+$T=0$. Thus its probability is $\Prob{K=0}+\fnrate\Prob{K=1}=q_1$.
+At an undefined key every value is negative, so the reported count is
+$\operatorname{Binomial}(v,\fprate)$ and the probability of at most one is
+$q_0$. Different rows have disjoint trials, proving the product.
 \end{proof}
+
+The probability of \emph{no spurious report} at a defined key is still
+$(1-\fprate)^{v-1}$. It equals that row's single-valuedness probability when
+$\fnrate=0$, but otherwise can be strictly smaller. At $\fprate=0$ deletions
+of true values preserve single-valuedness surely, regardless of the universe
+size.
 
 \subsection{Transitivity}
 \label{sec:transitive}
-Transitivity is the hardest of the four to preserve and, unlike symmetry, has no
-inexpensive closure. A relation is \emph{transitive} when
-$\Pair{x}{y} \in \Relation{R}$ and $\Pair{y}{z} \in \Relation{R}$ together imply
-$\Pair{x}{z} \in \Relation{R}$. The constraint ranges over \emph{triples}, not
-pairs, and the implicated trials overlap (a single pair $\Pair{y}{z}$ participates
-in many triples), so the preservation probability does not factor into independent
-per-triple terms the way reflexivity and symmetry do.
+Transitivity requires every reported two-edge path to have a reported shortcut.
+The premises are the \emph{reported} pairs, not merely the true pairs of the
+exact relation. Triple constraints overlap, so their probabilities cannot in
+general be multiplied. A disjoint subcollection nevertheless gives a simple
+upper bound.
 
-We state the honest limiting behavior rather than a spurious closed form. For each
-ordered triple $(x,y,z)$ whose two premises hold in $\Relation{R}$, transitivity
-requires the conclusion $\Pair{x}{z}$ to be reported by $\ARelation{R}$. If
-$\Pair{x}{z} \in \Relation{R}$ the conclusion holds with probability $\tprate$;
-if $\Pair{x}{z} \notin \Relation{R}$ it holds (by a compensating false positive)
-with probability $\fprate$. There are on the order of $\Card{\Set{A}}^3$ such
-triple constraints, far more than the $\Card{\Set{A}}$ diagonal constraints of
-reflexivity or the $\binom{\Card{\Set{A}}}{2}$ pair constraints of symmetry, and
-the trials are coupled, so the preservation probability decays the fastest of the
-four and tends to $0$ well before the others. The leading, most fragile behavior
-is governed by the conclusion pairs that must be \emph{manufactured} by false
-positives (those with $\Pair{x}{z} \notin \Relation{R}$): as a first-order
-heuristic, ignoring the cross-triple coupling just noted, each such conclusion
-contributes a factor near $\fprate \ll 1$, and the true rate is smaller still once
-that coupling is accounted for.
+\begin{theorem}[A sufficient regime for vanishing transitivity]
+\label{thm:transitive_preservation}
+Suppose the fixed rates satisfy $0<\fprate,\tprate<1$. Put
+$p_-=\min\{\fprate,\tprate\}$, $p_+=\max\{\fprate,\tprate\}$, and
+$n=\Card{\Set{A}}$. Then
+\begin{equation}
+ \Prob{\ARelation{R}\text{ transitive}}
+ \le \bigl(1-p_-^2(1-p_+)\bigr)^{\lfloor n/3\rfloor},
+\end{equation}
+which tends to zero as $n\to\infty$.
+\end{theorem}
+\begin{proof}
+Choose $\lfloor n/3\rfloor$ vertex-disjoint ordered triples $(a,b,c)$.
+On each triple, reporting $(a,b)$ and $(b,c)$ but rejecting $(a,c)$ violates
+transitivity. The three distinct tuple trials are independent, and this event
+has probability at least $p_-^2(1-p_+)>0$. Events on the selected triples use
+disjoint trials and are independent. Transitivity excludes every such event,
+which gives the bound.
+\end{proof}
 
-A transitive-closure repair, the analogue of the symmetric closure, is far more
-involved. Adding a manufactured pair $\Pair{x}{z}$ to satisfy one triple can pair
-with existing pairs to create \emph{new} required conclusions, which may in turn
-require further pairs, a cascade with no fixed per-pair rate cost. We therefore
-leave transitivity as the honest limiting result: preservation probability tends
-to zero fastest among the four invariants, and a deterministic repair, if desired,
-must be computed as a genuine closure rather than read off as a doubled rate.
+This sufficient condition does not cover all boundary-rate cases. For example,
+an empty exact relation with $\fprate=0$ remains empty and transitive surely.
+There is no universal ordering of the four invariants by preservation
+probability. Nor does the bound imply a complexity lower bound for repairing
+transitivity.
 
-\subsection{A closure dichotomy}
+\subsection{Canonical representation and specific repair operators}
 \label{sec:closure_dichotomy}
+Fix an equivalence on a tuple universe $\Set{U}$. Call a constraint
+\emph{class-induced} when its satisfying relations are exactly the unions of
+equivalence classes, called orbits here. Every orbit $O$ of an admissible exact
+relation is homogeneous: either $O\subseteq\Relation{R}$ or
+$O\cap\Relation{R}=\EmptySet$. Symmetry has orbits
+$\{\Pair{a}{b},\Pair{b}{a}\}$ of size two off the diagonal and one on it.
+For invariance under coordinate permutations, repeated coordinate values can
+likewise make actual orbit sizes smaller than the maximum.
 
-The symmetric closure of \cref{thm:symmetric_closure} repaired a fragile invariant
-at a fixed rate cost, while transitivity (\cref{sec:transitive}) admitted no
-comparable repair. The contrast is not an accident of two examples; it is a
-dichotomy, and the dividing line is whether the invariant's constraints
-\emph{decompose into independent, bounded groups} or \emph{cascade}.
+Reflexivity instead forces a specified collection of tuples to be present;
+it is not, by itself, a class-induced constraint. Single-valuedness imposes a
+cardinality cap on each row, not equality of all bits in an orbit. We treat
+these constructions separately.
 
-Call an invariant \emph{local} if the pairs it constrains partition into disjoint
-bounded groups, the \emph{orbits}, of at most $m$ ordered pairs, with the
-invariant holding for $\ARelation{R}$ exactly when every orbit is admissible on
-its own. The monotone local invariants we treat are \emph{class-induced}: the
-orbits are the classes of an equivalence on the tuple universe, and a relation
-satisfies the invariant exactly when it is a \emph{union of orbits}. Symmetry is
-class-induced with $m=2$: the orbit of $\{a,b\}$ is
-$\{\Pair{a}{b}, \Pair{b}{a}\}$, and a relation is symmetric exactly when it
-contains both elements of every orbit it meets. Reflexivity is the degenerate
-\emph{forced} case $m=1$: each diagonal pair $\Pair{a}{a}$ is its own orbit,
-whose value the invariant forces to true. Larger orbits arise as soon as the
-invariant quotients by a larger symmetry: a $k$-ary relation required to be
-invariant under cyclic shifts of its coordinates has orbits of size dividing
-$k$, and one required to be invariant under all coordinate permutations (a
-relation of multisets) has orbits of size up to $k!$. Two consequences of the
-class-induced definition do the work below. First, because the exact
-$\Relation{R}$ satisfies the invariant, $\Relation{R}$ is itself a union of
-orbits, so every orbit is \emph{homogeneous}: wholly inside $\Relation{R}$ or
-wholly outside it. Second, the constraints decompose orbit by orbit, so a repair
-may treat orbits independently. A repair that adds pairs is \emph{monotone};
-one that deletes pairs is \emph{antitone}. Single-valuedness is the antitone
-case and is \emph{not} class-induced: the orbit of a key $x$ is its row
-$\{\Pair{x}{y} : y \in \Set{Y}\}$, admissible when at most one pair is present,
-a cardinality cap rather than a union-of-classes condition.
-
-\begin{theorem}[Class-induced invariants admit a one-pass closure]
+\begin{theorem}[Class-induced constraints admit an orbitwise OR-closure]
 \label{thm:local_closure}
-Let $P$ be a class-induced invariant with orbits of size at most $m$ (so that,
-$\Relation{R}$ satisfying $P$, every orbit is homogeneous), repaired by
-the \emph{OR-closure} that admits every pair of an
-orbit as soon as any pair of that orbit is reported. The closure makes every orbit
-internally consistent in one pass, so its output satisfies $P$ deterministically.
-For $m \ge 2$ it combines the orbit's $m$ trials, yielding a random approximate
-relation of false-positive rate $1-(1-\fprate)^{m}$ and
-true-positive rate $1-(1-\tprate)^{m}$, a cost independent of $\Card{\Set{A}}$. The
-degenerate orbit size $m=1$ (reflexivity) carries no second trial to combine: its
-orbit is a single known required pair, restored exactly by inserting the fixed
-diagonal at true-positive rate $1$ and no false positives, which is free.
+For a class-induced constraint, let $h(O)=\Card{O}$. Starting from an
+independent-tuple approximation, admit all of $O$ whenever at least one of its
+trials accepts. This operator satisfies the constraint in every realization
+and is idempotent. Its orbit-specific rates are
+\begin{equation}
+ \fprate_O=1-(1-\fprate)^{h(O)},\qquad
+ \tprate_O=1-(1-\tprate)^{h(O)}.
+\end{equation}
+If $1\le h(O)\le m$, then
+$\fprate\le\fprate_O\le1-(1-\fprate)^m$ and
+$\tprate\le\tprate_O\le1-(1-\tprate)^m$.
 \end{theorem}
-
 \begin{proof}
-Within an orbit the $m$ ordered trials are independent (\cref{asm:ber_trial}), and
-the OR-closure admits the whole orbit unless all $m$ miss. For an orbit of true
-non-members each trial is a false positive with probability $\fprate$, so the orbit
-is admitted with probability $1-(1-\fprate)^{m}$; for an orbit of true members each
-trial is a true positive with probability $\tprate$, so it is admitted with
-probability $1-(1-\tprate)^{m}$. An admitted orbit is filled and hence internally
-consistent, so the output satisfies $P$ on every orbit; the orbits are disjoint and
-the OR-closure of an orbit adds only pairs of that same orbit, so the repairs do
-not interfere and one pass suffices. For $m=2$ this recovers
-\cref{thm:symmetric_closure}. The $m=1$ orbit has a single trial and no agreement
-to enforce, so the OR-closure cannot lift its true-positive rate above $\tprate$;
-reflexivity is instead secured by inserting the known diagonal outright, exactly
-and at no rate cost. Homogeneity is what makes the two rates clean; were an
-orbit permitted to straddle $\Relation{R}$, its fill probability would be the
-heterogeneous product $1-(1-\tprate)^{j}(1-\fprate)^{m-j}$ in the member count
-$j$, the same form as the mixed-fiber projection rate, but a class-induced
-invariant never produces such an orbit.
+An orbit is rejected exactly when all its $h(O)$ independent, homogeneous trials
+reject. Filling a reported orbit introduces no tuple in another orbit, and
+every orbit is either empty or full after one application. A second application
+therefore makes no change. The bounds follow from monotonicity in the exponent.
 \end{proof}
 
-The OR-closure restores the invariant by spending: it consults all $m$ trials of
-an orbit and moves both rates. It is natural to ask what the invariant alone
-costs, and the answer is nothing.
+One application here is a structural statement, not a constant-time algorithm:
+explicit evaluation can inspect all $h(O)$ trials for a queried orbit. The
+output bits within an orbit coincide, so tuple independence is lost unless the
+orbit is a singleton or its output is deterministic.
 
-\begin{theorem}[The canonical test: the invariant itself is free]
+\begin{theorem}[Canonical tests preserve the base marginal rates]
 \label{thm:canonical_test}
-Let $P$ be class-induced with orbits of size at most $m$. Fix a representative
-$\operatorname{rep}(O)$ in each orbit $O$, and let the \emph{canonical test} report
-$t \in \ARelation{R}[c]$ exactly when the single trial on
-$\operatorname{rep}(\operatorname{orbit}(t))$ fires. Then $\ARelation{R}[c]$ satisfies $P$
-deterministically, with false-positive rate $\fprate$ and true-positive rate
-$\tprate$ unchanged, and a structure built for the canonical test stores one
-element per member orbit, $\Card{\Relation{R}}/2$ elements for a symmetric
-relation with empty diagonal, rather than $\Card{\Relation{R}}$. Forced orbits
-(the reflexive diagonal) need no trial at all: answer true, exactly. The
-invariant itself therefore costs nothing, in rate or in space.
+For a class-induced constraint, choose a fixed representative
+$\operatorname{rep}(O)$ of every orbit and answer a query $t$ with the single
+frozen trial on $\operatorname{rep}(\operatorname{orbit}(t))$. The resulting
+$\ARelation{R}[c]$ satisfies the constraint surely and has the unchanged
+per-tuple rates $(\fprate,\tprate)$. Under \cref{asm:ber_trial}, different
+orbits have independent canonical trials.
 \end{theorem}
-
 \begin{proof}
-Membership under the canonical test depends only on $\operatorname{orbit}(t)$, so
-$\ARelation{R}[c]$ is a union of orbits and satisfies $P$ in every realization.
-By homogeneity, $\operatorname{rep}(\operatorname{orbit}(t)) \in \Relation{R}$ if and only if
-$t \in \Relation{R}$, so the canonical trial is a true-positive trial (rate
-$\tprate$) precisely on members and a false-positive trial (rate $\fprate$)
-precisely on non-members. Only representatives are ever consulted, so a
-purpose-built structure stores one element per member orbit. The same test
-applies post hoc to an approximation built without regard to orbits, by
-rewriting each query to its representative: the invariant is restored with no
-rebuild and no rate movement.
+All tuples in an orbit receive the same answer, so each realization is a union
+of orbits. Homogeneity makes its representative a true member exactly when the
+queried tuple is a true member, preserving the appropriate marginal rate.
+Representatives of different orbits are distinct, giving independence between
+orbits under the stated assumption.
 \end{proof}
 
-The two repairs now sit side by side. The canonical test secures the invariant
-at base rates and base space, and is available both at construction time and,
-by query rewriting, post hoc. The OR-closure spends more to get more: it
-consults all $m$ trials of the orbit and lifts the true-positive rate from
-$\tprate$ to $1-(1-\tprate)^{m}$, at the false-positive cost
-$1-(1-\fprate)^{m}$. The surcharge computed next is therefore the price of the
-\emph{recall boost}, not of the invariant.
+The invariant therefore requires no increase in the \emph{marginal} error rates.
+Canonicalization can rewrite queries to an existing construction without
+reducing its storage, or precede construction of an approximate set over the
+quotient universe. The latter has one input key per member orbit; for a
+symmetric relation with empty diagonal this is $\Card{\Relation{R}}/2$ keys.
+This key-count reduction is not a claim that every implementation halves its
+allocated bytes: encoding, canonicalization, and fixed overhead remain relevant.
+The common orbit answer is a shared source under \cref{asm:source_model}; a
+later projection can therefore correlate distinct output tuples, as shown in
+\cref{thm:project_sources}.
 
-The single-valued (antitone) case is repaired in one pass the other way, by
-\emph{deletion}: keep at most one reported value per key. It too is local and
-$\Card{\Set{A}}$-independent, trading a lowered false-positive rate against the
-risk of dropping the true value, the selection counterpart of \cref{thm:functional}.
-The rate is closed-form under uniform tie-breaking: a defined key keeps its true
-value exactly when the value is reported (probability $\tprate$) and survives a
-uniform draw among the $1+K$ reported candidates, where $K$ counts the spurious
-reports, $K \sim \operatorname{Binomial}(\Card{\Set{Y}}-1, \fprate)$; averaging
-$1/(1+K)$ over the binomial gives the kept-value rate
-\begin{equation}
-  \tprate \, \frac{1-(1-\fprate)^{\Card{\Set{Y}}}}{\fprate \, \Card{\Set{Y}}}\,,
-\end{equation}
-which tends to $\tprate$ as $\fprate \to 0$ and decays like
-$\tprate/(\fprate \Card{\Set{Y}})$ once $\fprate \Card{\Set{Y}} \gg 1$. Securing
-single-valuedness \emph{by construction} is instead a change of type: store the
-partial function as a map, key to value, rather than as a relation, the object
-of the maps companion~\cite{bernoulliMaps}.
+The OR-closure has a different purpose. At a fixed raw true-positive rate it
+raises recall from $\tprate$ to $1-(1-\tprate)^{h(O)}$, while increasing the
+false-positive rate too. The following inversion budgets that increase.
 
-The monotone cost has a clean reading in the space-accuracy duality of the entropy
-companion~\cite{bernoulliEntropy}, where a positive approximate set spends
-$-\log_2 \fprate$ bits per element.
-
-\begin{corollary}[The space cost of a local invariant]
+\begin{corollary}[Rate budget and conditional space accounting]
 \label{cor:invariant_space_cost}
-It suffices to run the underlying structure at base rate $\fprate =
-1-(1-\fprate')^{1/m} \approx \fprate'/m$ for the OR-closure of a monotone local
-invariant of orbit size $m$ to hold at a target false-positive rate $\fprate'$,
-which by the space-accuracy duality costs
+If all orbit sizes are at most $m\ge1$, a raw false-positive rate
 \begin{equation}
-  -\log_2 \fprate \;=\; -\log_2 \fprate' + \log_2 m + o(1)
+ \fprate=1-(1-\fprate')^{1/m},\qquad 0<\fprate'<1,
 \end{equation}
-bits per element: an additive surcharge of $\log_2 m$ bits per element buys the
-OR-closure's recall boost at an unmoved false-positive target. Symmetry's boost
-costs one extra bit per element; reflexivity is free outright. The surcharge
-prices the boost, not the invariant: \cref{thm:canonical_test} settles in the
-negative the question of whether the invariant itself forces any surcharge,
-since the canonical test preserves it at base rate and base space. The
-OR-closure remains the right tool when the $m$ orbit trials already exist and
-recall is worth buying.
+ensures every negative orbit's OR-closure rate is at most $\fprate'$.
+Equality holds for an orbit of size $m$. For fixed $m$, as $\fprate'\to0$,
+\begin{equation}
+ \fprate=\frac{\fprate'}m+O((\fprate')^2),\qquad
+ \log_2\frac{\fprate'}{\fprate}=\log_2m+O(\fprate').
+\end{equation}
+Thus an accounting model charging $-\log_2\fprate$ bits per stored input key,
+with other per-key costs held fixed, assigns an asymptotic $\log_2m$-bit
+surcharge per input key to this rate change.
 \end{corollary}
+\begin{proof}
+Substitution gives $1-(1-\fprate)^m=\fprate'$, and smaller exponents give
+smaller rates. Taylor expansion at $\fprate'=0$ proves the asymptotics.
+\end{proof}
 
-Transitivity sits on the other side of the line, and the obstruction is exactly
-the failure of decomposability. It fails in the strongest sense: not only does
-the OR-closure not apply, no canonical test can exist at all.
+The space statement is conditional accounting, not a universal memory bound
+for two-sided error channels. The familiar one-sided approximate-membership
+benchmark~\cite{bernoulliEntropy} has $\tprate=1$, so no recall improvement
+is available there. A construction offering $\tprate<1$ requires its own
+space--rate relation, including whether tightening $\fprate$ can hold
+$\tprate$ fixed. Comparing total memory with the canonical construction must
+also account for their different numbers of stored keys.
 
+\paragraph{Deletion for single-valuedness.}
+Keeping at most one reported value per key enforces single-valuedness.
+Use a uniform tie-break, independent of the membership trials, sampled once per
+row and reused. For a defined key with $v=\Card{\Set{Y}}\ge1$, the retained
+true-value probability is
+\begin{equation}
+ \tprate\,\Expect{\frac1{1+K}}
+ =\tprate\,\frac{1-(1-\fprate)^v}{v\fprate},
+ \qquad K\sim\operatorname{Binomial}(v-1,\fprate),\quad\fprate>0.
+\end{equation}
+Indeed, conditional on reporting the true value it wins with probability
+$1/(1+K)$. The expectation follows from
+\[
+ \Expect{1/(1+K)}=\int_0^1(1-\fprate+\fprate t)^{v-1}\,dt.
+\]
+At $\fprate=0$ the continuous extension is $\tprate$. This probability tends
+to zero as $v\to\infty$ for fixed $\fprate>0$ and $\tprate>0$; neither its
+rate nor the work to inspect a row is independent of the value-universe size.
+Deleting tuples cannot increase any individual false-positive probability,
+but it can discard the true value. A map representation enforces
+single-valuedness by its output type instead~\cite{bernoulliMaps}.
+
+\paragraph{Limits of the orbit construction for transitivity.}
 \begin{lemma}[No equivalence induces transitivity]
 \label{lem:no_quotient}
-For $\Card{\Set{A}} \ge 2$, no equivalence on $\Set{A} \times \Set{A}$ has the
-transitive relations as its unions of classes. Transitivity therefore admits no
-canonical test, and the cascade below is not an artifact of choosing a poor
-repair.
+For $\Card{\Set{A}}\ge2$, no fixed equivalence on $\Set{A}\times\Set{A}$ has
+the transitive relations as exactly its unions of classes.
 \end{lemma}
-
 \begin{proof}
-Unions of classes of a fixed equivalence are closed under arbitrary union. The
-transitive relations are not: $\{\Pair{a}{b}\}$ and $\{\Pair{b}{a}\}$ are each
-transitive, and their union omits $\Pair{a}{a}$ and so is not.
+Unions of classes of a fixed equivalence are closed under union. For distinct
+$a,b$, the relations $\{\Pair{a}{b}\}$ and $\{\Pair{b}{a}\}$ are each
+transitive, but their union omits $\Pair{a}{a}$ and is not transitive.
 \end{proof}
 
-\begin{theorem}[Transitivity cascades]
+This excludes the particular canonical-source construction of
+\cref{thm:canonical_test} as a representation of \emph{all} transitive
+relations. It does not exclude other encodings, restricted subclasses, or
+repairs that add or delete tuples.
+
+\begin{theorem}[Depth of simultaneous transitive completion on a path]
 \label{thm:transitivity_cascade}
-The transitive closure is not a one-pass repair. On the path relation
-$\Relation{R} = \{\Pair{1}{2}, \Pair{2}{3}, \ldots, \Pair{k}{k+1}\}$ over
-$\Card{\Set{A}} = k+1$ elements, reaching the transitive closure takes
-$\lceil \log_2 k \rceil$ successive \emph{simultaneous} passes, each pass adding
-at once every pair the current relation implies,
-$\Relation{R} \gets \Relation{R} \cup (\Relation{R} \circ \Relation{R})$, and
-manufactures $\binom{k+1}{2} =
-\Theta(k^2)$ pairs. Both grow with $\Card{\Set{A}}$, so no fixed-cost,
-$\Card{\Set{A}}$-independent repair of the form of \cref{thm:local_closure} exists.
+Let $\Relation{R}_0=\{\Pair{1}{2},\ldots,\Pair{k}{k+1}\}$, with $k\ge1$,
+and iterate
+\begin{equation}
+ \Relation{R}_{j+1}=\Relation{R}_j\cup(\Relation{R}_j\circ\Relation{R}_j).
+\end{equation}
+The first iterate equal to the transitive closure has index
+$\lceil\log_2k\rceil$. The closure contains $\binom{k+1}{2}$ pairs, adding
+$\binom{k+1}{2}-k$ pairs to the path.
 \end{theorem}
-
 \begin{proof}
-One pass adds $\Pair{x}{z}$ whenever $\Pair{x}{y}$ and $\Pair{y}{z}$ are present,
-producing on the path the distance-two pairs $\Pair{i}{i+2}$. A distance-four pair
-needs a present distance-two pair, so it appears only on the second pass, and in
-general distance-$2^{j}$ pairs appear on pass $j$; the longest distance $k$ is
-reached after $\lceil \log_2 k \rceil$ passes. The closure is the full strict order
-$\{\Pair{i}{j} : i < j\}$, of size $\binom{k+1}{2}$. The triples of transitivity
-share pairs and chain, so the constraints cannot be partitioned into independent
-orbits, which is the hypothesis \cref{thm:local_closure} requires.
+Inductively, $\Relation{R}_j$ contains exactly the forward pairs of distance at
+most $\min\{2^j,k\}$. Composing two such paths doubles the maximum distance,
+and every smaller positive distance is retained or obtained by splitting it
+into two available distances. All forward pairs first appear when $2^j\ge k$.
+These pairs form the full strict order on $k+1$ elements, giving the count.
 \end{proof}
 
-The four invariants therefore split on one line. Reflexivity, symmetry, and
-single-valuedness are \emph{local}: their constraints decompose into independent
-bounded orbits, so each is secured in a single pass at a cost independent of the
-universe, for free by the canonical test where the invariant is class-induced
-(\cref{thm:canonical_test}), at a $\log_2 m$ surcharge where the OR-closure's
-recall boost is wanted (\cref{cor:invariant_space_cost}), and by deletion at a
-closed-form rate for the antitone one. Transitivity
-is \emph{global}: no equivalence induces it (\cref{lem:no_quotient}), its
-triples chain, the repair cascades to depth
-$\lceil \log_2 k \rceil$, and no bounded closure exists. The cut is decomposability,
-not the superficial pair-versus-triple arity.
+The iteration has no universe-independent bound on its number of rounds; for
+$k\ge2$ it can add $\Theta(k^2)$ pairs. The statement concerns this
+\emph{simultaneous addition rule}, not every algorithm for transitive closure
+and not every repair objective. In particular, deleting every pair produces a
+transitive relation while sacrificing all true answers. Meaningful claims
+about repair costs must specify the allowed operations and accuracy target.
 
-That some integrity constraints are far cheaper to repair than others is a
-familiar theme in the database-repair and consistent-query-answering
-tradition~\cite{bertossi-2011-repairing}, where the complexity of repairing or
-querying an inconsistent database turns on the constraint class. The dichotomy
-here runs on a different axis. It is not the computational complexity of a repair
-over an exact database, but the closed-form \emph{rate and space cost} of
-restoring an invariant in the representation-error setting, where the relation is
-a compressed approximate structure and the repair is a one-pass canonical test or
-closure whose price is zero (\cref{thm:canonical_test}) or the $\log_2 m$ recall
-surcharge of \cref{cor:invariant_space_cost}.
+Database repair and consistent query answering already study the dependence
+of repair problems on the constraint class~\cite{bertossi-2011-repairing}.
+Here the narrower role of the constructions is to expose how a representation
+choice changes both marginal error and shared sources. A finer marginal-rate
+partition does not restore tuple independence: symmetry may have only a few
+rate blocks while imposing perfect dependence within each orbit. Query-level
+consequences are treated in \cref{sec:query_contracts}.
 
-These four results share a model-order reading. Each invariant partitions the
-universe into pairs (or triples) that play different error roles (diagonal versus
-off-diagonal; positive versus negative; premise versus conclusion), so an
-approximation forced to honor the invariant is a higher-order Bernoulli relation
-whose blocks carry distinct rates, exactly the model-order versus parameter-count
-distinction of the underlying set model~\cite{bernoulliSets}.
-
-\begin{remark}
-Some of these properties may be difficult to guarantee, especially for cipher relations.
-However, \emph{tractability} is a separate issue from specification and definition.
-\end{remark}
-
-\section{The approximate partial function}
+\subsection{The approximate partial function}
 \label{sec:map}
-A \emph{partial function} is the single-valued special case of a relation: each tuple in the domain maps to at most one tuple in the range. Approximate-map composition, the error rates that result when two approximate partial functions are composed, is treated in the maps paper~\cite{bernoulliMaps}, whose composition theorem gives a false-negative rate $\fnrate_{g \circ f} = 1 - (1-\fnrate_1)(1-\fnrate_2)$ with an explicit overlap parameter governing the resulting false-positive rate. We do not duplicate that analysis here; what follows is the partial-function abstract data type viewed as a relation.
+For product key and value types, write
+$\Set{X}=\Set{X}[1]\times\cdots\times\Set{X}[n]$ and
+$\Set{Y}=\Set{Y}[1]\times\cdots\times\Set{Y}[m]$. A partial function is a
+single-valued relation $\PFun{f}\subseteq\Set{X}\times\Set{Y}$; it is total
+when every key has a value. Its domain is $\Proj_{\Set{X}}(\PFun{f})$ and its
+image is $\Proj_{\Set{Y}}(\PFun{f})$. A partial function may be total; the
+term does not require an undefined key.
 
-%%% Phase A (2026-06-08): the "Random approximate maps" machinery that stood here (map
-%%% notation; Dom/Codom/Dod/Range; augmented codomain; the map-composition theorem with
-%%% true-positive rate tau1*tau2 and the undefined IntervalSpan false-positive rate; the
-%%% pointwise-operations stub) was cut. That material is owned, and proved correctly, by
-%%% the maps paper (\cite{bernoulliMaps}); the composition theorem there gives
-%%% omega_{g.f} = 1 - (1-omega1)(1-omega2) with an explicit overlap parameter for the FPR.
-%%% Only the genuinely-relational partial-function ADT (def:approx_pfun, below) is kept.
-
-We consider relations known as \emph{partial functions} as given by the following definition.
-
-\begin{definition}
-	A relation
-	\begin{equation}
-	\PFun{f} \subseteq \Set{X}[1] \times \cdots \times \Set{X}[n] \times \Set{Y}[1] \times \cdots \times \Set{Y}[m]\,,
-	\end{equation}
-	is a \emph{function} if $\Card{\Proj_{\Set{X}[1] \times \cdots \times \Set{X}[n]}(\PFun{f})} = \Card{\PFun{f}}$ and is a \emph{partial} function if, additionally, $\Card{\Proj_{\Set{X}[1] \times \cdots \times \Set{X}[n]}(\PFun{f})} < \Card{\Set{X}[1] \times \cdots \times \Set{X}[n]}$.
-	
-	We say that each tuple $\Tuple{x_1,\ldots,x_n}$ in the relation \emph{maps} to a tuple $\Tuple{y_1,\ldots,y_m} \in \Set{Y}[1] \times \cdots \times \Set{Y}[m]$. To make the mapping explicit, we denote the partial function by
-	\begin{equation}
-	\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]\,.
-	\end{equation}
-\end{definition}
-A partial function represents \emph{many}-to-\emph{one} relationships, so a tuple in its domain unambiguously names its mapped value. The projection $\Proj_{\Set{X}[1] \times \cdots \times \Set{X}[n]}(\PFun{f})$ is the \emph{domain} of $\PFun{f}$, denoted $\Dom(\PFun{f})$; the projection $\Proj_{\Set{Y}[1] \times \cdots \times \Set{Y}[m]}(\PFun{f})$ is its \emph{image}, $\Image(\PFun{f})$; the \emph{range} is $\Range(\PFun{f}) = \Set{Y}[1] \times \cdots \times \Set{Y}[m]$. \emph{Maps} and \emph{partial functions} are synonymous; \emph{map} is the more common term when the domain elements are called \emph{keys} and the range elements \emph{values}. The classical development (counting, table representation, worked examples) belongs to the maps companion~\cite{bernoulliMaps}; here we need only the abstract data type of the approximate partial function, which the single-valuedness results of \cref{sec:functional,sec:closure_dichotomy} ground.
-\begin{definition}
-	\label{def:approx_pfun}
-	A relation $\APFun{f} = \Set{X}[1] \times \cdots \times \Set{X}[n] \times \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ is an \emph{approximate partial function} of $\PFun{f} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \Set{Y}[1] \times \cdots \times \Set{Y}[m]$ if the following conditions hold:
-	
-	Let a random tuple that is selected uniformly at random from the universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$ be denoted by $\Tuple{\RV{X}} = \Tuple{\RV{X_1},\cdots,\RV{X_n}}$. The partial function $\APFun{f}$ is an approximate partial function of $\PFun{f}$ with a false domain rate $\fprate$ and false complementary domain rate $\fnrate$ if the following conditions hold:
-	\begin{enumerate}[(i)]
-		\item If $\Tuple{\RV{X}}$ is in the domain of $\PFun{f}$, it is not in the domain of $\APFun{f}$ with a probability $\fnrate$,
-		\begin{equation}
-		\Prob{\Tuple{\RV{X}} \notin \Dom(\APFun{f}) \Given \Tuple{\RV{X}} \in \Dom(\PFun{f})} = \fnrate\,.
-		\end{equation}    
-		\item If $\Tuple{\RV{X}}$ is \emph{not} in the domain of $\PFun{f}$, it is in the domain of $\APFun{f}$ with a probability $\fprate$,
-		\begin{equation}
-		\Prob{\Tuple{\RV{X}} \in \Dom(\APFun{f}) \Given \Tuple{\RV{X}} \notin \Dom(\PFun{f})} = \fprate\,.
-		\end{equation}
-	\end{enumerate}
+\begin{definition}[Approximate partial function]
+\label{def:approx_pfun}
+A random approximate partial function of $\PFun{f}$ is a random relation
+$\APFun{f}\subseteq\Set{X}\times\Set{Y}$ whose every realization is
+single-valued, together with specified error guarantees relative to
+$\PFun{f}$. For a defined key $x$, its three disjoint outcomes are returning
+$\PFun{f}(x)$, returning a different value, and returning no value. For an
+undefined key, the outcomes are returning a value and returning no value.
+These probabilities may be specified pointwise or averaged under an explicit
+key distribution.
 \end{definition}
 
+Domain false-positive and false-negative rates alone do not determine value
+accuracy: returning a wrong value at every defined key can preserve the domain
+exactly. A raw tuplewise approximation of a function graph need not meet this
+definition because it can report multiple values. The deletion construction
+above enforces the required type and gives its correct-value probability;
+map constructions and composition are the subject of the companion
+paper~\cite{bernoulliMaps}.
 \end{document}

@@ -1,128 +1,86 @@
-\documentclass[ ../main.tex]{subfiles}
-\providecommand{\mainx}{..}
+\documentclass[../main.tex]{subfiles}
 \begin{document}
 \section{Introduction}
 \label{sec:intro}
-Relational data is everywhere: a relation, in Codd's sense~\cite{codd1970}, is
-just a subset of a product of attribute domains, and tables, indexes, joins, and
-projections are the daily vocabulary of data management. Relations are also sets,
-and a large body of work shows that sets can be represented far more compactly
-than their exact membership tables if one is willing to tolerate a controlled
-rate of error. Bloom filters~\cite{bf} and perfect hash filters~\cite{phf} answer
-membership with a known false-positive rate while storing a small fraction of the
-bits an exact structure would need. Reading a relation through such a structure
-turns an exact relation into an \emph{approximate} one: some tuples are reported
-that do not belong, and some genuine tuples are missed.
+Approximate membership structures trade space for errors~\cite{bf}.
+Using them to represent relations introduces a further question: what
+error guarantee applies to a query that combines their answers? A tuple
+false-positive rate of $\alpha$ becomes $\alpha^2$ for a conjunction of two
+independent absent sources, but remains $\alpha$ if both operands read the
+same source. Canonicalizing a symmetric pair deliberately creates such
+reuse. It can preserve the relation's symmetry and its tuple marginals,
+while changing both query error and the difficulty of exact inference.
 
-\paragraph{The gap.}
-The per-structure error of an approximate set is well understood in isolation,
-but a relation is rarely queried in isolation. It is selected, projected, and
-joined, and the results are projected and joined again. Two questions then have
-no off-the-shelf answer. First, how does the per-tuple error of the operands
-propagate through the relational operators: what false-positive and
-false-negative rates does a projection or a join inherit, and does the clean
-element-wise independence that makes the set model tractable survive the
-operation? Second, relations often carry structural invariants (a relation is
-reflexive, or symmetric, or single-valued, or transitive), and approximation
-tests each tuple independently, so a symmetric relation read through an
-approximate set need not come back symmetric. Does an approximated invariant
-survive, and at what rate? This paper answers both.
+This paper develops the relational part of the Bernoulli-set model
+\cite{bernoulliSets} around that distinction. Exact relations are fixed;
+randomness belongs to a constructed approximate representation. Repeated
+probes read frozen outcomes. We treat selection, projection, and join, then
+examine which invariant-preserving constructions require shared sources.
+The main query question is deliberately limited: for positive monotone
+lineage, what per-source error budget guarantees a desired query error for
+\emph{every} exact truth profile with the relevant answer? We assume no
+prior distribution over exact databases.
 
-\paragraph{Contributions.}
-We treat the approximate relation as a Bernoulli random approximate
-set~\cite{bernoulliSets} over the tuple universe, the abstract data type of
-\cref{sec:approx_rel_model}, and from that footing we establish the following.
+Our contribution is a scoped synthesis and calibration study:
 \begin{enumerate}
-    \item \emph{Error propagation through the relational operators}
-    (\cref{sec:rel_algebra}). Selection is rate-transparent. Projection amplifies
-    the false-positive rate to $1 - (1-\fprate)^{k}$ in the fan-in $k$ and raises
-    the model order while preserving element-wise independence. A join does
-    \emph{not} preserve element-wise independence: two output tuples that share an
-    input component reuse the same operand trial and are positively correlated, so
-    the joint law over output tuples does not factor, and we carry the correlation
-    as a closed-form factor. This is the operators' sharpest contrast, and (as the
-    related work discusses) the representation-error face of the lineage dependence
-    known from probabilistic databases.
-    \item \emph{Preservation of relational invariants, and a closure dichotomy}
-    (\cref{sec:invariants}). Reflexivity, symmetry, single-valuedness, and
-    transitivity are each preserved only with a probability that is a product over
-    the constrained tuples, and so tends to zero as the ground universe grows. We
-    give the per-invariant rate, and then a sharper structural result, a closure
-    dichotomy. A class-induced invariant (reflexivity, symmetry) is \emph{free}:
-    one canonical trial per orbit preserves it deterministically at the base
-    rates with no space surcharge, and an optional one-pass OR-closure trades a
-    $\log_2 m$-bit surcharge, in the orbit size $m$, for an $m$-trial recall
-    boost. The antitone case (single-valuedness) is repaired by deletion at a
-    closed-form rate. Transitivity, by contrast, is induced by no equivalence at
-    all, and admits no bounded closure: its repair cascades to depth
-    $\lceil \log_2 k \rceil$. The cut is decomposability, not arity.
-    \item \emph{The approximate partial function} as the single-valued special
-    case of the model (the dictionary), recovered directly from the relational
-    treatment.
-    \item \emph{A trapdoor-database application} (\cref{sec:trapdoor_rel_model}),
-    in which cipher relations and cipher partial functions index an encrypted
-    store, the relational operators run over the cipher relation, and the leakage
-    profile is exactly the Bernoulli error rates of the model.
+\item We give explicit source semantics and operator formulas, distinguishing
+independence of tuples from independence of sources. This identifies the
+assumptions needed by familiar product formulas and clarifies when canonical
+constraint preservation changes them.
+\item We derive sharp one-sided truth-uniform contracts from monotone boundary
+certificates, together with marginal-only and shared-rate bounds. For binary
+witnesses of source occurrence at most two, elementary graph structure makes
+the homogeneous contract inexpensive to compute.
+\item We connect the contract to a concrete partitioned Bloom representation
+of a symmetric relation, including a construction check based only on occupied
+bits, and compare it with ordered-tuple storage followed by symmetric repair.
 \end{enumerate}
+The certificate identities, graph techniques, and probability machinery
+are not claimed as new general theory. The study tests whether combining
+them gives a useful specification for approximate relational representations.
 
-\paragraph{Related work.}
-The nearest neighbor is the literature on \emph{probabilistic} and
-\emph{uncertain} databases~\cite{suciu2011}, including systems such as
-Trio~\cite{widom2005trio} and MayBMS~\cite{huang2009maybms}. That work models
-uncertainty \emph{in the data}: tuples carry probabilities or lineage, a database
-denotes a distribution over possible worlds, and a query computes the marginal
-probability of each answer over those worlds. The Bernoulli approximate relation
-is a different object. There is an \emph{objective} base relation, exact and
-certain, and the uncertainty is injected entirely by a \emph{space-saving
-representation} of it: the false-positive and false-negative rates are properties
-of the data structure, not of the data.
+\paragraph{Position relative to probabilistic databases.}
+Boolean lineage and provenance semirings already record how tuples contribute
+to an answer~\cite{green2007provenance}. Weighted evaluation, tractability
+boundaries, materialized views, and correlated lineage are well developed
+\cite{dalvi2012dichotomy,re2007views,kanagal2010lineage,suciu2011}.
+Once a truth profile and a construction law are fixed, our query probability
+is an instance of probabilistic inference over that lineage. The origin of
+uncertainty in a representation does not evade this prior art. Integrity
+constraints and conditioning also have substantial prior treatment
+\cite{flesca2013constraints,koch2008conditioning}; constraint preservation
+is not a territory unique to approximate data structures.
 
-Two technical points keep the relationship honest. First, the per-tuple marginal
-rates we derive are not new. A join's product false-negative rate and a
-projection's $1-(1-\fprate)^{k}$ false-positive rate are exactly the marginals a
-tuple-independent probabilistic database obtains by extensional evaluation, the
-latter being the familiar union-of-filters identity; we claim no credit for them.
-Second, our sharpest operator result, that a join's output tuples sharing an input
-component are correlated, is in possible-worlds language the well-known fact that
-query answers sharing lineage are dependent, the same dependence that makes
-extensional evaluation of self-joins fail and that the dichotomy theory of
-probabilistic query evaluation is built to handle~\cite{suciu2011}. What this
-paper adds on the operator side is narrower and concrete: it carries that
-dependence explicitly through the Bernoulli error model, as a closed-form
-correlation factor ($1/a$) in a setting where the rows are membership tests of a
-compressed encoding rather than uncertain facts.
+\paragraph{Probability bounds and program logics.}
+Dissociation provides sound bounds by replacing shared occurrences with
+appropriately parameterized copies~\cite{gatterbauer2014bounds}; subsequent
+work develops relational evaluation, weighted model counting, and anytime
+refinement~\cite{gatterbauer2017propagation,chou2018dissociation,vandenheuvel2019scaled}.
+Union-bound program logics account for failure probabilities without asserting
+independence~\cite{barthe2016union}, while separation logics reason explicitly
+about independence and conditional probability~\cite{li2023lilac}.
+Recent imprecise probabilistic programming also supports structured uncertain
+inference~\cite{liellcock2026imprecise}. Our marginal-only bound is a certificate
+application of the union bound, not a replacement for these calculi.
 
-The genuinely new territory is the \emph{invariant} side. A probabilistic database
-does not ask whether an approximated symmetric relation stays symmetric, or how a
-projection's fan-in amplifies a structural false-positive rate, because in that
-setting the relation has no underlying exact truth to be faithful to and no
-representation-induced error to propagate. Those questions, and the per-invariant
-preservation rates and closures that answer them, are about the fidelity of a
-compressed encoding, orthogonal to possible-worlds semantics.
+\paragraph{Sensitivity and approximate membership.}
+For monotone Boolean functions, certificate complexity and sensitivity
+coincide~\cite{blanc2022counterfactuals}; pointwise noise bounds in terms of
+sensitivity are established~\cite{gopalan2016smooth}. The exact one-sided
+extremal formulas below follow directly from maximal false and minimal true
+inputs. A targeted literature search did not locate the identical
+query-calibration formulation, but this does not establish originality.
+Bloom filters supply the implemented membership mechanism~\cite{bf}.
+Adaptivity is a separate concern~\cite{bender2017adaptivity}: our guarantees
+do not allow a query to be selected from observed errors and then treated as
+an independent fixed probe.
 
-\paragraph{Companion papers.}
-This paper sits in a family built on the Bernoulli set model~\cite{bernoulliSets}. The set-theoretic composition that the join and the subset and
-equality predicates reduce to (closed-form rates for intersection, union, and
-complement) is developed in the composition paper~\cite{bernoulliComposition}.
-Approximate partial functions as first-class maps, and the error rates of map
-\emph{composition}, are the subject of the maps paper~\cite{bernoulliMaps}; here
-the partial function appears only as a single-valued relation. The
-information-theoretic space bound (the bits per relation forced by a given error
-rate) is established in the entropy paper~\cite{bernoulliEntropy}, and the
-space-optimal perfect-hash-filter construction that meets it is the subject of a
-further companion. We cite these rather than re-derive them, and confine this
-paper to the genuinely relational territory: operator propagation, invariant
-preservation, and the relational application.
-
-\paragraph{Organization.}
-\Cref{sec:relations} reviews relations and the relational operators (selection,
-projection, join, composition). \Cref{sec:approx_rel_model} defines the random
-approximate relation as a Bernoulli set over the tuple universe and records the
-error-count machinery it inherits. \Cref{sec:rel_algebra} propagates error through
-the operators. \Cref{sec:invariants} treats invariant preservation and the
-symmetric closure. \Cref{sec:map} presents the approximate partial function as
-the single-valued special case.
-\Cref{sec:trapdoor_rel_model} develops the trapdoor-database application, and
-\cref{sec:conclusion} concludes with the dichotomy as the takeaway and the open
-problems.
+The companion manuscripts develop set-level composition, maps, and
+information-theoretic storage analysis~\cite{bernoulliComposition,bernoulliMaps,bernoulliEntropy}.
+Here storage claims are limited to explicit constructions and measured
+payloads. A tuple-rate identity is not by itself a total-memory comparison.
+\Cref{sec:relations,sec:approx_rel_model} specify the semantics;
+\cref{sec:rel_algebra,sec:invariants} audit operators and structural constraints;
+\cref{sec:query_contracts} develops the contracts; and
+\cref{sec:calibration} reports their empirical use and limitations.
 \end{document}

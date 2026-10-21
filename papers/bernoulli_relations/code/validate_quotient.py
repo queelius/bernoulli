@@ -8,12 +8,12 @@ Claims under test:
    canonical representative (min, max) of its unordered orbit. Symmetry then
    holds DETERMINISTICALLY (query(x,y) == query(y,x) in every realization), the
    false-positive and true-positive rates stay at the base (eps, tau), and a
-   construction-time build stores one element per member orbit (|R|/2 for a
-   symmetric R with no diagonal), i.e. the invariant is free.
+   construction-time build inserts one key per member orbit (|R|/2 for a
+   symmetric R with no diagonal). This is key counting, not measured memory.
 
 2. OR-CLOSURE: admit the orbit if either ordered trial fires. Symmetry also
    deterministic, but rates move to (1-(1-eps)^2, 1-(1-tau)^2): the log2(m)
-   surcharge of the corollary buys the true-positive boost, not the invariant.
+   homogeneous off-diagonal formulas apply. No two-sided memory bound is tested.
 
 3. The naive (per-ordered-pair) approximation is symmetric only with the
    vanishing probability of the symmetry-preservation theorem.
@@ -27,26 +27,36 @@ A = 40            # ground set size
 TRIALS = 200_000  # Monte Carlo runs (per-pair trials vectorized inside)
 
 
+def sampled_rate(rng, trials, count, probability, copies=1, batch_size=1024):
+    """Sum independent orbit outcomes in bounded batches, avoiding GB arrays."""
+    successes = 0
+    for start in range(0, trials, batch_size):
+        batch = min(batch_size, trials - start)
+        fires = rng.random((batch, count)) < probability
+        for _ in range(copies - 1):
+            fires |= rng.random((batch, count)) < probability
+        successes += int(fires.sum())
+    return successes / (trials * count)
+
+
 def main():
     rng = np.random.default_rng(3)
 
-    # a symmetric R on A x A without diagonal: random unordered pairs
+    # A symmetric R restricted to the off-diagonal query universe.
     n_orbits = A * (A - 1) // 2
     orbit_member = rng.random(n_orbits) < 0.15     # which unordered pairs are in R
     P = int(orbit_member.sum())                    # member orbits
     N = n_orbits - P                               # non-member orbits
 
     # --- canonical test: ONE trial per orbit -----------------------------
-    fires_m = rng.random((TRIALS, P)) < TAU        # member orbits fire (TP)
-    fires_n = rng.random((TRIALS, N)) < EPS        # non-member orbits fire (FP)
     # symmetry is structural: both orders read the same trial, so it holds in
     # every realization by construction; rates are the per-orbit rates.
-    can_tpr = fires_m.mean()
-    can_fpr = fires_n.mean()
+    can_tpr = sampled_rate(rng, TRIALS, P, TAU)
+    can_fpr = sampled_rate(rng, TRIALS, N, EPS)
 
     # --- OR-closure: TWO independent ordered trials per orbit, OR'd ------
-    or_m = ((rng.random((TRIALS, P)) < TAU) | (rng.random((TRIALS, P)) < TAU)).mean()
-    or_n = ((rng.random((TRIALS, N)) < EPS) | (rng.random((TRIALS, N)) < EPS)).mean()
+    or_m = sampled_rate(rng, TRIALS, P, TAU, copies=2)
+    or_n = sampled_rate(rng, TRIALS, N, EPS, copies=2)
 
     # --- naive per-ordered-pair approximation: P(symmetric) --------------
     # per orbit the two ordered trials agree w.p. tau^2 + (1-tau)^2 (members)
@@ -61,7 +71,7 @@ def main():
     p_sym_ana = (TAU**2 + (1 - TAU)**2) ** Ps * ((1 - EPS)**2 + EPS**2) ** Ns
 
     print(f"symmetric R over |A|={A}: {P} member orbits, {N} non-member orbits\n")
-    print(f"{'construction':<22} {'FPR':>10} {'TPR':>10} {'stored':>8} {'symmetric?':>11}")
+    print(f"{'construction':<22} {'FPR':>10} {'TPR':>10} {'keys':>8} {'symmetric?':>11}")
     print(f"{'canonical (quotient)':<22} {can_fpr:10.5f} {can_tpr:10.5f} "
           f"{P:8d} {'always':>11}")
     print(f"{'  analytical':<22} {EPS:10.5f} {TAU:10.5f}")

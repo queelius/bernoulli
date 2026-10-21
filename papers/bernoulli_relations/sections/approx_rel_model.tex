@@ -1,116 +1,123 @@
-\documentclass[ ../main.tex]{subfiles}
-\providecommand{\mainx}{..}
+\documentclass[../main.tex]{subfiles}
 \begin{document}
-\section{The \emph{random} approximate relation model}
+\section{Construction randomness and error semantics}
 \label{sec:approx_rel_model}
-A random approximate relation $\ARelation{R}$ is a \emph{random approximate set}\cite{bernoulliSets} of a relation $\Relation{R}$.
-All the results of random approximate sets apply to random approximate relations.
-
-For instance, consider the binary relation $\leq \subset \Set{X}^2$ given by $x \leq y \implies \Pair{x}{y} \in \, \leq$.
-The complement of $\leq$, denoted by $>$, is thus given by $x > y \implies \Pair{x}{y} \in >$.
-
-We use $\ARelation{R}$ to make \emph{predictions} about relations modeled by $\Relation{R}$.
-The outcome of a prediction may be classified as a \emph{true correspondence}, \emph{false correspondence}, \emph{true complementary correspondence}, and \emph{false complementary correspondence}.
-
-A \emph{type} is a set and the elements of the set are called the \emph{values} of the type.
-An \emph{abstract data type} is a type and a set of operations on values of the type.
-For example, the \emph{integer} abstract data type is defined by the set of integers and standard operations like addition and subtraction.
-A \emph{data structure} is a particular way of organizing data and may implement one or more abstract data types.
-
-The abstract data type of the approximate relation is given by the following definition.
-\begin{definition}
+\begin{definition}[Random approximate relation]
 \label{def:approx_rel}
-Given a relation $\Relation{R} \subseteq \Set{X}[1] \times \cdots \times 
-\Set{X}[n]$, we denote a random approximate relation of $\Relation{R}$ by $\ARelation{R}$.
-A random approximate relation $\ARelation{R}$ is a member of $\PS{\Set{X}[1] \times 
-\cdots \times \Set{X}[n]}$.
-At a minimum, the relation $\ARelation{R}$ has an \emph{is-relation} operator
-\begin{equation}
-    \ARelation{R} \colon \Set{X}[1] \times \cdots \times \Set{X}[n] \mapsto \{ 
-    0, 1 \}\,.
-\end{equation}
-
-Let a tuple that is selected uniformly at random from the universe $\Set{X}[1] 
-\times \cdots \times \Set{X}[n]$ be denoted by $\Tuple{\RV{X_1}, \ldots, 
-\RV{X_n}}$.
-The relation $\ARelation{R}[\fprate][\tprate]$ is an approximate relation of $\Relation{R}$
-with a false-positive rate $\fprate$ and false-negative rate
-$\fnrate$ (so its true-positive rate is $\tprate = 1 - \fnrate$) if the following conditions hold:
-\begin{enumerate}[(i)]
-    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the relation $\Relation{R}$, then it is not in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with probability $\fnrate$,
-    \begin{equation}
-        \Prob{\lnot\ARelation{R}[\fprate][\tprate](\RV{X_1}, \cdots, \RV{X_n}) \Given
-        \Relation{R}(\RV{X_1}, \cdots, \RV{X_n})} = \fnrate\,.
-    \end{equation}
-
-    \item If $\Tuple{\RV{X_1}, \ldots, \RV{X_n}}$ is in the complementary relation of $\Relation{R}$ then it is in the random approximate relation $\ARelation{R}[\fprate][\tprate]$ with a probability $\fprate$,
-    \begin{equation}
-        \Prob{\ARelation{R}[\fprate][\tprate](\RV{X_1}, \cdots, \RV{X_n}) \Given \SetComplement[\Relation{R}](\RV{X_1}, \cdots, \RV{X_n})} = \fprate\,.
-    \end{equation}
-\end{enumerate}
+Fix a finite tuple universe $U$ and an exact relation $\Relation{R}\subseteq U$.
+A random approximate relation is a random variable with values in
+$2^U$, equivalently a family of membership functions
+$\ARelation{R}_\theta:U\to\{0,1\}$ indexed by a construction seed $\theta$.
+The seed is sampled once; each subsequent probe reads the resulting frozen
+representation. For a fixed $t\notin\Relation{R}$ its false-positive rate is
+$\Pr_\theta\{\ARelation{R}_\theta(t)=1\}$; for $t\in\Relation{R}$ its
+false-negative rate is $\Pr_\theta\{\ARelation{R}_\theta(t)=0\}$.
 \end{definition}
 
-\subsection{Probabilistic model}
+Unless stated otherwise, probabilities refer to construction randomness
+with the exact relation and query held fixed. The notation
+$\ARelation{R}[\fprate][\tprate]$ denotes homogeneous per-tuple rates
+$\fprate$ on nonmembers and $\tprate=1-\fnrate$ on members.
+These are pointwise construction probabilities, not the probability that
+an observed positive is false. Population-average rates require a separate
+query distribution; conditional rates on an empty class are undefined.
+For a fixed realization, its fraction of errors over a finite candidate set
+is a deterministic quantity, varying across constructions.
+
+\subsection{Sources, aliases, and independence}
 \label{sec:prob_model}
-Since \emph{relations} are \emph{sets} of \emph{tuples}, a random approximate relation $\ARelation{R} \subseteq \Set{X}[1] \times \cdots \times \Set{X}[n]$ is a random approximate set\cite{bernoulliSets} over the universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$
-
-We make the following set of assumptions.
-\begin{assumption}
-	\label{asm:ber_trial}
-	For any tuple \emph{not} in the relation $\Relation{R}$, the membership test reports it as present (a \emph{false positive}) through an independent, identically distributed Bernoulli trial with mean $\fprate$.
-	For any tuple \emph{in} the relation $\Relation{R}$, the membership test reports it as absent (a \emph{false negative}) through an independent, identically distributed Bernoulli trial with mean $\fnrate$.
+\begin{assumption}[Independent frozen sources]
+\label{asm:source_model}
+There is a known source map $\kappa:U\to I$ and fixed exact bits
+$x_i\in\{0,1\}$ such that $\Relation{R}(t)=x_{\kappa(t)}$.
+The random source bits $X_i$ are mutually independent with
+\[
+ \Pr(X_i=1)=
+ \begin{cases}
+   \epsilon_i,&x_i=0,\\
+   1-\omega_i,&x_i=1.
+ \end{cases}
+ \qquad \ARelation{R}_\theta(t)=X_{\kappa(t)}.
+\]
+Every occurrence of a source reads the same bit. Distinct relations may share
+sources, and joint calculations use their combined source map.
 \end{assumption}
-This assumption is not unrealistic as it is common for implementations of approximate sets to exhibit this assumed behavior, like Bloom filters\cite{bf} and Perfect hash filters\cite{phf}.
+Aliases must have the same exact truth value for this model. For a symmetric
+exact relation, unordered-pair classes satisfy this requirement. Deterministic
+tuples, such as forced diagonal members, can be included as degenerate sources.
+Independent sources need not imply independent output tuples after a query.
 
-The uncertain number of false positives is given by the following theorem.
-\begin{theorem}
-	\label{thm:fpbinom}
-	Given $\n$ negatives, the number of \emph{false positives} in an approximate set with a false positive rate $\fprate$ is a random variable denoted by $\FP_\n$ with a distribution given by
-	\begin{equation}
-		\FP_\n \sim \bindist\!\left(\n, \fprate\right)\,.
-	\end{equation}
+\begin{assumption}[Independent tuple specialization]
+\label{asm:ber_trial}
+The source map is injective, $\epsilon_i=\fprate$ for exact nonmembers,
+and $\omega_i=\fnrate$ for exact members. All distinct tuple outcomes are
+mutually independent, including across truth classes.
+\end{assumption}
+This is a useful idealized channel, not a consequence of having a
+Bloom filter~\cite{bf} or a salted hash function. Shared bit arrays, construction
+events, and finite hash families can introduce dependence. A concrete
+implementation must justify the assumptions it uses; \cref{sec:calibration}
+separates an ideal hash model from measurements of an implemented filter.
+
+\paragraph{Shared storage versus shared outcomes.}
+The standard perfect-hash-plus-fingerprint construction, also discussed in
+the companion filter manuscript~\cite{phf}, illustrates this distinction
+\cite{dietzfelbinger2008retrieval}. Place member keys injectively with $g$,
+store their $M$-bit fingerprints $V[g(x)]=H(x)$, and accept a key when
+$H(x)=V[g(x)]$. Assume $H$ is an ideal random function independent of $g$,
+and construction inspects $H$ only on members. Conditional on $g$ and the
+stored fingerprints, distinct absent keys have independent uniform
+fingerprints. Each match has probability $2^{-M}$, even if the keys share
+a slot. Since this probability is constant, independence survives averaging.
+Thus shared physical storage need not imply dependent answers; repeated
+canonical keys do share an outcome. This idealized realization does not
+prove that a particular finite hash implementation meets the same law.
+
+\begin{theorem}[Error counts under independent tuples]
+\label{thm:fpbinom}
+Under \cref{asm:ber_trial}, for $N$ distinct exact nonmembers the number of
+false positives has distribution $\mathrm{Binomial}(N,\fprate)$.
 \end{theorem}
 \begin{proof}
-	By \cref{asm:ber_trial}, the uncertain outcome that a negative element \emph{tests} as positive is a Bernoulli trial with a mean $\fprate$. Since there are $\n$ such independent and identically distributed trials, the number of false positives is binomially distributed with a mean $\n \fprate$.
+It is the sum of $N$ independent Bernoulli variables with parameter $\fprate$.
 \end{proof}
-
-The false positive rate $\fprate$ is an \emph{expectation}. However, the false positive rate of a random approximate relation $\ARelation{R}[\fprate][\tprate]$ is \emph{uncertain}.
-\begin{theorem}
-	\label{thm:fpr}
-	The false positive rate realizes an uncertain value as given by
-	\begin{equation}
-		\FPR_\n = \frac{\FP_\n}{\n}
-	\end{equation}
-	with a support $\SetBuilder{ j / \n}{j = 0,\ldots,\n}$, an expectation $\fprate$, and a variance $\fprate(1-\fprate) / \n$. By the central limit theorem, $\FPR_\n \xrightarrow{d} \normdist\!\left(\fprate, \fprate(1-\fprate) / \n\right)$ as $\n \to \infty$.
+\begin{theorem}[Realized error fraction]
+\label{thm:fpr}
+For $N>0$ under the same assumptions, the realized fraction
+$\widehat\epsilon_N=\mathrm{FP}_N/N$ has mean $\fprate$ and variance
+$\fprate(1-\fprate)/N$. For fixed $0<\fprate<1$, along growing collections
+of independent distinct nonmembers,
+\[
+ \frac{\sqrt N(\widehat\epsilon_N-\fprate)}
+ {\sqrt{\fprate(1-\fprate)}}\xrightarrow{d}\mathcal N(0,1).
+\]
+At $\fprate\in\{0,1\}$ the fraction is deterministic.
 \end{theorem}
 \begin{proof}
-	The expected false positive rate is
-	\begin{equation}
-		\Expect{\FPR_\n} = \Expect{\frac{\FP_\n}{\n}} = \frac{1}{\n}\Expect{\FP_\n} = \fprate
-	\end{equation}
-	and the variance of the false positive rate is
-	\begin{equation}
-		\Var{\FPR_\n} = \Var{\frac{\FP_\n}{\n}} = \frac{1}{\n^2}\Var{\FP} = \frac{\fprate(1-\fprate)}{\n}\,.
-	\end{equation}
+The moment identities follow from the binomial distribution; the standardized
+limit is the independent, identically distributed central limit theorem.
 \end{proof}
-By \cref{thm:fpr}, the more negatives there are, the lower the variance.
+The analogous statement holds for false negatives. With aliases, tuple
+counts are weighted sums of source outcomes and need not be binomial.
+Repeating one probe $N$ times supplies one source outcome, not $N$ trials.
 
-\subsection{Subset and equality of approximate relations}
-Because an approximate relation is a random approximate set over the product
-universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$, the rates at which the
-\emph{subset} and \emph{equality} predicates are preserved under approximation
-are exactly the set-level results. For two approximate relations
-$\ARelation{R}[\fprate_1][\tprate_1]$ and $\ARelation{S}[\fprate_2][\tprate_2]$
-over a common universe $\Set{U}$, the probability that $\Relation{R} \subseteq
-\Relation{S}$ continues to hold for the approximations, and the probability that
-two independent approximations of the same relation agree, are given by the
-subset theorem and the equality corollary (\texttt{cor:equality\_prob}) of the
-composition paper~\cite{bernoulliComposition}. The per-element agreement
-probability for a positive tuple is $\tprate_1 \tprate_2 + \fnrate_1 \fnrate_2$
-(both approximations report the tuple, or both omit it; these events are mutually
-exclusive, so there is no correction term), and for a negative tuple it is
-$\fprate_1 \fprate_2 + \tnrate_1 \tnrate_2$. We do not re-derive these here; the
-proofs are set-theoretic and carry over verbatim once tuples are read as
-elements of the product universe.
+\subsection{Conditioning and repeated queries}
+All later fixed-query guarantees are unconditional over construction, or
+conditional on explicitly declared construction information. A query chosen
+after observing answers can select a known false positive. Thus a pointwise
+construction FPR does not imply the same FPR conditional on a transcript, or
+a bound on every query in an adaptive workload; adaptive filters address a
+separate problem~\cite{bender2017adaptivity}. For a fixed finite workload, a
+union bound on per-query errors remains valid without independence between
+queries. Conditioning on a relation-wide property can also destroy the
+independent-source law; it must be modeled explicitly, as in conditioning
+probabilistic databases~\cite{koch2008conditioning}.
 
+Subset and equality tests remain ordinary Boolean lineages over the joint
+source space. For example, two independent approximations agree on one true
+tuple with probability $\tprate_1\tprate_2+\fnrate_1\fnrate_2$; the product
+over tuples additionally requires tuple independence. The companion set
+composition manuscript~\cite{bernoulliComposition} supplies the corresponding
+set-level calculations. An approximation compared with itself agrees with
+probability one, regardless of its marginal error rates.
 \end{document}

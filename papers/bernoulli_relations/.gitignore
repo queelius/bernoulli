@@ -35,3 +35,6 @@ main.synctex.gz
 *.ist
 *.lol
 *.loa
+
+# Python caches from the research code
+__pycache__/

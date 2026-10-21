@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Monte Carlo validation of the Phase-C results in bernoulli_relations.
+"""Monte Carlo validation of the scoped results in bernoulli_relations.
 
 This script empirically checks the closed-form error-propagation and
 invariant-preservation formulas of the paper by direct simulation. Each
@@ -21,16 +21,17 @@ We validate, against their analytical formulas:
       -- the demonstration that element-wise independence FAILS.
 
   SYMMETRIC CLOSURE (thm:symmetric_closure)
-    - closure false-positive rate:               1 - (1-eps)^2
-    - closure true-positive rate:                1 - (1-tau)^2
+    - off-diagonal false-positive rate:          1 - (1-eps)^2
+    - off-diagonal true-positive rate:           1 - (1-tau)^2
+    - diagonal rates:                           eps, tau
 
   SYMMETRIC PRESERVATION (thm:symmetric_preservation)
     - P(approximation symmetric), small instance:
       (tau^2+omega^2)^P ((1-eps)^2+eps^2)^N
 
-  CLOSURE DICHOTOMY (thm:local_closure, thm:canonical_test,
-                     thm:transitivity_cascade)
-    - OR-closure rates for orbit sizes m=2,3,4; canonical-test base rates;
+  ORBIT REPAIR (thm:local_closure, thm:canonical_test,
+                thm:transitivity_cascade)
+    - OR-closure rates for actual orbit sizes h=1,2,3,4; canonical-test rates;
       deterministic cascade depth/pair counts incl. non-powers-of-2
 
   REFLEXIVE   (thm:reflexive)
@@ -40,7 +41,8 @@ We validate, against their analytical formulas:
     - kept-true-value rate:                      tau (1-(1-eps)^|Y|)/(eps |Y|)
 
   FUNCTIONAL  (thm:functional)
-    - P(no spurious value at a key):             (1-eps)^(|Y|-1)
+    - P(at most one value) for defined and undefined keys
+    - P(no spurious value at a defined key), a distinct event
 
 Each result prints analytical vs empirical with absolute error. No paper
 dependency: pure-Python + numpy. Reproducible via a fixed seed.
@@ -73,6 +75,38 @@ def draw_membership(rng: np.random.Generator, is_member: np.ndarray,
     u = rng.random(is_member.shape)
     p = np.where(is_member, tau, eps)
     return u < p
+
+
+def single_valued_row_probability(
+    value_count: int, eps: float, true_value_rate: float | None
+) -> float:
+    """Probability of reporting at most one value in an independent row.
+
+    A true_value_rate of None denotes an undefined key: all candidate values
+    are nonmembers. Otherwise exactly one candidate is a true value, and its
+    acceptance probability is true_value_rate.
+    """
+    if value_count < 0:
+        raise ValueError("value_count must be nonnegative")
+    if not 0 <= eps <= 1:
+        raise ValueError("eps must be a probability")
+    if true_value_rate is not None:
+        if value_count == 0:
+            raise ValueError("a defined key needs at least one candidate value")
+        if not 0 <= true_value_rate <= 1:
+            raise ValueError("true_value_rate must be a probability")
+    if value_count <= 1:
+        return 1.0
+    if true_value_rate is None:
+        return (1 - eps) ** value_count + value_count * eps * (
+            1 - eps
+        ) ** (value_count - 1)
+    return (1 - eps) ** (value_count - 1) + (
+        (1 - true_value_rate)
+        * (value_count - 1)
+        * eps
+        * (1 - eps) ** (value_count - 2)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +222,7 @@ def validate_join(rng, trials, results):
 def validate_symmetric_closure(rng, trials, results):
     """Symmetric closure: admit an unordered pair if EITHER ordered trial fires.
 
-    Each unordered pair has two independent ordered trials. For a positive pair
+    Each off-diagonal pair has two independent ordered trials. For a positive pair
     both ordered tuples are members; for a negative pair both are non-members.
     """
     # negative pair: both ordered trials are false-positive draws.
@@ -207,32 +241,39 @@ def validate_symmetric_closure(rng, trials, results):
     ana_tpr = 1.0 - (1.0 - TAU) ** 2
     results.append(("Symmetric closure TPR", ana_tpr, emp_tpr))
 
+    # A diagonal query reads the same frozen trial twice, not two new trials.
+    for is_member, rate in ((False, EPS), (True, TAU)):
+        diagonal = draw_membership(
+            rng, np.full(trials, is_member, dtype=bool), EPS, TAU
+        )
+        results.append((
+            f"Symmetric closure diagonal, member={is_member}",
+            rate, (diagonal | diagonal).mean(),
+        ))
+
 
 # ---------------------------------------------------------------------------
-# CLOSURE DICHOTOMY (thm:local_closure, thm:transitivity_cascade)
+# ORBIT REPAIR (thm:local_closure, thm:transitivity_cascade)
 # ---------------------------------------------------------------------------
-def validate_closure_dichotomy(rng, trials, results):
+def validate_orbit_repairs(rng, trials, results):
     """Generalize the symmetric closure and separate it from transitivity.
 
-    thm:local_closure: a class-induced invariant with homogeneous orbits of m
-    ordered pairs (m >= 2) has OR-closure FPR 1-(1-eps)^m and TPR 1-(1-tau)^m
-    (m=2 is the symmetric closure). Checked by Monte Carlo for m in {2,3,4}.
-    The theorem's m=1 case (reflexivity) is NOT a Monte Carlo quantity: its
-    repair is deterministic diagonal insertion at TPR 1 / FPR 0 (no OR), so it
-    is asserted structurally below rather than estimated.
+    thm:local_closure: a homogeneous orbit of actual size h has OR-closure
+    FPR 1-(1-eps)^h and TPR 1-(1-tau)^h. A singleton keeps the base rates.
+    Reflexivity is a separate forced-tuple rule: known diagonal insertion.
 
     thm:canonical_test: a single trial on the orbit representative preserves
     the invariant deterministically at the BASE rates (eps, tau), no surcharge;
     symmetry of the output is structural (both orders read the same trial).
-    See also validate_quotient.py for the storage-halving comparison.
+    Key-count savings do not by themselves establish physical memory savings.
 
     thm:transitivity_cascade: the transitive closure of a path of length k needs
     ceil(log2 k) simultaneous passes and C(k+1,2) pairs -- a DETERMINISTIC,
-    structural check (no rate) that no bounded one-pass closure of the local
-    form exists. k=5,7 exercise the ceiling rounding (both need 3 passes).
+    structural check of this particular addition rule, not a lower bound for
+    all repairs. k=5,7 exercise the ceiling rounding (both need 3 passes).
     """
     # Generalized OR-closure over a homogeneous orbit of m ordered trials.
-    for m in (2, 3, 4):
+    for m in (1, 2, 3, 4):
         neg = np.zeros((trials, m), dtype=bool)
         emp_fpr = draw_membership(rng, neg, EPS, TAU).any(axis=1).mean()
         results.append((f"Local-closure FPR, orbit m={m}", 1.0 - (1.0 - EPS) ** m, emp_fpr))
@@ -248,7 +289,7 @@ def validate_closure_dichotomy(rng, trials, results):
     results.append(("Canonical-test TPR (= base tau)", TAU,
                     draw_membership(rng, pos1, EPS, TAU).any(axis=1).mean()))
 
-    # Reflexive repair (the m=1 case of thm:local_closure): deterministic
+    # Reflexive repair (a separate forced-tuple rule): deterministic
     # diagonal insertion. Postcondition is structural, not statistical.
     noisy_diag = draw_membership(rng, np.ones((1000, 5), dtype=bool), EPS, TAU)
     repaired = noisy_diag | True            # insertion forces the known diagonal
@@ -257,7 +298,7 @@ def validate_closure_dichotomy(rng, trials, results):
     # Transitivity cascade: path 1->2->...->(k+1); iterate the one-pass rule to
     # the fixed point and count passes and manufactured pairs (exact integers).
     # k=5 and k=7 are the non-powers-of-2 that exercise the ceiling.
-    for k in (4, 5, 7, 8, 16):
+    for k in (1, 2, 4, 5, 7, 8, 16):
         R = {(i, i + 1) for i in range(1, k + 1)}
         passes = 0
         while True:
@@ -337,10 +378,8 @@ def validate_deletion(rng, trials, results):
 # FUNCTIONAL (single-valued)
 # ---------------------------------------------------------------------------
 def validate_functional(rng, trials, results):
-    """A key stays single-valued iff none of the |Y|-1 non-true values is a
-    false positive. Each is an independent false-positive trial with prob eps.
-    """
-    for card_Y in (2, 4, 8):
+    """Distinguish single-valuedness from having no spurious reported value."""
+    for card_Y in (1, 2, 4, 8):
         spurious = card_Y - 1                          # candidate spurious values
         # all of these are TRUE NEGATIVES for this key.
         neg = np.zeros((trials, spurious), dtype=bool)
@@ -349,6 +388,24 @@ def validate_functional(rng, trials, results):
         emp = no_spurious.mean()
         ana = (1.0 - EPS) ** spurious
         results.append((f"P(no spurious value), |Y|={card_Y}", ana, emp))
+
+        true_rep = draw_membership(
+            rng, np.ones(trials, dtype=bool), EPS, TAU
+        )
+        defined_single = true_rep.astype(int) + rep.sum(axis=1) <= 1
+        results.append((
+            f"P(single-valued defined key), |Y|={card_Y}",
+            single_valued_row_probability(card_Y, EPS, TAU),
+            defined_single.mean(),
+        ))
+        undefined_rep = draw_membership(
+            rng, np.zeros((trials, card_Y), dtype=bool), EPS, TAU
+        )
+        results.append((
+            f"P(single-valued undefined key), |Y|={card_Y}",
+            single_valued_row_probability(card_Y, EPS, None),
+            (undefined_rep.sum(axis=1) <= 1).mean(),
+        ))
 
 
 # ---------------------------------------------------------------------------
@@ -370,7 +427,7 @@ def main() -> int:
     # the paper predicts is wrong): it is shown but excluded from the pass tally.
     results: list[tuple] = []
 
-    print(f"Monte Carlo validation of bernoulli_relations Phase-C results")
+    print("Monte Carlo validation of bernoulli_relations scoped results")
     print(f"trials per estimate = {args.trials:,}   seed = {args.seed}")
     print(f"base rates: eps (FPR) = {EPS}, omega (FNR) = {OMEGA}, "
           f"tau (TPR) = {TAU}")
@@ -380,7 +437,7 @@ def main() -> int:
     validate_join(rng, args.trials, results)
     validate_symmetric_closure(rng, args.trials, results)
     validate_symmetric_preservation(rng, args.trials, results)
-    validate_closure_dichotomy(rng, args.trials, results)
+    validate_orbit_repairs(rng, args.trials, results)
     validate_reflexive(rng, args.trials, results)
     validate_deletion(rng, args.trials, results)
     validate_functional(rng, args.trials, results)

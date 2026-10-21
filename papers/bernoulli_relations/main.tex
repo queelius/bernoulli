@@ -51,8 +51,8 @@
 
 \hypersetup{
     hypertexnames=false,
-    pdftitle={The random approximate relation abstract data type},
-    pdfauthor={Alexander Towell},               % author
+    pdftitle={Error contracts for approximate relations},
+    pdfauthor={Alexander Richard Towell},               % author
     pdfsubject={computer science},              % subject of the document
     pdfkeywords={
         probabilistic data structure,
@@ -77,24 +77,35 @@
 \graphicspath{{img/}}
 
 
-\title
-{
-    The abstract data type of the \emph{approximate relation}
-}
-\author
-{
-    Alexander Towell\\
-    \texttt{atowell@siue.edu}
-}
-\date{}
-
-%\include{defs}
-%\loadglsentries{gloss}
+\title{Error contracts for approximate relations}
+\author{Alexander Richard Towell\\
+Southern Illinois University Edwardsville\\
+\texttt{lex@metafunctor.com}\\
+\small ORCID: 0000-0001-6443-9897}
+\date{October 2026\\\small Working draft}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-An \emph{approximate relation} is a relation that approximates another relation of objective interest, admitting \emph{false correspondences} and \emph{false complementary correspondences} at specified rates. We model it as a Bernoulli random approximate set over the tuple universe $\Set{X}[1] \times \cdots \times \Set{X}[n]$, so the whole apparatus of the set model (the per-tuple false-positive rate $\fprate$ and true-positive rate $\tprate$, the binomial error counts) transfers to relations at once. On this footing we track how error propagates through the relational operators. Selection is rate-transparent. Projection amplifies the false-positive rate to $1 - (1-\fprate)^{k}$ in the fan-in $k$ and raises the model order while preserving element-wise independence. A join, by contrast, does \emph{not} preserve element-wise independence: output tuples that share an input component are correlated, so a query result that assumes independent rows understates the joint error. We then ask when structural invariants survive approximation: reflexivity, symmetry, single-valuedness, and transitivity are all fragile, their preservation probability tending to zero as the universe grows. A closure dichotomy sharpens the picture: an invariant induced by an equivalence on the tuple universe (reflexivity, symmetry) is free, one canonical trial per orbit preserves it deterministically at the base rates, with an optional $\log_2 m$-bit surcharge buying an $m$-trial recall boost; the antitone case (single-valuedness) is repaired by deletion at a closed-form rate; while transitivity, which no equivalence induces, cascades and admits no bounded closure. The single-valued special case is the approximate partial function (the dictionary). We close with a trapdoor-database application to encrypted search. Companion papers supply the information-theoretic space bound~\cite{bernoulliEntropy}, the optimal perfect-hash-filter construction, partial-function composition~\cite{bernoulliMaps}, and the set-level subset and equality predicate rates~\cite{bernoulliComposition}.
+A compact approximate relation can preserve a structural constraint while
+changing the dependence between query operands. Per-tuple false-positive and
+false-negative rates therefore do not suffice to specify query error.
+We separate exact truth, construction randomness, and frozen source identity,
+and audit the resulting operator and invariant-preservation formulas.
+For a monotone query with independent one-sided source errors, the sharp
+worst error over exact truth profiles is $1-(1-\alpha)^{s_0}$ for false
+positives and $1-(1-\beta)^{s_1}$ for false negatives, where $s_0,s_1$ are
+one-sided sensitivities. These are elementary consequences of established
+certificate theory. Marginal-only bounds and a conditional shared-rate
+extension state what remains sound when independence is unavailable.
+For normalized binary-witness queries of source occurrence at most two,
+the required sensitivities have a linear-time graph formula. A stored-filter
+experiment uses these contracts to calibrate symmetric relation queries,
+comparing canonical keys with ordered keys followed by symmetric repair.
+We distinguish exact model guarantees from empirical hash behavior and
+from existing probabilistic lineage and inference methods. The resulting
+framework supports a narrow, reproducible query-calibration study; it does
+not establish a universal probability calculus or cryptographic security.
 \end{abstract}
 
 
@@ -112,25 +123,14 @@ An \emph{approximate relation} is a relation that approximates another relation 
 %\listofalgorithms
 
 
-% Phase C (2026-06-08): intro authored. Follows the bernoulli_sets template (gap,
-% contributions, related work, companions, organization). Goes first, before relations.
 \subfile{sections/intro}
 \subfile{sections/relations}
 \subfile{sections/approx_rel_model}
 \subfile{sections/rel_algebra}
 \subfile{sections/properties}
-% Phase A (2026-06-08): sections/predicates.tex deleted. The subset and equality
-% predicate rates for approximate relations are exactly the set-level results proved
-% in the composition paper (subset theorem + cor:equality_prob); the deleted draft
-% re-derived them and carried a sign error in the equality formula. A one-paragraph
-% note now cites \cite{bernoulliComposition} at the end of approx_rel_model.tex.
-% TODO(PhaseC): sections/test.tex referenced but never written. Excluded.
-%\subfile{sections/test}
-% TODO(2026-05-29 build-repair): sections/unused/optimality.tex does not exist (no unused/ dir). Excluded.
-%\subfile{sections/unused/optimality}
-% Fixed path 2026-05-29: the file lives at sections/oblivious_rel_model.tex, not sections/unused/.
+\subfile{sections/query_contracts}
+\subfile{sections/calibration}
 \subfile{sections/oblivious_rel_model}
 \subfile{sections/conclusion}
-%\subfile{sections/appendix}
 \bibliography{references}
 \end{document}

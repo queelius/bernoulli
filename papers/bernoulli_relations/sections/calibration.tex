@@ -1,0 +1,176 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\section{Stored-filter calibration and verification}
+\label{sec:calibration}
+The previous results are probability statements under declared models.
+We test their use in a concrete representation of a symmetric relation,
+then distinguish what the experiment establishes from what remains assumed.
+
+\subsection{Construction and model guarantee}
+The implementation is a frozen partitioned Bloom filter: $k$ byte-aligned
+partitions each have $m$ bits, with one key hash per partition. A build
+inserts $n$ distinct representatives. Membership uses only the serialized
+bit array and a 40-byte header containing shape and salt metadata;
+it neither stores nor consults the exact member set at query time.
+The canonical/ordered mode is supplied by the query context, outside this header.
+Canonical mode stores unordered tuple keys. Ordered mode stores both
+orientations and answers $R(u,v)$ by OR-ing their probes. Both modes
+preserve symmetry deterministically and have no false negatives.
+
+Under independent uniform ideal random functions, conditional on all hashes
+of inserted keys, let $o_j$ be the number of occupied bits in partition $j$.
+Each fixed distinct absent key then tests positive independently with
+probability
+\begin{equation}
+ p(C)=\prod_{j=1}^k\frac{o_j}{m}.
+ \label{eq:occupancy_fpr}
+\end{equation}
+Without conditioning the absent-key outcomes can be dependent through
+$p(C)$, as in \cref{cor:shared_rate}. We initially size the filter using
+$[1-(1-1/m)^n]^k\leq\alpha$ and $k=\lceil-\log_2\alpha\rceil$,
+rounding $m$ upward to a multiple of eight. Construction retries independent
+candidate salts until $p(C)\leq\alpha$. This acceptance test uses only
+inserted-key hashes. Conditional on the insertion histories of rejected and
+accepted candidates and the stopping index, fixed absent-key hashes of the
+accepted ideal candidate remain independent and uniform. Hence the
+corresponding conditional contract holds for each accepted construction.
+This is not a guarantee conditional on an entire revealed random function
+or an adaptive query transcript.
+
+The executable uses keyed BLAKE2b with domain separation and rejection
+sampling to map digests to partition indices. That is a concrete deterministic
+hash family, not an independent random oracle. Occupancy acceptance therefore
+certifies the \emph{ideal-model comparator}; measurements assess agreement
+of this implementation with it. Finite-seed pseudorandomness, domain separation,
+and empirical agreement do not prove the ideal-source hypothesis.
+
+\subsection{Fixed query workload and baselines}
+Each query is a 12-cycle of binary witnesses, with $s_0=8$. We use 128 disjoint
+bundles for each of three profiles: all sources absent; the extremal false
+profile with true sources at $\{0,3,6,9\}$; and a true profile containing an
+adjacent pair. A shared background supplies 2,048 further member orbits.
+The exact relation is fixed across constructions and contains 2,816 member
+orbits in total. Query bundles are fixed before construction.
+
+For query target $\delta=0.05$, the three methods are:
+\begin{enumerate}
+\item Canonical, tuple-sized: use source target $\alpha=\delta$.
+\item Canonical, query-sized: use $\alpha=1-(1-\delta)^{1/8}$.
+\item Ordered with OR repair, query-sized: use the directed-source target
+$\alpha=1-(1-\delta)^{1/16}$ and store 5,632 ordered keys.
+\end{enumerate}
+In the last method an absent orbit has conditional FPR $1-(1-p(C))^2$,
+so its query envelope is $1-(1-p(C))^{16}$. All three methods apply
+insertion-only occupancy acceptance at their respective source targets.
+This is a comparison of two implementations of symmetry at explicit query
+targets, not a comparison against every approximate-membership structure.
+
+We run 160 independently seeded accepted builds per method. Every payload
+is serialized and reloaded before queries. Standard errors and approximate
+95\% normal intervals use the 160 construction-level mean outcomes as sampling
+units, allowing dependence among bundles within a build. Seeds are generated
+reproducibly with a pseudorandom generator; this sampling convention does not
+turn concrete hashing into a proof of independence.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Method & Bytes & All-false FPR & Boundary FPR & Approx. 95\% interval\\
+\midrule
+Canonical, tuple-sized & 2,250 & 0.02646 & 0.32915 & [0.32264, 0.33566]\\
+Canonical, query-sized & 3,752 & 0.00049 & 0.04907 & [0.04594, 0.05220]\\
+Ordered OR, query-sized & 8,482 & 0.00039 & 0.05103 & [0.04815, 0.05390]\\
+\bottomrule
+\end{tabular}
+\caption{Stored-filter results at target query FPR 0.05. Bytes include the
+serialized header and payload, but exclude interpreter and construction memory.
+Intervals concern the boundary-profile measurements.}
+\label{tab:filter_calibration}
+\end{table}
+
+The tuple-sized baseline passes an all-false-profile check against 0.05
+while its boundary error is about 0.33. Query calibration corrects this
+mismatch. The mean conditional boundary probabilities are respectively
+0.33224, 0.04900, and 0.04919, each within its measured interval.
+The largest conditional envelopes among calibrated builds are 0.04999434
+and 0.04999533. The ordered method's observed mean exceeds 0.05 slightly;
+its interval includes the ideal comparator. The experiment demonstrates
+compatibility, not a statistical certificate that the true concrete-hash
+rate is at most 0.05. No member misses, true-query misses, or repeated/reversed
+probe mismatches occurred; the no-FN and symmetry properties also follow
+directly from the insertion and lookup rules.
+
+At equal ideal query targets, canonical storage uses 55.8\% fewer serialized
+bytes than ordered storage in this instance. Mean construction times,
+including rejection, are 41.1, 66.1, and 130.9\,ms; mean attempts are
+1.82, 1.91, and 1.68. Boundary-query times average 59.2, 76.6, and
+113.2\,$\mu$s respectively in Python on the recorded Linux environment.
+These timings characterize this reference implementation and workload;
+they are not database-engine throughput or a universal optimality claim.
+An exact rational audit of the recorded partition occupancies verifies that
+all 320 calibrated builds satisfy their ideal-model query target, with minimum
+slack $5.66\cdot10^{-6}$ (canonical) and $4.67\cdot10^{-6}$ (ordered).
+The constructor's floating-point screening alone is not an outward-rounded
+certificate; this additional check certifies the recorded ideal-model bounds.
+
+The storage direction follows an ordinary design calculation. Under a
+filter cost $c\,n\log_2(1/\alpha)$, query calibration adds
+$c\,n\log_2(\delta/\alpha)$ bits relative to tuple sizing, while
+canonicalization changes $n$ itself. The companion entropy analysis
+\cite{bernoulliEntropy} motivates this membership-space scale. It does not
+give a lower bound for arbitrary encodings designed only to answer a
+particular query workload.
+The 55.8\% comparison measures canonical representative reduction and the
+cost of ordered OR repair. To isolate the independent-source contract from
+the conservative certificate union bound, the latter uses
+$\alpha=\delta/8=0.00625$. The same sizing routine allocates 3,768 bytes,
+versus 3,752 for the sharp contract: a 16-byte (0.425\%) design difference
+in this case. This additional comparison is a sizing calculation, not a
+fourth measured filter experiment. It gives only a small benefit from the
+sharper probability budget on this workload.
+
+\subsection{Mathematical checks and inference comparisons}
+The accompanying exact checker enumerates all 197 monotone functions on
+one through four variables and verifies 1,970 homogeneous and heterogeneous
+contract identities using rational arithmetic. It also checks the graph
+formula on 305 small labeled graphs of maximum degree two. Additional
+checks cover 256 source-covariance cases, weighted paths and cycles,
+degenerate rates, and the cubic edge-cover example. These finite checks
+support the implementations; the proofs establish the general results.
+
+A separate synthetic-lineage benchmark compares occurrence-product
+estimates, conservative dependence bounds, exhaustive joint probabilities,
+the standard path/cycle recurrence, and the symmetric dissociation bounds
+of Gatterbauer and Suciu~\cite{gatterbauer2014bounds}. For normalized positive
+DNF, dissociation replaces each repeated source with independent copies;
+copy probabilities $p_i$ provide the upper bound and
+$1-(1-p_i)^{1/d_i}$ the symmetric lower bound, where $d_i$ is its occurrence
+count. This is a published baseline, not an invented independence correction;
+optimized scaled dissociation~\cite{vandenheuvel2019scaled} is not implemented.
+
+Across 175 method/case comparisons, asserted bounds contain the reference
+value to numerical tolerance $10^{-12}$; occurrence-product point estimates
+disagree in 23 cases. Repeating the same absent source eight times in a
+conjunction gives probability 0.05, whereas treating occurrences independently
+gives $0.05^8\approx3.91\cdot10^{-11}$. For an all-false 16-cycle at source
+rate 0.05, exact probability is 0.0375062 and symmetric dissociation gives
+$[0.0102089,0.0392587]$. The standard recurrence takes 0.030\,ms versus
+282\,ms for exhaustive enumeration, but traced peak allocation is 6.8\,KB
+versus 2.4\,KB for streaming enumeration. This is an expected advantage of
+established structured inference, not evidence of a new solver.
+
+\paragraph{Reproducibility and limits.}
+The filter code and tests are in \texttt{code/filter\_calibration.py} and
+\texttt{code/test\_filter\_calibration.py}; configuration, seeds, construction
+records, query records, source digest, and platform metadata accompany
+\texttt{data/calibration/results.json}. Companion contract and inference
+artifacts are in \texttt{.research/}\allowbreak\texttt{dependence-calculus/}
+at repository root. The paper's README lists
+commands. Remaining empirical limits are one synthetic query family, one
+size and target, one concrete hash implementation, and one-sided errors.
+The separate floating-point inference benchmarks are not outward-rounded
+certificates. Broader
+workloads, optimized membership structures and inference baselines, and
+construction-specific finite-hash guarantees remain future work.
+\end{document}

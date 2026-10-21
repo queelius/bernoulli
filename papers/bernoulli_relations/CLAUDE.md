@@ -1,65 +1,87 @@
-# CLAUDE.md
+# Relations manuscript guidance
 
-## Project Overview
+## Current scope
 
-Research paper: **"The abstract data type of the approximate relation"** by Alexander Towell. Models the approximate relation as a Bernoulli random approximate set over the tuple universe, then derives how error propagates through the relational operators (selection is rate-transparent; projection amplifies the false-positive rate to `1-(1-eps)^k` in the fan-in and raises the model order; a join breaks element-wise independence), and when structural invariants (reflexive, symmetric, functional, transitive) survive approximation, with a trapdoor-database / encrypted-search application. The entropy space bound, the perfect-hash-map construction, and map composition are deferred to the companion papers (`bernoulli_entropy`, `bernoulli-phf`, `bernoulli_maps`).
+**Error contracts for approximate relations**, Alexander Richard Towell.
+The October 2026 revision supersedes earlier claims of a general closure dichotomy,
+independent projected tuples, universal vanishing invariant preservation, and
+cryptographic leakage characterized by FP/FN rates. The current draft is a
+mathematically scoped synthesis and a stored-filter calibration study. It is not
+submission-ready on present novelty evidence.
 
-## Build
+Use `.papermill/state.md` for current metadata and review history. Historical
+June reviews saying every proof was correct or the paper was effectively ready
+are retained only as provenance; substantive errors were found and repaired.
+Root `.research/relations-revision/` holds the active revision evidence, and
+`.research/dependence-calculus/` holds the completed prior investigation.
 
-Modular-sty paper: every `pdflatex` invocation needs `TEXINPUTS=".:./sty:"` (the
-`.sty` packages live in `sty/`) and `-shell-escape` (minted is loaded).
+## Build and verification
 
-```bash
-TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && bibtex main && \
-  TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex && \
-  TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
-```
+Every LaTeX pass requires `TEXINPUTS=".:./sty:"`. The preamble loads minted,
+so the current command also uses `-shell-escape`. Run pdflatex, bibtex, and two
+more pdflatex passes as shown in README.md. Inspect warnings and rendered pages.
+Do not infer a clean build from a stale PDF.
 
-Uses modular `sty/` packages from the local `sty/` directory (self-contained, no
-external dependencies). As of the 2026-06-09 deepening round the build is clean:
-24 pages, 0 undefined references, 0 LaTeX warnings.
+Research code is standalone; it does not import the `bernoulli` package.
+Run the focused tests and coverage, numerical validation, stored-filter run,
+and exact recorded-occupancy audit described in README.md. The existing
+`bernoulli-py/.venv` has the required testing tools. Avoid allocating the entire
+Monte Carlo sample tensor; `validate_quotient.py` uses bounded batches.
 
-## Structure
+## Active structure
 
-- `main.tex`: document root, uses `\subfile{}` includes.
-- `sections/`: active section files (current as of the 2026-06 salvage).
-  - `intro.tex`: introduction (gap, contributions, related work, companions, organization).
-  - `relations.tex`: classical relations and the relational operators (select, project, join, compose).
-  - `approx_rel_model.tex`: the random approximate relation model (ADT, Bernoulli set over the tuple universe; subset/equality predicates deferred to `bernoulliComposition`).
-  - `rel_algebra.tex`: error propagation through the operators (selection transparent; projection amplifies FPR and raises model order; join breaks element-wise independence), the worked example, the pgfplots fan-in figure, and the Monte Carlo "Empirical validation" subsection (cites `code/validate.py`).
-  - `properties.tex`: invariant preservation (reflexive, symmetric plus symmetric closure, single-valued/functional, transitive), the closure dichotomy (sec 5.5: class-induced invariants, the OR-closure, the canonical test `thm:canonical_test` showing the invariant itself is free, the `log2 m` recall surcharge, `lem:no_quotient`, the transitivity cascade, the deletion closed form), and the approximate partial function (compressed; classical recap deferred to the maps companion).
-  - `oblivious_rel_model.tex`: application, the trapdoor relational database (cipher relation, rank-ordered encrypted search, threat/leakage model). Filename retains historical 'oblivious'; the prose uses trapdoor/cipher.
-  - `conclusion.tex`: contributions, the "decomposability, not arity" takeaway, CQA positioning, open directions (added 2026-06-09).
-- `code/validate.py`: Monte Carlo validation harness (projection amplification, join incl. asymmetric operands and independence-failure correlation, symmetric closure and preservation, OR-closure m=2..4, canonical test, deletion rate, reflexive/functional preservation, deterministic transitivity cascade incl. non-power-of-2 k). Pure Python plus numpy; prints an analytical-vs-empirical table.
-- `code/validate_quotient.py`: canonical test vs OR-closure vs naive comparison (rates, storage halving, deterministic symmetry).
+- `main.tex`: title, abstract, local notation packages, section includes.
+- `sections/relations.tex`: finite set semantics and positive-query lineage.
+- `sections/approx_rel_model.tex`: exact truth, construction randomness, frozen
+  source identity, scoped independence, repeated queries and conditioning.
+- `sections/rel_algebra.tex`: selection, projection by (fan-in,true-count), source
+  covariance, join sharing, worked example, ideal-coin numerical validation.
+- `sections/properties.tex`: exact scoped preservation formulas; canonical
+  representatives, OR repair, deletion, limited transitive completion results;
+  partial-function semantics as an invariants subsection.
+- `sections/query_contracts.tex`: boundary-certificate contracts, marginal-only
+  coupling bounds, shared-rate Jensen bound, degree-two binary witnesses, and
+  a known edge-cover hardness application.
+- `sections/calibration.tex`: concrete filter, model qualifications, results,
+  prior inference comparisons, and limitations.
+- `sections/oblivious_rel_model.tex`: limited encrypted-search functionality
+  discussion; the historical filename does not imply a security theorem.
+- `sections/conclusion.tex`: established evidence and remaining research gap.
+- `code/`: ideal-law validation and stored-filter experiment, with pytest tests.
+- `data/calibration/`: reproducible configuration, hashes, occupancies, timing,
+  query outcomes, and summary; inspect its README before regeneration.
 
-**Deleted in the 2026-06 salvage** (superseded/orphaned): `predicates.tex` (its
-subset/equality rates are the set-level results of the composition paper, and the
-draft carried a sign error in the equality formula; now a one-paragraph cite of
-`bernoulliComposition` at the end of `approx_rel_model.tex`); `test.tex` and
-`constrained_ras.tex` (never written / orphaned). There is no `unused/` directory.
+## Assumptions that must stay explicit
 
-## Key Notation
+1. Fix exact truth, then sample a construction once. Repeated keys reuse bits.
+2. Distinct tuples can alias one source; independent sources do not imply
+   independent query outputs. Shared physical slots need not alias outcomes.
+3. The sharp sensitivity formulas apply to separate one-sided models. With
+   both error directions they are generally upper bounds, not equalities.
+4. Maxima range over all source truth profiles. Additional integrity constraints
+   can exclude boundary profiles, so sharpness must be rechecked.
+5. Partitioned Bloom independence is conditional under ideal random functions.
+   Domain-separated BLAKE2b and simulations do not prove this assumption.
+6. Floating-point screening is not certified rounding. The recorded occupancy
+   bounds have a separate exact rational audit; fixed-profile float inference
+   remains numerical.
+7. Byte comparisons count serialized filter payload/header, with the query mode
+   and common workload supplied externally. Key counts are not memory bounds.
+8. Canonical-versus-ordered savings mostly measure representative reduction and
+   repair overhead. Compare conservative contract sizing before attributing
+   savings to the sharp probability formula.
 
-Uses modular packages: `functionnotation.sty`, `setnotation.sty`, `approxsetnotation.sty`, `probabilitynotation.sty`, `relationnotation.sty` (fancy mode), `approxrelationnotation.sty`, `envnotation.sty`.
+## Attribution and related papers
 
-- Relations: `\Rel{R}` — relation, approximate: `\ARel{R}`
-- Sets: `\Set{A}`, approximate: `\ASet{A}`
-- Rates: `\fprate`, `\fnrate`, `\tprate`, `\tnrate`
+Provenance, weighted model counting, dissociation, monotone sensitivity/certificate
+identities, graph dynamic programming, and perfect-hash-plus-fingerprint AMQs are
+established. The exact novelty of this application remains unestablished. Cite
+the verified bibliography and distinguish an elementary consequence from a new
+algorithm. The sets, composition, maps, entropy, PHF, BHF and book manuscripts are
+useful sources of ideas but not automatic proof authorities: the revision ledger
+records separate BHF order-statistic and map-composition counterexamples.
 
-## Key Conceptual Distinction
-
-**Model order vs. parameter count**: A relation $R \subseteq A \times B$ is a set of pairs, so each element's membership is a binary test. Composing relational operators (join, project) raises the model order because different tuples have different error regimes depending on their join structure. However, element-wise independence (Axiom 1) forces the joint confusion matrix to factor as a Kronecker product, so parameters grow linearly in the number of independent tests, not exponentially. A general fourth-order channel on 4 symbols has 12 parameters; under independence, it has 4. See `bernoulli_sets/` Remark on parametric parsimony and `bernoulli_composition/` Remark on parametric parsimony of composed sets.
-
-## Cross-Paper Connections
-
-| Topic | Paper |
-|-------|-------|
-| Set-level error model (FPR/TPR, precision) | `bernoulli_sets/` |
-| Function spaces, approximate maps | `bernoulli_maps/` |
-| **Relational algebra, approximate relations, joins** | **This paper** |
-| Algebraic types (Bool, sum, product) | `bernoulli_data_type/` |
-
-**Relationship to `bernoulli_sets/`**: A relation $R \subseteq A \times B$ is a set of pairs. An approximate relation inherits the Bernoulli set error model applied to the Cartesian product space. The relational predicates (subset, equality) in `bernoulli_sets/sections/relational.tex` provide the foundation; this paper extends to multi-attribute relations with join/project operations.
-
-**Relationship to `bernoulli_maps/`**: A partial function is a special case of a relation (single-valued). Both papers cover approximate partial functions, but this paper emphasizes the relational algebra perspective while `bernoulli_maps/` emphasizes function composition.
+Notation uses `\Relation`, `\ARelation`, `\Set`, `\fprate`, `\tprate`,
+`\fnrate`, and local packages under `sty/`. Existing theorem labels are retained
+where practical even when their old names (such as closure_dichotomy) overstate
+what the revised theorem actually proves.

@@ -115,15 +115,17 @@ Multi-paper collection. Nine active papers sharing a common theoretical framewor
 
 #### bernoulli_relations
 
-- **Title:** The abstract data type of the approximate relation
+- **Title:** Error contracts for approximate relations
 - **Root:** `bernoulli_relations/main.tex`
-- **Notation:** Modular `.sty` packages
-- **Build:** `pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex`
-- **Sections compiled:** intro, relations, approx_rel_model, rel_algebra, properties, predicates, test (7; optimality, oblivious_rel_model unused)
-- **Bibliography:** **MISSING** (no references.bib file; declared in main.tex, will fail on bibtex)
-- **Supporting:** None
-- **Status:** Early draft
-- **Phase:** drafting
+- **Notation:** Local modular `.sty` packages
+- **Build:** See `bernoulli_relations/README.md`; requires `TEXINPUTS=".:./sty:"`
+- **Sections:** exact/source semantics, relational operators, constraint preservation,
+  query contracts, stored-filter calibration, limited encrypted-search discussion
+- **Bibliography:** Present; primary literature survey updated 2026-10-13
+- **Supporting:** `code/`, `data/calibration/`, root `.research/dependence-calculus/`
+  and `.research/relations-revision/`
+- **Status:** Revised and mathematically scoped working draft; novelty remains unestablished
+- **Phase:** drafting; prior June submission-readiness assessments superseded
 
 #### bernoulli_data_type (two sub-papers)
 
@@ -180,7 +182,7 @@ bernoulli_sets (core model, axioms, distributions, composition, ADT)
 
 | Issue | Paper | Severity |
 |-------|-------|----------|
-| No references.bib | bernoulli_relations | Build failure |
+| Original contribution not yet established | bernoulli_relations | Research gap; build/bibliography repaired |
 | No references.bib | bernoulli_data_type (both) | Build failure |
 | 4 placeholder bib URLs | bernoulli-phf | Poor |
 | Core section excluded (rd_ph_filter.tex) | bernoulli-phf | Major gap |

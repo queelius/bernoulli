@@ -1,109 +1,22 @@
-\documentclass[ ../main.tex]{subfiles}
-\providecommand{\mainx}{..}
+\documentclass[../main.tex]{subfiles}
 \begin{document}
-\section{Application: the trapdoor relational database}
+\section{Scope of an encrypted-search application}
 \label{sec:trapdoor_rel_model}
-We close with one application, stated modestly: the approximate relation of the
-preceding sections, realized as a \emph{cipher relation} that backs a queryable
-encrypted store. The construction is not new machinery; it is the relational
-reading of the perfect hash filter~\cite{phf} layered on the Bernoulli set
-foundation~\cite{bernoulliSets}. The point of the section is to show that the
-error model developed here is exactly the leakage model of such a store.
+Approximate relations can model the \emph{functionality} of a private search
+index: tuples may encode document--term incidence, co-occurrence, or candidate
+matches, and a positive query combines approximate probes. The source map must
+still reflect repeated trapdoors, common stored filters, and canonical keys.
+Subject to a justified construction law, the preceding bounds describe false
+matches and missed answers. They can guide allocation of an error budget
+before a separate security analysis.
 
-\subsection{From relation to cipher relation}
-The relational model organizes data as tuples grouped into relations and queried
-through a declarative algebra~\cite{codd1970}; an SQL table is the engineering
-realization of one relation, and joins and projections are the operators of
-\cref{sec:rel_algebra}. \Cref{tab:mathrel_vsrelmodel} records the differences
-between the mathematical relation and the relational-model table that matter here:
-named rather than positional columns, a restricted set of value types, and
-mutability. None of these affects the error analysis, which sees only the
-underlying set of tuples.
-
-\begin{table}[ht]
-    \centering
-    \caption{Relations in mathematics versus relations in the relational model.}
-    \label{tab:mathrel_vsrelmodel}
-    \begin{tabular}{l l}
-        \toprule
-        mathematics & relational model\\
-        \midrule
-        unconstrained value types               & fundamental value types\\
-        columns identified by order (position)  & columns identified by names\\
-        immutable                               & mutable\\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-A \emph{cipher relation} is a representation of an exact relation $\Relation{R}$
-that answers the membership query ``is this tuple in $\Relation{R}$?'' without
-storing the tuples in the clear. Concretely, a perfect hash filter~\cite{phf}
-hashes each key under a secret salt and stores only a short fingerprint per stored
-key; a query hashes the queried tuple under the same salt and accepts on a
-fingerprint match. A genuine member is accepted with probability $\tprate$, and a
-non-member collides and is wrongly accepted with probability $\fprate$, so the
-structure is precisely a Bernoulli relation
-$\ARelation{R}[\fprate][\tprate]$~\cite{bernoulliSets} over the tuple universe.
-The secret salt is the trapdoor: without it an adversary cannot form the query
-hashes, and the false-positive rate $\fprate$ buys the space saving (a fingerprint
-rather than a key) that motivated the approximation in the first place. The
-single-valued case of \cref{sec:functional} gives the cipher \emph{partial
-function}: a dictionary that maps an encrypted key to a stored value, with a false
-domain rate $\fprate$ and a false complementary domain rate $\fnrate$
-(\cref{def:approx_pfun}).
-
-\subsection{Rank-ordered encrypted search}
-A search index is a relation between query terms and the documents that contain
-them, and reading it through a cipher relation yields an encrypted search index:
-the server holds the filtered structure, a client holding the salt forms term
-queries, and the structure returns the matching document identifiers at the
-model's error rates. Because the per-term answers are Bernoulli memberships, the
-returned set for a multi-term query is a composition of approximate sets, and its
-rates follow the operator results of \cref{sec:rel_algebra}: an intersection of
-posting lists is a join, with the false-negative rate $1 - \tprate_R\tprate_S$ of
-\cref{thm:join}, and any projection onto a coarser key amplifies the
-false-positive rate by its fan-in (\cref{thm:project}). Ranking the surviving
-documents by a revealed score (a per-document attribute the schema chooses to
-expose) gives rank-ordered retrieval over the encrypted store; the perfect hash
-filter paper~\cite{phf} develops this ranked-search construction in full, and we
-defer the details there.
-
-\subsection{Threat and leakage model}
-The application is honest only if we say what an adversary holding the structure
-learns. We take the standard honest-but-curious server: the adversary holds the
-cipher relation and observes the queries issued against it, but does not hold the
-salt. Then the leakage is exactly the membership answers at the model's rates.
-
-\begin{itemize}
-    \item \emph{What leaks.} For each issued query the adversary learns the
-    structure's Boolean answer, which equals the true membership with the
-    Bernoulli rates: a positive answer is correct with the precision induced by
-    $\fprate$, $\tprate$, and the prevalence~\cite{bernoulliSets}, and a negative
-    answer misses a true member with probability $\fnrate$. Repeated or composed
-    queries leak the corresponding composed answer, with the propagated rates of
-    \cref{sec:rel_algebra}; in particular the join correlation of
-    \cref{thm:join_dependence} means that answers to queries sharing a component
-    are statistically linked, which a leakage analysis must carry.
-    \item \emph{What does not leak (without the salt).} The plaintext tuples are
-    not stored, so the structure does not reveal the keys, the non-queried
-    members, or the attribute values beyond any the schema deliberately exposes
-    for ranking. The trapdoor salt gates query formation: an adversary without it
-    cannot manufacture the query hashes and so cannot enumerate membership at
-    will.
-    \item \emph{What the error rates buy.} The false-positive rate $\fprate$ is
-    not only the space-accuracy knob of the underlying construction but also a
-    confidentiality knob: a larger $\fprate$ injects more spurious positives,
-    degrading what a single answer reveals about true membership, at the cost of
-    retrieval precision. The quantitative confidentiality-versus-accuracy
-    trade-off is the subject of the encrypted-search literature and is outside the
-    scope of this paper; here we only locate it in the Bernoulli rates.
-\end{itemize}
-
-This is the whole of the application. The cipher relation does not add a security
-argument beyond what its components supply; it observes that the abstract data
-type of \cref{sec:approx_rel_model}, together with the operator and invariant
-results of \cref{sec:rel_algebra,sec:invariants}, is already the right language
-for the leakage profile of a perfect-hash-filter-backed encrypted relational
-store. The relational operators run over the cipher relation, and their error
-rates are the rates this paper computed.
+This functionality model does not specify confidentiality. Two structures
+with identical FP and FN rates can expose different sizes, access patterns,
+query-equality patterns, or stored representations. A secret salt alone does
+not establish an encrypted-search security theorem. Such a theorem needs a
+concrete construction, adversary, experiment, and declared leakage, including
+what repeated and adaptive queries reveal. In particular, the probability
+of a false positive on an exact nonmember is not the posterior probability
+that a returned match is false. No cryptographic security claim follows from
+the Bernoulli channel parameters or from the experiments in this paper.
 \end{document}

@@ -1,0 +1,221 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\section{Truth-uniform query error contracts}
+\label{sec:query_contracts}
+Tuple marginals alone do not specify a query's error. Source identity is
+needed to construct its lineage, and the exact truth profile determines
+which sources can err in each direction. We now ask for a contract valid
+over every exact truth profile giving the specified query answer. This
+differs from exact probability evaluation for one fixed profile, though it
+uses the same Boolean lineage.
+
+Fix a nonconstant monotone function $F:\{0,1\}^n\to\{0,1\}$ on distinct
+sources. In the one-sided false-positive model,
+$Y_i^+(x)=x_i\lor E_i$ with independent $E_i\sim\mathrm{Bernoulli}(\alpha_i)$.
+In the separate one-sided false-negative model,
+$Y_i^-(x)=x_i\land(1-E_i')$ with independent
+$E_i'\sim\mathrm{Bernoulli}(\beta_i)$. Define
+\[
+ \mathcal E_0(F;\boldsymbol\alpha)
+ =\max_{x:F(x)=0}\Pr\{F(Y^+(x))=1\},\qquad
+ \mathcal E_1(F;\boldsymbol\beta)
+ =\max_{x:F(x)=1}\Pr\{F(Y^-(x))=0\}.
+\]
+No distribution over exact truth is assumed. Every source assignment is
+admissible here. This holds for class-induced equality constraints after
+quotienting; additional constraints such as transitivity may exclude the
+maximizers, leaving upper bounds rather than sharp contracts. For constant
+functions the absent conditioning class has no error rate; setting its
+extremal envelope to zero is only a mathematical convention.
+
+\subsection{Boundary certificates give sharp one-sided contracts}
+Let $\mathcal B_0$ be the inclusion-maximal false vectors and
+$\mathcal B_1$ the inclusion-minimal true vectors. The one-sided sensitivities are
+\[
+ s_b(F)=\max_{x:F(x)=b}|\{i:F(x\mathbin\oplus e_i)\ne F(x)\}|,
+ \qquad b\in\{0,1\}.
+\]
+For monotone functions these equal the corresponding certificate
+complexities, a standard fact~\cite{blanc2022counterfactuals}. We use it to
+express exact one-sided error envelopes; sensitivity-based bounds for
+two-sided noise are also established~\cite[Lemma~15]{gopalan2016smooth}.
+
+\begin{theorem}[Independent-source boundary contract]
+\label{thm:query_contract}
+For the one-sided models above,
+\begin{align}
+ \mathcal E_0(F;\boldsymbol\alpha)
+ &=\max_{b\in\mathcal B_0}
+       \left[1-\prod_{i:b_i=0}(1-\alpha_i)\right],\label{eq:hetero_contract_fp}\\
+ \mathcal E_1(F;\boldsymbol\beta)
+ &=\max_{b\in\mathcal B_1}
+       \left[1-\prod_{i:b_i=1}(1-\beta_i)\right].\label{eq:hetero_contract_fn}
+\end{align}
+For homogeneous rates these specialize to
+\begin{equation}
+ \boxed{\mathcal E_0(F;\alpha)=1-(1-\alpha)^{s_0(F)}},\qquad
+ \boxed{\mathcal E_1(F;\beta)=1-(1-\beta)^{s_1(F)}}.
+ \label{eq:homogeneous_contract}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Couple all truth profiles using the same independent uniforms for the
+source errors. If $x\leq x'$, then $Y^+(x)\leq Y^+(x')$ pointwise.
+Every false $x$ extends to a maximal false $b$, so monotonicity reduces
+the maximum false-positive probability to $\mathcal B_0$. At such a $b$,
+flipping any remaining zero makes $F$ true. The query stays false exactly
+when all those zeros stay zero, giving \eqref{eq:hetero_contract_fp}.
+Shrinking true vectors to minimal true vectors gives the dual formula.
+
+Every zero of a maximal false vector is pivotal. Conversely, a pivotal
+zero at an arbitrary false vector remains zero and pivotal at every maximal
+false extension: setting it to one would already force the query true.
+Thus $s_0$ is the maximum number of zeros on $\mathcal B_0$. The dual argument
+gives $s_1$ as the maximum number of ones on $\mathcal B_1$, proving
+\eqref{eq:homogeneous_contract}.
+\end{proof}
+
+These are elementary consequences of monotone boundary certificates, not
+a new general inference algorithm. In a two-sided independent channel the
+same expressions are upper bounds: suppressing false negatives can only
+increase false positives, and conversely. They need not be equalities.
+For $F=X_1\land X_2$ with $\alpha\leq1-\beta$, the worst two-sided FPR is
+$\alpha(1-\beta)$, whereas the one-sided formula gives $\alpha$.
+
+\begin{theorem}[Marginal-only dependence bound]
+\label{thm:dependent_contract}
+Without independence, but with per-source marginal FP bounds $\alpha_i$,
+the sharp envelope over exact false profiles and all couplings is
+\[
+ \max_{b\in\mathcal B_0}\min\left\{1,\sum_{i:b_i=0}\alpha_i\right\}.
+\]
+For homogeneous bounds it is $\min\{1,\alpha s_0(F)\}$. The FN statement
+is dual, using $\mathcal B_1$, $\beta_i$, and $s_1(F)$.
+\end{theorem}
+\begin{proof}
+Extend a false input to a maximal false $b$. Its remaining zeros form
+a zero certificate already present in the input. Error requires at least
+one of these coordinates to flip, so the union bound gives the result.
+At a maximizing boundary profile every one of those flips suffices. Events
+of prescribed probabilities can attain union probability equal to their
+sum capped at one: use disjoint intervals when the sum is at most one,
+and consecutive intervals on a unit circle otherwise. This coupling
+attains the bound. The true-input argument is dual.
+\end{proof}
+The upper bounds also hold with two-sided noise by the same certificate
+argument. Sharpness here is over allowed couplings, not a statement about
+any particular shared hash construction.
+
+\begin{corollary}[A shared random rate]
+\label{cor:shared_rate}
+Fix an exact false input. Suppose that, conditional on a construction
+statistic $C$, the distinct absent sources are independent with common FPR
+$P(C)$, and true sources are always reported. Then
+\[
+ \Pr\{F(Y)=1\}
+ \leq\mathbb E[1-(1-P(C))^{s_0(F)}]
+ \leq1-(1-\mathbb E[P(C)])^{s_0(F)}.
+\]
+\end{corollary}
+\begin{proof}
+Apply \cref{thm:query_contract} conditionally and average. The function
+$p\mapsto1-(1-p)^s$ is concave for integer $s\geq1$, so Jensen's
+inequality gives the second bound.
+\end{proof}
+This conditional model permits marginal dependence. For example two absent
+sources can have conjunction probability $\mathbb E[P^2]$, exceeding
+$(\mathbb E[P])^2$, while the truth-uniform bound still holds. A uniform
+mean-rate bound over exact inputs therefore yields a uniform contract;
+equality requires additional assumptions. Arbitrary dependence cannot be
+replaced by this particular common-rate model.
+
+\subsection{Binary witnesses of occurrence at most two}
+Write lineage in normalized positive disjunctive normal form
+$F=\bigvee_j\bigwedge_{i\in S_j}X_i$: identify aliases, deduplicate sources
+within each witness, remove duplicate witnesses, and absorb each witness
+that contains another. Then $s_1=\max_j|S_j|$, and $s_0$ is the largest
+size of an \emph{inclusion-minimal} hitting set of the witness family.
+It is not the minimum hitting-set size.
+
+For binary witnesses, let $G$ be the simple graph whose edges are the
+supports $S_j$. False vectors correspond to independent sets; maximal
+false vectors correspond to maximal independent sets. Consequently
+\begin{equation}
+ s_0(F_G)=|V(G)|-i(G),
+ \label{eq:independent_domination}
+\end{equation}
+where $i(G)$ is the minimum cardinality of a maximal independent set, also
+called the independent domination number. Computing it is hard already
+on restricted cubic graphs~\cite{liu2015independent}; merely limiting
+witness size to two does not make contracts easy.
+
+\begin{theorem}[A tractable query class]
+\label{thm:degree_two_contract}
+If normalized witness width and source occurrence are at most two, let $U_1$
+be the singleton witnesses and $G_c$ the remaining path or cycle components,
+of orders $n_c$. Then
+\[
+ s_0=|U_1|+\sum_c\left(n_c-\left\lceil n_c/3\right\rceil\right),
+ \qquad s_1=\max_j|S_j|.
+\]
+After normalization, these values require a linear number of graph operations.
+\end{theorem}
+\begin{proof}
+The occurrence restriction makes graph degree at most two. An independent
+dominating vertex covers at most three vertices, giving
+$i(G_c)\geq\lceil n_c/3\rceil$. For a path, take every third vertex starting
+at the second when $n_c\equiv0,2\pmod3$, and at the first when
+$n_c\equiv1\pmod3$. For a cycle, distribute $r=\lceil n_c/3\rceil$ selected
+vertices with cyclic gaps two or three summing to $n_c$; this is possible
+because $2r\leq n_c\leq3r$. These sets are independent and dominating.
+Equation~\eqref{eq:independent_domination} adds over components. Every
+singleton witness must be hit, and normalization removes its incident
+supersets, giving the singleton contribution.
+\end{proof}
+
+For a target query FPR $\delta\in(0,1)$, homogeneous independent one-sided
+source rates satisfying
+\begin{equation}
+ \alpha\leq1-(1-\delta)^{1/s_0}
+ \label{eq:calibrated_alpha}
+\end{equation}
+suffice when $s_0>0$. Under arbitrary dependence, $\alpha\leq\delta/s_0$
+suffices instead. A 12-cycle has $s_0=8$ and $s_1=2$: a per-source FPR
+of $0.05$ permits worst-case query FPR $1-0.95^8\approx0.337$, whereas
+the all-false profile has a much smaller error requiring two adjacent
+false positives. The extremal false profile has true sources at
+$\{0,3,6,9\}$ and every other source false. Evaluating only the all-false
+profile therefore does not validate a truth-uniform query contract.
+
+For comparison, a fixed-profile query probability on a path has a standard
+two-state recurrence. If $a,b$ are the probabilities of no adjacent ones
+and a final zero or one, appending a source with success probability $p$
+gives $a'=(a+b)(1-p)$ and $b'=ap$. Condition on the first bit to handle a
+cycle. This uses linear arithmetic work and constant auxiliary state;
+the tractability is established finite-state inference, not a new algorithm.
+Heterogeneous contracts can likewise use standard weighted independent
+domination dynamic programming, rather than the homogeneous closed form.
+
+\subsection{Why preserving tuple rates does not preserve inference cost}
+Canonical symmetry can turn read-once lineage into shared-source lineage.
+For a simple cubic graph $G$, let the exact relation $D(v,a,b,c)$ list each
+vertex's three neighbors. Consider the fixed positive query
+\[
+ \exists v,a,b,c:\ D(v,a,b,c)\land R(v,a)\land R(v,b)\land R(v,c).
+\]
+Suppose all queried $R$ tuples are exact nonmembers with FPR $p$.
+Independent directed sources yield query FPR $1-(1-p^3)^{|V|}$.
+After symmetry identifies opposite orientations, each undirected edge is
+one independent bit used twice. Each tuple still has FPR $p$ and each
+witness still has probability $p^3$. Yet the query is false exactly when
+the zero edges form an edge cover. At $p=1/2$ its FPR is
+\[
+ 1-\frac{\#\operatorname{EdgeCovers}(G)}{2^{|E|}}.
+\]
+Edge-cover counting on simple planar cubic graphs is already
+\#P-hard~\cite{cai2012holographic,amarilli2022matchings}.
+This is an application of known counting hardness, not a new dichotomy.
+It explains why preserving a structural invariant at unchanged tuple rates
+need not preserve the cost of exact query inference. A compact worst-case
+contract and a fixed-profile exact probability are different objectives.
+\end{document}
