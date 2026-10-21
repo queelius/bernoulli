@@ -58,7 +58,7 @@ distribution of the $t$-th error given the history is nontrivial.
 
 \subsection*{Which axiom is violated}
 
-\Cref{sec:axiom-1} stated Axiom 1 as the mutual conditional independence
+\Cref{sec:axiom-1} stated Axiom 1 as the mutual conditional independence\index{independence!across elements}
 of error events at distinct inputs given the true classifications: for
 inputs $x_1, \ldots, x_n$ with true labels $y_i$ and observed labels
 $\hat y_i$,
@@ -79,7 +79,7 @@ modes are independent.
 
 \subsection*{Consequences for the iid tools}
 
-The composition theorem of \Cref{sec:composition-theorem}
+The composition theorem\index{composition theorem} of \Cref{sec:composition-theorem}
 ($\eta_{\text{total}} = 1 - \prod_i (1 - \eta_i)$) used Axiom 1 the moment
 it wrote the product: the product of marginal no-error probabilities
 equals the joint no-error probability only under independence. Under
@@ -96,7 +96,11 @@ probabilities. \Cref{rem:bloom-independence} of chapter 5 recorded that
 the factorization is an approximation: the $k$ events are positively
 dependent, since a queried bit being set is evidence the array is fuller,
 so the conjunction is \emph{larger} than the product and the standard
-formula \emph{under}-estimates the false-positive rate. The gap vanishes
+formula \emph{under}-estimates the false-positive rate. This is a known
+correction\index{Bloom filter!false-positive rate}: \textcite{bose-et-al-2008} proved that Bloom's formula is a
+strict lower bound on the true rate for $k \ge 2$, and
+\textcite{christensen-roginsky-jimeno-2010} gave an exact expression by
+conditioning on the number of set bits. The gap vanishes
 as $m \to \infty$ with $n/m$ fixed but is detectable at small $m$: the
 worked $m = 4$ witness of \Cref{rem:bloom-independence} gives an exact
 $13/64 \approx 0.203$ against the formula's $0.155$. This is the Axiom 1
@@ -120,10 +124,11 @@ total probability}: when the dependence has known structure, condition on
 the relevant variable and bound each conditional separately. For a query
 whose $k$ bit-checks are coupled through the array occupancy, conditioning
 on the number of set bits makes the checks exchangeable and the
-conjunction computable. \emph{McDiarmid's inequality} for
+conjunction computable, which is exactly the route of the exact analysis
+cited above.\index{correlated noise} \emph{McDiarmid's inequality} for
 bounded-difference functions:
 
-\begin{proposition}[McDiarmid's bounded-differences inequality]
+\begin{proposition}[McDiarmid's inequality]
 \label{prop:mcdiarmid}
 Let $X_1, \ldots, X_n$ be independent random variables and $f$ a
 real-valued function satisfying the bounded-differences property: for each
@@ -147,12 +152,15 @@ function of the hash-family choices; the function value moves by a bounded
 amount when one hash is resampled even though the bits a single hash sets
 are not independent, so the bounded-differences form gives a usable bound
 where the strict iid Chernoff bound does not apply. \emph{Negative
-correlation as a salvage}: when the dependence is known to be negative,
-the iid bounds remain valid as upper bounds, since a negatively correlated
-system errs less than the iid analysis predicts. Sampling without
-replacement against sampling with replacement is the classic instance;
-identifying negative correlation lets one keep the iid analysis as
-conservative.
+association as a salvage}: when the error indicators are known to be
+negatively associated, the Chernoff-Hoeffding tail bounds for their sum
+remain valid, since such indicators concentrate at least as well as
+independent ones. Sampling without replacement against sampling with
+replacement is the classic instance; identifying negative association lets
+one keep the iid tail analysis as conservative. (This salvage concerns
+tails of counts; for the probability that \emph{at least one} error
+occurs, negative association works against the designer, as the remark
+below records.)
 
 \subsection*{Worked example: when shared hashes do and do not correlate}
 
@@ -189,19 +197,31 @@ necessary but not sufficient for correlated error. The error events must
 sets do (through the shared elements), but as two filters on independent
 sets do not.
 
-\begin{remark}[The composition formula brackets the truth]
+\begin{remark}[What marginals alone determine]
 \label{rem:composition-correlation-bracket}
-The sign analysis gives the designer who knows only the marginal stage
-rates a two-sided guarantee. Under \emph{negative} association of the
-stage errors ($\Pr[\text{error at } i \text{ and } j] \le \Pr[\text{error
-at } i]\Pr[\text{error at } j]$ for every pair), the serial composition
-formula $1 - \prod_i (1 - \eta_i)$ is an \emph{upper} bound on the true
-combined error rate; under \emph{positive} correlation it is a
-\emph{lower} bound, as the within-query Bloom conjunction above shows. The
-iid formula therefore sits between the two correlated regimes and brackets
-the true combined rate: a designer with only marginals knows the truth
-lies on the conservative side of the formula once the correlation sign is
-known, and within a computable interval when it is not.
+A designer who knows only the marginal stage rates $\eta_1, \ldots,
+\eta_k$ knows only that the probability of at least one error lies in
+the Fr\'echet (Boole) interval
+\[
+  \max_i \eta_i \;\le\; \Pr[\text{some stage errs}]
+  \;\le\; \min\Bigl(1, \textstyle\sum_i \eta_i\Bigr),
+\]
+both ends attainable, and the independent value $1 - \prod_i (1 -
+\eta_i)$ lies inside it. The correlation sign says on which side of the
+independent value the truth falls. Under \emph{positive} association of
+the stage errors the no-error events are positively associated, so
+$\Pr[\text{no stage errs}] \ge \prod_i (1 - \eta_i)$ and the serial
+formula is an \emph{upper} bound on the combined error; under
+\emph{negative} association it is a \emph{lower} bound. (For two stages the
+condition is simply $\Pr[\text{both err}] \gtrless \eta_1 \eta_2$; for
+more stages pairwise conditions do not suffice and association in the
+Harris or negative-association sense is the standard hypothesis.) The
+within-query Bloom conjunction is the dual combination: there the error is
+the event that \emph{all} $k$ checks fire, positive association makes that
+event \emph{more} likely than the product, and the product formula is a
+lower bound on the false-positive rate. The direction is fixed by the sign
+of the dependence together with the form of the combination, and without
+the sign only the Fr\'echet interval is guaranteed.
 \end{remark}
 
 The diagnostic for correlated noise is to ask whether the error events

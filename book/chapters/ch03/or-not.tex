@@ -12,8 +12,12 @@
 %   \label{eq:or-fpr-direct}, \label{prop:boolean-closure}
 %
 % Monograph register: NOT swaps the rate pair; OR via De Morgan and via
-% the truth table agree; the AND/OR duality; closure of Bernoulli[Bool]
-% under Boolean algebra.
+% the truth table agree; the AND/OR duality. CORRECTNESS (2026-10 audit):
+% Bernoulli[Bool] is NOT closed under AND/OR over distinct latent bits; the
+% gate output has one rate on one side and up to three on the other.
+% prop:boolean-closure now states exactly what is preserved (NOT; the
+% one-sided families under their monotone gate). Formula-level propagation
+% is sec:boolean-formulas.
 
 \section{OR and NOT}
 \label{sec:or-not}
@@ -25,9 +29,9 @@ basis.
 
 Complementing the output of a $\Bernoulli{\BoolType}$ instance turns each false
 negative into a false positive and conversely: a $\bot$ reported on a true
-$\top$ becomes a $\top$ reported on the complemented true $\bot$. So NOT swaps
-the rate pair, $(\fprate, \fnrate) \mapsto (\fnrate, \fprate)$, which on the
-channel matrix is the row exchange
+$\top$ becomes a $\top$ reported on the complemented true $\bot$. So
+NOT\index{NOT gate} swaps the rate pair, $(\fprate, \fnrate) \mapsto (\fnrate,
+\fprate)$, which on the channel matrix is the row exchange
 \begin{equation}
 \label{eq:not-Q}
   Q_{\neg} \;=\;
@@ -38,54 +42,85 @@ channel matrix is the row exchange
 \end{equation}
 NOT is an involution on $\Bernoulli{\BoolType}$: applying it twice restores the
 rates, the noisy-bit form of $\neg\neg b = b$ (at the level of the channel
-matrix, not of any realized output).
+matrix, not of any realized output). Unlike AND and OR, NOT acts on a single
+latent bit, so it maps a two-rate instance to a two-rate instance exactly.
 
 \subsection*{OR}
 
-By De Morgan, $\tilde{b}_1 \vee \tilde{b}_2 = \neg(\neg \tilde{b}_1 \wedge \neg
-\tilde{b}_2)$. Negating the inputs swaps their rates, the AND of the negated
-instances has false-negative rate $\fprate_1 + \fprate_2 - \fprate_1 \fprate_2$
-by \eqref{eq:and-fnr} with rates swapped, and the outer NOT swaps that into the
-OR's false-positive rate. The truth table confirms it directly: the observed
-OR is $\bot$ only when both instances report $\bot$, so a false positive (true
-$\bot\bot$, observed $\top$) is
+By De Morgan\index{De Morgan duality}, $\tilde{b}_1 \vee \tilde{b}_2 =
+\neg(\neg \tilde{b}_1 \wedge \neg \tilde{b}_2)$. Negating the inputs swaps
+their rates, the AND of the negated instances has false-negative rate $\fprate_1
++ \fprate_2 - \fprate_1 \fprate_2$ by \eqref{eq:and-fnr} with rates swapped, and
+the outer NOT swaps that into the OR's false-positive rate. The truth table
+confirms it directly: the observed OR\index{OR gate} is $\bot$ only when both
+instances report $\bot$, so a false positive (true $\bot\bot$, observed $\top$)
+is
 \begin{equation}
 \label{eq:or-fpr-direct}
   \fprate_\vee \;=\; 1 - (1 - \fprate_1)(1 - \fprate_2)
                \;=\; \fprate_1 + \fprate_2 - \fprate_1 \fprate_2,
 \end{equation}
 the inclusion-exclusion probability that at least one instance false-positives.
-This is prior-free. The OR's false-negative rate, dually, is prior-dependent
-and equal to the product $\fnrate_1 \fnrate_2$ in the all-positive regime.
+There is one negative latent pair, so this rate is single-valued and prior-free.
+The OR's false-negative rate, dually, takes three values over the three positive
+latent pairs, $\fnrate_1 \fnrate_2$ at $(\top, \top)$, $\fnrate_1(1 -
+\fprate_2)$ at $(\top, \bot)$, and $(1 - \fprate_1)\fnrate_2$ at $(\bot,
+\top)$; it reduces to the product $\fnrate_1 \fnrate_2$ only in the
+all-positive regime.
 
-The duality is exact: AND has a prior-free false-negative rate
-\eqref{eq:and-fnr} and a prior-dependent false-positive rate, while OR has a
-prior-free false-positive rate \eqref{eq:or-fpr-direct} and a prior-dependent
-false-negative rate. AND suppresses false positives and inflates false
-negatives; OR does the reverse; NOT exchanges the two regimes. In the
-symmetric case $\fprate_i = \fnrate_i = \fprate$, both inflate by the same
-$2\fprate - \fprate^2$, and De Morgan's duality is manifest.
+The duality is exact: AND has a single false-negative rate \eqref{eq:and-fnr}
+and a latent-dependent false-positive rate \eqref{eq:and-negative-rows}, while
+OR has a single false-positive rate \eqref{eq:or-fpr-direct} and a
+latent-dependent false-negative rate. AND suppresses false positives and
+inflates false negatives; OR does the reverse; NOT exchanges the two regimes.
+In the symmetric case $\fprate_i = \fnrate_i = \fprate$, the single-valued
+sides inflate by the same $2\fprate - \fprate^2$, and De Morgan's duality is
+manifest.
 
-\begin{proposition}[Closure under Boolean operations]
+\begin{proposition}[What the Boolean operations preserve]
 \label{prop:boolean-closure}
-If $\tilde{b}_1, \ldots, \tilde{b}_n$ are $\Bernoulli{\BoolType}$ instances,
-every Boolean formula built from them with AND, OR, and NOT is a
-$\Bernoulli{\BoolType}$ instance whose prior-free rate is a polynomial in
-the input rates and whose prior-dependent rate is a rational function of
-the input rates and the prevalences.
+Let $\tilde{b}_1, \tilde{b}_2$ be $\Bernoulli{\BoolType}$ instances with rates
+$(\fprate_i, \fnrate_i)$ on distinct latent bits, independent given those bits.
+\begin{enumerate}
+  \item $\neg \tilde{b}_1$ is a $\Bernoulli{\BoolType}$ instance with rates
+    $(\fnrate_1, \fprate_1)$.
+  \item $\tilde{b}_1 \wedge \tilde{b}_2$ has the single false-negative rate
+    \eqref{eq:and-fnr} and the three negative-row rates
+    \eqref{eq:and-negative-rows}. If neither operand lies on the
+    zero-information line $\fprate_i + \fnrate_i = 1$
+    (\Cref{rem:zero-information-line}), the three coincide, and the output is a
+    two-rate instance, if and only if $\fprate_1 = \fprate_2 = 0$.
+  \item Dually, $\tilde{b}_1 \vee \tilde{b}_2$ has the single false-positive rate
+    \eqref{eq:or-fpr-direct}, and under the same proviso its three positive-row
+    rates coincide if and only if $\fnrate_1 = \fnrate_2 = 0$.
+\end{enumerate}
+Consequently the one-sided class $\{\fnrate = 0\}$ is closed under OR, the class
+$\{\fprate = 0\}$ is closed under AND, NOT exchanges the two classes, and the
+general two-rate type is closed under NOT alone.
 \end{proposition}
 
 \begin{proof}
-Induct on the formula. NOT preserves $\Bernoulli{\BoolType}$ by
-\eqref{eq:not-Q}; AND does by \eqref{eq:and-fnr} and
-\eqref{eq:and-fpr-general}; OR does by De Morgan from NOT and AND. Since
-$\{\wedge, \vee, \neg\}$ is a complete basis and every formula is a finite
-composition of these, the induction closes.
+Part~1 is \eqref{eq:not-Q}. For part~2, the rates in \eqref{eq:and-negative-rows}
+follow from the truth table by Axiom~1. Equality of $\fprate_1 \fprate_2$ and
+$(1 - \fnrate_1)\fprate_2$ holds iff $\fprate_2 = 0$ or $\fprate_1 + \fnrate_1 =
+1$; equality of $\fprate_1 \fprate_2$ and $\fprate_1(1 - \fnrate_2)$ holds iff
+$\fprate_1 = 0$ or $\fprate_2 + \fnrate_2 = 1$. Excluding the zero-information
+line leaves $\fprate_1 = \fprate_2 = 0$, at which all three rows vanish. Part~3
+follows from part~2 by De Morgan, since NOT swaps $\fprate$ and $\fnrate$. The
+closure statements are the special cases: OR of two instances with $\fnrate_i =
+0$ has false-negative rate $0$ at every positive latent pair and false-positive
+rate \eqref{eq:or-fpr-direct}, and dually for AND.
 \end{proof}
 
-Closure is what makes the framework composable: a Boolean circuit of noisy
-gates has, at every stage, a $\Bernoulli{\BoolType}$ output whose error
-propagates in closed form, with the prior-dependence of the AND and OR rates
-inherited as in \Cref{sec:and-under-noise}. The next section isolates the case
-where that propagation is cleanest, the chained one-sided gate, and states it
-as the composition theorem.
+The one-sided closure under OR is the reason the union of two Bloom filters is
+again a Bloom-type structure with no false negatives
+(\Cref{ch:set-composition}); the failure of closure under AND is the reason
+their intersection is not, its false-positive rate depending on whether an
+element lies in one operand or neither. Repeated independent tests of a
+\emph{single} latent bit are the other exception: only the latent pairs
+$(\top, \top)$ and $(\bot, \bot)$ can occur, and the conjunction is a two-rate
+instance with rates $(\fprate_1 \fprate_2, 1 - (1 - \fnrate_1)(1 -
+\fnrate_2))$, the structure of Miller-Rabin. For general instances the gate formulas
+remain exact, but only per latent pair: what a whole formula inherits is the
+subject of the next section, where a two-rate summary is shown to mislead and
+two sound replacements are given.

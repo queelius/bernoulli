@@ -12,14 +12,15 @@
 \label{sec:confidence-intervals}
 
 \Cref{sec:binomial-estimator} fixed $\hat{\fprate} = \mathrm{FP}/n_0$ as the
-unbiased, efficient MLE. A point estimate is not a confidence statement, and
+unbiased, efficient MLE. A point estimate is not a confidence
+statement\index{confidence interval}, and
 the Wald interval of \Cref{sec:sampling-rates} fails in exactly the regime a
 practitioner most needs it. This section diagnoses the failure and derives
 three alternatives.
 
 \begin{definition}[Wald confidence interval]
 \label{def:wald-ci}
-At level $1 - \alpha$, the Wald interval for $\fprate$ is $\hat{\fprate} \pm
+\index{confidence interval!Wald}At level $1 - \alpha$, the Wald interval for $\fprate$ is $\hat{\fprate} \pm
 z_{\alpha/2}\sqrt{\hat{\fprate}(1 - \hat{\fprate})/n_0}$.
 \end{definition}
 
@@ -56,7 +57,7 @@ whose two roots are the interval endpoints.
 
 \begin{definition}[Wilson confidence interval]
 \label{def:wilson-ci}
-At level $1 - \alpha$ with $z = z_{\alpha/2}$,
+\index{confidence interval!Wilson}At level $1 - \alpha$ with $z = z_{\alpha/2}$,
 \[
   \frac{\hat{\fprate} + z^2/(2 n_0)}{1 + z^2/n_0}
   \;\pm\;
@@ -81,7 +82,7 @@ $\Prob{\mathrm{Binomial}(n_0, \fprate) \ge k} = \Prob{\mathrm{Beta}(k, n_0 - k
 
 \begin{definition}[Clopper--Pearson confidence interval]
 \label{def:clopper-pearson-ci}
-At level $1 - \alpha$, the endpoints are $L = F^{-1}_{\mathrm{Beta}
+\index{confidence interval!Clopper--Pearson}At level $1 - \alpha$, the endpoints are $L = F^{-1}_{\mathrm{Beta}
 (\mathrm{FP},\, n_0 - \mathrm{FP} + 1)}(\alpha/2)$ and $U = F^{-1}_{\mathrm{Beta}
 (\mathrm{FP} + 1,\, n_0 - \mathrm{FP})}(1 - \alpha/2)$, with $L = 0$ if
 $\mathrm{FP} = 0$ and $U = 1$ if $\mathrm{FP} = n_0$.
@@ -92,14 +93,14 @@ at least $1 - \alpha$ but, because the binomial is discrete, over-covers at
 most $\fprate$, sometimes substantially. Conservatism is the price of the
 guarantee.
 
-Jeffreys reports a posterior credible interval under the prior $\pi_J(\fprate)
-\propto \sqrt{I(\fprate)} \propto \fprate^{-1/2}(1 - \fprate)^{-1/2}$, the
-$\mathrm{Beta}(1/2, 1/2)$ kernel; by conjugacy the posterior is
+Jeffreys reports a posterior credible interval under the invariant prior of
+\textcite{jeffreys-1946}, $\pi_J(\fprate) \propto \sqrt{I(\fprate)} \propto
+\fprate^{-1/2}(1 - \fprate)^{-1/2}$, the $\mathrm{Beta}(1/2, 1/2)$ kernel; by conjugacy the posterior is
 $\mathrm{Beta}(\mathrm{FP} + 1/2, n_0 - \mathrm{FP} + 1/2)$.
 
 \begin{definition}[Jeffreys credible interval]
 \label{def:jeffreys-ci}
-The central $1 - \alpha$ quantile interval of $\mathrm{Beta}(\mathrm{FP} +
+\index{confidence interval!Jeffreys}The central $1 - \alpha$ quantile interval of $\mathrm{Beta}(\mathrm{FP} +
 1/2,\, n_0 - \mathrm{FP} + 1/2)$.
 \end{definition}
 
@@ -125,29 +126,26 @@ re-parametrization behind logistic-regression intervals.
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{l|cccc}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccc}
 \hline
-                                & Wald             & Wilson           & Clopper--Pearson  & Jeffreys \\
+ & \multicolumn{2}{c}{Coverage at} & Interval at & Endpoints & \\
+Interval & $n_0 = 100$ & $n_0 = 1000$ & $\hat{\fprate} = 0$ & in $[0, 1]$ & Basis \\
 \hline
-Coverage, $n_0 = 100$, $\fprate = 0.05$
-                                & $\approx 0.88$   & $\approx 0.97$   & $\geq 0.95$      & $\approx 0.94$ \\
-Coverage, $n_0 = 1000$, $\fprate = 0.05$
-                                & $\approx 0.95$   & $\approx 0.95$   & $\geq 0.95$      & $\approx 0.95$ \\
-Interval at $\hat{\fprate} = 0$
-                                & $[0, 0]$         & $[0,\, z^2/(n_0 + z^2)]$
-                                                                      & $[0,\, U_{\mathrm{CP}}]$
-                                                                                         & $[L_J,\, U_J]$ \\
-Endpoints in $[0, 1]$           & no               & yes              & yes              & yes \\
-Approximation                   & Normal           & Normal (score)   & exact binomial   & Bayesian \\
+Wald             & $0.878$ & $0.942$ & $[0, 0]$                   & no  & Normal \\
+Wilson           & $0.966$ & $0.950$ & $[0,\, z^2/(n_0 + z^2)]$   & yes & score \\
+Clopper--Pearson & $0.983$ & $0.958$ & $[0,\, U_{\mathrm{CP}}]$   & yes & exact \\
+Jeffreys         & $0.935$ & $0.950$ & $[L_J,\, U_J]$             & yes & posterior \\
 \hline
 \end{tabular}
 \caption{Four binomial confidence intervals at nominal $1 - \alpha = 0.95$.
-The $n_0 = 100$ figures are exact single-point binomial coverages at the
-stated $(n_0, \fprate)$; at $n_0 = 1000$ all four are near nominal. Coverage
-oscillates along a sawtooth in $n_0$ (Brown, Cai, and DasGupta 2001), so
-neighbouring sizes differ. Wald is the only interval whose dips fall far
-enough below nominal to mislead, and the only one that degenerates at the
-boundary.}
+Coverages are exact binomial probabilities at $\fprate = 0.05$ and the
+stated $n_0$, computed by enumerating $\mathrm{FP}$; Clopper--Pearson is guaranteed to
+cover at least $0.95$ at every rate. Coverage oscillates along a sawtooth in
+$n_0$ \parencite{brown-cai-dasgupta-2001}, so neighbouring sizes differ. Wald
+is the only interval whose dips fall far enough below nominal to mislead, and
+the only one that degenerates at the boundary.}
 \label{tab:ci-comparison}
 \end{table}
 

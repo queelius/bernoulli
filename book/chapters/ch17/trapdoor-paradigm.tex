@@ -12,6 +12,11 @@
 % TOTAL). Corrected: per-query extraction is O(1); the real gap is that a
 % bounded budget of O(log N) crafted queries breaks the scheme outright,
 % vs the iid attacker's O(fpr) bits/query that never recovers the seed.
+% REVISED 2026-10: confidentiality is one leakage channel, not set by the
+% rates alone; multi-query leakage stated as subadditivity plus the frozen-
+% structure and independent-instance cases (prop:multi-query-leakage); the
+% adaptive example now distinguishes a weak (learnable) keyed family from a
+% PRF, citing Naor-Yogev, Clayton et al., Filic et al.
 % Cross-refs sec:kronecker, thm:kronecker, ax:element-indep,
 % def:perfect-filter-line, sec:adversarial-inputs, def:cipher-map,
 % sec:bernoulli-error-model, sec:fhe-sidebar, sec:maximizing-confidentiality.
@@ -36,10 +41,12 @@ The paradigm predates the modern encryption-on-the-cloud framing.
 Goldreich's work on software protection in the late 1980s asked how a
 program could run on an untrusted machine without revealing what it
 computed; the same question, in other language, drives oblivious RAM,
-secure multiparty computation, and private information retrieval. What
-unites them is the conviction that \emph{compute} and \emph{know} can be
+secure multiparty computation, and private information retrieval. What unites them is the
+conviction that \emph{compute} and \emph{know} can be
 separated: a machine can do useful work on data whose meaning it cannot
-see. Trapdoor computing names the separation. The system has two
+see. This program uses the name \emph{trapdoor computing}\index{trapdoor computing}
+for one form of that separation, the one built from keyed approximate
+structures. The system has two
 distinguished resources, an encrypted dataset and a trapdoor key, both
 needed to read anything meaningful: the dataset without the key is opaque,
 the key without the dataset useless. Computation is the operation of
@@ -61,7 +68,8 @@ bounded error keeps the dataset partially hidden even from a client who
 probes many times. The standard threat model is the
 \emph{honest-but-curious} server, which follows the protocol but records
 the encrypted traffic for later analysis; bounding what that analysis can
-recover is the Bernoulli framework's job. A malicious server that deviates
+recover needs a leakage model; the Bernoulli framework supplies the error
+side of it. A malicious server that deviates
 from the protocol needs cryptographic integrity checks beyond this
 chapter. The client's recovery quality is set by the $(\fprate, \fnrate)$
 profile: an $\fnrate = 0$ map loses no real positives but admits some
@@ -71,41 +79,45 @@ real ones.
 \subsection*{Confidentiality versus correctness}
 
 The trade-off that distinguishes the paradigm from cleartext computation
-is between confidentiality and correctness. Tight error rates make the
-client's view faithful but turn each near-deterministic answer into a
-side channel: a server watching many such queries ties encrypted queries
-to the records they match and reconstructs the plaintext distribution.
-Loose rates make each query noisier for the client but push the
-encrypted-output distribution toward uniform across the dataset, defeating
-frequency analysis. The $(\fprate, \fnrate)$ point is therefore a
-confidentiality knob as well as a correctness knob, and the
-perfect-filter line of \Cref{def:perfect-filter-line} reads naturally in
-this light: an $\fnrate = 0$ map concentrates its confidentiality cost in
-the single parameter $\fprate$ (every real positive returned, recall
-preserved), an $\fprate = 0$ map in $\fnrate$ (every positive answer
-correct, but real positives missed). The first suits recall-sensitive
-retrieval, the second precision-sensitive contexts.
-\Cref{sec:maximizing-confidentiality} returns with a quantitative measure.
+is between confidentiality and correctness, but it is a partial one. False
+positives give a reported $\top$ plausible deniability: an observer who
+sees it cannot tell a real member from a spurious one with certainty.
+Tight error rates remove that cover; loose rates add it at the client's
+expense. The rates do not touch other channels of leakage: a
+deterministic encoding answers the same query identically every time, so
+repetition, frequency, and access patterns leak regardless of
+$(\fprate, \fnrate)$, and only randomized encodings or leakage-suppressing
+constructions address them \parencite{kamara-moataz-ohrimenko-2018}. The
+$(\fprate, \fnrate)$ point is therefore one confidentiality knob among
+several. On the perfect-filter line of \Cref{def:perfect-filter-line} an
+$\fnrate = 0$ map puts its cover entirely in false positives (every real
+positive returned, recall preserved), an $\fprate = 0$ map in false
+negatives (every positive answer correct, but real positives missed); the
+first suits recall-sensitive retrieval, the second precision-sensitive
+contexts. \Cref{sec:maximizing-confidentiality} quantifies the first kind
+of cover under an explicit observation model.
 
 \subsection*{Multiple queries: leakage accumulates}
 
 A single query reveals little; a million can reveal much. Under
-\Cref{ax:element-indep} (Axiom 1) the error events of $m$ independent
-queries are mutually independent, and the joint distribution factors as
-the Kronecker product of $m$ copies of the per-query channel matrix
-(\Cref{thm:kronecker}). The same algebra describes the trapdoor stream,
-and any single-query confidentiality bound lifts through tensor algebra to
-the stream. The independence cuts both ways: the client's recovery
-sharpens as $m^{1/2}$ by standard concentration, and the server's
-information about the plaintext grows linearly in $m$ for any map with
-positive single-query leakage. The two scalings are the same
-data-processing inequality read from opposite sides, the Kronecker
-structure making the duality exact. A system with a finite query budget
-can be analyzed by applying the per-query bounds to the $m$-fold Kronecker
-product; an unbounded budget needs a different approach, either rotating
-the trapdoor key to reset accumulated leakage or designing for the
-short-horizon regime where asymptotic confidentiality has not yet decayed
-to zero.
+\Cref{ax:element-indep} (Axiom 1) the error events at distinct queried
+items are mutually independent, and the joint law of their reports
+factors as the Kronecker product\index{Kronecker product} of the per-query channel matrices
+(\Cref{thm:kronecker}). When the reports are conditionally independent
+given the plaintext, the information they carry about it is at most the
+sum of the per-report informations (the subadditivity of mutual
+information for conditionally independent observations), so a per-query
+leakage bound gives a budget linear in the number of queries. Two
+qualifications keep this honest. Repeating a query against the same
+structure is not a fresh draw: the frozen structure returns the same
+answer, adding nothing about that item but revealing that the query
+repeated. And querying the same item against several independently keyed
+structures is a fresh draw each time, so a member, positive in all of
+them, separates from a non-member, positive in each with probability
+$\fprate$, geometrically fast (\Cref{prop:multi-query-leakage}).
+Rotating the key resets the linkage between old and new queries but, if
+old structures are retained by the observer, creates exactly those
+independent instances.
 
 \subsection*{Adaptive adversaries}
 
@@ -122,31 +134,19 @@ plaintext bits any adversary extracts per query and budget around that.
 
 Consider a trapdoor membership map on a plaintext set $A$ of $N = |A|$
 records, with $\fprate = 2^{-k}$ and $\fnrate = 0$, realized by a
-Bloom-style construction with $k$ keyed hash functions whose seed is the
-trapdoor. Under iid queries the behavior is benign: each random query has
-independent probability $2^{-k}$ of a false positive, and after $m$
-queries the server has gained $O(m)$ bits about $A$, spread uniformly
-enough that no record is pinned down. Under an adaptive adversary the
-picture changes, not in the per-query rate but in what a bounded budget
-of crafted queries buys. The $\fprate = 2^{-k}$ comes from $k$ hash bits
-matching at once; an adversary crafts queries that probe the bits
-individually, each extracting about one bit of the seed, so after $O(k)$
-such queries the seed is recovered and the entire dataset decrypts, and a
-binary search over the records localizes a chosen record's membership in
-$O(\log N)$ queries. The per-query extraction stays $O(1)$ bits
-throughout; the danger is that this bounded budget, logarithmic in the
-dataset size, breaks the scheme outright, where the iid attacker gains
-only $O(\fprate)$ bits per query and never recovers the seed. The gap
-between total compromise in a logarithmic number of crafted queries and
-an $O(\fprate)$-bit-per-query trickle is the gap between worst-case and
-average-case, and the fix, as chapter 16 prescribed, is a cipher map no
-bounded budget of crafted queries can break. Cryptographic hash families
-(pseudorandom functions) achieve this: a pseudorandom seed cannot be
-recovered by probing, so the worst-case attacker gains only one bit of
-best-effort guessing per query, matching the average case to a constant;
-the FHE sidebar that follows gives an even stronger guarantee, worst-case
-leakage exactly zero. Both
-the worst-case story (chapter 16) and the average-case story (chapters 4
-through 14) are needed in the trapdoor setting: the average case for
-sizing under benign workloads, the worst case for security against
-adversarial ones.
+Bloom-style construction whose $k$ probe positions come from a keyed hash
+family. If the family is weak (say linear, or otherwise learnable from
+input-output pairs) an adversary who can submit chosen queries and see
+the outcomes learns the key with a number of queries proportional to its
+length, after which it can test membership offline and manufacture false
+positives at will: total compromise from a small budget of crafted
+queries, against an iid attacker who learns only what random queries
+happen to reveal. With a pseudorandom function in place of the weak family
+the key cannot be learned faster than by brute force, and the remaining
+adaptive attack is the one \Cref{sec:adversarial-inputs} described:
+collecting and replaying the false positives the adversary encounters.
+The formal treatments of that setting
+\parencite{naor-yogev-2015,clayton-patton-shrimpton-2019,filic-et-al-2022}
+state what keyed constructions do and do not guarantee. Both stories are
+needed in the trapdoor setting: the average case for sizing under benign
+workloads, the worst case for security against adversarial ones.

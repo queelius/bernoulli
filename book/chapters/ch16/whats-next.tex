@@ -32,18 +32,18 @@ those applications would inherit the iid assumptions implicitly and the
 guarantees they advertise would lean on hidden conditions.
 
 The two chapters that close Part~V are direct heirs to the boundary work.
-Chapter~17 develops cipher maps and trapdoor computing, recasting the BHF
-and BPHF architecture for settings where the perfect hash is replaced by
-a trapdoor function whose forward direction is public and reverse
-direction private. Chapter~18 specializes the machinery to encrypted
+Chapter~17 develops cipher maps and trapdoor computing, reading the same
+keyed hash-and-filter constructions as computations on encodings whose
+meaning only a key holder can recover. Chapter~18 specializes the machinery to encrypted
 search, where the FPR and FNR guarantees of Part~IV carry over and the
 cryptographic context demands additional structure (data-oblivious access
 patterns, side-channel control). Both live in territory this chapter
 flagged as non-trivial: encrypted-search queries are adversarial by
 construction, the server curious and the queries chosen by an attacker
 with access to the index, so the worst-case tools of
-\Cref{sec:adversarial-inputs} replace iid expectations and the secret
-hash family closes the side channels the section named. The analytical
+\Cref{sec:adversarial-inputs} replace iid expectations: the secret hash
+family removes the structural attack, while the side channels the section
+named need separate control. The analytical
 alternatives the chapter invoked, the martingale and bounded-differences
 inequalities and the worst-case and cryptographic tools, are anchored in
 \Cref{sec:bib-notes-ch16}.

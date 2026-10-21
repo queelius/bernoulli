@@ -42,13 +42,17 @@ of the single equation $Q_{\mathrm{set}} = \bigotimes_x Q_x$.
 
 \subsection*{Composition multiplies eigenvalues}
 
-The second facet sharpens \Cref{prop:operator-map-composition}. Serial
+The second facet sharpens \Cref{prop:operator-map-composition}.\index{composition theorem} Serial
 composition of Bernoulli maps is the matrix product $Q_g Q_f$, and a matrix
-product does more than compose: when the factors are simultaneously
-diagonalizable, it multiplies eigenvalues. Each one-sided survival probability
-$1 - \eta_i$ is an eigenvalue of stage $i$ on the eigenvector that carries the
-truth through unflipped, and the chain's survival probability
-$\prod_i (1 - \eta_i)$ is the product of those eigenvalues. The composition
+product does more than compose: on a common eigenvector it multiplies
+eigenvalues. Every $2 \times 2$ column-stochastic channel with rates
+$(\fprate, \fnrate)$ has the sign vector $(1, -1)^{\mathsf{T}}$ as an
+eigenvector, with eigenvalue $1 - \fprate - \fnrate$, so along any chain
+of binary channels these nontrivial eigenvalues multiply. For a chain of
+one-sided stages ($\fprate_i = 0$, $\fnrate_i = \eta_i$) the eigenvalue of
+stage $i$ is the survival probability $1 - \eta_i$, and the chain's
+survival probability $\prod_i (1 - \eta_i)$ is the product of those
+eigenvalues. The composition
 theorem's
 \[
   \eta_{\mathrm{total}} \;=\; 1 - \prod_{i=1}^{k}(1 - \eta_i)
@@ -62,7 +66,7 @@ combinatorial form does not display.
 \subsection*{Parity: one quantity under three names}
 
 The cleanest place the spectrum earns its keep is the parity of noisy bits. Take
-the symmetric single-bit flip channel
+the symmetric single-bit flip channel\index{channel!binary symmetric}
 \[
   Q(q) \;=\;
   \begin{pmatrix}
@@ -91,13 +95,13 @@ $\{0, 1\}$ to $\{+1, -1\}$. The expected sign after one flip is
   = 1 - 2q,
 \]
 the \emph{$\pm 1$ bias} of the channel. And $1 - 2q$ is the order-one
-\emph{Walsh (Fourier) coefficient} of the channel on the Boolean cube, the
+\emph{Walsh (Fourier) coefficient}\index{Walsh--Hadamard transform} of the channel on the Boolean cube, the
 coefficient of the single-bit character $\chi(b) = (-1)^{b}$ under the
 expansion. Eigenvalue, $\pm 1$ bias, and Walsh coefficient are three names for
 $1 - 2q$, and the names matter because each makes the parity formula obvious
 from a different direction.
 
-\begin{proposition}[Spectral error rate of a noisy parity]
+\begin{proposition}[Spectral error rate of a noisy parity; Gallager's lemma]
 \label{prop:parity-spectral}
 Let $b_1, \ldots, b_n$ be bits, each flipped independently by a symmetric
 channel of rate $q_i$, and let the output be the parity (XOR) $b_1 \oplus \cdots
@@ -109,6 +113,13 @@ channel of rate $q_i$, and let the output be the parity (XOR) $b_1 \oplus \cdots
 \]
 half of one minus the product of the channels' nontrivial eigenvalues.
 \end{proposition}
+
+The identity is not new: it is Lemma~1 of \textcite{gallager-1962}, where
+it gives the probability that a parity check over independent noisy bits
+is violated, and it reappears in cryptanalysis as Matsui's piling-up lemma
+\parencite{matsui-1993}.\index{Gallager's lemma}\index{piling-up lemma}\index{parity!noisy}
+What the operator view adds is only the reading of each factor as an
+eigenvalue.
 
 \begin{proof}
 The parity flips iff an odd number of the $n$ bits flip. Pass to signs: the
@@ -131,12 +142,25 @@ The product of $\pm 1$ biases is the multiplicativity of the order-one Walsh
 coefficient under XOR, and it is the same multiplicativity as eigenvalues under
 a tensor product, since the parity error operator is built from the per-bit
 channels by the Kronecker product of \Cref{def:set-noise-operator} restricted to
-the sign sector. This identity is the syndrome-bit calculation used in the
-quantum-readout setting, where a measured parity (a stabilizer syndrome) inherits
-$\prod_i (1 - 2q_i)$ from its constituent single-qubit readout errors, and it is
-the classical noisy-formula tradition begun for redundant computation by von
-Neumann and analyzed for bounded-depth circuits by Pippenger, where the
-$\pm 1$-bias product is the standard accounting for error through XOR gates. The
+the sign sector. The same identity gives the error of a parity computed from measured
+qubits, such as a stabilizer syndrome assembled from single-qubit
+readouts, and the $\pm 1$-bias product is the standard accounting for
+error through XOR gates in the noisy-computation tradition begun by
+\textcite{von-neumann-1956} and analyzed for noisy formulas by
+\textcite{pippenger-1988} and \textcite{evans-schulman-1999}.
+
+Two scope statements keep the identity honest. First, for asymmetric
+channels it holds per latent word: with true bits $w_i$, bit $i$ flips with
+probability $q_i = \fprate_i$ if $w_i = 0$ and $q_i = \fnrate_i$ if
+$w_i = 1$, and the parity of the reports is wrong with probability
+$\tfrac12 (1 - \prod_i (1 - 2 q_i))$ at that word. Second, the spectral
+calculus is exact for chains of channels and for parity; it does not turn
+the output of an AND or OR of noisy bits into a two-rate bit. The
+conditional false-positive rate of an AND depends on which negative latent
+assignment occurred, so a Boolean formula's error must be propagated per
+latent assignment (\Cref{prop:latent-propagation}), and reusing a single
+carried pair can understate it by a factor of about two
+(\Cref{ex:two-rate-counterexample}). The
 operator view unifies them: eigenvalue, Walsh coefficient, and $\pm 1$ bias are
 one quantity, and a parity of independent noisy bits contracts the sign sector by
 the product of that quantity over the bits.
@@ -163,7 +187,9 @@ about. The intersection's false-positive rate is not the bare product $\fprate_A
   \tag{\Cref{eq:intersection-fpr}}
 \]
 of \Cref{prop:intersection-fpr-fnr}, where $w_1, w_2, w_3$ weight the regions
-$A \setminus B$, $B \setminus A$, and outside both. The product $\fprate_A
+$A \setminus B$, $B \setminus A$, and outside both. The weighted sum is a
+prior-averaged rate\index{prior-averaged rate} over non-members; each element individually sees the
+rate of its own region. The product $\fprate_A
 \fprate_B$ is only the third term, the both-outside corner, exact in the sparse
 limit where almost every non-member of $A \cap B$ lies outside both operands.
 The reason survives translation: a false positive of the intersection requires

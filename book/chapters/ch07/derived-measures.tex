@@ -25,17 +25,20 @@ Apply a noisy bit with rates $\fprate, \fnrate$ to a workload of $n$ inputs
 whose truth is i.i.d.\ $\mathrm{Bernoulli}(\pi)$ with $\pi = \Prob{X = \top}$.
 The expected contingency-table counts are
 \[
-  \Expect{\TP} = n\pi(1 - \fnrate), \quad \Expect{\FN} = n\pi\fnrate, \quad
-  \Expect{\FP} = n(1 - \pi)\fprate, \quad \Expect{\TN} = n(1 - \pi)(1 - \fprate),
+  \begin{aligned}
+    \Expect{\TP} &= n\pi(1 - \fnrate), & \qquad \Expect{\FN} &= n\pi\fnrate, \\
+    \Expect{\FP} &= n(1 - \pi)\fprate, & \qquad \Expect{\TN} &= n(1 - \pi)(1 - \fprate),
+  \end{aligned}
 \]
-the first row summing to $n\pi$, the second to $n(1 - \pi)$. Recall is the
-row-conditional rate $\Recall = \tprate = 1 - \fnrate$, with $\pi$ cancelling:
+the true-$\top$ counts summing to $n\pi$, the true-$\bot$ counts to $n(1 -
+\pi)$. Recall\index{recall} is the row-conditional rate $\Recall = \tprate =
+1 - \fnrate$, with $\pi$ cancelling:
 recall is a property of the noisy bit alone. The predictive values and $\Fone$
 are column quantities, and $\pi$ does not cancel.
 
 \begin{definition}[Positive predictive value]
 \label{def:ppv}
-At workload prevalence $\pi$,
+\index{positive predictive value}\index{precision}At workload prevalence $\pi$,
 \[
   \PPV = \Precision = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate},
 \]
@@ -44,7 +47,7 @@ the ratio of $\Expect{\TP}$ to the $\top$-output column total $\Expect{\TP + \FP
 
 \begin{definition}[Negative predictive value]
 \label{def:npv}
-At workload prevalence $\pi$,
+\index{negative predictive value}At workload prevalence $\pi$,
 \[
   \NPV = \frac{(1 - \pi)(1 - \fprate)}{(1 - \pi)(1 - \fprate) + \pi\fnrate},
 \]
@@ -53,7 +56,7 @@ the mirror of PPV on the $\bot$-output column.
 
 \begin{definition}[$\Fone$-score]
 \label{def:f1}
-$\Fone$ is the harmonic mean of precision and recall,
+\index{F1 score@$F_1$ score}$\Fone$ is the harmonic mean of precision and recall,
 \[
   \Fone = \frac{2\Precision \cdot \Recall}{\Precision + \Recall}
         = \frac{2\pi(1 - \fnrate)}{\pi(1 - \fnrate) + \pi + (1 - \pi)\fprate},
@@ -77,25 +80,46 @@ near $\pi = 0$ when $\fprate$ is appreciable; NPV runs the mirror story,
 $\NPV(0) = 1$, $\NPV(1) = 0$. The framing is the point. The pair $(\fprate,
 \fnrate)$ is intrinsic to the classifier; precision is a joint property of
 classifier and workload, and a vendor who reports only precision is reporting
-what their evaluation workload happened to look like. The book uses $(\fprate,
+what their evaluation workload happened to look like; reading a high
+$\tprate$ and $\tnrate$ as a high PPV on a low-prevalence workload is the
+base-rate fallacy\index{base-rate fallacy}. The book uses $(\fprate,
 \fnrate)$ as the primary description for exactly this reason.
+
+Not every scalar summary depends on the workload. Youden's index
+\parencite{youden-1950},
+\[
+  J \;=\; \tprate + \tnrate - 1 \;=\; 1 - \fprate - \fnrate,
+\]
+uses only the two intrinsic rates\index{Youden's J@Youden's $J$}. It is zero
+exactly when the report is independent of the truth ($1 - \fnrate =
+\fprate$), and it is the height of the operating point above the chance
+diagonal of the receiver-operating-characteristic plane. Accuracy\index{accuracy},
+$\pi(1 - \fnrate) + (1 - \pi)(1 - \fprate)$, is by contrast a workload
+quantity, a prevalence-weighted average of $\tprate$ and $\tnrate$.
 
 \subsection*{Estimation and the delta method}
 
 The estimator $\widehat{\PPV} = \TP/(\TP + \FP)$ is a ratio of two independent
-binomial counts: conditioning on the row totals, $\TP \sim
-\mathrm{Binomial}(n_\top, \tprate)$ and $\FP \sim \mathrm{Binomial}(n_\bot,
-\fprate)$, independent by Axiom~1. A ratio's expectation is not the ratio of
+binomial counts. Conditioning on the row totals $n_\top$ and $n_\bot$,
+\[
+  \TP \sim \mathrm{Binomial}(n_\top, \tprate),
+  \qquad
+  \FP \sim \mathrm{Binomial}(n_\bot, \fprate),
+\]
+independent by Axiom~1. A ratio's expectation is not the ratio of
 expectations, so $\widehat{\PPV}$ is biased (small when both means are large,
 and consistent as $n \to \infty$), and its variance is read off by the delta
 method rather than directly.
 
 \begin{theorem}[Delta method]
 \label{thm:delta-method}
-If $\sqrt{n}(\hat\theta - \theta) \xrightarrow{d} \mathrm{Normal}(0,
-\sigma^2(\theta))$ and $g$ is differentiable at $\theta$ with $g'(\theta) \neq
-0$, then $\sqrt{n}(g(\hat\theta) - g(\theta)) \xrightarrow{d}
-\mathrm{Normal}(0, [g'(\theta)]^2\sigma^2(\theta))$.
+\index{delta method}Let $g$ be differentiable at $\theta$ with $g'(\theta)
+\neq 0$. If $\sqrt{n}\,(\hat\theta - \theta)$ converges in distribution to
+$\mathrm{Normal}(0, \sigma^2(\theta))$, then
+\[
+  \sqrt{n}\,\bigl(g(\hat\theta) - g(\theta)\bigr) \xrightarrow{d}
+  \mathrm{Normal}\bigl(0, [g'(\theta)]^2\sigma^2(\theta)\bigr).
+\]
 \end{theorem}
 
 \noindent This is the first-order Taylor expansion $g(\hat\theta) \approx
@@ -146,7 +170,9 @@ $n_\top = 100$, $n_\bot = 900$. Then $\Recall = 0.90$ and
 \[
   \Precision = \frac{0.1 \cdot 0.9}{0.1 \cdot 0.9 + 0.9 \cdot 0.05}
   = \frac{0.09}{0.135} = \frac{2}{3},
-  \qquad
+\]
+and
+\[
   \Fone = \frac{2 \cdot (2/3) \cdot 0.9}{2/3 + 0.9} \approx 0.766.
 \]
 With $\bar t = 90$, $\bar f = 45$, $\sigma_t^2 = 100 \cdot 0.9 \cdot 0.1 = 9$,

@@ -8,11 +8,13 @@
 \section{What Comes Next}
 \label{sec:ch6-what-comes-next}
 
-The chapter fixed the algebra of set operations: closed-form rates for union,
-intersection, complement, and difference (\Cref{sec:union-of-sets},
-\Cref{sec:other-set-ops}), the classification of which compositions leave the
-perfect filter line (\Cref{sec:cancellation}), and the line as a subalgebra
-of the rate plane (\Cref{sec:perfect-filter-line}). Two questions remain for
+The chapter fixed the algebra of set operations: closed-form block rates for
+union, intersection, complement, and difference (\Cref{sec:union-of-sets},
+\Cref{sec:other-set-ops}), with the caveat that a composed set is higher
+order and its summary pair does not compose further
+(\Cref{rem:composing-composed}); the classification of which compositions
+leave the perfect filter line (\Cref{sec:cancellation}); and the operations
+under which each axis of the line is closed (\Cref{sec:perfect-filter-line}). Two questions remain for
 the rest of Part~II: how good an approximate set is against a workload, and
 how small it can be made. \Cref{ch:classification-measures} turns the per-block
 rates into the workload-dependent measures practitioners report, positive and
@@ -22,7 +24,8 @@ FNR-zero by \Cref{prop:fnr-zero-closure}, so its PPV follows with no extra
 work), and it retires the interval-estimator deferral of
 \Cref{sec:sampling-rates} with the Wilson, Clopper-Pearson, and Jeffreys
 constructions. \Cref{ch:information-bounds} gives the rates a space-cost
-analog, the entropy floor $-\log_2 \fprate$ bits per element for an FNR-zero
-set, against which the closure results bound what a composition can cost;
-\Cref{ch:optimal-bernoulli-sets} then achieves the floor with the Bernoulli
-Hash Function, closing the standard Bloom filter's $44\%$ overhead.
+analog, the classical floor of $-\log_2 \fprate$ bits per element for an
+FNR-zero set and its two-sided form, against which the closure results bound
+what a composition can cost; \Cref{ch:optimal-bernoulli-sets} then constructs FNR-zero structures near
+the floor, the perfect hash filter and the Bernoulli Hash Function, the
+latter meeting it in space at an exponential construction cost.

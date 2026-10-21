@@ -38,11 +38,15 @@ so the ratio is $\log_2 e = 1/\ln 2 \approx 1.4427$, independent of $\fprate$.
 
 \begin{proposition}[Bloom filter overhead]
 \label{prop:bloom-overhead}
-At every $\fprate \in (0,1)$ the optimal standard Bloom filter uses $m/n =
+\index{Bloom filter!space overhead}At every $\fprate \in (0,1)$ the optimal standard Bloom filter uses $m/n =
 \log_2(1/\fprate)\cdot\log_2 e$ bits per element, which is $\log_2 e \approx
 1.4427$ times the floor of \Cref{thm:entropy-floor}. The relative overhead is
 constant.
 \end{proposition}
+
+The factor is classical: it follows from the optimal-$k$ analysis of the
+filter and the floor of \textcite{carter-et-al-1978}, and it is the standard
+benchmark in the literature \parencite{broder-mitzenmacher-2004}.
 
 The constant is the chapter-5 half-occupancy result read dually: $\ln 2 =
 1/\log_2 e$ is the optimal load that maximizes per-bit entropy, and the same
@@ -73,6 +77,49 @@ construction cannot recover. A constant factor on an already-small quantity is
 acceptable in many settings, and Bloom filters dominate the ecosystem for good
 reason; the point of \Cref{prop:bloom-overhead} is to quantify the slack, not
 to condemn the construction, and to ask which design choice forces it.
+\Cref{fig:space-accuracy} draws the comparison over the whole range of
+rates\index{space--accuracy tradeoff}.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+    width=0.86\textwidth, height=0.5\textwidth,
+    xmin=1e-4, xmax=0.5, ymin=0, ymax=20,
+    xlabel={false-positive rate $\fprate$},
+    ylabel={bits per element},
+    legend style={font=\footnotesize, draw=none, fill=none,
+      at={(0.5,-0.3)}, anchor=north, legend columns=2,
+      /tikz/every even column/.append style={column sep=0.6cm}},
+    legend cell align=left,
+    tick label style={font=\small}, label style={font=\small},
+    every axis plot/.append style={thick, samples=2}]
+  % Parametrize by t = log10(eps); log2(1/eps) = -t log2(10) = -3.321928 t.
+  \addplot[black, domain=-4:-0.30103] ({10^x}, {-3.321928*x});
+  \addlegendentry{floor, $\log_2(1/\fprate)$}
+  \addplot[black, dashed, domain=-4:-0.30103] ({10^x}, {1.442695*(-3.321928*x)});
+  \addlegendentry{Bloom filter, $1.44 \times$ floor}
+  \addplot[black!60, dotted, domain=-4:-0.30103] ({10^x}, {1.23*(-3.321928*x)});
+  \addlegendentry{xor filter, about $1.23 \times$ floor}
+  \addplot[black!60, dashdotted, domain=-4:-0.30103] ({10^x}, {-3.321928*x + 1.442695});
+  \addlegendentry{MPHF and fingerprint, floor $+\, c$, $c = \log_2 e$}
+\end{semilogxaxis}
+\end{tikzpicture}
+\caption[The space--accuracy tradeoff for one-sided approximate sets]{The space--accuracy tradeoff for
+FNR-zero approximate sets. The solid line is the floor of
+\Cref{thm:entropy-floor}; the dashed line is the optimal standard Bloom filter
+(\Cref{prop:bloom-overhead}), a constant factor $\log_2 e \approx 1.44$ above
+it. The two lighter curves are illustrations of constructions discussed in
+the text, not bounds: the xor filter's reported overhead of about $23\%$
+\parencite{graf-lemire-2020,graf-lemire-2022}, and the perfect hash filter
+of \Cref{def:phf}, a minimal perfect hash with one $\log_2(1/\fprate)$-bit
+fingerprint per element, which costs $\log_2(1/\fprate) + c$ bits per element
+for a minimal-perfect-hash overhead $c \ge \log_2 e$; it is drawn at the
+unattained minimum $c = \log_2 e$, and practical minimal perfect hashes use
+more. Integer fingerprint widths are ignored.
+On a logarithmic $\fprate$ axis every curve is a straight line.}
+\label{fig:space-accuracy}
+\end{figure}
 
 \subsection*{Why the gap is structural}
 
@@ -90,7 +137,7 @@ rather than on the discrimination it was meant to perform.
 \label{rem:compressed-bloom}
 Half-occupancy is exactly what makes the optimal array \emph{incompressible}:
 at $p = 1/2$ each bit carries a full bit of entropy, so arithmetic coding of
-the optimal-$k$ array recovers nothing. \textcite{mitzenmacher-2002} therefore
+the optimal-$k$ array recovers nothing. \textcite{mitzenmacher-2002} therefore\index{Bloom filter!compressed}
 goes the other way, using a \emph{sparser} array (fewer hashes, fill $p \neq
 1/2$) whose low per-bit entropy compresses well, trading a larger in-memory
 array and the loss of in-place random-access queries for a smaller transmitted
@@ -104,11 +151,19 @@ structural, and closing it requires abandoning the flat-array-with-$k$-hashes
 representation entirely.
 \end{remark}
 
-That is what chapter~14 does. The Bernoulli Hash Function of
-\Cref{ch:optimal-bernoulli-sets} replaces the flat array with a
-perfect-hash-based encoding: each element gets a deterministic location from a
-perfect hash, and a fingerprint of $\log_2(1/\fprate)$ bits is stored there, so
-collisions in the fingerprint table are the only source of false positives and
-the $\log_2 e$ overhead vanishes asymptotically. The gap is not a deficiency of
-analysis but a consequence of a specific structural choice, and a different
-choice closes it. \Cref{sec:ch8-what-comes-next} sketches the route there.
+The retrieval literature does exactly that. A perfect hash\index{perfect hash function}
+gives each element a location, and a fingerprint\index{fingerprint} of
+$\log_2(1/\fprate)$ bits is stored there\index{perfect hash filter}, so
+fingerprint coincidences are the only source of false positives. The perfect
+hash costs a constant $c \ge \log_2 e$ bits per element, so the
+multiplicative $\log_2 e$ factor disappears and the relative overhead
+vanishes as $\fprate \to 0$; at a fixed rate the construction beats an
+optimal Bloom filter only when $(\log_2 e - 1)\log_2(1/\fprate) > c$.
+\textcite{dietzfelbinger-pagh-2008} describe this construction, noting that
+its origin is unknown to them, and reduce approximate membership to
+retrieval in general; xor, binary fuse, and ribbon filters are its
+engineered descendants (\Cref{sec:entropy-floor}). Chapter~14 presents it as
+the perfect hash filter (\Cref{def:phf}), alongside the Bernoulli Hash
+Function of \Cref{def:bhf}, a single-salt search that meets the floor in
+space but needs on the order of $\fprate^{-n}$ trials to build. The gap is not a deficiency of analysis but a consequence of a
+specific structural choice, and a different choice closes it.

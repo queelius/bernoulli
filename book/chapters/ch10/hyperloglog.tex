@@ -13,10 +13,10 @@
 \section{HyperLogLog}
 \label{sec:hyperloglog}
 
-The complementary streaming question is cardinality: estimate $n = |\{x_1,
-\ldots, x_N\}|$, the number of distinct items, ignoring multiplicity. Exact
-counting needs $\Theta(n)$ bits in the worst case; HyperLogLog returns an
-estimate with relative error of order $1/\sqrt{m}$ using $m$ small registers,
+The complementary streaming question is cardinality: estimate the number $n$
+of distinct items among $x_1, \ldots, x_N$, ignoring multiplicity. Exact
+counting needs $\Theta(n)$ bits in the worst case; HyperLogLog\index{HyperLogLog}
+returns an estimate with relative error of order $1/\sqrt{m}$ using $m$ small registers,
 at space \emph{doubly} logarithmic in $n$, so a few kilobytes estimate
 cardinalities into the billions.
 
@@ -28,7 +28,8 @@ $0.b_1 b_2 \cdots$, and let $\rho(x)$ be the position of its first $1$ bit
 $\Prob{\rho \ge k} = 2^{-(k-1)}$, and the maximum of $\rho$ over $n$ distinct
 items grows as $\log_2 n$ with $O(1)$ spread. Tracking only the running maximum
 of $\rho(h(a))$ and reporting $2^{\max}$ therefore estimates $n$ from a single
-small integer, but the multiplicative standard deviation is a factor of roughly
+small integer (the probabilistic counting\index{probabilistic counting} of
+\textcite{flajolet-martin-1985}), but the multiplicative standard deviation is a factor of roughly
 two: an order-of-magnitude check, useless quantitatively. The fix is averaging.
 
 \subsection*{The construction}
@@ -96,18 +97,21 @@ high-cardinality end.
 
 \subsection*{The $\Bernoulli{T}$ type and merging}
 
-HyperLogLog instantiates \Cref{ch:approximate-functions} with $T = \mathbb{N}$,
-as CountMin does, but its channel $Q$ (\Cref{def:n-ary-channel}) is \emph{not}
-triangular: it errs both ways. The limiting distribution of $\log\hat n - \log
-n$ is approximately normal with standard deviation $1.04/\sqrt{m}$
-\parencite{flajolet-et-al-2007}, so each row of $Q$ concentrates on a geometric
-interval around $n$, symmetric on a multiplicative rather than additive scale,
-the qualitative contrast with CountMin's one-sided additive error. Two sketches
-on the same hash and register count merge by entry-wise maximum, $(M^{(1)}
-\sqcup M^{(2)})[j] = \max(M^{(1)}[j], M^{(2)}[j])$, which is exactly the sketch
-of the union stream because each bucket stores a maximum and the max over a
-union is the max of the per-stream maxima; sharing the hash is again the
-discipline behind the \Cref{thm:n-ary-kronecker} composition.
+Read through \Cref{ch:approximate-functions}, HyperLogLog is a $\Bernoulli{T}$
+value with $T = \mathbb{N}$, as CountMin is, but its channel $Q$
+(\Cref{def:n-ary-channel}) is \emph{not} triangular: it errs both
+ways\index{two-sided error}. The
+limiting distribution of $\log\hat n - \log n$ is approximately normal with
+standard deviation $1.04/\sqrt{m}$ \parencite{flajolet-et-al-2007}, so each row of
+$Q$ concentrates on a geometric interval around $n$, symmetric on a
+multiplicative rather than additive scale, the qualitative contrast with
+CountMin's one-sided additive error. Two sketches on the same hash and register
+count merge by entry-wise maximum, $(M^{(1)} \sqcup M^{(2)})[j] =
+\max(M^{(1)}[j], M^{(2)}[j])$, which is exactly the sketch of the union stream
+because each bucket stores a maximum and the max over a union is the max of the
+per-stream maxima. As with CountMin, sharing the hash is what makes the merge
+exact; it is a property of the max-register construction, not a channel
+composition.
 
 \subsection*{Worked example}
 
@@ -115,7 +119,8 @@ Take $m = 256$ and a stream of $n = 10000$ distinct items. The relative standard
 error from \Cref{prop:hyperloglog-error} is $1.04/\sqrt{256} = 0.065$, so a
 single sketch typically lands within about $\pm 650$ of $10000$, with each
 register holding the maximum $\rho$ of the $\approx 10000/256 \approx 39$ items
-in its bucket. The estimate is unbiased but high-variance on one seed: averaging
+in its bucket. The estimate is nearly unbiased in this regime but high-variance
+on one seed: averaging
 $100$ independent seeds returns an empirical mean of $9970$ with relative
 standard deviation $0.063$, both matching the proposition. The headline figure
 is a standard error, not a deterministic bound; the value of the sketch is that

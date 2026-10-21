@@ -1,65 +1,63 @@
-% §14.7 Bibliographic Notes
+% §14.7 Notes and Lineage
 %
-% Monograph register: primary source (Towell BHF manuscript),
-% universal-hashing foundation (Carter-Wegman), modern perfect hash
-% (BDZ), comparison structures (cuckoo, quotient). Light compression to
-% ch13 density. Cites towell-bernoulli-hash-function, carter-wegman-1979,
-% belazzougui-2009, fan-cuckoo-2014, bender-quotient-2012.
-% DEFINED: sec:bib-notes-ch14.
+% Lineage for the space floor (Carter et al. 1978; Pagh-Rodler 2001 for the
+% false-negative case), seed search (RecSplit, ShockHash, Lehmann et al. ESA
+% 2025), the perfect hash filter (Dietzfelbinger-Pagh 2008, Sec. 1; MPHF lower
+% bound Fredman-Komlos 1984; MPHF constructions FKS, BPZ, CHD, BBHash),
+% retrieval-based filters (Bloomier, Dietzfelbinger-Pagh, xor, binary fuse,
+% ribbon), dynamic alternatives (cuckoo, quotient, Pagh-Pagh-Rao), universal
+% hashing (Carter-Wegman). Source manuscripts: towell-bernoulli-hash-function,
+% towell-bernoulli-phf. DEFINED: sec:bib-notes-ch14.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch14}
 
-\paragraph{The BHF construction.}
-The construction of \Cref{def:bhf} and the optimality result of
-\Cref{thm:bhf-optimality} follow
-\textcite{towell-bernoulli-hash-function}, ``The Bernoulli Hash
-Function: Optimal Bernoulli Sets and Maps,'' which introduced the BHF as
-the constructive complement to the chapter-8 floor. The manuscript works
-in greater generality, extending the membership construction of
-\Cref{sec:bhf-construction} to approximate maps (each slot storing a
-key-value pair rather than a fingerprint); the space and FPR analyses here
-specialize that framework to set membership. A reader wanting the algebraic
-generalization, with the BHF as an instance of the optimal Bernoulli map,
-should treat the manuscript as the next reading. The perfect hash filter of
-chapter~15 is a distinct, complementary construction of the same set and map
-ADT, not an instance of the BHF: it builds by off-the-shelf perfect hashing
-at a constant $\log_2 e$ above the floor the BHF reaches by salt search.
+\paragraph{Lineage.}
+The floor that frames the chapter, $n \log_2(1/\fprate)$ bits for an
+FNR-zero approximate set, is due to \textcite{carter-et-al-1978}; its
+two-sided extension, with a bounded fraction of false negatives, is
+settled to leading order by \textcite[Prop.~1]{pagh-rodler-2001}. The
+BHF of \Cref{def:bhf} follows the program's manuscript
+\parencite{towell-bernoulli-hash-function}, but its mechanism, one seed
+required to satisfy $n$ independent Bernoulli constraints, with a seed
+index of $\log_2(1/s) + O(1)$ bits and $1/s$ expected trials, is the
+standard single-seed baseline of seed search. It is analyzed as such by
+\textcite[Sec.~1.1]{lehmann-et-al-2025} and used on small buckets by
+RecSplit and ShockHash
+\parencite{esposito-graf-vigna-2020,lehmann-sanders-walzer-2024}. The
+perfect hash filter, a minimal perfect hash with
+$\lceil \log_2(1/\fprate) \rceil$-bit fingerprints and its $\log_2 e$
+overhead, is described by \textcite[Sec.~1]{dietzfelbinger-pagh-2008};
+the $n \log_2 e$ lower bound for minimal perfect hashing is
+\textcite{fredman-komlos-1984}, and the constructions cited in
+\Cref{sec:construction-time} run from \textcite{fredman-komlos-szemeredi-1984}
+through \textcite{botelho-pagh-ziviani-2007}, \textcite{belazzougui-2009},
+and \textcite{limasset-et-al-2017}. Retrieval-based filters that approach
+the floor at linear build time are the Bloomier filter
+\parencite{chazelle-et-al-2004}, the retrieval structures of
+\textcite{dietzfelbinger-pagh-2008}, xor and binary fuse filters
+\parencite{graf-lemire-2020,graf-lemire-2022}, and ribbon
+\parencite{dietzfelbinger-et-al-2026-ribbon}; dynamic alternatives are
+the cuckoo filter \parencite{fan-cuckoo-2014}, the quotient filter
+\parencite{bender-quotient-2012}, and the structure of
+\textcite{pagh-pagh-rao-2005}. Fingerprint uniformity rests on the
+universal hashing of \textcite{carter-wegman-1979}.
 
-\paragraph{The universal-hashing foundation.}
-The fingerprint hash $g$ of \Cref{prop:bhf-fpr} inherits its uniformity
-from the universal hashing of \textcite{carter-wegman-1979}, ``Universal
-Classes of Hash Functions,'' the first family with provable pairwise
-independence (now $2$-universal), bounding collision probabilities to
-$1/|\text{codomain}|$ over the family's random selection. The BHF needs
-only pairwise independence, so the later $k$-universal refinements
-(Wegman-Carter 1981, Siegel 1989) are not required, and Carter-Wegman
-remains the standard reference for the result the analysis depends on.
+\paragraph{What this chapter adds.}
+A presentation of the salt-search BHF and the perfect hash filter side
+by side as the two ends of a space-versus-build trade on the FNR-zero
+arm, with the BHF's expected size bounded on both sides
+(\Cref{thm:bhf-optimality}) and the perfect hash filter's break-even with
+the Bloom filter stated with real addressing costs. It also records two
+corrections to the source manuscript and to this book's earlier drafts:
+the adaptive threshold trades recall rather than saving space, and its
+exact discrete law is a binomial tail (\Cref{rem:adaptive-threshold});
+and the perfect-hash-addressed table, which an earlier draft of this
+chapter presented as the BHF, does not meet the floor, because no minimal
+perfect hash is sublinear.
 
-\paragraph{The modern perfect hash.}
-The sublinear bound of \Cref{sec:space-analysis} and the
-linear-expected-time algorithms of \Cref{sec:construction-time} trace to
-a long line culminating in \textcite{belazzougui-2009}, ``Hash,
-Displace, and Compress'' (the BDZ scheme), which achieves $O(n)$
-expected construction with output in $O(n \log \log \log n / \log n)$ at
-under $3$ bits per element for $n$ in the millions, combining
-hash-and-displace placement with entropy-efficient compression of the
-displacements. The chapter quotes its asymptotic bound as a black box.
-The antecedents BDZ improves on are Fredman-Komlos-Szemeredi (1984, the
-classical $O(n \log n)$-bit bound), Hagerup-Tholey (2001, the first
-$O(n)$-bit construction), and the MWHC and BBHash displacement families.
-
-\paragraph{Comparison structures.}
-Two contemporary designs occupy spaces adjacent to the BHF.
-\textcite{fan-cuckoo-2014}'s cuckoo filter stores fingerprints in a
-cuckoo-hashed, cache-friendly layout, reaching about $1.05$ to $1.3$
-times the floor (against the Bloom filter's $1.44$) while supporting
-amortized $O(1)$ insertion and deletion; it recovers about half the
-Bloom overhead while remaining streamable.
-\textcite{bender-quotient-2012}'s quotient filter stores fingerprints in
-a quotient-style addressing scheme with similar trade-offs and streaming
-properties. Neither matches the BHF's asymptotic optimality, but both
-narrow the Bloom gap and extend the streaming case beyond what the BHF
-supports, making them the practical middle ground when a deployment
-needs both space efficiency and streaming updates.
+\paragraph{Left out.}
+Bucketed seed-search encodings and their analysis, dynamic and
+expandable filters, cache-efficient layouts, and measured throughput.
+The map extension appears only through its success probability; the
+source manuscript develops it.

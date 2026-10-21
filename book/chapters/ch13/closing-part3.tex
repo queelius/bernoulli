@@ -9,41 +9,42 @@
 \section{Closing Part III}
 \label{sec:closing-part3}
 
-Three parts are now in place. Part~I built the atom, the noisy bit
-$\Bernoulli{\BoolType}$ with its $2 \times 2$ channel and rates $(\fprate,
-\fnrate)$. Part~II specialized it one direction, to predicates on a universe, and
+Three parts are now in place. Part~I built the atom: the noisy bit, a
+$\Bernoulli{\BoolType}$ value with a $2 \times 2$ channel and rates
+$(\fprate, \fnrate)$. Part~II specialized it one direction, to predicates on a universe, and
 worked out the algebra of approximate sets, their composition (chapter~6),
 classification measures (chapter~7), and information-theoretic floor (chapter~8).
 Part~III specialized it a second direction, to maps and types:
 \Cref{ch:approximate-functions} lifted the binary channel to $K \times L$
-channels, \Cref{ch:sketches-estimators} to streaming counters and estimators,
-chapter~11 to randomized deciders, \Cref{ch:approximate-relations} to predicates
-on pairs, and this chapter unified the four into one type-driven algebra.
+channels, \Cref{ch:sketches-estimators} read streaming counters and estimators
+as such channels, chapter~11 placed randomized deciders on the same rate plane,
+\Cref{ch:approximate-relations} turned to predicates on pairs, and this chapter
+organized the four by type.
 
 Each part widens the type structure. Part~I fixes the codomain to $\BoolType$ and
 studies the atom; Part~II keeps the codomain $\BoolType$ and studies functions
 $T \to \BoolType$; Part~III releases both domain and codomain to range over the
 algebraic types built from $\BoolType$ and the four constructors. The two rates
-of Part~I become the channel matrix of Part~III, and the union and intersection
-of Part~II become rows of the table in \Cref{sec:composition-functor}. Products
-go to Kronecker products, lists to per-position lifts, functions to per-input
-lifts; the sum is the exception, where the tag error couples the components and
-the factorization breaks, the same tag error that is the atomic membership rate
-the whole framework rests on.
+of Part~I become the channel matrix of Part~III. Under independent noise,
+products go to Kronecker products, lists to per-position lifts, functions to
+per-input lifts; the sum is the exception, where the tag error couples the
+components, the same tag error that is the membership error of an approximate
+set. Part~III also recorded two limits that the rest of the book keeps in view:
+rates do not propagate as a single pair through computations, and stored stages
+or shared inputs break the independence that factorization needs.
 
-Three parts remain. Part~IV gives the constructive payoff Part~II's lower bound
-left open: \Cref{ch:optimal-bernoulli-sets} builds the Bernoulli Hash Function,
-an approximate set meeting the chapter-8 entropy floor by abandoning the shared
-bit array for a perfect-hash fingerprint encoding, and
-\Cref{ch:perfect-hash-filters} builds the FPR-zero perfect hash filters on the
-other one-sided axis. Part~V draws the boundary and turns the algebra to
-cryptographic use: \Cref{ch:not-bernoulli} catalogues where the independent-error
-model fails (correlated errors, drifting rates, adversarial queries), and
-chapters~17 and~18 read the algebra in reverse, the salt of a Bernoulli hash
-function as a key and the acceptance predicate as a cipher map, with the
-chapter-8 floor governing both space cost and security budget.
-\Cref{ch:operator-representation} then closes the book by re-reading the whole
+Three parts remain. Part~IV turns to constructions near the chapter-8 floor, a
+bound that is classical and is met to within lower-order terms by known
+retrieval-based filters (chapter~14's notes give the lineage).
+\Cref{ch:optimal-bernoulli-sets} analyzes the Bernoulli Hash Function, a
+seed-search construction that addresses a fingerprint table through a perfect
+hash, and \Cref{ch:perfect-hash-filters} the perfect hash filters built from
+minimal perfect hashing. Part~V draws the boundary and turns the algebra to
+cryptographic use: \Cref{ch:not-bernoulli} catalogues where the
+independent-error model fails (correlated errors, drifting rates, adversarial
+queries), and chapters~17 and~18 read the algebra in reverse, the salt of a
+Bernoulli hash function as a key and the acceptance predicate as a cipher map.
+\Cref{ch:operator-representation} then closes the book by re-reading the
 framework in operator form, elements as basis vectors and noise as a stochastic
-matrix, where the Kronecker products of \Cref{sec:composition-functor} become the
-formal tensor factorization of an independent set's noise. With Part~III closed,
-the algebra is in place; the next parts build on it.
+matrix, where the Kronecker products of \Cref{sec:composition-functor} become
+the tensor factorization of an independent set's noise.

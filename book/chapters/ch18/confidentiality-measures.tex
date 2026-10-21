@@ -2,6 +2,10 @@
 %
 % Monograph register: the server's leakage model, PPV as confidentiality,
 % NPV/F1, multi-query leakage (prop:multi-query-leakage), worked example.
+% REVISED 2026-10: the old proposition (posterior factorizes as a Kronecker
+% product; I_m = m I_1; C_m = Theta(m^-1/2)) was unsupported and is replaced
+% by subadditivity, the frozen-structure case, and the geometric decay of
+% cover across independently keyed instances, with proof.
 % Tightened; all numbers verified. Cross-refs sec:kronecker, thm:kronecker,
 % def:ppv, def:npv, def:f1, sec:derived-measures, sec:trapdoor-paradigm,
 % sec:maximizing-confidentiality, def:per-document-bloom, sec:union-of-sets.
@@ -14,9 +18,11 @@ The cipher-map framing of \Cref{sec:bloom-based} fixed an error profile
 $(\fprate, 0)$ for both constructions, and
 \Cref{sec:maximizing-confidentiality} worked out confidentiality at fixed
 rates and prevalence. This section reads that derivation in the
-encrypted-search setting: every chapter 7 measure has a leakage
-interpretation, and trading rate-budget for confidentiality reduces to
-choosing $\fprate$ on the chapter 7 curve.
+encrypted-search setting: under the observation model stated there, each
+chapter 7 measure has a leakage interpretation, and trading rate budget
+for cover reduces to choosing $\fprate$ on the chapter 7 curve. The other
+leakage channels of the setting (query equality, access pattern, result
+volume) are outside this accounting.
 
 \subsection*{The server's leakage model}
 
@@ -43,56 +49,87 @@ and the workload prevalence $\pi$,
   \Pr[w \in d_i \mid \tau_w \text{ matched}]
   = \PPV = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate}.
 \]
-The chapter 7 formula and the cipher map's posterior are the same
-quantity derived twice. Following
+The chapter 7 formula and the server's posterior are the same
+quantity derived twice.\index{positive predictive value} Following
 \Cref{sec:maximizing-confidentiality}, confidentiality is the complement
 $C = 1 - \PPV$, high when most matches are spurious and low when most are
 genuine. At $\fnrate = 0$, which both constructions satisfy,
 \[
   C \;=\; \frac{(1 - \pi)\fprate}{\pi + (1 - \pi)\fprate},
 \]
-the single most useful equation in the chapter: on the perfect-filter
-line confidentiality is monotone in the rate-prevalence product $(1 -
+the most useful equation in the chapter: on the perfect-filter
+line the cover is monotone in the rate-prevalence product $(1 -
 \pi)\fprate$ relative to $\pi$. The companion measure for $\bot$-reports
-is the negative predictive value (\Cref{def:npv}), which at $\fnrate = 0$
+is the negative predictive value\index{negative predictive value} (\Cref{def:npv}), which at $\fnrate = 0$
 collapses to $\NPV = 1$: a Bloom-based search reports $\bot$ only when the
 keyword is truly absent (the union analysis of \Cref{sec:union-of-sets}),
 so a $\bot$-report is fully reliable and the $\fnrate = 0$ regime
 concentrates all confidentiality on the $\top$-side. The balanced-workload
-summary is the $\Fone$-score of \Cref{def:f1}, which at $\fnrate = 0$
+summary is the $\Fone$-score\index{F1 score@$F_1$ score} of \Cref{def:f1}, which at $\fnrate = 0$
 (recall $= 1$, precision $= \PPV$) reduces to $2\PPV/(1 + \PPV)$, monotone
-in PPV and the right measure when $\pi$ is not known in advance. The
-chapter 7 apparatus (\Cref{sec:derived-measures}) thus carries over
-unchanged, every derived measure acquiring a confidentiality reading.
+in PPV and the right measure when $\pi$ is not known in advance. The chapter 7 apparatus (\Cref{sec:derived-measures}) thus carries over
+unchanged, every derived measure acquiring a reading under the stated
+observation model.
 
 \subsection*{Multi-query leakage}
 
 A single query leaks a bounded amount about one $(w, d_i)$ pair; a long
-sequence leaks about the whole corpus, governed by the Kronecker
-structure of \Cref{sec:kronecker} that \Cref{sec:trapdoor-paradigm}
-already used.
+sequence leaks about the whole corpus. What accumulates, and how fast,
+depends on whether a new observation is a fresh draw.
 
-\begin{proposition}[Multi-query leakage scaling]
+\begin{proposition}[Leakage across queries and instances]
 \label{prop:multi-query-leakage}
-For $m$ independent queries against a system with profile $(\fprate, 0)$
-and prevalence $\pi$, under the chapter 4 independence axiom the server's
-posterior factorizes as the $m$-fold Kronecker product of single-query
-posteriors. The total leakage (mutual information between the query stream
-and the plaintext) grows linearly, $I_m = m\,I_1$, while the
-confidentiality of any single $(w, d_i)$ pair, measured in bits of
-posterior uncertainty, shrinks as $C_m = \Theta(m^{-1/2})$ by standard
-concentration.
+Consider a system with profile $(\fprate, 0)$ at prevalence $\pi$.
+\begin{enumerate}
+\item \emph{Subadditivity.} If observations $Y_1, \ldots, Y_m$ are
+  conditionally independent given the plaintext corpus $D$, then
+  $I(D; Y_1, \ldots, Y_m) \le \sum_{j} I(D; Y_j)$, so per-query leakage
+  bounds add.
+\item \emph{Frozen structure.} Repeating a query for the pair $(w, d_i)$
+  against the same structure returns the same result, so it adds no
+  information about that pair (it does reveal that the query repeated).
+\item \emph{Independent instances.} If the pair is tested against $t$
+  structures built with independent keys over the same corpus, a true
+  pair matches in all of them and a false pair in each independently with
+  probability $\fprate$, so the posterior after $t$ matches is
+  \[
+    \PPV_t \;=\; \frac{\pi}{\pi + (1 - \pi)\fprate^{\,t}},
+    \qquad
+    C_t \;=\; 1 - \PPV_t \;\le\; \frac{1 - \pi}{\pi}\,\fprate^{\,t}.
+  \]
+\end{enumerate}
 \end{proposition}
 
-The two scalings read the same phenomenon from opposite sides: the
-server's total information grows linearly in the budget, while the
-confidentiality of any one fact decays as its square root, the asymmetry
-coming from the central limit theorem sharpening the posterior mean at
-rate $m^{-1/2}$. A system with a fixed query budget can be analyzed by
-reading off $C_m$; an unbounded budget cannot have non-trivial asymptotic
-confidentiality, so the trapdoor key must be rotated periodically (a
-rotation resets the accumulated leakage) or the asymptotic posterior must
-itself be acceptable.
+\begin{proof}
+(1) $I(D; Y^m) = H(Y^m) - H(Y^m \mid D) = H(Y^m) - \sum_j H(Y_j \mid D)
+\le \sum_j H(Y_j) - \sum_j H(Y_j \mid D)$, using conditional independence
+for the middle equality and subadditivity of entropy for the inequality.
+(2) The structure and the query token are fixed, so the result is a
+deterministic function of them. (3) The $t$ match events of a false pair
+are independent with probability $\fprate$ each, those of a true pair all
+occur since $\fnrate = 0$; Bayes' rule gives $\PPV_t$, and dropping the
+$(1 - \pi)\fprate^{\,t}$ term from the denominator of $C_t$ gives the
+bound.
+\end{proof}
+
+The three parts separate what accumulates. Across distinct pairs,
+leakage adds, so a fixed per-query bound gives a linear budget. Against
+one structure, repetition reveals the search pattern but not more about
+the pair. Across independently keyed instances, the cover of a single
+fact decays geometrically: rebuilding the index under a fresh key resets
+the linkage between old and new tokens, but if the observer keeps the old
+index, every rebuild is another instance in part 3. Key rotation
+protects only against an observer who cannot retain old structures.
+Part 3 is the membership form of the coincidence attack on retrieval
+codecs. There a non-member decodes, in each of $t$ independently keyed
+instances, to a value drawn from the codec's distribution $(q_v)$, while
+a member decodes to its true value every time; an attacker who calls an
+item a member when all $t$ decodings agree is right with probability
+$1 - \tfrac12 \sum_v q_v^t$ at a balanced prior. Large $\sum_v q_v^t$
+means a weak attacker, so codecs concentrated on a heavy value (large
+$\max_v q_v$) defend best and the uniform dense codec defends worst
+(\textcite{towell-cipher-maps}; companion experiment
+\texttt{bernoulli-py/\allowbreak experiments/\allowbreak 14\_coincidence\_oracle.py}).\index{codec}\index{coincidence attack}
 
 \subsection*{A worked example}
 

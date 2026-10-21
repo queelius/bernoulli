@@ -27,8 +27,9 @@ encrypted documents. A construction needs an approximate-set structure
 recording each document's keywords compactly, an encryption scheme
 letting the server test a query token against the stored representation
 without learning the plaintext keyword, and a query-token format the
-client computes privately and the server matches obliviously. The Bloom
-filter of \Cref{def:bloom-filter} solves the first; a standard symmetric
+client computes privately and the server matches without learning the
+keyword. The Bloom
+filter\index{Bloom filter} of \Cref{def:bloom-filter} solves the first; a standard symmetric
 scheme (a one-time pad keyed by a pseudorandom function) the second; a
 deterministic keyed function of the keyword the third. The two
 construction families differ in what counts as a ``document'' in the
@@ -57,8 +58,14 @@ client sends $\tau_w$; the server returns the matching encrypted filter,
 which the client decrypts to recover an approximate identifier set.
 \end{definition}
 
-The per-document construction asks, for each document, ``does this query
-match?'', and has $|D|$ answers per query; the inverted-index
+The per-document construction is, up to presentation, the secure index
+of \textcite{goh-2003}\index{secure index}, which keys the probe
+positions with a pseudorandom function and blinds each document's filter
+with a per-document codeword; the inverted-index layout is the one the
+efficient searchable-encryption constructions use for exact answers
+\parencite{curtmola-et-al-2006}, here with a filter in place of the exact
+identifier list. The per-document construction asks, for each document,
+``does this query match?'', and has $|D|$ answers per query; the inverted-index
 construction asks ``which documents match?'', with $|W|$ index entries
 and a shorter query path (one lookup, one encrypted blob, the rest done
 client-side). The encryption layer does two jobs in both: it hides the
@@ -76,7 +83,7 @@ filter's $\fprate$, always reporting a match when $w \in d_i$ ($\fnrate =
 d_i$. The error profile is $(\fprate, 0)$, satisfying
 \Cref{def:cipher-map}. The inverted-index construction realizes $f(w) =
 \{i : w \in d_i\}$ with the same profile. Both have $\fnrate = 0$ by
-structural inheritance from the Bloom filter, whose union analysis
+structural inheritance from the Bloom filter (one-sided error\index{one-sided error}), whose union analysis
 (\Cref{sec:union-of-sets}) showed that ORing bits can only add matches,
 never remove them, so the per-document filter never misses an inserted
 keyword.
@@ -84,7 +91,7 @@ keyword.
 The chapter 3 composition theorem (\Cref{thm:composition}) extends this
 to multi-keyword conjunctions, with the three-region care chapter 6
 required for intersection. A client querying for documents containing
-both $w_1$ and $w_2$ intersects the two returned identifier sets. The
+both $w_1$ and $w_2$ intersects\index{intersection} the two returned identifier sets. The
 result has $\fnrate = 0$ (a true match, containing both keywords, is
 returned by both queries and survives). Its false-positive rate per
 document is bounded by $\fprate$, but not for the reason a bare product
@@ -95,7 +102,9 @@ at rate $\fprate$ (the $w_1$-test is correct, not a false match), and only
 a document containing neither keyword needs both tests to err, at the
 lower rate $\approx \fprate^2$. By the three-region intersection rate
 (\Cref{prop:intersection-fpr-fnr}, \eqref{eq:intersection-fpr}) the
-conjunction's FPR is the partition-weighted sum, bounded by $\fprate$ and
+conjunction's FPR is the partition-weighted sum (a prior-averaged rate\index{prior-averaged rate}
+over the corpus; each document individually sees the rate of its own
+region), bounded by $\fprate$ and
 met by documents missing exactly one of the two keywords. Deep
 conjunctions are highly precise on a corpus of true non-matches and only
 modestly precise when documents commonly contain one queried keyword but
@@ -110,7 +119,7 @@ the underlying filter.
 \subsection*{Space and query cost}
 
 For the per-document construction with $|D|$ documents and $W_d$ keywords
-each, the chapter 5 optimal-$k$ formula (\Cref{thm:bloom-optimal-k}) gives
+each, the chapter 5 optimal-$k$ formula (\Cref{thm:bloom-optimal-k}) gives\index{Bloom filter!space overhead}
 $m_d / W_d = (\log_2 e)\log_2(1/\fprate) \approx 1.44 \log_2(1/\fprate)$
 bits per item, so total storage is
 \[
@@ -127,9 +136,8 @@ server (the per-document construction tests every filter, the
 inverted-index does one lookup), at the price of pushing the membership
 test to the client. Incremental update favors the per-document layout
 (adding a document is local) while query latency favors the inverted
-index, so production deployments routinely keep both, the per-document
-filters as the primary store and the inverted index as a query
-accelerator rebuilt lazily.
+index, so a deployment can keep both, the per-document filters as the primary
+store and the inverted index as a query accelerator rebuilt lazily.
 
 \subsection*{A worked example}
 

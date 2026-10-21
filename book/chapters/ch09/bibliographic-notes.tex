@@ -1,48 +1,46 @@
-% §9.6 Bibliographic Notes
+% §9.6 Notes and Lineage
 %
-% Monograph register: the approximate-maps manuscript, n-ary channels and
-% Blahut-Arimoto (note: correctly cites "symmetric and weakly symmetric", the
-% terminology sec:n-ary-capacity now uses), Shannon. Citations
-% towell-bernoulli-maps, cover-thomas, shannon-1948. Cross-refs
-% sec:atom-to-function, def:n-ary-channel, thm:n-ary-kronecker,
-% cor:n-ary-parameter-count, sec:n-ary-capacity, prop:n-ary-capacity,
-% sec:bridge-to-sketches, sec:kronecker, sec:bsc-capacity, sec:entropy-refresher,
-% ch:sketches. DEFINED: sec:bib-notes-ch9.
+% Lineage pass (2026-10-21): Shannon/Cover-Thomas for n-ary channels and
+% capacity; retrieval (Bloomier, Dietzfelbinger-Pagh) as the data-structure
+% analogue; readout assignment matrices; the correction to map-composition
+% closure (rem:channel-composition); the "Bernoulli map" name collision.
+% Citations shannon-1948, cover-thomas, chazelle-et-al-2004,
+% dietzfelbinger-pagh-2008, bravyi-et-al-2021, nation-et-al-2021,
+% towell-bernoulli-maps. DEFINED: sec:bib-notes-ch9.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch9}
 
-\paragraph{The approximate-maps manuscript.}
-The lift of the noisy bit $\Bernoulli{\BoolType}$ to the type-general
-$\Bernoulli{T}$, with the n-ary channel matrix $Q$ organizing its per-block
-output distributions, follows \textcite{towell-bernoulli-maps}: the
-$T$-valued framing of \Cref{sec:atom-to-function}, the $K \times L$ channel of
-\Cref{def:n-ary-channel}, the Kronecker factorization
-\Cref{thm:n-ary-kronecker} with its parameter count
-\Cref{cor:n-ary-parameter-count}, and the capacity formulation of
-\Cref{sec:n-ary-capacity} are from it. This chapter recalls \Cref{sec:kronecker}
-and \Cref{sec:bsc-capacity} as the model-order-two special cases the n-ary
-results generalize, and exhibits the 3-class classifier and the counter as
-concrete non-Boolean instances.
+\paragraph{Lineage.}
+The n-ary channel is Shannon's discrete channel with its transition matrix
+\parencite{shannon-1948}. Capacity as maximal mutual information, the closed
+forms for symmetric and weakly symmetric channels, and the Blahut--Arimoto
+iteration are standard \parencite[Chs.~7 and~10]{cover-thomas}, and the Kronecker
+law for queries on distinct inputs is the product (memoryless) channel. Multi-class
+confusion matrices and the assignment matrices of quantum readout mitigation
+\parencite{bravyi-et-al-2021,nation-et-al-2021} are instances. On the
+data-structure side, the map-valued counterpart of approximate membership is
+\emph{retrieval}\index{retrieval}: a static function that returns the stored value
+on keys and an arbitrary value elsewhere, as in the Bloomier
+filter\index{Bloomier filter} \parencite{chazelle-et-al-2004} and the succinct
+retrieval structures of \textcite{dietzfelbinger-pagh-2008}, who also reduce
+approximate membership to retrieval.
 
-\paragraph{N-ary channels and Blahut--Arimoto.}
-The discrete memoryless channel is standard, with \textcite{cover-thomas} the
-depth reference: their chapter~7 defines capacity as the supremum of mutual
-information over input distributions and treats the symmetric and weakly
-symmetric special cases whose closed forms \Cref{sec:n-ary-capacity} uses, and
-their chapter~10 develops the Blahut--Arimoto algorithm, the coordinate ascent
-on the mutual information that makes the general n-ary capacity of
-\Cref{prop:n-ary-capacity} computable rather than merely defined.
+\paragraph{What this chapter adds.}
+The type-general reading of the noisy bit as $\Bernoulli{T}$, and the separation
+of matrix row count from model order, follow the approximate-maps manuscript
+\textcite{towell-bernoulli-maps}. The chapter's contribution is organizational:
+classifiers, counters, sketches, and readout share one channel vocabulary. It also
+corrects that manuscript. Serial composition through a stored stage preserves
+per-query marginals but not Axiom~1 (\Cref{rem:channel-composition}), so
+composition closure of approximate maps holds for marginal rates, and for the
+joint law only when distinct inputs reach distinct intermediate values or the
+later stage is re-randomized per query.
 
-\paragraph{Shannon's framework.}
-The channel-capacity vocabulary originates in \textcite{shannon-1948}: the
-entropy of \Cref{sec:entropy-refresher}, the capacity $C = \max_{P_X} I(X; Y)$
-of \Cref{sec:n-ary-capacity}, and the source-coding theorem connecting them.
-Shannon's channel as a probabilistic map from input to output alphabet under a
-fixed transition kernel is exactly the framing of \Cref{def:n-ary-channel}: $Q$
-is his transition matrix, $K$ and $L$ his alphabet sizes, the chapter's capacity
-his capacity. The sketch literature previewed in \Cref{sec:bridge-to-sketches}
-is taken up with its citations in \Cref{ch:sketches-estimators}, where the named
-constructions belong, rather than with the abstract framework that subsumes
-them.
+\paragraph{Left out.}
+Retrieval constructions and their space bounds (the membership side returns in
+chapters~14 and~15), coding theorems beyond capacity, and the estimation of $Q$
+from data. The source manuscript and \Cref{ch:operator-representation} call this
+object a \emph{Bernoulli map}\index{Bernoulli map}; the same name denotes the
+doubling map $x \mapsto 2x \bmod 1$ of dynamical systems, so the term is best
+paired with ``approximate'' when searching the literature.

@@ -12,18 +12,21 @@ Part~I is complete. The two axioms are stated (\Cref{sec:axiom-1},
 (\Cref{thm:kronecker}), and \Cref{def:bernoulli-bool} gives
 $\Bernoulli{\BoolType}$ a rigorous identity, of which every example in chapters
 1 through 3 is an instance. Three of the framework's organizing principles are
-now in view: the two axioms, the closure of the type under composition (serial
-and parallel), and the Boolean thread that ran from the noisy bit to the formal
-definition without leaving $\{\top, \bot\}$. Two more arrive in Part~II:
-parametric parsimony, whose information-theoretic necessity (why $2m$ is the
-right count, not merely a convenient one) needs the entropy bounds of chapter~8,
-and space-accuracy duality, the trade-off between a structure's size and its
+now in view, each with its scope: the two axioms; closure of binary channels
+under serial composition and Kronecker factorization of parallel queries, but
+not closure of the two-rate type under Boolean formulas, where the exact
+description is per latent assignment (\Cref{sec:boolean-formulas}); and the
+Boolean thread that ran from the noisy bit to the formal definition without
+leaving $\{\top, \bot\}$. Two more arrive in Part~II:
+parametric parsimony\index{parametric parsimony}, already counted in
+\Cref{cor:parameter-reduction} and priced in bits by the entropy bounds of
+chapter~8, and space-accuracy duality\index{space--accuracy tradeoff}, the trade-off between a structure's size and its
 error rates, which is Part~II's central concern.
 
 Part~II asks what a set-membership predicate built from atoms looks like. A set
-$S$ over a universe induces a Boolean query per element; an approximate set
-makes each query a $\Bernoulli{\BoolType}$ instance, mutually independent by
-Axiom~1. The canonical construction is the Bloom filter, a mechanism for
+$S$ over a universe induces a Boolean query per element; an approximate
+set\index{approximate set} makes each query a $\Bernoulli{\BoolType}$
+instance, mutually independent by Axiom~1 given the realized rates. The canonical construction is the Bloom filter\index{Bloom filter}, a mechanism for
 manufacturing one-sided instances ($\fnrate = 0$) with a tunable false-positive
 rate, developed in \Cref{ch:approximate-sets}; chapter~6 then propagates error
 through set operations, chapter~7 develops the classification measures, and

@@ -37,14 +37,18 @@ formula.
 \subsection*{Multi-armed bandit framing}
 
 The right framing treats each distinct keyword the attacker might query as
-an arm in a multi-armed bandit: each pull is one query, the reward is the
+an arm in a multi-armed bandit\index{multi-armed bandit}: each pull is one query, the reward is the
 leakage it produces, and the defender's goal is not to maximize reward but
 to bound the worst arm's, a high-confidence statement that no keyword
 exceeds a target leakage budget. The upper-confidence-bound family maps
 directly: the defender maintains a per-arm estimate $\hat\pi_w$ and the UCB
 $\hat\pi_w + \sqrt{2\log(1/\delta)/n_w}$, a high-confidence upper bound
-that is \emph{adversarially valid}, holding over all arms and all attacker
-strategies because it does not assume the arm-selection rule is iid. The
+that remains valid when the attacker chooses which arm to pull, because
+it conditions on each arm's own samples rather than on an iid selection
+rule. (With adaptively chosen sample sizes the fixed-$n$ radius needs a
+union bound over sample sizes, or an anytime-valid radius, to keep its
+coverage; the per-arm samples must also be fresh draws, not repetitions
+of one frozen answer.) The
 maximum per-arm UCB is the worst-case bound fed into the confidentiality
 formula. Thompson sampling is the Bayesian counterpart, a
 $\mathrm{Beta}(\alpha_w, \beta_w)$ posterior per arm with the maximum
@@ -53,7 +57,7 @@ bounded.
 
 \subsection*{Confidence intervals under adversarial sampling}
 
-The Wilson and Clopper-Pearson CIs adapt by a union bound over arms. For a
+The Wilson and Clopper-Pearson CIs\index{confidence interval!Wilson}\index{confidence interval!Clopper--Pearson} adapt by a union bound over arms. For a
 vocabulary of $K$ arms at joint confidence $1 - \delta$, computing each
 per-arm CI at $1 - \delta/K$ and taking the maximum is valid by
 Bonferroni. The price is a $\log K$ factor in the per-arm width: the
@@ -75,7 +79,7 @@ few keywords.
 
 \subsection*{Why the iid bound is the wrong bound}
 
-The chapter 11 multiplicative Chernoff bound (\Cref{thm:chernoff})
+The chapter 11 multiplicative Chernoff bound\index{Chernoff bound} (\Cref{thm:chernoff})
 sharpens the iid CI to exponential decay, the right bound for iid traffic
 and the wrong one for adversarial traffic, because its derivation invokes
 the iid moment generating function, which assumes the arm-selection rule
@@ -94,8 +98,10 @@ confidentiality bound.
 
 A defender monitors a system at 100 queries per minute, processing $n =
 6000$ queries in an hour and observing $540$ matches, an empirical rate
-$\hat\pi = 0.09$. The \emph{iid} normal-approximation interval at $95\%$
-is $0.09 \pm 1.96 \sqrt{0.09 \cdot 0.91 / 6000} \approx 0.09 \pm 0.0072$,
+$\hat\pi = 0.09$. The \emph{iid} normal-approximation interval at $95\%$ is
+\[
+  0.09 \pm 1.96 \sqrt{0.09 \cdot 0.91 / 6000} \;\approx\; 0.09 \pm 0.0072,
+\]
 so $\pi \in [0.083, 0.097]$; substituting the upper end into the
 confidentiality formula at $\fprate = 0.01$, $\fnrate = 0$ gives $\PPV
 \approx 0.915$, $C \approx 0.085$, so the defender concludes
@@ -105,10 +111,8 @@ confidentiality is at least $0.085$. The \emph{MAB UCB} approach, with $K
 (with high variance), bounds an arm at $n_w = 6$, $\hat\pi_w = 0.5$ by a
 Clopper-Pearson upper limit near $1$ (about $0.99$ at this sample size and
 joint confidence); the worst-arm bound is then $\pi^{\mathrm{MAB}}_{\max}
-\approx 0.99$, giving $\PPV \approx 0.9999$ and $C \approx 10^{-4}$. The
-two bounds differ by nearly three orders of magnitude, and only the MAB
-bound answers
-the defender's actual question, how leaky is the worst-case keyword the
+\approx 0.99$, giving $\PPV \approx 0.9999$ and $C \approx 10^{-4}$. The two cover estimates differ by nearly three orders of magnitude, and
+only the MAB bound answers the defender's actual question, how leaky is the worst-case keyword the
 attacker might target. The warning is the chapter's recurring one: a
 framework guarantee is only as strong as the estimator that produced its
 parameters, and the iid estimator misapplied to adversarial data, not the

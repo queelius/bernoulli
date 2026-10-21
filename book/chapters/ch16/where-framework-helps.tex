@@ -25,7 +25,7 @@ without further work. This section catalogues the partial successes.
 
 \subsection*{The perfect-filter line classifies per-query}
 
-\Cref{def:perfect-filter-line} read the perfect-filter property,
+\Cref{def:perfect-filter-line} read the perfect-filter property\index{perfect filter line},
 $\fprate = 0$ or $\fnrate = 0$ exactly, off a single channel matrix. The
 classification was set up for stable rates, but it survives drift and
 correlation because it acts on per-query marginals. A system whose rates
@@ -42,7 +42,7 @@ work.
 
 \subsection*{The channel matrix becomes a sequence $(Q_t)$}
 
-\Cref{def:n-ary-channel} fixed the channel matrix $Q$ as the per-block
+\Cref{def:n-ary-channel} fixed the channel matrix\index{channel matrix} $Q$ as the per-block
 conditional probabilities of observed given true labels. Under Axiom 2's
 failure $Q$ becomes a sequence $(Q_t)$, one matrix per query, and the
 framework absorbs the generalization at the per-query level: the
@@ -57,7 +57,7 @@ sequence of queries be treated as draws from one matrix is what is lost.
 
 \subsection*{The PPV/NPV formula stands per-query}
 
-\Cref{def:ppv} expressed PPV from $\fprate$, $\fnrate$, and prevalence
+\Cref{def:ppv} expressed PPV\index{positive predictive value} from $\fprate$, $\fnrate$, and prevalence
 $\pi$ at a single query, and nothing in the derivation used iid sampling
 across queries. Under any of the three failure modes the formula still
 holds at each query; what changes is that the triple may itself be
@@ -82,8 +82,8 @@ martingale setting of \Cref{sec:varying-rates} or \Cref{prop:mcdiarmid}
 for the bounded-differences setting of \Cref{sec:correlated-noise}; where
 neither iid nor a tractable dependence applies
 (\Cref{sec:adversarial-inputs}), drop the expectation for worst-case
-bounds and close the side channels with cryptographic or trapdoor
-primitives. The framework's affirmative content is a collection of
+bounds, use keyed (pseudorandom) hashing against structural attacks, and
+close side channels with data-oblivious implementations. The framework's affirmative content is a collection of
 per-query objects, a noisy bit with rates $(\fprate, \fnrate)$, a channel
 matrix $Q$, a derived quantity such as PPV. Strict iid glues them into
 multi-query bounds; when iid fails the per-query objects survive and only

@@ -1,180 +1,170 @@
 % §14.5 Construction Time and Trade-offs
 %
-% Monograph register: build the perfect hash (expected O(n)), build the
-% fingerprint table (one pass), query time O(1), trade-offs table,
-% decision rule. FIX: the optimal Bloom hash count is k* = log_2(1/fpr)
-% (= -log_2 fpr), NOT 0.69*log_2(1/fpr); the previous prose carried a
-% stray ln2 factor (k~4.6 at fpr=0.01, k~14 at fpr=1e-6 were wrong; the
-% correct values are 6.64 and 19.93, consistent with the trade-off table
-% and with sec:bhf-construction). Folds salvaged ex-8 as
-% rem:bhf-nonmergeable (data-dependent addressing defeats bit-OR merge)
-% and the ex-10 tiered/dynamic sketch inline. Cross-refs def:bloom-filter,
-% alg:bloom-insert-query, prop:bloom-overhead, def:bhf,
-% alg:bhf-insert-query, sec:bhf-construction, sec:space-analysis,
-% thm:bhf-optimality, prop:bhf-fpr, sec:ch14-bridge, sec:bib-notes-ch14.
+% Monograph register: the BHF's exponential build (expected eps^{-n} salts)
+% and the bucketed seed search that makes seed search practical; the perfect
+% hash filter's expected-linear build via off-the-shelf minimal perfect
+% hashing; query costs (the optimal Bloom hash count k* = log2(1/fpr));
+% trade-off table across BHF, PHF, Bloom; rem:bhf-nonmergeable; decision rule.
+% CORRECTION (2026-10-21): the earlier table and decision rule credited the
+% perfect-hash-addressed table with floor-level space ("BHF dominates");
+% it pays at least log2(e) bits per key of addressing and loses to the Bloom
+% filter at loose targets (see prop:phf-space and the ch14 notebook).
+% Cross-refs def:bloom-filter, prop:bloom-overhead, def:bhf, eq:bhf-success,
+% thm:bhf-optimality, def:phf, alg:phf-build-query, prop:phf-space,
+% prop:phf-fpr, prop:bhf-fpr, sec:ch14-bridge, sec:bib-notes-ch14.
 % DEFINED: sec:construction-time, rem:bhf-nonmergeable,
 % tab:bhf-bloom-tradeoffs.
 
 \section{Construction Time and Trade-offs}
 \label{sec:construction-time}
 
-The space and FPR analyses settled the BHF's accuracy and bit budget.
-The remaining dimensions are build time, query latency, and the
-property that distinguishes the BHF from the Bloom filter in
-deployment: the BHF is static, so inserting a new element after build
-requires recomputing the perfect hash. This section quantifies the
-costs and offers a decision rule.
+The two constructions of this chapter differ less in what they store than
+in how they find it. The BHF searches; the perfect hash filter
+addresses. This section prices the search, prices the addressing, and
+offers a decision rule that includes the Bloom filter and the retrieval
+filters of \Cref{sec:space-analysis}.
 
-\subsection*{Building the perfect hash}
+\subsection*{The BHF build is exponential}
 
-The perfect hash $\phi : A \to [n]$ is built from $A$ at build time, and
-several families achieve expected $O(n)$ construction. The classical
-Fredman-Komlos-Szemeredi scheme (1984) is $O(n)$ expected with $O(n
-\log n)$ output bits; Hagerup-Tholey (2001) reduces output to $O(n)$
-bits; the displacement-based family (MWHC, BBHash) is $O(n)$ expected
-with $O(n)$ bits at $2$ to $4$ bits per element; the BDZ construction
-(Belazzougui-Botelho-Dietzfelbinger, 2009) is $O(n)$ expected with the
-$O(n \log \log \log n / \log n)$ output that \Cref{sec:space-analysis}
-used. The bibliographic entries appear in \Cref{sec:bib-notes-ch14}.
+The build of \Cref{alg:bhf-insert-query} examines an expected $1/s =
+\fprate^{-n}$ salts (\eqref{eq:bhf-success}), each rejected after an
+expected at most $1/(1 - \fprate)$ hash evaluations, so its expected work
+is about $\fprate^{-n}/(1 - \fprate)$ hash evaluations. In bits, the
+search costs $2^{\ell^{*}}$ trials for an $\ell^{*}$-bit representation:
+the space optimality of \Cref{thm:bhf-optimality} and the exponential
+build are the same fact read in two directions. At $\fprate = 1/2$ a set
+of $64$ members needs about $1.8 \times 10^{19}$ salts; at $\fprate =
+0.01$ a set of $10$ members already needs $10^{20}$. The BHF is a
+construction for small sets.
 
-The expected-time guarantee comes from a randomization step: each
-algorithm samples a parameter (seed, displacement vector, partitioning
-hash) and retries on failure, with a constant expected number of
-retries. The construction dominates BHF build time, since the
-fingerprint fill is a single memory-bandwidth-bound pass. Modern
-displacement-based implementations sustain $10$ to $50$ million
-elements per second on commodity hardware, so build time is seconds for
-million-element sets and minutes for billion-element sets. Both the BHF
-and the Bloom filter scale linearly in $n$; the Bloom filter's
-per-element constant is smaller (a few hashes and bit-writes, no
-retries), so its absolute build time is lower at the same $n$. The BHF
-pays the perfect-hash construction up front in exchange for the
-per-element space saving.
+That is how seed search is used in practice.\index{seed search} Split $A$ by a first-level
+hash into buckets of expected size $\beta$ and search one salt per
+bucket. The work becomes about $(n/\beta) \fprate^{-\beta}$, and the
+space becomes the sum of the per-bucket salt lengths, $n
+\log_2(1/\fprate)$ in expectation, plus the constant slack of
+\Cref{thm:bhf-optimality} for each bucket and the cost of recording where
+each variable-length salt begins. The per-element overhead therefore
+falls like $1/\beta$ while the work grows like $\fprate^{-\beta}$, and
+how cheaply the salts can be encoded jointly is a research question in
+its own right. Minimal perfect hashing uses exactly this design,
+searching small buckets for seeds that are injective rather than
+accepting \parencite{esposito-graf-vigna-2020,lehmann-sanders-walzer-2024},
+and \textcite{lehmann-et-al-2025} combine the search with the encoding of
+the seeds to reduce that overhead. The book does not develop a bucketed
+BHF; it uses the single-salt BHF as the construction that shows what the
+floor costs.
 
-\subsection*{Building the fingerprint table}
+\subsection*{The perfect hash filter build is linear}
 
-Once $\phi$ is in hand, the table is filled in one pass over $A$:
-$F[\phi(a)] \coloneqq g(a)$, evaluating $\phi(a)$ and $g(a)$ once each
-and writing one $r$-bit slot per element, for $O(n)$ time and $O(nr)$
-bits. The fill is embarrassingly parallel, since $\phi$'s bijectivity
-makes each iteration write a distinct slot, but it must follow the
-perfect-hash stage, which addresses the slots. For most builds the
-two-stage pipeline (perfect hash, then fingerprints) is the right
-organization, parallel within each stage.
+The perfect hash filter replaces the search over all of $A$ with an
+expected-linear minimal perfect hash construction followed by one pass
+writing fingerprints. Linear-time perfect hashing goes back to\index{perfect hash function}\index{minimal perfect hash function}
+\textcite{fredman-komlos-szemeredi-1984}, whose scheme stores $O(n)$
+words; space-efficient minimal perfect hash functions with expected
+linear construction include the hypergraph-peeling construction of
+\textcite{botelho-pagh-ziviani-2007}, hash-displace-and-compress
+\parencite{belazzougui-2009}, and BBHash \parencite{limasset-et-al-2017},
+at roughly $2$ to $3$ bits per key; RecSplit and ShockHash approach
+$\log_2 e$ by spending more build time on bucketed seed search. The
+fingerprint pass evaluates $g$ once per member and writes distinct slots,
+so it parallelizes trivially. Building costs a few hash evaluations per
+member with a constant expected number of retries, against the Bloom
+filter's $k$ hash evaluations and bit writes per member with none.
 
 \subsection*{Query time}
 
-The query of \Cref{alg:bhf-insert-query} runs in $O(1)$: one
-perfect-hash evaluation, one fingerprint-hash evaluation, one memory
-read, and an $r$-bit comparison (constant when $r$ fits a machine word,
-as it does for all practical targets). The Bloom filter's query costs
-$k$ hash evaluations and $k$ reads, with $k$ at the optimum equal to
+The BHF's query is one hash evaluation and one comparison. The perfect
+hash filter's query evaluates the perfect hash (a constant number of
+hashes and memory probes, the constant depending on the construction),
+one fingerprint hash, one table read, and one $r$-bit comparison. The
+Bloom filter's query costs $k$ hash evaluations\index{Bloom filter} and $k$ reads, with $k$
+at the optimum equal to
 \[
-  k^* \;=\; (m/n)\ln 2 \;=\; \log_2(1/\fprate),
+  k^{*} \;=\; (m/n) \ln 2 \;=\; \log_2(1/\fprate),
 \]
-since $m/n = \log_2(1/\fprate)\cdot\log_2 e$ (\Cref{prop:bloom-overhead})
-and $\log_2 e \cdot \ln 2 = 1$; equivalently $\fprate = 2^{-k^*}$ at the
-half-occupancy optimum. The BHF's two hash evaluations therefore
-undercut the Bloom filter by a factor $k^*/2$. At $\fprate = 0.01$,
-$k^* = 6.64$, so the BHF performs about $3.3$ times fewer hash
-evaluations per query; at $\fprate = 10^{-6}$, $k^* = 19.93$, about $10$
-times fewer. The BHF is denser per bit and faster per query; the price
-for both is the static-set restriction.
+since $m/n = \log_2(1/\fprate) \cdot \log_2 e$ (\Cref{prop:bloom-overhead})
+and $\log_2 e \cdot \ln 2 = 1$; at $\fprate = 0.01$, $k^{*} \approx 6.6$,
+and at $\fprate = 10^{-6}$, $k^{*} \approx 19.9$. Both static structures
+answer in a number of memory probes that does not grow with
+$\log_2(1/\fprate)$, which is often a more consequential advantage than
+the bits.
 
-\subsection*{Trade-offs versus the Bloom filter}
+\subsection*{Trade-offs}
 
-On accuracy and space at the same target, the BHF dominates: it reaches
-the floor (\Cref{thm:bhf-optimality}), beating the Bloom filter's
-$\log_2 e$ overhead, and meets the FPR target (\Cref{prop:bhf-fpr})
-under the same uniformity assumption. On cost-of-update the Bloom filter
-dominates: it inserts in $O(k)$ with no rebuild, while the BHF must
-rebuild the perfect hash, at $O(n)$, whenever $A$ changes. Insertion of
-$a' \notin A$ is $O(k)$ for Bloom and $O(n)$ for the BHF (rebuild $\phi$
-on $A \cup \{a'\}$, refill); deletion is unsupported by the standard
-Bloom filter (unsetting shared bits would create false negatives) and
-$O(n)$ for the BHF. Neither supports cheap deletion; the BHF supports
-expensive deletion, the Bloom filter none.
-
-\Cref{tab:bhf-bloom-tradeoffs} summarizes.
+All three structures are FNR-zero. The BHF and the perfect hash filter
+are static: inserting or deleting a member means rebuilding, while the
+Bloom filter inserts in $O(k)$ and supports no deletion (clearing shared
+bits would create false negatives). \Cref{tab:bhf-bloom-tradeoffs}
+summarizes.
 
 \begin{table}[h]
 \centering
-\caption{BHF versus standard Bloom filter at the same target $\fprate$
-and $n$. Space and query exclude the sublinear perfect-hash overhead.}
+\small
+\caption{The BHF, the perfect hash filter (PHF), and the Bloom filter at
+target $\fprate$ and $|A| = n$. The addressing cost $c_\phi \ge \log_2 e$
+is the minimal perfect hash's bits per key (\Cref{prop:phf-space}); the
+BHF's bits per element are an expectation (\Cref{thm:bhf-optimality}).}
 \label{tab:bhf-bloom-tradeoffs}
-\begin{tabular}{l|cc}
+\begin{tabular}{l|ccc}
 \hline
-                                 & BHF                          & Bloom              \\
+  & BHF & PHF & Bloom \\
 \hline
-  Bits per element               & $\lceil -\log_2 \fprate \rceil$ & $\log_2(1/\fprate) \cdot \log_2 e$ \\
-  Build time (whole set)         & $O(n)$ expected              & $O(k n) = O(n \log_2(1/\fprate))$ \\
-  Insertion (post-build)         & $O(n)$ (full rebuild)        & $O(k) = O(\log_2(1/\fprate))$ \\
-  Deletion                       & $O(n)$ (full rebuild)        & not supported       \\
-  Query                          & $O(1)$ ($2$ hashes, $1$ read)& $O(k)$ ($k$ hashes, $k$ reads) \\
-  False-negative rate            & $0$                          & $0$                 \\
-  False-positive rate            & $\le 2^{-r} \le \fprate$     & $\fprate$ (asymptotic) \\
+  Bits per element  & $-\log_2 \fprate + o(1)$
+                    & $\lceil -\log_2 \fprate \rceil + c_\phi$
+                    & $\log_2 e \cdot \log_2(1/\fprate)$ \\
+  Build             & $\approx \fprate^{-n}$ trials
+                    & $O(n)$ expected
+                    & $O(kn)$ \\
+  Insert, delete    & rebuild & rebuild & $O(k)$, none \\
+  Query             & $1$ hash & $O(1)$ probes & $k$ hashes \\
+  FPR               & $\fprate$ exactly & $2^{-r} \le \fprate$
+                    & $\approx \fprate$ \\
 \hline
 \end{tabular}
 \end{table}
 
-The trade-off is batch against stream: the BHF wins when the set is
-built once and queried many times, the Bloom filter when the set
-evolves and insertions are frequent relative to queries. A further
-structural cost of the BHF's data-dependent addressing deserves a
-remark, because it has no analogue in the Bloom filter.
-
-\begin{remark}[BHFs do not merge by bit-OR]
+\begin{remark}[Static filters do not merge by bit-OR]
 \label{rem:bhf-nonmergeable}
-Two Bloom filters on disjoint sets $A_1, A_2$ with the same parameters
-merge into a filter on $A_1 \cup A_2$ by bitwise OR of their arrays,
-because the Bloom address space is data-independent: bit $i$ has the
-same meaning in every instance. Two BHFs do not. The perfect hashes
-$\phi_1$ and $\phi_2$ are bijections onto overlapping ranges
-$[|A_1|]$ and $[|A_2|]$ with no shared semantics, so slot $i$ in the two
-tables holds the fingerprints of unrelated elements; any pointwise
-combination produces an artifact corresponding to no valid BHF on the
-union. Merging requires rebuilding a fresh $\phi'$ on $A_1 \cup A_2$ and
-refilling, at $O(|A_1| + |A_2|)$, the same cost as building from raw
-input. The data-dependent addressing that gives the BHF its space
-optimality is exactly what forbids the cheap merge.
+Two Bloom filters on $A_1$ and $A_2$ with the same parameters merge into a
+filter on $A_1 \cup A_2$ by bitwise OR, because bit $i$ means the same
+thing in both. Neither static construction has that property. Two perfect
+hash filters address their tables through unrelated bijections, so slot
+$i$ holds fingerprints of unrelated members, and two BHF salts are
+unrelated strings; the union must be rebuilt from the members, at the
+cost of a fresh build. The data-dependent representation that removes
+the Bloom filter's overhead is exactly what forbids the cheap merge. The
+union can still be \emph{queried} without rebuilding, as the OR of the
+two verdicts, at the composed rate of \Cref{ch:set-composition}.
 \end{remark}
 
 \subsection*{Decision rule}
 
-The choice resolves on two questions: static or streaming set, and is
-space the binding constraint? Three combinations cover the practical
-cases.
+Three questions settle the choice: is the set static, is space binding,
+and how tight is the target?
 
 \smallskip
-\noindent\emph{Static set, space-critical: BHF.} When the set is fixed
-at build time (or rebuilt on a schedule) and memory or transmission is
-the constraint, the $\log_2 e \approx 1.44$ saving translates directly
-to a smaller footprint. Examples: a membership filter shipped to clients
-on connection; a read-only index loaded into RAM at startup and queried
-millions of times; a content-delivery cache populated nightly and
-queried through the day.
+\noindent\emph{Static set, space binding.} Use a retrieval-based filter\index{retrieval}
+(xor, binary fuse, ribbon) or a perfect hash filter. The perfect hash
+filter beats the Bloom filter only when $(\log_2 e - 1) \log_2(1/\fprate)$
+exceeds its addressing cost, about $\fprate < 2^{-7}$ with BBHash
+addressing (\Cref{prop:phf-space}); the retrieval filters approach the
+floor more closely at every target.
 
 \smallskip
-\noindent\emph{Streaming set, space-tolerant: Bloom.} When elements
-arrive continuously and must be absorbed in real time, and memory is
-plentiful, the $44\%$ overhead buys $O(k)$ amortized insertion against
-$O(n)$ rebuild. Examples: a deduplication filter for ingest pipelines;
-an in-memory cache of recently-seen request IDs; a line-rate routing
-check.
+\noindent\emph{Dynamic set.} Use a Bloom filter, or a cuckoo or quotient
+filter\index{cuckoo filter}\index{quotient filter} \parencite{fan-cuckoo-2014,bender-quotient-2012}, which store
+fingerprints with an additive overhead of a few bits per element and
+support insertion and deletion. Pagh, Pagh, and Rao give a dynamic
+structure within a $1 + o(1)$ factor of the floor plus $O(n)$ bits
+\parencite{pagh-pagh-rao-2005}.
 
 \smallskip
-\noindent\emph{Hybrid: tiered.} When the set has a large static portion
-and a small streaming portion, the common case, a tiered structure
-keeps a static BHF over the base set and a small Bloom filter over the
-streaming delta, querying both ($\top$ if either reports $\top$) and
-absorbing the delta into a rebuilt BHF when it grows past a threshold of
-the base size. The hybrid gets most of the BHF's space efficiency on the
-static portion while accepting streaming updates through the delta, the
-merge cost being a BHF rebuild on $|A| + |\Delta|$ amortized over the
-inter-merge interval.
+\noindent\emph{Large static base, small dynamic delta.} Keep a static
+filter over the base and a small Bloom filter over the delta, report
+$\top$ if either does, and rebuild the static part when the delta grows
+past a fixed fraction of the base.
 
-The BHF is not a universal replacement for the Bloom filter; it is the
-optimal choice when the set is static and the bit budget matters, the
-headline result delivered in exchange for the static-set restriction.
-\Cref{sec:ch14-bridge} bridges to chapter~15, which builds the FPR-zero
-counterpart on the other half of the perfect-filter line.
+The BHF itself is not on the list. It is the construction that attains
+the floor exactly and the reference against which the others are
+measured; at deployment scale it appears only as the per-bucket
+primitive of seed-search constructions.

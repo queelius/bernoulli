@@ -1,58 +1,40 @@
-% §11.6 Bibliographic Notes
+% §11.6 Notes and Lineage
 %
-% Monograph register: Miller-Rabin origins, the randomized-algorithms field,
-% Chernoff/concentration, Karger, quantum amplitude amplification. Citations
-% rabin-1980, miller-1976, cormen-clrs, motwani-raghavan, mitzenmacher-upfal,
-% karger-1993, grover-1996, brassard-2002. Cross-refs
-% thm:miller-rabin-formal, sec:miller-rabin-formal, sec:las-vegas-vs-monte-carlo,
-% sec:rp-bpp, sec:sample-complexity, thm:chernoff. DEFINED: sec:bib-notes-ch11.
+% Lineage pass (2026-10-21): Miller, Rabin, AKS; Gill's RP/BPP/ZPP; Chernoff,
+% Hoeffding; Motwani-Raghavan, Mitzenmacher-Upfal; Karger; Grover, Brassard et
+% al. Citations miller-1976, rabin-1980, agrawal-kayal-saxena-2004, gill-1977,
+% chernoff-1952, hoeffding-1963, motwani-raghavan, mitzenmacher-upfal,
+% karger-1993, grover-1996, brassard-2002, cormen-clrs. DEFINED:
+% sec:bib-notes-ch11.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch11}
 
-\paragraph{Miller-Rabin.}
-The per-round bound $\fprate \le 1/4$ of \Cref{thm:miller-rabin-formal} is
-\textcite{rabin-1980}'s strong-liar theorem, which replaced the generalized
-Riemann hypothesis that \textcite{miller-1976}'s deterministic test assumed with
-random base sampling, trading determinism for an unconditional $1/4$ rather than
-$1/2$ guarantee. The number theory is theirs; the framework reading, with the
-witness predicate a $\Bernoulli{\BoolType}$ and $\fprate^{(k)} \le (1/4)^k$ a
-corollary of the chapter-3 composition theorem, is the chapter's. A comparison of
-the Miller and Rabin tests is in \textcite[Ch.~31]{cormen-clrs}; the AKS test
-(2002) supersedes both asymptotically but loses to $k$-round Miller-Rabin in the
-constant factors of practical key generation, which is why Miller-Rabin remains
-the standard library implementation.
+\paragraph{Lineage.}
+The witness test and its conditional deterministic form are
+\textcite{miller-1976}; the unconditional strong-liar bound $\fprate \le 1/4$
+behind \Cref{thm:miller-rabin-formal} is \textcite{rabin-1980}, and
+\textcite{agrawal-kayal-saxena-2004} later placed primality in P. The classes RP,
+coRP, ZPP, and BPP, their one-sided and two-sided error conditions, and ZPP $=$
+RP $\cap$ coRP are \textcite{gill-1977}. The exponential tail bounds are
+\textcite{chernoff-1952} and \textcite{hoeffding-1963}; the forms used here, and
+the majority-vote amplification of BPP, follow \textcite[Ch.~4]{mitzenmacher-upfal},
+with \textcite{motwani-raghavan} the standard treatment of Las Vegas and Monte
+Carlo algorithms and \textcite[Ch.~31]{cormen-clrs} for the number theory. The
+contraction algorithm is \textcite{karger-1993}. Amplitude amplification is
+\textcite{grover-1996} for search and \textcite{brassard-2002} in general.
 
-\paragraph{Randomized algorithms and concentration.}
-The standard graduate reference is \textcite{motwani-raghavan}, covering the Las
-Vegas / Monte Carlo distinction of \Cref{sec:las-vegas-vs-monte-carlo}, the
-RP/BPP/ZPP classification of \Cref{sec:rp-bpp}, and the tail bounds of
-\Cref{sec:sample-complexity}, organized by technique where this chapter organizes
-by error structure. The multiplicative Chernoff bound of \Cref{thm:chernoff}
-originates in Chernoff's 1952 paper; the formulation and the BPP amplification
-follow \textcite[Ch.~4]{mitzenmacher-upfal}, which also develops the additive
-Hoeffding form that underwrote the chapter-10 CountMin and HyperLogLog bounds.
-The choice between additive and multiplicative forms is problem-driven.
+\paragraph{What this chapter adds.}
+Nothing in the chapter is a new theorem. It restates the classical taxonomy in
+the rate coordinates of the rest of the book (RP and coRP on the two axes of the
+perfect filter line, BPP in the interior), with two clarifications that matter
+for the framework: the rates of a randomized algorithm are per input, so the
+class definitions supply worst-case pairs rather than constant rates, and the
+independence that amplification uses is independence across runs on one input,
+not Axiom~1 across elements. The comparison of OR-amplification with amplitude
+amplification is an exposition of the $1/p$ versus $1/\sqrt{p}$ scaling.
 
-\paragraph{Karger min-cut.}
-The contraction algorithm of \Cref{sec:las-vegas-vs-monte-carlo} is due to
-\textcite{karger-1993}: a fixed min-cut survives all contractions with
-probability $\ge 2/[n(n-1)]$, so $\Theta(n^2\log n)$ trials find it with high
-probability. Its value here is not its complexity but its illustration of the
-Monte Carlo pattern, a weak per-trial signal amplified by independent repetition,
-the same $\Bernoulli{\BoolType}$ amplification \Cref{sec:sample-complexity}
-applies to Miller-Rabin and BPP.
-
-\paragraph{Quantum amplitude amplification.}
-The quantum sibling of the amplification theorems, noted in
-\Cref{rem:quantum-amplification}, is amplitude amplification.
-\textcite{grover-1996}, ``A Fast Quantum Mechanical Algorithm for Database
-Search,'' gave the search whose state rotates toward the marked item by a fixed
-angle per iteration; \textcite{brassard-2002}, ``Quantum Amplitude
-Amplification and Estimation,'' generalized it to any one-sided routine and is
-the reference for the $1/\sqrt{p}$ scaling. The reading here, that the quadratic
-speedup over classical OR-amplification is the Born-rule square applied to a
-linearly accumulating amplitude, and that it needs coherence in place of the
-resampleable latent value the classical theorems assume
-(\Cref{sec:quantum-contextuality}), is the chapter's.
+\paragraph{Left out.}
+Derandomization, the relations among BPP, the polynomial hierarchy, and BQP,
+pseudorandom generators, and the number theory of the strong-liar bound, which
+is cited rather than proved.

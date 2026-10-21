@@ -1,59 +1,81 @@
-# Bernoulli Types: An Algebra of Approximate Computation
+# Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation
 
-A pedagogical monograph unifying probabilistic data structures, randomized
-algorithms, noisy channels, and approximate functions under the Bernoulli
-type framework.
+A research monograph on one object: a query that returns a bit, observed
+through a binary channel with a false-positive rate and a false-negative rate.
+Bloom filters, retrieval structures and perfect hash filters, randomized
+algorithms, approximate relational queries, encrypted indexes, and quantum
+readout are all read through that channel.
 
-> **Status:** draft complete (chapters 1-18, 528 body pages, 15 paired notebooks); polish phase pending.
+The contribution is a unification, not a set of new theorems. Most individual
+results have named predecessors (randomized response, Carter et al. on
+approximate membership, Pagh and Rodler on lossy dictionaries, Parker and
+McCluskey on gate-level error propagation, Gallager's parity lemma,
+Dietzfelbinger and Pagh on retrieval, Decaf on probability types, Fuhr and
+Rölleke on probabilistic relational algebra, and others). Every chapter ends
+with a *Notes and Lineage* section that credits them, says what the chapter
+adds, and says what it leaves out. The book also maps the model's limits: a
+rate pair does not propagate through a Boolean formula (exact propagation is
+per latent input assignment), and dependence, adaptivity, and shared
+intermediate values each break the independence the model needs.
+
+> **Status:** complete draft, 19 chapters in five parts, three appendices,
+> bibliography and index. Apparatus pass of October 2026: lineage notes,
+> corrections of earlier claims (listed in Appendix B), figures, index.
 
 ## Build
 
 ```bash
-make            # full build (pdflatex + bibtex + pdflatex + pdflatex)
-make draft      # single pdflatex pass (fast iteration; bibliography stale)
+make            # full build: pdflatex, biber, makeindex, pdflatex, makeindex, pdflatex
+make draft      # single pdflatex pass (fast iteration; bibliography and index stale)
 make watch      # rebuild on file changes (requires inotifywait)
 make clean      # remove auxiliary files but keep the PDF
 make cleanall   # remove everything including the PDF
 ```
 
-The output is `book.pdf`.
+Requires a TeX Live installation with `biber`, `biblatex`, `imakeidx`,
+`makeindex`, `tikz`, and `pgfplots`. The output is `book.pdf`.
 
 ## Structure
 
-- `book.tex`: document root, inputs preamble and parts.
-- `preamble.tex`: `\usepackage` calls and document-wide macros.
-- `alex.sty`: unified notation package shared with the source papers.
-- `frontmatter/`: title page, copyright, preface.
-- `parts/`: five thin wrappers (`\part` plus `\input` chapters).
-- `chapters/`: eighteen chapter sources.
-- `appendices/`: probability refresher, principles cheat sheet, library walkthrough, selected solutions.
-- `figures/`, `code/`: graphics and code listings.
-- `references.bib`: bibliography.
+- `book.tex`: document root; inputs the preamble, front matter, parts,
+  appendices, bibliography, and index.
+- `preamble.tex`: packages, PDF metadata, bibliography and index setup, and
+  book-specific macros.
+- `alex.sty`: notation package shared with the source papers.
+- `book.ist`: makeindex style.
+- `frontmatter/`: title page, copyright and license page, preface.
+- `parts/`: five thin wrappers (`\part` plus `\input` of chapters).
+- `chapters/`: nineteen chapter wrappers, each inputting its section files
+  from `chapters/chNN/`.
+- `appendices/`: A, notation and conventions; B, principles and their scope
+  (with the table of corrected statements); C, companion code and notebooks.
+- `references.bib`: biblatex bibliography.
 
-## Companion Library
+## Companion package
 
-The Python library `bernoulli` lives at `../python/`. See its README for
-installation and notebook conventions.
+The Python package `bernoulli-types` (import name `bernoulli`) lives at
+`../bernoulli-py/`, with chapter notebooks in `../bernoulli-py/notebooks/`.
+Appendix C indexes the modules and notebooks by chapter.
 
-## Source Repositories
+## Source manuscripts
 
-- Book sources: `https://github.com/queelius/bernoulli-book` (subtree push planned)
-- Underlying papers: `https://github.com/queelius/bernoulli` (this monorepo)
+The book supersedes the program's paper manuscripts in `../papers/` where they
+differ; Appendix B lists the corrected statements.
 
-## Bookwright plugin
+## Tooling
 
-This project is managed with the [bookwright](https://github.com/queelius/alex-claude-plugins) Claude Code plugin (`queelius-plugins`). Project-level settings live at `../docs/superpowers/bookwright.config.yaml`. The bookwright commands relevant for the polish phase:
-
-- `/bookwright:check [scope]` for fast mechanical diagnostics (build, labels, page counts, threads, soul-voice, macro-leak).
-- `/bookwright:review [scope]` for the multi-agent editorial review (spec / quality / math / cross-ref auditors in parallel).
-- `/bookwright:integrate [scope]` for per-Part or full-book integration check plus an integration-pass record.
-
-The project was drafted by hand following the bookwright methodology before the plugin existed; `/bookwright:init` was run in `retrofit-only` mode to add the config file without touching any existing artifacts.
+The project is managed with the
+[bookwright](https://github.com/queelius/alex-claude-plugins) Claude Code
+plugin; its settings are in `../docs/superpowers/bookwright.config.yaml`
+(`/bookwright:check`, `/bookwright:review`, `/bookwright:integrate`).
 
 ## License
 
-Prose: CC BY 4.0 (see `LICENSE`).
-Code samples and the companion package: MIT.
+Text: CC BY 4.0 (see `LICENSE`).
+Embedded code and the companion package: MIT.
+
+Drafting and verification were assisted by AI tools (Anthropic Claude and
+OpenAI Codex); the author is responsible for all content.
 
 ## Author
 

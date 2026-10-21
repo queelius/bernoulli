@@ -1,63 +1,49 @@
-% §18.7 Bibliographic Notes
+% §18.7 Notes and Lineage
 %
-% Monograph register: the encrypted-search thesis, the es-conf MAB paper,
-% the SSE literature (Song-Wagner-Perrig 2000, Curtmola et al 2006), the
-% maximizing-confidentiality manuscript. Light compression. Cites
-% towell-encrypted-search-thesis, towell-es-conf-mab, song-wagner-perrig-2000,
-% curtmola-et-al-2006, towell-maximizing-confidentiality. DEFINED:
-% sec:bib-notes-ch18.
+% Monograph register: SSE (Song-Wagner-Perrig 2000; Curtmola et al. 2006),
+% Bloom-filter secure indexes (Goh 2003), leakage suppression and
+% leakage-abuse (Kamara-Moataz-Ohrimenko 2018; Cash et al. 2015), Bloom
+% filters in record linkage and their cryptanalysis (Schnell et al. 2009;
+% Kuzu et al. 2011), QIF (Smith 2009), the program's thesis and MAB paper,
+% the entropy-ratio manuscript. Replaces the former "Bibliographic Notes";
+% label kept. DEFINED: sec:bib-notes-ch18.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch18}
 
-\paragraph{The encrypted-search thesis.}
-The confidentiality analysis and the Bloom-filter construction are
-developed at length in \textcite{towell-encrypted-search-thesis}, ``On the
-Confidentiality of Bloom-Filter-Based Encrypted Search,'' the master's
-thesis that first laid out the framework's encrypted-search reading in
-operational detail (key schedule, indexing, query protocol) and developed
-the adversarial-estimation problem of \Cref{sec:adversarial-estimation} as
-its central concern. The present chapter reorganized the thesis material
-around the Bernoulli framework the rest of the book builds on; the thesis
-predates the framework's current formulation and reads as a self-contained
-application of approximate-membership ideas.
+\paragraph{Lineage.}
+Searchable encryption begins with \textcite{song-wagner-perrig-2000};
+\textcite{curtmola-et-al-2006} gave the adaptive security definitions and
+the inverted-index constructions that made exact search efficient, with
+an explicit leakage profile (which items match, whether queries repeat).
+The Bloom-filter per-document index with keyed probes is the secure index
+of \textcite{goh-2003}. How much the standard leakage can be suppressed is
+studied by \textcite{kamara-moataz-ohrimenko-2018}, and how much an
+informed attacker extracts from it by \textcite{cash-et-al-2015}. Bloom
+filters also encode identifiers for privacy-preserving record linkage
+\parencite{schnell-bachteler-reiher-2009}, where cryptanalysis recovers
+plaintext from filter patterns \parencite{kuzu-et-al-2011}, a reminder
+that filter bits leak through frequency even when keyed. Measuring leakage
+as information in a posterior belongs to quantitative information flow
+\parencite{smith-2009}. The confidentiality analysis of Bloom-filter
+encrypted search was the subject of the author's master's thesis
+\parencite{towell-encrypted-search-thesis}; the bandit estimator and the
+moving-window bootstrap of \Cref{sec:adversarial-estimation} are from
+\textcite{towell-es-conf-mab}; the entropy-ratio manuscript
+\parencite{towell-maximizing-confidentiality} develops information-based
+confidentiality measures further.
 
-\paragraph{Estimating confidentiality via multi-armed bandits.}
-The MAB-based estimation of \Cref{sec:adversarial-estimation} draws on
-\textcite{towell-es-conf-mab}, ``Estimating encrypted-search
-confidentiality via multi-armed bandits'' (IEEE CloudCom 2016), which
-frames the estimation problem as a bandit problem and develops the
-moving-average bootstrap CI as a tighter alternative to the union bound.
-The chapter summarizes the framing and the worked example, leaving the
-bootstrap construction and the finite-sample simulation studies to the
-paper.
+\paragraph{What this chapter adds.}
+The encrypted-search problem read through the error model: the per-document
+and inverted-index layouts as cipher maps with profile $(\fprate, 0)$, the
+three-region conjunction rate, the false-positive cover as the chapter 7
+posterior under a stated observation model, and
+\Cref{prop:multi-query-leakage}, which separates leakage that adds across
+queries from the geometric loss of cover across independently keyed
+instances. These are elementary consequences of known tools, assembled
+with their limits stated.
 
-\paragraph{The searchable-symmetric-encryption literature.}
-The constructions sit in the searchable-symmetric-encryption (SSE)
-literature tracing to \textcite{song-wagner-perrig-2000}, ``Practical
-Techniques for Searches on Encrypted Data,'' the foundational paper that
-introduced the problem in the form \Cref{sec:encrypted-search-problem}
-restated, with a stream-cipher construction whose threat model the present
-chapter inherits. \textcite{curtmola-et-al-2006}, ``Searchable Symmetric
-Encryption: Improved Definitions and Efficient Constructions,'' tightened
-the security definitions to the adaptive-adversary setting and gave the
-first sub-linear-time SSE construction; it is the standard reference for
-SSE security notions and the entry point to the modern subfield. The
-chapter uses the SSE literature for the threat model and construction
-style without entering the formal security-definition machinery a
-cryptographic-engineering treatment requires.
-
-\paragraph{Maximizing confidentiality.}
-The PPV-as-confidentiality identification of
-\Cref{sec:confidentiality-measures} extends a line the cipher-maps
-manuscript began in \textcite{towell-maximizing-confidentiality} (cited
-from chapter 17), ``Maximizing confidentiality in encrypted search,''
-which developed the confidentiality measure in the encrypted-search
-setting before the broader trapdoor framing of chapter 17 was in place,
-treating the trade-off curve quantitatively, giving the closed-form
-$\fprate^*$ at a target confidentiality, and addressing the multi-query
-accumulation that \Cref{prop:multi-query-leakage} states without proof.
-Where the two diverge the chapter prefers the framework's algebraic
-reading and leaves the manuscript's information-theoretic supplements for
-the reader who wants the quantitative refinement.
+\paragraph{Left out.}
+Formal SSE security definitions and proofs, dynamic and forward-private
+schemes, leakage-abuse and volume attacks beyond their citation, ranked
+and multi-keyword SSE, and any treatment of malicious servers.

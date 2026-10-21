@@ -1,16 +1,158 @@
 \chapter*{Preface}
 \addcontentsline{toc}{chapter}{Preface}
+\label{ch:preface}
 
-This is a placeholder preface. The final preface will:
+This book is about one object. A query returns a bit, and the bit is
+observed through a binary channel: a true negative is reported as positive
+with probability $\fprate$ (the false-positive rate) and a true positive is
+reported as negative with probability $\fnrate$ (the false-negative rate).
+A Bloom filter answering a membership query is such a channel, with
+$\fnrate = 0$. So is one round of the Miller--Rabin test, a survey respondent
+answering under randomized response, a noisy classifier, the readout of a
+qubit, and a keyword lookup in a Bloom-filter-based encrypted index. The book
+takes the channel as its primitive and follows it outward: to Boolean
+combinations of noisy bits, to approximate sets, maps, relations and algebraic
+types, to constructions that meet the space bounds, and finally to the places
+where the model stops describing the system in front of it.
 
-\begin{itemize}
-  \item State the book's thesis and audience.
-  \item Declare prerequisites: undergraduate probability, basic discrete
-    math, comfort with proof, working Python knowledge for the notebook
-    companion.
-  \item Explain the lockstep notebook discipline (some chapters carry
-    notebooks; theory-heavy chapters do not, by design).
-  \item Provide a reading guide for the smart-undergrad-upward reader
-    (chapters that admit a soft landing) and the adjacent-field grad
-    student (the modal reader).
-\end{itemize}
+\section*{What kind of contribution this is}
+
+The contribution is a unification, not a collection of new theorems. Nearly
+every individual result in these pages has a named predecessor, and several
+are decades old. The per-element channel is randomized response\index{randomized response} on an
+indicator \parencite{warner-1965}. The $\log_2(1/\fprate)$ bits-per-element
+bound for approximate membership is due to \textcite{carter-et-al-1978}, and
+the case with false negatives was settled to leading order by
+\textcite{pagh-rodler-2001}. Forward propagation of error probabilities
+through logic gates goes back at least to \textcite{parker-mccluskey-1975},
+and the noisy-parity identity is Lemma~1 of \textcite{gallager-1962}. The
+perfect hash filter, a minimal perfect hash function plus short fingerprints,
+is described by \textcite{dietzfelbinger-pagh-2008}. Program values that carry
+a correctness probability through a computation are the subject of Decaf
+\parencite{boston-et-al-2015} and its relatives, and a probabilistic relational
+algebra was given by \textcite{fuhr-roelleke-1997}. Each chapter ends with a
+section titled \emph{Notes and Lineage} that says who established each main
+result, what the chapter adds (usually a presentation, a unification, or a
+correction), and what it deliberately leaves out. The intent is that no reader
+should have to guess whether a result is being claimed.
+
+What the unified treatment does add, I think, is twofold. First, a single
+vocabulary (the rate pair, model order, the Kronecker factorization of
+independent queries) for objects that live in communities which rarely cite
+one another: data structures, databases, survey statistics, diagnostic
+testing, complexity theory, cryptography, and quantum measurement. Second, an
+honest map of where that vocabulary fails. The most important entry on the map
+is in \Cref{ch:boolean-algebra}: a rate pair does not propagate through a
+Boolean formula. The false-positive rate of an AND depends on which negative
+input assignment occurred, so a gate that receives only a summary pair can be
+wrong by a factor of two on a three-input formula
+(\Cref{ex:two-rate-counterexample}). What does propagate exactly is the error
+conditional on each latent input assignment; prior-averaged rates and
+worst-case bounds are the honest summaries. Shared inputs, shared intermediate
+values, adaptive queries and construction-time conditioning each break the
+independence the model needs, and Part~V is devoted to that boundary.
+
+\section*{Relation to the source manuscripts}
+
+The book grew out of a set of manuscripts on Bernoulli sets, their
+composition, classification measures, entropy bounds, the Bernoulli hash
+function, the perfect hash filter, approximate maps, approximate relations,
+algebraic types, and quantum readout
+\parencite{towell-bernoulli-sets,towell-bernoulli-composition,towell-bernoulli-classification-measures,towell-bernoulli-entropy,towell-bernoulli-hash-function,towell-bernoulli-phf,towell-bernoulli-maps,towell-bernoulli-relations,towell-bernoulli-data-type,towell-bernoulli-quantum-readout}.
+Writing the book, and auditing it with exhaustive finite enumeration and exact
+rational arithmetic, turned up errors in several of them: a claim that the rate
+pair carries through an arbitrary Boolean tree; a finite order-statistic law
+for the Bernoulli hash function that fails already at two keys and two slots;
+an adaptive acceptance threshold presented as saving space when it trades away
+recall; a closure theorem for composed approximate maps that fails when two
+inputs share an intermediate value; overbroad closure and independence claims
+for approximate relations; a scope statement for quantum readout that confused
+a diagonal measurement with a diagonal state; and a space lower bound with
+false negatives described as open when it is not. Earlier drafts of this book
+had their own errors, among them a perfect-hash-addressed fingerprint table
+presented as meeting the space floor, which no minimal perfect hash permits.
+Where a chapter departs from a source manuscript, the chapter is the corrected
+version and supersedes it; \Cref{app:principles} tabulates the corrections.
+
+\section*{Intended reader}
+
+The reader I have in mind is a researcher or graduate student who already
+works with one of these objects (a filter, a sketch, a diagnostic test, a
+randomized algorithm, a probabilistic database, an encrypted index, a readout
+model) and wants to see it in relation to the others. The book assumes
+undergraduate probability, basic linear algebra, and comfort with proofs.
+Information theory beyond entropy and channel capacity is developed where it is
+used. The book is not a survey of filter engineering and reports no
+performance benchmarks; for the current state of practical filters and
+retrieval structures see \textcite{graf-lemire-2022} and
+\textcite{dietzfelbinger-et-al-2026-ribbon}.
+
+\section*{How to read it}
+
+Part~I (\Cref{ch:noisy-bit,ch:binary-channels,ch:boolean-algebra,ch:axioms-kronecker})
+builds the atom: the noisy bit, binary channels and model order, Boolean
+algebra under noise with the latent-assignment caveat, and the two
+independence axioms with the Kronecker factorization they imply. Everything
+later depends on it, \Cref{ch:boolean-algebra,ch:axioms-kronecker} most of all.
+Part~II (\Cref{ch:approximate-sets,ch:set-composition,ch:classification-measures,ch:information-bounds})
+moves from bits to sets: the Bloom filter read as a channel, set operations
+and the model order they raise, classification measures as random variables,
+and the space bounds. Part~III
+(\Cref{ch:approximate-functions,ch:sketches-estimators,ch:randomized-algorithms,ch:approximate-relations,ch:algebra-types})
+generalizes to maps and $n$-ary channels, sketches, randomized algorithms,
+error contracts for approximate relations, and algebraic types. Part~IV
+(\Cref{ch:optimal-bernoulli-sets,ch:perfect-hash-filters}) treats constructions
+that approach the bounds, read as seed search and as perfect hashing with
+fingerprints. Part~V
+(\Cref{ch:not-bernoulli,ch:cipher-maps-trapdoor,ch:encrypted-search,ch:operator-representation})
+is the boundary: where the model fails, cipher maps and trapdoor computing,
+encrypted search, and the operator representation that connects the
+framework to quantum measurement.
+
+Readers with narrower aims can take shorter paths. For data structures:
+Part~I, \Cref{ch:approximate-sets,ch:information-bounds,ch:approximate-functions},
+and Part~IV. For databases: Part~I, \Cref{ch:set-composition,ch:approximate-relations}.
+For security: Part~I, \Cref{ch:approximate-sets}, and
+\Cref{ch:not-bernoulli,ch:cipher-maps-trapdoor,ch:encrypted-search}. For
+quantum readout: \Cref{ch:binary-channels,ch:boolean-algebra,ch:axioms-kronecker},
+\Cref{ch:not-bernoulli}, and \Cref{ch:operator-representation}.
+\Cref{app:notation} collects the notation, \Cref{app:principles} restates the
+framework's principles together with their scope, and \Cref{app:companion}
+indexes the companion code.
+
+\section*{The companion package and notebooks}
+
+The Python package \texttt{bernoulli-types} (import name \texttt{bernoulli}),
+maintained in the \texttt{bernoulli-py/} directory of the source repository,
+is the book's executable companion. It implements the atom, exact error
+propagation for Boolean formulas over independent noisy bits, approximate sets,
+maps, relations and sketches, and the classification measures. Fifteen
+notebooks reproduce the numerical claims of the chapters they accompany; the
+chapters without a notebook (\Cref{ch:axioms-kronecker,ch:algebra-types,ch:cipher-maps-trapdoor,ch:operator-representation})
+are theoretical. The package is research software at an alpha stage, not a
+production library.
+
+\section*{Names}
+
+``Bernoulli'' is overloaded. A Bernoulli filter in target tracking\index{Bernoulli filter (target tracking)}
+\parencite{ristic-et-al-2013}, a Bernoulli factory in simulation\index{Bernoulli factory}
+\parencite{keane-obrien-1994}, and the Bernoulli map of dynamical
+systems\index{Bernoulli map} are unrelated to the objects here. In this book the name refers only to the
+Bernoulli-distributed error indicators that the framework attaches to each
+query.
+
+\section*{License and acknowledgment}
+
+The text is released under the Creative Commons Attribution 4.0 International
+License (CC~BY~4.0); embedded code and the companion package are under the MIT
+License. Drafting and verification were assisted by AI tools (Anthropic Claude
+and OpenAI Codex), used for drafting prose, checking claims by exhaustive
+enumeration, auditing them against the literature, and writing companion code.
+That assistance is not a substitute for a reader's scrutiny: earlier review
+rounds, human and machine, passed errors that later audits caught. I reviewed
+the text and am responsible for all of its content. Corrections are welcome
+and will be recorded in the source repository.
+
+\bigskip
+\noindent Alexander Towell\\
+October 2026

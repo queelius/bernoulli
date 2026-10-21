@@ -1,136 +1,148 @@
 % §14.4 False-Positive Rate Analysis
 %
-% Monograph register: setup, two-case argument for phi(x), prop:bhf-fpr,
-% the uniformity/universal-hashing hypothesis, brief worked check at
-% r=7. Trims repetition and the over-long worked verification. Cross-refs
-% def:bloom-filter, thm:entropy-floor, def:bhf, sec:bhf-construction,
-% alg:bhf-insert-query, eq:bhf-r, eq:bhf-insert, sec:space-analysis,
-% thm:bhf-optimality, ch:not-bernoulli. Cites carter-wegman-1979.
-% DEFINED: sec:fpr-analysis, prop:bhf-fpr.
+% Monograph register: the BHF's false-positive rate is exactly eps for a
+% fresh non-member, with distinct non-members independent given the salt
+% (prop:bhf-fpr); why the threshold must be fixed in advance, with the
+% adaptive-threshold variant and its two audited errors
+% (rem:adaptive-threshold: it trades recall rather than saving space, and
+% its exact discrete law is a binomial tail; the without-replacement PMF
+% fails at N = m = 2, p = 1); the perfect hash filter's two-case argument
+% (prop:phf-fpr); the uniformity hypothesis. Cites carter-wegman-1979,
+% lehmann-et-al-2025, pagh-pagh-rao-2005. Cross-refs def:bhf, eq:bhf-accept,
+% eq:bhf-success, def:phf, eq:bhf-r, eq:bhf-insert, thm:bhf-optimality,
+% ax:element-indep, ch:not-bernoulli. DEFINED: sec:fpr-analysis,
+% prop:bhf-fpr, rem:adaptive-threshold, prop:phf-fpr.
 
 \section{False-Positive Rate Analysis}
 \label{sec:fpr-analysis}
 
-\Cref{sec:bhf-construction} previewed the false-positive argument: for
-$x \notin A$ the query compares two independent uniform $r$-bit
-strings, matching with probability $2^{-r}$. This section makes the
-argument careful. The setup is small, the argument is two cases, the
-bound is $\fprate \le 2^{-r}$, and the only nontrivial input is the
-uniformity of the fingerprint hash $g$, which the universal-hashing
-literature supplies.
+Both constructions have $\fnrate = 0$ by construction, so their accuracy
+is their false-positive rate. For the BHF the rate is exact and the
+independence across non-members is inherited from the hash; the
+subtleties are what the construction may look at, and what happens when
+the acceptance set is chosen from the data. For the perfect hash filter
+the argument is the classical fingerprint-collision bound.
 
-\subsection*{Setup}
+\subsection*{The BHF}
 
-Fix $A \subseteq \Universe$ with $|A| = n$, a perfect hash $\phi : A
-\to [n]$ extended to all of $\Universe$, and a fingerprint hash $g :
-\Universe \to \{0, 1\}^r$ with $r = \lceil -\log_2 \fprate \rceil$. The
-table is populated by \eqref{eq:bhf-insert}: $F[\phi(a)] = g(a)$ for
-every $a \in A$. For a query point $x \notin A$,
-\[
-  \Prob{\textsc{Query}(x) = \top \Given x \notin A} \;=\; ?
-\]
-where the probability is over the choice of $g$ ($\phi$ is fixed by the
-build phase). The query reads slot $\phi(x)$, computes $g(x)$, and
-returns $\top$ iff $F[\phi(x)] = g(x)$; the question is when that holds
-for a non-member.
-
-\subsection*{Two cases for \texorpdfstring{$\phi(x)$}{phi(x)}}
-
-$\phi$ is injective on $A$ but defined on all of $\Universe$ by its
-extension rule. For $x \notin A$, two situations arise.
-
-\smallskip
-\noindent\emph{Case (a): $\phi(x) \in \phi(A)$.} The slot $\phi(x) = i$
-coincides with $\phi(a^*)$ for the unique $a^* \in A$ mapped there, so
-$F[i] = g(a^*)$ and the query returns $\top$ iff $g(a^*) = g(x)$. Since
-$x \neq a^*$, uniformity of $g$ makes $g(a^*)$ and $g(x)$ independent
-uniform on $\{0, 1\}^r$, colliding with probability $2^{-r}$.
-
-\smallskip
-\noindent\emph{Case (b): $\phi(x) \notin \phi(A)$.} The extension may
-flag $x$ as out-of-range, returning $\bot$ directly (no false
-positive), or map $x$ to an unused slot $i \in [n] \setminus \phi(A)$.
-An unused slot holds either an explicit sentinel designed to mismatch
-every fingerprint (collision probability zero) or a residual value
-independent of $g(x)$ (collision probability at most $2^{-r}$). In the
-sentinel variant, which the BHF assumes by default, case (b)
-contributes nothing.
-
-The worst case is every $x \notin A$ falling into case (a), giving
-$\fprate = 2^{-r}$ exactly; the best case flags case (b) out-of-range,
-removing the non-image contribution. Both bracket the bound.
-
-\subsection*{The bound}
-
-\begin{proposition}[BHF false-positive rate]
+\begin{proposition}[BHF false-positive rate]\index{false-positive rate}
 \label{prop:bhf-fpr}
-Let the BHF of \Cref{def:bhf} be constructed for $A$ with parameters
-$\phi$, $g$, and $r = \lceil -\log_2 \fprate \rceil$, and assume $g$ is
-uniformly distributed on $\{0, 1\}^r$ over the query point. For every
-$x \notin A$,
+Under the random-oracle model, let the BHF of \Cref{def:bhf} be built for
+$A$ with fixed parameters $(N, t)$, and let $x \notin A$ be a query point
+not examined during the build. Then
 \[
-  \fprate_{\text{BHF}} \;=\; \Prob{\textsc{Query}(x) = \top \Given
-  x \notin A} \;\le\; 2^{-r} \;\le\; \fprate.
+  \Prob{\textsc{Query}(x) = \top} \;=\; \fprate \;=\; \frac{t + 1}{N},
 \]
-The BHF meets the target false-positive rate by construction.
+and the reports for distinct non-members $x_1, \ldots, x_k$ are
+independent conditional on the returned salt.
 \end{proposition}
 
-The proposition is the second half of the optimality story: with
-\Cref{thm:bhf-optimality} it certifies the BHF as both space-optimal
-(minimum bits per element up to rounding) and accuracy-correct
-(delivers the target FPR). The inequality is tight in the sentinel-free
-variant (case (b) at arbitrary residual contents achieves $2^{-r}$ for
-every non-member) and strict in the sentinel variant (case (b)
-contributes zero, so the FPR is $2^{-r}$ weighted by the probability
-$\phi(x) \in \phi(A)$, strictly below $1$ when $\Universe$ extends
-beyond $A$). The chained $2^{-r} \le \fprate$ is a direct consequence
-of $r = \lceil -\log_2 \fprate \rceil$: ceiling rounding forces $r \ge
--\log_2 \fprate$, hence $2^{-r} \le \fprate$, with the over-achievement
-the same rounding slack \Cref{sec:space-analysis} measured on the space
-side. One integer bit of width buys one integer bit of FPR precision.
+\begin{proof}
+The build's stopping rule depends only on the values $h(a, b)$ with $a
+\in A$. For $x \notin A$ the values $h(x, b)$, over all salts $b$, are
+independent of those, so conditional on $b^{*} = b$ the value $h(x, b)$ is
+still uniform on $\{0, \ldots, N - 1\}$ and lies in $\{0, \ldots, t\}$
+with probability $(t + 1)/N$. Distinct non-members contribute values at
+distinct pairs $(x_i, b)$, which are independent given $b$.
+\end{proof}
+
+The proposition places the BHF inside the model of
+\Cref{ch:axioms-kronecker}: the non-member reports are independent
+Bernoulli$(\fprate)$ outcomes, as \Cref{ax:element-indep}\index{independence!across elements}
+requires, and the rate is a fixed parameter rather than a property of
+the particular salt. Two hypotheses carry the weight. The query must be
+fresh, not one of the points the build inspected; a construction that
+rejected salts according to how they treated some designated
+non-members would condition those non-members' outcomes. And the
+acceptance set must be fixed before the salts are examined. The second
+hypothesis is the one the source manuscript's adaptive variant gives up.
+
+\begin{remark}[Adaptive thresholds trade recall, not space]
+\label{rem:adaptive-threshold}
+An adaptive threshold\index{threshold!adaptive} takes any salt, computes
+the member residues $h(a, b)$, and sets $t$ to their $p$-th smallest
+value $T$, so that at least $p$ members are accepted and every salt
+``succeeds.'' Nothing is gained at an equal guarantee. In the continuous
+limit $T/N$ follows a Beta$(p, n - p + 1)$ law, so the mean recall is
+$p/n$ and the mean false-positive rate is $p/(n + 1)$; their difference,
+$p / (n(n + 1)) \le 1/(n+1)$, shows an almost non-discriminating rule, and
+asking for zero false negatives ($p = n$) gives mean false-positive rate
+$n/(n+1)$. If instead an FPR cap $\fprate = (t^{*} + 1)/N$ and a minimum
+recall $p$ are both imposed, the event $T \le t^{*}$ is the same event as
+``at least $p$ members fall at or below $t^{*}$,'' so the adaptive
+construction succeeds with exactly the fixed-threshold probability and
+the cost is ordinary seed search \parencite{lehmann-et-al-2025}. The
+random threshold also breaks independence: distinct non-members are
+independent given $T$ but have unconditional covariance $\Var{(T +
+1)/N} > 0$, which is $3/64$ at $N = 2$, $n = 2$, $p = 1$. Finally, the
+exact discrete law of $T$ for independent uniform residues is the
+binomial tail
+\[
+  \Prob{T \le j} \;=\; \sum_{a = p}^{n} \binom{n}{a}
+  \Bigl( \tfrac{j + 1}{N} \Bigr)^{a}
+  \Bigl( 1 - \tfrac{j + 1}{N} \Bigr)^{n - a},
+\]
+not an order-statistic law for distinct residues sampled without
+replacement\index{order statistic}. The two differ already at $N = n =
+2$, $p = 1$: the minimum of two independent uniform bits is $0$ with
+probability $3/4$, whereas the without-replacement formula, which an
+earlier version of the source manuscript printed as exact, gives
+$1$\index{counterexample!discrete order statistic}. The continuous Beta
+limit is unaffected.
+\end{remark}
+
+\subsection*{The perfect hash filter}
+
+For the perfect hash filter of \Cref{def:phf}, let $x \notin A$\index{fingerprint} and let
+the probability be over the fingerprint hash $g$, with $\phi$ fixed by
+the build. Two cases arise.
+
+\smallskip
+\noindent\emph{(a) $\phi(x) = \phi(a^{*})$ for some $a^{*} \in A$.}
+This is the only case for a minimal perfect hash, whose range is exactly
+$[n]$. The query returns $\top$ iff $g(x) = g(a^{*})$, and since $x \neq
+a^{*}$, uniformity of $g$ on pairs gives probability $2^{-r}$.
+
+\smallskip
+\noindent\emph{(b) $\phi(x)$ falls outside $\phi(A)$.} This can happen
+only for a non-minimal perfect hash with spare slots. A slot holding a
+sentinel that matches no fingerprint contributes nothing; a slot holding
+an arbitrary value independent of $g(x)$ contributes at most $2^{-r}$.
+
+\begin{proposition}[Perfect hash filter false-positive rate]
+\label{prop:phf-fpr}
+If $g$ is drawn from a family with $\Prob{g(x) = g(y)} \le 2^{-r}$ for
+every pair $x \neq y$, then for every $x \notin A$ the perfect hash
+filter of \Cref{def:phf} satisfies
+\[
+  \Prob{\textsc{Query}(x) = \top} \;\le\; 2^{-r}
+  \;=\; 2^{-\lceil -\log_2 \fprate \rceil} \;\le\; \fprate,
+\]
+with equality to $2^{-r}$ for a minimal perfect hash and a fingerprint
+family that is uniform on pairs.
+\end{proposition}
+
+The ceiling in $r$ over-achieves the target by up to a factor of two: at
+$\fprate = 0.01$, $r = 7$ and the realized rate is $2^{-7} \approx
+0.0078$, about $22\%$ below target, the same rounding that costs $0.36$
+bits per element on the space side. The BHF has no such rounding, because
+its acceptance set has density exactly $(t + 1)/N$.
 
 \subsection*{The uniformity hypothesis}
 
-The hypothesis that $g$ is uniform over the query point deserves
-comment, because it can fail adversarially: an attacker who knows $g$
-can choose $x$ with $g(x) = g(a^*)$ for a target $a^*$, driving the
-per-query FPR to $1$. Uniformity protects the average case, where query
-points are drawn independently of the implementation's choice of $g$,
-which covers most data-structure use.
-
-The requirement is exactly pairwise independence of $g$. The collision
-probability $\Prob{g(a^*) = g(x)} = 2^{-r}$ holds whenever $g(a^*)$ and
-$g(x)$ are pairwise independent, and \emph{universal hashing} in the
-sense of \textcite{carter-wegman-1979} delivers a family in which, for
-every $a^* \neq x$, $\Prob{g(a^*) = g(x)} \le 1/|\text{codomain}|$ over
-the random choice of $g$. The BHF selects $g$ from such a family at
-build time and fixes it; the bound then applies pointwise over
-non-adversarial queries. In practice $g$ is a wide cryptographic hash
-(SHA-256, BLAKE3) truncated to $r$ bits or a high-quality
-non-cryptographic hash (MurmurHash3, xxHash), and the adversarial case
-is handled by salting $g$ with a build-time secret, denying the
-attacker advance knowledge of the hash. \Cref{ch:not-bernoulli} returns
-to the adversarial setting; here the non-adversarial hypothesis is the
-operating assumption.
-
-\subsection*{Worked check at \texorpdfstring{$r = 7$}{r = 7}}
-
-The worked example of \Cref{sec:bhf-construction} took $\fprate = 0.01$,
-$r = 7$. The proposition predicts $\fprate_{\text{BHF}} \le 2^{-7} =
-1/128 \approx 0.0078$, below the target by a factor $0.0078/0.01 \approx
-0.78$, so every non-member query has at most a $0.78\%$ chance of a
-false positive against the $1\%$ target. The $22\%$ over-achievement is
-the rounding slack, and it matches on both sides of the trade-off:
-$1 - 2^{-r}/\fprate = 1 - 2^{6.644 - 7} = 1 - 2^{-0.356} \approx 0.219$,
-the same rounding that costs $0.356$ bits per element on the space side.
-At a power-of-two target the slack vanishes: $\fprate = 2^{-7}$ is met
-exactly with $r = 7$. Awkward targets pay at most one bit per element
-and at most a factor of $2$ in FPR, small against the Bloom filter's
-multiplicative $\log_2 e \approx 1.44$.
-
-The check closes the loop. The construction satisfies the FNR-zero
-guarantee unconditionally and the FPR target under the uniformity
-hypothesis, at a budget of $\lceil -\log_2 \fprate \rceil$ plus the
-sublinear perfect-hash term. \Cref{sec:construction-time} turns to
-build time, query latency, and the static-versus-streaming trade-off
-that distinguishes the BHF from the Bloom filter in deployment.
+Both propositions rest on hash uniformity, and both fail against an
+adversary who knows the hash: a query chosen so that $h(x, b^{*}) \le t$,
+or so that $g(x) = g(a^{*})$, is a false positive with probability one.
+For the perfect hash filter the requirement is only pairwise collision
+probability, which the universal hashing of
+\textcite{carter-wegman-1979} supplies: drawing $g$ from a universal
+family at build time bounds every pairwise collision probability by the
+reciprocal of the codomain size. The BHF's analysis uses the
+random-oracle model\index{random oracle}, a stronger idealization, because the build examines
+exponentially many salts and the argument needs the hash values at all of
+them to behave independently; a real hash reduced modulo a modulus that
+is not a power of two is also only approximately uniform without
+rejection sampling. Salting with a build-time secret denies an adversary
+advance knowledge of the hash. \Cref{ch:not-bernoulli} returns to
+adaptive and adversarial queries, where these averages stop describing
+the system.

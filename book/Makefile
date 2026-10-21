@@ -1,6 +1,7 @@
 TEX = pdflatex
 TEXFLAGS = -interaction=nonstopmode -halt-on-error
 BIB = biber
+IDX = makeindex
 MAIN = book
 
 .PHONY: all build draft watch clean cleanall
@@ -9,8 +10,10 @@ all: build
 
 build:
 	$(TEX) $(TEXFLAGS) $(MAIN).tex
-	-$(BIB) $(MAIN)
+	$(BIB) $(MAIN)
+	$(IDX) -s $(MAIN).ist $(MAIN).idx
 	$(TEX) $(TEXFLAGS) $(MAIN).tex
+	$(IDX) -s $(MAIN).ist $(MAIN).idx
 	$(TEX) $(TEXFLAGS) $(MAIN).tex
 
 draft:

@@ -45,7 +45,7 @@ A single bit crosses a noisy line, a wire, a wireless link, a chip-to-chip
 trace. For each bit independently the line flips the symbol with crossover
 probability $\fprate$ and passes it through otherwise, with the same $\fprate$
 in both directions: a $\top$ flips to $\bot$ and a $\bot$ to $\top$ with equal
-probability. This is the binary symmetric channel (BSC), the simplest model of
+probability. This is the binary symmetric channel\index{channel!binary symmetric} (BSC), the simplest model of
 a noisy one-bit line and the most studied channel in information theory; the
 term \emph{channel} is Shannon's, for any single-input, single-output
 stochastic transmission. The symmetry is a real constraint, since many
@@ -62,7 +62,7 @@ that drops legitimate mail at $1\%$ is a different product from one that leaks
 $1\%$ of spam. Here the two parameters are forced by the problem rather than by
 happenstance, since the two errors are distinct harms with distinct costs. A
 score-thresholded classifier traces a curve of $(\fprate, \fnrate)$ pairs as
-its threshold sweeps, the trade-off the ROC curve re-axes; no threshold drives
+its threshold sweeps\index{two-sided error}, the trade-off the ROC curve re-axes; no threshold drives
 both rates to zero at once.
 
 \subsection*{The shared object}
@@ -75,12 +75,18 @@ most two numbers, the rate of reporting $\top$ on a $\bot$-input and the rate
 of reporting $\bot$ on a $\top$-input. The BSC carries one parameter because
 its two rates are constrained equal; the coin and the filter carry two. Two
 numbers describe everything probabilistic at the single-query level. We call
-this object a \emph{noisy bit}.
+this object a \emph{noisy bit}\index{noisy bit}. The object is not new: it is
+the asymmetric binary channel of information theory, the misclassification
+model of the $2 \times 2$ table, and, when the noise is added on purpose to
+protect a respondent, randomized response\index{randomized response}
+(see the \hyperref[sec:bib-notes-ch1]{Notes and Lineage} at the end of this
+chapter). What the book adds is the decision to treat these as
+one atom and to build everything else from it.
 
 The three faces used three vocabularies because each is natural in its own
 letters, and they reconcile directly: the coin's $\tau$ is the true-positive
 rate $\tprate = 1 - \fnrate$ and its $\epsilon$ is $\fprate$; the classifier's
-$(\fprate, \fnrate)$ are the same quantities; the BSC is the special case
+$(\fprate, \fnrate)$ are the same quantities\index{false-positive rate}\index{false-negative rate}; the BSC is the special case
 $\fprate = \fnrate$. Three commitments follow and hold throughout Part~I. The
 noisy bit is \emph{atomic}: one Boolean input slot, one Boolean output slot,
 nothing smaller, and everything larger (multi-bit channels, repeated-trial

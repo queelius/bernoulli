@@ -11,7 +11,7 @@
 \section{The Binomial Estimator: Properties}
 \label{sec:binomial-estimator}
 
-The estimator $\hat{\fprate} = \mathrm{FP}/n_0$ that
+The estimator $\hat{\fprate} = \mathrm{FP}/n_0$\index{binomial estimator} that
 \Cref{sec:sampling-rates} reported without proof is unbiased for $\fprate$,
 has variance $\fprate(1 - \fprate)/n_0$, equals the maximum-likelihood
 estimator, and attains the Cram\'er--Rao lower bound. Five short propositions
@@ -84,7 +84,7 @@ maximum likelihood and the method of moments generally diverge.
 
 \begin{proposition}[Fisher information and the Cram\'er--Rao bound]
 \label{prop:fisher-information}
-The Fisher information is $I(\fprate) = n_0 / [\fprate(1 - \fprate)]$, so every
+\index{Cramer--Rao bound@Cram\'er--Rao bound}The Fisher information is $I(\fprate) = n_0 / [\fprate(1 - \fprate)]$, so every
 unbiased estimator $T$ of $\fprate$ satisfies $\mathrm{Var}(T) \ge 1/I(\fprate)
 = \fprate(1 - \fprate)/n_0$.
 \end{proposition}
@@ -98,9 +98,9 @@ n_0 \fprate$, gives
   = \frac{n_0}{\fprate} + \frac{n_0}{1 - \fprate}
   = \frac{n_0}{\fprate(1 - \fprate)}.
 \]
-The binomial family is regular (fixed support, twice-differentiable
-log-likelihood on $(0,1)$), so the Cram\'er--Rao inequality applies and
-$\mathrm{Var}(T) \ge 1/I(\fprate)$.
+The binomial family is regular: its support is fixed and its
+log-likelihood is twice differentiable on $(0,1)$. The Cram\'er--Rao
+inequality therefore applies, and $\mathrm{Var}(T) \ge 1/I(\fprate)$.
 \end{proof}
 
 \begin{proposition}[Efficiency]

@@ -9,7 +9,8 @@
 \section{Why Axioms?}
 \label{sec:why-axioms}
 
-Chapters 1 through 3 derived the gate rates, the composition theorem
+Chapters 1 through 3 derived the gate rates, the per-latent-assignment
+propagation of \Cref{prop:latent-propagation}, the composition theorem
 (\Cref{sec:composition-theorem}), and the Miller-Rabin bound, and at two points
 they used independence without naming it. This chapter names the two
 assumptions, states them precisely, and proves what their conjunction buys: the
@@ -17,7 +18,7 @@ Kronecker factorization that collapses the parameter count of an $m$-query
 analysis from exponential to linear, and the formal definition of the type the
 first three chapters circled.
 
-The first assumption is element-wise independence: error events at distinct
+The first assumption is element-wise independence\index{independence!across elements}: error events at distinct
 inputs are independent. Every product of probabilities in chapters 1 through 3,
 the composition theorem's chain, Miller-Rabin's $k$ independent witnesses
 (\Cref{sec:miller-rabin}), the AND and OR truth tables of

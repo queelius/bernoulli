@@ -1,52 +1,46 @@
-% §8.6 Bibliographic Notes
+% §8.6 Notes and Lineage
 %
-% Monograph register: the entropy manuscript, the counting argument, entropy and
-% capacity, compressed Bloom filters. The compressed-Bloom note now points to the
-% corrected rem:compressed-bloom (the earlier version had the mechanism inverted).
-% Citations towell-bernoulli-entropy, carter-wegman-1979, cover-thomas,
-% shannon-1948, mitzenmacher-2002, mitzenmacher-upfal. Cross-refs thm:entropy-floor,
-% prop:bloom-overhead, sec:entropy-floor, sec:entropy-refresher, sec:bsc-capacity,
-% rem:compressed-bloom, ch:optimal-bernoulli-sets. DEFINED: sec:bib-notes-ch8.
+% Monograph register: lineage of the floor (Carter et al. 1978), its two-sided
+% form (Pagh-Rodler 2001), achievability (Pagh-Pagh-Rao 2005,
+% Dietzfelbinger-Pagh 2008, xor/binary fuse/ribbon), the dynamic bound
+% (Lovett-Porat 2010), the Bloom factor and compressed filters, entropy and
+% capacity. Citations carter-et-al-1978, pagh-rodler-2001, pagh-pagh-rao-2005,
+% dietzfelbinger-pagh-2008, lovett-porat-2010, broder-mitzenmacher-2004,
+% mitzenmacher-2002, shannon-1948, cover-thomas, towell-bernoulli-entropy,
+% bender-et-al-2018. DEFINED: sec:bib-notes-ch8 (label kept).
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch8}
 
-\paragraph{The entropy manuscript.}
-The floor of \Cref{thm:entropy-floor} and the Bloom overhead of
-\Cref{prop:bloom-overhead} follow \textcite{towell-bernoulli-entropy}, the
-primary source for \Cref{sec:entropy-floor} and \Cref{sec:bloom-gap}: the
-counting argument, the asymptotic $-n\log_2 \fprate$ form, and the $\log_2 e$
-comparison are all from it, as is the honest statement that the two-sided case
-remains open. This chapter adds the BSC bridge of \Cref{sec:bsc-capacity} that
-ties the floor to Part~I's running channel, the entropy refresher for readers
-new to $H(X)$, and the explicit forward connection to the chapter-14
-construction that closes the gap.
+\paragraph{Lineage.}
+The floor of \Cref{thm:entropy-floor} is the counting bound of
+\textcite{carter-et-al-1978}, who introduced approximate membership testers
+and proved that about $n\log_2(1/\fprate)$ bits are necessary. Its two-sided
+form, \Cref{prop:two-sided-floor}, is Proposition~1 of
+\textcite{pagh-rodler-2001}; the false-negative case is therefore not open.
+That the floor is attainable up to lower-order terms is due to
+\textcite{pagh-pagh-rao-2005} and, through the reduction to retrieval, to
+\textcite{dietzfelbinger-pagh-2008}; \textcite{lovett-porat-2010} show that
+structures supporting insertions cannot reach it at constant $\fprate$. The
+Bloom filter's factor of $\log_2 e$ is the classical benchmark
+\parencite{broder-mitzenmacher-2004}, and the compressed filter of
+\Cref{rem:compressed-bloom} is due to \textcite{mitzenmacher-2002}. Entropy,
+mutual information, and the BSC capacity are from \textcite{shannon-1948};
+\textcite{cover-thomas} is the reference treatment.
 
-\paragraph{The counting argument.}
-The proof of \Cref{thm:entropy-floor} is the classical lower bound of Carter,
-Floyd, Gill, Markowsky, and Wegman, in the combinatorial style of the universal
-hashing program of \textcite{carter-wegman-1979}: reason about a hash-based data
-structure by counting collisions over an explicit family rather than appealing
-to a random oracle. For every representation $R$, count the accepting sets it
-can describe; for every target set, count the representations that work; the
-ratio is the bound.
+\paragraph{What this chapter adds.}
+Presentation. The pigeonhole count is written in the exact form $L \ge
+n\log_2(1/(\fprate + n/N))$; the floor is read as a self-information
+$-\log_2\fprate$ per element rather than an entropy $H(\fprate)$; and the
+two-sided bound is interpreted in the book's per-element model, where it says
+that false negatives buy space only linearly. The computations in the
+program's notation, including the joint entropy of the error counts, are in
+\textcite{towell-bernoulli-entropy}; its earlier statement that the two-sided
+case is open is superseded by \Cref{prop:two-sided-floor}.
 
-\paragraph{Entropy and capacity.}
-The background of \Cref{sec:entropy-refresher} and \Cref{sec:bsc-capacity} is
-standard; \textcite{cover-thomas} covers entropy, mutual information, the BSC,
-capacity, and the source-coding theorem in its first three chapters, with the
-BSC capacity $C = 1 - H(\fprate)$ and the source-coding bound that underwrites
-\Cref{thm:entropy-floor} treated rigorously. \textcite{shannon-1948} remains the
-cleanest short presentation of the source-coding idea.
-
-\paragraph{Compressed Bloom filters.}
-\textcite{mitzenmacher-2002} introduced the compressed Bloom filter, whose
-mechanism \Cref{rem:compressed-bloom} works out: the half-full optimal array is
-incompressible, so compression instead exploits a deliberately sparse array,
-recovering per-bit redundancy and approaching the floor for the
-\emph{transmission} setting it targets, while the in-place query structure the
-rest of the chapter analyzes keeps the $\log_2 e$ gap. It is the right entry
-point for how much of that gap compression alone can close, and sets up the
-contrast with the structural change of \Cref{ch:optimal-bernoulli-sets}.
-\textcite{mitzenmacher-upfal} is the companion for the probabilistic background.
+\paragraph{Left out.}
+Lower-order terms and the precise constants of near-optimal constructions;
+dynamic constructions and their time-space tradeoffs; the joint entropy of
+the false-positive and false-negative counts; and adaptive query sequences,
+for which the guarantees change \parencite{bender-et-al-2018} and which
+chapter~16 takes up.

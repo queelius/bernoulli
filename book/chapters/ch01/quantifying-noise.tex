@@ -60,7 +60,7 @@ off-diagonal cells disagreement.}
 
 \subsection*{Rates}
 
-The two error rates are conditional, each normalized by its truth row:
+The two error rates are conditional, each normalized by its truth row\index{confusion matrix}:
 \[
   \fprate \;=\; \frac{\mathrm{FP}}{\mathrm{TN} + \mathrm{FP}},
   \qquad
@@ -68,9 +68,9 @@ The two error rates are conditional, each normalized by its truth row:
 \]
 Dividing by the row total rather than by $n$ is what makes $\fprate$ and
 $\fnrate$ properties of the noisy bit itself rather than of the input mixture
-observed. The complementary rates are the true-negative rate
+observed. The complementary rates are the true-negative rate\index{true-negative rate}
 $\tnrate = 1 - \fprate$ (the $\bot$-inputs reported correctly, also
-\emph{specificity}) and the true-positive rate $\tprate = 1 - \fnrate$ (also
+\emph{specificity}) and the true-positive rate\index{true-positive rate} $\tprate = 1 - \fnrate$ (also
 \emph{sensitivity}, and \emph{recall} in the vocabulary below). The two free
 parameters of a noisy bit are $\fprate$ and $\fnrate$; the other two are
 derived. The biased coin's $(\tau, \epsilon)$ of \Cref{sec:three-faces} is
@@ -92,7 +92,7 @@ Part~II lifts to approximate sets (\Cref{prop:complement-swap}).
 \subsection*{Precision and recall}
 
 A practitioner of binary classification reads \Cref{tab:contingency} through
-precision and recall:
+precision\index{precision} and recall\index{recall}:
 \[
   \mathrm{precision} \;=\; \frac{\mathrm{TP}}{\mathrm{TP} + \mathrm{FP}},
   \qquad
@@ -109,7 +109,7 @@ negatives, $\mathrm{TP} \approx n_\top \tprate$ and $\mathrm{FP} \approx n_\bot
   \;\approx\;
   \frac{n_\top (1 - \fnrate)}{n_\top (1 - \fnrate) + n_\bot \fprate}.
 \]
-Precision is therefore a function of the \emph{prevalence} $n_\top / n_\bot$ as
+Precision is therefore a function of the \emph{prevalence}\index{prevalence} $n_\top / n_\bot$ as
 well as the rates, whereas $(\fprate, \fnrate)$ is intrinsic to the noisy bit.
 The pair $(\fprate, \fnrate)$ describes the noisy bit; the pair (precision,
 recall) describes the noisy bit together with a workload. This is why the
@@ -150,7 +150,7 @@ $\fprate + \fnrate = 1$. On this anti-diagonal of the rate square the output is
 statistically independent of the truth: the report carries no information about
 the input. A constant rule is thus simultaneously a perfect classifier for one
 truth class and the worst possible one for the other (at $p = 1$, $\fnrate = 0$
-but $\fprate = 1$). The locus $\fprate + \fnrate = 1$ is the zero-information
+but $\fprate = 1$). The locus $\fprate + \fnrate = 1$ is the zero-information\index{zero-information line}
 case, and it is distinct from the symmetric case $\fprate = \fnrate$, which
 remains informative for $\fprate \neq 1/2$.
 \end{remark}

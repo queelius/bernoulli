@@ -19,8 +19,9 @@
 
 The BSC's equal error rates are rarely satisfied in practice: a spam filter, a
 Bloom filter, and a medical screening test all treat their two error directions
-differently. Allowing the false-positive rate $\fprate$ and the false-negative
-rate $\fnrate$ to vary independently gives the general binary channel.
+differently. Allowing the false-positive rate\index{false-positive rate} $\fprate$ and the false-negative
+rate\index{false-negative rate} $\fnrate$ to vary independently gives the general binary channel,
+the atom of two-sided error\index{two-sided error}.
 
 \begin{definition}[General asymmetric binary channel]
 \label{def:asymmetric-channel}
@@ -40,11 +41,71 @@ in the row convention of \Cref{sec:bsc}.
 
 Setting $\fnrate = \fprate$ recovers the BSC of \Cref{def:bsc}. Setting
 $\fnrate = 0$ makes row 1 equal to $(1, 0)$, so a positive input is always
-reported correctly: this is the Z-channel.
+reported correctly: this is the Z-channel. \Cref{fig:binary-channel} draws the
+three cases. The asymmetric channel\index{channel!asymmetric binary} is the
+standard binary channel of information theory. Read as a model of how a
+recorded indicator departs from the true one, it is also the misclassification
+model of $2 \times 2$ tables and, when the noise is introduced deliberately,
+Warner's randomized response\index{randomized response} (see the
+\hyperref[sec:bib-notes-ch2]{Notes and Lineage} at the end of this chapter).
+
+\begin{figure}[tbp]
+\centering
+\begin{tikzpicture}[x=24mm,y=13mm,
+  sym/.style={circle,draw,inner sep=0.5pt,minimum size=6mm},
+  lab/.style={font=\footnotesize,inner sep=1.5pt},
+  arr/.style={-{Stealth[length=2mm]}}]
+  % (a) BSC
+  \begin{scope}[shift={(0,0)}]
+    \node[sym] (it) at (0,1) {$\top$};
+    \node[sym] (ib) at (0,0) {$\bot$};
+    \node[sym] (ot) at (1,1) {$\top$};
+    \node[sym] (ob) at (1,0) {$\bot$};
+    \draw[arr] (it) -- node[lab,above] {$1-\fprate$} (ot);
+    \draw[arr] (ib) -- node[lab,below] {$1-\fprate$} (ob);
+    \draw[arr] (it) -- node[lab,pos=0.78,anchor=south west] {$\fprate$} (ob);
+    \draw[arr] (ib) -- node[lab,pos=0.78,anchor=north west] {$\fprate$} (ot);
+    \node[font=\footnotesize] at (0.5,-0.75) {(a) binary symmetric};
+  \end{scope}
+  % (b) asymmetric
+  \begin{scope}[shift={(1.7,0)}]
+    \node[sym] (it) at (0,1) {$\top$};
+    \node[sym] (ib) at (0,0) {$\bot$};
+    \node[sym] (ot) at (1,1) {$\top$};
+    \node[sym] (ob) at (1,0) {$\bot$};
+    \draw[arr] (it) -- node[lab,above] {$1-\fnrate$} (ot);
+    \draw[arr] (ib) -- node[lab,below] {$1-\fprate$} (ob);
+    \draw[arr] (it) -- node[lab,pos=0.78,anchor=south west] {$\fnrate$} (ob);
+    \draw[arr] (ib) -- node[lab,pos=0.78,anchor=north west] {$\fprate$} (ot);
+    \node[font=\footnotesize] at (0.5,-0.75) {(b) asymmetric};
+  \end{scope}
+  % (c) Z-channel
+  \begin{scope}[shift={(3.4,0)}]
+    \node[sym] (it) at (0,1) {$\top$};
+    \node[sym] (ib) at (0,0) {$\bot$};
+    \node[sym] (ot) at (1,1) {$\top$};
+    \node[sym] (ob) at (1,0) {$\bot$};
+    \draw[arr] (it) -- node[lab,above] {$1$} (ot);
+    \draw[arr] (ib) -- node[lab,below] {$1-\fprate$} (ob);
+    \draw[arr] (ib) -- node[lab,pos=0.78,anchor=north west] {$\fprate$} (ot);
+    \node[font=\footnotesize] at (0.5,-0.75) {(c) Z-channel};
+  \end{scope}
+  \node[font=\footnotesize] at (0,1.55) {truth};
+  \node[font=\footnotesize] at (1,1.55) {report};
+\end{tikzpicture}
+\caption[The binary channels: BSC, asymmetric channel, Z-channel]{The binary channels of Part~I. Each arrow carries the probability of
+the report given the truth; the rows of the channel matrix $Q$ are the arrow
+weights leaving one input. (a) The BSC has one crossover $\fprate$ in both
+directions (model order 1). (b) The asymmetric channel has a false-positive
+rate $\fprate$ and a false-negative rate $\fnrate$ (model order 2). (c) The
+Z-channel fixes $\fnrate = 0$: a report of $\bot$ is always correct, the
+one-sided profile of a Bloom filter query.}
+\label{fig:binary-channel}
+\end{figure}
 
 \begin{definition}[Z-channel]
 \label{def:z-channel}
-A \emph{Z-channel} with false-positive rate $\fprate \in (0,1)$ is an
+A \emph{Z-channel}\index{channel!Z-channel} with false-positive rate $\fprate \in (0,1)$ is an
 asymmetric binary channel with $\fnrate = 0$, channel matrix
 \[
   Q_Z \;=\;
@@ -56,16 +117,18 @@ asymmetric binary channel with $\fnrate = 0$, channel matrix
 \end{definition}
 
 The Z-channel makes false negatives impossible while admitting false positives
-at rate $\fprate$, so an output of $\bot$ is fully reliable and an output of
+at rate $\fprate$ (one-sided error\index{one-sided error}), so an output of $\bot$ is fully reliable and an output of
 $\top$ is uncertain.\footnote{Information-theory texts often take the opposite
 asymmetry ($\fnrate > 0$, $\fprate = 0$); the two are equivalent up to
 relabeling. The convention here aligns with positive approximate sets, where
 the false-positive direction is the natural error mode.} This reliable-no,
 uncertain-yes profile is exactly the Bloom filter: it answers set membership
 with no false negatives ($x \in S$ always returns $\top$) and a tunable
-false-positive rate ($x \notin S$ may still return $\top$), so a Bloom filter
-is a Z-channel, $\fnrate = 0$ with $\fprate$ set by its bit-width and hash
-count. The doubly-biased coin, the screening test (small $\fnrate$, larger
+false-positive rate ($x \notin S$ may still return $\top$), so a Bloom
+filter\index{Bloom filter!as a channel} query is a Z-channel, $\fnrate = 0$
+with $\fprate$ set by its bit-width and hash count (conditionally on the
+realized filter; \Cref{ch:approximate-sets} treats the randomness of the
+rate itself). The doubly-biased coin, the screening test (small $\fnrate$, larger
 $\fprate$) and its confirmatory counterpart (the reverse), and any system tuned
 by a decision threshold are all asymmetric channels; as the threshold sweeps,
 $(\fprate, \fnrate)$ traces a curve in $[0,1]^2$, each point a distinct channel,
@@ -88,14 +151,14 @@ different costs, which is the subject of \Cref{ch:classification-measures}.
 
 \subsection*{The general order-2 case}
 
-The asymmetric channel is the general model-order-2 binary channel: the input
+The asymmetric channel is the general model-order-2\index{model order} binary channel: the input
 domain partitions into $B_1 = \{\top\}$ and $B_2 = \{\bot\}$, each block
 carrying its own rate, $\fnrate$ for $B_1$ and $\fprate$ for $B_2$. The BSC
 imposes $\fnrate = \fprate$, which merges the two blocks into one and drops the
 model order to 1 (\Cref{sec:model-order}); the Z-channel keeps the blocks
 distinct ($\fnrate = 0 \neq \fprate$) and so remains order 2 with a single free
 parameter, the first sign that model order and parameter count are separate
-quantities. \Cref{sec:model-order} makes the distinction precise and proves the
+quantities\index{model order!versus parameter count}. \Cref{sec:model-order} makes the distinction precise and proves the
 Boolean ceiling: with only two input elements, no binary channel exceeds model
 order 2.
 

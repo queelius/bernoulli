@@ -20,9 +20,11 @@
 \section{Miller-Rabin}
 \label{sec:miller-rabin}
 
-Miller-Rabin primality testing is a $k$-fold one-sided $\Bernoulli{\BoolType}$
-conjunction. Number theory contributes one fact, the per-round bound $\fprate
-\le 1/4$; everything else is the composition machinery of \S\S3.1--3.3.
+Miller-Rabin primality testing\index{Miller--Rabin test} is a $k$-fold
+one-sided $\Bernoulli{\BoolType}$ conjunction over a single latent bit, the
+primality of $n$. Number theory contributes one fact, the per-round bound
+$\fprate \le 1/4$; everything else is the composition machinery of
+\Cref{sec:and-under-noise} through \Cref{sec:composition-theorem}.
 
 \subsection*{The witness test as a noisy bit}
 
@@ -34,7 +36,8 @@ Identify ``probably prime'' with $\top$ and ``composite'' with $\bot$, and let
 the true value be whether $n$ is prime. Then a prime always passes (by Fermat's
 little theorem and the fact that the only square roots of $1$ modulo a prime
 are $\pm 1$), so the test has no false negatives, $\fnrate = 0$. A composite
-passes only when $a$ lies in its \emph{strong-liar set}, and Rabin's theorem
+passes only when $a$ lies in its \emph{strong-liar set}, the complement of
+its witnesses\index{witness (Miller--Rabin)}, and Rabin's theorem
 bounds that set at $(n-3)/4$, so a uniform witness gives
 \begin{equation}
 \label{eq:mr-fpr}
@@ -48,7 +51,11 @@ as a predicate on the witness pool: $\tilde{P}(a)$ is the verdict for witness
 $a$, the pool $\{2, \ldots, n-2\}$ is the universe, and distinct witnesses are
 distinct input elements. The $k$-round test is the conjunction $\tilde{P}(a_1)
 \wedge \cdots \wedge \tilde{P}(a_k)$ over $k$ independently drawn witnesses,
-exactly the operation of \Cref{sec:and-under-noise}.
+exactly the operation of \Cref{sec:and-under-noise}. Because every round reads
+the same latent value, this is the shared-truth conjunction discussed after
+\Cref{prop:boolean-closure}, which is a two-rate instance;
+the latent-assignment dependence of \Cref{sec:boolean-formulas} does not
+arise.
 
 \subsection*{The k-round bound}
 

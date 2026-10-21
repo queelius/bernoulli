@@ -6,7 +6,7 @@
 % cor:kronecker-unconditional. DEFINED: sec:axiom-2, ax:block-rates-indep,
 % prop:stable-Q.
 
-\section{Axiom 2: Conditional Independence of Block Error Rates}
+\section[Axiom 2: Conditional Independence of Block Rates]{Axiom 2: Conditional Independence of Block Error Rates}
 \label{sec:axiom-2}
 
 Axiom~1 governs error across distinct elements; Axiom~2 governs the random
@@ -17,6 +17,7 @@ domain the blocks are $B_1 = \{\top\}$, carrying $\fnrate$, and $B_2 =
 
 \begin{axiom}[Conditional independence of block error rates]
 \label{ax:block-rates-indep}
+\index{axiom!block-rate independence}
 The random per-block rates $\alpha_1, \ldots, \alpha_n$, conditional on the
 objective set $A$, are mutually independent:
 $f(\alpha_1, \ldots, \alpha_n \mid A) = \prod_i f(\alpha_i \mid A)$.
@@ -49,7 +50,7 @@ prior outcomes, so it is stable across the sequence.
 
 This is the precise sense of ``one channel matrix $Q$ per block'': the entry
 $Q_{ij}$ does not drift or warm up, and a single $Q$ describes an entire query
-sequence. A channel that violates this is a Markov-correlated one, where the
+sequence. A channel that violates this is a Markov-correlated\index{correlated noise} one, where the
 rate after an error rises from a base $\fprate_0$ to an elevated $\fprate_1$.
 With $\fprate_0 = 0.05$ and $\fprate_1 = 0.30$, two consecutive negatives are
 both reported $\top$ with probability $0.05 \times 0.30 = 0.015$, six times the

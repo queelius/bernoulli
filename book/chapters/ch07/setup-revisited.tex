@@ -27,11 +27,12 @@ and closes with a deployed Bloom filter run through the whole toolkit.
 \paragraph{Notation.}
 The rates of \Cref{sec:quantifying-noise} carry their usual symbols:
 $\fprate$ and $\fnrate$ for the two error rates, $\tprate = 1 - \fnrate$ for
-the true-positive rate (\emph{recall} or \emph{sensitivity}), and
-$\tnrate = 1 - \fprate$ for the true-negative rate (\emph{specificity}); the
+the true-positive rate\index{true-positive rate} (\emph{recall} or
+\emph{sensitivity}), and $\tnrate = 1 - \fprate$ for the true-negative
+rate\index{true-negative rate} (\emph{specificity}); the
 hatted forms are their empirical estimators. Sample sizes are $n_0$ (truth
 $\bot$) and $n_1$ (truth $\top$), so $\hat{\fprate} = \mathrm{FP}/n_0$ and
 $\hat{\fnrate} = \mathrm{FN}/n_1$, and $z_{\alpha/2}$ is the upper-$\alpha/2$
-standard-Normal quantile. The workload prevalence $\pi = \Prob{X = \top}$ is
+standard-Normal quantile. The workload prevalence\index{prevalence} $\pi = \Prob{X = \top}$ is
 the fraction of $\top$-inputs in the inference sample; PPV, NPV, and $\Fone$
 depend on it and $\fprate, \fnrate$ do not.

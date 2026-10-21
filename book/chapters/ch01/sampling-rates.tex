@@ -36,7 +36,7 @@ n_0$ of truth $\top$. Each $\bot$-trial reports $\top$ independently with
 probability $\fprate$, so the false-positive count is binomial,
 $\mathrm{FP} \sim \mathrm{Binomial}(n_0, \fprate)$, and likewise
 $\mathrm{FN} \sim \mathrm{Binomial}(n_1, \fnrate)$. The row-conditional
-proportions
+proportions\index{binomial estimator}
 \[
   \hat{\fprate} = \frac{\mathrm{FP}}{n_0},
   \qquad
@@ -56,21 +56,23 @@ vanishes at $\fprate \in \{0, 1\}$, where one trial settles the matter.
 
 For large $n_0$ the central limit theorem makes $\hat{\fprate}$ approximately
 Normal with mean $\fprate$ and variance $\fprate(1 - \fprate)/n_0$. Substituting
-the estimate into the variance gives the Wald interval at level $1 - \alpha$,
+the estimate into the variance gives the Wald interval\index{confidence interval} at level $1 - \alpha$,
 \[
   \hat{\fprate} \;\pm\; z_{\alpha/2}
     \sqrt{\frac{\hat{\fprate}(1 - \hat{\fprate})}{n_0}},
 \]
 with $z_{\alpha/2}$ the upper-$\alpha/2$ standard-Normal quantile. The Wald form
 is asymptotically correct but under-covers at small $n_0$ when $\fprate$ is near
-$0$ or $1$, and can even leave $[0,1]$; the Wilson, Clopper-Pearson, and
-Jeffreys intervals handle the boundary better, and \Cref{ch:classification-measures}
+$0$ or $1$, and can even leave $[0,1]$; the Wilson\index{confidence interval!Wilson},
+Clopper-Pearson\index{confidence interval!Clopper--Pearson}, and Jeffreys
+intervals handle the boundary better, and \Cref{ch:classification-measures}
 develops them.
 
 \subsection*{Reproducibility}
 
-The companion notebook \texttt{bernoulli-py/notebooks/ch01-noisy-bit.ipynb}
-reproduces these claims: it estimates $\fprate$ from a simulated binary
+A companion notebook reproduces these claims; it is
+\texttt{ch01-noisy-bit.ipynb} in the directory \texttt{bernoulli-py/notebooks/}
+of the companion package. It estimates $\fprate$ from a simulated binary
 symmetric channel across sample sizes spanning several orders of magnitude,
 exhibiting the $1/\sqrt{n_0}$ concentration of $\hat{\fprate}$ about the true
 rate; and it measures the empirical coverage of the $95\%$ Wald interval,
@@ -85,7 +87,7 @@ rates: a system can have stable rates $\fprate$ and $\fnrate$ yet errors that
 are correlated across queries. The point estimates $\hat{\fprate},
 \hat{\fnrate}$ remain valid in that case, but the variances above, and every
 confidence interval and sample-size requirement built on them, misstate the
-true uncertainty. Independence is named as Axiom~1 in
+true uncertainty. Independence\index{independence!across elements} is named as Axiom~1 in
 \Cref{sec:axiom-1}, and chapter~16 takes correlated-error systems as an
 explicit subject.
 \end{remark}

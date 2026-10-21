@@ -34,7 +34,7 @@ the server to compute on $\mathsf{Enc}(x)$ something the client can
 decrypt to (something close to) $f(x)$. The server never sees $x$, and
 never sees $f(x)$ directly; what it returns is an encryption of an
 output the client decrypts with $\mathsf{Dec}$. The companion map that
-operates on the encrypted representations is the cipher map.
+operates on the encrypted representations is the cipher map\index{cipher map}.
 
 \begin{definition}[Cipher map]
 \label{def:cipher-map}
@@ -56,43 +56,66 @@ Bernoulli sense of \Cref{sec:quantifying-noise}.
 The cipher map operates entirely on the encrypted domain; decryption
 happens client-side after the encrypted output returns; and the rates
 $\fprate, \fnrate$ are exactly those the framework has spent sixteen
-chapters analyzing, so there is no new probabilistic machinery. What is
-new is the second meaning the error carries. A cipher map with $\fprate
-= \fnrate = 0$ behaves identically to $f$ from the client's view but also
-reveals the most about $x$ to an adversary watching $\tilde f$ across
-many queries; a cipher map with positive error obscures $x$ in
-proportion to the error. \Cref{sec:bernoulli-error-model} makes the
-duality precise and \Cref{sec:trapdoor-paradigm} unpacks its
-consequences.
+chapters analyzing, so there is no new probabilistic machinery. The error
+also bears on what an observer can infer: a false positive is a report
+that does not correspond to a real member, so it can mask real ones. But
+the rates do not by themselves determine confidentiality. A cipher map
+with positive error can still leak through what it does not randomize
+(equal queries producing equal encodings, access patterns, result sizes),
+and a map with zero error can hide everything if its outputs are never
+revealed to the observer, as in fully homomorphic encryption.
+Confidentiality needs a stated observation model and adversary on top of
+the error model; \Cref{sec:bernoulli-error-model} treats the error side
+and \Cref{sec:trapdoor-paradigm} and \Cref{sec:maximizing-confidentiality}
+the leakage side.
+
+Several of the properties asked of cipher maps below have long
+cryptographic histories, and the chapter borrows rather than originates
+them. Making each plaintext value correspond to many possible encodings,
+so that encoding frequencies flatten, is homophonic substitution
+\parencite{jendal-kuhn-massey-1989}\index{homophonic substitution}; making
+every decoding attempt, even with a wrong key, return a plausible-looking
+value is the distribution-transforming encoder of honey encryption
+\parencite{juels-ristenpart-2014}\index{honey encryption}; storing a key-value map so
+that the structure hides which keys it encodes, and non-keys decode to
+values that look like stored ones when the stored values are random, is
+the oblivious key-value store
+\parencite{garimella-et-al-2021,bienstock-et-al-2023}\index{oblivious key-value store};
+computing a function through key-dependent lookup tables is white-box
+cryptography \parencite{chow-et-al-2002}; hiding a point
+function behind a hash that reveals only equality is point-function
+obfuscation \parencite{canetti-1997,lynn-prabhakaran-sahai-2004}; and
+encrypting so that a chosen property stays testable is property-preserving
+encryption \parencite{pandey-rouselakis-2012}.
 
 \subsection*{Why approximate is acceptable}
 
 The exact alternative exists. Fully homomorphic encryption (FHE),
 introduced by Gentry in 2009 and refined by the BFV, BGV, and CKKS
 schemes, gives an $\tilde f$ with $\fprate = \fnrate = 0$ for any
-computable $f$. The catch is cost: FHE ciphertexts run kilobytes to
-megabytes per encrypted bit and seconds per bit operation, six orders of
-magnitude slower and three larger than the plaintext computation for
-microsecond workloads. Cipher maps trade error for practicality, just as
+computable $f$. The catch is cost: FHE ciphertexts run kilobytes or more
+per encrypted value and homomorphic operations are many orders of
+magnitude slower than the plaintext computation they replace. Cipher maps trade error for practicality, just as
 the cleartext approximate-set literature trades Bloom false positives for
-memory. A Bloom-based cipher map for membership uses about
-$-\log_2 \fprate + \mu$ bits per element (the optimal formula of
-chapter~14), runs in constant time, and gives a tunable false-positive
-rate. \Cref{sec:fhe-sidebar} works the comparison in detail.
+memory. A filter-based cipher map for membership needs at least
+$\log_2(1/\fprate)$ bits per element (the bound of chapter~8, due to
+\textcite{carter-et-al-1978}), about $1.44$ times that as a Bloom
+filter, runs in constant time, and gives a tunable false-positive rate. \Cref{sec:fhe-sidebar} works the comparison in detail.
 
 \subsection*{The trapdoor key}
 
 What distinguishes a cipher map from any other noisy function is the
-\emph{trapdoor key}: a secret that recovers $f(x)$ from
+\emph{trapdoor key}\index{trapdoor computing}: a secret that recovers $f(x)$ from
 $\tilde f(\mathsf{Enc}(x))$. The client holds it; the server does not.
 Without the trapdoor the server sees only opaque bit patterns and cannot
 tell meaningful queries from filler, real outputs from noise, or one
 plaintext from another; with it the client decrypts to within the
 $(\fprate, \fnrate)$ bounds. Three properties make the key worth its
 name: it is \emph{short} (constant length, not growing with the data),
-\emph{necessary} (no polynomial-time computation without it recovers
-plaintext), and \emph{sufficient} (a key holder decrypts at the same
-per-call cost as a plaintext evaluation). The three distinguish a cipher
+\emph{necessary} (under the construction's security assumption, no
+efficient computation without it recovers the plaintext), and
+\emph{sufficient} (a key holder decrypts at about the per-call cost of a
+plaintext evaluation). The three distinguish a cipher
 map from a generic encryption (which lacks sufficiency) and from a
 generic noisy function (which lacks the first two).
 
@@ -103,9 +126,11 @@ ground \Cref{sec:bernoulli-error-model}.
 
 \textbf{Encrypted set membership.} For a plaintext set $A \subset X$ the
 client wants $f_A(x) = \mathbf{1}[x \in A]$ without revealing $A$. It
-builds a Bloom filter on $A$ with a keyed hash family (the key is the
-trapdoor), encrypts the bit array, and gives it to the server; to query,
-it sends $\mathsf{Enc}(x)$ and the server tests the encrypted bits. The
+builds a Bloom filter on $A$ whose probe positions come from a keyed
+pseudorandom function (the key is the trapdoor) and gives the bit array
+to the server; to query, it sends the $k$ keyed positions for $x$, an
+encoding $\mathsf{Enc}(x)$ the server cannot invert, and the server tests
+those bits. This is the secure index of \textcite{goh-2003}\index{secure index}. The
 returned bit is correct on negatives with probability at least $1 -
 \fprate$ and always correct on positives ($\fnrate = 0$), the one-sided
 error of the Bloom construction.
@@ -128,7 +153,9 @@ The three span the landscape. The Bloom-based map sits at the
 high-$\fprate$, zero-$\fnrate$ corner of the perfect-filter line of
 \Cref{sec:perfect-filter-line}; the equality and ordering maps sit at the
 zero-zero corner but pay their confidentiality cost through structural
-leakage rather than rate. The chapter's work is to show that the
-$(\fprate, \fnrate)$ machinery grips the first case and that the PPV/NPV
-machinery of \Cref{def:ppv} gives a confidentiality measure covering the
-second.
+leakage rather than rate. The $(\fprate, \fnrate)$ machinery describes the error of all three; it
+says nothing about the structural leakage of the second and third, which
+needs a leakage model of its own (frequency and order leakage are the
+standard ones). The PPV/NPV machinery of \Cref{def:ppv} gives one
+confidentiality measure for the first case under a stated observation
+model (\Cref{sec:maximizing-confidentiality}), not a general one.

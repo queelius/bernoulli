@@ -23,7 +23,7 @@ that some operations preserve, some map to itself, and some exit.
 
 \begin{definition}[The perfect filter line]
 \label{def:perfect-filter-line}
-The \emph{perfect filter line} is
+The \emph{perfect filter line}\index{perfect filter line} is
 $\mathcal{L} = \mathcal{L}_{\fnrate} \cup \mathcal{L}_{\fprate}$, where the
 \emph{FNR-zero axis} is $\mathcal{L}_{\fnrate} = \{(\fprate, 0) : 0 < \fprate
 \le 1\}$ and the \emph{FPR-zero axis} is $\mathcal{L}_{\fprate} = \{(0,
@@ -94,16 +94,17 @@ coordinate exchange, so each conclusion transposes.
 \paragraph{The shape of the line.}
 $\mathcal{L}$ is non-convex: the midpoint of a segment from $(\fprate, 0)$ to
 $(0, \fnrate)$ is $(\fprate/2, \fnrate/2)$, interior to the square and on
-neither axis. The two arms meet only at the excised origin, so $\mathcal{L}$
-is a wedge of two open segments rather than a connected curve, and no convex
-mixing of one operand from each arm preserves it, the geometric content of
-\Cref{prop:mixed-intersection-escape}. This is the precise sense in which the
-line is a \emph{subalgebra} of the rate plane: closed under same-axis union
-and intersection, swapped by complement, and exited by mixed-axis
-intersection and same-axis difference. Same-axis chains compose freely;
-cross-axis chains leave the line, and the space guarantees of
-\Cref{ch:optimal-bernoulli-sets} and \Cref{ch:perfect-hash-filters} no longer
-apply to the result.
+neither axis, so even a random choice between one structure from each arm is
+two-sided. The two arms meet only at the excised origin, so $\mathcal{L}$ is
+a wedge of two open segments rather than a connected curve. Algebraically,
+each axis is closed under union and intersection, complement exchanges the
+two axes, and mixed-axis intersection and same-axis difference leave the
+line. The line is therefore not closed under the full set algebra; it is a
+pair of union-and-intersection-closed families exchanged by complement.
+Same-axis chains built from union and intersection compose freely and stay
+one-sided; chains that mix axes leave the line, and the one-sided space
+accounting of \Cref{ch:information-bounds} and
+\Cref{ch:optimal-bernoulli-sets} no longer prices the result.
 
 \begin{remark}[The two-pass skeleton]
 \label{rem:two-pass}
@@ -114,17 +115,20 @@ for the same $A$, accepting only when both accept. By
 mixed-axis and hence two-sided, with FNR $\fnrate_+$ and a residual FPR
 $w_2 \fprate_-(1 - \fnrate_+)$ on inputs outside the perfect filter's
 certainty region. The cheap filter discards most non-members and the precise
-filter certifies the rest, which is the algorithmic skeleton of the perfect
-hash filter; \Cref{ch:perfect-hash-filters} is what turns the skeleton into a
-genuinely one-sided FPR-zero construction rather than a two-sided
-approximation.
+filter certifies the rest. \Cref{ch:perfect-hash-filters} obtains a
+genuinely one-sided FPR-zero construction rather than this two-sided
+approximation, and only in a restricted query model.
 \end{remark}
 
-\Cref{ch:optimal-bernoulli-sets} builds the Bernoulli Hash Function on
-$\mathcal{L}_{\fnrate}$ at the entropy floor, closing the standard Bloom
-filter's $\log_2 e \approx 1.44$ overhead, and by
-\Cref{prop:fnr-zero-closure} its unions and intersections stay on the axis at
-predictable rates. \Cref{ch:perfect-hash-filters} builds the perfect hash
-filter on $\mathcal{L}_{\fprate}$; mixed-axis composition with a Bloom filter
-leaves the line and forfeits the FPR-zero certainty, so the designer must
-respect the closure constraints to keep either chapter's guarantees.
+\Cref{ch:optimal-bernoulli-sets} builds two structures on
+$\mathcal{L}_{\fnrate}$: the perfect hash filter, which pays a minimal
+perfect hash's overhead above the floor, and the Bernoulli Hash Function,
+which meets the floor in space at an exponential construction cost; the
+retrieval-based filters of \Cref{sec:bloom-gap} remove most of the standard
+Bloom filter's $\log_2 e \approx 1.44$ factor efficiently. By
+\Cref{prop:fnr-zero-closure} unions and intersections of such structures stay
+on the axis at predictable rates.
+\Cref{ch:perfect-hash-filters} builds its rank-table filter on
+$\mathcal{L}_{\fprate}$; mixed-axis composition with a Bloom filter leaves the
+line and forfeits the FPR-zero certainty, so the designer must respect the
+closure constraints to keep either chapter's guarantees.

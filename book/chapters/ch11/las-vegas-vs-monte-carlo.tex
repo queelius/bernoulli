@@ -16,14 +16,14 @@ bounded.
 
 \begin{definition}[Las Vegas algorithm]
 \label{def:las-vegas}
-A \emph{Las Vegas} algorithm has output that is deterministically correct on
+A \emph{Las Vegas} algorithm\index{Las Vegas algorithm} has output that is deterministically correct on
 every input and coin sequence (when it halts), and a random runtime $T_A(x)$. It
 is \emph{expected-polynomial-time} when $\Expect{T_A(x)}$ is polynomial in $|x|$.
 \end{definition}
 
 \begin{definition}[Monte Carlo algorithm]
 \label{def:monte-carlo}
-A \emph{Monte Carlo} algorithm has runtime deterministically bounded on every
+A \emph{Monte Carlo} algorithm\index{Monte Carlo algorithm} has runtime deterministically bounded on every
 coin sequence and output that agrees with the truth only with bounded
 probability. A one-sided Monte Carlo decision algorithm has $\fprate \le \alpha$,
 $\fnrate = 0$ (or the mirror); a two-sided one has $\fprate, \fnrate \le \alpha$
@@ -73,11 +73,16 @@ nontrivial assumption, which is why $\mathrm{ZPP} = \mathrm{RP} \cap
 A Monte Carlo \emph{decision} algorithm returns a Boolean $A(x)$ guessing a
 predicate $P(x)$, with error structure exactly the $2 \times 2$ channel of
 \Cref{def:bernoulli-bool}, $\fprate = \Prob{A(x) = \top \mid P(x) = \bot}$ and
-$\fnrate = \Prob{A(x) = \bot \mid P(x) = \top}$. It \emph{is} a
-$\Bernoulli{\BoolType}$ instance, the $k$-fold amplification of
+$\fnrate = \Prob{A(x) = \bot \mid P(x) = \top}$, with one qualification: the
+error probability of a randomized algorithm depends on the input $x$, not only
+on the truth value $P(x)$, so the rates are per input and the class
+definitions of \Cref{sec:rp-bpp} bound them uniformly. Read with that
+qualification, as a worst-case pair\index{composition!worst-case rate bounds} in the sense of
+\Cref{prop:worst-case-rate-bounds} (see also \Cref{sec:varying-rates}), it is a
+$\Bernoulli{\BoolType}$\index{Bernoulli Boolean} instance; the $k$-fold amplification of
 \Cref{thm:miller-rabin-formal} is the composition theorem
-(\Cref{thm:composition}) on independent instances, and chapter~7's PPV and NPV
-apply with prevalence the base rate of true positives. A Las Vegas algorithm
+(\Cref{thm:composition}) on independent runs over one fixed input; and
+chapter~7's PPV and NPV apply with prevalence the base rate of true positives. A Las Vegas algorithm
 has no error to rate, its output being deterministically correct and its
 randomness living in the runtime; its analysis belongs to runtime tail bounds
 (Markov, Chebyshev, Chernoff of \Cref{sec:sample-complexity}), not to the

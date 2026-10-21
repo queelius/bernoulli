@@ -1,39 +1,57 @@
-% §12.4 Bridge
+% §12.6 Bridge
 %
-% Monograph register: recap (with the corrected join rate) + forward to ch13.
-% Cross-refs sec:sets-to-relations, ch:approximate-sets, ch:approximate-functions,
-% sec:relation-composition, thm:join-rates, ch:set-composition,
-% sec:approximate-joins, sec:minhash-lsh, ch:algebra-types. DEFINED: sec:ch12-bridge.
+% Re-synced 2026-10-21: recap of the corrected chapter (source identity,
+% (k, j) projection profiles, shared-component join covariance, specific repair
+% constructions, truth-uniform query contracts and the calibration finding) plus
+% the scope of an encrypted-search application (towell-bernoulli-relations
+% Sec. 8): Bernoulli rates specify functionality, not confidentiality. The
+% earlier claim that ch12 "inherits its composition rules from the algebraic
+% structure of the product type" is narrowed: marginals come from lineage.
+% Cross-refs sec:sets-to-relations, sec:relation-composition,
+% sec:relation-invariants, sec:query-contracts, sec:approximate-joins,
+% ch:algebra-types, ch:cipher-maps-trapdoor, ch:encrypted-search.
+% DEFINED: sec:ch12-bridge.
 
 \section{Bridge}
 \label{sec:ch12-bridge}
 
-The chapter read one object, the approximate relation, through its operators and
-its invariants. \Cref{sec:sets-to-relations} cast it as the chapter-5 framework on
-the pair universe $T \times U$ (\Cref{ch:approximate-sets}), with the chapter-9
-binary-function view (\Cref{ch:approximate-functions}) an equivalent reading.
-\Cref{sec:relation-composition} added the relational operators, and they behave
-sharply differently under approximation: selection is rate-transparent, projection
-amplifies the false-positive rate by its fan-in and raises the model order while
-keeping element-wise independence, and a join breaks that independence outright
-(\Cref{thm:join-correlation}), correlating every output tuple built from a shared
-component. The join's marginal rate (\Cref{thm:join-rates}) is the chapter-6
-intersection rate on the triple universe (\Cref{ch:set-composition}), the bare
-product $\fprate_1 \fprate_2$ only in the sparse regime where out-of-join triples
-are dominated by the both-unrelated region. \Cref{sec:relation-invariants} then
-asked which structural invariants survive: reflexivity, symmetry,
-single-valuedness, and transitivity are each preserved only with a probability
-that vanishes as the universe grows, the symmetric closure the one cheap repair.
-\Cref{sec:approximate-joins} instantiated the machinery on the MinHash-LSH
-similarity join (\Cref{sec:minhash-lsh}), reading its FPR/FNR as the chapter-12
-join rates specialized to a sketch-based predicate.
+The chapter read the approximate relation through its operators, its invariants,
+and its queries, and one distinction carried all three: a tuple's rate is a
+property of one probe, while a query's error depends on which stored outcomes its
+probes share. \Cref{sec:sets-to-relations} separated exact truth, construction
+randomness, and source identity. \Cref{sec:relation-composition} found selection
+rate-transparent, projection amplifying false positives with rates indexed by the
+fiber profile $(k, j)$, and the join correct per tuple but correlating outputs that
+share an operand tuple; composing operators requires the lineage over sources, not
+a chain of per-operator rate updates. \Cref{sec:relation-invariants} showed every
+invariant fragile under independent tuples, and showed that the constructions which
+enforce one (canonical sources, OR-closure, deletion) move error into the stored-key
+count and the dependence structure rather than removing it.
+\Cref{sec:query-contracts} turned the source view into truth-uniform contracts,
+$1 - (1 - \fprate)^{s_0}$ and $1 - (1 - \fnrate)^{s_1}$ under independent one-sided
+sources, and showed in a stored-filter experiment that sizing sources at the tuple
+target can miss a query target by a factor of more than six, while calibrated sizing
+meets it. \Cref{sec:approximate-joins} read the MinHash-LSH similarity join in the
+same terms.
 
-\Cref{ch:algebra-types} closes Part~III with the type algebra that unifies
-approximate sets, functions, relations, and sketches into one algebra of
-$\Bernoulli{T}$ constructors. An approximate relation is $\Bernoulli{\BoolType}$
-on a product universe, equivalently $\Bernoulli{T \times U}$ in the
-type-constructor view, and the composition rules each prior chapter derived by
-direct calculation become functorial properties of the product type. Chapter~12
-is one of the first instances of that unification: an approximate relation reread
-as $\Bernoulli{T \times U}$ inherits its composition rules from the algebraic
-structure of the product type rather than from a separate derivation.
+\begin{remark}[Scope of an encrypted-search reading]
+\label{rem:ch12-encrypted-scope}
+Approximate relations can model the \emph{functionality} of a private search
+index\index{encrypted search}\index{secure index}, with tuples encoding document-term incidence or candidate matches and a
+positive query combining approximate probes; subject to a justified construction
+law, the contracts above describe its false matches and missed answers. They do not
+describe its confidentiality. Two structures with identical false-positive and
+false-negative rates can expose different sizes, access patterns, query-equality
+patterns, or stored representations, and a secret salt alone does not establish a
+security theorem. A security claim needs a construction, an adversary, an
+experiment, and a declared leakage, including what repeated and adaptive queries
+reveal. \Cref{ch:cipher-maps-trapdoor} and \Cref{ch:encrypted-search} take up
+that analysis separately.
+\end{remark}
+
+\Cref{ch:algebra-types} closes Part~III with the type algebra\index{approximate type} that organizes
+approximate sets, functions, relations, and sketches as $\Bernoulli{T}$
+constructors. An approximate relation is $\Bernoulli{\BoolType}$ on a product
+universe, and the type view supplies its marginal rates. The lesson of this chapter
+travels with it: marginals compose cleanly, but joint behavior is fixed by shared
+sources, which a type signature alone does not record.

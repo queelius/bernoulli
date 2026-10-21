@@ -1,62 +1,49 @@
-% §6.6 Bibliographic Notes
+% §6.6 Notes and Lineage
 %
-% Monograph register: the composition framework, Bloom union/intersection,
-% De Morgan under noise, perfect-filter lineage. Citations
-% towell-bernoulli-composition, mitzenmacher-upfal, broder-mitzenmacher-2004,
-% carter-wegman-1979, bloomfilter, towell-bernoulli-hash-function. Cross-refs
-% sec:union-of-sets, sec:other-set-ops, prop:complement-swap, sec:or-not,
-% sec:predicate-algebra, sec:perfect-filter-line, sec:one-sided-two-sided,
-% ch:perfect-hash-filters. DEFINED: sec:bib-notes-ch6.
+% Monograph register: lineage of the set-operation rates (signal-probability
+% propagation, independent-or/and in probabilistic databases, Bloom-filter
+% bitwise operations), what the chapter adds (the perfect-filter-line
+% classification; the higher-order caveat), what it leaves out. Citations
+% parker-mccluskey-1975, krishnaswamy-et-al-2008, fuhr-roelleke-1997,
+% dalvi-suciu-2007, broder-mitzenmacher-2004, papapetrou-siberski-nejdl-2010,
+% towell-bernoulli-composition. DEFINED: sec:bib-notes-ch6 (label kept).
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch6}
 
-\paragraph{The composition framework.}
-The rate-propagation formulas of \Cref{sec:union-of-sets,sec:other-set-ops}
-are the set-level instances of the framework of
-\textcite{towell-bernoulli-composition}, which proves the propagation laws for
-the full algebra, union, intersection, complement, difference, and symmetric
-difference, under independence of the constituent $\Bernoulli{\BoolType}$
-outputs, and catalogues which compound operations preserve one-sidedness. That
-manuscript carries the partition-weighted forms used here for the
-off-axis rates; this chapter derives each rule from the predicate algebra of
-\Cref{sec:predicate-algebra} and the gate rules of \Cref{sec:or-not} and
-connects it to its Boolean-algebra ancestor.
+\paragraph{Lineage.}
+The rate formulas of \Cref{sec:union-of-sets,sec:other-set-ops} are the gate
+rules of chapter~3 applied pointwise to membership, and that computation is
+old. Forward propagation of signal probabilities\index{signal probability}
+through AND, OR, and NOT gates with independent inputs is due to
+\textcite{parker-mccluskey-1975}, and probabilistic transfer
+matrices\index{probabilistic transfer matrix}
+\parencite{krishnaswamy-et-al-2008} carry the
+same calculus, asymmetric rates included, through whole circuits. In
+databases the same rules are the independent-or and independent-and of
+probabilistic relational algebra\index{probabilistic relational algebra}
+\parencite{fuhr-roelleke-1997} and of query evaluation on probabilistic
+databases\index{probabilistic database} \parencite{dalvi-suciu-2007}. Bitwise
+union and intersection of Bloom filters are folklore surveyed by
+\textcite{broder-mitzenmacher-2004}, and \textcite{papapetrou-siberski-nejdl-2010}
+estimate the sizes of unions and intersections from filters. The
+region-weighted forms used here follow the composition manuscript
+\textcite{towell-bernoulli-composition}.
 
-\paragraph{Bloom filter union and intersection.}
-That two Bloom filters of equal length and shared hash family admit a bitwise
-OR and AND of their arrays is folklore, but what the result \emph{computes},
-and at what rate, is treated in \textcite[Ch.~5]{mitzenmacher-upfal} and
-surveyed in \textcite{broder-mitzenmacher-2004}. The union case is clean: the
-bitwise OR is exactly a filter for $A \cup B$ with $\fnrate = 0$ preserved.
-The intersection case is subtle: the bitwise AND does not in general produce a
-filter for $A \cap B$, admitting ghost members absent from both inputs.
-\Cref{sec:other-set-ops} sidesteps the trap by treating intersection at the
-predicate level, which gives the correct rate without committing to a
-representation.
+\paragraph{What this chapter adds.}
+Two things, both modest. First, the perfect-filter-line classification of
+\Cref{sec:cancellation,sec:perfect-filter-line}: each one-sided axis is
+closed under union and intersection, complement exchanges the axes, and
+same-axis difference leaves the line. These facts are elementary once the
+region rates are written down; their use is organizational, for chapters~14
+and~15. Second, the explicit caveat that a composed set is higher order, so
+its summary pair is not a valid operand for further composition
+(\Cref{rem:composing-composed}); exact propagation is block by block, and the
+honest two-number summary is a worst-case bound.
 
-\paragraph{De~Morgan under noise.}
-The complement-swap of \Cref{prop:complement-swap}, that complementing an
-approximate set exchanges its two rates, is the set-level shadow of the NOT
-rule of \Cref{sec:or-not}. Classical De~Morgan, $\complement(A \cup B) =
-\complement A \cap \complement B$, still holds at the set level, but the two
-sides traverse the rate plane by different paths: one touches the FNR-zero
-axis when both inputs are FNR-zero, the other the FPR-zero axis after the
-swap. ``Different paths, same destination'' is what makes the
-perfect-filter-line classification of \Cref{sec:perfect-filter-line}
-informative about which compound operations stay one-sided and which are
-forced into the interior.
-
-\paragraph{Perfect-filter lineage.}
-The constructive side of building a set whose rates sit exactly on the
-FPR-zero axis has roots in the perfect-hashing literature opened by
-\textcite{carter-wegman-1979} and is taken up in
-\Cref{ch:perfect-hash-filters}, which builds on
-\textcite{towell-bernoulli-hash-function} for the space-optimal construction.
-The Bloom filter of \textcite{bloomfilter} occupies the opposite axis and has
-been the canonical one-sided approximate set since 1970; its behavior under
-union and intersection is what this chapter's closure analysis formalizes.
-Chapter~6 sits between the predicate algebra of chapter~5 and the constructive
-machinery of chapter~15: the algebra of operations, divorced from any
-representation.
+\paragraph{Left out.}
+Symmetric difference and the propagation of uncertain rates as intervals,
+both treated in the composition manuscript; operands that share hash
+functions or storage, beyond \Cref{rem:cross-set-independence}, which
+chapter~16 takes up as correlated noise; and estimation of the cardinality of
+a composed set from its operands.

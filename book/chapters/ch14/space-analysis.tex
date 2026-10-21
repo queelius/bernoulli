@@ -1,197 +1,279 @@
 % §14.3 Space Analysis
 %
-% Monograph register: fingerprint storage (n*r), perfect-hash storage
-% (sublinear, BDZ), total, thm:bhf-optimality, comparison table at
-% n=10^6, ceiling-rounding discussion. Trims the repeated
-% additive-vs-multiplicative overhead contrast to one statement. Folds
-% salvaged ex:ch14-11 as rem:bhf-class-optimal (optimality within the
-% perfect-hash-addressed class). Cross-refs def:bloom-filter,
-% thm:entropy-floor, prop:bloom-overhead, def:bhf, eq:bhf-r,
-% sec:fpr-analysis. DEFINED: sec:space-analysis, thm:bhf-optimality,
-% rem:bhf-class-optimal, eq:bhf-fingerprint-bits, eq:bdz-bound,
-% eq:bhf-total-bits, eq:bhf-per-element, tab:bhf-comparison.
+% Monograph register: the BHF's expected salt length (thm:bhf-optimality,
+% exact series plus two-sided bound), why no integer rounding appears, the
+% perfect hash filter (def:phf, alg:phf-build-query) as the practical
+% FNR-zero structure with its log2(e) lower-bounded addressing cost
+% (prop:phf-space), the honest break-even with the Bloom filter (the
+% companion notebook's measured BBHash overhead), retrieval-based filters
+% that close the gap at linear build time, and a comparison table.
+% CORRECTION (2026-10-21): the earlier draft claimed a perfect hash costs
+% O(n log log log n / log n) bits ("BDZ"), so that the fingerprint table met
+% the floor up to o(1). False: any minimal perfect hash needs at least
+% n log2(e) - O(log n) bits (Fredman-Komlos 1984). Cross-refs
+% thm:entropy-floor, prop:bloom-overhead, def:bloom-filter, def:bhf,
+% eq:bhf-success, sec:fpr-analysis, sec:construction-time. DEFINED:
+% sec:space-analysis, thm:bhf-optimality, eq:bhf-salt-series, def:phf,
+% alg:phf-build-query, eq:bhf-r, eq:bhf-insert, prop:phf-space,
+% rem:bhf-class-optimal, tab:bhf-comparison.
 
 \section{Space Analysis}
 \label{sec:space-analysis}
 
-The BHF stores two objects, the perfect hash $\phi$ and the fingerprint
-table $F$, and the total bit budget is their sum. The fingerprint table
-is the dominant term and matches the floor of \Cref{thm:entropy-floor}
-up to the integer rounding of $r$; the perfect-hash representation is a
-sublinear correction that vanishes asymptotically. Together they give
-the chapter's headline: the BHF reaches the floor up to one bit of
-rounding plus an $o(1)$ term, and the Bloom filter's $\log_2 e$
-multiplicative overhead is gone.
+The BHF's representation is its salt plus the two parameters $N$ and
+$t$. This section computes the salt's expected length exactly and shows
+that it meets the floor of \Cref{thm:entropy-floor} to within an\index{space lower bound!approximate membership}
+additive constant over the whole set, not per element. It then states
+the perfect hash filter, the practical structure that replaces search by
+addressing, and accounts for its budget honestly: fingerprints at the
+floor up to rounding, plus a perfect hash that cannot cost less than
+$\log_2 e$ bits per element.
 
-\subsection*{Fingerprint storage}
+\subsection*{The expected salt length}
 
-The table $F : [n] \to \{0, 1\}^r$ holds $n$ slots of $r$ bits, so
+The build scans salts in the order $b_1, b_2, \ldots$ and stops at the
+first valid one, $b_Q$, whose length is $L = \lfloor \log_2 Q \rfloor$.
+Since $L \ge \ell$ exactly when $Q \ge 2^{\ell}$, and $\Prob{Q \ge q} =
+(1 - s)^{q - 1}$ for the geometric index,
 \begin{equation}
-\label{eq:bhf-fingerprint-bits}
-  L_{F} \;=\; n \cdot r \;=\; n \cdot \lceil -\log_2 \fprate \rceil
+\label{eq:bhf-salt-series}
+  \Expect{L}
+  \;=\; \sum_{\ell \ge 1} \Prob{Q \ge 2^{\ell}}
+  \;=\; \sum_{\ell \ge 1} (1 - s)^{2^{\ell} - 1},
 \end{equation}
-bits, with $r$ from \eqref{eq:bhf-r}. The dependence on the target rate
-is logarithmic, each base-$10$ digit of precision costing about $3.32$
-bits per element, and the dependence on set size is linear. There is no
-padding and no per-slot overhead beyond the fingerprint: the table is a
-flat array addressed by $\phi$, the densest representation of one
-uniform fingerprint per element. The Bloom filter, by contrast, spreads
-each insertion across $k$ bits and pays the half-occupancy load factor
-that the optimal-$k$ analysis selects; the BHF avoids both penalties by
-resolving collisions at build time.
+with $s = \fprate^{n}$ from \eqref{eq:bhf-success}.
 
-The integer rounding in $r$ contributes between $0$ and $1$ bits per
-element over the real-valued floor $-\log_2 \fprate$, since $\lceil x
-\rceil - x \in [0, 1)$, averaging $0.5$ bits over a logarithmically
-uniform $\fprate$. This additive, bounded overhead is the structural
-contrast with the Bloom filter's $\log_2(1/\fprate)\cdot\log_2 e$ budget
-(\Cref{prop:bloom-overhead}), whose overhead is multiplicative and
-grows with $\log_2(1/\fprate)$. As $\fprate \to 0$ the BHF budget
-approaches the floor; the Bloom budget stays $44\%$ above it.
-
-\subsection*{Perfect-hash storage}
-
-The perfect hash $\phi$ is itself a stored structure, since queries
-need it to address slots. Its size depends on the construction. The BDZ
-family of Belazzougui, Botelho, and Dietzfelbinger (\S14.7) achieves
-\begin{equation}
-\label{eq:bdz-bound}
-  L_{\phi} \;=\; O\bigl( n \log \log \log n / \log n \bigr)
-\end{equation}
-bits, which is $o(n)$: the per-element overhead $L_{\phi}/n = O(\log
-\log \log n / \log n)$ tends to zero. Earlier constructions
-(Fredman-Komlos-Szemeredi, Hagerup-Tholey, the displacement-based
-families) reach at most $O(n)$ bits with leading constants of $2$ to
-$4$ bits per element. At realistic scales ($n$ between $10^3$ and
-$10^9$) a BDZ-style construction occupies on the order of $2$ to $3$
-bits per element, and the present accounting takes \eqref{eq:bdz-bound}
-as the bound with the constant treated as a small additive correction.
-
-At $n = 10^6$ the asymptotic form evaluates to roughly $0.2$ to $0.5$
-bits per element in practical implementations, against a fingerprint
-term of $r$ bits ranging from $7$ at $\fprate = 10^{-2}$ to $20$ at
-$\fprate = 10^{-6}$; the perfect-hash overhead is a few percent of the
-fingerprint cost and shrinks at larger $n$, below $0.1$ bits per
-element by $n = 10^9$. At deployment scale it is a rounding correction
-to the fingerprint term, not a separate concern.
-
-\subsection*{Total bits per element}
-
-Combining the two terms,
-\begin{equation}
-\label{eq:bhf-total-bits}
-  L_{\text{BHF}} \;=\; L_F + L_\phi
-  \;=\; n \cdot \lceil -\log_2 \fprate \rceil
-  \;+\; O\bigl( n \log \log \log n / \log n \bigr),
-\end{equation}
-and dividing by $n$,
-\begin{equation}
-\label{eq:bhf-per-element}
-  L_{\text{BHF}} / n
-  \;=\; \lceil -\log_2 \fprate \rceil
-  \;+\; O(\log \log \log n / \log n).
-\end{equation}
-The first term lies between $-\log_2 \fprate$ and $-\log_2 \fprate + 1$;
-the second is $o(1)$.
-
-\begin{theorem}[BHF optimality]
+\begin{theorem}[Expected size of the BHF]
 \label{thm:bhf-optimality}
-The Bernoulli Hash Function of \Cref{def:bhf} on a designated set $A$
-with $|A| = n$ and target $\fprate \in (0, 1)$ uses
+Let the BHF of \Cref{def:bhf} be built for $|A| = n$ at rate $\fprate =
+(t + 1)/N$, under the random-oracle model. Its expected salt length
+satisfies
 \[
-  L_{\text{BHF}} / n
-  \;=\; \lceil -\log_2 \fprate \rceil
-  \;+\; o(1)
-  \;=\; -\log_2 \fprate \;+\; O(1)
+  n \log_2(1/\fprate) \;-\; 1 \;-\; \log_2 e
+  \;\le\; \Expect{L} \;\le\;
+  n \log_2(1/\fprate).
 \]
-bits per element, achieving the entropy floor of
-\Cref{thm:entropy-floor} up to one bit of integer rounding plus a
-sublinear correction. The multiplicative overhead $\log_2 e \approx
-1.4427$ of the standard Bloom filter (\Cref{prop:bloom-overhead}) is
-absent: the BHF's overhead is additive and bounded by a constant.
+With $O(\log(nN))$ further bits to record $N$, $t$, and the salt's
+length, the expected representation is $n \log_2(1/\fprate) +
+O(\log(nN))$ bits, that is $-\log_2 \fprate + o(1)$ bits per element for
+fixed $\fprate$, matching the floor of \Cref{thm:entropy-floor} to
+leading order.
 \end{theorem}
 
-The theorem is the constructive complement to \Cref{thm:entropy-floor}.
-The floor said no FNR-zero representation uses fewer than $-\log_2
-\fprate$ bits per element asymptotically; the present theorem exhibits
-one using no more than that plus an additive constant. Together they
-pin the per-element cost of a sufficient FNR-zero construction to
-$[-\log_2 \fprate + o(1),\, -\log_2 \fprate + 1 + o(1)]$, with the BHF
-at the top of the interval and the slack the unavoidable cost of a
-whole number of fingerprint bits.
+\begin{proof}
+Write $\ell^{*} = \log_2(1/s) = n \log_2(1/\fprate)$. For the upper
+bound, $\lfloor \log_2 Q \rfloor \le \log_2 Q$, and Jensen's inequality
+for the concave logarithm gives
+$\Expect{L} \le \log_2 \Expect{Q} = \ell^{*}$.
+For the lower bound, $\Prob{Q \le a} \le a s$ for every $a \ge 0$ by the
+union bound over the first $\lfloor a \rfloor$ salts, so
+\[
+  \Expect{(\ell^{*} - \log_2 Q)_{+}}
+  \;=\; \int_0^{\infty} \Prob{Q < 2^{\ell^{*} - u}}\, du
+  \;\le\; \int_0^{\infty} 2^{-u}\, du
+  \;=\; \log_2 e,
+\]
+hence $\Expect{\log_2 Q} \ge \ell^{*} - \log_2 e$, and $\lfloor \log_2 Q
+\rfloor \ge \log_2 Q - 1$ gives the stated bound. The parameters and the
+length field take $O(\log N + \log \ell^{*})$ bits, and $\ell^{*} = O(n
+\log N)$.
+\end{proof}
 
-The optimality can be sharpened from ``matches the floor'' to ``optimal
-within its structural class.''
+The slack is a constant for the whole set. At $s = 2^{-16}$, the worked
+example of \Cref{sec:bhf-construction}, the series
+\eqref{eq:bhf-salt-series} evaluates to $14.67$, which is $1.33$ bits
+below $\ell^{*} = 16$; at $s = 2^{-20}$ it is $18.67$, again $1.33$
+below. Nothing in the construction allocates bits per element, so the
+fractional part of $\log_2(1/\fprate)$ is paid exactly: at $\fprate =
+0.01$ the BHF's expected cost is at most $6.644$ bits per element plus the
+$O(\log n)/n$ parameter term, not the $7$ that an integer-width
+fingerprint would take. The equality-predicate variant
+\parencite{towell-bernoulli-hash-function} has success probability
+$\fprate^{n-1}$ and stores its target value, $\log_2(1/\fprate)$ bits, so
+its total is the same.
 
-\begin{remark}[Optimality among perfect-hash-addressed structures]
+None of this is new as a statement about seed search.\index{seed search} The expected index
+of the first of a sequence of independent trials, each succeeding with
+probability $s$, has a binary length of $\log_2(1/s) + O(1)$; this is the
+seed-index scale on which the bucketed seed searches of modern minimal
+perfect hashing operate
+\parencite{esposito-graf-vigna-2020,lehmann-sanders-walzer-2024}, and
+\textcite[Sec.~1.1]{lehmann-et-al-2025} analyze exactly the case of one
+seed required to satisfy independent Bernoulli constraints: near-optimal
+space and exponential construction. The BHF is that baseline, written in
+the vocabulary of this book. Its value here is as the construction that
+shows the floor of \Cref{thm:entropy-floor} is the right target, with
+the build cost made explicit rather than hidden.
+
+\subsection*{The perfect hash filter}
+
+Polynomial build time comes from addressing instead of search. A
+\emph{minimal perfect hash function}\index{minimal perfect hash function}
+$\phi : \Universe \to [n]$ is injective on $A$ and maps it onto $[n] =
+\{1, \ldots, n\}$; it is data-dependent, constructed at build time from
+$A$, and defined (arbitrarily) on non-members. Pair it with a
+\emph{fingerprint}\index{fingerprint} hash $g : \Universe \to \{0,
+1\}^{r}$, uniform on its codomain, of width
+\begin{equation}
+\label{eq:bhf-r}
+  r \;=\; \lceil -\log_2 \fprate \rceil,
+\end{equation}
+the least integer with $2^{-r} \le \fprate$, and fill a table $F : [n]
+\to \{0, 1\}^r$ in one pass:
+\begin{equation}
+\label{eq:bhf-insert}
+  \text{for each } a \in A: \quad F[\phi(a)] \;\coloneqq\; g(a).
+\end{equation}
+
+\begin{definition}[Perfect hash filter]
+\label{def:phf}
+The \emph{perfect hash filter} (PHF)\index{perfect hash filter} for $A$ with parameters $\phi$, $g$,
+and $r$ is the pair $(\phi, F)$ built by \eqref{eq:bhf-insert}, with
+membership query $\textsc{Query}(x) = \top$ iff $F[\phi(x)] = g(x)$.
+\end{definition}
+
+\begin{algorithm}[ht]
+  \caption{Perfect hash filter construction and query}
+  \label{alg:phf-build-query}
+  \SetKwProg{func}{procedure}{}{}
+  \SetKwProg{fn}{function}{}{}
+
+  \func{\textsc{Build}($A$)}{
+    construct a minimal perfect hash $\phi : A \to [n]$\;
+    allocate $F$ with $n$ slots of $r$ bits\;
+    \lFor{each $a \in A$}{$F[\phi(a)] \gets g(a)$}
+    \Return $(\phi, F)$\;
+  }
+  \BlankLine
+  \fn{\textsc{Query}($x$)}{
+    \lIf{$F[\phi(x)] = g(x)$}{\Return $\top$}
+    \Return $\bot$\;
+  }
+\end{algorithm}
+
+A member reads back the fingerprint it wrote, so $\fnrate = 0$; a
+non-member reads some member's fingerprint and matches it with
+probability $2^{-r} \le \fprate$ (\Cref{prop:phf-fpr}). The structure is
+the standard static approximate-membership construction: the pairing of
+a minimal perfect hash with fingerprints of
+$\lceil \log_2(1/\fprate) \rceil$ bits, and its overhead of about $\log_2 e$ bits per element, are
+described by \textcite[Sec.~1]{dietzfelbinger-pagh-2008}, who remark
+that the origin of the idea is unknown to them, and the program's
+manuscript on the construction \parencite{towell-bernoulli-phf} restates
+it as a Bernoulli set. Chapter~15 builds on it.
+
+\begin{proposition}[Perfect hash filter space]
+\label{prop:phf-space}
+The perfect hash filter of \Cref{def:phf} uses $n \lceil -\log_2 \fprate
+\rceil + L_{\phi}$ bits, where $L_{\phi}$ is the size of the minimal
+perfect hash. For any minimal perfect hash function on a universe much\index{space lower bound!minimal perfect hashing}
+larger than $n$, $L_{\phi} \ge n \log_2 e - O(\log n)$
+\parencite{fredman-komlos-1984}, so
+\[
+  L_{\text{PHF}} / n
+  \;\ge\; \lceil -\log_2 \fprate \rceil + \log_2 e - o(1)
+  \;\ge\; -\log_2 \fprate + 1.4427 - o(1).
+\]
+\end{proposition}
+
+The proposition is a lower bound on this design, not on approximate
+membership: the overhead is the cost of naming each member's slot, which
+the floor does not require. It is \emph{additive}, where the Bloom
+filter's $\log_2(1/\fprate) \cdot \log_2 e$ (\Cref{prop:bloom-overhead})\index{Bloom filter!space overhead}
+exceeds the floor by a \emph{multiplicative} factor, so the perfect hash
+filter wins once $\fprate$ is small enough and loses at loose targets.
+Writing the addressing cost as $c$ bits per element and ignoring the
+rounding of $r$, it beats the Bloom filter exactly when $(\log_2 e - 1)
+\log_2(1/\fprate) > c$, that is when $\log_2(1/\fprate) > c / 0.4427$.
+At the idealized $c = \log_2 e$ the break-even is near $\fprate =
+2^{-3.26}$. Real minimal perfect hashes cost more: from about $1.5$ bits
+per key for the seed-search constructions RecSplit and ShockHash, which
+spend build time to approach $\log_2 e$
+\parencite{esposito-graf-vigna-2020,lehmann-sanders-walzer-2024}, through
+about $2$ for hash-displace-and-compress \parencite{belazzougui-2009}, to
+about $3$ for BBHash \parencite{limasset-et-al-2017}. The companion
+notebook (\texttt{bernoulli-py/\allowbreak notebooks/\allowbreak
+ch14-bhf.ipynb}) measures $c = 3.23$ bits per key for its BBHash-backed
+filter at $n = 1000$, which puts the break-even at $\log_2(1/\fprate)
+\approx 7.3$: at $\fprate = 2^{-7}$ the Bloom filter is smaller ($10.10$
+bits per key against $10.23$), and from $\fprate = 2^{-10}$ the perfect
+hash filter is ($13.23$ against $14.43$). The perfect hash filter does
+not dominate the Bloom filter on space; it dominates at tight targets,
+by a margin that grows linearly in $\log_2(1/\fprate)$.
+
+\begin{remark}[Optimality within the fingerprint-table class]
 \label{rem:bhf-class-optimal}
-Consider any FNR-zero structure of the form $(\phi, F)$ with $\phi : A
-\to [n]$ a perfect hash and $F : [n] \to \{0, 1\}^r$ a fingerprint
-table. For a non-member $x$ mapped to slot $i$, the verdict is $\top$
-iff $F[i]$ matches the $r$-bit string the query derives from $x$; under
-any non-adversarial query distribution with a uniform fingerprint
-derivation, the match probability is exactly $2^{-r}$, so $\fprate \ge
-2^{-r}$. With the floor's $r \ge -\log_2 \fprate$, the achievable
-$(r, \fprate)$ region is $\fprate \ge 2^{-r}$ and $r \ge \lceil -\log_2
-\fprate \rceil$. The BHF sits at the corner, $r = \lceil -\log_2 \fprate
-\rceil$ and $\fprate = 2^{-r} \le \fprate$: no perfect-hash-addressed
-FNR-zero structure meets the same target with fewer bits per element.
+Among FNR-zero structures that address an $r$-bit fingerprint table
+through a perfect hash, the width $r = \lceil -\log_2 \fprate \rceil$ is
+the least that meets the target: a non-member mapped to slot $i$ matches
+the stored $r$-bit fingerprint with probability exactly $2^{-r}$ under a
+uniform fingerprint derivation, so $\fprate \ge 2^{-r}$ forces $r \ge
+-\log_2 \fprate$. Within the class the only slack is the integer rounding
+and the addressing; neither is forced on approximate membership in
+general.
 \end{remark}
+
+\subsection*{Closing the gap at linear build time}
+
+The addressing cost disappears if the structure need not say
+\emph{where} each member's fingerprint is, only \emph{what} the
+fingerprint of each member is. A
+\emph{retrieval}\index{retrieval} structure (a static function) stores,
+for each $a \in A$, an $r$-bit value $v(a)$ retrievable as $V(a)$, and
+returns arbitrary values on non-members; storing $v = g$ and accepting $x$
+when $V(x) = g(x)$ gives an FNR-zero filter with false-positive rate
+$2^{-r}$ for non-members whose retrieved value is independent of $g(x)$.
+\textcite{dietzfelbinger-pagh-2008} show that retrieval, and hence
+approximate membership, is achievable within a factor $1 + \delta$ of
+$n r$ bits for any fixed $\delta > 0$, with efficient construction and
+constant-time queries; the Bloomier filter of
+\textcite{chazelle-et-al-2004}\index{Bloomier filter} is the earlier retrieval-based design.
+Practical descendants include the xor filter\index{xor filter}
+\parencite{graf-lemire-2020}, at about $1.23\, n r$ bits, the binary fuse
+filter\index{binary fuse filter} \parencite{graf-lemire-2022}, closer still, and ribbon
+\parencite{dietzfelbinger-et-al-2026-ribbon}\index{ribbon filter}. Their false-positive rates
+need the same care as any filter's: homogeneous ribbon, for instance, has
+exact rate $p + (1 - p) 2^{-r}$, where $p$ is the probability of a
+row-span event, so it is not the ideal $2^{-r}$ of independent
+fingerprints. These, not the perfect
+hash filter, are the practical answer to the floor; the integer rounding
+of $r$ remains unless fingerprints are coded jointly.
 
 \subsection*{Comparison table}
 
-Fix $n = 10^6$. \Cref{tab:bhf-comparison} compares the entropy floor
-$-\log_2 \fprate$, the Bloom filter at $\log_2(1/\fprate)\cdot\log_2 e$
-bits per element, and the BHF at $\lceil -\log_2 \fprate \rceil$
-(ignoring the sublinear perfect-hash term, a fraction of a bit at $n =
-10^6$).
+\Cref{tab:bhf-comparison} collects the budgets.\index{space--accuracy tradeoff} The perfect-hash column
+uses the idealized addressing cost $\log_2 e$; a real construction adds
+between a few tenths of a bit and two bits more.
 
 \begin{table}[h]
 \centering
-\caption{Bits per element at $n = 10^6$. Floor is the bound of
-\Cref{thm:entropy-floor}; Bloom is the standard construction
-(\Cref{prop:bloom-overhead}); BHF is the optimum of
-\Cref{thm:bhf-optimality}, excluding sublinear perfect-hash overhead.}
+\small
+\caption{Bits per element for an FNR-zero set at target $\fprate$.
+Floor is \Cref{thm:entropy-floor}; Bloom is \Cref{prop:bloom-overhead};
+BHF is the expected salt length of \Cref{thm:bhf-optimality}, excluding
+$O(\log n)/n$ for parameters; PHF is \Cref{prop:phf-space} at the
+idealized addressing cost.}
 \label{tab:bhf-comparison}
-\begin{tabular}{l|rrr}
+\begin{tabular}{l|rrrr}
 \hline
-  $\fprate$  & Floor & Bloom & BHF \\
+  $\fprate$  & Floor   & Bloom   & BHF (expected) & PHF ($r + \log_2 e$) \\
 \hline
-  $10^{-2}$  & $6.64$  & $9.59$  & $7$  \\
-  $10^{-3}$  & $9.97$  & $14.38$ & $10$ \\
-  $10^{-6}$  & $19.93$ & $28.76$ & $20$ \\
+  $10^{-2}$  & $6.64$  & $9.59$  & $\le 6.64$     & $8.44$  \\
+  $10^{-3}$  & $9.97$  & $14.38$ & $\le 9.97$     & $11.44$ \\
+  $10^{-6}$  & $19.93$ & $28.76$ & $\le 19.93$    & $21.44$ \\
 \hline
 \end{tabular}
 \end{table}
 
-The Bloom filter pays a multiplicative $\log_2 e \approx 1.44$ at every
-row; the BHF pays an additive $\lceil -\log_2 \fprate \rceil -
-(-\log_2 \fprate)$, concretely $0.36, 0.03, 0.07$ bits. The
-Bloom-versus-BHF gap grows with $-\log_2 \fprate$, from $2.59$ bits per
-element at $\fprate = 10^{-2}$ to $8.76$ at $\fprate = 10^{-6}$; the
-BHF-versus-floor gap stays below one bit. At $n = 10^6$, $\fprate =
-10^{-6}$, the absolute saving over Bloom is $8.76 \cdot 10^6$ bits,
-about $1.1$ megabytes.
-
-\subsection*{The \texorpdfstring{$\lceil \cdot \rceil$}{ceiling} rounding}
-
-The budget is $\lceil -\log_2 \fprate \rceil$ rather than $-\log_2
-\fprate$ because $r$ is an integer; there is no fractional bit in a
-table addressed by the perfect hash. The rounding is not wasted
-silently: at integer $r$ the achieved FPR is $2^{-r}$, at most the
-target but generally strictly below it. Writing $-\log_2 \fprate = k +
-\delta$ with $k$ integer and $\delta \in [0, 1)$, the width is $r = k +
-1$ when $\delta > 0$, and the achieved FPR is $2^{-r} = \fprate /
-2^{1-\delta}$, smaller than $\fprate$ by a factor between $1$ (as
-$\delta \to 1$) and $2$ (as $\delta \to 0^+$). The BHF over-achieves
-the target by the rounding slack, on average about half.
-
-The slack can in principle be recovered: arithmetic or block coding
-across $k$ elements drives the per-element cost toward $-\log_2
-\fprate$ without integer rounding, at the cost of query time (a
-fractional-bit fingerprint cannot be compared at machine-word speed)
-and implementation complexity. In practice the $\le 1$ bit of waste is
-accepted and the BHF is deployed with integer $r$. The construction is
-asymptotically optimal up to that rounding, which is small and
-well-understood, and on those terms the BHF is the constructive answer
-to the chapter-8 floor question.
+The BHF matches the floor but cannot be built at these sizes; the
+perfect hash filter is built in linear time and sits a constant above
+the floor; the Bloom filter is the simplest, and its gap to the floor
+grows with $\log_2(1/\fprate)$. At the idealized addressing cost the
+Bloom filter is the largest in every row; with the notebook's measured
+BBHash cost of $3.23$ bits per key the perfect hash filter needs $10.23$
+bits per element at $\fprate = 10^{-2}$ and is the larger of the two
+there. At $n =
+10^6$ and $\fprate = 10^{-6}$ the perfect hash filter at its idealized
+cost saves about $7.3$ bits per element over the Bloom filter, about
+$0.9$ megabytes; with BBHash addressing the saving is about $5.5$ bits
+per element.

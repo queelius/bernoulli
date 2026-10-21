@@ -29,19 +29,20 @@ the operation behind a Bloom filter's $k$-hash query and Miller-Rabin's
 $k$-round test, and OR and NOT follow from it (\Cref{sec:or-not}).
 
 Let $\tilde{b}_1, \tilde{b}_2$ be independent instances with rates
-$(\fprate_i, \fnrate_i)$, and apply AND to their observed outputs; the true
-value is the AND of the true inputs. Two independence assumptions are in play,
-and the chapter's purpose is to invoke them deliberately. Axiom~1
-(\Cref{ax:element-indep}) makes the error events of the two instances
-independent, licensing every product below; Axiom~2
-(\Cref{ax:block-rates-indep}) makes each instance's rates stable constants
+$(\fprate_i, \fnrate_i)$ observing two \emph{latent} (true) bits $b_1, b_2$,
+and apply AND to their observed outputs; the true value is the AND of the
+latent bits. Two independence assumptions are in play, and the chapter's
+purpose is to invoke them deliberately. Axiom~1
+(\Cref{ax:element-indep})\index{axiom!element-wise independence} makes the
+error events of the two instances independent given the latent bits, licensing every product below; Axiom~2
+(\Cref{ax:block-rates-indep})\index{axiom!block-rate independence} makes each instance's rates stable constants
 rather than a drifting process. Chapter~4 proves both and shows they are the
 content of the Kronecker factorization (\Cref{sec:axiom-1},
 \Cref{sec:axiom-2}).
 
 The AND of the observed outputs is $\top$ exactly when both report $\top$,
-which by Axiom~1 happens with the following probabilities across the four true
-inputs:
+which by Axiom~1 happens with the following probabilities across the four
+latent pairs:
 
 \begin{center}
 \begin{tabular}{cccc}
@@ -58,23 +59,43 @@ $\bot$ & $\bot$ & $\bot$ & $\fprate_1 \fprate_2$ \\
 
 \subsection*{Output rates}
 
-The true AND is $\top$ only in the first row, so a false negative (true $\top$,
+The true AND is $\top$ only in the first row, so a false negative\index{false-negative rate} (true $\top$,
 observed $\bot$) is the complement of that row's success:
 \begin{equation}
 \label{eq:and-fnr}
   \fnrate_\wedge \;=\; 1 - (1 - \fnrate_1)(1 - \fnrate_2)
                  \;=\; \fnrate_1 + \fnrate_2 - \fnrate_1 \fnrate_2.
 \end{equation}
-This depends only on the input rates, not on the input prior: the AND succeeds
-on a true $\top$ only if both instances do, and the probability that at least
-one misses is the inclusion-exclusion expression above.
+This depends only on the input rates, not on the input prior: the true AND is
+$\top$ at exactly one latent pair, $(\top, \top)$, so there is exactly one
+false-negative rate, and the AND succeeds there only if both instances do.
 
-The false-positive rate is different. The true AND is $\bot$ in the last three
-rows, and the observed AND is $\top$ there with conditional probabilities
-$(1 - \fnrate_1)\fprate_2$, $\fprate_1(1 - \fnrate_2)$, and $\fprate_1
-\fprate_2$. The effective false-positive rate is the prior-weighted mixture of
-these, conditioned on the true AND being $\bot$. Writing $\pi$ for the prior
-that an input is $\top$,
+The false-positive rate\index{false-positive rate} is different. The true AND is $\bot$ at three latent
+pairs, and the observed AND is $\top$ there with the three conditional
+probabilities
+\begin{equation}
+\label{eq:and-negative-rows}
+  (\top,\bot):\ (1 - \fnrate_1)\fprate_2,
+  \qquad
+  (\bot,\top):\ \fprate_1(1 - \fnrate_2),
+  \qquad
+  (\bot,\bot):\ \fprate_1 \fprate_2 .
+\end{equation}
+These are generally three different numbers. Viewed as a channel from the
+latent pair\index{latent assignment} to the reported bit, the AND output has
+one positive row and three negative rows, so in the sense of
+\Cref{def:model-order}, applied to the four-element domain of latent pairs, it
+can have model order\index{model order} up to four. No single false-positive
+rate describes it: the AND of two $\Bernoulli{\BoolType}$ instances on distinct
+latent bits is \emph{not} again a two-rate noisy bit.
+\Cref{sec:boolean-formulas} develops the consequence for formulas, including a
+counterexample (\Cref{ex:two-rate-counterexample}) in which reusing a single
+rate halves the true error.
+
+A single number arises only by averaging. If the two latent bits are
+independent with common prevalence\index{prevalence} $\pi = \Pr[b_i = \top]$,
+the probability that a randomly drawn negative pair is reported $\top$ is the
+prior-weighted mixture of \eqref{eq:and-negative-rows},
 \begin{equation}
 \label{eq:and-fpr-general}
   \fprate_\wedge
@@ -83,27 +104,38 @@ that an input is $\top$,
         + (1 - \pi)^2 \fprate_1 \fprate_2}
        {1 - \pi^2}.
 \end{equation}
-Unlike the false-negative rate, this depends on the input distribution. The
-two extremes are instructive. When the two inputs are jointly $\bot$ (the
-all-negative regime, $\pi \to 0$ or both inputs known negative), the boundary
-patterns vanish and
+This is a \emph{prior-averaged rate}\index{prior-averaged rate}: an exact
+statement about the gate under the stated input distribution, and the right
+number for a workload drawn from it, but not the conditional rate at any
+particular input, and not a parameter a downstream gate can reuse except in the
+narrow case of \Cref{rem:prior-averaged-composition}. The two extremes are
+instructive. When both inputs are negative (the all-negative regime, $\pi \to 0$
+or both inputs known negative) the boundary rows drop out and
 \[
   \fprate_\wedge \;=\; \fprate_1 \fprate_2,
 \]
-the product, which drives the false-positive rate down: two noisy bits both
-have to err for the conjunction to err. When one input is positive, the
-relevant pattern contributes $\approx \fprate$ (only one instance need err), so
-the mixture lies between $\fprate_1 \fprate_2$ and $\max(\fprate_1,
-\fprate_2)$. The all-negative product regime is the one Miller-Rabin operates
-in: its $k$ rounds all test the same composite, so the only true input is
+the product, which drives the false-positive rate down: two noisy bits both have
+to err for the conjunction to err. When one input is positive, the relevant row
+contributes $\approx \fprate$ (only one instance need err), so the mixture lies
+between $\fprate_1 \fprate_2$ and $\max(\fprate_1, \fprate_2)$. The
+all-negative product regime is the one Miller-Rabin operates in: its $k$ rounds
+all test the same composite, so every round observes the same latent value
 $\bot$ and the conjunction's false-positive rate is the clean product
 $\prod_i \fprate_i$ (\Cref{sec:miller-rabin}).
 
-AND therefore takes two $\Bernoulli{\BoolType}$ instances to another, with a
-prior-free false-negative rate \eqref{eq:and-fnr} and a false-positive rate
-that is the product in the all-negative regime and prior-dependent in general.
-For two observers of a fair coin with rates $(0.10, 0.05)$ and $(0.08, 0.12)$,
-requiring both to report heads gives $\fnrate_\wedge = 0.164$ by
-\eqref{eq:and-fnr} and, at $\pi = 0.5$, an effective $\fprate_\wedge \approx
-0.057$ by \eqref{eq:and-fpr-general}: AND trades false-negative accuracy for
-false-positive suppression.
+AND\index{AND gate} therefore maps two $\Bernoulli{\BoolType}$ instances to a
+channel with a single false-negative rate \eqref{eq:and-fnr} and a
+false-positive rate that depends on which negative latent pair occurred: the
+product at $(\bot, \bot)$, the larger boundary values at $(\top, \bot)$ and
+$(\bot, \top)$. For two independent fair coins read through channels with
+rates $(0.10, 0.05)$ and $(0.08, 0.12)$, reporting whether both landed heads
+gives $\fnrate_\wedge = 0.164$ by \eqref{eq:and-fnr}. The three negative rows
+are $0.076$, $0.088$, and $0.008$, and at $\pi = 0.5$ their average
+\eqref{eq:and-fpr-general} is $\fprate_\wedge \approx 0.057$, a number that
+matches none of them. If instead both channels read the \emph{same} coin, only
+the latent pairs $(\top, \top)$ and $(\bot, \bot)$ occur and the
+false-positive rate is exactly the product $0.008$: this shared-truth reading is
+the Miller-Rabin regime, and it is the reading under which the companion
+package's \texttt{BernoulliBool} conjunction returns $(\fprate_1 \fprate_2,
+1 - (1 - \fnrate_1)(1 - \fnrate_2))$. AND trades false-negative accuracy for
+false-positive suppression, but by an amount that depends on the input.

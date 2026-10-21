@@ -17,39 +17,49 @@ the n-ary channels of chapter~9 and the relational products of chapter~12; the
 set-composition rules of chapter~6 lined up with chapter~9's; CountMin and
 HyperLogLog were noisy counters, a different output type under the same two
 axioms. The thread is that each structure is a $\Bernoulli{T}$ for some algebraic
-type $T$. This chapter is the unification.
+type $T$\index{approximate type}. This chapter organizes the structures by type.
+The organization has direct predecessors in approximate and probabilistic
+programming, where type qualifiers carry a correctness probability through a
+program (see the Notes and Lineage at the end of the chapter); what follows records which constructors
+make the error law of a composite value factor, under which independence
+hypotheses, and where factorization fails.
 
 \paragraph{The four constructors.}
-Algebraic data types are built from four constructors: the \emph{product}
-$T \times U$ (pairs, records, structs; cardinality $|T||U|$), the \emph{sum}
-$T + U$ (tagged unions, variants, enums; cardinality $|T| + |U|$, with a tag
-recording which summand), the \emph{list} $L T$ (finite sequences of any
-length), and the \emph{function} $T \to U$ (the most general, into which the
+Algebraic data types are built from four constructors: the
+\emph{product}\index{product type} $T \times U$ (pairs, records, structs;
+cardinality $|T||U|$), the \emph{sum}\index{sum type} $T + U$ (tagged unions,
+variants, enums; cardinality $|T| + |U|$, with a tag recording which summand),
+the \emph{list}\index{recursive type} $L T$ (finite sequences of any length),
+and the \emph{function} $T \to U$ (the most general, into which the
 others embed). They close under composition, so any type built from primitives
 and these four has a clear structural decomposition.
 
 Each approximate structure so far lives at one constructor. An
-\emph{approximate set} (\Cref{ch:approximate-sets}) is a noisy predicate
+\emph{approximate set}\index{approximate set} (\Cref{ch:approximate-sets}) is a noisy predicate
 $\Bernoulli{T \to \BoolType}$, with the chapter-6 composition rules
 (\Cref{ch:set-composition}) the rules for composing such predicates. An
 \emph{approximate map or channel} (\Cref{ch:approximate-functions}) is a
 $\Bernoulli{T \to U}$ for finite $T, U$, the n-ary channel. A \emph{sketch}
 (\Cref{ch:sketches-estimators}) is a noisy value of an aggregate type, CountMin
 and HyperLogLog as $\Bernoulli{\mathbb{N}}$, MinHash as $\Bernoulli{[0,1]}$. An
-\emph{approximate relation} (\Cref{ch:approximate-relations}) is a noisy
+\emph{approximate relation}\index{approximate relation}
+(\Cref{ch:approximate-relations}) is a noisy
 predicate on a product, $\Bernoulli{T \times U \to \BoolType}$. The type tells
-you which composition rules apply.
+how the joint error law of a composite value factors when the components' noise
+is independent; it does not by itself give the error of a computation on such
+values (\Cref{sec:composition-functor}).
 
 \paragraph{The lift.}
 Write $\Bernoulli{-}$ as a type-level operation: $\Bernoulli{T}$ is the type of
 random approximate values over $T$, with the atom $\Bernoulli{\BoolType}$ the
 noisy bit of Part~I. The substantive content of the chapter is how
 $\Bernoulli{-}$ behaves on each constructor.
-\Cref{sec:bernoulli-of-composite} shows it factors cleanly through three of the
-four, the product (a tensor of factor lifts), the list (a per-position lift),
-and the function (a per-input lift), each by the Kronecker factorization of
-chapters~4 and~9. The sum is the exception: a sum value's \emph{tag} can itself
-err, coupling the two components, and there the factorization breaks.
-\Cref{sec:composition-functor} packages the three clean rules as a single
-structure-preserving map and locates the sum's tag error as the place where the
-framework's atomic false-positive and false-negative rates come from.
+\Cref{sec:bernoulli-of-composite} shows it factors through three of the four
+when the relevant noise is independent: the product (a tensor of factor lifts),
+the list (a per-position lift), and the function (a per-input lift), each by the
+Kronecker factorization of chapters~4 and~9. The sum is the exception: a sum
+value's \emph{tag} can itself err, coupling the two components, and there the
+factorization breaks even with independent noise.
+\Cref{sec:composition-functor} collects the rules, states what they do and do
+not give, and identifies the sum's tag error with the membership error of
+approximate sets.

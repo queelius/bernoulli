@@ -29,7 +29,7 @@ nothing below a Boolean. The atom is where internal accounting stops and
 external accounting begins, and every larger object in the book, chained
 channels, noisy logic gates, randomized algorithms, approximate sets, general
 algebraic types, is assembled from noisy bits by a specific composition rule.
-Second, the noisy bit sits at the minimum of the model-order ladder that
+Second, the noisy bit sits at the minimum of the model-order\index{model order} ladder that
 \Cref{sec:model-order} defines, the number of distinct error regimes an input
 domain splits into. A general noisy bit has model order two, the blocks
 $\{\top\}$ and $\{\bot\}$ carrying independent rates; the symmetric case
@@ -42,19 +42,25 @@ $2 \times 2$ row-stochastic matrix $Q$, places the symmetric, asymmetric, and
 Z-channel cases on the model-order ladder, and shows the atom closed under
 serial composition (the matrix product of row-stochastic matrices is
 row-stochastic). \Cref{ch:boolean-algebra} asks what AND, OR, and NOT do to
-noisy bits and answers with the composition theorem
-(\Cref{sec:composition-theorem}): the result is again a noisy bit, its rates
-closed-form in the operands'. One round of the Miller-Rabin primality test is a
-noisy bit with $\fnrate = 0$ and $\fprate \le 1/4$, and the $k$-round bound
-$\fprate^{(k)} \le (1/4)^k$ is the composition theorem applied $k$ times rather
-than a separate analysis (\Cref{sec:miller-rabin}). \Cref{ch:axioms-kronecker}
+noisy bits. Gate by gate the answer is closed-form, but it is not again a noisy
+bit: a gate over two distinct latent bits has a single rate on one side and up
+to three on the other, so a pair of rates does not propagate through a Boolean
+tree. What does propagate exactly is the error at each latent assignment of the
+inputs; a single pair survives only as a prior average or as a worst-case bound
+(\Cref{sec:boolean-formulas}), and corner products such as the composition
+theorem (\Cref{sec:composition-theorem}) are exact only in their stated
+regimes. One round of the Miller-Rabin\index{Miller--Rabin test} primality test
+is a noisy bit with $\fnrate = 0$ and $\fprate \le 1/4$, and because every
+round reads the same latent value the $k$-round bound $\fprate^{(k)} \le
+(1/4)^k$ is the all-negative product rule rather than a separate analysis
+(\Cref{sec:miller-rabin}). \Cref{ch:axioms-kronecker}
 names the two independence assumptions used silently until then, element-wise
 independence (\Cref{sec:axiom-1}) and conditional independence of per-block
-rates (\Cref{sec:axiom-2}); proves the Kronecker factorization they purchase
+rates (\Cref{sec:axiom-2}); proves the Kronecker factorization\index{Kronecker factorization} they purchase
 (\Cref{sec:kronecker}), which is what makes the per-element description
 sufficient; and writes the formal definition $\Bernoulli{\BoolType} = (X, Y,
-Q)$ (\Cref{sec:bernoulli-bool-formal}), of which every concrete object in
-chapters 1 through 3 is an instance.
+Q)$ (\Cref{sec:bernoulli-bool-formal}), of which every atom in chapters 1 through 3
+is an instance\index{Bernoulli Boolean}.
 
 Beyond Part~I the atom is held fixed and its surroundings vary. Part~II keeps
 the Boolean codomain and arranges many noisy bits into a structure: a set $S$
@@ -66,4 +72,5 @@ quantify quality, and how much space a target accuracy demands. Part~III
 replaces the Boolean codomain with an arbitrary algebraic type, lifting the
 atom to approximate maps, relations, and structured values, where the
 two-element model order ceases to be a ceiling. The atom is the unit that gets
-composed; everything that follows is composition.
+composed; everything that follows is composition, and an honest account of what
+composition preserves and what it does not.

@@ -1,213 +1,153 @@
 % §14.2 The BHF Construction
 %
-% Monograph register: two ingredients (perfect hash phi, fingerprint
-% table F), build pass, def:bhf, pseudocode, FNR-zero argument, FPR
-% preview, one worked example at fpr=0.01. Trims the repeated
-% "concentration closes the gap" intuition to one statement and the
-% worked example to a single target. Cross-refs def:bloom-filter,
-% alg:bloom-insert-query, sec:optimality-question, sec:space-analysis,
-% sec:fpr-analysis, prop:bloom-overhead. DEFINED: sec:bhf-construction,
-% def:bhf, alg:bhf-insert-query, eq:bhf-r, eq:bhf-insert.
+% Monograph register: the Bernoulli hash function as the source manuscript
+% defines it (towell-bernoulli-hash-function): a fixed acceptance set of
+% density eps in the range of a hash, and a salt found by search under which
+% every member is accepted. Definition, pseudocode, the FNR-zero argument, the
+% success probability per salt, the map extension, a worked example.
+% CORRECTION (2026-10-21): an earlier draft defined the BHF as a
+% perfect-hash-addressed fingerprint table. That structure is the perfect hash
+% filter (def:phf, sec:space-analysis; Dietzfelbinger-Pagh 2008, Sec. 1); it
+% costs at least log2(e) bits per key above the fingerprints and does not
+% meet the floor. Cross-refs sec:optimality-question, sec:space-analysis,
+% sec:fpr-analysis, sec:construction-time, prop:bloom-overhead,
+% def:bloom-filter, ch:approximate-functions. DEFINED: sec:bhf-construction,
+% def:bhf, alg:bhf-insert-query, eq:bhf-accept, eq:bhf-success.
 
 \section{The BHF Construction}
 \label{sec:bhf-construction}
 
-\Cref{sec:optimality-question} sketched the answer in two ingredients
-and two algorithms. This section states the construction in full: a
-definition, pseudocode, the structural argument for $\fnrate = 0$, a
-preview of the false-positive analysis that \Cref{sec:fpr-analysis}
-completes, and a worked example placing the BHF's bit budget beside the
-Bloom filter's at the same target.
+The Bernoulli hash function stores no table.\index{Bernoulli hash function} It stores one salt, chosen
+so that a fixed acceptance rule happens to accept every member of the
+designated set, and it answers a query by applying the same rule to the
+query. This section states the construction, proves that it has no false
+negatives, computes the probability that a candidate salt succeeds, and
+works one example small enough to build. \Cref{sec:space-analysis}
+computes the expected size, and \Cref{sec:construction-time} the build
+cost that the size is bought with.
 
-\subsection*{The two ingredients}
+\subsection*{Acceptance predicate and salt}
 
-Fix a finite universe $\Universe$ and a designated set $A \subseteq
-\Universe$ with $|A| = n$. The construction depends on two hash
-functions of opposite character.
-
-\smallskip
-\noindent\emph{(i) The perfect hash $\phi$.} A \emph{perfect hash}
-\[
-  \phi \;:\; A \;\longrightarrow\; [n], \qquad [n] = \{1, 2, \ldots, n\},
-\]
-is injective on $A$, hence a bijection between $A$ and the addressing
-range. It is not a hash function in the usual sense of mapping a large
-universe uniformly into a small range; it is data-dependent,
-constructed at build time from $A$ so that no two elements of $A$
-collide. Its construction cost and storage are computed in
-\Cref{sec:space-analysis} and \Cref{sec:construction-time}; for now
-$\phi$ is a black-box bijection $A \to [n]$, extended by some rule to
-the whole universe (the extension does not affect the FPR bound).
-
-The departure from the Bloom design is exactly this collision-freedom.
-An ordinary hash collides at the rate the range-to-universe ratio
-allows, and the Bloom filter accommodates collisions by spreading each
-insertion across $k$ independent hashes, the $k$-way conjunction at
-query time absorbing the per-hash noise. The BHF instead commits to $A$
-at build time and constructs a hash bespoke to $A$, collision-free by
-design. With no per-hash noise to absorb, a single fingerprint
-comparison replaces the $k$-way conjunction. Building $\phi$ is the
-workload the BHF moves from query time, where Bloom pays for it in
-extra hash evaluations and bits, to build time, where it is paid once
-and amortized.
-
-\smallskip
-\noindent\emph{(ii) The fingerprint table $F$ and hash $g$.} The
-\emph{fingerprint table}
-\[
-  F \;:\; [n] \;\longrightarrow\; \{0, 1\}^r
-\]
-holds $n$ slots of $r$ bits each, with fingerprint width
+Fix a finite universe $\Universe$, a designated set $A \subseteq
+\Universe$ with $|A| = n$, a modulus $N \ge 1$, and a threshold $t \in
+\{0, 1, \ldots, N - 1\}$. Let $h : \Universe \times \{0, 1\}^* \to \{0,
+1, \ldots, N - 1\}$ be a hash of an element and a bit-string \emph{salt},
+modeled as a random oracle\index{random oracle}: its values at distinct pairs $(x, b)$ are
+independent and uniform on $\{0, \ldots, N - 1\}$. An element $x$ is
+\emph{accepted}\index{threshold!acceptance} under salt $b$ when
 \begin{equation}
-\label{eq:bhf-r}
-  r \;=\; \lceil -\log_2 \fprate \rceil,
+\label{eq:bhf-accept}
+  h(x, b) \;\le\; t,
 \end{equation}
-the smallest integer for which $2^{-r} \le \fprate$. It is populated by
-a \emph{fingerprint hash} $g : \Universe \to \{0, 1\}^r$ assumed
-uniform on its codomain, instantiated in practice as the low $r$ bits
-of SHA-256$(x)$, a truncated MurmurHash3, or any family known to behave
-uniformly on the application's inputs. Uniformity of $g$ is the only
-hash-function assumption the FPR analysis of \Cref{sec:fpr-analysis}
-needs.
+an event of probability
+\[
+  \fprate \;=\; \frac{t + 1}{N}
+\]
+for any fixed pair. The acceptance set $\{0, \ldots, t\}$ is fixed
+before any salt is examined; it is part of the specification, not
+something read off the data. The admissible rates form the lattice
+$\{j / N : 1 \le j \le N\}$, as fine as the modulus allows.
 
-The two hashes play complementary roles. $\phi$ never collides on $A$
-and addresses the table; $g$ collides at the controlled rate $2^{-r}$
-and supplies the fingerprint that discriminates members from
-non-members. The width $r$ is the only place $\fprate$ enters the
-construction: tightening the target from $\fprate$ to $\fprate^2$ adds
-one bit to $r$ and doubles the table, the relation the entropy floor
-predicts.
+Enumerate bit strings in order of length and then lexicographically,
+$b_1$ the empty string, $b_2 = 0$, $b_3 = 1$, $b_4 = 00$, and so on, so that $b_q$ has length $\lfloor \log_2 q \rfloor$. A salt
+$b$ is \emph{valid} for $A$ when every member is accepted under it.
 
-\subsection*{Construction and query}
-
-Given $A$, $\phi$, and $g$, the table is built in one pass over $A$:
-\begin{equation}
-\label{eq:bhf-insert}
-  \text{for each } a \in A: \quad F[\phi(a)] \;\coloneqq\; g(a).
-\end{equation}
-Bijectivity of $\phi$ on $A$ writes each slot exactly once, so the
-table is fully populated and records $g(a)$ at the slot $\phi(a)$
-reserved for each $a$.
-
-\begin{definition}[Bernoulli Hash Function]
+\begin{definition}[Bernoulli hash function]
 \label{def:bhf}
-The \emph{Bernoulli Hash Function} (BHF) for a designated set $A$ with
-parameters $\phi$, $g$, and $r = \lceil -\log_2 \fprate \rceil$ is the
-pair $(\phi, F)$ together with the membership query
+The \emph{Bernoulli hash function} (BHF)\index{Bernoulli hash function} for $A$ with parameters $(N,
+t)$ is the triple $(N, t, b^{*})$, where $b^{*} = b_Q$ and $Q$ is the
+least index $q$ for which $b_q$ is valid for $A$. Its membership query is
 \[
-  \textsc{Query}(x) \;=\; \top \;\text{ iff }\; F[\phi(x)] = g(x).
+  \textsc{Query}(x) \;=\; \top \;\text{ iff }\; h(x, b^{*}) \le t.
 \]
-After the construction pass \eqref{eq:bhf-insert}, $x \mapsto
-\textsc{Query}(x)$ is the membership report of the approximate set
-$\ASet{A}$.
 \end{definition}
 
-The data structure stores the perfect hash and the table; the query
-reads one slot and compares two $r$-bit strings. There is no flat bit
-array, no $k$-way conjunction, no occupancy parameter. Where the Bloom
-filter spreads information about $A$ thinly across a shared array, the
-BHF concentrates it: each element owns one slot holding the fingerprint
-that distinguishes it from non-members. That concentration is what
-closes the gap. In the Bloom filter, per-bit entropy is the quantity to
-optimize, and its maximum at half occupancy costs $\log_2 e$ times the
-floor; in the BHF the bit budget is set directly by the width $r$,
-which equals the floor's $-\log_2 \fprate$ up to integer rounding, and
-the per-bit optimization simply does not arise.
-
-\Cref{alg:bhf-insert-query} writes the construction and query in
-pseudocode.
+The definition follows the source manuscript
+\parencite{towell-bernoulli-hash-function}, which calls this the
+threshold predicate; its equality predicate, which lets the first member
+fix a target value $h_0$ and requires the others to hit it, is the same
+construction with the acceptance set chosen after one hash and stored
+alongside the salt, and it costs the same number of bits in total.\index{seed search}
+\Cref{alg:bhf-insert-query} writes the construction out.
 
 \begin{algorithm}[ht]
-  \caption{BHF construction and query}
+  \caption{BHF construction (salt search) and query}
   \label{alg:bhf-insert-query}
-  \SetKwInOut{Input}{input}
-  \SetKwInOut{Output}{output}
   \SetKwProg{func}{procedure}{}{}
   \SetKwProg{fn}{function}{}{}
 
-  \func{\textsc{Build}($A$)}{
-    construct perfect hash $\phi : A \to [n]$\;
-    allocate fingerprint table $F$ of size $n$, each slot $r$ bits\;
-    \For{each $a \in A$}{
-      $F[\phi(a)] \gets g(a)$\;
+  \func{\textsc{Build}($A$, $N$, $t$)}{
+    \For{$q = 1, 2, 3, \ldots$}{
+      $b \gets b_q$\;
+      \lIf{$h(a, b) \le t$ for every $a \in A$}{\Return $(N, t, b)$}
     }
-    \Return $(\phi, F)$\;
   }
   \BlankLine
   \fn{\textsc{Query}($x$)}{
-    $i \gets \phi(x)$\;
-    \lIf{$F[i] = g(x)$}{\Return $\top$}
+    \lIf{$h(x, b^{*}) \le t$}{\Return $\top$}
     \Return $\bot$\;
   }
 \end{algorithm}
 
-\textsc{Build} runs in one pass over $A$ plus the cost of constructing
-$\phi$; \textsc{Query} runs in time dominated by two hash evaluations
-and an $r$-bit comparison, constant in $n$. Against the Bloom
-pseudocode of \Cref{alg:bloom-insert-query}, whose \textsc{Query}
-evaluates $k$ hashes and reads $k$ bits, the BHF replaces $k$ hash
-evaluations with $2$ and the $k$-way conjunction with a single equality
-test, a query-time factor of $k/2 \approx (m/n)\ln 2 / 2 \approx 0.347
-(m/n)$ at the Bloom optimum. The price is that the construction is
-static (no in-place insertions) and the perfect hash takes $O(n)$ to
-build; \Cref{sec:construction-time} treats the trade-off.
+A failed salt is usually discarded early: the scan over $A$ stops at the
+first rejected member, which arrives after an expected at most $1/(1 -
+\fprate)$ hash evaluations. The query is one hash evaluation and one
+integer comparison, the cheapest query in Part~IV.
 
 \subsection*{The false-negative rate is exactly zero}
 
-The argument mirrors the Bloom case and is shorter. Suppose $x \in A$.
-The build pass \eqref{eq:bhf-insert} set $F[\phi(x)] = g(x)$, and the
-table is never modified afterward (the BHF is static), so $F[\phi(x)] =
-g(x)$ at every query time. \textsc{Query}$(x)$ reads slot $\phi(x)$,
-finds $g(x)$, recomputes $g(x)$, and returns $\top$. The argument rests
-on three facts: the build pass wrote $g(\cdot)$ into slot $\phi(\cdot)$,
-the table is immutable, and $\phi$ is a function, so the query-time slot
-$\phi(x)$ equals the build-time slot. Hence
+Let $x \in A$. The build returned $b^{*}$ only because $h(a, b^{*}) \le t$
+held for every $a \in A$, in particular for $x$, and the query
+recomputes the same value $h(x, b^{*})$. Hence $\textsc{Query}(x) = \top$
+for every member and every parameter setting, and\index{false-negative rate}
 \[
-  \fnrate \;=\; \Prob{\textsc{Query}(x) = \bot \Given x \in A} \;=\; 0
+  \fnrate \;=\; 0.
 \]
-for every $x \in A$ and every parameter setting. The BHF is one-sided,
-on the same axis of the perfect-filter line as the Bloom filter; its
-only failure mode is the false positive.
+The BHF sits on the FNR-zero arm of the perfect-filter line\index{perfect filter line}\index{one-sided error}, with the
+Bloom filter. Its only failure mode is a non-member whose hash under
+$b^{*}$ happens to fall in the acceptance set, at probability exactly
+$\fprate$ (\Cref{prop:bhf-fpr}).
 
-\subsection*{False-positive rate, preview}
+\subsection*{Success probability of a salt}
 
-For $x \notin A$, the slot $\phi(x)$ equals $\phi(a^*)$ for the unique
-$a^* \in A$ mapped there, so the query reads $F[\phi(x)] = g(a^*)$ and
-compares it to $g(x)$. By uniformity of $g$, the strings $g(a^*)$ and
-$g(x)$ are independent uniform on $\{0, 1\}^r$, agreeing with
-probability
-\[
-  \fprate_{\text{BHF}} \;\le\; 2^{-r}
-  \;=\; 2^{-\lceil -\log_2 \fprate \rceil} \;\le\; \fprate.
-\]
-\Cref{sec:fpr-analysis} develops the argument, including the role of
-the perfect-hash extension to $\Universe \setminus A$; the bound above
-suffices for the comparison below.
+Under the random-oracle model the $n$ values $h(a, b)$, $a \in A$, are
+independent for a fixed salt, each in the acceptance set with
+probability $\fprate$, so a candidate salt is valid with probability
+\begin{equation}
+\label{eq:bhf-success}
+  s \;=\; \fprate^{\,n}.
+\end{equation}
+Distinct salts give independent trials, so the index $Q$ of the first
+valid salt is geometric with parameter $s$: $\Prob{Q = q} = (1 - s)^{q-1}
+s$ and $\Expect{Q} = 1/s = \fprate^{-n}$. Everything about the BHF's cost
+follows from this one fact. Its size is the length of $b_Q$, about
+$\log_2 Q \approx n \log_2(1/\fprate)$ bits, which is the floor; its
+build is $Q$ trials, about $2^{n \log_2(1/\fprate)}$, which is
+exponential. Each bit of the representation is paid for with a doubling
+of the search.
+
+The construction extends to maps without change of mechanism, which is
+why the manuscript treats sets as the zero-length-value case. For a map
+$A \to \{0, 1\}^{*}$ whose values have encodings of mean length $\mu$, a
+second hash of $(x, b)$ must also reproduce each member's encoded value,
+so a salt is valid with probability $\fprate^{n} 2^{-n\mu}$ and the
+expected representation grows to $n(\log_2(1/\fprate) + \mu)$ bits, the
+space-accuracy scale for approximate maps (the maps themselves are the
+subject of \Cref{ch:approximate-functions}). The rest of the chapter
+stays with sets.
 
 \subsection*{A worked example}
 
-Fix $n = 1000$ and target $\fprate = 0.01$. The fingerprint width is
-\[
-  r \;=\; \lceil -\log_2 0.01 \rceil \;=\; \lceil 6.644 \rceil \;=\; 7
-  \text{ bits},
-\]
-since $2^{-7} \approx 0.0078 \le 0.01 \le 2^{-6} \approx 0.0156$. The
-table occupies $n r = 7000$ bits ($875$ bytes); adding a modern
-perfect-hash representation, which contributes a few bits per element
-at $n = 1000$ (\Cref{sec:space-analysis}), brings the BHF total to
-roughly $9000$ bits. The Bloom filter at the same target is sized by
-\Cref{prop:bloom-overhead} at
-\[
-  m \;=\; n \cdot \log_2(1/\fprate) \cdot \log_2 e
-  \;=\; 1000 \cdot 6.644 \cdot 1.4427
-  \;\approx\; 9586 \text{ bits}.
-\]
-At $n = 1000$ the two occupy similar space, the perfect-hash correction
-nearly cancelling the fingerprint saving. The picture changes at scale:
-the perfect-hash term per element shrinks below one bit, leaving the
-BHF at $r = 7$ bits against the Bloom filter's $9.59$, the full
-$2.6$-bit advantage the floor allows. Against the floor itself,
-$-\log_2 0.01 = 6.644$, the BHF's $7$ bits exceed it by the
-integer-rounding gap of $0.356$ bits, while the Bloom filter sits
-$\approx 2.95$ bits above. \Cref{sec:space-analysis} works the
-comparison at $n = 10^6$ and tabulates it across target rates.
+Take $n = 8$ and $\fprate = 1/4$ ($N = 4$, $t = 0$). A salt is valid with
+probability $s = 4^{-8} = 2^{-16}$, so the build tries $2^{16} = 65{,}536$
+salts on average, a fraction of a second. The returned salt has expected
+length $\Expect{\lfloor \log_2 Q \rfloor} \approx 14.7$ bits
+(\Cref{thm:bhf-optimality} gives the exact series), about $1.83$ bits per
+element against the floor's $-\log_2(1/4) = 2$; the deficit is the
+constant slack of the theorem, which the few bits needed to record $N$,
+$t$, and the salt's length more than repay. A Bloom filter at the same
+rate spends $2 \log_2 e \approx 2.89$ bits per element. The same
+arithmetic at the chapter's usual operating point, $n = 1000$ and
+$\fprate = 0.01$, gives $s = 10^{-2000}$: the BHF's size is still the
+floor, about $6644$ bits, and its build is out of reach.
+\Cref{sec:construction-time} returns to what that means in practice.

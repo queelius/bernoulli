@@ -13,25 +13,30 @@
 The third primitive estimates the \emph{Jaccard similarity} $J(A, B) = |A \cap
 B|/|A \cup B| \in [0,1]$ of two sets. Exact computation needs space linear in
 the set sizes, a deal-breaker across a corpus of millions of documents over a
-vocabulary of millions of shingles. MinHash (\textcite{broder-1997}) reduces
+vocabulary of millions of shingles. MinHash\index{MinHash} (\textcite{broder-1997}) reduces
 each set to a signature of $k$ integers and estimates $J$ from two signatures in
 $O(k)$ time.
 
 \subsection*{The collision identity}
 
-Fix a hash $h : \Universe \to [0,1]$, uniform and injective on $A \cup B$, and
-write $\min h(S) = \min_{a \in S} h(a)$.
+Fix a hash $h : \Universe \to [0,1]$ that is injective on $A \cup B$ and
+min-wise independent there (every element of any subset is equally likely to
+attain its minimum, as for a uniformly random permutation;
+\textcite{broder-et-al-2000}), and write $\min h(S) = \min_{a \in S} h(a)$.
 
 \begin{proposition}[MinHash collision probability]
 \label{prop:minhash-collision}
-$\Prob{\min h(A) = \min h(B)} = J(A, B)$.
+Under the hypotheses above,
+\[
+  \Prob{\min h(A) = \min h(B)} = J(A, B).
+\]
 \end{proposition}
 
 \begin{proof}
 The minimum of $h$ over $A \cup B$ is attained at a unique $a^*$. The minima of
 $A$ and $B$ coincide iff $a^* \in A \cap B$ (otherwise the set not containing
-$a^*$ has a strictly larger minimum). By uniformity every element of $A \cup B$
-is equally likely to be $a^*$, so $\Prob{a^* \in A \cap B} = |A \cap B|/|A \cup
+$a^*$ has a strictly larger minimum). By min-wise independence every element of
+$A \cup B$ is equally likely to be $a^*$, so $\Prob{a^* \in A \cap B} = |A \cap B|/|A \cup
 B| = J(A, B)$.
 \end{proof}
 
@@ -44,9 +49,14 @@ repetition.
 
 \begin{definition}[MinHash sketch]
 \label{def:minhash}
-For independent uniform hashes $h_1, \ldots, h_k$, the \emph{signature} of
-$A \subseteq \Universe$ is $\sigma(A) = (\sigma_1(A), \ldots, \sigma_k(A))$ with
-$\sigma_i(A) = \min_{a \in A} h_i(a)$, and the \emph{estimator} of $J(A, B)$ is
+Let $h_1, \ldots, h_k$ be independent hashes of the kind above. The
+\emph{signature} of a set $A \subseteq \Universe$ is
+\[
+  \sigma(A) = \bigl(\sigma_1(A), \ldots, \sigma_k(A)\bigr),
+  \qquad
+  \sigma_i(A) = \min_{a \in A} h_i(a),
+\]
+and the \emph{estimator} of $J(A, B)$ is
 \[
   \hat J = \frac{1}{k}\,\bigl|\{i : \sigma_i(A) = \sigma_i(B)\}\bigr|,
 \]
@@ -81,14 +91,14 @@ J)/k$, and, by Hoeffding's inequality, $\Prob{|\hat J - J| \ge \epsilon} \le 2
 \end{proposition}
 
 \begin{proof}
-Let $Y_i = \mathbf{1}[\sigma_i(A) = \sigma_i(B)]$. By
-\Cref{prop:minhash-collision} each $Y_i$ is $\mathrm{Bernoulli}(J)$, independent
-across $i$ since the $h_i$ are. Then $\hat J = \frac1k \sum Y_i$ has mean $J$ and
+For each $i$ let $Y_i$ indicate the event $\sigma_i(A) = \sigma_i(B)$. Each
+$Y_i$ is $\mathrm{Bernoulli}(J)$ by \Cref{prop:minhash-collision}, and the $Y_i$
+are independent across $i$ since the $h_i$ are. Then $\hat J = \frac1k \sum Y_i$ has mean $J$ and
 variance $J(1-J)/k$, and Hoeffding's bound for a mean of $k$ variables in
 $[0,1]$ gives the tail.
 \end{proof}
 
-The error is two-sided and symmetric, like HyperLogLog's
+The error is two-sided\index{two-sided error} and symmetric, like HyperLogLog's
 (\Cref{prop:hyperloglog-error}) and unlike CountMin's. Inverting the tail for a
 target $\delta$ gives accuracy $\epsilon = \sqrt{\ln(2/\delta)/(2k)}$, so the
 signature length grows linearly in $\ln(1/\delta)$ and quadratically in
@@ -96,22 +106,26 @@ $1/\epsilon$.
 
 \subsection*{The $\Bernoulli{T}$ type}
 
-MinHash instantiates \Cref{ch:approximate-functions} with $T = [0,1]$. Since
-$k\hat J$ is a sum of $k$ independent $\mathrm{Bernoulli}(J)$ variables, each row
-of the channel $Q$ (\Cref{def:n-ary-channel}) is a $\mathrm{Binomial}(k, J)$
-distribution on $\{0, 1/k, \ldots, 1\}$,
+Read through \Cref{ch:approximate-functions}, MinHash is a $\Bernoulli{T}$
+value with $T = [0,1]$. Since $k\hat J$ is a sum of $k$ independent
+$\mathrm{Bernoulli}(J)$ variables, each row of the channel $Q$
+(\Cref{def:n-ary-channel}) is a $\mathrm{Binomial}(k, J)$ distribution on
+$\{0, 1/k, \ldots, 1\}$,
 \[
   Q_{J,\, j/k} = \binom{k}{j} J^j (1 - J)^{k-j},
 \]
 symmetric under $\hat J \mapsto 1 - \hat J$, $J \mapsto 1 - J$, the contrast with
 CountMin's triangular and HyperLogLog's log-normal rows. The
 \Cref{prop:minhash-error} concentration is the channel-matrix view of the
-Binomial's concentration around its mean.
+Binomial's concentration around its mean. The independence here is across the
+$k$ hash functions for one pair of sets; estimates for different pairs that
+share a set share its signature and are dependent.
 
 \subsection*{LSH for approximate nearest neighbour}
 
 Estimating $J$ for every pair in a corpus of $N$ documents costs $O(kN^2)$.
-Locality-sensitive hashing (\textcite{indyk-motwani-1998}) uses signatures as
+Locality-sensitive hashing\index{locality-sensitive hashing}
+(\textcite{indyk-motwani-1998}) uses signatures as
 bucket keys so that similar pairs collide. Partition the length-$k$ signature
 into $b$ bands of $r$ rows ($k = br$); two sets are \emph{candidates} if they
 agree on all $r$ rows of at least one band. A band agrees with probability
@@ -132,8 +146,8 @@ Take $|A| = |B| = 100$, $|A \cap B| = 30$, so $|A \cup B| = 170$ and $J = 30/170
   \mathrm{Var}[\hat J] = \frac{0.176 \cdot 0.824}{200} \approx 7.26 \times
   10^{-4},
 \]
-a standard error of $0.027$. The Hoeffding bound at $\epsilon = 0.05$ gives
-$2e^{-2 \cdot 200 \cdot 0.0025} = 2e^{-1} \approx 0.74$, loose here because
+a standard error of $0.027$. The Hoeffding bound at $\epsilon = 0.05$ is
+$2e^{-2 \cdot 200 \cdot 0.0025}$, that is $2e^{-1} \approx 0.74$, loose here because
 Hoeffding ignores the $J(1-J)$ factor that shrinks the variance for small $J$;
 the exact binomial standard error $0.027$ is the relevant figure. A single
 sketch returns, say, $\hat J = 0.185$, within one standard error of $0.176$.

@@ -1,0 +1,172 @@
+\chapter{Principles and Their Scope}
+\label{app:principles}
+
+The source manuscripts organized the framework around five principles. This
+appendix restates each one in the form the book actually proves, says where it
+is established and who established it first, and records the limits found while
+writing and auditing the book. The second half is a table of statements that
+were made in earlier versions of the source manuscripts and are corrected here.
+
+\section*{The principles}
+
+\paragraph{1. The two axioms.}
+Axiom~1\index{axiom!element-wise independence} (\Cref{ax:element-indep}) makes the error events of distinct queries
+independent; Axiom~2\index{axiom!block-rate independence} (\Cref{ax:block-rates-indep}) makes each query's rates
+stable constants. Together they say that a collection of queries is a product
+of per-query binary channels, which is the content of the Kronecker
+factorization\index{Kronecker factorization} (\Cref{thm:kronecker}). Product (memoryless) channels are
+standard in information theory \parencite{cover-thomas}, and an independent
+per-respondent channel on an indicator is randomized response
+\parencite{warner-1965}. \emph{Scope.} The axioms are assumptions about a
+structure and a query workload, not theorems about hashing. Queries that share
+construction randomness are dependent: the false-positive events of two
+non-members of one Bloom filter are correlated through the bit array's
+occupancy \parencite{bose-et-al-2008}, adaptive queries can be chosen to
+exploit a structure's state \parencite{naor-yogev-2015}, and repeated queries of
+one key return the same answer. \Cref{ch:not-bernoulli} catalogues these cases.
+
+\paragraph{2. Parametric parsimony.}\index{parametric parsimony}
+A general channel on $m$ joint Boolean tests with $n$ blocks has $n(2^m - 1)$
+free parameters; under Axiom~1 the Kronecker factorization reduces this to at
+most $2m$. This is a counting consequence of independence, presented here as an
+organizing device rather than a result. \emph{Scope.} Product types preserve
+the factorization; sum types do not (\Cref{ch:algebra-types}), and any shared
+input or shared intermediate value removes it.
+
+\paragraph{3. The space--accuracy relation.}\index{space--accuracy tradeoff}
+An approximate set with false-positive rate $\fprate$ and no false negatives
+needs at least $\log_2(1/\fprate)$ bits per stored key in a large universe\index{space lower bound!approximate membership}
+\parencite{carter-et-al-1978}; with at most a fraction $\gamma$ of false
+negatives the bound becomes $(1 - \gamma)\log_2(1/\fprate)$ per key to leading
+order\index{space lower bound!with false negatives} \parencite{pagh-rodler-2001}. Static retrieval adds the value bits, which
+gives the $\log_2(1/\fprate) + \mu$ scale for approximate maps
+\parencite{dietzfelbinger-pagh-2008}. An optimally tuned Bloom filter uses
+$\log_2 e$ times the lower bound \parencite{broder-mitzenmacher-2004}.
+\Cref{ch:information-bounds} presents the bounds and
+\Cref{ch:optimal-bernoulli-sets,ch:perfect-hash-filters} the constructions that
+approach them. \emph{Scope.} The bounds are for static structures over large
+universes; dynamic structures need more space \parencite{lovett-porat-2010}, and
+the bounds price membership information only, not construction time.
+
+\paragraph{4. Composition.}
+What composes exactly is the error \emph{conditional on each latent input
+assignment}\index{composition!per latent assignment}: for any Boolean formula over independent noisy bits, the
+probability that the observed output differs from the latent output at a given
+latent word is a polynomial in the input rates
+(\Cref{prop:latent-propagation}). Serial channels compose by matrix product,
+independent parallel queries by Kronecker product, and one-sided chains by the
+product of their correctness probabilities (\Cref{thm:composition}). Forward
+error propagation through gates of this kind goes back to
+\textcite{parker-mccluskey-1975} and is systematized by probabilistic transfer
+matrices \parencite{krishnaswamy-et-al-2008}. \emph{Scope.} A rate pair
+$(\fprate, \fnrate)$ is \emph{not} closed under Boolean operations: the AND of
+two noisy bits has a false-positive rate that depends on which negative latent
+assignment occurred, so composition raises the model order\index{model order}, and reusing a
+summary pair can understate the error by about half on a three-input formula
+(\Cref{ex:two-rate-counterexample})\index{counterexample!two-rate composition}. The honest summaries are prior-averaged
+rates\index{prior-averaged rate}, which compose only for read-once formulas under product priors and only
+as averages, and sound worst-case bounds\index{composition!worst-case rate bounds} (\Cref{prop:worst-case-rate-bounds}).
+Shared inputs break operand independence. Composed approximate maps lose the
+independent-input law when two inputs share an intermediate value
+(\Cref{ch:approximate-functions}). Queries over approximate relations need
+source-level sensitivities and calibrated per-source rates, not per-tuple rates
+alone (\Cref{ch:approximate-relations}).
+
+\paragraph{5. The Boolean thread.}
+A membership query returns a noisy bit\index{noisy bit}, so every approximate structure in the
+book reduces, query by query, to $\Bernoulli{\BoolType}$ instances combined by
+Boolean operations. \emph{Scope.} The reduction is exact per latent assignment
+and subject to the composition limits of principle~4. It describes outcome
+statistics; it says nothing by itself about confidentiality, which needs a
+separate adversary model (\Cref{ch:cipher-maps-trapdoor,ch:encrypted-search}).
+For quantum readout it is exact for the outcome statistics of any state
+whenever the measurement is diagonal in the computational basis, and it is not
+a description of measurements outside that basis
+(\Cref{ch:not-bernoulli,ch:operator-representation}).
+
+\section*{Statements corrected in this edition}
+
+The table lists statements that appeared in earlier versions of the source
+manuscripts (or earlier drafts of this book) and the form in which this book
+states them. Each correction was checked by exhaustive finite enumeration or
+exact rational arithmetic, or against the cited primary source.
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.40\textwidth}
+                   >{\raggedright\arraybackslash}p{0.43\textwidth}
+                   >{\raggedright\arraybackslash}p{0.11\textwidth}@{}}
+\toprule
+Earlier statement & Corrected statement & Where \\
+\midrule
+\endfirsthead
+\toprule
+Earlier statement & Corrected statement & Where \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+The pair $(\fprate, \fnrate)$ propagates through an entire Boolean tree.
+  & Exact propagation is per latent assignment; pairs give prior averages or
+    worst-case bounds. For $(b_0 \wedge b_1) \vee b_2$ at latent word $010$
+    with $\fprate = 0.02$, $\fnrate = 0.10$ the error is $0.03764$, not
+    $0.020392$.
+  & Ch.~\ref{ch:boolean-algebra} \\
+Serial composition of two asymmetric channels is the product $Q_2 Q_1$
+  (earlier draft, with incorrect closed forms).
+  & With row-stochastic matrices it is $Q_1 Q_2$:
+    $\fnrate = (1 - \fnrate_1)\fnrate_2 + \fnrate_1(1 - \fprate_2)$ and
+    $\fprate = \fprate_1(1 - \fnrate_2) + (1 - \fprate_1)\fprate_2$.
+  & Ch.~\ref{ch:binary-channels} \\
+The false-negative space lower bound is an open problem.
+  & Settled to leading order by \textcite{pagh-rodler-2001}, Prop.~1.
+  & Ch.~\ref{ch:information-bounds} \\
+A finite order-statistic law for the Bernoulli hash function threshold
+  (sampling without replacement) is exact.
+  & For independent uniform residues the law is a binomial tail; at $N = 2$
+    slots, $m = 2$ keys, rank $1$ the old law gives $\Prob{T = 0} = 1$ and the
+    truth is $3/4$.
+  & Ch.~\ref{ch:optimal-bernoulli-sets} \\
+An adaptive acceptance threshold saves space.
+  & At equal guarantees it does not; it trades away recall, and at a fixed
+    false-positive cap and recall it is ordinary seed search.
+  & Ch.~\ref{ch:optimal-bernoulli-sets} \\
+A perfect-hash-addressed fingerprint table meets the space floor up to
+  $o(1)$ bits per element (earlier draft of the Bernoulli hash function
+  chapter).
+  & Every minimal perfect hash needs at least $\log_2 e$ bits per key
+    \parencite{fredman-komlos-1984}, so the perfect hash filter costs
+    $\log_2(1/\fprate) + c$ bits with $c \ge \log_2 e$ and beats an optimal
+    Bloom filter only when $(\log_2 e - 1)\log_2(1/\fprate) > c$; the
+    seed-search construction meets the floor in space at an exponential build
+    cost.
+  & Chs.~\ref{ch:optimal-bernoulli-sets}, \ref{ch:perfect-hash-filters} \\
+Approximate maps are closed under composition with independent per-input
+  errors.
+  & If two inputs share an intermediate value, the frozen error at that value
+    is shared, so the composed errors are dependent.
+  & Ch.~\ref{ch:approximate-functions} \\
+Broad closure dichotomies, unbounded closure cost for transitivity, and
+  independent projected tuples for approximate relations.
+  & Scoped constructions and bounds; projected tuples that share sources are
+    dependent; queries need error contracts with calibrated source rates.
+  & Ch.~\ref{ch:approximate-relations} \\
+Under positively associated stage errors the serial formula
+  $1 - \prod_i(1 - \eta_i)$ is a lower bound (earlier draft).
+  & It is an upper bound under positive association and a lower bound under
+    negative association; marginals alone give only
+    $[\max_i \eta_i, \min(1, \sum_i \eta_i)]$.
+  & Ch.~\ref{ch:not-bernoulli} \\
+The classical readout model is faithful precisely when the density matrix is
+  diagonal.
+  & It is exact for any state whenever the detector POVM is diagonal:
+    $\operatorname{Tr}(M_b \rho) = \sum_t A(b \mid t)\,\rho_{tt}$.
+  & Chs.~\ref{ch:not-bernoulli}, \ref{ch:operator-representation} \\
+Under several published instances, the uniform (dense) codec defends best
+  (an earlier experiment write-up and the cipher-maps manuscript).
+  & The direction is reversed: concentrated codecs defend best and the dense
+    codec worst, since attacker accuracy is $1 - \tfrac{1}{2}\sum_v q_v^t$.
+  & Ch.~\ref{ch:encrypted-search} \\
+\end{longtable}
+\endgroup

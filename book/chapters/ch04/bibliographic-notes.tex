@@ -1,42 +1,40 @@
-% §4.7 Bibliographic Notes
+% §4.7 Notes and Lineage
 %
-% Monograph register: Kronecker product, information-theoretic channels,
-% the Bernoulli papers. Cross-refs sec:kronecker, sec:axiom-1, sec:axiom-2,
-% thm:kronecker, cor:kronecker-unconditional. DEFINED: sec:bib-notes-ch4.
-% Citations: horn-johnson-matrix, cover-thomas, towell-bernoulli-sets,
-% towell-bernoulli-data-type.
+% Cross-references: sec:axiom-1, sec:axiom-2, sec:kronecker, thm:kronecker,
+% cor:kronecker-unconditional, cor:parameter-reduction, prop:boolean-closure,
+% sec:boolean-formulas. DEFINED: sec:bib-notes-ch4.
+% Citations: horn-johnson-matrix, cover-thomas, bravyi-et-al-2021,
+%   smith-et-al-2021, towell-bernoulli-sets, towell-bernoulli-data-type.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch4}
 
-\paragraph{The Kronecker product.}
-The product carrying Kronecker's name spread through matrix algebra over the
-century after his 1866 work on bilinear forms; the standard graduate reference
-for its algebraic properties, including the mixed-product and vectorization
-identities, is \textcite[Ch.~4]{horn-johnson-matrix}. The theorem of
-\Cref{sec:kronecker}, that under Axioms~1 and~2 the joint confusion matrix
-factors as a Kronecker product of per-query matrices, is this work's
-contribution; the honesty note in that section separates what is new from what
-descends from the companion papers.
+\paragraph{Lineage.}
+The Kronecker product and its algebra (mixed products, vectorization) are
+standard \parencite[Ch.~4]{horn-johnson-matrix}. That independent components
+form a product channel, whose transition matrix is the tensor product of the
+per-component matrices, is the memoryless (extension) channel of information
+theory \parencite[Ch.~7]{cover-thomas}, and it is the tensor-product noise model
+of quantum readout-error mitigation, where per-qubit $2 \times 2$ response
+matrices are combined by Kronecker products \parencite{bravyi-et-al-2021,smith-et-al-2021}.
+The Jensen gap for random rates is the positive correlation of a mixture of
+independent trials. The two-axiom formulation, and the counting that calls the
+collapse from an exponential to a linear number of parameters ``parametric
+parsimony,'' come from the source manuscripts
+\parencite{towell-bernoulli-sets,towell-bernoulli-data-type}.
 
-\paragraph{Information-theoretic channels.}
-The proof uses the language of channels and conditional distributions without
-developing information theory; \textcite[Ch.~7--8, 10]{cover-thomas} covers
-binary channels, capacity, and the coding theorems at the depth Part~I borrows.
-The Bernoulli axioms are exactly what make the channel memoryless in that
-vocabulary.
+\paragraph{What this chapter adds.}
+Presentation and scope. The axioms are separated and stated conditionally on
+the realized rates, the conditional and unconditional forms of the
+factorization are distinguished (\Cref{thm:kronecker},
+\Cref{cor:kronecker-unconditional}), and the distinction is tied to the
+structures that need it: a Bloom filter satisfies Axiom~1 only given its array.
+The formal type is defined so that its scope is visible: NOT is an operation on
+it, while AND and OR over distinct latent bits leave it
+(\Cref{prop:boolean-closure}, \Cref{sec:boolean-formulas}).
 
-\paragraph{The Bernoulli papers.}
-The two-axiom framework comes from \textcite{towell-bernoulli-sets}; Axioms~1
-and~2 here are reformulations separated into named sections, each with its own
-examples, with the Kronecker factorization proved as an explicit consequence
-rather than a remark. That paper presents the factorization for deterministic or
-implicitly conditioned rates; this work makes the conditional and unconditional
-forms explicit (\Cref{thm:kronecker}, \Cref{cor:kronecker-unconditional}),
-noting that the unconditional form needs deterministic rates or distinct queried
-blocks. The model-order analysis, that the input-domain partition governs the
-parameter count, is from \textcite{towell-bernoulli-data-type}, whose general
-algebraic-type theory has the order-2 Boolean case as its simplest instance. The
-explicit theorem statement, the constructive proof, and the model-order-to-
-parameter-count connection are contributions of this monograph.
+\paragraph{Left out.}
+Dependent errors are not modeled here; Markov-correlated channels are mentioned
+only to show what Axiom~2 excludes, and chapter~16 treats correlated and
+adaptive errors. Identifiability and estimation of the $2m$ parameters from
+data are not developed beyond the single-query estimators of chapter~1.

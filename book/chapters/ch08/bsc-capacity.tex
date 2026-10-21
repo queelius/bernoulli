@@ -8,7 +8,7 @@
 \section{Channel Capacity in the BSC}
 \label{sec:bsc-capacity}
 
-The binary symmetric channel of \Cref{sec:bsc} reproduces its Boolean input
+The binary symmetric channel\index{channel!binary symmetric} of \Cref{sec:bsc} reproduces its Boolean input
 with probability $1 - \fprate$ and flips it with probability $\fprate$
 regardless of the value sent, the channel matrix being $Q =
 \left(\begin{smallmatrix} 1 - \fprate & \fprate \\ \fprate & 1 - \fprate
@@ -17,7 +17,7 @@ information-theoretic summary chapter~2 left implicit.
 
 \begin{proposition}[BSC capacity]
 \label{prop:bsc-capacity}
-The capacity of the BSC with crossover $\fprate \in (0, 1)$ is
+\index{channel capacity}The capacity of the BSC with crossover $\fprate \in (0, 1)$ is
 \begin{equation}
 \label{eq:bsc-capacity}
   C \;=\; 1 - H(\fprate)
@@ -54,11 +54,11 @@ crossover noise costs little: $C(0.01) \approx 0.919$) and shallow near $1/2$
 (the last noise costs almost everything: $C(0.1) \approx 0.531$, $C(0.4)
 \approx 0.029$).
 
-The same source-coding principle drives the rest of the chapter through a
-different question: how many bits represent an approximate set at target
-$\fprate$? Any prefix-free encoding of a source emitting $n$ symbols of
-entropy $H$ each needs at least $nH$ bits on average, and
-\Cref{sec:entropy-floor} applies this to the bit string an approximate set
-stores, with the constrained per-element entropy giving a floor of $-\log_2
-\fprate$ bits per element for any FNR-zero representation. Capacity and the
-floor are two faces of one principle, with $H$ holding throughout.
+The rest of the chapter asks a different question with the same currency:
+how many bits must represent an approximate set at target $\fprate$? Capacity
+bounds what a noisy channel can carry per use; the floor of
+\Cref{sec:entropy-floor} bounds what a representation must store, by counting
+how many target sets each stored string can stand for. The answer, $-\log_2
+\fprate$ bits per element for any FNR-zero representation, is a
+self-information rather than an entropy $H(\fprate)$, and the counting
+argument that gives it needs no channel coding.

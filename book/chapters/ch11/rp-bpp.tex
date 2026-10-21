@@ -17,17 +17,18 @@
 \label{sec:rp-bpp}
 
 The Monte Carlo decision problems (\Cref{def:monte-carlo}) carve into the
-classes RP, coRP, ZPP, and BPP by where the error is allowed to land. Each is a
+classes RP, coRP, ZPP, and BPP by where the error is allowed to land, the
+one-sided and two-sided classification of \textcite{gill-1977}. Each is a
 location on the chapter-6 rate plane: RP and coRP on the two axes of the perfect
-filter line, ZPP at the origin, BPP in the interior. The correspondence is not
-an analogy; the complexity-class definitions and the chapter-6 classification are
-the same axes from two angles.
+filter line, ZPP at the origin, BPP in the interior. The rate-plane picture
+restates Gill's classification in the coordinates of this book; the class
+definitions bound the per-input rates uniformly over inputs.
 
 \subsection*{RP: certain accept, the FPR-zero axis}
 
 \begin{definition}[Randomized Polynomial Time, RP]
 \label{def:rp}
-A language $L$ is in \emph{RP} when a polynomial-time randomized $A$ satisfies
+A language $L$ is in \emph{RP}\index{RP} when a polynomial-time randomized $A$ satisfies
 $x \in L \Rightarrow \Prob{A(x) = 1} \ge 1/2$ and $x \notin L \Rightarrow
 \Prob{A(x) = 1} = 0$, the probability over $A$'s coins.
 \end{definition}
@@ -62,7 +63,7 @@ $L \in \emph{coRP}$ when $\bar L \in \mathrm{RP}$: equivalently $x \in L
 \end{definition}
 
 A coRP algorithm has $\fnrate = 0$, $\fprate \le 1/2$: it sits on the
-\emph{FNR-zero} axis, the certain-\emph{reject} shape, the decision-algorithm kin
+\emph{FNR-zero} axis\index{one-sided error}, the certain-\emph{reject} shape, the decision-algorithm kin
 of the Bloom filter (\Cref{def:bloom-filter}), whose $\bot$ report is certain.
 Miller-Rabin (\Cref{thm:miller-rabin-formal}) is the canonical example: a
 composite witness certifies compositeness, so on the language \textsc{Primes} a
@@ -71,7 +72,7 @@ occasionally accepted as prime ($\fprate \le 1/4$). Thus $\textsc{Primes} \in
 \mathrm{coRP}$, and dually $\textsc{Composites} \in \mathrm{RP}$ via the same
 algorithm, where instead a composite-witness is a certain \emph{accept} of
 compositeness. (This was the textbook RP/coRP example until the deterministic
-AKS test of 2002.) ZPP, at $\fprate = \fnrate = 0$, is the origin: exact
+AKS test placed \textsc{Primes} in P \parencite{agrawal-kayal-saxena-2004}.) ZPP, at $\fprate = \fnrate = 0$, is the origin: exact
 decisions paid for in the runtime tail, equivalently the expected-polynomial-time
 Las Vegas class.
 
@@ -79,22 +80,26 @@ Las Vegas class.
 
 \begin{definition}[Bounded-error Probabilistic Polynomial Time, BPP]
 \label{def:bpp}
-$L \in \emph{BPP}$ when a polynomial-time randomized $A$ satisfies $x \in L
-\Rightarrow \Prob{A(x) = 1} \ge 2/3$ and $x \notin L \Rightarrow \Prob{A(x) = 1}
-\le 1/3$.
+$L \in \emph{BPP}$\index{BPP} when a polynomial-time randomized $A$ satisfies
+\[
+  x \in L \Rightarrow \Prob{A(x) = 1} \ge 2/3
+  \qquad\text{and}\qquad
+  x \notin L \Rightarrow \Prob{A(x) = 1} \le 1/3.
+\]
 \end{definition}
 
 Read as a channel, $\fnrate, \fprate \le 1/3$: BPP sits in the interior of the
-rate plane, off both axes. The chapter-7 vocabulary applies directly. At
-prevalence $\pi = \Prob{x \in L}$ the positive predictive value
-(\Cref{def:ppv}) is
+rate plane, off both axes, the two-sided\index{two-sided error} case. The chapter-7 vocabulary applies directly. At
+prevalence\index{prevalence} $\pi = \Prob{x \in L}$ the positive predictive
+value\index{positive predictive value} (\Cref{def:ppv}) is
 \[
   \PPV = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate}
        \ge \frac{\pi \cdot 2/3}{\pi \cdot 2/3 + (1 - \pi)\cdot 1/3}
        = \frac{2\pi}{\pi + 1},
 \]
 which at $\pi = 0.01$ is only $\approx 0.0198$: despite $2/3$-versus-$1/3$
-per-class accuracy, $98\%$ of accept reports are false at low prevalence, the
+per-class accuracy, $98\%$ of accept reports are false at low
+prevalence\index{base-rate fallacy}, the
 same prevalence-dependence \Cref{def:npv} and chapter~7 record. The $2/3$-versus-
 $1/3$ gap is conventional but load-bearing: it forces a signal in both
 directions so amplification can drive both errors down, where the gap-closed
@@ -109,10 +114,12 @@ accepting if any run accepts gives an RP algorithm with $\fnrate \le 2^{-k}$,
 $\fprate = 0$.
 \end{theorem}
 
-This is the composition theorem (\Cref{thm:composition}) with the OR aggregator:
-the certain-accept property ($\fprate = 0$) is preserved (any accept is true),
-and $\fnrate$ at the OR is the product of per-run rates by independence
-(\Cref{ax:element-indep}). It is the FPR-zero mirror of the $k$-round
+This is the composition theorem (\Cref{thm:composition}) with the OR
+aggregator\index{error amplification}: the certain-accept property ($\fprate =
+0$) is preserved (any accept is true), and, since every run sees the same
+member $x \in L$, $\fnrate$ at the OR is the product of the per-run rates by
+independence of the runs' coins (independence across stages,
+\Cref{rem:composition-independence}, not Axiom~1). It is the FPR-zero mirror of the $k$-round
 Miller-Rabin bound, which drives the coRP rate $\fprate$ down via AND; coRP
 amplifies dually. Bringing $\fnrate$ to $2^{-30}$ costs $30$ runs.
 
@@ -134,9 +141,10 @@ The amplification theorems above compose \emph{probabilities} across independent
 runs: the OR aggregator drives $\fnrate$ to $2^{-k}$
 (\Cref{thm:rp-amplification}), the majority aggregator gives Chernoff decay
 (\Cref{thm:bpp-amplification}). The quantum class BQP has a sibling operation,
-\emph{amplitude amplification} (\textcite{grover-1996} search is its special
-case; the general form is \parencite{brassard-2002}), that composes
-\emph{amplitudes} instead, and the comparison is exact. Take a one-sided routine
+\emph{amplitude amplification}\index{amplitude amplification}
+(\textcite{grover-1996} search is its special case; the general form is
+\parencite{brassard-2002}), that composes \emph{amplitudes} instead, and the
+comparison is quantitative. Take a one-sided routine
 that succeeds with probability $p$. Classical OR-amplification reaches
 near-certainty in $k \propto 1/p$ runs, since the found-probability
 $1 - (1 - p)^k \approx kp$ grows linearly in $k$. Amplitude amplification rotates
@@ -149,12 +157,13 @@ that accumulates linearly: the Born-rule square is the entire $\sqrt{\cdot}$.
 
 Two caveats keep this an analogy rather than an identity, and both trace to the
 latent-value question of \Cref{sec:quantum-contextuality}. First, the classical
-theorems presuppose a stable latent value to resample:
-\Cref{ax:element-indep} makes the repeated looks independent draws on one fixed
-truth. A superposition has no such value; measuring collapses it, and
-re-measuring in the same basis returns the collapsed outcome, not a fresh
-sample, so ``repeat and aggregate'' is unavailable and one must amplify the
-amplitude coherently before the single measurement. Second, classical
+theorems presuppose a stable latent value to resample: the repeated looks are
+independent draws on one fixed truth. A superposition has no such value;
+measuring collapses it, and re-measuring in the same basis returns the
+collapsed outcome, not a fresh sample. Repetition is still available by
+re-preparing the state and running the whole routine again, which is how
+bounded-error quantum algorithms are amplified classically; what amplitude
+amplification adds is coherent accumulation before a single measurement. Second, classical
 amplification is monotone, more runs never hurt and the error tends to zero,
 whereas amplitude amplification is oscillatory: rotating past
 $(2k+1)\theta \approx \pi/2$ drives the success probability back down. The same
@@ -178,13 +187,15 @@ BPP  & $\le 1/3$   & $\le 1/3$ \\
 The first three rows trace the perfect filter line of
 \Cref{def:perfect-filter-line}: RP the FPR-zero axis, coRP the FNR-zero axis,
 ZPP their intersection at the origin. BPP is the interior below $1/3$. The
-chapter-6 classification of approximate sets by axis and the classical
-randomized-complexity taxonomy are one classification applied to two families,
-arbitrary $\Bernoulli{\BoolType}$ instances there, polynomially constrained
-decision algorithms here. The one-sided-versus-two-sided distinction of
-\Cref{sec:one-sided-two-sided} is what separates RP and coRP from BPP, and
-amplification is the constraint that propagates: any instance with per-trial
-error bounded away from $1/2$ on both inputs is driven to negligible error by
-repetition and the right aggregator (OR or AND on an axis, majority in the
-interior). Chapters~12 and~13 lift these classes along with the rest of the
-framework, so the relational analog of BPP amplifies for the same reason.
+chapter-6 classification of approximate sets by axis and the randomized
+complexity taxonomy apply one distinction to two families, arbitrary
+$\Bernoulli{\BoolType}$ instances there and polynomially constrained decision
+algorithms here; the one-sided-versus-two-sided distinction of
+\Cref{sec:one-sided-two-sided} is what separates RP and coRP from BPP.
+Amplification is what the two families share when, and only when, independent
+re-randomization is available: any instance with per-trial error bounded away
+from $1/2$ on both inputs is driven to negligible error by independent repetition
+on the same input and the right aggregator (OR or AND on an axis, majority in
+the interior). A stored approximate set cannot be amplified this way, since
+re-querying it returns the same answer; it must be rebuilt with fresh
+randomness.

@@ -48,16 +48,19 @@ the joint distribution over these cells.
 \subsection*{The smallest non-trivial universe}
 
 The input domain $\{\top, \bot\}$ has exactly two elements. We call this set
-the \emph{Boolean universe} and write it $\Universe = \{\top, \bot\}$, borrowing
+the \emph{Boolean universe}\index{Boolean universe} and write it $\Universe = \{\top, \bot\}$, borrowing
 \emph{universe} from set-theoretic usage as the ambient set over which subsets
 are formed and predicates evaluated. It is the smallest universe that supports
 a non-trivial predicate: one element admits no discrimination, two already
 admit the question whether an input is one value or the other. Part~I develops
 the algebra of this universe and nothing larger. Every richer universe (multi-
 bit inputs, finite enumerations, arbitrary algebraic types) is assembled from
-Booleans by the Kronecker products of Part~II and beyond, so the algebra of
-these four cells governs systems that look more complicated but reduce, on
-inspection, to compositions of noisy bits.
+Booleans by Kronecker products (\Cref{sec:kronecker}) and their lifts in
+Part~III, so the algebra of these four cells governs systems that look more
+complicated but reduce, on inspection, to compositions of noisy bits. The
+reduction is exact per input; chapter~3 shows that what a composite inherits
+is a description indexed by the latent inputs, not a single pair of rates
+(\Cref{sec:boolean-formulas}).
 
 \subsection*{The deferred joint distribution}
 

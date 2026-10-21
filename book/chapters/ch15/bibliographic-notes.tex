@@ -1,71 +1,56 @@
-% §15.6 Bibliographic Notes
+% §15.6 Notes and Lineage
 %
-% Monograph register: primary source (Towell PHF manuscript + maph),
-% perfect-hashing literature (Carter-Wegman, BDZ), ranked-search
-% literature (Manning-Raghavan-Schutze), maph C++ library. Light
-% compression to ch14 density. Cites towell-bernoulli-phf,
-% carter-wegman-1979, belazzougui-2009, manning-raghavan-schutze.
+% Lineage: perfect hash filter = MPHF + fingerprints (Dietzfelbinger-Pagh
+% 2008, Sec. 1); MPHF lower bound (Fredman-Komlos 1984) and constructions
+% (FKS 1984, Botelho-Pagh-Ziviani 2007, CHD 2009 incl. k-perfect, BBHash 2017,
+% RecSplit 2020, ShockHash 2024, Lehmann et al. 2025); lossy dictionaries
+% (Pagh-Rodler 2001); retrieval alternatives (Bloomier, xor, binary fuse,
+% ribbon); IR background (Manning et al.). Source manuscript:
+% towell-bernoulli-phf. The rank-table/witness reading is this book's.
 % DEFINED: sec:bib-notes-ch15.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch15}
 
-\paragraph{The perfect hash filter and the BPHF.}
+\paragraph{Lineage.}
 The bare construction of \Cref{sec:bphf-construction}, a minimal perfect
-hash with a per-slot fingerprint, is the \emph{perfect hash filter} of
-\textcite{towell-bernoulli-phf}, ``The perfect hash filter,'' which develops
-it as the FNR-zero positive Bernoulli set and as the practical,
-off-the-shelf-constructible counterpart to the space-optimal BHF, lifts it
-to a key-value map, and applies it to rank-ordered retrieval. That
-manuscript and the BHF manuscript
-\parencite{towell-bernoulli-hash-function} are explicit that the two are
-distinct, complementary constructions of the same set and map abstract data
-type, not one an instance of the other: the BHF reaches the space floor by
-salt search, the perfect hash filter pays $\log_2 e$ above it for a
-perfect-hash build.
+hash with a per-slot fingerprint, is the standard static
+approximate-membership structure: \textcite[Sec.~1]{dietzfelbinger-pagh-2008}
+describe it, with its overhead of about $\log_2 e$ bits per element, and
+remark that its origin is unknown to them. The program's manuscript
+\parencite{towell-bernoulli-phf} restates it as a Bernoulli set, lifts it
+to maps, and states its relation to the salt-search BHF of chapter~14. The
+addressing cost rests on the minimal perfect hashing literature: the
+$n \log_2 e$ lower bound of \textcite{fredman-komlos-1984}, the
+linear-time scheme of \textcite{fredman-komlos-szemeredi-1984}, and the
+compact constructions of \textcite{botelho-pagh-ziviani-2007},
+\textcite{belazzougui-2009} (which also gives $k$-perfect hashing),
+\textcite{limasset-et-al-2017}, \textcite{esposito-graf-vigna-2020}, and
+\textcite{lehmann-sanders-walzer-2024}, with \textcite{lehmann-et-al-2025}
+on encoding the seeds that the last two search for. A false-negative
+budget spent by dropping members, rather than by sharing slots, is the
+lossy dictionary of \textcite{pagh-rodler-2001}. Retrieval-based filters
+\parencite{chazelle-et-al-2004,graf-lemire-2020,graf-lemire-2022,dietzfelbinger-et-al-2026-ribbon}
+avoid the addressing cost and are the stronger practical comparison on
+the FNR-zero arm. Ranked retrieval itself is classical information
+retrieval \parencite{manning-raghavan-schutze}; the chapter is agnostic
+about the scoring function.
 
-The FPR-zero reading of the structure, the rank table of \Cref{def:bphf},
-and the witness model (\Cref{rem:witness-is-query-model}) that drives the
-false-positive rate to zero are this chapter's own development on the dual
-axis; they extend the manuscript's construction rather than appear in it.
-The ranked search of \Cref{sec:ranked-search} is the witness-model instance
-of the rank-ordered retrieval the manuscript treats through its map
-generalization.
+\paragraph{What this chapter adds.}
+The FPR-zero reading of the skeleton: the rank table of \Cref{def:bphf},
+the observation that it is the perfect hash filter until the query model
+is restricted, the witness model in which its false-positive rate is
+exactly zero (\Cref{rem:witness-is-query-model}), and the $k$-perfect dial
+for a controlled false-negative rate, with the cautions that its misses
+are dependent within slots and that occupancy formulas must match the
+construction's conditioning. These are presentation and bookkeeping
+within the book's framework, not new data structures; the witness model
+in particular is an assumption about the application, not a guarantee
+the table provides.
 
-\paragraph{The perfect-hashing literature.}
-The perfect hash $\phi$ inherits its construction and bounds from the
-literature surveyed in \S14.7. The two foundational entries are
-\textcite{carter-wegman-1979}, ``Universal Classes of Hash Functions,''
-which established the pairwise independence the rank-comparison check
-rests on, and \textcite{belazzougui-2009}, ``Hash, Displace, and
-Compress'' (the BDZ scheme), which achieves $O(n)$ expected construction
-and $O(n \log \log \log n / \log n)$ output bits at under $3$ bits per
-element for $n$ in the millions. The BPHF inherits both unchanged,
-because the perfect-hash construction depends on $A$ alone and not on
-what is stored at each slot, and the choice among the displacement-based
-families (with Fredman-Komlos-Szemeredi, Hagerup-Tholey, MWHC, and BBHash
-the historical line BDZ caps) is an implementation detail that does not
-affect the space or time bounds.
-
-\paragraph{The ranked-search literature.}
-The application of \Cref{sec:ranked-search} sits in a long line of work on
-probabilistic information retrieval, the standard treatment being
-\textcite{manning-raghavan-schutze}, \emph{Introduction to Information
-Retrieval}. The line runs from the Robertson-Sp\"arck Jones framework of
-the 1970s through TF-IDF weighting and BM25 to modern
-neural-embedding scoring. The chapter is agnostic about which scoring
-function $s$ supplies the ranks; the BPHF accommodates any whose output
-reduces to a per-document rank at build time. Its contribution is not the
-scoring function but the post-scoring indexing structure for top-$k$
-serving.
-
-\paragraph{The \emph{maph} reference implementation.}
-The perfect hash filter has a reference implementation, the \emph{maph}
-library (C++), maintained in its own repository rather than bundled with the
-manuscript. It realizes the perfect-hash-plus-fingerprint construction over a
-configurable displacement-based perfect-hash backend, and is the natural
-artifact against which to measure the per-element overhead the chapter
-reports against the \Cref{prop:bphf-space} accounting. The FPR-zero
-rank-table variant of this chapter is not what maph implements; the measured
-comparison against the formula is left to a separate empirical study.
+\paragraph{Left out.}
+Dynamic maintenance of ranks, multi-resolution rank encodings, measured
+build and query throughput, and an empirical comparison with the
+\emph{lapidary} C++ library (formerly \emph{maph}), the program's
+perfect-hash-filter implementation, which realizes the fingerprint
+reading but not the rank-table variant.

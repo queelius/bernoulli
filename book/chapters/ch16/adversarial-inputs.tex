@@ -50,7 +50,7 @@ benchmark $\fprate$ described natural inputs, not adversarial ones.
 
 \subsection*{What is violated}
 
-Both axioms fail, and they stack. \Cref{ax:element-indep} (Axiom 1)
+Both axioms fail, and they stack.\index{axiom!element-wise independence}\index{axiom!block-rate independence} \Cref{ax:element-indep} (Axiom 1)
 presumes the inputs are conditionally independent given the true labels;
 the attacker's $t$-th query is by construction a deterministic function of
 the prior responses, so the inputs are not independent. \Cref{ax:block-rates-indep}
@@ -101,7 +101,7 @@ the structural form of the attack rather than the remediation.
 \subsection*{The right tools}
 
 Off the iid path the analyst's replacements are worst-case bounds and
-cryptographic primitives. \emph{Worst-case bounds} drop the expectation
+cryptographic primitives.\index{adversarial input} \emph{Worst-case bounds} drop the expectation
 and bound the maximum: a Bloom filter's worst-case $\fprate$ over inputs
 is set by its bit pattern, a classifier's worst-case loss over a
 perturbation ball by the model's Lipschitz constant times the radius.
@@ -110,19 +110,27 @@ right object, describing what the attacker controls. \emph{Cryptographic
 hash families} make the family secret: the Bloom hashes are generated from
 a secret salt, the filter publishes only the bit pattern, and an attacker
 who wants to construct false positives must first guess the salt, which
-under standard assumptions costs $2^{|\mathsf{salt}|}$ work. The
-structural attack collapses to a brute-force key search, and the
-false-positive rate under salt-secret operation matches the iid analysis
-provided the salt has enough entropy. This is the cryptographic core of
-cipher maps; \Cref{ch:cipher-maps-trapdoor} takes up the details.
-\emph{Trapdoor primitives} handle the side channels: when the attacker
-can observe timing, memory access, or control flow, the right machinery
-is trapdoor computing, whose data-oblivious algorithms have access
-patterns that do not depend on the data they process, with oblivious RAM
-and constant-time cryptographic operations the classical instances.
-\Cref{ch:cipher-maps-trapdoor} details these as the bridge between
-Bernoulli analysis and adversarial environments; the framework continues
-to apply if and only if the side channels are closed.
+under standard assumptions costs $2^{|\mathsf{salt}|}$ work. The structural attack collapses to a key search, and for \emph{fresh}
+queries the false-positive rate under salt-secret operation matches the
+iid analysis provided the salt has enough entropy. Secrecy does not stop
+an adaptive adversary from collecting the false positives it happens upon
+and replaying them, and it does not survive publication of the bit array
+together with the hash family. These settings have a formal literature:
+\textcite{naor-yogev-2015} defined adversarial resilience for Bloom
+filters and showed that pseudorandom hashing with a hidden representation
+achieves it, \textcite{clayton-patton-shrimpton-2019} gave game-based
+correctness notions for probabilistic data structures under adaptive
+queries, \textcite{filic-et-al-2022} extended them to privacy, and
+\textcite{bender-et-al-2018} studied adaptive filters that repair
+discovered false positives. The keyed construction is also the
+cryptographic core of cipher maps; \Cref{ch:cipher-maps-trapdoor} takes up
+the details. \emph{Side channels} need different machinery: when the
+attacker can observe timing, memory access, or control flow, the standard
+tools are data-oblivious algorithms, whose access patterns do not depend
+on the data they process, with oblivious RAM and constant-time
+implementations the classical instances. These tools sit outside the
+Bernoulli framework, whose rate statements are meaningful only once the
+side channels are closed.
 
 \subsection*{Worked example: Bloom filter evasion}
 
@@ -139,10 +147,13 @@ candidate works with probability $0.518^7 \approx 0.010$, so the attacker
 still examines about $100$ candidates, gaining only the ability to do so
 offline rather than against the live filter. Disclosure of the family
 alone buys almost nothing here. The \emph{targeted attacker} does the
-real damage: by solving a small system of constraints to construct an
-input $y$ whose hashes land at chosen set positions $j_1, \ldots, j_k$,
-the attacker manufactures false positives in $O(1)$ work per attempt, and
-the practical attack proceeds at machine speed.
+real damage when the hash family is invertible or weak, as many
+non-cryptographic hashes in deployed filters are: by solving a small
+system of constraints to construct an input $y$ whose hashes land at
+chosen set positions $j_1, \ldots, j_k$, the attacker manufactures false
+positives in $O(1)$ work per attempt, and the practical attack proceeds at
+machine speed. A cryptographic hash removes this shortcut but, with the
+family public, still leaves the offline search above.
 
 The gap from iid analysis to worst-case adversarial analysis thus runs
 from essentially nothing (the structural attacker exploiting only

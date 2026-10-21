@@ -33,7 +33,7 @@ drifts with the query index, because the structure changes (a Bloom
 filter filled past capacity), the environment changes (a sensor's noise
 grows with temperature), or the calibration data did not represent the
 deployment data (classifier drift). This violates
-\Cref{ax:block-rates-indep} (Axiom 2): the per-block rates are no longer
+\Cref{ax:block-rates-indep} (Axiom 2)\index{axiom!block-rate independence}\index{varying rates}: the per-block rates are no longer
 stable across queries. The channel matrix $Q$ becomes a sequence $(Q_t)$,
 and the iid concentration tools of chapter 11 give way to their
 martingale counterparts.
@@ -42,7 +42,7 @@ martingale counterparts.
 Two queries to the same structure share error sources: the same query
 repeated is deterministic, two queries to overlapping Bloom-filter bits
 are positively correlated, sequential draws from an online learner carry
-a temporal dependence. This violates \Cref{ax:element-indep} (Axiom 1):
+a temporal dependence. This violates \Cref{ax:element-indep} (Axiom 1)\index{axiom!element-wise independence}\index{correlated noise}:
 the error events at distinct inputs are no longer mutually independent.
 The factored joint distribution behind every multi-query formula becomes
 an inequality, and the composition theorem of chapter 3 picks up
@@ -56,7 +56,8 @@ inputs are not independent), and the worst-case query sits at the tail of
 whatever per-block rate distribution the channel admits (so the single
 $\fprate$ the analyst computed no longer describes the queries that
 actually arrive). The right tools are worst-case bounds, cryptographic
-hash families, and trapdoor primitives, not concentration inequalities.
+hash families, and data-oblivious implementations, not concentration
+inequalities.\index{adversarial input}
 
 \subsection*{Posture}
 

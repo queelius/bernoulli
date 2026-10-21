@@ -1,205 +1,251 @@
 % §12.2 Composition of Approximate Relations
 %
-% Monograph register + the relational B fix. The natural join is the ch6
-% intersection on the triple universe, so its FPR is the three-region weighted
-% sum (= corrected prop:intersection-fpr-fnr), NOT the bare product eps1*eps2;
-% the product is the both-unrelated (sparse-relation) limit. The draft claimed
-% "the conditional becomes eps1*eps2 exactly," the same error fixed in ch6.
-% Projection (OR, FPR amplification) and selection are kept. Cross-refs
-% sec:and-under-noise, ch:set-composition, prop:intersection-fpr-fnr,
-% sec:sets-to-relations, sec:approximate-joins. DEFINED: sec:relation-composition,
-% thm:join-rates.
+% Re-synced 2026-10-21 with towell-bernoulli-relations Sec. 4 (rel_algebra).
+% Corrections relative to the June text: (1) projection rates depend on the
+% pair (fan-in k, true-member count j), not on fan-in alone, and uniform fan-in
+% does not give a common TPR; (2) projection preserves independence only under
+% the independent-tuple model; with shared sources the source-overlap covariance
+% law applies; (3) the join's shared-left covariance is a(1-a)b1b2, zero at the
+% boundary rates; (4) "composing the operators" no longer chains per-operator
+% rate updates (a join output is not a two-rate tuple, and join-then-project
+% fibers share sources); marginals are computed from source lineage instead.
+% Cross-refs sec:and-under-noise, prop:intersection-fpr-fnr, ax:element-indep,
+% def:source-model, prop:latent-propagation, ex:two-rate-counterexample,
+% sec:query-contracts, sec:approximate-joins. DEFINED: sec:relation-composition,
+% thm:projection-rates, thm:projection-shared-sources, thm:join-rates,
+% thm:join-correlation.
 
 \section{Composition of Approximate Relations}
 \label{sec:relation-composition}
 
-The universe $T \times U$ carries structure beyond ``set of pairs'': a relation
-admits projection, selection, and join. Each operation lifts to approximate
-relations, and the propagation of $(\fprate, \fnrate)$ follows from chapter~3's
-AND/OR analysis (\Cref{sec:and-under-noise}) and chapter~6's intersection
-theorem (\Cref{prop:intersection-fpr-fnr}) with pairs in place of elements.
+Selection, projection, and join build new relations from old ones. Applied to
+approximate operands, each operator induces a derived approximate relation whose
+membership test is a Boolean function, its \emph{lineage}\index{lineage
+(databases)}, of the operand tests. Every operator raises two questions: what
+are the derived marginal rates, and are the derived tuples still independent? The
+answers depend on which sources the outputs read
+(\Cref{def:source-model}). Unless stated otherwise, the two operands of a binary
+operator are built independently of each other (cross-relation independence),
+each satisfies the independent-tuple model, and every predicate in an operator
+(the selection condition, the join condition on attribute values) is exact: the
+only randomness is inherited from the operand tests.
+
+\subsection*{Selection}
+
+Selection\index{selection} $\sigma_P(R) = \{t \in R : P(t)\}$ with an exact
+predicate $P$ is the operand read on the smaller universe $\{t : P(t)\}$. It
+keeps the rates within each existing truth class and keeps independence under the
+independent-tuple model; for a source-sharing input it keeps whatever dependence
+the selected tuples already had. Selection preserves the rate partition: it does
+not turn a two-rate model into a one-rate model. Viewed over the original
+universe, the tuples outside $\{t : P(t)\}$ are deterministic negatives. When $P$
+is itself approximate, the selection is the AND of two noisy tests at the same
+tuple and falls under the join analysis below.
+
+\subsection*{Projection}
+
+The projection\index{projection} $\pi_Y$ onto an attribute subset $Y$ collapses
+the remaining attributes by an existential quantifier. The \emph{fiber}\index{fiber (projection)}
+$\phi(s)$ of a projected tuple $s$ is the set of candidate tuples projecting to
+it, its size $k(s)$ is the \emph{fan-in}\index{fan-in}, and $j(s) = \Card{\phi(s) \cap R}$
+counts its true members. The target universe is the image of the candidate
+universe, so every fiber is nonempty. Projection is a logical OR\index{OR gate} over the fiber.
+
+\begin{theorem}[Projection]
+\label{thm:projection-rates}
+Under the independent-tuple model with rates $(\fprate, \tprate)$, the
+approximate projection accepts $s$ with probability
+\[
+  1 - (1 - \tprate)^{j(s)} (1 - \fprate)^{k(s) - j(s)}.
+\]
+A negative projected tuple ($j(s) = 0$) therefore has false-positive rate $1 -
+(1 - \fprate)^{k(s)} \ge \fprate$, and a positive one has true-positive rate at
+least $\tprate$. Distinct projected tuples have mutually independent indicators,
+and the attained pairs $(k(s), j(s))$ give a sufficient partition into
+homogeneous rate blocks.
+\end{theorem}
+
+\begin{proof}
+The projection rejects $s$ exactly when every fiber trial rejects. The fiber
+holds $j(s)$ members, each rejecting with probability $1 - \tprate$, and $k(s) -
+j(s)$ nonmembers, each rejecting with probability $1 - \fprate$; independence of
+distinct tuples multiplies these. Distinct projected tuples have disjoint fibers,
+so their indicators are functions of disjoint independent trial sets.
+\end{proof}
+
+The false-positive side amplifies with the fan-in, and the true-positive side is
+boosted, because a nonmember fiber tuple can false-positive and so rescue a
+genuine projected tuple. On a full Cartesian candidate universe a coordinate
+projection has constant fan-in, the product of the discarded domain sizes, but
+the true-member count still varies: at $(\fprate, \tprate) = (0.05, 0.90)$,
+fibers with $(k, j) = (3, 1)$ and $(3, 2)$ have true-positive rates $0.90975$ and
+$0.9905$. Uniform fan-in alone does not give a common true-positive rate. In the
+book's vocabulary the projection raises the model order\index{model order}, one
+rate block per attained profile (several profiles may share a rate), while
+independence is a separate question.
+
+That question has a different answer once sources are shared. Let $A_s$ be the
+set of distinct sources read by the fiber of $s$, so that $Y_s =
+\bigvee_{i \in A_s} X_i$.
+
+\begin{theorem}[Projection with shared sources]
+\label{thm:projection-shared-sources}
+Under the independent-source model, let $\Prob{X_i = 1} = p_i$ and put $q_C =
+\prod_{i \in C}(1 - p_i)$, with $q_\emptyset = 1$. Then $\Prob{Y_s = 1} = 1 -
+q_{A_s}$ and
+\[
+  \operatorname{Cov}(Y_s, Y_t)
+  = q_{A_s \setminus A_t}\, q_{A_t \setminus A_s}\, q_{A_s \cap A_t}
+    \bigl(1 - q_{A_s \cap A_t}\bigr).
+\]
+If every participating source has $0 < p_i < 1$, the projected indicators are
+mutually independent exactly when their nonempty source supports are pairwise
+disjoint.
+\end{theorem}
+
+\begin{proof}
+$Y_s = 0$ exactly when all of its sources are $0$, which gives the marginal.
+Complementing both indicators preserves covariance, so
+\[
+  \operatorname{Cov}(Y_s, Y_t) = q_{A_s \cup A_t} - q_{A_s} q_{A_t},
+\]
+and factoring over the disjoint sets $A_s \setminus A_t$, $A_t \setminus A_s$,
+and $A_s \cap A_t$ gives the formula. At interior rates a shared source makes it
+strictly positive; disjoint supports give functions of disjoint independent
+sources.
+\end{proof}
+
+At boundary rates an overlapping support can still give zero covariance; the
+formula holds, but the disjointness criterion needs interior rates. The smallest
+case shows that distinct tuples need not be distinct trials: on the candidate
+universe $\{(a, b), (b, a)\}$ with $a \ne b$, a canonical symmetric test reads one
+source $Z$ for both tuples, projection onto the first coordinate has disjoint
+tuple fibers, and yet both outputs equal $Z$, with covariance $p(1 - p)$.
 
 \subsection*{Natural join}
 
-The natural join of $R_1 \subseteq T \times U$ and $R_2 \subseteq U \times V$ on
-the shared attribute is $R_1 \bowtie R_2 = \{(t, u, v) : (t, u) \in R_1,\, (u, v)
-\in R_2\}$, with membership predicate $\SetIndicator{R_1}(t, u) \land
-\SetIndicator{R_2}(u, v)$. The approximate join reads as the AND of two noisy
-Booleans, $(\tilde R_1 \bowtie \tilde R_2)(t, u, v) = \tilde R_1(t, u) \land
-\tilde R_2(u, v)$, the object whose rates chapter~3 derived, with one added
-hypothesis: cross-relation independence, that the per-query randomness of
-$\tilde R_1$ at $(t, u)$ is independent of that of $\tilde R_2$ at $(u, v)$. This
-is Axiom~1 applied across the two structures, holding when they are built and
-queried independently.
+The natural join\index{join} of $R_1 \subseteq T \times U$ and $R_2 \subseteq U
+\times V$ is $R_1 \bowtie R_2 = \{(t, u, v) : (t, u) \in R_1,\, (u, v) \in
+R_2\}$, and its approximate version is the AND\index{AND gate} of two noisy tests,
+$(\tilde R_1 \bowtie \tilde R_2)(t, u, v) = \tilde R_1(t, u) \land \tilde R_2(u,
+v)$, the object of \Cref{sec:and-under-noise}.
 
 \begin{theorem}[Join error rates]
 \label{thm:join-rates}
-Let $\tilde R_1, \tilde R_2$ be FNR-zero approximate relations with
-false-positive rates $\fprate_1, \fprate_2$, under cross-relation independence.
-Then $\tilde R_1 \bowtie \tilde R_2$ has $\fnrate_{\bowtie} = 0$ and, over the
-three regions of out-of-join triples (the pair matched in $R_1$ but not $R_2$,
-in $R_2$ but not $R_1$, in neither) with weights $w_1, w_2, w_3$,
+Let $\tilde R_1, \tilde R_2$ have rates $(\fprate_i, \tprate_i)$ and be
+cross-relation independent. A candidate triple in the join has false-negative
+rate $1 - \tprate_1 \tprate_2$. A candidate triple outside the join is accepted
+with probability $\fprate_1 \tprate_2$ if only its $R_1$-pair is absent,
+$\tprate_1 \fprate_2$ if only its $R_2$-pair is absent, and $\fprate_1 \fprate_2$
+if both are absent. Under a specified distribution on out-of-join triples with
+region weights $(w_1, w_2, w_3)$ for ($R_1$-pair present, $R_2$-pair present,
+neither), the average false-positive rate is
 \[
-  \fprate_{\bowtie} \;=\; w_1 \fprate_2 + w_2 \fprate_1 + w_3 \fprate_1 \fprate_2.
+  w_1 \tprate_1 \fprate_2 + w_2 \fprate_1 \tprate_2 + w_3 \fprate_1 \fprate_2,
 \]
+which for FNR-zero operands is $w_1 \fprate_2 + w_2 \fprate_1 + w_3 \fprate_1
+\fprate_2$.
 \end{theorem}
 
 \begin{proof}
-A true join triple has both component pairs in their relations, each reported
-$\top$ with probability $1 - \fnrate_i = 1$, so $\fnrate_{\bowtie} = 0$. A false
-positive needs both components to report $\top$ at an out-of-join triple, and the
-per-region probability depends on which components are genuinely present: on the
-region where $(t, u) \in R_1$ but $(u, v) \notin R_2$, the first reports $\top$
-correctly while the second false-positives, $(1 - \fnrate_1)\fprate_2 =
-\fprate_2$; on the mirror region, $\fprate_1$; on the both-absent region,
-$\fprate_1 \fprate_2$. Total probability over the three regions gives the stated
-rate. This is \Cref{prop:intersection-fpr-fnr} of chapter~6 on the triple
-universe, with the in-join block as $A \cap B$.
+The triple is reported exactly when both component tests fire, and the two tests
+are independent. A true triple has both pairs present, giving acceptance
+$\tprate_1 \tprate_2$. An out-of-join triple has at least one pair absent; an
+absent pair fires with probability $\fprate_i$ and a present one with probability
+$\tprate_i$, which gives the three pointwise rates and, by total probability, the
+weighted average. This is the intersection rule of \Cref{prop:intersection-fpr-fnr}
+on the triple universe.
 \end{proof}
 
-The bare product $\fprate_1 \fprate_2$ is only the both-absent term: it is exact
-when out-of-join triples are dominated by the region where \emph{neither}
-component pair is present, which holds when both relations are sparse in a large
-triple universe, the typical database regime. Otherwise the linear terms $w_1
-\fprate_2 + w_2 \fprate_1$ dominate, because a triple with one component genuinely
-present false-positives at the surviving single rate, not at the product. If
-either relation has $\fnrate_i > 0$, the join inherits a positive
-$\fnrate_{\bowtie}$ by the full intersection formula; the FNR-zero case is the
-one-sided special case.
+Without a distribution on queries, or counts of the three regions, the three
+pointwise regimes remain distinct: a join output is not a two-rate tuple\index{prior-averaged rate}. The bare
+product $\fprate_1 \fprate_2$ is only the both-absent corner. It is a good summary
+when out-of-join triples are dominated by that corner (both relations sparse in a
+large triple universe), and it understates the error wherever half-matched triples
+carry weight, since there the surviving single rate applies.
 
 \subsection*{A join breaks element-wise independence}
 
-\Cref{thm:join-rates} gives the rate of \emph{one} output triple. It is silent
-on a sharper question: are the output triples independent of one another? They
-are not, and the failure is the one place the lift to relations breaks Axiom~1
-(\Cref{ax:element-indep}) rather than merely re-deriving its consequences.
+\Cref{thm:join-rates} describes one output triple. Output triples that share an
+operand tuple read the same trial.
 
-\begin{theorem}[A join does not preserve element-wise independence]
+\begin{theorem}[Shared-component dependence]
 \label{thm:join-correlation}
-The approximate join $\tilde R_1 \bowtie \tilde R_2$ is a Bernoulli relation only
-\emph{marginally}. Each output triple carries the rates of
-\Cref{thm:join-rates}, but the joint law over output triples does not factor:
-two output triples that share a component pair are positively correlated, so
-element-wise independence (\Cref{ax:element-indep}) fails for the join.
+Let two output triples share their $R_1$-pair, $(t, u, v_1)$ and $(t, u, v_2)$
+with $v_1 \ne v_2$, and put
+\[
+  a = \Prob{\tilde R_1(t, u) = \top},
+  \qquad
+  b_i = \Prob{\tilde R_2(u, v_i) = \top}.
+\]
+Under cross-relation independence their indicators have covariance $a(1 - a)\,
+b_1 b_2$, strictly positive when $0 < a < 1$ and $b_1 b_2 > 0$. A join whose output tuples
+read pairwise disjoint input trials preserves independence.
 \end{theorem}
 
 \begin{proof}
-Take two output triples $(t, u, v_1)$ and $(t, u, v_2)$ with $v_1 \neq v_2$ that
-share the same $R_1$-pair $(t, u)$. Both acceptance events contain the
-\emph{same} trial $A = \{\tilde R_1(t, u) = \top\}$ as a conjunct:
+Let $A$ and $B_i$ be the independent events that $\tilde R_1(t, u)$ and $\tilde
+R_2(u, v_i)$ report $\top$. The two outputs are accepted together with probability
 \[
-  \{(t, u, v_i) \in \tilde R_1 \bowtie \tilde R_2\}
-  = A \cap B_i,
-  \qquad
-  B_i = \{\tilde R_2(u, v_i) = \top\},
+  \Prob{A \cap B_1 \cap B_2} = a b_1 b_2,
 \]
-where $A$, $B_1$, $B_2$ are independent under cross-relation independence. Write
-$a = \Prob{A}$. The two triples are accepted together with probability
-\[
-  \Prob{A \cap B_1 \cap B_2} = a\, \Prob{B_1} \Prob{B_2},
-\]
-whereas the product of their marginals is
-$(a\Prob{B_1})(a\Prob{B_2}) = a^2 \Prob{B_1}\Prob{B_2}$. For $0 < a < 1$ the two
-differ by the factor $1/a > 1$, so the joint acceptance exceeds the
-independent-model value and the triples are positively correlated. The shared
-trial $\tilde R_1(t, u)$ is reused by every output triple built from $(t, u)$,
-welding those triples together; the same holds for triples sharing an
-$R_2$-pair.
+while the product of their marginals is $a^2 b_1 b_2$; the difference is the
+stated covariance. Outputs reading disjoint
+trial sets are functions of independent variables.
 \end{proof}
 
-A concrete reading. Suppose the shared $R_1$-pair fires with probability $a =
-0.9$ and each of $\tilde R_2(u, v_1)$, $\tilde R_2(u, v_2)$ fires with
-probability $0.9$. The two triples are accepted together with probability $0.9
-\cdot 0.9 \cdot 0.9 = 0.729$, whereas an independence assumption would predict
-$0.81 \cdot 0.81 = 0.6561$; the truth exceeds it by the factor $1/0.9 \approx
-1.11$. A query planner that estimated the chance both rows survive as a product
-of per-row probabilities would understate it.
-
-The marginal rates of \Cref{thm:join-rates} remain exactly right for any
-\emph{single} triple, and an expected false-positive count over a join still adds
-tuple by tuple, since linearity of expectation needs no independence. It is the
-higher moments, and any all-correct probability computed as a product over output
-tuples, that feel the correlation. The next two operators do preserve
-independence, which is exactly what makes the join the exception.
-
-\subsection*{Projection and selection}
-
-The projection $\pi_T(R) = \{t : \exists u,\, (t, u) \in R\}$ collapses the $U$
-axis by an existential quantifier, so $t \in \pi_T(\tilde R)$ iff some pair in
-the \emph{fiber} of $t$, its pre-image $\{(t, u) : u \in U\}$, reports $\top$.
-Projection is a logical OR over the fiber, and its \emph{fan-in} is the fiber
-size $k(t)$. An FNR-zero input gives an FNR-zero projection (a true $t$ has a
-witness pair reporting $\top$), but the FPR \emph{amplifies}: a non-projecting
-$t$ has all $k(t)$ fiber pairs outside the relation, each false-positive at rate
-$\fprate$ independently, so
-\[
-  \fprate_\pi(t) = 1 - (1 - \fprate)^{k(t)} \;\ge\; \fprate,
-\]
-climbing toward $1$ with the fan-in. The true-positive side is boosted in step: a
-non-member fiber pair can itself false-positive and so rescue the projection of a
-genuine $t$, giving $\tprate_\pi(t) = 1 - (1 - \tprate)^{j}(1 -
-\fprate)^{k(t) - j}$ when $j \ge 1$ of the fiber pairs are genuine. For a binary
-relation projected onto $T$ the fiber is the whole $U$-axis, so $k(t) = |U|$ is
-uniform and the rate is $1 - (1 - \fprate)^{|U|}$; in a relation of higher arity
-the fan-in varies from one projected tuple to the next.
-
-That variation is structural. Distinct projected elements have \emph{disjoint}
-fibers, so they read disjoint sets of trials and stay mutually independent:
-projection preserves Axiom~1 (\Cref{ax:element-indep}), unlike the join. But the
-per-element rate $1 - (1 - \fprate)^{k(t)}$ depends on the fan-in $k(t)$, which
-need not be constant, so $\pi_T(\tilde R)$ is in general a higher-order Bernoulli
-relation, one rate block per distinct fan-in value, collapsing to a single
-first-order rate only when the fan-in is uniform. Existential quantification over
-a large co-domain inflates any false-positive bias, the one structural penalty
-the lift to relations adds, and the motivation for the sketch-based projection of
-\Cref{sec:approximate-joins}.
-
-The selection $\sigma_P(R) = \{(t, u) \in R : P(t, u) = \top\}$ passes the rates
-through unchanged when $P$ is exact (a deterministic restriction of the support).
-When $P$ is itself approximate with rate $\fprate_P$, the selection predicate is
-the AND $\tilde R(t, u) \land \tilde P(t, u)$, evaluated at the same pair, so its
-FPR is the three-region rate of \Cref{thm:join-rates} again, $\approx \fprate
-\fprate_P$ only in the both-absent regime.
+At $a \in \{0, 1\}$, or when a partner never fires, the covariance vanishes: the
+theorem identifies a source-reuse mechanism, not a claim that every join produces
+dependence. As a concrete reading, take two true triples sharing their $R_1$-pair,
+with every operand true-positive rate $0.9$. They are accepted together with
+probability $0.9^3 = 0.729$, while an independence assumption predicts $0.9^4 =
+0.6561$; the covariance is $0.0729$ and the joint probability is $1/0.9 \approx
+1.11$ times the product of marginals. A planner that multiplied per-row survival
+probabilities would understate the chance that both rows survive. The marginal
+rate of any single output is still exact, and an expected false-positive count
+over a join still adds tuple by tuple, since linearity of expectation needs no
+independence; the higher moments and any all-correct probability computed as a
+product over output tuples are what the correlation affects.
 
 \subsection*{Worked example}
 
-Let $\tilde F$ be a Bloom-style friend-of relation with $\fnrate_F = 0$,
-$\fprate_F = 0.05$, and $\tilde C$ a coworker relation with $\fnrate_C = 0$,
-$\fprate_C = 0.02$, built and queried independently. The join $\tilde F \bowtie
-\tilde C$ returns triples $(p_1, p_2, p_3)$ where $\tilde F$ reports $p_1$ a
-friend of $p_2$ and $\tilde C$ reports $p_2$ a coworker of $p_3$. By
-\Cref{thm:join-rates}, $\fnrate_{\bowtie} = 0$ and $\fprate_{\bowtie} = w_1
-\fprate_C + w_2 \fprate_F + w_3 \fprate_F \fprate_C$. In a sparse population,
-where almost every out-of-join triple has $p_1$ unrelated to $p_2$ \emph{and}
-$p_2$ unrelated to $p_3$, the both-absent term dominates and $\fprate_{\bowtie}
-\approx \fprate_F \fprate_C = 0.001$, three orders below either operand, the
-relational face of the chapter-6 intersection gain. But the gain is conditional:
-a triple where $p_1$ truly is a friend of $p_2$ while $p_2$ is not a coworker of
-$p_3$ false-positives at $\fprate_C = 0.02$, the linear rate, so where such
-half-matched triples are common the join rate sits closer to $\max(\fprate_F,
-\fprate_C)$ than to the product. The cost is in the assumptions, not the algebra:
-cross-relation independence must hold (shared hash families break the product),
-and the relations must be sparse enough for the both-absent region to dominate.
+Let $\tilde F$ be a friend-of relation with $\fnrate_F = 0$, $\fprate_F = 0.05$,
+and $\tilde C$ a coworker relation with $\fnrate_C = 0$, $\fprate_C = 0.02$, built
+and queried independently. The join returns triples $(p_1, p_2, p_3)$ with $p_1$
+reported a friend of $p_2$ and $p_2$ reported a coworker of $p_3$. A triple with
+both pairs absent is accepted with probability $\fprate_F \fprate_C = 0.001$, three
+orders below either operand, the relational face of the intersection gain of
+chapter~6. A triple in which $p_1$ truly is a friend of $p_2$ but $p_2$ is not a
+coworker of $p_3$ is accepted with probability $\fprate_C = 0.02$, so where such
+half-matched triples are common the average sits nearer to $\max(\fprate_F,
+\fprate_C)$ than to the product. The gain rests on cross-relation independence
+(a shared hash family breaks the product) and on sparsity.
 
-\subsection*{Composing the operators}
+\subsection*{Composing the operators: lineage, not rate chaining}
 
-The three operators compose in any order, with the \emph{marginal} rate of any
-single output tuple propagating by induction on the expression tree. A query
-$\pi_T(\sigma_P(\tilde R_1 \bowtie \tilde R_2))$ evaluates bottom-up: the join
-gives \Cref{thm:join-rates}'s rate, the exact selection passes it through, the
-projection inflates the false-positive side by the fan-in factor and preserves
-the structural zero. Each operator has a closed-form rate-update rule for a
-single tuple, and chaining them gives the per-tuple rule for the whole
-expression, the same closure-under-composition chapter~6 told for sets.
+A query built from selection, projection, join, and union assigns each candidate
+answer a monotone Boolean lineage over source bits, conjunction combining the
+facts one witness needs and disjunction combining alternative witnesses. This is
+established provenance\index{provenance semiring} machinery \parencite{green-karvounarakis-tannen-2007,
+suciu-2011}. With the exact truth profile fixed and aliases identified, the
+answer's marginal probability under the independent-source model is a polynomial
+in the source rates read off that lineage, the relational form of the
+per-latent-assignment propagation\index{composition!per latent assignment} of \Cref{prop:latent-propagation}.
 
-Two cautions separate the relational case from the set case. The projection
-inflation is one: a union is a single Boolean OR per query with no existential
-quantifier over a domain of unknown size, while a projection quantifies over the
-full second attribute, and \Cref{sec:approximate-joins} replaces it with a sketch
-that estimates the quantifier without paying the fan-in amplification in full.
-The join correlation is the other and the deeper one. The bottom-up rates above
-are marginal, exact for any single output tuple, but \Cref{thm:join-correlation}
-showed that a join correlates the tuples it produces, so the probability that the
-\emph{whole} result is error-free does not factor as a product of per-tuple
-rates. Composing marginal rates is sound; composing them as though the output
-tuples were independent is not, once a join sits anywhere in the tree.
+What does not work is chaining a two-rate update per operator up the expression
+tree\index{composition!of relations}. Three failures recur. First, a join output
+is not a two-rate tuple (\Cref{thm:join-rates}): feeding one summary rate into a
+downstream operator reproduces the error of \Cref{ex:two-rate-counterexample}.
+Second, in join-then-project the fiber of a projected tuple consists of join
+outputs that share operand tuples, so its OR is not over independent trials and
+$1 - (1 - \fprate)^k$ does not apply; the source supports of
+\Cref{thm:projection-shared-sources} must be carried instead. Third, repeated
+sources are not fresh trials: a conjunction reading one absent source eight times
+at rate $0.05$ fires with probability $0.05$, whereas treating the occurrences as
+independent gives $0.05^8 \approx 3.9 \times 10^{-11}$. What survives is exact
+lineage evaluation for a fixed profile, linearity of expectation for counts, the
+union bound\index{union bound} over a fixed finite workload without any independence, and the
+truth-uniform contracts of \Cref{sec:query-contracts}. The probability that a
+whole result is error-free does not factor over output tuples once they share
+sources. The projection penalty of a large fan-in is also what motivates the
+sketch-based similarity join of \Cref{sec:approximate-joins}.

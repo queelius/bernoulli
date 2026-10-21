@@ -19,6 +19,7 @@ three chapters circled.
 
 \begin{definition}[$\Bernoulli{\BoolType}$]
 \label{def:bernoulli-bool}
+\index{Bernoulli Boolean}\index{Bernoulli type}
 A \emph{$\Bernoulli{\BoolType}$ instance} is a triple $(X, Y, Q)$ with input and
 output domains $X = Y = \{\top, \bot\}$, blocks $B_1 = \{\top\}$ and
 $B_2 = \{\bot\}$, and a $2 \times 2$ row-stochastic channel matrix
@@ -72,21 +73,24 @@ and the classifier verdict with rates set by its decision boundary. The
 asymmetric channel of \Cref{sec:asymmetric-channel} is the general $Q$; the
 Z-channel and the Bloom filter are the one-sided instance $\fnrate = 0$.
 
-The gates of chapter~3 are operations on the type. NOT is the unary
-$\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$ that swaps $(\fprate,
-\fnrate)$. AND and OR take two instances to one, but with a caveat the formal
-definition makes precise: the AND output's false-negative rate $1 - (1 -
-\fnrate_1)(1 - \fnrate_2)$ is prior-free, a fixed type parameter, while its
-false-positive rate is prior-dependent (the product $\fprate_1 \fprate_2$ in the
-all-negative regime, boundary-dependent otherwise, \Cref{sec:and-under-noise}).
-AND is therefore a clean $\Bernoulli{\BoolType}$-valued operation on its
-prior-free axis and is type-valued on its prior-dependent axis only relative to
-a fixed input distribution, the one-sided and Miller-Rabin regimes being where
-the product holds exactly; OR is dual. The composition theorem of
-\Cref{sec:composition-theorem} (serial, matrix product) and the Kronecker
-factorization (parallel, tensor product) are the two faces of the same
-independence structure, sister consequences of the axioms rather than one a case
-of the other.
+Only NOT\index{NOT gate} among the gates of chapter~3 is an operation on the type: it is the
+unary $\Bernoulli{\BoolType} \to \Bernoulli{\BoolType}$ that swaps
+$(\fprate, \fnrate)$. AND\index{AND gate} and OR\index{OR gate} over distinct latent bits do not return an
+instance\index{latent assignment}. The AND output has the single false-negative rate $1 - (1 -
+\fnrate_1)(1 - \fnrate_2)$ but three negative rows, $\fprate_1\fprate_2$,
+$(1 - \fnrate_1)\fprate_2$, and $\fprate_1(1 - \fnrate_2)$, so as a channel from
+the latent pair it has more than two blocks and is not a triple $(X, Y, Q)$ of
+the definition above (\Cref{prop:boolean-closure}); OR is dual. A two-rate
+description of a gate or formula output exists in three restricted senses only:
+when all operands read one latent bit (the Miller-Rabin regime), when the
+operands are one-sided in the direction the gate preserves (OR of $\fnrate =
+0$ instances, AND of $\fprate = 0$ instances), or as a summary that is either
+a prior average or a worst-case bound (\Cref{rem:prior-averaged-composition},
+\Cref{prop:worst-case-rate-bounds}). The exact object is the error at each
+latent assignment (\Cref{prop:latent-propagation}). Serial composition of
+channels (matrix product) and the Kronecker factorization (parallel, tensor
+product) are different constructions: the first needs only the law of total
+probability, the second needs the axioms.
 
 The atom-outward order was deliberate: examples first, axioms next, the formal
 definition last, so that it arrives already supported by intuition. The reader

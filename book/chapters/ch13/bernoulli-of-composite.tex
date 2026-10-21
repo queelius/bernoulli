@@ -14,7 +14,7 @@
 \label{sec:bernoulli-of-composite}
 
 This section gives the lift $\Bernoulli{-}$ on each constructor. Three of the
-four factor cleanly; the sum is the exception.
+four factor when the relevant noise is independent; the sum is the exception.
 
 \subsection*{Product types: the Kronecker isomorphism}
 
@@ -32,34 +32,38 @@ channels: a $K_T K_U \times L_T L_U$ matrix with $(Q_T \otimes Q_U)_{(j_T, j_U),
 (\ell_T, \ell_U)} = (Q_T)_{j_T, \ell_T}(Q_U)_{j_U, \ell_U}$.
 \end{theorem}
 
-Axiom~1 factors the joint into a product across components and Axiom~2 keeps each
-row stable, so the proof is the chapter-9 calculation with the two factors now of
-different dimensions. The parameter count is additive: without independence the
+Independence of the two components' noise, the hypothesis of the theorem and
+the type-level analogue of Axiom~1, factors the joint into a product across
+components, and Axiom~2 keeps each row stable, so the proof is the chapter-9
+calculation with the two factors now of different dimensions\index{Kronecker product}. The parameter count is additive: without independence the
 joint would need $K_T K_U(L_T L_U - 1)$ parameters, but under it only $K_T(L_T -
 1) + K_U(L_U - 1)$, the parameters of $Q_T$ plus those of $Q_U$. Products are the
 well-behaved case, where approximation distributes and parameters grow
-additively.
+additively\index{parametric parsimony}.
 
 \subsection*{Sum types: the tag error breaks the factorization}
 
 A sum $T + U$ tags each value $\mathrm{Left}(t)$ or $\mathrm{Right}(u)$. An
-approximate sum value errs in two ways: a \emph{tag error} flips the tag with
-probability $\delta$, and a \emph{payload error} corrupts the value within the
+approximate sum value errs in two ways: a \emph{tag error}\index{sum type} flips
+the tag with probability $\delta$, and a \emph{payload error} corrupts the value within the
 correct component at rate $\fprate_T$ or $\fprate_U$. For a latent
 $\mathrm{Left}(t)$,
-\[
+\begin{gather*}
   \Prob{\widetilde{\mathrm{Left}(t)}} = (1 - \delta)(1 - \fprate_T),
-  \quad
+  \qquad
   \Prob{\mathrm{Left}(t'\!\neq t)} = (1 - \delta)\tfrac{\fprate_T}{|T| - 1},
-  \quad
+  \\
   \Prob{\mathrm{Right}(\cdot)} = \delta,
-\]
+\end{gather*}
 the last spread over the wrong component.
 
 \begin{proposition}[Sum types do not factor]
 \label{prop:sum-nonfactor}
-$\Bernoulli{T + U} \not\cong \Bernoulli{T} \oplus \Bernoulli{U}$ in general: the
-confusion matrix of an approximate sum does not factor as a direct sum of
+In general
+\[
+  \Bernoulli{T + U} \not\cong \Bernoulli{T} \oplus \Bernoulli{U}:
+\]
+the confusion matrix of an approximate sum does not factor as a direct sum of
 per-component channels.
 \end{proposition}
 
@@ -92,33 +96,39 @@ however, is a \emph{sum} over lengths, $L T \cong \sum_{n \ge 0} T^n$, so a nois
 length is a sum-type tag error over the length index: $\Bernoulli{L T}$ is a
 mixture over the noisy length (a $\Bernoulli{\mathbb{N}}$), each component a
 per-position Kronecker product, and it does not reduce to a single clean product.
-A HyperLogLog cardinality estimate is exactly this noisy length, composing with
-per-element noise by the mixture rule, not by a simple per-element product.
+A HyperLogLog cardinality estimate plays the role of this noisy length, and it
+combines with per-element noise by the mixture rule, not by a simple
+per-element product.
 
 A noisily approximated function $f : T \to U$ produces one $\Bernoulli{U}$ per
 input, so $\Bernoulli{T \to U} \cong T \to \Bernoulli{U} \cong \prod_{t \in T}
 \Bernoulli{U}$, the chapter-9 framework: the channel is a function from input
-blocks to output distributions. This factors over inputs as a Kronecker product
-of $|T|$ per-input channels, with parameter count $|T|(L_U - 1)$, growing with
-the domain. Approximate sets ($U = \BoolType$) and relations ($T$ a product) are
-sub-cases.
+blocks to output distributions. Under Axiom~1 across inputs this factors over
+inputs as a Kronecker product of $|T|$ per-input channels, with parameter count
+$|T|(L_U - 1)$, growing with the domain. Approximate sets ($U = \BoolType$) and
+relations ($T$ a product) are sub-cases. Structures whose answers share stored
+state, such as a CountMin sketch read as $\Bernoulli{T \to \mathbb{N}}$, satisfy
+the per-input marginal form but not the Kronecker product across inputs
+(\Cref{sec:sketches-as-bernoulli}).
 
 \begin{center}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{@{}lll@{}}
 \hline
-Constructor & Lift & Channel form \\
+Constructor & Lift & Factorization holds when \\
 \hline
-$T \times U$ & $\Bernoulli{T} \otimes \Bernoulli{U}$ & Kronecker product \\
-$L T$ & $\Bernoulli{T}^{\otimes n}$ (mixture if length noisy) & Kronecker power \\
-$T \to U$ & $T \to \Bernoulli{U}$ & per-input Kronecker \\
-$T + U$ & does \emph{not} factor (tag coupling) & not block-diagonal unless $\delta = 0$ \\
+$T \times U$ & $\Bernoulli{T} \otimes \Bernoulli{U}$ & independent components \\
+$L T$ (length $n$) & $\Bernoulli{T}^{\otimes n}$ & independent positions \\
+$L T$ (noisy length) & mixture of $\Bernoulli{T}^{\otimes n}$ & the same, per length \\
+$T \to U$ & per-input Kronecker product & Axiom~1 across inputs \\
+$T + U$ & no factorization (tag coupling) & only for an exact tag ($\delta = 0$) \\
 \hline
 \end{tabular}
 \end{center}
 
-The first three rows are forced by Axioms~1 and~2 at the type-structural level;
-the fourth records where those axioms' independence fails. \Cref{sec:composition-functor}
-packages the three clean rules.
+The first rows hold under the independence hypotheses in the last column; the
+last row records where factorization fails even when the noise is independent.
+\Cref{sec:composition-functor} collects the rules.
 
 \subsection*{Worked example}
 
@@ -130,9 +140,16 @@ $Q_{\text{count}}$). Under independence the joint factors as
 $\Bernoulli{\{\text{cat}, \text{dog}, \text{bird}\}} \otimes
 \Bernoulli{\mathbb{N}}$, the Kronecker product $Q_{\text{class}} \otimes
 Q_{\text{count}}$, with additive parameter count $3 \cdot 2 + K_{\mathbb{N}}
-(L_{\mathbb{N}} - 1)$. To compose two such classifiers one applies the
-chapter-12 join rate to the label and the chapter-10 sketch composition to the
-count, with no cross-interaction: the type structure says where each rule goes.
-Composing approximate structures, which used to need a per-structure derivation,
-reduces to applying the product, list, and function rules to the components, with
-the sum flagged as the place a tag error couples them.
+(L_{\mathbb{N}} - 1)$. The factorization describes the joint law of the reported
+pair. It does not by itself give the error of a computation on such pairs. A
+test such as ``the label is cat and the count exceeds $10$'' is a Boolean
+formula\index{composition!of Boolean formulas} over two noisy components, and its error depends on the latent pair,
+not only on whether the test is truly satisfied: a true dog seen $12$ times and
+a true cat seen $3$ times are both negatives, with different false-positive
+probabilities. Exact propagation is per latent
+assignment\index{composition!per latent assignment}\index{latent assignment}
+(\Cref{prop:latent-propagation}), and a single rate pair for the output exists
+only as a prior average or a worst-case bound
+(\Cref{ex:two-rate-counterexample}, \Cref{prop:worst-case-rate-bounds}). The
+type structure says which factors are independent; the computation still has to
+be analyzed.

@@ -16,15 +16,20 @@
 The two axioms together force a precise structure on the joint behavior of many
 queries. Index the $m$ queries by position $\ell$, with query $\ell$ on an
 element of block $B_{j_\ell}$ producing output $k_\ell$. The
-\emph{Kronecker product} $P \otimes Q$ replaces each entry $P_{ij}$ by the
-scaled block $P_{ij} Q$; it is associative.
+\emph{Kronecker product}\index{Kronecker product} $P \otimes Q$ replaces each entry $P_{ij}$ by the
+scaled block $P_{ij} Q$; it is associative. The theorem below is the familiar
+fact that independent components form a product channel, a memoryless channel in
+information theory and a tensor-product noise model in quantum readout; it is
+stated here with the conditioning on random rates made explicit, because the
+structures of later chapters have random rates.
 
 \begin{theorem}[Kronecker factorization, conditional form]
 \label{thm:kronecker}
+\index{Kronecker factorization}
 Let $\tilde{A}$ be an $n$-th order Bernoulli predicate satisfying
 \Cref{ax:element-indep} and \Cref{ax:block-rates-indep}. For any realization
 $\alpha$ of the per-block rates, let $Q^*_\ell(\alpha)$ be the per-query channel
-matrix at position $\ell$. Then the rate-conditional joint confusion matrix of
+matrix at position $\ell$. Then the rate-conditional joint confusion matrix\index{confusion matrix} of
 $m$ queries on $m$ distinct elements factors as
 \[
   Q^{(m)*}(\alpha) \;=\; Q^*_1(\alpha) \otimes \cdots \otimes Q^*_m(\alpha).
@@ -56,13 +61,14 @@ The conditional factorization holds always; the unconditional one needs the
 distinct-block hypothesis because taking the expectation through the product
 requires independent factors. When two queries hit the same block $B_j$, both
 involve the same random $\alpha_j$, and $\Expect{\alpha_j^2} > (\Expect
-\alpha_j)^2$ opens a Jensen gap, so the unconditional joint exceeds the
-Kronecker prediction. Two regimes avoid this: deterministic rates (where
+\alpha_j)^2$ opens a Jensen gap\index{correlated noise}, so the unconditional joint exceeds the
+Kronecker prediction: a mixture of product laws is not a product law. Two regimes avoid this: deterministic rates (where
 $Q^*_\ell = Q_\ell$ and the conditional and unconditional forms coincide, the
 case of every worked example in this book) and pairwise-distinct queried blocks.
 
 \begin{corollary}[Parameter reduction]
 \label{cor:parameter-reduction}
+\index{parametric parsimony}
 Under the two axioms, the rate-conditional $m$-query matrix needs $nm$
 parameters, against $n(2^m - 1)$ for an unconstrained $m$-query channel in the
 per-source-block convention; for the order-2 Boolean predicate, $2m$ against
@@ -81,15 +87,19 @@ parameters each. At $m = 50$, $n = 2$: $100$ against $\approx 2.25 \times
 
 The bound is tight: $m$ queries with independently chosen rates $(\fprate_\ell,
 \fnrate_\ell)$ satisfy both axioms, and distinct parameter tuples give distinct
-joint matrices, so no reparameterization beats $2m$. The companion paper
-\cite{towell-bernoulli-sets} records the factorization as a remark in the
-deterministic-or-conditioned regime; the explicit conditional form, the
-distinct-block unconditional corollary, and the Jensen-gap accounting are this
-book's contribution.
+joint matrices, so no reparameterization beats $2m$. None of this is deep: the
+conditional form is the definition of conditional independence, the
+unconditional corollary is the expectation of a product of independent factors,
+and the Jensen gap is the positive correlation of any mixture of independent
+trials. The source manuscript \parencite{towell-bernoulli-sets} records the
+factorization as a remark for deterministic or conditioned rates; the book
+separates the conditional and unconditional statements because the
+distinction decides whether a Bloom filter's false positives on distinct
+non-members can be multiplied (\Cref{sec:axiom-1}).
 
 \subsection*{The BSC, queried m times}
 
-The binary symmetric channel of \Cref{sec:bsc} is the cleanest instance. It has
+The binary symmetric channel\index{channel!binary symmetric} of \Cref{sec:bsc} is the cleanest instance. It has
 one crossover parameter $\fprate = \fnrate$, so its two inputs share a rate and
 merge into a single block: the BSC is model order 1 (\Cref{sec:model-order}),
 studied as the symmetric constrained member of the order-2 family. In the
@@ -115,10 +125,12 @@ the $2(2^2 - 1) = 6$ a general channel would.
 This is the theorem the AND derivation of \Cref{sec:and-under-noise} tacitly
 used: the two operands' joint channel is $Q_1 \otimes Q_2$, and the AND output
 is a deterministic function of that joint, with Axiom~1 supplying the
-factorization and Axiom~2 the stable rates. The serial composition theorem
-(matrix product) and this Kronecker factorization (tensor product) are sister
-consequences of the same two axioms in different geometries: serial composition
-threads one element through a chain, the Kronecker product queries $m$ elements
-in parallel. With the theorem in hand, the formal definition of
+factorization and Axiom~2 the stable rates. It also explains the caveat of
+\Cref{sec:boolean-formulas}: the joint channel has four rows, one per latent
+pair, and a deterministic function of it inherits four rows, not two. Serial
+composition (matrix product) and this Kronecker factorization (tensor product)
+answer different questions in different geometries: serial composition threads
+one element through a chain and needs only the law of total probability, while
+the Kronecker product queries $m$ elements in parallel and needs the axioms. With the theorem in hand, the formal definition of
 \Cref{sec:bernoulli-bool-formal} is parametrized by finitely many numbers, two
 in the Boolean case, rather than an exponential family of joint distributions.

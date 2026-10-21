@@ -9,31 +9,32 @@
 \section{From Approximate Sets to Approximate Functions}
 \label{sec:atom-to-function}
 
-Part~II read a classical set as its membership predicate
+Part~II read a classical set as its membership predicate\index{approximate set}
 $\SetIndicator{A} : \Universe \to \{\top, \bot\}$ and made the predicate
 noisy: each evaluation $\ASet{A}(x)$ is a $\Bernoulli{\BoolType}$ instance, and
 the chapter-4 axioms collapse the per-element rates to a single pair
 $(\fprate, \fnrate)$. The framing pinned the codomain to $\{\top, \bot\}$.
 Nothing in it requires two values, only that each evaluation draws from a
 distribution on the codomain fixed by the input's block. Replacing
-$\{\top, \bot\}$ with any type $T$ gives the \emph{approximate function}
+$\{\top, \bot\}$ with any type $T$ gives the \emph{approximate
+function}\index{approximate map}
 \[
   \tilde{f} : \Universe \longrightarrow T,
 \]
 whose evaluation $\tilde{f}(x)$ is an instance of the lifted type
-$\Bernoulli{T}$, the $T$-valued analogue of the noisy bit. For $T =
+$\Bernoulli{T}$\index{Bernoulli type}, the $T$-valued analogue of the noisy bit. For $T =
 \BoolType$ this is exactly the membership predicate of an approximate set, so
 Part~II is the special case; for $T = \{1, \ldots, K\}$ it is a $K$-way
 classifier; for $T = \mathbb{N}$ it is a counter or frequency estimator. The
 two-rate description gives way to a full per-block output distribution, and the
-$2 \times 2$ channel matrix of Part~II becomes a $K \times L$ matrix with $K$
+$2 \times 2$ channel matrix\index{channel matrix} of Part~II becomes a $K \times L$ matrix with $K$
 input blocks, $L = |T|$ output values, rows summing to one, and $(i,j)$-entry
 the probability that block $i$ produces output $j$.
 
 \paragraph{Two examples.}
 A 3-class classifier on $T = \{\text{cat}, \text{dog}, \text{bird}\}$ has its
 input domain split into three blocks by true class, with per-block behavior a
-$3 \times 3$ confusion matrix: diagonal entries the per-class accuracies,
+$3 \times 3$ confusion matrix\index{confusion matrix}: diagonal entries the per-class accuracies,
 off-diagonals the confusion rates, six free parameters once rows are
 normalized. A counter on $T = \mathbb{N}$ has input blocks $B_n$ indexed by
 true count $n$, and row $n$ is a distribution on $\mathbb{N}$ concentrated near
@@ -48,7 +49,7 @@ claims indifferent to alphabet size: Axiom~1 keeps error events at distinct
 inputs independent, Axiom~2 keeps each per-block distribution stable. The
 parameter count grows from $2$ to $K(L-1)$ (each of $K$ rows is a distribution
 on $L$ outputs). Two structural results scale accordingly. The Kronecker
-factorization of \Cref{thm:kronecker} (\Cref{sec:kronecker}), which factored
+factorization\index{Kronecker factorization} of \Cref{thm:kronecker} (\Cref{sec:kronecker}), which factored
 the joint of $m$ Boolean queries as a tensor product of $2 \times 2$ matrices,
 holds with $K \times L$ matrices in their place (\Cref{sec:n-ary-kronecker}).
 The BSC capacity $C = 1 - H(\fprate)$ of \Cref{prop:bsc-capacity}

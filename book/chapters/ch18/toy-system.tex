@@ -29,8 +29,8 @@ structure the notebook fills.
 Three cryptographic ingredients suffice: a keyed function
 $\mathrm{HMAC}_k$ producing a query token $\tau_w = \mathrm{HMAC}_k(w)$,
 deterministic in $w$ and pseudorandom to anyone without $k$; a symmetric
-authenticated encryption (AES-based) for the bit arrays; and the Bloom
-filter of \Cref{def:bloom-filter} as the per-document structure. Each
+cipher (AES-based in practice) for the bit arrays; and the Bloom
+filter of \Cref{def:bloom-filter} as the per-document structure.\index{encrypted search} Each
 document's keyword set becomes a filter $B_i$, encrypted as
 $\mathsf{Enc}(B_i)$ and uploaded with its identifier; the client keeps both
 keys, the server keeps the encrypted store, and neither party holds both
@@ -81,15 +81,15 @@ operational form, each predicted before the trace ran.
 The toy system as built is correctness-tuned. A production trace at a
 higher prevalence $\pi = 0.1$ (queried keywords are \emph{interesting}
 keywords) with $\fprate = 0.01$ gives $\PPV \approx 0.917$, $C \approx
-0.083$: a server compromise exposes most of the plaintext, an adversary
-inferring the keyword at a $92\%$ posterior. Retuning is mechanical:
+0.083$: an observer who sees a match for a document holds a $92\%$
+posterior that the queried keyword really occurs in it. Retuning is mechanical:
 solving the chapter 7 PPV equation, $\fprate^* = \pi C / [(1 - \pi)(1 -
 C)]$, a target $C = 0.5$ at $\pi = 0.1$ needs $\fprate^* = 0.05/0.45
 \approx 0.111$. The filter shrinks correspondingly, $m \approx 1.44 \cdot
 10 \cdot \log_2(9) \approx 46$ bits against $96$ at $\fprate = 0.01$, and
-the client's post-filtering load grows. No choice escapes the trade-off;
-the only design freedom is which corner of the space-accuracy-confidentiality
-space to occupy.
+the client's post-filtering load grows. Within this construction no choice escapes the trade-off; the design
+freedom is which point of the space, accuracy, and cover triangle to
+occupy.
 
 \begin{remark}[The framework as a design language]
 \label{rem:design-language}
@@ -112,15 +112,17 @@ designer solves it as one system of inequalities.
 
 \subsection*{Notebook hook}
 
-The companion notebook,
-\texttt{bernoulli-py/notebooks/ch18-encrypted-search.ipynb}, implements the toy
-system end-to-end: per-document filters, AES-encrypted bit arrays,
-HMAC-based tokens, server-side matching, and verification against ground
-truth. It plots empirical PPV and confidentiality across $\fprate$ from
-$0.001$ to $0.5$, exhibiting the trade-off curve as a measured quantity,
-and runs the \Cref{sec:adversarial-estimation} comparison between iid
-Chernoff and MAB UCB intervals on a synthetic adversarial trace,
-reproducing the two-orders-of-magnitude gap. It is a starting point, not a
-production artifact; a real deployment should consult the SSE literature
-and the primitives' formal security definitions, which the notebook does
-not engage.
+{\sloppy
+The companion notebook implements the toy system end-to-end on a
+synthetic corpus; it is the file \texttt{ch18-encrypted-search.ipynb} in
+the \texttt{notebooks} directory of \texttt{bernoulli-py}. Its pieces are per-document filters, encrypted bit arrays (an HMAC counter-mode
+keystream standing in for AES-CTR), HMAC-based tokens, server-side
+matching, and verification against ground truth. It checks the empirical
+false-positive rate against the chapter 5 prediction and the empirical
+precision against the PPV formula, and tabulates and plots PPV and the
+cover $C$ across $\fprate$ from $0.001$ to $0.5$. It does not reproduce
+the \Cref{sec:adversarial-estimation} comparison of iid and MAB
+intervals, whose numbers are the worked example of that section. It is a
+starting point, not a production artifact; a real deployment should
+consult the SSE literature and the primitives' formal security
+definitions, which the notebook does not engage.\par}

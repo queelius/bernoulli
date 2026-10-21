@@ -20,7 +20,7 @@ when each is the right tool.
 
 \subsection*{What FHE is, and what it costs}
 
-Fully homomorphic encryption (FHE) supports exact arithmetic on
+Fully homomorphic encryption\index{fully homomorphic encryption} (FHE) supports exact arithmetic on
 ciphertexts: given $\mathsf{Enc}(x)$ and $\mathsf{Enc}(y)$ it provides
 $\mathsf{Enc}(x) \oplus \mathsf{Enc}(y) = \mathsf{Enc}(x + y)$ and
 $\mathsf{Enc}(x) \otimes \mathsf{Enc}(y) = \mathsf{Enc}(x \cdot y)$,
@@ -52,14 +52,17 @@ and too large for the broad class cipher maps address.
 
 \subsection*{Cipher maps as the weaker rung}
 
-A cipher map is the strictly weaker abstraction: it admits positive
-$\fprate, \fnrate$, and in exchange the designer chooses representations
+A cipher map is the weaker abstraction in two senses: it admits positive
+$\fprate, \fnrate$, and its security notion is weaker, since the server
+sees match outcomes, query repetitions, and access patterns that FHE
+hides behind semantic security. In exchange the designer chooses representations
 (hash families, sketches, Bloom filters) orders of magnitude smaller and
 faster than FHE's polynomial arithmetic. The framework's space-accuracy
 duality applies directly: a membership cipher map at $\fprate = 2^{-20}$
-uses about $20 + \mu$ bits per element by the optimal construction of
-\Cref{ch:optimal-bernoulli-sets}, against kilobytes per element for the
-FHE realization. FHE is the strongest and most expensive abstraction;
+uses about $20$ bits per element by the constructions of
+\Cref{ch:optimal-bernoulli-sets} (and $20 + \mu$ for a map with
+$\mu$-bit values), against kilobytes per element for the FHE
+realization. FHE is the strongest and most expensive abstraction;
 cipher maps are weaker but cheaper in proportion to the error tolerated,
 a map at $\fprate = \epsilon$ spending about $-\log_2 \epsilon$ bits per
 element of useful capacity.
@@ -92,7 +95,9 @@ exact set stores each element at $10^4$ to $10^5$ bits (1 to 10 kilobytes
 at 128-bit security), about $1$ to $10$ gigabytes total, queried by
 homomorphic comparisons taking seconds. The space ratio is about $10^4$,
 the runtime ratio about $10^9$, both in the cipher map's favor, the price
-being a one-percent false-positive rate. This is the trade-off the
+being a one-percent false-positive rate and the weaker leakage profile
+just described. The comparison is therefore not like for like: it prices
+what each design costs, not two equally secure designs. This is the trade-off the
 trapdoor paradigm exploits: FHE when error is intolerable, cipher maps
 for the much larger space of workloads where bounded error is acceptable.
 The next section turns to how Boolean combinations of cipher maps behave

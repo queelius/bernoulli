@@ -180,8 +180,8 @@ ARTIFACTS = [
             "Source code embedded in the work (listings and examples) and the companion\n"
             "Python package (bernoulli-py/) are licensed under the MIT License.\n"
         ),
-        "description": "A research monograph synthesizing the Bernoulli framework for random approximate types (sets, maps, relations, algebraic types) with an executable Python companion.",
-        "keywords": ["monograph", "approximate membership", "two-sided error", "approximate computation"],
+        "description": "A research monograph that organizes approximate membership, retrieval, perfect hashing, sketches, randomized algorithms, approximate relational queries, encrypted search and quantum readout post-processing under one two-rate (false-positive / false-negative) channel model. It credits the established results it unifies, chapter by chapter, states where the model breaks (two-rate summaries do not compose through Boolean formulas; dependence; adaptive queries), and has an executable Python companion, bernoulli-types. It supersedes the author's ten Bernoulli preprints.",
+        "keywords": ["monograph", "approximate membership", "two-sided error", "Bloom filter", "perfect hashing", "probabilistic data structures", "approximate computation"],
         "repo_url_override": "https://github.com/queelius/bernoulli/tree/main/book",
         "note": "CC-BY-4.0 chosen 2026-10-21 (embedded code MIT); Zenodo deposit pending the apparatus pass",
     },

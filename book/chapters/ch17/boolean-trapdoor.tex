@@ -40,7 +40,7 @@ chapter 6 raised for plaintext approximate sets.
 \begin{definition}[Trapdoor set]
 \label{def:trapdoor-set}
 Let $A \subseteq X$ be a plaintext set and $k$ a secret key. A
-\emph{trapdoor set} for $A$ under $k$, written $\tilde A$, is an
+\emph{trapdoor set}\index{cipher set} for $A$ under $k$, written $\tilde A$, is an
 encrypted data structure with a membership cipher map $\tilde m_A :
 \mathsf{Enc}_k(X) \to \mathsf{Enc}_k(\{0,1\})$ such that
 $\mathsf{Dec}_k(\tilde m_A(\mathsf{Enc}_k(x))) = \mathbf{1}[x \in A]$ with
@@ -50,21 +50,22 @@ computationally infeasible; with $k$ it is as cheap as a plaintext
 lookup.
 \end{definition}
 
-The Bloom filter of \Cref{sec:bloom-from-scratch} is canonical: the
-server holds an encrypted bit array plus key-dependent hash parameters,
-the client sends an encrypted query, the server returns the encrypted
-membership bit. The map has $\fprate_A = (1 - e^{-kn/m})^k$ and $\fnrate_A
+The Bloom filter of \Cref{sec:bloom-from-scratch} with keyed probe
+positions is canonical (the secure index of \textcite{goh-2003}): the
+server holds the bit array, the client sends the $k$ keyed positions for
+its query, and the server returns the AND of those bits. The map has $\fprate_A = (1 - e^{-kn/m})^k$ and $\fnrate_A
 = 0$, so $\tilde A$ sits at $(\fprate_A, 0)$ on the perfect-filter line of
 \Cref{def:perfect-filter-line}. A perfect-hash-filter trapdoor set
-(chapter 15) sits at $(2^{-r}, 0)$; a counting variant trades a small
-$\fnrate_A$ for deletions. What they share is the structure of
+(chapter 15) sits at $(2^{-r}, 0)$; a counting variant supports deletions
+but can produce false negatives when counters overflow or a non-member is
+deleted \parencite{guo-et-al-2010}. What they share is the structure of
 \Cref{def:trapdoor-set}: encrypted representation, key-dependent query,
 bounded Bernoulli error.
 
 \subsection*{Boolean operations and their rates}
 
 The three primitive operations lift to the trapdoor setting, the server
-computing on encrypted representations. \emph{Union} returns the
+computing on encrypted representations. \emph{Union}\index{union} returns the
 encrypted OR of the two membership bits (a bitwise OR of the arrays when
 the scheme is additively homomorphic over bits); \emph{intersection} the
 encrypted AND (run both queries, combine with a homomorphic AND, since
@@ -82,8 +83,8 @@ union, a query outside $A \cup B$ is outside both, a single region, so
   \qquad
   \fnrate_{A \cup B} \;=\; 0,
 \]
-the chapter 3 monotone formula (\Cref{thm:composition}). Intersection is
-subtler. A query outside $A \cap B$ falls into one of three regions, $A
+the chapter 3 monotone formula (\Cref{thm:composition}). Intersection\index{intersection} is
+subtler.\index{composition!of sets} A query outside $A \cap B$ falls into one of three regions, $A
 \setminus B$, $B \setminus A$, or outside $A \cup B$, and the false
 positive arises differently in each: in $A \setminus B$ the $A$-test is
 correct and only the $B$-test must err (rate $\fprate_B$), in $B \setminus
@@ -97,7 +98,12 @@ the rate is the partition-weighted sum \eqref{eq:intersection-fpr},
   \fnrate_{A \cap B} \;=\; 0,
 \]
 with $w_1, w_2, w_3$ the masses of the three regions among non-members of
-$A \cap B$. The bare product $\fprate_A \fprate_B$ is the $w_3 \to 1$
+$A \cap B$. The weighted sum is a prior-averaged rate\index{prior-averaged rate}: the
+rate a non-member drawn from the stated workload sees. The per-region
+rates $\fprate_B$, $\fprate_A$, $\fprate_A \fprate_B$ are the conditional
+rates of individual queries, and it is those, not the average, that
+compose exactly through further operations
+(\Cref{prop:latent-propagation}, \Cref{ex:two-rate-counterexample}). The bare product $\fprate_A \fprate_B$ is the $w_3 \to 1$
 limit, where queries land almost entirely outside $A \cup B$; it is the
 best case, not the general one. The conditional independence behind the
 $w_3$ term is Axiom 1 applied to the two trapdoor sets, automatic when
@@ -139,7 +145,7 @@ $\fprate_C$, so by \eqref{eq:intersection-fpr}
   \;=\; w_1 (1 - \fprate_{A \cup B}) \fprate_C \;>\; 0.
 \]
 The composed trapdoor set carries \emph{both} a positive false-positive
-rate and a positive false-negative rate: it sits in the interior of the
+rate and a positive false-negative rate\index{cancellation}: it sits in the interior of the
 Bernoulli square, off the perfect-filter line entirely, not merely on the
 opposite axis. This is the cancellation phenomenon chapter 6 documented,
 lifted intact to the trapdoor setting, and sharper than a naive

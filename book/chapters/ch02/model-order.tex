@@ -44,7 +44,7 @@ element of a block shares one error probability,
 \[
   \Pr\{\phi(x) \neq x\} = \alpha_i \quad \text{for all } x \in B_i.
 \]
-The \emph{model order} of $\phi$ is the number of blocks in the \emph{coarsest}
+The \emph{model order}\index{model order} of $\phi$ is the number of blocks in the \emph{coarsest}
 compatible partition: distinct error probabilities are placed in distinct
 blocks, and elements are grouped only when they genuinely share a rate. Model
 order is a property of the channel, the number of distinct error regimes its
@@ -78,12 +78,18 @@ $Q_{\mathrm{BSC}}$ from \Cref{def:bsc}. The asymmetric channel of
 two inputs cannot share a block. The ceiling is tight (order 2 is attained) but
 not forced (the BSC sits at order 1). Serial composition stays within it:
 composing binary channels (\Cref{sec:channel-composition}) yields a binary
-channel, still of model order at most 2.
+channel, still of model order at most 2. The ceiling is a statement about a
+two-element input domain, and it is the reason Boolean \emph{gates} behave
+differently: a gate over two distinct latent bits is a channel from the
+four-element domain of latent pairs, and its output can carry up to four
+distinct error regimes (\Cref{sec:boolean-formulas}). Composition of gates
+raises model order; serial composition of binary channels does not.
 
 \subsection*{Model order versus parameter count}
 
-Model order is not the same as the number of free parameters, and conflating
-them is a common error. Model order counts partition blocks; parameter count
+Model order is not the same as the number of free
+parameters\index{model order!versus parameter count}, and conflating them is a
+common error. Model order counts partition blocks; parameter count
 counts the real numbers needed to specify the channel. For a single Boolean
 query an $n$-th order channel has $n$ free parameters, one per block, so the two
 agree, but they part company in two ways. First, a constraint can reduce the
@@ -94,7 +100,10 @@ the parameter count grows with the number of queries while the model order does
 not: a general order-$n$ channel on $m$ joint inputs carries $n(2^m - 1)$
 parameters in the per-source-block convention, which the independence axioms
 collapse to $nm$ by Kronecker factorization (\Cref{cor:parameter-reduction}),
-all while the model order stays $n$.
+all while the model order stays $n$. Model order is likewise distinct from
+$k$-fold composition\index{k-fold composition@$k$-fold composition}, the number
+of times an approximate identity is iterated, which changes rates but not the
+partition.
 
 \begin{center}
 \begin{tabular}{l|c|c|c}
@@ -114,7 +123,7 @@ one parameter.
 
 \subsection*{Axiom 2 and the n-ary ceiling}
 
-The partition-block structure is exactly what Axiom~2
+The partition-block structure is exactly what Axiom~2\index{axiom!block-rate independence}
 (\Cref{ax:block-rates-indep}) acts on: it asserts that the per-block rates are
 conditionally independent given the objective set, and the model order is the
 dimension of that independence claim. In the order-2 Boolean case this is the

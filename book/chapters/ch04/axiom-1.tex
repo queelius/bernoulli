@@ -15,6 +15,7 @@ approximate predicate $\tilde{A}$, write the error indicator $E_x = \mathbf{1}[
 
 \begin{axiom}[Element-wise independence]
 \label{ax:element-indep}
+\index{axiom!element-wise independence}
 Given the objective set $A$ and the error rates, the family $\{E_x : x \in U\}$
 is mutually independent, and within each partition block the indicators are
 identically distributed.
@@ -48,8 +49,12 @@ joint probability over distinct inputs written as a product of marginals is an
 application of it. It is also what the Bloom filter's analysis assumes (distinct
 non-members are independent false positives) and what Miller-Rabin's $k$-round
 bound needs (distinct witnesses are independent error events,
-\Cref{sec:miller-rabin}). The Bloom filter is verified to satisfy Axiom~1 under
-the random-oracle model in \Cref{ch:approximate-sets}.
+\Cref{sec:miller-rabin}). For the Bloom filter\index{Bloom filter} the axiom holds
+conditionally on the realized bit array, under the random-oracle model
+(\Cref{ch:approximate-sets}); unconditionally, distinct non-members are
+positively correlated through the shared fill of the array, the Jensen gap of
+\Cref{cor:kronecker-unconditional}. The conditioning is part of the axiom: it
+is stated given the error rates.
 
 Axiom~1 is a genuine modeling assumption, not an automatic consequence of each
 marginal being well-formed. Two classifiers trained on shared data are each a

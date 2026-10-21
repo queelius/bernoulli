@@ -17,7 +17,7 @@ and \Cref{sec:bloom-from-scratch} built one instance. This section places
 the abstraction inside the chapter-4 machinery at the matrix level: the
 per-element channel, the Axiom-2 collapse to two per-block rates, and the
 Kronecker factorization over many queries. The payoff is the chapter's
-first formal statement of parametric parsimony, that an approximate set's
+first formal statement of parametric parsimony\index{parametric parsimony}, that an approximate set's
 entire joint behavior is fixed by two numbers.
 
 \subsection*{Per-element channels and their collapse}
@@ -35,7 +35,8 @@ $x \notin A$, assembling into a per-element channel
 \]
 row~$1$ for the in-set case, row~$2$ for the out-of-set case, matching the
 convention of \Cref{def:bernoulli-bool}. Unconstrained, the family
-$\{Q_x\}$ carries up to $2|\Universe|$ parameters. Axiom~2 collapses it.
+$\{Q_x\}$ carries up to $2|\Universe|$ parameters. Axiom~2
+collapses it\index{axiom!block-rate independence}.
 
 \begin{proposition}[Block-stability of per-element rates]
 \label{prop:block-stability}
@@ -86,13 +87,14 @@ classifiers of \Cref{ch:classification-measures}.
 A workload of $m$ queries on distinct elements $x_1, \ldots, x_m$, with
 $x_\ell$ in block $j_\ell$ and report $k_\ell$, has joint behavior governed
 by \Cref{thm:kronecker}. Its hypotheses are the two axioms: Axiom~1
-(\Cref{ax:element-indep}) for cross-element independence and Axiom~2 for
+(\Cref{ax:element-indep}) for cross-element
+independence\index{independence!across elements} and Axiom~2 for
 the block-stability just established. Since every per-query matrix is the
 same $Q$, the joint confusion matrix is the $m$-fold Kronecker power.
 
 \begin{corollary}[Kronecker factorization for approximate sets]
 \label{cor:kronecker-set}
-Let $\ASet{A}$ satisfy Axioms~1 and~2 over $\{A,\, \Universe \setminus A\}$
+\index{Kronecker factorization}Let $\ASet{A}$ satisfy Axioms~1 and~2 over $\{A,\, \Universe \setminus A\}$
 in the deterministic-rates regime. The joint confusion matrix of $m$
 queries on $m$ distinct elements is
 \[

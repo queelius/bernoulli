@@ -49,7 +49,7 @@ basis vectors onto one, and $M_f$ then has a repeated column and is singular.
 \subsection*{A Bernoulli map is a column-stochastic matrix}
 
 Allowing the columns to be distributions rather than point masses turns a
-function into an approximate one.
+function into an approximate one.\index{Bernoulli map}
 
 \begin{definition}[Bernoulli map matrix]
 \label{def:operator-bernoulli-map}
@@ -63,7 +63,7 @@ column-stochastic matrix $Q$ of shape $\Card{V} \times \Card{\Universe}$,
   \sum_{y} Q_{yx} = 1,
 \]
 so that column $x$, namely $Q \ket{x}$, is the output distribution on $V$
-produced by the input $x$. The \emph{model order} (\Cref{def:model-order}) is
+produced by the input $x$. The \emph{model order}\index{model order} (\Cref{def:model-order}) is
 the number of distinct columns of $Q$, the number of input blocks that produce
 genuinely different output distributions.
 \end{definition}
@@ -71,7 +71,18 @@ genuinely different output distributions.
 A deterministic $f$ is the special case in which every column is one-hot, so
 \Cref{def:operator-map-matrix} sits inside \Cref{def:operator-bernoulli-map}.
 The matrix here is the n-ary channel of \Cref{def:n-ary-channel}, read as an
-operator. The two definitions are the same object under transposition: the
+operator.
+
+\paragraph{Convention.} This chapter, alone in the book, writes channels
+\emph{column-stochastic}: inputs index columns and the matrix acts on
+column vectors from the left. Chapters~2 and~9
+(\Cref{def:channel-composition}, \Cref{rem:channel-composition}) write
+them \emph{row-stochastic}: inputs index rows and the matrix acts on row
+vectors from the right. The column-stochastic matrix is the transpose of
+the row-stochastic one, $Q^{\mathrm{col}} = (Q^{\mathrm{row}})^{\mathsf{T}}$,
+so a serial composition ``first $Q_1$, then $Q_2$'' is $Q_1 Q_2$ in the
+row layout and $Q_2^{\mathrm{col}} Q_1^{\mathrm{col}} = (Q_1 Q_2)^{\mathsf{T}}$
+here. The two definitions are the same object under transposition: the
 channel of \Cref{sec:n-ary-channels} is written row-stochastic, with input
 blocks indexing rows and the matrix acting on row vectors from the right, the
 natural convention when one reads the matrix as a confusion table; the operator
@@ -93,8 +104,8 @@ multiplying matrices.
 \label{prop:operator-map-composition}
 Let $\tilde{f} : \Universe \to V$ and $\tilde{g} : V \to W$ be Bernoulli maps
 with column-stochastic matrices $Q_f$ and $Q_g$, and suppose the noise of
-$\tilde{g}$ is independent of the noise of $\tilde{f}$. Then the composite
-$\tilde{g} \circ \tilde{f} : \Universe \to W$ is a Bernoulli map with
+$\tilde{g}$ is independent of the noise of $\tilde{f}$. Then for each input $x$ the output law of the composite
+$\tilde{g} \circ \tilde{f} : \Universe \to W$ is column $x$ of the
 column-stochastic matrix
 \[
   Q_{g \circ f} \;=\; Q_g\, Q_f,
@@ -113,15 +124,30 @@ independence of the two noise sources,
   = \sum_{v \in V} (Q_g)_{wv} (Q_f)_{vx},
 \]
 the $(w, x)$ entry of $Q_g Q_f$. Each column sums to one because $Q_f$'s column
-$x$ is a distribution and $Q_g$ maps distributions to distributions
-($\sum_w \sum_v (Q_g)_{wv}(Q_f)_{vx} = \sum_v (Q_f)_{vx} = 1$), so $Q_g Q_f$ is
-column-stochastic and is therefore again a Bernoulli map.
+$x$ is a distribution and $Q_g$ maps distributions to distributions,
+\[
+  \sum_w \sum_v (Q_g)_{wv}(Q_f)_{vx} \;=\; \sum_v (Q_f)_{vx} \;=\; 1,
+\]
+so $Q_g Q_f$ is column-stochastic: the per-input law of the composite.
 \end{proof}
 
 This is the operator face of serial channel composition
-(\Cref{rem:channel-composition}), transposed to the column-stochastic layout
-(the row-stochastic statement there is $Q_f Q_g$, the same product read in the
-other order). The composition theorem of \Cref{thm:composition} is its
+(\Cref{def:channel-composition}, \Cref{rem:channel-composition}), transposed
+to the column-stochastic layout (the row-stochastic statement there is
+$Q_f Q_g$, first stage on the left; its transpose is $Q_g Q_f$ here).\index{channel!serial composition}\index{stochastic matrix}
+
+The proposition is a statement about one input at a time. It describes the
+law of $\tilde g(\tilde f(x))$ for each $x$, and that is all a single-query
+claim needs; it does not say that the composite is an independent-element
+map across inputs. If two inputs share an exact intermediate value,
+$f(x_1) = f(x_2) = v$, a realized $\tilde g$ errs or not at $v$ once, and
+that frozen outcome is shared by both composed outputs, so their errors
+are dependent even though each column of $Q_g Q_f$ is right (they fail
+together with probability $\eta$, not $\eta^2$). The composite is an
+independent-element map when the second stage draws fresh randomness per
+query or when $f$ is injective on the queried inputs; otherwise
+multi-input statements must condition on the collisions of intermediate
+values (\Cref{rem:channel-composition}).\index{counterexample!shared intermediate value}\index{composition!of maps} The composition theorem of \Cref{thm:composition} is its
 specialization to the one-sided error direction. Take two one-sided stages on a
 shared codomain, each correct with probability $1 - \fnrate_i$ on a true input
 and never producing a spurious accept. The relevant entry of the product

@@ -1,47 +1,44 @@
-% §10.6 Bibliographic Notes
+% §10.6 Notes and Lineage
 %
-% Monograph register: the four source papers. Fix: d = ceil(ln(1/delta)), natural
-% log, matching thm:countmin-bound (the draft wrote "log"). Citations
-% cormode-muthukrishnan-2005, flajolet-et-al-2007, broder-1997, indyk-motwani-1998.
-% Cross-refs sec:countmin, thm:countmin-bound, sec:hyperloglog,
-% prop:hyperloglog-error, sec:minhash-lsh, prop:minhash-error. DEFINED:
+% Lineage pass (2026-10-21): Flajolet-Martin, AMS, Count-Min, HyperLogLog,
+% MinHash (Broder; min-wise independence), LSH (Indyk-Motwani), mergeable
+% summaries (Agarwal et al.). The channel reading is presented as a reading;
+% the scope note (per-query marginals, shared-hash dependence) is the chapter's.
+% Citations flajolet-martin-1985, alon-matias-szegedy-1999,
+% cormode-muthukrishnan-2005, flajolet-et-al-2007, broder-1997,
+% broder-et-al-2000, indyk-motwani-1998, agarwal-et-al-2013. DEFINED:
 % sec:bib-notes-ch10.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch10}
 
-\paragraph{CountMin.}
-The construction and the additive bound of \Cref{thm:countmin-bound} are due to
-\textcite{cormode-muthukrishnan-2005}: the $d \times w$ table of
-pairwise-independent rows, the increment-and-minimum operations, and the
-$\hat f_a \le f_a + \epsilon F$ guarantee at $w = \lceil e/\epsilon \rceil$,
-$d = \lceil \ln(1/\delta) \rceil$, proved by the Markov-plus-union-bound argument
-of \Cref{sec:countmin}. The chapter's addition is the reading of CountMin as a
-$\Bernoulli{\mathbb{N}}$ instance, with the upper-triangular channel encoding the
-one-sided guarantee and entry-wise merge as composition. Their paper catalogs
-applications (heavy hitters, quantiles, inner products) the chapter does not
-cover.
+\paragraph{Lineage.}
+Every construction and bound in the chapter is its authors'. Probabilistic
+counting from hashed bit patterns is \textcite{flajolet-martin-1985}, and the
+streaming model with its space lower bounds is
+\textcite{alon-matias-szegedy-1999}. CountMin, its $d \times w$ table of
+pairwise-independent rows, and the bound of \Cref{thm:countmin-bound} at $w =
+\lceil e/\epsilon \rceil$, $d = \lceil \ln(1/\delta) \rceil$ are
+\textcite{cormode-muthukrishnan-2005}. HyperLogLog, the constant $\alpha_m$,
+the $1.04/\sqrt{m}$ error of \Cref{prop:hyperloglog-error}, and the limiting
+log-normal shape are \textcite{flajolet-et-al-2007}. The MinHash identity
+$\Prob{\min h(A) = \min h(B)} = J(A,B)$ and the $k$-hash estimator are
+\textcite{broder-1997}, with the hashing requirement made precise by min-wise
+independence \parencite{broder-et-al-2000}; locality-sensitive hashing is
+\textcite{indyk-motwani-1998}. That merges of sketches with shared hashes equal
+sketches of the combined input is the mergeable-summaries property of
+\textcite{agarwal-et-al-2013}.
 
-\paragraph{HyperLogLog.}
-The construction and the $1.04/\sqrt{m}$ relative error of
-\Cref{prop:hyperloglog-error} are due to \textcite{flajolet-et-al-2007},
-building on the earlier probabilistic-counting work of Flajolet and Martin.
-Their generating-function analysis gives the bias correction $\alpha_m$, the
-standard-deviation factor, and the limiting log-normal error shape that
-underwrites the multiplicative band of the $Q$ matrix; the chapter quotes the
-constants without reproducing the derivation. The max-merge and its equivalence
-to a sketch of the union are the natural composition under the
-max-of-leading-zeros structure.
+\paragraph{What this chapter adds.}
+A common reading of the three sketches as $\Bernoulli{T}$ values whose per-query
+error law is a row of a channel matrix (triangular, multiplicative-band,
+binomial), and an explicit statement of where that reading stops: rows are
+marginals, CountMin's are conditional on the rest of the stream, and queries
+against one stored sketch are dependent, so the Kronecker factorization of
+chapter~9 does not describe them.
 
-\paragraph{MinHash and LSH.}
-The MinHash sketch is due to \textcite{broder-1997}, whose setting was
-near-duplicate web detection; the identity $\Prob{\min h(A) = \min h(B)} = J(A,
-B)$ is from that paper, and the $k$-hash estimator and the Hoeffding bound of
-\Cref{prop:minhash-error} follow from it. The Binomial-in-$k$ structure of
-$\hat J$, which the chapter reads as the $\Bernoulli{[0,1]}$ channel of
-\Cref{sec:minhash-lsh}, is already implicit there. Locality-sensitive hashing is
-due to \textcite{indyk-motwani-1998}, for approximate nearest-neighbour search;
-the MinHash-and-band scheme is the specialization of their general framework to
-the Jaccard metric, and their paper also covers Hamming and $\ell_p$ families
-for readers wanting the general theory.
+\paragraph{Left out.}
+Heavy-hitter, quantile, and inner-product applications; Count-Sketch and other
+linear sketches; bias corrections and sparse representations of HyperLogLog;
+lower bounds for the three problems; and the generating-function analysis
+behind $\alpha_m$ and $1.04$, which is quoted rather than reproduced.

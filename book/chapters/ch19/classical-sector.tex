@@ -4,8 +4,9 @@
 % here is identical to finite-dimensional QM EXCEPT the vectors are probabilities
 % (or 0/1 indicators), not amplitudes; no Born-rule square, no measurement
 % collapse. The Bernoulli framework is exactly the classical stochastic-matrix
-% algebra on the DIAGONAL of the density operator (the readout/decohered sector
-% of sec:n-ary-channels's quantum-readout paragraph). Bra-ket and tensor notation
+% algebra on the DIAGONAL of the density operator, which is all a measurement
+% with a diagonal POVM sees, for ANY state: Tr(M_b rho) = sum_t A(b|t) rho_tt
+% (scope corrected 2026-10; earlier drafts restricted it to diagonal states). Bra-ket and tensor notation
 % are finite-dim linear algebra, not QM-specific. Tie: sec:quantum-contextuality
 % (ch16) is where the diagonal-sector representation stops being faithful (need
 % amplitudes / off-diagonal coherence); rem:quantum-amplification (ch11) is where
@@ -22,8 +23,9 @@
 The notation of this chapter, kets, tensor products, eigenvalues, is the
 notation of finite-dimensional quantum mechanics, and the resemblance is close
 enough that the relationship deserves a precise statement. The framework is the
-classical sector of the quantum formalism: the same linear algebra, on
-probabilities rather than amplitudes, restricted to the diagonal of the state.
+classical sector\index{classical sector} of the quantum formalism: the same linear algebra, on
+probabilities rather than amplitudes, acting on the diagonal of the state,
+which is everything a computational-basis measurement sees.
 This section says exactly what coincides, what does not, and why the bra-ket
 notation is a convenience and not a claim.
 
@@ -55,49 +57,70 @@ and that is the whole of the borrowing.
 
 \subsection*{The framework lives on the diagonal}
 
-The precise locating statement uses the density operator. A quantum system in
-$\ComplexSet^{d}$ is described not only by a state vector but, more generally, by
-a density matrix $\rho$, a positive operator of unit trace whose diagonal entries
-$\rho_{ii}$ are the probabilities of the basis outcomes and whose off-diagonal
-entries $\rho_{ij}$ are the coherences that encode interference. The Bernoulli
-framework is exactly the classical stochastic algebra of the \emph{diagonal} of
-$\rho$ in the computational basis. A probability vector here is the diagonal of a
-density matrix; a stochastic matrix here is the map induced on those diagonals by
-a quantum channel that does not mix the diagonal with the off-diagonal part. This
-is the readout sector of the quantum-readout instance in
-\Cref{sec:n-ary-channels}: measuring $n$ qubits in the computational basis is an
-n-ary channel (\Cref{def:n-ary-channel}) whose assignment matrix is precisely the
-stochastic operator on diagonals, and when per-qubit readout errors are
-independent it is the Kronecker product of single-qubit channels, the same
-factorization \Cref{def:set-noise-operator} gives a set. The framework is the
-faithful description of that diagonal, and only of it.
+The precise locating statement uses the density operator. A quantum
+system in $\ComplexSet^{d}$ is described in general by a density matrix
+$\rho$\index{density matrix}, a positive operator of unit trace whose
+diagonal entries $\rho_{tt}$ are the probabilities of the basis outcomes
+and whose off-diagonal entries $\rho_{ts}$ are the coherences that encode
+interference. A measurement is described by a POVM $\{M_b\}$, positive
+operators summing to the identity, with outcome probabilities
+$\operatorname{Tr}(M_b \rho)$ \parencite{nielsen-chuang-2010}. When the
+detector's POVM elements are diagonal in the computational basis\index{detector POVM},
+\[
+  M_b \;=\; \sum_t A(b \mid t)\, \ketbra{t}{t},
+  \qquad
+  \operatorname{Tr}(M_b \rho) \;=\; \sum_t A(b \mid t)\, \rho_{tt}
+  \quad \text{for every } \rho,
+\]
+so the outcome law is the column-stochastic assignment matrix $A$ applied
+to the diagonal of $\rho$, and the coherences never enter. This holds for
+an eigenstate, a mixture, or a coherent superposition alike; it is a fact
+about the measurement, not about the state. A probability vector here is
+the diagonal of a density matrix, and the stochastic matrix is the
+assignment matrix of a diagonal measurement. This is the readout instance
+of \Cref{sec:n-ary-channels}\index{quantum readout}: measuring $n$ qubits in
+the computational basis is an n-ary channel (\Cref{def:n-ary-channel})
+whose assignment matrix acts on diagonals, and when per-qubit readout
+errors are independent it is the Kronecker product of single-qubit
+channels, the same factorization \Cref{def:set-noise-operator} gives a set.
+The readout-error literature uses exactly these objects: tensor-product
+and correlated assignment matrices, their inversion, and their
+calibration
+\parencite{bravyi-et-al-2021,nation-et-al-2021,smith-et-al-2021,maciejewski-zimboras-oszmaniec-2020,maciejewski-et-al-2021,hamilton-et-al-2020}.
+For the outcome statistics of diagonal measurements the framework is
+exact, whatever the state.
 
 \subsection*{Where the diagonal description stops being faithful}
 
-A diagonal description is not always available, and the boundary is the subject
-of \Cref{sec:quantum-contextuality}. When the state carries coherence, when
-$\rho$ has nonzero off-diagonal entries, the diagonal alone does not determine
-the measurement statistics across incompatible bases, and there is no consistent
-assignment of definite values to all observables to which a stochastic matrix
-could be applied. That is the regime where no latent value exists, and
-\Cref{sec:quantum-contextuality} shows, through Fine's theorem and the Bell and
-Kochen-Specker obstructions, that it is a falsifiable physical fact and not a
-modeling convenience. In operator terms the framework's vectors are diagonals,
-the diagonal is all the framework can see, and contextuality is exactly the
-content of the off-diagonal coherences the diagonal omits. Decoherence, the
-physical process that zeroes the off-diagonals, is what hands the framework a
-genuine diagonal to model; on a decohered or classically prepared state the
-operator view of this chapter is exact, and off it the view is blind to the
-coherences.
+What the diagonal cannot answer is any question whose answer depends on
+the coherences, and the boundary is the subject of
+\Cref{sec:quantum-contextuality}. Two kinds of question cross it. One asks
+about a measurement that is not diagonal in the basis defining the latent
+value: a rotated basis, an entangling measurement, or a coherent
+operation applied before readout. There the outcome law depends on the
+off-diagonal entries of $\rho$, and the diagonal alone does not determine
+it. The other asks for joint statistics of incompatible measurements, and
+there may be no consistent assignment of definite values to all the
+observables at once to which a stochastic matrix could be applied: the
+regime where no latent value exists, which
+\Cref{sec:quantum-contextuality} shows, through Fine's theorem and the Bell
+and Kochen-Specker obstructions, to be a falsifiable physical fact and not
+a modeling convenience. In operator terms the framework's vectors are
+diagonals, a diagonal measurement sees nothing else, and contextuality
+lives in what a single diagonal cannot represent. No decoherence is needed
+for the framework to apply to a diagonal measurement; what decoherence
+removes are the coherences that \emph{other} measurements could have
+detected.
 
 The other half of the boundary is where the square returns.
-\Cref{rem:quantum-amplification} compared classical amplification, which composes
+\Cref{rem:quantum-amplification} compared classical amplification\index{error amplification}, which composes
 probabilities and reaches near-certainty in $O(1/p)$ repeated looks, with
-amplitude amplification, which composes amplitudes and reaches it in
+amplitude amplification\index{amplitude amplification}, which composes amplitudes and reaches it in
 $O(1/\sqrt{p})$ steps. The quadratic gap is the Born-rule square applied to a
-quantity that accumulates linearly, and it appears precisely because amplitude
-amplification works on the off-diagonal, amplitude-bearing part of the state that
-the diagonal description discards. The framework's amplification theorems are the
+quantity that accumulates linearly, and it appears because amplitude
+amplification acts coherently between preparation and readout, on the
+amplitude-bearing part of the state that the diagonal description
+discards. The framework's amplification theorems are the
 diagonal-sector statements; the quantum speedup is what the off-diagonal sector
 buys, and it is unavailable to a formalism that keeps only the diagonal.
 
@@ -110,7 +133,7 @@ independence a factorization (\Cref{prop:set-operator-is-axiom-1}), and a parity
 error rate a product of eigenvalues (\Cref{prop:parity-spectral}), all of which
 are awkward to write in the predicate language and natural in the operator one.
 It is not a claim that the framework is quantum mechanical. The framework is the
-classical, diagonal, real-and-nonnegative shadow of the quantum formalism;
+classical, diagonal, real-and-nonnegative part of the quantum formalism;
 \Cref{sec:operator-what-for} opened by calling the operator view a second lens
 on the same set-theoretic content, and the precise version of that claim is this:
 the lens is finite-dimensional linear algebra, the same linear algebra quantum

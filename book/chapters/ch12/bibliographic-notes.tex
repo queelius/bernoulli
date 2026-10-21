@@ -1,56 +1,56 @@
-% §12.5 Bibliographic Notes
+% §12.7 Notes and Lineage
 %
-% Monograph register: the relation manuscript, Codd, the similarity-join
-% literature. The "exercise 10" reference is repointed to rem:bloom-equijoin.
-% Citations towell-bernoulli-relations, codd-1970, sarawagi-kirpal-2004,
-% broder-1997, indyk-motwani-1998. Cross-refs sec:relation-composition,
-% thm:join-rates, sec:approximate-joins, rem:bloom-equijoin. DEFINED:
-% sec:bib-notes-ch12.
+% Rewritten 2026-10-21 as the chapter's lineage note (replaces "Bibliographic
+% Notes"; label kept). Credits the predecessors named in the corrected relations
+% manuscript's bibliography. Citations: codd-1970, fuhr-roelleke-1997,
+% dalvi-suciu-2007, dalvi-suciu-2012, suciu-2011, green-karvounarakis-tannen-2007,
+% benjelloun-et-al-2008, widom-2005-trio, huang-2009-maybms, koch-olteanu-2008,
+% gatterbauer-suciu-2014, nisan-1991, gopalan-et-al-2016, bertossi-2011,
+% mullin-1990, bloomfilter, broder-1997, indyk-motwani-1998, sarawagi-kirpal-2004,
+% towell-bernoulli-relations. DEFINED: sec:bib-notes-ch12.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch12}
 
-\paragraph{The approximate-relation framework.}
-The relation-level lift of the chapter-5 framework follows
-\textcite{towell-bernoulli-relations}, the primary source for the approximate
-relation as a $\Bernoulli{\BoolType}$ on the pair universe and for the join,
-projection, and selection rate rules of \Cref{sec:relation-composition}. The
-chapter reads those rules as the chapter-5 and chapter-6 frameworks specialized
-to pairs, making \Cref{thm:join-rates} a corollary of the chapter-6 intersection
-theorem with cross-relation independence in the role of cross-structure
-independence.
+\paragraph{Lineage.}
+The relational model and its operators are due to \textcite{codd-1970}. A
+probabilistic relational algebra\index{probabilistic relational algebra}, whose
+tuples carry event expressions evaluated under independence of basic events, goes
+back to \textcite{fuhr-roelleke-1997}; tuple-independent query evaluation
+\parencite{dalvi-suciu-2007}, its dichotomy \parencite{dalvi-suciu-2012}, and the
+survey of \textcite{suciu-2011} followed, with Trio and ULDB
+\parencite{widom-2005-trio, benjelloun-et-al-2008} and MayBMS
+\parencite{huang-2009-maybms} as systems. Boolean lineage and provenance
+semirings\index{provenance semiring} \parencite{green-karvounarakis-tannen-2007}
+already record how tuples contribute to an answer; once a truth profile and a
+construction law are fixed, every query probability in this chapter is an instance
+of probabilistic\index{probabilistic database} inference over such lineage, and the
+fact that the uncertainty originates in a compact representation rather than in the
+data does not evade that prior art. Conditioning probabilistic databases
+\parencite{koch-olteanu-2008} and dissociation bounds for repeated sources
+\parencite{gatterbauer-suciu-2014} are the established tools for the two
+situations \Cref{sec:query-contracts} touches. The contracts themselves are
+elementary consequences of monotone certificates (sensitivity equals certificate
+complexity for monotone functions, \textcite{nisan-1991}; sensitivity-based noise
+bounds, \textcite{gopalan-et-al-2016}). Constraint repair is the subject of
+consistent query answering \parencite{bertossi-2011}. Approximating a relation with
+a Bloom filter \parencite{bloomfilter} in query processing goes back at least to
+Bloom-filter semijoins \parencite{mullin-1990}, and the similarity join combines
+MinHash \parencite{broder-1997} with locality-sensitive hashing
+\parencite{indyk-motwani-1998}, systematized as a set-similarity operator by
+\textcite{sarawagi-kirpal-2004}.
 
-\paragraph{The classical relational model.}
-The model of a relation as a subset of a Cartesian product, and the operators the
-chapter approximates, originate with \textcite{codd-1970}, the foundation of the
-relational-database tradition. The chapter borrows the operators wholesale; the
-only additions are the approximate lift and its rate analysis.
+\paragraph{What this chapter adds.}
+The chapter is a re-synchronized presentation of \textcite{towell-bernoulli-relations},
+revised in October 2026 after an audit retracted several earlier claims. It contributes
+explicit source semantics in the book's notation, audited operator and invariant
+formulas, the separation of marginal rates from shared-source dependence, and a
+reproducible calibration study whose finding (tuple-sized sources at $0.05$ give a
+boundary-profile query error near $0.33$; calibrated sizing restores about $0.05$)
+is a design lesson rather than a new theorem. A targeted search did not locate the
+identical query-calibration formulation, which does not establish originality.
 
-\paragraph{Probabilistic and uncertain databases.}
-A separate tradition also attaches uncertainty to relational data.
-\textcite{suciu-2011} survey probabilistic databases, which assign each tuple a
-probability of belonging to the relation and answer queries over the induced
-distribution of possible worlds; the systems Trio \parencite{widom-2005-trio} and
-MayBMS \parencite{huang-2009-maybms} implement the model. The approximate relation
-here is a different object. Its uncertainty is not a probability that a stored
-fact is true but a per-query error rate of a fixed approximate structure: the
-relation is exact and known, and the randomness lives in the membership test,
-with the rates $\fprate$ and $\fnrate$ describing how a Bernoulli trial reports a
-definite truth. Possible-worlds semantics ask which tuples are probably present;
-the approximate-relation semantics ask, for a given tuple, how reliably its
-membership comes back. The two are complementary rather than competing, one
-modeling uncertain data tested exactly, the other certain data tested
-approximately.
-
-\paragraph{Similarity-join algorithms.}
-The algorithmic instance of \Cref{sec:approximate-joins} combines
-\textcite{broder-1997}'s MinHash with \textcite{indyk-motwani-1998}'s
-locality-sensitive hashing, systematized as a database operator for
-set-similarity joins by \textcite{sarawagi-kirpal-2004}; the many later variants
-(prefix, positional, and length filtering) are each an alternative
-implementation of the same approximate relation $\tilde S_\theta$, with rates by
-the same chapter-12 machinery. \Cref{thm:join-rates} commits to no particular
-sketch: the chapter-10 MinHash bound is used only because the book already
-developed it, and the Bloom equijoin of \Cref{rem:bloom-equijoin} is another
-instance with different per-pair rates.
+\paragraph{Left out.}
+Negation, aggregates, adaptive query selection, approximate attribute comparisons,
+weighted model counting beyond the path and cycle class, construction-specific
+guarantees for concrete hash families, and any confidentiality claim (see the scope remark in \Cref{sec:ch12-bridge}).

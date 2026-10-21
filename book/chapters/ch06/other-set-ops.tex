@@ -17,7 +17,7 @@
 
 The union of \Cref{sec:union-of-sets} lifts the OR gate to sets; the
 remaining Boolean operations lift the same way. Each composed predicate is a
-Boolean combination of the operand predicates, and its rates follow from the
+Boolean combination of the operand predicates\index{AND gate}, and its rates follow from the
 gate analysis of \Cref{ch:boolean-algebra} and cross-set independence. The
 recurring structure of \Cref{prop:union-fpr-fnr} persists: one rate is a
 clean product over a homogeneous truth-region, the other is a
@@ -29,7 +29,7 @@ partition-weighted sum over regions where the operands play different roles.
 \label{def:intersection-of-sets}
 For $\ASet{A}, \ASet{B}$ over $\Universe$, the \emph{intersection}
 $\ASet{A} \cap \ASet{B}$ has predicate $(\ASet{A} \cap \ASet{B})(x) =
-\ASet{A}(x) \land \ASet{B}(x)$, approximating $A \cap B$.
+\ASet{A}(x) \land \ASet{B}(x)$, approximating $A \cap B$\index{intersection}.
 \end{definition}
 
 \begin{proposition}[Intersection rate formulas]
@@ -56,8 +56,8 @@ false-positive rate
 \begin{proof}
 For $x \in A \cap B$, the intersection reports $\bot$ (a false negative) iff
 at least one operand misses; the complementary joint event factors by
-independence, giving \eqref{eq:intersection-fnr}, the De~Morgan dual of the
-union FPR \eqref{eq:union-fpr}. A false positive needs both operands to
+independence, giving \eqref{eq:intersection-fnr}, the De~Morgan
+dual\index{De Morgan duality} of the union FPR \eqref{eq:union-fpr}. A false positive needs both operands to
 report $\top$ at an $x \notin A \cap B$, and the per-region probability
 depends on the operands' truth there: on $A \setminus B$ the first correctly
 accepts a member while the second false-positives, $(1 - \fnrate_A)\fprate_B$;
@@ -86,7 +86,7 @@ negative survives only if every filter false-positives.
 
 \begin{definition}[Complement of an approximate set]
 \label{def:complement-of-set}
-The \emph{complement} $\complement \ASet{A}$ has predicate
+The \emph{complement}\index{complement} $\complement \ASet{A}$ has predicate
 $(\complement \ASet{A})(x) = \lnot \ASet{A}(x)$, approximating
 $\complement A = \Universe \setminus A$.
 \end{definition}
@@ -108,7 +108,7 @@ at rate $\fnrate_A$. A false negative is $x \notin A$ with $\ASet{A}(x) =
 \top$, a false positive of $\ASet{A}$ at rate $\fprate_A$. The rates swap.
 \end{proof}
 
-This is the set-level reading of NOT-under-noise from \Cref{sec:or-not}.
+This is the set-level reading of NOT-under-noise\index{NOT gate} from \Cref{sec:or-not}.
 Complement is an involution exchanging the two coordinate axes of the rate
 plane; unlike intersection and difference, it needs no partition, because NOT
 acts pointwise and reclassifies every element by the same rule.
@@ -117,7 +117,7 @@ acts pointwise and reclassifies every element by the same rule.
 
 \begin{definition}[Difference of approximate sets]
 \label{def:difference-of-sets}
-The \emph{difference} $\ASet{A} \setminus \ASet{B} = \ASet{A} \cap
+The \emph{difference}\index{difference (set)} $\ASet{A} \setminus \ASet{B} = \ASet{A} \cap
 \complement \ASet{B}$ has predicate $\ASet{A}(x) \land \lnot \ASet{B}(x)$,
 approximating $A \setminus B = A \cap \complement B$.
 \end{definition}
@@ -191,10 +191,10 @@ false-negative machine, moved from the horizontal axis to the vertical one.
 with $\fnrate_B = 0$ would suggest $\fprate_\setminus = 0$; but that is only
 the $w_3$ term of \eqref{eq:difference-fpr}. The dominant $w_2$ term survives,
 \[
-  \fprate_\setminus \;\approx\; \fprate_A (1 - \fprate_B)
-                    \;=\; 0.01 \times 0.98 \;=\; 0.0098,
+  \fprate_\setminus \approx \fprate_A (1 - \fprate_B)
+                    = 0.01 \times 0.98 = 0.0098,
   \qquad
-  \fnrate_\setminus \;=\; 1 - (1 - 0)(1 - 0.02) \;=\; 0.02.
+  \fnrate_\setminus = 1 - (1 - 0)(1 - 0.02) = 0.02.
 \]
 The difference of two FNR-zero Bloom filters is \emph{two-sided}, at
 approximately $(0.0098, 0.02)$, not the FPR-zero point $(0, 0.02)$ the bare
@@ -206,12 +206,17 @@ $\approx \fprate_A$). This two-sidedness is the cancellation phenomenon
 
 \subsection*{A caveat on bit-AND of Bloom filters}
 
-\Cref{def:intersection-of-sets} is a predicate operation: query both filters,
-AND the verdicts, and \Cref{prop:intersection-fpr-fnr} governs it. The
-operational shortcut of bit-wise AND of two bit arrays is a different
-construction. On items inserted into both sets the bit-AND query matches the
-predicate AND, but on items inserted into one set only it can still report
-$\top$ when both AND'd bits happen to be set (one legitimate, one a
-coincidental collision), so the bit-AND is not in general a Bloom filter for
-$A \cap B$. We treat intersection at the predicate level and do not rely on
-bit-AND in the rate analyses; the chapter notebook measures the discrepancy.
+\Cref{def:intersection-of-sets} is a predicate operation: query both filters
+and AND the verdicts. For two Bloom filters of equal length built with the
+same hash family, the bitwise AND of the two arrays answers every query
+exactly as the predicate AND does, since all $k$ probed bits are set in the
+AND array iff they are set in both arrays. It is nevertheless not a Bloom
+filter for $A \cap B$: a bit set in one array by an element of $A \setminus
+B$ and in the other by an element of $B \setminus A$ survives the AND, so the
+AND array contains, and is generally fuller than, the array that inserting
+$A \cap B$ directly would produce, and its false-positive rate is
+correspondingly higher. The shared hash family also violates the cross-set
+independence that \Cref{prop:intersection-fpr-fnr} assumes
+(\Cref{rem:cross-set-independence}), so the proposition describes
+independently hashed operands, not the bitwise construction; the chapter
+notebook measures the discrepancy.

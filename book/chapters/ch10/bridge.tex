@@ -9,13 +9,14 @@
 \section{Bridge}
 \label{sec:ch10-bridge}
 
-Three sketches, one skeleton, differing in output type and channel shape.
-CountMin (\Cref{sec:countmin}) is the frequency sketch: $T = \mathbb{N}$,
+Three sketches\index{sketch}, one skeleton, differing in output type and
+channel shape. CountMin\index{Count-Min sketch} (\Cref{sec:countmin}) is the
+frequency sketch: $T = \mathbb{N}$,
 one-sided, an upper-triangular $Q$ with tail $\Prob{\hat f_a \ge f_a + \epsilon
-F} \le \delta$ (\Cref{thm:countmin-bound}). HyperLogLog (\Cref{sec:hyperloglog})
+F} \le \delta$ (\Cref{thm:countmin-bound}). HyperLogLog\index{HyperLogLog} (\Cref{sec:hyperloglog})
 is the cardinality sketch: $T = \mathbb{N}$, two-sided and log-normal, with
 relative error $1.04/\sqrt{m}$ (\Cref{prop:hyperloglog-error}) setting the band
-width. MinHash (\Cref{sec:minhash-lsh}) is the similarity sketch: $T = [0,1]$,
+width. MinHash\index{MinHash} (\Cref{sec:minhash-lsh}) is the similarity sketch: $T = [0,1]$,
 binomial rows, Hoeffding-controlled at signature length $k$
 (\Cref{prop:minhash-error}). Each comes with a construction, a row-by-row error
 bound on $Q$, and a merge rule.
@@ -25,14 +26,17 @@ Merging CountMin tables is entry-wise \emph{addition}, HyperLogLog registers
 entry-wise \emph{maximum}, MinHash signatures (forming the union signature)
 entry-wise \emph{minimum}; each is associative, commutative, and has an identity
 (the zero table, the zero register bank, the all-$\infty$ signature), and each
-respects the \Cref{thm:n-ary-kronecker} channel structure. The merge rule is
-dictated by the algebra of the underlying $\Bernoulli{T}$ type, which
-\Cref{ch:algebra-types} treats systematically, showing the three sketches to be
-instances of the product, sum, and list constructors rather than ad hoc
-designs. Before that, \Cref{ch:randomized-algorithms} turns from streaming
-summaries to randomized algorithms, where a one-sided Monte Carlo procedure is a
-$\Bernoulli{\{\text{accept}, \text{reject}\}}$ instance and amplification by
-repetition is composition of one channel with itself, and
-\Cref{ch:approximate-relations} lifts the framework from functions to relations
-for join and multi-attribute queries. The three threads converge in
-\Cref{ch:algebra-types}, the close of Part~III.
+merge of sketches built with shared hashes equals the sketch of the combined
+input. That is the \emph{mergeability}\index{mergeable summary} property studied systematically by
+\textcite{agarwal-et-al-2013}. It is a property of each construction, a
+commutative monoid on summaries, and it does not follow from the channel
+reading: the channel describes one query's error, while a merge acts on the
+stored summary. \Cref{ch:algebra-types} places the sketches in the same type
+vocabulary as the rest of Part~III without deriving their merge rules from it.
+Before that, \Cref{ch:randomized-algorithms} turns from streaming summaries to
+randomized algorithms, where a one-sided Monte Carlo
+procedure\index{Monte Carlo algorithm} is a
+$\Bernoulli{\{\text{accept}, \text{reject}\}}$ value and amplification by
+repetition is independent runs on one input followed by an aggregator (AND, OR,
+or majority), and \Cref{ch:approximate-relations} lifts the framework from
+functions to relations for join and multi-attribute queries.

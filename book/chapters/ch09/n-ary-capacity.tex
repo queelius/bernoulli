@@ -23,14 +23,14 @@ a single closed form except for a symmetric sub-family.
 
 For an n-ary channel (\Cref{def:n-ary-channel}), an input distribution $P_X$ on
 the $K$ blocks induces $P_Y(j) = \sum_{i} P_X(B_i) Q_{ij}$, and the capacity
-\eqref{eq:capacity-def} is
+\eqref{eq:capacity-def}\index{channel capacity} is
 \begin{equation}
 \label{eq:n-ary-capacity-def}
   C \;=\; \max_{P_X}\, \bigl[ H(Y) - H(Y \mid X) \bigr],
   \qquad H(Y \mid X) = \sum_{i=1}^{K} P_X(B_i)\, H(Q_{i\,\cdot}),
 \end{equation}
 the same object as the BSC's, now over the $(K-1)$-simplex rather than the
-interval $[0,1]$. The mutual information is concave in $P_X$, so the maximum
+interval $[0,1]$. The mutual information\index{mutual information} is concave in $P_X$, so the maximum
 exists, but the maximizer satisfies implicit stationarity conditions with no
 closed form in general. The \emph{Blahut--Arimoto} algorithm, an alternating
 fixed-point iteration over $P_X$ and the posterior $\Prob{X \mid Y}$, converges
@@ -108,8 +108,10 @@ row entropy is
   \approx 0.137 + 0.490 = 0.627 \text{ bits,}
 \]
 so $C = 2 - 0.627 \approx 1.373$ bits per use, well below the noiseless ceiling
-of $2$ and well above the BSC's $0.531$ at the same per-symbol error $0.1$. The
-gap to the ceiling shrinks as $L$ grows at fixed $p_e$: the error mass spreads
-more thinly and the row entropy grows sublinearly. \Cref{sec:bridge-to-sketches}
-previews how concrete sketches, each an n-ary channel with its own $Q$ and its
-own symmetry, instantiate the framework.
+of $2$ and well above the BSC's $0.531$ at the same per-symbol error $0.1$. As
+$L$ grows at fixed $p_e$ the error mass spreads more thinly over the wrong
+outputs. In absolute terms the gap $H(\mathbf{r}) = H(p_e) + p_e
+\log_2(L-1)$ (with $H(p_e)$ the binary entropy) grows with $L$, but only logarithmically, so the relative capacity
+$C/\log_2 L$ tends to $1 - p_e$. \Cref{sec:bridge-to-sketches}
+previews how concrete sketches can each be read as an n-ary channel with its
+own $Q$ and its own symmetry.

@@ -1,100 +1,121 @@
 % §17.6 Maximizing Confidentiality
 %
-% Monograph register: confidentiality as the 1-PPV posterior; the ch7 PPV
-% formula IS the confidentiality formula; trading rate-budget for
-% confidentiality on the perfect-filter line; worked example. Tightened.
-% Folds salvaged ex-11 as rem:confidentiality-bits (information-theoretic
-% leakage L = H(pi) - E[H(posterior)] in bits/query, complementing
-% C = 1 - PPV). Cross-refs def:perfect-filter-line, def:ppv, def:npv,
-% def:cipher-map, sec:trapdoor-paradigm, sec:fhe-sidebar. DEFINED:
-% sec:maximizing-confidentiality, rem:confidentiality-bits.
+% Monograph register: one confidentiality measure, stated with its
+% observation model: an observer who sees the plaintext result bit of a
+% query (as in a keyed-filter secure index) and knows the prior. Under that
+% model the posterior is the ch7 PPV and C = 1 - PPV is the false-positive
+% cover. REVISED 2026-10: the earlier draft called C a general
+% confidentiality measure and put FHE at C = 0; FHE never shows the result
+% to the server, so it is outside this observation model. The measure
+% ignores query repetition, access patterns, and multiple instances; the
+% multi-instance decay is stated (cf. prop:multi-query-leakage, ch18).
+% Folds rem:confidentiality-bits (mutual information of the result bit).
+% Cross-refs def:perfect-filter-line, def:ppv, def:npv, def:cipher-map,
+% sec:trapdoor-paradigm, sec:fhe-sidebar, prop:multi-query-leakage.
+% DEFINED: sec:maximizing-confidentiality, rem:confidentiality-bits.
 
 \section{Maximizing Confidentiality}
 \label{sec:maximizing-confidentiality}
 
-\Cref{sec:trapdoor-paradigm} named a duality the framework has not yet
-quantified: the cipher-map rates $\fprate$ and $\fnrate$ govern both
-correctness and confidentiality. Looser rates make the server's output
-less faithful to $f$ but also less informative to an adversary inspecting
-it. The earlier sections treated correctness; this one treats
-confidentiality, and the question is concrete: given a cipher map at fixed
-$(\fprate, \fnrate)$ on a workload of known prevalence $\pi$, how much
-does the output reveal about the plaintext? The chapter 7 PPV machinery
-answers it with no further apparatus.
+\Cref{sec:trapdoor-paradigm} separated two things the error rates do: they
+set the client's correctness, and they give reported positives a cover of
+plausible deniability. This section quantifies the cover. It does so
+under one explicit observation model, and the model's limits are part of
+the result.
 
-\subsection*{Confidentiality is a posterior}
+\subsection*{The observation model}
 
-An adversary watching the server's outputs faces a posterior-inference
-problem: each output is a noisy report about the plaintext, and Bayes'
-rule combines it with prior knowledge. For a single Boolean query the
-target is
+The observer is an honest-but-curious server that sees the
+\emph{plaintext result bit} of each membership query, as it does in a
+keyed-filter secure index, but not the queried item, and that knows the
+workload's prevalence $\pi$, the probability that a queried item is a
+member. The question is what one reported $\top$ tells it about whether
+the queried item is a member. The model leaves out everything the rates
+do not govern: whether two queries were equal, which positions they
+touched, how many results came back, and whether the same item can be
+tested against several independently keyed structures. Each of those is a
+separate leakage channel with its own literature
+\parencite{curtmola-et-al-2006,cash-et-al-2015,kamara-moataz-ohrimenko-2018}.
+FHE falls outside the model altogether: its server never sees the result
+bit, which is how it achieves its stronger guarantee.
+
+\subsection*{The cover is a posterior}
+
+For a single Boolean query the observer's target is
 \[
   \Pr\bigl[\,x \in A \;\big\vert\; \tilde f(x) = \top\,\bigr],
 \]
 the probability that a reported $\top$ identifies a genuine member rather
 than a false positive. Close to $1$, the report has pinned membership
-down; close to the prior $\pi$, it has revealed nothing. The
-confidentiality is the gap, which we take to be
+down; close to the prior $\pi$, it has revealed nothing. We measure the
+cover by
 \[
   C \;=\; 1 - \PPV,
 \]
-the share of $\top$-reports that are false positives. Confidentiality is
-high when most $\top$-reports do not identify members and zero in the FHE
-limit, where every report is correct and membership is fully exposed.
-
-The posterior is exactly the positive predictive value of
-\Cref{def:ppv}. Reading the chapter 7 formula in the cipher-map setting,
+the share of $\top$-reports that are false positives. By the positive
+predictive value\index{positive predictive value} of \Cref{def:ppv},
 \[
   \PPV = \frac{\pi(1 - \fnrate)}{\pi(1 - \fnrate) + (1 - \pi)\fprate},
   \qquad
-  C = 1 - \PPV = \frac{(1 - \pi)\fprate}{\pi(1 - \fnrate) + (1 - \pi)\fprate},
+  C = \frac{(1 - \pi)\fprate}{\pi(1 - \fnrate) + (1 - \pi)\fprate},
 \]
 the numerator $\pi(1-\fnrate)$ the rate of correct $\top$ on a member,
-$(1-\pi)\fprate$ the rate of spurious $\top$ on a non-member, $C$ the
-share that protects the plaintext. Zero false positives gives $C = 0$; an
+$(1-\pi)\fprate$ the rate of spurious $\top$ on a non-member. Zero false
+positives gives $C = 0$, a report that exposes membership completely; an
 unconditional $\top$ gives $C = 1 - \pi$. The negative case mirrors it,
-the confidentiality of a $\bot$-report being $1 - \NPV$ (\Cref{def:npv}),
-though in typical encrypted search $\pi$ is small and the $\top$-side
-ambiguity dominates.
+the cover of a $\bot$-report being $1 - \NPV$ (\Cref{def:npv}), though in
+typical encrypted search $\pi$ is small and the $\top$ side dominates.
+That false positives provide this kind of deniability is a standard
+observation about filter-based indexes \parencite{goh-2003}; the formula
+is the chapter 7 posterior read with the observer in mind.
 
-The $C = 1 - \PPV$ measure is the per-report complement; the
-information-theoretic complement, in bits, is also available.
-
-\begin{remark}[Confidentiality in bits per query]
+\begin{remark}[The cover in bits per query]
 \label{rem:confidentiality-bits}
-Model the adversary's per-query posterior as Bernoulli at $\PPV$ for a
-$\top$-report and at $1 - \NPV$ for a $\bot$-report. The leakage is the
-mutual information between the plaintext bit and the report,
-\[
-  L \;=\; H(\pi) - \mathbb{E}_{\text{report}}\!\left[H(\text{posterior})\right]
+Under the same observation model the leakage of one result bit is the
+mutual information\index{mutual information} between membership and the report,
+\begin{multline*}
+  L \;=\; H(\pi) - \mathbb{E}_{\text{report}}\!\left[H(\text{posterior})\right] \\
   \;=\; H(\pi) - \bigl[\Pr(\top)\,H(\PPV) + \Pr(\bot)\,H(1 - \NPV)\bigr],
-\]
+\end{multline*}
 with $H$ the binary entropy and $\Pr(\top) = \pi(1-\fnrate) +
-(1-\pi)\fprate$. In the FHE limit $\fprate = \fnrate = 0$ the posteriors
-are deterministic, $L = H(\pi)$, the full prior entropy leaks. A cipher
-map with positive rates leaks a fraction of $H(\pi)$ per query, the
-information-theoretic counterpart of the $C = 1 - \PPV$ posterior, and the
-chapter 8 entropy machinery measures that fraction directly.
+(1-\pi)\fprate$. An exact result bit ($\fprate = \fnrate = 0$) has
+deterministic posteriors and $L = H(\pi)$: the full prior entropy leaks.
+A map with positive rates leaks a fraction of $H(\pi)$ per result bit,
+the information-theoretic counterpart of $C$.
 \end{remark}
 
-\subsection*{Trading rate-budget for confidentiality}
+\subsection*{The cover does not survive independent instances}
 
-On the perfect-filter line of \Cref{def:perfect-filter-line} the designer
-faces a one-dimensional trade-off. An $\fnrate = 0$ map sits on the
+The measure is for one structure. If the observer can test the same item
+against $t$ independently keyed structures over the same set (rebuilds
+under fresh keys, replicas, or published releases), a member reports
+$\top$ in all of them while a non-member does so in each independently
+with probability $\fprate$, so at $\fnrate = 0$
+\[
+  C_t \;=\; \frac{(1 - \pi)\fprate^{\,t}}{\pi + (1 - \pi)\fprate^{\,t}}
+  \;\le\; \frac{1 - \pi}{\pi}\,\fprate^{\,t},
+\]
+which decays geometrically in $t$. This is the coincidence attack in its
+simplest form\index{coincidence attack}, and it is why key rotation helps
+only when old structures are not available to the observer
+(\Cref{prop:multi-query-leakage} states the general version). Repeating a
+query against one structure, by contrast, returns the same frozen answer
+and adds nothing about that item.
+
+\subsection*{Trading rate budget for cover}
+
+On the perfect-filter line of \Cref{def:perfect-filter-line} the
+trade-off has a single parameter. An $\fnrate = 0$ map sits on the
 $\fprate$-axis, and raising $\fprate$ raises $(1-\pi)\fprate$ and so
-raises $C$ monotonically. Walking the line away from the origin trades
-correctness for confidentiality. The trade is not free in the convenient
-direction: chapter 5's space formula makes storage a decreasing function
-of $\fprate$, so \emph{lower-storage cipher maps are more confidential},
-one of the framework's small surprises, following entirely from the
-chapter 7 posterior with no cryptographic argument. Storage couples to
-accuracy through the chapter 8 entropy bound and accuracy to
-confidentiality through the chapter 7 posterior, so one parameter sets
-three coupled costs. Maximizing $C$ in the abstract is degenerate (walk
-to $\fprate = 1$, $C = 1 - \pi$, the map useless), so the real problem
-constrains the operational error: maximize $C$ subject to $\fprate \le
-\fprate^*$ for an application-imposed cap, the optimum being the cap
-itself.
+raises $C$ monotonically, while chapter 5's space formula makes storage a
+decreasing function of $\fprate$: under this observation model, smaller
+filters give more cover. Storage couples to accuracy through the chapter 8
+bound and accuracy to cover through the chapter 7 posterior, so one
+parameter sets three coupled quantities. Maximizing $C$ in the abstract is
+degenerate (walk to $\fprate = 1$, $C = 1 - \pi$, the map useless), so the
+real problem constrains the operational error: maximize $C$ subject to
+$\fprate \le \fprate^*$ for an application-imposed cap, the optimum being
+the cap itself.
 
 \subsection*{A worked example}
 
@@ -105,17 +126,15 @@ The PPV formula gives
   \approx 0.168,
   \qquad C \approx 0.832.
 \]
-When the server reports $x \in A$, the adversary's posterior assigns about
-$16.8\%$ to genuine membership and $83.2\%$ to a false positive; one query
-leaves the question far from settled. The FHE baseline reports with zero
-error, $\PPV = 1$, $C = 0$: every report is correct and fully revealing.
-The contrast is stark, the cipher map paying a $5\%$ false-positive rate
-for an $83\%$ confidentiality margin, FHE paying a $10^4\times$ space and
-$10^9\times$ time overhead for a zero margin. The example also shows the
-workload dependence: holding $(\fprate, \fnrate) = (0.05, 0)$ but moving
-to a balanced workload $\pi = 0.5$ gives $\PPV = 0.5/0.525 \approx 0.952$
-and $C \approx 0.048$. The same map is confidential on a rare-positive
-workload and revealing on a balanced one. The framework keeps the
-parameters separate: the map carries $(\fprate, \fnrate)$, the workload
-carries $\pi$, and $C(\fprate, \fnrate, \pi)$ is one function the designer
-plots and reads. Chapter 7 did the algebra; chapter 17 inherits it.
+When the server sees a $\top$, its posterior assigns about $16.8\%$ to
+genuine membership and $83.2\%$ to a false positive; one report leaves
+the question far from settled. Two independently keyed instances already
+give $C_2 \approx 0.198$ by the formula above, and three give $C_3 \approx
+0.012$. The example also shows the workload
+dependence: holding $(\fprate, \fnrate) = (0.05, 0)$ but moving to a
+balanced workload $\pi = 0.5$ gives $\PPV = 0.5/0.525 \approx 0.952$ and
+$C \approx 0.048$. The same map gives good cover on a rare-positive
+workload and little on a balanced one. The parameters stay separate: the
+map carries $(\fprate, \fnrate)$, the workload carries $\pi$, the
+deployment carries the number of instances $t$, and $C$ is a function of
+all four.

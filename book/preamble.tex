@@ -1,22 +1,77 @@
 % amsthm must come before alex.sty (which calls \theoremstyle)
 \usepackage{amsthm}
 
+% Index. imakeidx must precede hyperref so index page numbers become links.
+% The Makefile runs makeindex explicitly (noautomatic), so the build does not
+% depend on shell escape.
+\usepackage{imakeidx}
+\makeindex[intoc,columns=2,noautomatic,options={-s book.ist}]
+
+% Figures (TikZ; simple line drawings only, no external files).
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
 % Hyperlinks: must come before alex.sty because alex.sty loads cleveref,
 % and cleveref must be loaded after hyperref.
 \usepackage[hidelinks,colorlinks=false]{hyperref}
+\hypersetup{
+  pdftitle={Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation},
+  pdfauthor={Alexander Towell},
+  pdfsubject={Research monograph: two-sided error in approximate membership, retrieval, and computation},
+  pdfkeywords={approximate membership, two-sided error, false positive rate, false negative rate,
+    Bloom filter, retrieval, perfect hash filter, binary channel, randomized response,
+    error propagation, approximate types},
+  pdfcreator={pdfLaTeX},
+  pdflang={en-US}
+}
 
 % Notation package (unified macros: ASet, Set, fprate, fnrate, etc.)
 % alex.sty loads algorithm2e and cleveref internally.
 % Do not also load algorithm/algpseudocode or a second cleveref.
 \usepackage[fancy,section]{alex}
 
+% Number remarks and examples so that cross-references resolve to them.
+% alex.sty defines remark as unnumbered and examples on one book-wide counter;
+% both are adjusted here (book only) without touching the shared alex.sty.
+\newtheorem{remarkn}{Remark}[section]
+\crefname{remarkn}{remark}{remarks}
+\Crefname{remarkn}{Remark}{Remarks}
+\renewenvironment{remark}
+  {\pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}\remarkn}
+  {\popQED\endremarkn}
+\counterwithin{examplecounter}{chapter}
+\crefname{examplecounter}{example}{examples}
+\Crefname{examplecounter}{Example}{Examples}
+
 % Bibliography
-\usepackage[backend=biber,style=alphabetic]{biblatex}
+\usepackage[backend=biber,style=alphabetic,maxbibnames=99,giveninits=false,
+  doi=true,url=true,isbn=false,eprint=true]{biblatex}
 \addbibresource{references.bib}
+% Let long URLs and DOIs break at any character in the bibliography.
+\setcounter{biburlnumpenalty}{100}
+\setcounter{biburlucpenalty}{100}
+\setcounter{biburllcpenalty}{100}
+\renewcommand*{\bibfont}{\small\raggedright}
+% Show a URL only when the entry has no DOI.
+\DeclareSourcemap{
+  \maps[datatype=bibtex]{
+    \map[overwrite]{
+      \step[fieldsource=doi,final]
+      \step[fieldset=url,null]
+    }
+  }
+}
 
 % Better captions and floats
 \usepackage{caption}
 \usepackage{float}
+
+% Tables for the appendices (notation table spans pages).
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
 
 % Code listings (alex.sty also loads listings; this just adds our default settings)
 \lstset{

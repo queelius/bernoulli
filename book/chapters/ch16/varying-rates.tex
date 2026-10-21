@@ -17,7 +17,7 @@
 \section{Varying Rates Over Time}
 \label{sec:varying-rates}
 
-The first failure mode is the most common in practice. The error rate is
+The first failure mode is the most common in practice.\index{varying rates} The error rate is
 not a fixed property of the channel; it changes with the query index.
 Where the earlier chapters wrote $\fprate$ as a scalar, this section
 writes $\fprate(t)$ and asks what happens to the iid analysis when the
@@ -29,12 +29,14 @@ Three examples recur through the chapter. A \emph{drifting classifier},
 trained on one distribution and deployed on another, sees its per-query
 false-positive rate climb as the deployment distribution moves away from
 the training one, from $\fprate(t) \approx 0.02$ early to $0.15$ months
-later. A \emph{Bloom filter past capacity}, sized for $n = 1000$ at
-$\fprate \approx 0.01$ but loaded with $5000$ items, watches its fill
-ratio rise from $30\%$ toward $100\%$ and its false-positive rate climb
-from $0.01$ to about $0.5$, following $\fprate(t) \approx (1 -
-e^{-kt/m})^k$ from \Cref{sec:bloom-from-scratch} with $t$ the insertion
-count at query time. A \emph{drifting sensor} sees its error rate track
+later. A \emph{Bloom filter past capacity}\index{Bloom filter!false-positive rate}, sized for $n = 1000$ at
+$\fprate \approx 0.01$ ($m = 9585$ bits, $k = 7$) but loaded with $5000$
+items, watches its fill ratio rise from about $52\%$ at the design load
+to about $97\%$ and its false-positive rate climb from $0.01$ to about
+$0.83$, following $\fprate(t) \approx (1 - e^{-kt/m})^k$ from
+\Cref{sec:bloom-from-scratch} with $t$ the insertion count at query time
+(at $t = 5000$, $1 - e^{-7 \cdot 5000/9585} \approx 0.974$ and $0.974^7
+\approx 0.83$). A \emph{drifting sensor} sees its error rate track
 its operating temperature over the day. What unites the three is
 structural: the rate is a non-constant function of the query index, and
 treating it as constant produces bounds that underestimate the actual
@@ -65,10 +67,16 @@ exceed it. The \emph{PPV formula of chapter 7} ($\PPV = \pi \tprate /
 \Cref{sec:where-framework-helps} salvage) but the time-average PPV need
 not equal the PPV at the time-average rates, because PPV is nonlinear in
 its arguments. The \emph{Chernoff bound of chapter 11}
-(\Cref{thm:chernoff}) assumed iid Bernoulli summands; with varying
-$\fprate(t)$ the $X_t$ are independent but not identically distributed,
-and the multiplicative form that relied on a single $p$ no longer applies
-directly. Its martingale generalization does.
+(\Cref{thm:chernoff}) was stated for iid summands with a single $p$. A
+deterministic drift alone is not fatal to it: the multiplicative form
+extends to independent summands with different means, centered at $\mu =
+\sum_t \fprate(t)$ \parencite{mitzenmacher-upfal}. What breaks it is
+dependence through shared state. In the over-filled filter the rate at
+query $t$ is set by the bits actually set so far, a random quantity
+shared by every later query, so the false-positive indicators are not
+independent; a drifting classifier's rate likewise depends on the path
+the deployment took. The martingale generalization handles exactly this
+case.
 
 \begin{remark}[Independent random rates leave composition unbiased]
 \label{rem:composition-unbiased}
@@ -88,7 +96,7 @@ where the sign of the bias follows the sign of the correlation.
 
 \subsection*{The right tool: martingale concentration}
 
-The Azuma-Hoeffding inequality replaces the Chernoff bound off the iid
+The Azuma-Hoeffding inequality\index{martingale concentration} replaces the Chernoff bound off the iid
 path. Where Chernoff bounded sums of iid Bernoulli variables,
 Azuma-Hoeffding bounds martingale differences that are bounded in size
 but otherwise unrestricted in distribution.
@@ -124,23 +132,29 @@ of width $O(\sqrt{n})$ even when $\fprate(t)$ is not constant.
 
 \subsection*{Worked example: Bloom filter past capacity}
 
-Take the over-filled filter above, queried $n = 1000$ times after the
-fill with non-member inputs, the per-query rate having grown from $0.01$
-to $0.5$ along the way. Treating the rate as a constant $\bar\fprate
-\approx 0.25$ and applying the iid Chernoff bound to the expected count
-$250$ gives $\Pr[X \ge 275] \le e^{-0.83} \approx 0.44$, a useless bound,
-because the constant-rate premise is wrong: its midpoint mean $0.25 \cdot
-1000 = 250$ overstates the honest trajectory sum $\sum_t \fprate(t)
-\approx 230$ (the convex Bloom-fill curve spends most of its queries at
-low rates), so the bound is centered on the wrong count to begin with.
-The Azuma-Hoeffding bound assumes no constant rate: with $c_t = 1$,
+Take the over-filled filter above, with insertions continuing from
+$1000$ to $5000$ items and $1000$ non-member queries spread evenly over
+that period, one after every fourth insertion. A designer who trusts the
+sizing treats every query as a draw at the design rate $0.01$ and expects
+$10$ false positives; the iid Chernoff bound around that mean puts
+probability at most $e^{-10/3} \approx 0.036$ on $20$ or more. The
+trajectory says otherwise. With the deterministic approximation of the
+rate, which passes $0.16$ at $2000$ items, $0.44$ at $3000$, $0.68$ at
+$4000$, and $0.83$ at $5000$, the expected count is $\sum_t \fprate(t)
+\approx 422$. The constant-rate model is not merely loose; it is centered
+on the wrong count by a factor of about forty. (Averaging the two endpoint
+rates happens to give $421$ here, because the fill curve is close to
+symmetric over this range, but only the trajectory computation reveals
+that.) The Azuma-Hoeffding bound assumes no constant rate: with
+$\Pr[X_t = 1 \mid \mathcal{F}_{t-1}]$ the conditional rate given the bits
+actually set when query $t$ arrives, and $c_t = 1$,
 $\Pr[|\sum_t X_t - \sum_t \fprate(t)| \ge a] \le 2 e^{-a^2/2000}$, and
 $a = 100$ gives $2 e^{-5} \approx 0.013$. The count lies within $\pm 100$
-of the honest trajectory expectation $\sum_t \fprate(t) \approx 230$ with
-probability at least $0.987$. The iid analysis fails not because its
-bound is weak but because its model (constant rate) does not match the
-channel; the martingale analysis succeeds by acknowledging the
-non-stationarity.
+of the realized trajectory sum with probability at least $0.987$, and at
+this size the realized sum tracks the deterministic approximation $422$
+closely. The iid analysis fails not because its bound is weak but because
+its model (one stable rate) does not match the channel; the martingale
+analysis succeeds by acknowledging the non-stationarity.
 
 \subsection*{Diagnostic}
 

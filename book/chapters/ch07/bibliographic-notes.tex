@@ -1,56 +1,46 @@
-% §7.6 Bibliographic Notes
+% §7.6 Notes and Lineage
 %
-% Monograph register: classification-measures manuscript, Wilson, Clopper-Pearson,
-% Jeffreys, the delta method, the prevalence question. Citations
-% towell-bernoulli-classification-measures, wilson-1927, clopper-pearson-1934,
-% casella-berger, towell-bernoulli-sets. Cross-refs sec:derived-measures,
-% sec:sampling-rates, sec:bloom-diagnostics, def:wilson-ci, def:clopper-pearson-ci,
-% def:jeffreys-ci, thm:delta-method, prop:ppv-variance, sec:bib-notes-ch1.
-% DEFINED: sec:bib-notes-ch7.
+% Monograph register: lineage of the predictive values, Youden's J, the
+% binomial intervals and their coverage studies, and the delta method; what the
+% chapter adds; what it leaves out (ROC, multi-class, the build-conditional
+% caveat). Citations youden-1950, goutte-gaussier-2005, wilson-1927,
+% clopper-pearson-1934, jeffreys-1946, agresti-coull-1998,
+% brown-cai-dasgupta-2001, casella-berger,
+% towell-bernoulli-classification-measures. DEFINED: sec:bib-notes-ch7 (kept).
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch7}
 
-\paragraph{The classification-measures manuscript.}
-The treatment of PPV, NPV, recall, and $\Fone$ as functions of $(\fprate,
-\fnrate, \pi)$, with delta-method variances and confidence intervals, follows
-\textcite{towell-bernoulli-classification-measures}, the primary source for
-\Cref{sec:derived-measures}: the predictive-value expressions, the
-prevalence-dependence diagnostic, the bivariate computation of
-\Cref{prop:ppv-variance}, and the $\Fone$ derivation are all from it. The
-chapter's addition is to connect that machinery to the Part~II approximate-set
-framework through the predicate $\ASet{A} : \Universe \to \Bernoulli{\BoolType}$
-and to work the deployed Bloom-filter diagnostic of \Cref{sec:bloom-diagnostics}.
+\paragraph{Lineage.}
+Every tool in the chapter is standard. The predictive values and their
+dependence on prevalence are the core of diagnostic-test epidemiology, where
+sensitivity and specificity play the roles of $\tprate$ and $\tnrate$, and the
+prevalence-free
+index $J = 1 - \fprate - \fnrate$ is due to \textcite{youden-1950};
+\textcite{goutte-gaussier-2005} give a probabilistic treatment of precision,
+recall, and $\Fone$ with posterior distributions. The score interval is due
+to \textcite{wilson-1927}, the exact test-inversion interval to
+\textcite{clopper-pearson-1934}, and the invariant prior behind the Jeffreys
+interval to \textcite{jeffreys-1946}. The failure of the Wald interval and
+the coverage sawtooth are documented by \textcite{agresti-coull-1998} and
+\textcite{brown-cai-dasgupta-2001}, whose recommendations the chapter
+follows; the delta method is textbook material \parencite[Ch.~5]{casella-berger}.
+The chapter's derivations follow the classification-measures manuscript
+\textcite{towell-bernoulli-classification-measures}.
 
-\paragraph{The binomial confidence intervals.}
-The interval of \Cref{def:wilson-ci} is due to \textcite{wilson-1927}, who
-inverted the score statistic, keeping $\fprate$ free in the variance and
-solving the resulting quadratic, rather than fixing $\fprate = \hat{\fprate}$
-as the Wald form does. It is the standard modern recommendation for the
-binomial proportion at small $n_0$ or near a boundary.
-\Cref{def:clopper-pearson-ci} is due to \textcite{clopper-pearson-1934}, who
-introduced test inversion in its cleanest form, taking the interval to be the
-$\fprate$ values a level-$\alpha$ binomial test fails to reject; the exact
-binomial CDF forces coverage strictly above $1 - \alpha$ at most rates, the
-over-coverage that suits safety-critical use. The Jeffreys interval of
-\Cref{def:jeffreys-ci} predates the Bayesian terminology under which it is now
-derived, and its higher-order coverage-matching property is a result in
-asymptotic inference.
+\paragraph{What this chapter adds.}
+No new statistics. The chapter places these tools inside the channel model,
+separating the two intrinsic rates of an approximate set from the
+workload-dependent measures computed from them, and works a deployed Bloom
+filter through the full chain from design rate to interval to decision
+(\Cref{sec:bloom-diagnostics}).
 
-\paragraph{The delta method.}
-The asymptotic-Normality result for smooth functions of an asymptotically
-Normal estimator (\Cref{thm:delta-method}) follows from the first-order Taylor
-expansion and Slutsky's lemma; a proof in the form used for the PPV and
-$\Fone$ derivations is in \textcite[Ch.~5]{casella-berger}, with the
-multivariate version and regularity conditions.
-
-\paragraph{The prevalence question.}
-The prevalence-dependence of PPV and NPV at fixed $(\fprate, \fnrate)$, the
-central caveat of \Cref{sec:derived-measures}, drives the medical
-diagnostic-testing literature noted in \Cref{sec:bib-notes-ch1}: a test with
-high sensitivity and specificity can still have low PPV when the condition is
-rare, because PPV is the classifier-and-workload combination, not the
-classifier alone. This chapter's contribution is to make the dependence
-explicit and to give a proper interval for any derived quantity at any
-specified prevalence.
+\paragraph{Left out.}
+Receiver-operating-characteristic analysis and threshold selection;
+multi-class confusion matrices, which chapter~9 treats as $n$-ary channels;
+and a caveat on sampling units. The binomial model treats the queries of one
+built structure as independent trials, which they are only conditionally on
+that build. An interval computed from one filter therefore estimates that
+filter's rate, not the mean rate of the construction; estimating the latter
+requires independent builds, a point chapter~16 develops under correlated
+noise.

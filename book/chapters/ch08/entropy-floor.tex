@@ -1,24 +1,29 @@
 % §8.3 The Entropy Floor for Approximate Sets
 %
-% Monograph register: the -log2(eps) bits/element floor for FNR-zero sets, with
-% the pigeonhole proof. Correctness fixes: (1) the two-sided lower bound is OPEN
-% (source rem:general_lower_bound) -- the chapter previously asserted a specific
-% "exact two-sided bound" n(1-H(omega))log2(1/eps), which is not a valid bound;
-% (2) the per-element cost grows ADDITIVELY (+log2 10 per decade), not by
-% doubling. Cross-refs sec:one-sided-two-sided, def:one-sided, def:bloom-filter,
+% Monograph register: the classical -log2(eps) bits/element floor for FNR-zero
+% sets (Carter et al. 1978), with an exact pigeonhole proof
+% L >= n log2(1/(eps + n/N)); the two-sided floor of Pagh and Rodler (2001,
+% Prop. 1), stated with credit and without proof; the constructive picture
+% (static near-optimal structures, practical retrieval-based filters, the
+% dynamic lower bound of Lovett and Porat). 2026-10 correction: the two-sided
+% case was previously called open; it is solved to leading order by Pagh and
+% Rodler. The per-element cost grows ADDITIVELY (+log2 10 per decade).
+% Cross-refs sec:one-sided-two-sided, def:one-sided, def:bloom-filter,
 % sec:bloom-gap, ch:optimal-bernoulli-sets. DEFINED: sec:entropy-floor,
-% thm:entropy-floor, eq:entropy-floor, eq:accepted-size, eq:pigeonhole.
+% thm:entropy-floor, eq:entropy-floor, eq:accepted-size, eq:pigeonhole,
+% prop:two-sided-floor.
 
 \section{The Entropy Floor for Approximate Sets}
 \label{sec:entropy-floor}
 
 The bit-budget comparison of \Cref{sec:one-sided-two-sided} placed the Bloom
 filter at roughly $9.6$ bits per item at $\fprate = 0.01$ against a floor near
-$6.64$. This section turns that contrast into a theorem: any approximate set
-with $\fnrate = 0$ and false-positive rate at most $\fprate$, in any
-representation whatever, must store at least $\log_2(1/\fprate)$ bits per
-element on average. The Bloom filter pays a constant factor above this floor;
-chapter~14 meets it.
+$6.64$. This section states that floor as a theorem, the classical counting
+bound of \textcite{carter-et-al-1978}: any approximate set with $\fnrate = 0$
+and false-positive rate at most $\fprate$, in any representation whatever,
+must store about $\log_2(1/\fprate)$ bits per element. It then gives the
+two-sided form, due to \textcite{pagh-rodler-2001}, and the constructive
+picture.
 
 \subsection*{Setup}
 
@@ -34,63 +39,66 @@ accepted. The \emph{accepted set} $A_R = \{x : \mathrm{query}(R, x) = \top\}$
 then satisfies $A \subseteq A_R$ and $|A_R \setminus A| \le \fprate(N - n)$, so
 \begin{equation}
 \label{eq:accepted-size}
-  |A_R| \;\le\; n + \fprate(N - n) \;\approx\; n + \fprate N \quad (N \gg n).
+  |A_R| \;\le\; M \;:=\; n + \fprate(N - n).
 \end{equation}
 The verdict on $x$ depends on $R$ only through which side of $A_R$ the query
 lands, so $A_R$ is the representation-independent object that does the work.
 
 \subsection*{The theorem}
 
-\begin{theorem}[Entropy floor for FNR-zero approximate sets]
+\begin{theorem}[Entropy floor for \mbox{FNR-zero} approximate sets]
 \label{thm:entropy-floor}
-Let $(R, \mathrm{query})$ be an FNR-zero representation scheme of bit length $L$
-that, for every $n$-element $A \subseteq \Universe$, produces $A_R \supseteq A$
-with $|A_R \setminus A| \le \fprate(N - n)$. Then in the regime $N \gg n$ with
-$\fprate \in (0,1)$ bounded away from $1$,
+\index{space lower bound!approximate membership}
+Suppose that an FNR-zero representation scheme $(R, \mathrm{query})$ of bit
+length $L$ produces, for every $n$-element set $A \subseteq \Universe$, an
+accepted set $A_R \supseteq A$ with $|A_R \setminus A| \le \fprate(N - n)$.
+Then
 \begin{equation}
 \label{eq:entropy-floor}
-  L \;\ge\; n \log_2(1/\fprate) - o(n),
-  \qquad\text{equivalently}\qquad
-  L/n \;\ge\; -\log_2 \fprate + o(1).
+  L \;\ge\; n \log_2 \frac{1}{\fprate + n/N},
+  \qquad\text{so}\qquad
+  \frac{L}{n} \;\ge\; \log_2 \frac{1}{\fprate} - o(1)
+  \quad\text{as } \frac{n}{\fprate N} \to 0.
 \end{equation}
 \end{theorem}
 
 \begin{proof}
-The argument is a pigeonhole count. Fix the accepted set $A_R$ of a
-representation $R$. By FNR-zero $A \subseteq A_R$, and by
-\eqref{eq:accepted-size} $|A_R| \le n + \fprate N$, so the true set is some
-$n$-subset of $A_R$: any of $\binom{|A_R|}{n}$ choices is consistent with what
-$R$ reports. The algorithm cannot distinguish among them, so $R$ describes an
-equivalence class of that size, not a single $A$. Every one of the
-$\binom{N}{n}$ possible target sets needs some $R \in \{0,1\}^L$ whose accepted
-set contains it, and there are at most $2^L$ strings, each covering at most
-$\max_{A_R}\binom{|A_R|}{n}$ sets, so
+The argument is a pigeonhole count. Fix a representation $R$ and its accepted
+set $A_R$. By FNR-zero $A \subseteq A_R$, and by \eqref{eq:accepted-size}
+$|A_R| \le M$, so the true set is one of at most $\binom{\lfloor M \rfloor}{n}$
+$n$-subsets of $A_R$, all of which $R$ reports identically. Every one of the
+$\binom{N}{n}$ possible targets needs some $R \in \{0,1\}^L$ whose accepted
+set contains it, and each of the $2^L$ strings covers at most
+$\binom{\lfloor M \rfloor}{n}$ targets, so
 \begin{equation}
 \label{eq:pigeonhole}
-  2^L \cdot \max_{A_R}\binom{|A_R|}{n} \;\ge\; \binom{N}{n}.
+  2^L \binom{\lfloor M \rfloor}{n} \;\ge\; \binom{N}{n}.
 \end{equation}
-Take logarithms, bound $|A_R| \le n + \fprate N$, and apply Stirling:
-$\log_2\binom{N}{n} = n\log_2(N/n) + O(n)$ and, in the regime $\fprate N \gg
-n$, $\log_2\binom{n + \fprate N}{n} = n\log_2(\fprate N/n) + O(n)$. Subtracting,
+The ratio of the binomial coefficients is a product,
 \[
-  L \;\ge\; n\log_2(N/n) - n\log_2(\fprate N/n) - O(n)
-       \;=\; n\log_2(1/\fprate) - O(n),
+  \frac{\binom{N}{n}}{\binom{\lfloor M \rfloor}{n}}
+  \;=\; \prod_{i=0}^{n-1} \frac{N - i}{\lfloor M \rfloor - i}
+  \;\ge\; \Bigl(\frac{N}{M}\Bigr)^{n},
 \]
-and dividing by $n$ gives $L/n \ge -\log_2 \fprate + o(1)$. The full asymptotic
-control of the $o(n)$ term is in \textcite{towell-bernoulli-entropy}.
+because $(N - i)/(K - i) \ge N/K$ whenever $N \ge K > i$. Taking logarithms,
+$L \ge n \log_2(N/M)$, and $M/N = \fprate + (1 - \fprate)\,n/N \le \fprate +
+n/N$, which gives \eqref{eq:entropy-floor}. The per-element form follows from
+$\log_2(1/(\fprate + n/N)) = \log_2(1/\fprate) - \log_2(1 + n/(\fprate N))$.
 \end{proof}
 
-The simplification $\fprate N \gg n$ is the deployment regime: $\fprate$ fixed,
-$N$ large relative to $n$, the target embedded in a much larger universe. There
-the floor is sharp; when $\Universe$ is barely larger than $A$ the bound holds
-only in the rougher form \eqref{eq:pigeonhole} and the per-element reading
-degrades. (At the other extreme $\fprate = 1$ the floor is $0$, met by the
-trivial always-accept structure that stores nothing.)
+The condition $n/(\fprate N) \to 0$ is the deployment regime: $\fprate$ fixed
+and the target embedded in a much larger universe. There the floor is sharp;
+when $\Universe$ is barely larger than $A$, the $n/N$ term matters and the
+per-element reading degrades, and at $\fprate = 1$ the bound is vacuous, met by
+the trivial always-accept structure that stores nothing. The standard
+formulation of the bound also allows the accepted superset to be random
+\parencite{pagh-pagh-rao-2005}; the deterministic statement above is its core.
 
 \subsection*{Form of the bound}
 
 The bound has no parameters to tune: the per-element cost is a logarithm of the
-inverse error rate, independent of how the representation is built.
+inverse error rate, independent of how the representation is
+built\index{space--accuracy tradeoff}.
 \begin{center}
 \begin{tabular}{l|ll}
 \hline
@@ -112,35 +120,57 @@ enter the leading term: one might have expected the $\log_2\binom{N}{n}$ cost
 of identifying $A$ exactly, but the FPR budget buys back precisely that
 universe-dependent excess, leaving the residual $n\log_2(1/\fprate)$.
 
-\subsection*{Why the floor is one-sided}
+\subsection*{The two-sided case}
 
-\Cref{thm:entropy-floor} is asymmetric because its constraint is. The
-pigeonhole step \eqref{eq:pigeonhole} uses FNR-zero to force $A \subseteq A_R$,
-and that containment is what makes $\binom{|A_R|}{n}$ the right
-equivalence-class count. If the false-negative rate were also positive, a true
-element could be misclassified, $A$ would no longer sit inside $A_R$, and the
-containment the proof rests on would break.
+The proof of \Cref{thm:entropy-floor} uses FNR-zero to force $A \subseteq
+A_R$, and that containment is what makes $\binom{\lfloor M \rfloor}{n}$ the
+right count. If members may be rejected\index{two-sided error}, $A$ need not
+sit inside $A_R$ and the count changes. The answer is nevertheless known to leading order.
 
-The two-sided lower bound is, at present, an open problem. A natural heuristic
-keeps a $\tprate = 1 - \fnrate$ fraction of the $n$ elements on average, each
-still costing $-\log_2 \fprate$ bits, which suggests a cost near $-(1 -
-\fnrate)\,n\log_2 \fprate$; but this is \emph{not} a valid information-theoretic
-lower bound. Randomly dropping elements changes the encoding problem
-qualitatively rather than merely scaling it, and the pigeonhole count no longer
-applies. What can be said is only qualitative: a two-sided set may in principle
-be represented below the FNR-zero floor $n\log_2(1/\fprate)$, spending part of
-its error budget on false negatives to blur the identity of $A$, but no proven
-bound quantifies how far below. The FNR-zero floor is the rigorous result, and
-it is the one the rest of the book builds on.
+\begin{proposition}[Two-sided floor; Pagh and Rodler]
+\label{prop:two-sided-floor}
+\index{space lower bound!with false negatives}
+Let a representation of $n$-element subsets of a universe of size $N$ reject
+at most $\gamma n$ of the members of each set and accept at most a fraction
+$\fprate$ of its non-members. Then its length satisfies
+\[
+  L \;\ge\; (1 - \gamma)\, n \log_2 \frac{1}{\fprate + n/N} \;-\; O(n).
+\]
+\end{proposition}
+
+This is Proposition~1 of \textcite{pagh-rodler-2001}, stated there for the
+lossy dictionaries they introduce; we do not reprove it. The bound is matched
+to leading order in $\log(1/\fprate)$ by the obvious construction: keep any
+$(1 - \gamma)n$ members in a space-optimal FNR-zero structure and drop the
+rest. In the per-element model of this book a false-negative rate $\fnrate$
+rejects each member independently, so the number rejected concentrates near
+$\fnrate n$, and up to that concentration step the proposition applies with
+$\gamma \approx \fnrate$. Tolerating false negatives therefore buys space only
+linearly: the saving is about $\fnrate \log_2(1/\fprate)$ bits per element,
+the cost of the members one chooses not to store. To leading order, no
+two-sided representation blurs the identity of $A$ more cheaply than by
+forgetting part of it.
 
 \subsection*{The constructive question}
 
 \Cref{thm:entropy-floor} forbids: no FNR-zero scheme beats $-\log_2 \fprate$
-bits per element. Whether the floor is achievable is the dual question. The
-standard Bloom filter pays a factor of about $1.44$, derived in
-\Cref{sec:bloom-gap}; chapter~14 (\Cref{ch:optimal-bernoulli-sets}) constructs
-the Bernoulli Hash Function, which meets the floor asymptotically. The two
-together characterize the FNR-zero family tightly: the floor sits at $-\log_2
-\fprate$, and a known scheme reaches it. Until then the floor is a target, and
-\Cref{sec:bloom-gap} measures how far the standard Bloom filter sits above it
-and why.
+bits per element. That the floor can be met, up to lower-order terms, is also
+established. \textcite{pagh-pagh-rao-2005} gave an optimal replacement for the
+Bloom filter, and \textcite{dietzfelbinger-pagh-2008} reduced approximate
+membership to retrieval\index{retrieval}, storing a $\log_2(1/\fprate)$-bit
+fingerprint function in near-optimal space. Practical descendants come
+close: xor filters\index{xor filter} are within about $23\%$ of the bound and
+binary fuse filters\index{binary fuse filter} within about $13\%$
+\parencite{graf-lemire-2020,graf-lemire-2022}, and ribbon
+filters\index{ribbon filter} \parencite{dietzfelbinger-et-al-2026-ribbon}
+closer still. For structures
+that must accept insertions one at a time, as the Bloom filter does,
+\textcite{lovett-porat-2010} prove a lower bound strictly above the static
+floor at constant $\fprate$. The standard Bloom filter pays a factor of about
+$1.44$ (\Cref{sec:bloom-gap}). Chapter~14 (\Cref{ch:optimal-bernoulli-sets})
+presents the static perfect hash filter, a minimal perfect hash plus
+fingerprints at $\log_2(1/\fprate) + c$ bits per element with $c \ge \log_2
+e$, and a seed-search\index{seed search} construction, the Bernoulli Hash
+Function\index{Bernoulli hash function}, which meets the floor in space but
+needs on the order of $\fprate^{-n}$ trials to build; it is a reference point
+rather than a practical structure.

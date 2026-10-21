@@ -26,10 +26,14 @@
 The AND's false-negative rate \eqref{eq:and-fnr} and the OR's false-positive
 rate \eqref{eq:or-fpr-direct} are both instances of one pattern: the
 probability that a chain produces no error factors as a product. This section
-states it as a theorem and isolates the regime where it is exact.
+states it as a theorem and isolates the regimes where it, and its dual, are
+exact. The theorem is the elementary product rule for a series system of
+independent components; its use here is to say precisely which corner of
+\Cref{sec:boolean-formulas} it describes.
 
 \begin{theorem}[Composition theorem]
 \label{thm:composition}
+\index{composition theorem}\index{independence!across stages}
 Let $\hat{b}_1, \ldots, \hat{b}_k$ be the outputs of $k$ chained
 identity-with-error stages, stage $i$ correct with probability $1 - \eta_i$,
 with error events independent across stages. If any single stage error
@@ -59,7 +63,8 @@ the formula overcounts; this is the BSC caveat below.
 
 The theorem applies to the error direction in which a single stage error
 propagates. For the conjunction of $k$ instances (report $\top$ iff all do), a
-true $\top$ survives only if every stage reports $\top$, so correctness
+true $\top$, which for an AND means the single latent assignment with every
+input $\top$, survives only if every stage reports $\top$, so correctness
 multiplies and the false-negative rate is
 \[
   \fnrate_{\wedge,k} = 1 - \prod_{i=1}^{k}(1 - \fnrate_i),
@@ -74,24 +79,30 @@ multiply and
 \label{eq:composition-theorem}
   \fprate_{\wedge,k} = \prod_{i=1}^{k} \fprate_i
 \end{equation}
-in the all-negative regime. This is the mechanism behind Miller-Rabin: its $k$
-rounds all test the same composite, the only true input is $\bot$, and the
-false-positive rate is the product $\prod_i \fprate_i \le (1/4)^k$
-(\Cref{sec:miller-rabin}). The two formulas are not interchangeable: the
-conjunction's false-negative rate is $1 - \prod(1 - \fnrate_i)$, but its
-false-positive rate is the product $\prod \fprate_i$, not $1 - \prod(1 -
-\fprate_i)$.
+in the all-negative regime, that is, at the one latent assignment with every
+input $\bot$. This is the mechanism behind Miller-Rabin: its $k$ rounds all test
+the same composite, the only latent value is $\bot$, and the false-positive
+rate is the product $\prod_i \fprate_i \le (1/4)^k$ (\Cref{sec:miller-rabin}).
+The two formulas are not interchangeable: the conjunction's false-negative rate
+is $1 - \prod(1 - \fnrate_i)$, but its false-positive rate in the all-negative
+regime is the product $\prod \fprate_i$, not $1 - \prod(1 - \fprate_i)$. At
+any other negative latent assignment the false-positive rate is larger, a
+product in which each $\top$ input contributes a factor $1 - \fnrate_i$ rather
+than $\fprate_i$ \eqref{eq:and-negative-rows}; carrying the all-negative
+product into a context where the latent assignment is not all-negative is the
+error of \Cref{ex:two-rate-counterexample}.
 
 \subsection*{The BSC caveat}
 
-The theorem computes the probability that at least one stage errs. For the
+The theorem computes the probability that at least one stage errs\index{channel!binary symmetric}. For the
 identity-with-error and one-sided cases this equals the end-to-end error rate,
 but the BSC violates the ``single error is fatal'' premise: two flips cancel.
 Two BSCs of crossover $\fprate$ in series have end-to-end crossover
 $2\fprate - 2\fprate^2$ (the odd-flip probability,
 \Cref{eq:bsc-composition}), whereas the theorem's $1 - (1 - \fprate)^2 =
 2\fprate - \fprate^2$ counts the both-flip event as an error even though it
-returns the correct value. The two agree only when cancellation is impossible:
+returns the correct value; the exact rate is the parity of the flips
+(\Cref{rem:parity-latent}). The two agree only when cancellation is impossible:
 one-sided channels ($\fnrate = 0$ or $\fprate = 0$), and the AND and OR gates
 in their respective monotone directions. For the BSC, the matrix product of
 \Cref{sec:channel-composition} is the correct tool, not this theorem. The two
@@ -99,7 +110,7 @@ formulas answer different questions about different models.
 
 \subsection*{The Miller-Rabin regime, worked}
 
-Take $k$ one-sided instances ($\fnrate_i = 0$), the Bloom-filter and
+Take $k$ one-sided\index{one-sided error} instances ($\fnrate_i = 0$), the Bloom-filter and
 Miller-Rabin setting, queried in the all-negative regime, with false-positive
 rates $\fprate_i$. The conjunction has $\fnrate_{\wedge,k} = 0$ (no stage ever
 suppresses a true $\top$), and its false-positive rate is the product

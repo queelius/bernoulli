@@ -1,0 +1,136 @@
+\chapter{Companion Code and Notebooks}
+\label{app:companion}
+
+The numerical claims in the chapters are reproduced by the Python package
+\texttt{bernoulli-types} (import name \texttt{bernoulli}) and by notebooks that
+accompany the chapters. Both live in the \texttt{bernoulli-py/} directory of the
+source repository, \url{https://github.com/queelius/bernoulli}. Paths below are
+relative to that directory. The package is MIT-licensed research software at an
+alpha stage.
+
+\section*{Installation}
+
+The package requires Python 3.11 or later and has no required runtime
+dependencies. From \texttt{bernoulli-py/}:
+\begin{lstlisting}[language=bash,numbers=none]
+pip install -e ".[notebooks]"  # package, Jupyter, numpy, scipy, ...
+pip install -e ".[dev]"        # tests, linting, type checking
+pytest                         # the test suite
+jupyter lab notebooks/
+\end{lstlisting}
+
+\section*{Package modules}
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.36\textwidth}
+                   >{\raggedright\arraybackslash}p{0.44\textwidth}
+                   >{\raggedright\arraybackslash}p{0.14\textwidth}@{}}
+\toprule
+Module (under \texttt{src/bernoulli/}) & Contents & Chapters \\
+\midrule
+\endfirsthead
+\toprule
+Module (under \texttt{src/bernoulli/}) & Contents & Chapters \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{atom.py} & \texttt{BernoulliBool}, the noisy bit with rates
+  $(\fprate, \fnrate)$, and single-gate rules & 1--4 \\
+\texttt{formula.py} & exact error of a Boolean formula over independent noisy
+  bits, conditional on each latent word & 3 \\
+\texttt{algebra.py} & composition of rate chains & 3, 6 \\
+\texttt{measures.py} & PPV, NPV, $F_1$, Youden's $J$ from
+  $(\fprate, \fnrate, \pi)$ & 7 \\
+\texttt{algorithms/\allowbreak miller\_rabin.py} & the Miller--Rabin witness test as a
+  one-sided noisy bit & 3, 11 \\
+\texttt{algorithms/\allowbreak noisy\_classifier.py} & a configurable two-sided noisy
+  classifier & 1, 7 \\
+\texttt{sets/bloom.py} & Bloom filter as an approximate set & 5 \\
+\texttt{sets/\allowbreak composition.py} & rate propagation for Boolean combinations of
+  approximate sets & 6 \\
+\texttt{sets/cascade.py} & tiered Bloom-cascade membership pipeline & 6, 8 \\
+\texttt{sets/\allowbreak entropy\_bound.py} & space and accuracy analyses for one-sided
+  approximate sets & 8 \\
+\texttt{sets/\allowbreak correlated\_bloom.py} & multi-salt Bloom filter for studying
+  correlated hash channels & 16 \\
+\texttt{maps/\allowbreak retrieval.py}, \texttt{maps/\allowbreak codec.py} & static GF(2) retrieval
+  and value codecs that control non-member outputs & 9, 17 \\
+\texttt{maps/\allowbreak perfect\_hash.py} & a BBHash-style minimal perfect hash function
+  & 15 \\
+\texttt{maps/\allowbreak perfect\_filter.py} & perfect hash filter (minimal perfect hash
+  plus fingerprints) & 14, 15 \\
+\texttt{relations/\allowbreak relation.py} & approximate relations with a relational
+  algebra & 12 \\
+\texttt{sketches/\allowbreak countmin.py}, \texttt{hyperloglog.py}, \texttt{minhash.py}
+  & Count-Min, HyperLogLog and MinHash as estimators & 10 \\
+\texttt{harness.py}, \texttt{bench.py} & empirical rate measurement and
+  timing utilities & all \\
+\end{longtable}
+\endgroup
+
+\section*{Notebooks}
+
+Each notebook opens with a pointer to the chapter it accompanies and, where
+practical, asserts the chapter's numbers so that a notebook that runs to
+completion certifies them. Chapters~4, 13, 17 and~19 are theoretical and have no
+notebook.
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.10\textwidth}
+                   >{\raggedright\arraybackslash}p{0.84\textwidth}@{}}
+\toprule
+Chapter & Notebook (under \texttt{notebooks/}) \\
+\midrule
+\endfirsthead
+\toprule
+Chapter & Notebook (under \texttt{notebooks/}) \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+1 & \texttt{ch01-noisy-bit.ipynb} \\
+2 & \texttt{ch02-binary-channels.ipynb} \\
+3 & \texttt{ch03-boolean-algebra-noise.ipynb} \\
+5 & \texttt{ch05-approximate-sets.ipynb} \\
+6 & \texttt{ch06-set-composition.ipynb} \\
+7 & \texttt{ch07-classification-measures.ipynb} \\
+8 & \texttt{ch08-information-bounds.ipynb} \\
+9 & \texttt{ch09-approximate-functions.ipynb} \\
+10 & \texttt{ch10-sketches-estimators.ipynb} \\
+11 & \texttt{ch11-randomized-algorithms.ipynb} \\
+12 & \texttt{ch12-approximate-relations.ipynb} \\
+14 & \texttt{ch14-bhf.ipynb} \\
+15 & \texttt{ch15-bphf.ipynb} \\
+16 & \texttt{ch16-not-bernoulli.ipynb} \\
+18 & \texttt{ch18-encrypted-search.ipynb} \\
+\end{longtable}
+\endgroup
+
+\section*{Experiments}
+
+The \texttt{experiments/} directory holds sixteen scripted experiments, each
+with a results write-up (\texttt{RESULTS\_NN.md}): composition validation (01),
+adversarial Miller--Rabin (02), Bloom-cascade frontiers and operational payoff
+(03, 08), codec entropy, optimality and leakage (04, 07, 12 to 16), correlated
+hash channels and a conditional-independence audit (05, 06), HyperLogLog as an
+estimator (09), Bayesian inference over noisy observations (10), and Le~Cam's
+bound as a security limit (11). The write-up for experiment~14 carries a
+correction note: an earlier version reversed the direction of the codec
+conclusion, and the corrected direction is the one stated in
+\Cref{ch:encrypted-search}.
+
+\section*{How the numbers were checked}
+
+Three kinds of check stand behind the quantitative statements. Small cases are
+verified by exhaustive enumeration with exact rational arithmetic (for example
+the latent-assignment counterexample of \Cref{ex:two-rate-counterexample} and
+the order-statistic counterexample of \Cref{ch:optimal-bernoulli-sets}).
+Asymptotic and closed-form claims are compared with Monte Carlo estimates at
+stated seeds and sample sizes. Claims about prior work are checked against the
+cited primary sources. A notebook or test that fails is a reason to distrust the
+corresponding sentence of the book until it is resolved.

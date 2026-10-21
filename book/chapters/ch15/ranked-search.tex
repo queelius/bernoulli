@@ -5,7 +5,7 @@
 % the false-negative cost and prop:bphf-ranked-search, worked example.
 % Folds salvaged ex-7 as rem:bphf-bhf-compose (composing the two filter
 % families for A cap B). Cross-refs def:bloom-filter,
-% def:perfect-filter-line, def:bhf, prop:bhf-fpr, def:bphf,
+% def:perfect-filter-line, def:phf, prop:phf-fpr, def:bphf, prop:worst-case-rate-bounds,
 % sec:bphf-construction, alg:bphf-build-query, prop:bphf-space,
 % sec:space-time-analysis, eq:bphf-fnr, eq:bphf-r, sec:bridge-to-part5.
 % DEFINED: sec:ranked-search, prop:bphf-ranked-search, rem:bphf-bhf-compose,
@@ -15,11 +15,12 @@
 \label{sec:ranked-search}
 
 The chapter developed the BPHF abstractly: zero false positives in the
-witness model, exact at full resolution, a controlled $\fnrate \approx
-1 - m/n$ bought by a $k$-perfect hash of $m$ slots at $\lceil \log_2 n
-\rceil$ bits per element (\Cref{prop:bphf-space}). This section places it
+witness model, exact at full resolution, a controlled $\fnrate \ge 1 -
+m/n$ bought by a $k$-perfect hash of $m$ slots, at $\lceil \log_2 n
+\rceil$ bits per element plus the addressing cost
+(\Cref{prop:bphf-space}). This section places it
 in its archetypal application, which also supplies the witness model the
-guarantee needs. The setting is ranked search: given a corpus and a
+guarantee needs. The setting is ranked search:\index{ranked search} given a corpus and a
 query, return the top-$k$ most relevant documents. The $\fprate = 0$
 guarantee is exactly the precision invariant the application needs, and
 the BPHF is not a generic structure that happens to fit ranked search but
@@ -56,7 +57,7 @@ constant in both $n$ and $k$. The build is the one-time $O(n \log n)$
 sort plus the $O(n)$ BPHF build of \Cref{sec:space-time-analysis}; each
 query then saves the $n$ score evaluations the exact solution repeats,
 dropping per-query cost from $O(n)$ to $O(1)$. The profile is batch build
-and constant-time query, matching the BHF deployment of chapter~14: a
+and constant-time query, matching the perfect hash filter's deployment: a
 search engine rebuilds on each hourly corpus snapshot and serves millions
 of queries per second between rebuilds; a recommender rebuilds per-user
 indices nightly and serves personalized top-$k$ instantly.
@@ -76,7 +77,7 @@ asymmetry tracks the BPHF exactly: the $\fprate = 0$ guarantee of
 $\fnrate > 0$ trade admits the low-cost error at a controlled rate. The
 designer who chooses the BPHF makes the trade explicitly, zero corrupted
 output for a small under-recall, the right trade wherever precision is
-the binding metric and recall the recoverable one: ranked search,
+the binding metric and recall the recoverable one\index{precision}\index{recall}: ranked search,
 recommendation, precision-sensitive classification, authorization
 filters.
 
@@ -86,25 +87,29 @@ Ranked search is the witness model: a query is posed for a document that
 already carries its corpus rank, and a non-corpus candidate has none to
 present, so $\fprate = 0$. The false negatives come entirely from the
 $k$-perfect hash. At full resolution every document owns a slot and the
-retrieval is exact; shrinking to $m < n$ slots crowds out a fraction
-$1 - m/n$ of the corpus, and by linearity over the $k$ true top documents
-the expected misses are
+retrieval is exact; shrinking to $m < n$ fully occupied slots displaces a
+fraction $1 - m/n$ of the corpus. If which documents are displaced is
+independent of their rank (the perfect hash sees document identifiers,
+not scores), each of the $k$ true top documents is displaced with
+probability $1 - m/n$, and by linearity the expected misses are
 \begin{equation}
 \label{eq:bphf-ranked-misses}
   \mathbb{E}[\text{misses}]
-  \;\approx\; k \cdot \fnrate
-  \;\approx\; k \left( 1 - \frac{m}{n} \right),
+  \;=\; k \cdot \fnrate
+  \;=\; k \left( 1 - \frac{m}{n} \right),
 \end{equation}
-using $\fnrate \approx 1 - m/n$ from \eqref{eq:bphf-fnr}, set by the
-retrieval depth $k$ and the table ratio $m/n$ and independent of the rank
-width $r = \lceil \log_2 n \rceil$.
+using \eqref{eq:bphf-fnr}, set by the retrieval depth $k$ and the table
+ratio $m/n$ and independent of the rank width $r = \lceil \log_2 n
+\rceil$. Linearity needs no independence among the misses, which matters
+because the misses are dependent within shared slots.
 
 \begin{proposition}[BPHF top-$k$ expected misses]
 \label{prop:bphf-ranked-search}
-Let the BPHF of \Cref{def:bphf} be built on a corpus of $n$ documents in
-the witness model, with a $k$-perfect hash of $m \le n$ slots. A top-$k$
-query surfaces no off-corpus document ($\fprate = 0$) and misses, in
-expectation, at most $k\,(1 - m/n)$ of the true top-$k$ documents. At full
+Let the BPHF of \Cref{def:bphf} be built on a corpus\index{k-perfect hashing@$k$-perfect hashing} of $n$ documents in
+the witness model, with a $k$-perfect hash that occupies all of its $m
+\le n$ slots and displaces documents independently of their rank. A
+top-$k$ query surfaces no off-corpus document ($\fprate = 0$) and misses,
+in expectation, $k\,(1 - m/n)$ of the true top-$k$ documents. At full
 resolution $m = n$ the retrieval is exact.
 \end{proposition}
 
@@ -115,17 +120,19 @@ exact top-$k$, paying in slots for recall.
 
 \begin{remark}[Composing the two filter families]
 \label{rem:bphf-bhf-compose}
-The two arms compose. To test $x \in A \cap B$ with a BPHF on $A$ and a
-BHF on $B$, query both and return $\top$ iff both do, at $O(1)$. The
-composed false-positive rate is bounded by the BHF's alone: a false
-positive needs $x \notin A \cap B$ with both filters accepting, and if
-$x \notin A$ the BPHF rejects with certainty ($\fprate = 0$), so only the
-$x \in A,\, x \notin B$ case contributes, at the BHF's $\le 2^{-r_B}$.
-The composed false-negative rate is the BPHF's: for $x \in A \cap B$ the
-BHF accepts with certainty, so a miss requires the BPHF to miss, at $0$
-with a true perfect hash and $\approx 1 - m_A/|A|$ under a $k$-perfect
-one. The composition inherits the weaker guarantee on each axis, the
-FPR-zero arm absorbing the non-members of $A$ before the BHF is consulted.
+The two arms compose. To test $x \in A \cap B$\index{composition!of sets} with a BPHF on $A$ and an
+FNR-zero filter on $B$ (a perfect hash filter or a BHF), query both and
+return $\top$ iff both do, at $O(1)$. The composed false-positive rate is
+bounded by the second filter's alone: a false positive needs $x \notin A
+\cap B$ with both filters accepting, and if $x \notin A$ the BPHF rejects
+with certainty in the witness model, so only the case $x \in A,\, x
+\notin B$ contributes, at the second filter's rate $\fprate_B$. The
+composed false-negative rate is the BPHF's: for $x \in A \cap B$ the
+second filter accepts with certainty, so a miss requires the BPHF to
+miss. These are the worst-case rate bounds of\index{composition!worst-case rate bounds}
+\Cref{prop:worst-case-rate-bounds} specialized to one-sided operands: the
+conjunction's false-positive rate is at most the larger operand rate,
+and here one operand's is zero.
 \end{remark}
 
 \subsection*{A worked example}
@@ -156,9 +163,9 @@ A full sorted index storing each rank explicitly costs the same
 $n \log_2 n$ bits for ranks but adds an associative structure mapping IDs
 to ranks, a hash table or balanced tree at $32$ to $64$ bits per document
 of pointers and load factor, with $O(1)$ amortized or $O(\log n)$
-queries. The BPHF provides the same lookup at one memory access and one
-comparison, the minimum any structure can achieve, and folds the
-$\fprate = 0$ membership check into the rank lookup, where the sorted
+queries. The BPHF provides the same lookup at a constant number of memory probes
+and one comparison, and folds the $\fprate = 0$ membership check into the
+rank lookup, where the sorted
 index would need a separate check to filter off-corpus queries. The
 construction also extends, preserving $\fprate = 0$ throughout: a
 multi-resolution variant stores more bits for high-ranked documents and
@@ -170,8 +177,10 @@ The application illustrates Part~IV's larger point: the perfect-filter
 line of \Cref{def:perfect-filter-line} is an architectural decision space
 that maps to operational requirements. Precision-binding applications
 take the FPR-zero arm and the BPHF; recall-binding applications take the
-FNR-zero arm and the BHF. The decision is forced by which error the
-application can tolerate, and the chapter's two constructions cover both
-halves at the asymptotic bit-budget optimum on each side.
+FNR-zero arm and a perfect hash filter, a retrieval-based filter, or, as a
+reference point, the BHF. The decision is forced by which error the
+application can tolerate. Neither practical construction is at the
+information-theoretic optimum: both pay the addressing cost of a minimal
+perfect hash on top of their slot widths.
 \Cref{sec:bridge-to-part5} places them in Part~IV's architecture and
 turns to Part~V.

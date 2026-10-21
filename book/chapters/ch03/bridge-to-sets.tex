@@ -24,14 +24,18 @@ The Boolean algebra of $\Bernoulli{\BoolType}$ is the foundation for the
 richer types of Parts~II and~III, and three concrete bridges carry it there.
 
 \paragraph{Bloom filters are $m$-fold conjunctions.}
-A Bloom filter reports membership by checking that all $m$ hash positions are
-set, an $m$-fold AND of one-sided lookups. Each lookup has $\fnrate = 0$ (a
-member sets every position) and per-hash false-positive rate $\fprate_i$. In
-the all-negative regime of a non-member, the conjunction false-positives only
-if every hash collides, so by the dual \eqref{eq:mr-k-round} of the composition
-theorem the filter's false-positive rate is $\prod_{i=1}^{m} \fprate_i \le
-p^m$, the classical Bloom formula, recovered as Boolean algebra over noisy
-bits. The structure is identical to Miller-Rabin; only the source of the
+A Bloom filter\index{Bloom filter} reports membership by checking that all
+$m$ hash positions are set, an $m$-fold AND of one-sided lookups. Each lookup
+has $\fnrate = 0$ (a member sets every position) and per-hash false-positive
+rate $\fprate_i$. In the all-negative regime of a non-member, the conjunction
+false-positives only if every probe lands on a set bit, so by the dual
+\eqref{eq:mr-k-round} of the composition theorem the filter's false-positive
+rate is $\prod_{i=1}^{m} \fprate_i$; conditionally on a realized array with a
+fraction $p$ of bits set and independent uniform probes it is exactly $p^m$.
+Averaged over the random array this conditional rate gives the classical Bloom
+formula only approximately, since the fill fraction is itself random
+\parencite{bose-et-al-2008,christensen-roginsky-jimeno-2010};
+\Cref{ch:approximate-sets} treats the distinction. The structure is identical to Miller-Rabin; only the source of the
 per-stage rate differs, a design parameter here, a number-theoretic theorem
 there. \Cref{ch:approximate-sets} develops the filter and its parameter
 selection in full.
@@ -41,7 +45,7 @@ For approximate sets $\tilde{A}, \tilde{B}$, membership $x \in \tilde{A}$ is a
 $\Bernoulli{\BoolType}$ instance, and the set operations are pointwise Boolean
 operations on these: intersection is AND, union is OR, complement is NOT. The
 rate formulas of \Cref{sec:and-under-noise} and \Cref{sec:or-not} therefore
-give, per element,
+give, per element and per latent pair of memberships,
 \[
   \fnrate_\cap = 1 - (1 - \fnrate_A)(1 - \fnrate_B),
   \quad
@@ -51,8 +55,10 @@ give, per element,
 \]
 The intersection's false-positive rate is the product $\fprate_A \fprate_B$ for
 elements outside both sets (the bulk regime), and is boundary-dependent for
-elements in exactly one set, exactly the prior-dependence of the AND in
-\Cref{sec:and-under-noise}. \Cref{ch:set-composition} carries the general case,
+elements in exactly one set, exactly the latent-pair dependence of the AND in
+\eqref{eq:and-negative-rows}: an approximate intersection has more than one
+false-positive rate, while an approximate union of one-sided sets keeps a single
+one (\Cref{prop:boolean-closure}). \Cref{ch:set-composition} carries the general case,
 including the rate-uniformity conditions an approximate set must satisfy for
 these per-element rates to define a single $\Bernoulli{\Set{S}}$ instance,
 conditions that chapter~16 (\Cref{ch:not-bernoulli}) shows can fail.
@@ -60,12 +66,16 @@ conditions that chapter~16 (\Cref{ch:not-bernoulli}) shows can fail.
 \paragraph{The Boolean case is a fiber of the map algebra.}
 Replacing the Boolean codomain with an arbitrary type $Y$ lifts the same
 composition law: an approximate map $\tilde{f} : X \to Y$ has a channel matrix
-that grows from $2 \times 2$ to $|Y| \times |Y|$, but composition is still the
-matrix product and the independence structure is unchanged. The Boolean algebra
-of this chapter is the $Y = \BoolType$ fiber of the map algebra that
-\Cref{ch:approximate-functions} develops. The composition law is the constant;
-only the codomain varies.
+that grows from $2 \times 2$ to $|Y| \times |Y|$, and for a single input the
+end-to-end channel of a composition is still the matrix product. The joint
+behavior across inputs is another matter: when the exact inner map sends two
+inputs to one intermediate value, a frozen error of the outer map at that value
+is shared by both composed outputs, so their errors are dependent even though
+each marginal is right. The Boolean algebra of this chapter is the $Y =
+\BoolType$ fiber of the map algebra that \Cref{ch:approximate-functions}
+develops, and the latent-assignment caveat of \Cref{sec:boolean-formulas}
+carries over to it.
 
-The bibliographic notes (\Cref{sec:bib-notes-ch3}) follow. Chapter~4
+The \hyperref[sec:bib-notes-ch3]{Notes and Lineage} follow. Chapter~4
 formalizes the independence axioms these derivations assumed, and Part~II
 builds the full algebra of approximate sets and maps on both chapters.

@@ -13,33 +13,33 @@
 \label{sec:ch17-bridge}
 
 The chapter built one bridge in six pieces. The cipher-map abstraction
-(\Cref{sec:what-is-cipher-map}) reframed encryption as a pair of error
-rates rather than a pair of keys; the error-model section
-(\Cref{sec:bernoulli-error-model}) identified those rates with the
-Bernoulli atom and lifted the Kronecker composition law to chained
-cipher-map evaluation; the trapdoor-paradigm section
+(\Cref{sec:what-is-cipher-map}) attached an error profile to a computation
+on encodings; the error-model section (\Cref{sec:bernoulli-error-model})
+identified that profile with the Bernoulli atom and showed that chained
+cipher maps compose per query by the serial channel product, with a
+caveat for shared intermediate values; the trapdoor-paradigm section
 (\Cref{sec:trapdoor-paradigm}) introduced the client-server split, and
-the FHE sidebar (\Cref{sec:fhe-sidebar}) marked the zero-error baseline.
-\Cref{sec:boolean-trapdoor} and \Cref{sec:maximizing-confidentiality}
-pushed the framework forward in two directions, Boolean composition over
-trapdoor sets and confidentiality as a chapter 7 PPV.
+the FHE sidebar (\Cref{sec:fhe-sidebar}) marked the zero-error,
+stronger-security baseline. \Cref{sec:boolean-trapdoor} and
+\Cref{sec:maximizing-confidentiality} pushed the framework in two
+directions, Boolean composition over trapdoor sets and the false-positive
+cover as a chapter 7 posterior.
 
 \subsection*{The dual role of the error rates}
 
-The recurring thread is the dual role of $\fprate$ and $\fnrate$. In
+The recurring thread is that $\fprate$ and $\fnrate$ do two jobs. In
 Parts I through IV they were operational parameters, kept small subject to
-storage and runtime budgets. Here they acquire a second job: the
-false-positive rate is also the share of an adversary's $\top$-observations
-that fail to identify members, the false-negative rate the share of
-$\bot$-observations that protect real members, and together they fix the
-map's PPV at prevalence $\pi$, the complementary $1 - \PPV$ being the
-confidentiality margin. The duality is not a coincidence. The framework
-identifies a structure by its $(\fprate, \fnrate)$ point; chapter 6 read
-that point geometrically as a position on the perfect-filter line, chapter
-7 predictively as PPV and NPV, and chapter 17 cryptographically as the
-trade-off between operational fidelity and informational opacity. The
-three readings are the same algebra, and a single choice of where to live
-in the Bernoulli square now answers three questions at once.
+storage and runtime budgets. Here they also set a cover: under the
+observation model of \Cref{sec:maximizing-confidentiality} the
+false-positive rate fixes the share of an observer's $\top$-observations
+that fail to identify members, and with the prevalence it fixes the
+posterior $1 - C$. The second job is partial. It concerns one leakage
+channel, the result bit of one structure, and it erodes across
+independently keyed instances; repetition, access patterns, and result
+sizes leak through channels the rates do not touch. The geometric reading
+of chapter 6, the predictive reading of chapter 7, and the cover reading
+here are the same algebra applied to the same $(\fprate, \fnrate)$ point,
+but only the first two are complete descriptions of what they describe.
 
 \subsection*{Forward to chapter 18}
 
@@ -47,14 +47,15 @@ Chapter 18 specializes the machinery to encrypted search, fixing $f$ to a
 membership-test family, ``does record $r$ match query $q$?'', and asking
 how a server holding an encrypted index answers faithfully without
 revealing $r$ or $q$. The Bloom-filter cipher maps of
-\Cref{sec:boolean-trapdoor} reappear as the simplest index, the chapter 14
-BHF as a space-optimal alternative, and the two-party setup of
+\Cref{sec:boolean-trapdoor} reappear as the simplest index (the
+perfect-hash structures of chapters 14 and 15 would serve as more
+compact ones), and the two-party setup of
 \Cref{sec:trapdoor-paradigm} stays in force, the $(\fprate, \fnrate)$
-point still doing triple duty. What chapter 18 adds is the structure the
-encrypted-search literature has built around the membership case:
-data-oblivious access patterns, side-channel control, multi-query leakage
-bounds, and the relation between the confidentiality $C$ and the
-information-theoretic measures that literature prefers. Chapter 17 is the
+point still doing double duty. What chapter 18 adds is the encrypted-search setting itself: the two
+standard Bloom-index layouts, the cover read per document, multi-query and
+multi-instance leakage, and the estimation of workload prevalence under
+adversarial queries, set against the searchable-encryption literature's
+leakage notions. Chapter 17 is the
 abstract algebra; chapter 18 is the concrete instance, the same move
 chapters 14 and 15 made together. \Cref{sec:bib-notes-ch17} attaches the
 chapter's prose to its antecedents in the FHE, cipher-map, and

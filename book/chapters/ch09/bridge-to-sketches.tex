@@ -7,25 +7,30 @@
 \section{Bridge to Sketches}
 \label{sec:bridge-to-sketches}
 
-A \emph{sketch} maps a stream or multiset to a compact summary, often sublinear
-in the input size, from which a query routine reconstructs an answer with error
-bounded by an analytic expression in the summary size: the user trades a known
-accuracy for a known space budget. What distinguishes a sketch from lossy
-compression is that bounded, calculable error. The three canonical sketches,
-CountMin for frequency, HyperLogLog for cardinality, and MinHash for similarity,
-are each a $\Bernoulli{T}$ instance of this chapter.
+A \emph{sketch}\index{sketch} maps a stream or multiset to a compact summary,
+often sublinear in the input size, from which a query routine reconstructs an
+answer with error bounded by an analytic expression in the summary size: the
+user trades a known accuracy for a known space
+budget\index{space--accuracy tradeoff}. What distinguishes a
+sketch from lossy compression is that bounded, calculable error. The three
+canonical sketches, CountMin for frequency, HyperLogLog for cardinality, and
+MinHash for similarity, can each be read as a $\Bernoulli{T}$ value in the sense
+of this chapter.
 
-Each is a channel in the sense of \Cref{def:n-ary-channel}, differing only in
-the structure of $Q$. CountMin is a counter ($T = \mathbb{N}$) whose one-sided
-overestimation puts all of $Q$'s mass at or above the diagonal; HyperLogLog is a
-counter whose mass concentrates in a multiplicative band around the diagonal
-(relative rather than one-sided error); MinHash is a similarity estimator
-($T = [0,1]$) whose $Q$ is a continuous kernel with output concentrated in a
-band of width $O(1/\sqrt{r})$ at sketch size $r$. All three share the same
-skeleton, an input type, an output type, a row-stochastic kernel, and the
-per-query independence of Axioms~1 and~2 (\Cref{ax:element-indep},
-\Cref{ax:block-rates-indep}); each one's error bound is a statement about the
-entries of $Q$, its composition rule a statement about how $Q$-matrices combine,
-and its capacity a specialization of \Cref{prop:n-ary-capacity}.
-\Cref{ch:sketches-estimators} builds the three from scratch, the first non-Boolean
-instances of $\Bernoulli{T}$ the book treats in detail.
+The reading summarizes each sketch's per-query error law as a channel in the
+sense of \Cref{def:n-ary-channel}, one row per true value. CountMin is a counter
+($T = \mathbb{N}$) whose one-sided overestimation puts all of $Q$'s mass at or
+above the diagonal; HyperLogLog is a counter whose mass concentrates in a
+multiplicative band around the diagonal (relative rather than one-sided error);
+MinHash is a similarity estimator ($T = [0,1]$) whose $Q$ is a binomial kernel
+with output concentrated in a band of width $O(1/\sqrt{k})$ at signature length
+$k$. Two limits of the reading should be stated before it is used. First, it is
+a vocabulary, not a new analysis: the constructions and their bounds are those
+of their authors, cited in \Cref{ch:sketches-estimators}. Second, the rows are
+per-query marginals. Answers to several queries against one stored sketch share
+its hash functions and counters, so Axiom~1 (\Cref{ax:element-indep}) does not
+hold across them and the Kronecker factorization of \Cref{thm:n-ary-kronecker}
+does not describe their joint law; the merge rules are sketch-specific monoid
+operations, not channel compositions. \Cref{ch:sketches-estimators} builds the
+three from scratch, the first non-Boolean instances of $\Bernoulli{T}$ the book
+treats in detail.

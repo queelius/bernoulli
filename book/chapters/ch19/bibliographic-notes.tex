@@ -1,66 +1,56 @@
-% §19.7 Bibliographic Notes
+% §19.7 Notes and Lineage
 %
-% Monograph register: point to standard finite-dimensional linear algebra /
-% Kronecker products (Horn-Johnson), Markov-chain and stochastic-matrix
-% references (Levin-Peres-Wilmer, Mitzenmacher-Upfal), the Walsh/Fourier-on-the-
-% cube tradition (O'Donnell), the classical noisy-formula tradition
-% (von Neumann, Pippenger), and the density-matrix/readout facts (Nielsen-Chuang).
-% Cite only entries present in references.bib with verified details. No invented
-% citations. Cross-refs sec:kronecker, prop:set-operator-is-axiom-1,
-% prop:parity-spectral, sec:operator-classical-sector, sec:n-ary-channels.
-% DEFINED: sec:bib-notes-ch19.
+% Monograph register: Kronecker products (Horn-Johnson), stochastic matrices
+% (Levin-Peres-Wilmer, Mitzenmacher-Upfal), parity identity (Gallager 1962
+% Lemma 1; Matsui 1993), Boolean Fourier analysis (O'Donnell), noisy
+% computation (von Neumann; Pippenger; Evans-Schulman), circuit-level
+% propagation (Parker-McCluskey; Krishnaswamy et al. PTMs), density matrices
+% and POVMs (Nielsen-Chuang), readout-error models (Bravyi et al.; Nation et
+% al.; Smith et al.; Maciejewski et al. 2020/2021; Hamilton et al.).
+% Replaces the former "Bibliographic Notes"; label kept. DEFINED:
+% sec:bib-notes-ch19.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch19}
 
-\paragraph{Kronecker products and finite-dimensional linear algebra.}
-The Kronecker product that carries the tensored-channel construction of
-\Cref{prop:set-operator-is-axiom-1}, together with its mixed-product rule and
-its action on spectra, is treated in \textcite{horn-johnson-matrix},
-\emph{Topics in Matrix Analysis}, the standard reference for the operator
-identities this chapter uses. The eigenvalues-multiply-along-a-product reading of
-serial composition is the elementary spectral theory of commuting operators in
-the same source.
+\paragraph{Lineage.}
+Everything in this chapter is standard linear algebra and probability.
+Kronecker products, the mixed-product rule, and their spectra are in
+\textcite{horn-johnson-matrix}; stochastic matrices and their products are
+the algebra of finite Markov chains \parencite{levin-peres-wilmer-2017,mitzenmacher-upfal},
+whose sources differ, as this book's chapters do, on whether matrices act
+on row or column vectors. The noisy-parity formula of
+\Cref{prop:parity-spectral} is Lemma~1 of \textcite{gallager-1962} and
+Matsui's piling-up lemma \parencite{matsui-1993}; its $\pm 1$-bias and
+Walsh readings belong to Fourier analysis on the Boolean cube
+\parencite{odonnell-2014}, and bias accounting through noisy gates to the
+tradition of \textcite{von-neumann-1956}, \textcite{pippenger-1988}, and
+\textcite{evans-schulman-1999}. The matrix calculus of error through
+general logic circuits is the probabilistic transfer matrix of
+\textcite{krishnaswamy-et-al-2008}, preceded by the signal-probability
+method of \textcite{parker-mccluskey-1975}. The density-matrix and POVM
+facts are textbook \parencite{nielsen-chuang-2010}, and the readout-error
+literature already models computational-basis measurement by
+tensor-product and correlated assignment matrices, with their inversion
+and calibration
+\parencite{bravyi-et-al-2021,nation-et-al-2021,smith-et-al-2021,maciejewski-zimboras-oszmaniec-2020,maciejewski-et-al-2021,hamilton-et-al-2020};
+the program's companion manuscript on readout
+\parencite{towell-bernoulli-quantum-readout} applies known tools there and
+needs the per-latent-assignment correction of
+\Cref{prop:latent-propagation} for Boolean post-processing.
 
-\paragraph{Stochastic matrices and Markov chains.}
-A Bernoulli map is a column-stochastic matrix, and the algebra of such matrices,
-products, stationary vectors, and spectra, is the algebra of finite Markov
-chains. \textcite{levin-peres-wilmer-2017}, \emph{Markov Chains and Mixing
-Times}, is the modern textbook treatment; \textcite{mitzenmacher-upfal},
-\emph{Probability and Computing}, gives the same material in the algorithmic
-setting closest to this book's use of it. The transpose convention, whether the
-stochastic matrix acts on the left of column vectors or the right of row vectors,
-differs across these sources and from \Cref{sec:n-ary-channels}; the underlying
-matrix is the same and only its layout changes.
+\paragraph{What this chapter adds.}
+A restatement, not new content: the book's set-theoretic results are
+written as operator identities (serial composition as a product, Axiom~1
+as a factorization, parsimony as additivity of factor parameters, parity
+as a product of eigenvalues), with the transpose relation to the
+row-stochastic convention of chapters~2 and~9 made explicit. It also
+fixes two scope statements of earlier drafts: the classical model is exact
+for diagonal measurements of any state, not only of diagonal states, and
+the spectral calculus does not make Boolean outputs two-rate bits.
 
-\paragraph{Fourier analysis on the Boolean cube.}
-The $\pm 1$-bias and Walsh-coefficient readings of the flip eigenvalue in
-\Cref{prop:parity-spectral} belong to the Fourier-analysis-of-Boolean-functions
-tradition, for which \textcite{odonnell-2014}, \emph{Analysis of Boolean
-Functions}, is the comprehensive reference. The multiplicativity of the
-order-one coefficient under XOR, the identity behind the noisy-parity rate, is
-the cube-Fourier face of the tensor factorization of
-\Cref{prop:set-operator-is-axiom-1}.
-
-\paragraph{Reliable computation from noisy components.}
-The accounting of error through XOR gates by the product of $\pm 1$ biases is the
-classical tradition of computing reliably with unreliable parts.
-\textcite{von-neumann-1956}, ``Probabilistic Logics and the Synthesis of
-Reliable Organisms from Unreliable Components,'' began it, and
-\textcite{pippenger-1988}, ``Reliable Computation by Formulas in the Presence of
-Noise,'' gave the formula-depth analysis in which the bias-product bookkeeping is
-standard. The syndrome-bit version of the same identity, a measured parity
-inheriting $\prod_i (1 - 2 q_i)$ from its constituent single-bit readout errors,
-is the quantum-readout instance of \Cref{sec:n-ary-channels}, developed in the
-companion paper \parencite{towell-bernoulli-quantum-readout}.
-
-\paragraph{Density matrices and the diagonal sector.}
-The locating statement of \Cref{sec:operator-classical-sector}, that the
-framework is the classical stochastic algebra on the diagonal of the density
-operator in the computational basis, rests on standard density-matrix and
-decoherence facts. \textcite{nielsen-chuang-2010}, \emph{Quantum Computation and
-Quantum Information}, is the textbook reference for the density operator, the
-distinction between its diagonal probabilities and its off-diagonal coherences,
-and the readout-error channel that this chapter reads as a Kronecker product of
-single-qubit stochastic matrices.
+\paragraph{Left out.}
+Readout-error mitigation and its statistics, crosstalk models beyond
+their citation, non-diagonal measurements, and any quantum algorithmic
+content beyond the amplitude-amplification contrast of
+\Cref{rem:quantum-amplification}.

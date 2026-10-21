@@ -26,8 +26,8 @@ output disagrees with the input.
 
 \begin{definition}[Binary Symmetric Channel]
 \label{def:bsc}
-A \emph{binary symmetric channel} (BSC) with crossover probability $\fprate \in
-(0, 1)$ is a random map $\phi : \{\top, \bot\} \to \{\top, \bot\}$ with
+A \emph{binary symmetric channel}\index{channel!binary symmetric} (BSC) with
+crossover probability $\fprate \in (0, 1)$ is a random map $\phi : \{\top, \bot\} \to \{\top, \bot\}$ with
 \[
   \Pr\{\phi(x) \neq x\} \;=\; \fprate
   \quad \text{for every } x \in \{\top, \bot\}.
@@ -46,7 +46,8 @@ asymmetric generalization is \Cref{sec:asymmetric-channel}.
 \subsection*{The channel matrix}
 
 We record a binary channel as a $2 \times 2$ row-stochastic matrix $Q$, the
-\emph{channel matrix}. The convention, fixed for the rest of the book: rows are
+\emph{channel matrix}\index{channel matrix}\index{confusion matrix}
+(\Cref{fig:binary-channel}(a) draws the BSC case). The convention, fixed for the rest of the book: rows are
 indexed by the input block, row 1 for $B_1 = \{\top\}$ (positives) and row 2
 for $B_2 = \{\bot\}$ (negatives); columns by the output label, $\top$ then
 $\bot$; and the $(i,j)$ entry is the probability of output $j$ given an input in
@@ -70,7 +71,7 @@ order-2 channel and the BSC special case are
     \fprate & 1 - \fprate
   \end{pmatrix}.
 \]
-The BSC matrix is \emph{circulant}: its two rows are permutations of each
+The BSC matrix is \emph{circulant}\index{channel!binary symmetric}: its two rows are permutations of each
 other, the matrix expression of symmetry. At $\fprate = 0.05$, for instance, a
 positive input reads back correctly with probability $0.95$ and flips with
 probability $0.05$, and likewise for a negative input; under a uniform input
@@ -79,14 +80,16 @@ because the channel is symmetric.
 
 \subsection*{Capacity}
 
-The BSC's \emph{capacity}, the maximum mutual information $I(X; Y)$ over input
-priors, is
+The BSC's \emph{capacity}\index{channel capacity}, the maximum mutual
+information\index{mutual information} $I(X; Y)$ over input priors, is
 \[
   C \;=\; 1 - H_2(\fprate),
   \qquad
   H_2(\fprate) = -\fprate \log_2 \fprate - (1 - \fprate)\log_2(1 - \fprate),
 \]
-attained at the uniform prior $p = 1/2$. The derivation is short: $H(Y \mid X) =
+attained at the uniform prior $p = 1/2$, with $H_2$ the binary entropy
+function\index{binary entropy function}; both the channel and the formula are
+Shannon's \parencite{shannon-1948}. The derivation is short: $H(Y \mid X) =
 H_2(\fprate)$ for every prior, while $H(Y)$ is maximized at $p = 1/2$, so
 $C = \max_p H(Y) - H_2(\fprate) = 1 - H_2(\fprate)$. Capacity is one bit per use
 at $\fprate = 0$ (a perfect channel) and zero at $\fprate = 1/2$, where the
@@ -120,7 +123,7 @@ $\fprate \neq \fnrate$, keeps them in separate blocks at model order 2. Calling
 the BSC ``the symmetric special case of the order-2 model'' refers not to its
 order but to the family it is embedded in: one may always write the BSC with
 the two-block discrete partition and impose $\fprate = \fnrate$, the working
-frame for chapters 2 through 4. The BSC is genuinely model order 1, studied as a
+frame for chapters 2 through 4. The BSC is genuinely model order 1\index{model order}, studied as a
 constrained member of the order-2 family; \Cref{sec:model-order} separates model
 order from parameter count and proves that no binary channel exceeds order 2.
 

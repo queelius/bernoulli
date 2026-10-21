@@ -1,8 +1,12 @@
 % §14.1 The Optimality Question
 %
 % Monograph register: frame the chapter against the chapter-8 floor and
-% Bloom gap, pose the constructive question, sketch the BHF answer. Cuts
-% the textbook roadmap and second-person framing. Cross-refs
+% Bloom gap, pose the constructive question, sketch the two answers (the
+% salt-search BHF, which meets the floor at exponential build cost, and the
+% perfect hash filter, MPHF + fingerprints, at an additive log2(e) above it).
+% CORRECTION (2026-10-21): an earlier draft defined the BHF as the perfect-hash
+% fingerprint table and claimed a sublinear perfect-hash term; a minimal
+% perfect hash costs at least log2(e) bits per key (Fredman-Komlos 1984). Cross-refs
 % thm:entropy-floor, sec:entropy-floor, prop:bloom-overhead, sec:bloom-gap,
 % def:bloom-filter, sec:bhf-construction, def:bhf, sec:space-analysis,
 % sec:fpr-analysis. DEFINED: sec:optimality-question.
@@ -11,14 +15,16 @@
 \label{sec:optimality-question}
 
 Chapter~8 closed Part~II with a contrast it could not resolve. The
-entropy floor (\Cref{thm:entropy-floor}) certified that some FNR-zero
+entropy floor\index{space lower bound!approximate membership}
+(\Cref{thm:entropy-floor}) certified that some FNR-zero
 representation could in principle reach $-\log_2 \fprate$ bits per
 element, but it exhibited none; the standard Bloom filter, the only
-concrete FNR-zero scheme on the table, sat a fixed multiplicative
+concrete FNR-zero scheme on the table\index{Bloom filter}, sat a fixed multiplicative
 factor above that floor. The bound was diagnostic, not constructive.
-This chapter supplies the construction: an explicit FNR-zero
-approximate set that meets the floor up to integer rounding and a
-sublinear correction, closing the gap the Bloom filter leaves open.
+This chapter supplies constructions: an explicit FNR-zero approximate
+set that meets the floor up to lower-order terms at an exponential
+build cost, and a practical one that replaces the Bloom filter's
+multiplicative overhead with an additive constant.
 
 \subsection*{The gap}
 
@@ -41,7 +47,7 @@ $k^* = (m/n)\ln 2$, the per-element cost is
   m / n \;=\; \log_2(1/\fprate) \cdot \log_2 e,
 \]
 or $\log_2 e \approx 1.4427$ times the floor, a constant independent of
-$\fprate$. The overhead traces to a structural choice: $k$ independent
+$\fprate$\index{Bloom filter!space overhead}. The overhead traces to a structural choice: $k$ independent
 hashes write into a flat shared bit array, and the analysis maximizes
 per-bit entropy by tuning the array to half occupancy. Half-occupancy
 is the wrong target. Bits should pay for the discrimination the
@@ -52,45 +58,55 @@ structure performs, not for the encoding's internal balance.
 \Cref{sec:bloom-gap} isolated three Bloom design choices, $k$
 independent hashes, a flat shared bit array, and a conjunction query,
 and observed that closing the gap requires abandoning at least one.
-Which one, and what replaces it, the remark left open. A construction
-that answers it needs four properties: FNR-zero by construction, so it
-stays on the perfect-filter axis with the Bloom filter; an FPR provably
-at most $\fprate$; a per-element budget matching $-\log_2 \fprate$ up to
-a sublinear correction; and a query running in time comparable to
-Bloom's. The first two are correctness, the third is the optimality the
-chapter promises, the fourth is what makes the construction deployable
-rather than an existence proof. The floor theorem guarantees that some
-encoding meets all four asymptotically; the question is whether an
-explicit one does, and what it looks like.
+A construction that answers the question needs five properties:
+FNR-zero by construction, so it stays on the perfect-filter axis with
+the Bloom filter; an FPR provably at most $\fprate$; a per-element
+budget matching $-\log_2 \fprate$ up to a lower-order correction; a
+query running in time comparable to Bloom's; and a build that finishes
+in time polynomial in $n$. The floor, which goes back to
+\textcite{carter-et-al-1978}, bounds the third property from below. The
+question is which explicit constructions meet which of the five, and at
+what price.
 
 \subsection*{The answer in sketch}
 
-The Bernoulli Hash Function (BHF) abandons the flat shared bit array.
-In its place it uses a \emph{perfect hash} $\phi : A \to [n]$ that
-bijects the designated set $A$ onto $[n] = \{1, \ldots, n\}$, and a
-\emph{fingerprint table} $F : [n] \to \{0, 1\}^r$ storing
-$F[\phi(a)] = g(a)$ for each $a \in A$, where $g : \Universe \to
-\{0, 1\}^r$ is a secondary hash and $r = \lceil -\log_2 \fprate \rceil$
-is the fingerprint width. A query for $x$ computes the slot $\phi(x)$,
-reads the stored fingerprint $F[\phi(x)]$, and returns $\top$ exactly
-when it equals $g(x)$.
+Two constructions answer it from opposite ends, and the chapter treats
+both.
 
-For $x \in A$ the perfect hash sends $x$ to its own slot, where the
-build pass stored $g(x)$; the comparison always succeeds, so no false
-negatives occur. For $x \notin A$ the slot holds $g(a)$ for whichever
-$a \in A$ shares the slot, and $g(a) = g(x)$ with probability $2^{-r}$
-under the uniformity of $g$; with $r = \lceil -\log_2 \fprate \rceil$
-the false-positive rate is at most $\fprate$ by construction. The space
-cost is $n r$ bits for the table plus a sublinear perfect-hash term, so
-the per-element budget is
-\[
-  r \;+\; o(1)
-  \;=\; -\log_2 \fprate \;+\; O(1),
-\]
-matching the floor up to the integer rounding of $r$. The construction
-trades Bloom's flat array for a perfect-hash-addressed table, and the
-per-element cost drops from $\log_2 e \cdot \log_2(1/\fprate)$ to
-$\log_2(1/\fprate)$ plus rounding. \Cref{sec:bhf-construction} gives the
-construction in full, \Cref{sec:space-analysis} the bit budget and the
-optimality theorem, and \Cref{sec:fpr-analysis} the false-positive
-bound.
+The \emph{Bernoulli hash function} (BHF)\index{Bernoulli hash function}
+abandons stored per-element structure altogether. It fixes an
+acceptance set of density $\fprate$ in the output range of a hash
+function and searches for a single \emph{salt}\index{seed search}
+under which every member of $A$ hashes into the acceptance set; the
+salt is the whole representation, and a query hashes $x$ with the salt
+and tests acceptance. Each member is accepted with probability
+$\fprate$ under a given salt, so a salt succeeds with probability
+$\fprate^n$, and the first success has an index whose binary length
+is $n \log_2(1/\fprate) + O(1)$ in expectation. The BHF therefore meets
+the floor up to lower-order terms, with no integer rounding, and its
+query is a single hash evaluation. What it gives up is the fifth
+property: the expected number of salts tried is $\fprate^{-n}$,
+exponential in $n$. This is single-seed search, the mechanism that
+modern perfect-hashing constructions apply to small buckets
+\parencite{esposito-graf-vigna-2020,lehmann-sanders-walzer-2024,lehmann-et-al-2025}.
+
+The \emph{perfect hash filter}\index{perfect hash filter} keeps the
+build polynomial. A minimal perfect hash $\phi : A \to [n]$ addresses a
+table of $r$-bit fingerprints with $r = \lceil -\log_2 \fprate
+\rceil$, and a query compares the stored fingerprint with the query's
+own. It meets every property except the third exactly: the
+fingerprints cost $r$ bits per element, but a minimal perfect hash
+cannot cost less than $\log_2 e \approx 1.44$ bits per element
+\parencite{fredman-komlos-1984}, so the total sits a constant
+\emph{additive} amount above the floor, against the Bloom filter's
+multiplicative factor. The pairing of a minimal perfect hash with
+fingerprints, and its $\log_2 e$ overhead, are described by
+\textcite[Sec.~1]{dietzfelbinger-pagh-2008}. Retrieval structures close
+the remaining gap to a factor $1 + \delta$ at linear build time
+(\Cref{sec:space-analysis}).
+
+\Cref{sec:bhf-construction} gives the BHF in full,
+\Cref{sec:space-analysis} its expected size and the perfect hash
+filter's budget, \Cref{sec:fpr-analysis} the false-positive analysis of
+both, and \Cref{sec:construction-time} the build costs that separate
+them.

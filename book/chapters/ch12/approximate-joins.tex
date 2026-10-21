@@ -1,100 +1,98 @@
-% §12.3 Approximate Joins in Databases
+% §12.5 Approximate Joins in Databases
 %
-% Monograph register: MinHash + LSH similarity join read through the framework.
-% Worked-example fix: (b,r)=(20,10) gives J* = (1/20)^(1/10) ~ 0.74, ABOVE the
-% threshold theta = 0.5, so it is an aggressive precision-favoring tuning; the
-% draft's "most J=0.7 survive" / "half of J=0.6 survive" contradicted the
-% (correct) survival numbers 0.434 / ~0.11. Corrected the prose; numbers kept.
-% rem:bloom-equijoin salvages ex:ch12-10. Cross-refs sec:minhash-lsh, def:minhash,
-% prop:minhash-collision, prop:minhash-error, sec:relation-composition,
-% thm:join-rates, def:bloom-filter, ch:approximate-sets, sec:ch12-bridge. DEFINED:
-% sec:approximate-joins, rem:bloom-equijoin.
+% Re-synced 2026-10-21. The LSH candidate relation and the MinHash threshold
+% relation are computed from the same signature, so they are NOT independent and
+% do not compose by thm:join-rates or the chapter-3 product rules; a union bound
+% replaces the earlier product composition. Survival probabilities recomputed
+% (J = 0.7: 0.436, J = 0.5: 0.0194, J = 0.3: 1.18e-4), candidate count ~747. The
+% Bloom equijoin is credited to Bloom-filter semijoins (mullin-1990).
+% Cross-refs sec:minhash-lsh, def:minhash, prop:minhash-collision,
+% prop:minhash-error, sec:relation-composition, thm:join-rates, def:bloom-filter,
+% ch:approximate-sets, sec:ch12-bridge. DEFINED: sec:approximate-joins,
+% rem:bloom-equijoin.
 
 \section{Approximate Joins in Databases}
 \label{sec:approximate-joins}
 
-\Cref{sec:relation-composition} treated the join algebraically. This section
-reads the database \emph{similarity join} through the same framework, showing the
-published MinHash-LSH analyses to be the chapter-12 join rates specialized to a
-sketch-based predicate.
+\Cref{sec:relation-composition} treated the join algebraically. This section reads
+the database \emph{similarity join} in the same vocabulary: the standard
+MinHash-LSH analysis supplies the rates of a sketch-based approximate relation,
+and the chapter's main caution, that tests reading the same randomness are not
+independent, applies inside the pipeline itself.
 
 \subsection*{The similarity join}
 
-For relations $R_1, R_2$ whose rows are token sets (the words of a document, the
-shingles of a string), the similarity join at threshold $\theta$ is $R_1
-\bowtie_\theta R_2 = \{(r_1, r_2) : J(r_1, r_2) \ge \theta\}$, the cross-relation
-pairs whose Jaccard overlap is at least $\theta$. Record linkage, near-duplicate
-detection, and entity resolution all reduce to it. The naive evaluation is $|R_1|
-\cdot |R_2|$ Jaccard computations, prohibitive at scale; the framework reads the
-join as an approximate relation $\tilde S_\theta(r_1, r_2) = [\hat J(r_1, r_2)
-\ge \theta]$ implemented by a sketch.
+For relations $R_1, R_2$ whose rows are token sets, the similarity join\index{similarity join} at
+threshold $\theta$ is $R_1 \bowtie_\theta R_2 = \{(r_1, r_2) : J(r_1, r_2) \ge
+\theta\}$, the cross-relation pairs whose Jaccard overlap is at least $\theta$.
+Record linkage, near-duplicate detection, and entity resolution reduce to it. The
+naive evaluation computes $|R_1| \cdot |R_2|$ Jaccard values; the sketch evaluation
+is an approximate relation $\tilde S_\theta(r_1, r_2) = [\hat J(r_1, r_2) \ge
+\theta]$.
 
-The MinHash sketch (\Cref{def:minhash}) is exactly that estimator: the fraction
-of agreeing signature coordinates is an unbiased estimate of $J$
-(\Cref{prop:minhash-collision}). Build the length-$k$ signature for every row
-(cost linear in the total token count), and for each candidate pair count
-agreements and threshold at $\theta$. The two error rates come from the
-chapter-10 Hoeffding bound (\Cref{prop:minhash-error}): a false positive needs
-$\hat J$ to overshoot a sub-$\theta$ truth, a false negative needs it to
-undershoot a super-$\theta$ truth, and both are bounded by $\Prob{|\hat J - J|
-\ge t} \le 2\exp(-2kt^2)$ with $t$ the gap to $\theta$. Larger $k$ shrinks both
-exponentially.
+The MinHash\index{MinHash} sketch (\Cref{def:minhash}) supplies $\hat J$: the
+fraction of agreeing signature coordinates is an unbiased estimate of $J$
+(\Cref{prop:minhash-collision}). With length-$k$ signatures, a false positive needs
+$\hat J$ to overshoot a sub-threshold truth and a false negative needs it to
+undershoot a super-threshold one, and the Hoeffding bound\index{Hoeffding's inequality} of
+\Cref{prop:minhash-error} gives $\Prob{|\hat J - J| \ge t} \le 2 \exp(-2kt^2)$ with
+$t$ the gap to $\theta$, so both rates fall exponentially in $k$ away from the
+threshold. These are pointwise rates for a fixed pair; pairs sharing a row share
+that row's signature and are not independent, exactly as join outputs sharing an
+operand tuple are not (\Cref{thm:join-correlation}).
 
 \subsection*{LSH bands}
 
-The remaining quadratic factor is candidate enumeration, which LSH
+The remaining quadratic factor is candidate enumeration, which
+locality-sensitive hashing\index{locality-sensitive hashing}
 (\Cref{sec:minhash-lsh}) prunes. Partition the signature into $b$ bands of $r$
 rows ($k = br$), hash each band, and call $(r_1, r_2)$ a candidate if any band
 collides. A band collides with probability $J^r$, so a pair survives with
-probability $1 - (1 - J^r)^b$, the S-curve with inflection $J^* \approx
-(1/b)^{1/r}$. Placing $J^*$ near $\theta$ concentrates candidates on pairs with
-$J \gtrsim \theta$; the candidate set is sub-quadratic when most pairs have $J
-\ll \theta$. The pipeline is the intersection of the LSH candidate relation
-$\tilde C$ and the threshold relation $\tilde S_\theta$, composing by
-\Cref{thm:join-rates}; the LSH layer shrinks the false-positive denominator
-(fewer candidates) and adds to the false-negative side (a truly similar pair can
-fail to collide), combining by the chapter-3 OR rule.
+probability $1 - (1 - J^r)^b$, an S-curve with transition near $J^* \approx
+(1/b)^{1/r}$. The pipeline reports a pair when it is a candidate \emph{and} passes
+the threshold test. Both tests read the same signature, so they are dependent and
+the product rules of \Cref{thm:join-rates} and chapter~3 do not apply. Sound
+statements remain: the pipeline's false-positive rate is at most that of either
+stage, and its false-negative rate is at most the sum of the two stages'
+false-negative rates, by the union bound\index{union bound}, whatever the dependence.
 
 \begin{remark}[The Bloom equijoin]
 \label{rem:bloom-equijoin}
-The equijoin, matching rows on equality of a shared key, admits a different
-sketch. Build a Bloom filter $B_2$ over $R_2$'s keys, scan $R_1$, and for each
-$r_1$ whose key hits $B_2$ scan $R_2$ for the match. The candidate relation ``$r_1$'s
-key hits $B_2$'' is a one-sided FNR-zero approximate relation
-(\Cref{def:bloom-filter}) with per-pair FPR the Bloom rate; an exact verification
-on each candidate then removes the residual false positives, so the \emph{final}
-join is exact ($\fprate = \fnrate = 0$) with the Bloom filter serving only as a
-candidate pruner. This is the framework's certain-reject structure
-(\Cref{ch:approximate-sets}) deployed as a join accelerator, the equijoin
-counterpart of the MinHash similarity pipeline.
+For an equijoin on a shared key, build a Bloom filter over $R_2$'s keys, scan
+$R_1$, and look up in $R_2$ only those rows whose key hits the filter: the Bloom
+semijoin of distributed query processing \parencite{mullin-1990}\index{semijoin}.
+The candidate relation ``$r_1$'s key hits the filter'' is an FNR-zero approximate
+relation (\Cref{def:bloom-filter}); exact verification of each candidate removes
+the residual false positives, so the final join is exact and the filter serves
+only as a pruner. This is the certain-reject structure of
+\Cref{ch:approximate-sets} deployed as a join accelerator.
 \end{remark}
 
 \subsection*{Worked example}
 
-Take $|R_1| = |R_2| = 1000$ (so $10^6$ candidate pairs), threshold $\theta =
-0.5$, and $k = 200$ partitioned as $b = 20$ bands of $r = 10$. The per-pair
-MinHash threshold is sharp: a pair at $J = 0.3$ is emitted with probability
-$\le \exp(-2 \cdot 200 \cdot 0.2^2) = \exp(-16) \approx 1.1 \times 10^{-7}$, and a
-pair at $J = 0.7$ is missed with the same probability, so away from the boundary
-the threshold adds negligible error (at $J = \theta$ exactly it is $1/2$).
+Take $|R_1| = |R_2| = 1000$ ($10^6$ candidate pairs), $\theta = 0.5$, and $k = 200$
+as $b = 20$ bands of $r = 10$. The threshold test is sharp: a pair at $J = 0.3$ is
+emitted with probability at most $\exp(-2 \cdot 200 \cdot 0.2^2) = e^{-16} \approx
+1.1 \times 10^{-7}$, a pair at $J = 0.7$ is missed with the same bound, and at $J =
+\theta$ the test is a coin flip.
 
-The LSH layer dominates, and its tuning needs care. With $(b, r) = (20, 10)$ the
-inflection sits at $J^* = (1/20)^{1/10} \approx 0.74$, \emph{above} the threshold
-$0.5$, making this an aggressive precision-favoring tuning: the survival
-probability $1 - (1 - J^{10})^{20}$ is $\approx 0.434$ at $J = 0.7$, $\approx
-0.019$ at the threshold $J = 0.5$, and $\approx 1.2 \times 10^{-4}$ at $J = 0.3$.
-Only $43\%$ of strongly similar pairs and $2\%$ of threshold pairs survive, so the
-pruning is severe. With a true-similarity distribution of $0.1\%$ at $J \ge 0.5$,
-$1\%$ at $[0.3, 0.5)$, and $98.9\%$ below, the candidate set is about
+The banding dominates, and its tuning needs care. The transition sits at $J^* =
+(1/20)^{1/10} \approx 0.74$, above the threshold, an aggressive precision-favoring
+choice: the survival probability $1 - (1 - J^{10})^{20}$ is about $0.436$ at $J =
+0.7$, $0.0194$ at $J = 0.5$, and $1.18 \times 10^{-4}$ at $J = 0.3$. Suppose $0.1\%$
+of pairs have $J \ge 0.5$, $1\%$ lie in $[0.3, 0.5)$, and the rest lie below $0.3$,
+and take $J = 0.7$, $0.5$, and $0.3$ as representative of the three bands (the last
+two are upper ends, so their counts are upper estimates). The candidate set is then
+about
 \[
-  1000 \cdot 0.434 + 10000 \cdot 0.019 + 989000 \cdot 1.2 \times 10^{-4}
-  \approx 434 + 190 + 119 \approx 743
+  1000 \cdot 0.436 + 10000 \cdot 0.0194 + 989000 \cdot 1.18 \times 10^{-4}
+  \approx 436 + 194 + 117 \approx 747
 \]
-pairs, three orders of magnitude below the $10^6$ all-pairs scan: the
-sub-quadratic win. The cost is the low survival of near-threshold pairs, a real
-recall penalty; centering $J^*$ on $\theta = 0.5$ (the standard tuning $(1/b)^{1/r}
-= \theta$, here a larger $b$) would admit more candidates in exchange for higher
-recall. The candidate verification is $O(k)$ per pair, $\approx 1.5 \times 10^5$
-signature comparisons against the $2 \times 10^8$ of the naive scan. This
-precision/recall trade through $(b, r)$ is the standard operating regime of
-MinHash-LSH similarity joins. \Cref{sec:ch12-bridge} closes the chapter.
+pairs, three orders of magnitude below the all-pairs scan, verified with about
+$1.5 \times 10^5$ signature comparisons against $2 \times 10^8$ for the naive scan.
+The cost is recall: fewer than half of the strongly similar pairs and about $2\%$ of
+threshold pairs survive. Centering $J^*$ on $\theta$ (the standard tuning
+$(1/b)^{1/r} = \theta$, here with more bands) admits more candidates in exchange for
+higher recall. This precision and recall trade through $(b, r)$ is the standard
+operating regime of MinHash-LSH similarity joins. \Cref{sec:ch12-bridge} closes the
+chapter.

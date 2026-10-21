@@ -11,14 +11,14 @@
 \label{sec:sample-complexity}
 
 Every algorithm of this chapter has a knob $k$, the round or repetition count,
-that drives a per-trial error below a target $\delta$. The sample-complexity
+that drives a per-trial error below a target $\delta$. The sample-complexity\index{sample complexity}
 question is how to set it, and the answer rests on one theorem about sums of
 independent Bernoulli variables.
 
-\begin{theorem}[Multiplicative Chernoff bound]
+\begin{theorem}[Multiplicative Chernoff bound; \textcite{chernoff-1952}]
 \label{thm:chernoff}
-For independent $X_1, \ldots, X_n$ with $\Prob{X_i = 1} = p$, $X = \sum_i X_i$,
-$\mu = np$, and every $\epsilon \in (0, 1]$,
+Let $X_1, \ldots, X_n$ be independent with $\Prob{X_i = 1} = p$, and let $X =
+\sum_i X_i$ and $\mu = np$. For every $\epsilon \in (0, 1]$,
 \[
   \Prob{X \ge (1 + \epsilon)\mu} \le \exp\!\left(-\tfrac{\mu\epsilon^2}{3}\right),
   \qquad
@@ -43,7 +43,7 @@ ceiling); a two-sided union gives $\Prob{|X - \mu| \ge \epsilon\mu} \le
 2\exp(-\mu\epsilon^2/3)$.
 
 \paragraph{Miller-Rabin round count.}
-Miller-Rabin sits on the FNR-zero axis ($\fnrate = 0$, $\fprate \le 1/4$), so the
+Miller-Rabin\index{Miller--Rabin test} sits on the FNR-zero axis ($\fnrate = 0$, $\fprate \le 1/4$), so the
 Chernoff bound is not needed: a single fooled round suffices for a false
 positive, and the composition theorem reduces $\fprate^{(k)}$ to the product
 $\le (1/4)^k$ (\Cref{thm:miller-rabin-formal}). Driving this below $\delta$
@@ -53,10 +53,12 @@ confidence costs a constant number of rounds, not a constant factor, because the
 error is one-sided and a single witness collapses the chain.
 
 \paragraph{BPP amplification.}
-The deferred proof of \Cref{thm:bpp-amplification} is a Chernoff calculation. Let
+The deferred proof of \Cref{thm:bpp-amplification} is a Chernoff
+calculation\index{error amplification}. Let
 $A$ accept correctly with probability $\ge 1/2 + \epsilon_0$ ($\epsilon_0 = 1/6$
 for the $2/3$-versus-$1/3$ gap of \Cref{def:bpp}), let $X_i = 1$ when run $i$ is
-correct, independent by \Cref{ax:element-indep}, and let $X = \sum_{i=1}^k X_i$
+correct, independent across runs because the runs use independent coins on the
+same input\index{independence!across stages}, and let $X = \sum_{i=1}^k X_i$
 with $\mu = k(1/2 + \epsilon_0)$. The majority is wrong when $X < k/2 = (1 -
 \epsilon')\mu$ with $\epsilon' = \epsilon_0/(1/2 + \epsilon_0)$, so the lower tail
 gives
@@ -81,10 +83,12 @@ are two tails of the same binomial estimator $\hat p = X/n$. Chebyshev on the
 variance $p(1-p)/n$ (\Cref{prop:binomial-variance}) gives $\Prob{|\hat p - p| \ge
 \epsilon} \le p(1-p)/(n\epsilon^2) \le 1/(4n\epsilon^2)$, polynomial in
 $n\epsilon^2$; Hoeffding, the additive cousin of \Cref{thm:chernoff}, gives
-$\le 2\exp(-2n\epsilon^2)$, exponential. Chebyshev needs only the variance and
-gives the chapter-7 point estimate its Cram\'er--Rao certificate; Chernoff needs
-the full moment-generating function and gives sample complexity. The gap between
-the polynomial $n = \Theta(1/\delta)$ and the exponential $n =
-\Theta(\log(1/\delta))$ is the gap between $10^6$ samples for $\delta = 10^{-6}$
-and $20$, which is why Chernoff, not Chebyshev, is the workhorse of
-randomized-algorithm analysis.
+$\le 2\exp(-2n\epsilon^2)$ \parencite{hoeffding-1963}, exponential. Chebyshev
+needs only the variance, the quantity chapter~7's estimator analysis computes;
+Chernoff and Hoeffding need the full moment-generating function and give sample
+complexity. At a common accuracy $\epsilon$ the requirement is $n \ge
+1/(4\epsilon^2\delta)$ from Chebyshev against $n \ge \ln(2/\delta)/(2\epsilon^2)$
+from Hoeffding. At $\delta = 10^{-6}$ that is about $2.5 \times
+10^5/\epsilon^2$ samples against about $7.3/\epsilon^2$. This is why exponential
+tail bounds, not Chebyshev, are the workhorse of randomized-algorithm
+analysis.

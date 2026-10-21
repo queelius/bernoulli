@@ -1,0 +1,113 @@
+\chapter{Notation and Conventions}
+\label{app:notation}
+
+This appendix collects the notation used across the chapters. Symbols that
+appear in a single chapter are defined where they are used and are not repeated
+here.
+
+\section*{Conventions}
+
+\begin{itemize}
+  \item \emph{Truth values.} $\top$ and $\bot$ denote true and false. A
+    \emph{latent} (true) value is the value an exact computation would return;
+    an \emph{observed} (reported) value is what the approximate structure
+    returns. Observed quantities carry a tilde or a hat when both appear in one
+    expression ($b$ latent, $\tilde{b}$ observed).
+  \item \emph{Rates are conditional.} Every error rate is a probability
+    conditional on the latent value, never on the report:
+    $\fprate = \Prob{\tilde{b} = \top}[b = \bot]$ and
+    $\fnrate = \Prob{\tilde{b} = \bot}[b = \top]$. Quantities conditional
+    on the report (PPV, NPV) depend on the prevalence and are treated separately
+    (\Cref{ch:classification-measures}).
+  \item \emph{Channel matrices are row-stochastic.}\index{channel matrix} Rows are indexed by the
+    latent input and columns by the reported output, both in the order
+    $(\top, \bot)$, so $Q_{xy} = \Prob{\text{report } y}[\text{latent } x]$
+    and each row sums to one. Applying $Q_1$ and then $Q_2$ gives $Q_1 Q_2$.
+  \item \emph{Independence.} Unless a statement says otherwise, distinct
+    queries have independent error events (Axiom~1, \Cref{ax:element-indep})
+    and rates are stable over repeated use (Axiom~2,
+    \Cref{ax:block-rates-indep}). Part~V studies what happens when these fail.
+  \item \emph{Logarithms} are base two unless written $\ln$. The constant
+    $\log_2 e \approx 1.4427$ recurs as the space overhead of an optimally
+    tuned Bloom filter over the lower bound.
+  \item \emph{Model order versus composition depth.} \emph{Model order} is the
+    number of blocks in the coarsest partition of the input domain on which the
+    error rate is constant\index{model order} (\Cref{def:model-order}). It is distinct from
+    \emph{$k$-fold composition}\index{k-fold composition@$k$-fold composition}, the number of times an approximate operation
+    is applied in series.
+\end{itemize}
+
+\section*{Symbols}
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.20\textwidth}
+                   >{\raggedright\arraybackslash}p{0.49\textwidth}
+                   >{\raggedright\arraybackslash}p{0.23\textwidth}@{}}
+\toprule
+Symbol & Meaning & Introduced \\
+\midrule
+\endfirsthead
+\toprule
+Symbol & Meaning & Introduced \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\multicolumn{3}{@{}l}{\emph{The atom}} \\
+$\top$, $\bot$ & true, false & \Cref{ch:noisy-bit} \\
+$\BoolType$ & the Boolean type $\{\top, \bot\}$ & \Cref{ch:noisy-bit} \\
+$\Bernoulli{T}$ & a value of type $T$ observed through a channel with
+  specified error rates; $\Bernoulli{\BoolType}$ is the noisy bit
+  & \Cref{def:bernoulli-bool} \\
+$\fprate$ & false-positive rate, $\Prob{\text{report } \top}[\text{latent } \bot]$
+  & \Cref{def:asymmetric-channel} \\
+$\fnrate$ & false-negative rate, $\Prob{\text{report } \bot}[\text{latent } \top]$
+  & \Cref{def:asymmetric-channel} \\
+$\tprate$, $\tnrate$ & true-positive rate $1 - \fnrate$ and true-negative rate
+  $1 - \fprate$; in \Cref{thm:composition} $\eta_i$ is a generic per-stage error
+  rate & \Cref{ch:noisy-bit} \\
+$Q$, $Q_Z$ & channel matrix (row-stochastic); the Z-channel's matrix, with
+  $\fnrate = 0$ & \Cref{def:asymmetric-channel,def:z-channel} \\
+$Q_1 \otimes Q_2$ & Kronecker (tensor) product: the joint channel of two
+  independent queries & \Cref{thm:kronecker} \\
+$w$ & a latent input word $(w_1, \ldots, w_n)$ of a Boolean formula; rates
+  conditional on $w$ propagate exactly & \Cref{prop:latent-propagation} \\
+$\pi$ & prevalence, the prior probability that a latent value is $\top$
+  & \Cref{ch:boolean-algebra} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Sets and maps}} \\
+$\Universe$ & the universe of keys & \Cref{ch:approximate-sets} \\
+$A$, $\ASet{A}$ & an exact set $A \subseteq \Universe$ and an approximate
+  (Bernoulli) set of it & \Cref{def:approximate-set} \\
+$\Card{A}$, $n$ & cardinality; $n$ is usually the number of stored keys
+  & \Cref{ch:approximate-sets} \\
+$m$, $k$ & for a Bloom filter, the number of bits and of hash functions;
+  elsewhere $m$ counts joint tests & \Cref{def:bloom-filter} \\
+$\mu$ & mean number of bits per stored value in an approximate map, as in
+  the space scale $\log_2(1/\fprate) + \mu$ & \Cref{ch:approximate-functions} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Measures and information}} \\
+$\PPV$, $\NPV$ & positive and negative predictive value, conditional on the
+  report & \Cref{def:ppv,def:npv} \\
+$\Precision$, $\Recall$, $\Fone$ & precision ($= \PPV$), recall
+  ($= \tprate$), and their harmonic mean & \Cref{def:f1} \\
+$J$ & Youden's index, $1 - \fprate - \fnrate$ & \Cref{ch:classification-measures} \\
+$\Prob{\cdot}$, $\Expect{\cdot}$, $\Var{\cdot}$ & probability, expectation,
+  variance & \\
+$H(X)$, $H_2(p)$ & Shannon entropy; binary entropy
+  $-p \log_2 p - (1 - p)\log_2(1 - p)$ & \Cref{ch:information-bounds} \\
+$\MutualInfo(X; Y)$, $\Capacity$ & mutual information; channel capacity
+  & \Cref{ch:information-bounds} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Relations, cipher maps, operators}} \\
+$s_0$, $s_1$ & one-sided sensitivities of a monotone query, which set its
+  worst-case false-positive and false-negative rates
+  & \Cref{ch:approximate-relations} \\
+$\rho$, $M_b$ & density matrix; element of a detector POVM. For a POVM
+  diagonal in the computational basis,
+  $\operatorname{Tr}(M_b \rho) = \sum_t A(b \mid t)\, \rho_{tt}$ for every
+  state $\rho$ & \Cref{ch:not-bernoulli,ch:operator-representation} \\
+\end{longtable}
+\endgroup

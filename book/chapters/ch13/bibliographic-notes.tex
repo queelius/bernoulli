@@ -1,46 +1,51 @@
-% §13.5 Bibliographic Notes
+% §13.5 Notes and Lineage
 %
-% Monograph register: the data-type manuscript, algebraic data types, the
-% categorical reading. Fix: the functor is monoidal w.r.t. product and exponential
-% (Kronecker); the sum is the exception (tag coupling), not a preserved structure.
-% Citations towell-bernoulli-data-type, maclane-categories, hudak-1989,
-% wadler-1992. Cross-refs sec:bernoulli-of-composite, sec:composition-functor.
-% DEFINED: sec:bib-notes-ch13.
+% Lineage pass (2026-10-21): Decaf as the direct predecessor of Bernoulli[T]
+% (single correctness probability, p_expr = p_a p_b p_op); Rely, Chisel, EnerJ,
+% Uncertain<T>; probability monad (Giry, Kozen, Ramsey-Pfeffer, Wadler); ADTs
+% (Hudak); categories (Mac Lane). States that a sound two-rate qualifier system
+% is open. Citations towell-bernoulli-data-type, boston-et-al-2015,
+% carbin-misailovic-rinard-2013, misailovic-et-al-2014, sampson-et-al-2011,
+% bornholt-mytkowicz-mckinley-2014, giry-1982, kozen-1981, ramsey-pfeffer-2002,
+% wadler-1992, hudak-1989, maclane-categories. DEFINED: sec:bib-notes-ch13.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch13}
 
-\paragraph{The type-driven algebra.}
-The composition table of \Cref{sec:composition-functor} and the type-by-type lift
-of \Cref{sec:bernoulli-of-composite} follow \textcite{towell-bernoulli-data-type},
-``Random approximate values over algebraic types,'' which works out the algebraic
-data type of $\Bernoulli{T}$ and the constructor rules, including the sum-type
-tag error and its non-factorization. That manuscript treats $\Bernoulli{-}$ as a
-type-level operation with the channel-matrix derivations of chapters~4 and~9 as
-consequences; the book takes the opposite route, starting from the channel matrix
-and reading the type algebra off it. The two agree.
+\paragraph{Lineage.}
+Values that are correct with a tracked probability, composed through programs,
+have a direct predecessor in approximate programming. Decaf
+\parencite{boston-et-al-2015} gives each value a type qualifier
+$\mathtt{@Approx}(p)$, the probability that it is correct, and infers the
+qualifier of an expression as the product $p_a\, p_b\, p_{\mathrm{op}}$ of its
+operands' and operator's probabilities; Rely
+\parencite{carbin-misailovic-rinard-2013} verifies such reliability bounds for
+programs on unreliable hardware, Chisel \parencite{misailovic-et-al-2014}
+optimizes against them, EnerJ \parencite{sampson-et-al-2011} separates approximate
+from precise data by type, and $\mathtt{Uncertain}\langle T\rangle$
+\parencite{bornholt-mytkowicz-mckinley-2014} makes a distribution over $T$ a
+first-class value. The probability monad behind \Cref{rem:monad} is
+\textcite{giry-1982}; its use as a semantics of probabilistic programs is
+\textcite{kozen-1981} and \textcite{ramsey-pfeffer-2002}, with
+\textcite{wadler-1992} for monads in programming and \textcite{maclane-categories}
+for the categorical machinery. The four-constructor view of algebraic data types
+is standard \parencite{hudak-1989}.
 
-\paragraph{Algebraic data types.}
-The four-constructor view (products, sums, lists, functions) is the standard
-algebraic-data-type framing of programming-language theory, the type system of ML
-and Haskell descended from Hindley--Milner. \textcite{hudak-1989}'s survey is a
-readable history of how it grew out of the typed lambda calculus, for readers
-coming from imperative backgrounds.
+\paragraph{What this chapter adds.}
+The constructor table follows the data-type manuscript
+\textcite{towell-bernoulli-data-type}. Relative to Decaf's single correctness
+probability, the lift tracks a confusion matrix per type, so the false-positive
+and false-negative directions stay separate, and the chapter records which
+constructors make a composite value's error law factor (products, lists, and
+functions under independence) and which do not (sums, through the tag error,
+identified with approximate-set membership error). It also corrects earlier
+statements of the table as a composition calculus: the table describes values,
+not computations, and two-rate pairs do not compose exactly through programs.
 
-\paragraph{The categorical reading.}
-The structure-preserving language of \Cref{sec:composition-functor} is informal
-category theory: $\Bernoulli{-}$ is a \emph{functor} from algebraic types to
-noisy channels, and it is monoidal with respect to the product and exponential
-constructors (which it sends to Kronecker product and per-input Kronecker
-factorization) but \emph{not} the sum, where the tag error couples the components
-and the direct-sum structure breaks. The function-row identity $\Bernoulli{T \to
-U} \cong T \to \Bernoulli{U}$ makes $\Bernoulli{-}$ a monad
-(\Cref{rem:monad}). \textcite{maclane-categories} is the standard reference for
-the machinery (functors, natural transformations, monads), and
-\textcite{wadler-1992} translates the categorical monad into the
-programming-language idiom used here. Probability monads in this sense go back to
-Giry and Lawvere and have re-emerged as probabilistic-programming DSLs; the
-Bernoulli lift is the one whose channel representation is a finite stochastic
-matrix with closed-form composition. The book stops at the table because that is
-the level the practitioner needs.
+\paragraph{Left out.}
+A type system. A sound two-rate (confusion-matrix) qualifier discipline over sum,
+product, and function types, with inference and with the per-latent-assignment
+and dependence issues above handled soundly, would extend Decaf's
+single-probability qualifiers; it is an open research direction, not a result of
+this book. Recursive types beyond lists, higher-order functions, and dependence
+tracking across shared subterms are also left out.

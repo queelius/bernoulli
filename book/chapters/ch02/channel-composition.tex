@@ -23,27 +23,31 @@ end-to-end channel is the matrix product.
 
 \begin{definition}[Serial composition of binary channels]
 \label{def:channel-composition}
-For binary channel matrices $Q_1$ and $Q_2$, the \emph{serial composition}
-applying $Q_1$ then $Q_2$ has channel matrix $Q_{\mathrm{total}} = Q_2 Q_1$,
-with $(Q_{\mathrm{total}})_{ij} = \sum_k (Q_1)_{ik}(Q_2)_{kj}$.
+For binary channel matrices $Q_1$ and $Q_2$, the \emph{serial
+composition}\index{channel!serial composition} applying $Q_1$ then $Q_2$ has
+channel matrix $Q_{\mathrm{total}} = Q_1 Q_2$, with $(Q_{\mathrm{total}})_{ij} =
+\sum_k (Q_1)_{ik}(Q_2)_{kj}$.
 \end{definition}
 
 The sum is the law of total probability over the intermediate value $k$:
 $(Q_1)_{ik}$ carries block $B_i$ to intermediate output $k$, and $(Q_2)_{kj}$
-carries $k$ to final output $j$. The right-to-left order $Q_2 Q_1$ is the usual
-matrix convention, rightmost factor first.
+carries $k$ to final output $j$. Because the matrices are row-stochastic and act
+on row vectors of input probabilities, the stage applied first is the left
+factor: an input distribution $p$ leaves the chain as $p\,Q_1 Q_2$. This is the
+two-step Chapman-Kolmogorov relation of a Markov chain, and the cascade of
+channels of information theory \parencite{cover-thomas}.
 
 \subsection*{Composing two BSCs}
 
 Two BSCs in series produce a third. Multiplying circulant matrices preserves
-the circulant form, and the off-diagonal entry of $Q_2 Q_1$ is
+the circulant form, and the off-diagonal entry of $Q_1 Q_2$ is
 \begin{equation}
 \label{eq:bsc-composition}
   \fprate_{\mathrm{total}}
   \;=\; \fprate_1(1 - \fprate_2) + (1 - \fprate_1)\fprate_2
   \;=\; \fprate_1 + \fprate_2 - 2\fprate_1\fprate_2.
 \end{equation}
-The composed error is the exclusive-or of the two individual flips: the input is
+The composed error is the exclusive-or\index{parity!noisy} of the two individual flips: the input is
 corrupted exactly when one channel flips and the other does not (if both flip,
 the errors cancel). For $0 < \fprate_1, \fprate_2 < 1/2$ this exceeds both
 operands, so two imperfect symmetric channels in series are noisier than either
@@ -54,23 +58,28 @@ $1/2$, where the channel carries no information.
 \subsection*{Composing asymmetric channels}
 
 The general rule is the same matrix product. For $Q_1, Q_2$ with rates
-$(\fprate_i, \fnrate_i)$, the $(1,2)$ and $(2,1)$ entries of $Q_2 Q_1$ give
-\[
-  \fnrate_{\mathrm{total}} = (1 - \fnrate_2)\fnrate_1 + \fnrate_2 \fprate_1,
+$(\fprate_i, \fnrate_i)$, the $(1,2)$ and $(2,1)$ entries of $Q_1 Q_2$ give
+\begin{equation}
+\label{eq:asym-composition}
+  \fnrate_{\mathrm{total}} = (1 - \fnrate_1)\fnrate_2 + \fnrate_1 (1 - \fprate_2),
   \qquad
-  \fprate_{\mathrm{total}} = (1 - \fprate_2)\fprate_1 + \fprate_2(1 - \fnrate_1),
-\]
-the channel-matrix form of the rate-propagation theorem of
-\textcite{towell-bernoulli-sets}. Composition of asymmetric channels is not
-generally symmetric: the BSC is the special case in which symmetry is preserved
-because both factors are symmetric, forcing $\fprate_{\mathrm{total}} =
-\fnrate_{\mathrm{total}}$.
+  \fprate_{\mathrm{total}} = \fprate_1 (1 - \fnrate_2) + (1 - \fprate_1)\fprate_2 .
+\end{equation}
+Each term follows one path through the intermediate value: a true $\top$ ends
+as $\bot$ either by surviving stage~1 and being dropped by stage~2, or by being
+dropped at stage~1 and then not being restored to $\top$ by stage~2 (which
+treats the intermediate $\bot$ as a negative). At $(\fprate_1, \fnrate_1) =
+(0.05, 0.10)$ and $(\fprate_2, \fnrate_2) = (0.02, 0.20)$ the chain has
+$\fnrate_{\mathrm{total}} = 0.278$ and $\fprate_{\mathrm{total}} = 0.059$.
+Composition of asymmetric channels is not generally symmetric: the BSC is the
+special case in which symmetry is preserved because both factors are
+symmetric, forcing $\fprate_{\mathrm{total}} = \fnrate_{\mathrm{total}}$.
 
 \subsection*{Serial versus parallel}
 
 Serial composition must not be confused with the parallel query structure of
-\Cref{sec:kronecker}. Serial composition feeds one element's output into the
-next channel and yields a $2 \times 2$ matrix, the ordinary product $Q_2 Q_1$.
+\Cref{sec:kronecker} (the Kronecker product\index{Kronecker product}). Serial composition feeds one element's output into the
+next channel and yields a $2 \times 2$ matrix, the ordinary product $Q_1 Q_2$.
 Parallel querying applies $m$ independent channels to $m$ distinct elements and
 yields a $2^m \times 2^m$ joint matrix, the Kronecker product $Q_1 \otimes
 \cdots \otimes Q_m$, which \Cref{thm:kronecker} shows is forced by the
@@ -84,13 +93,15 @@ law of total probability; the Kronecker product needs the axioms
 \subsection*{Algebraic properties}
 
 Serial composition is associative, since matrix multiplication is, so a chain of
-channels groups unambiguously. It is not commutative in general: $Q_2 Q_1 \neq
-Q_1 Q_2$ unless the factors share a symmetry. Two BSCs do commute, because
+channels groups unambiguously. It is not commutative in general: $Q_1 Q_2 \neq
+Q_2 Q_1$ unless the factors share a symmetry. Two BSCs do commute, because
 \eqref{eq:bsc-composition} is symmetric in $\fprate_1$ and $\fprate_2$; a BSC
-and an asymmetric channel generally do not, as a direct computation of $Q_2 Q_1$
-and $Q_1 Q_2$ shows, so the order of stages in a mixed pipeline matters.
+and an asymmetric channel generally do not, as a direct computation of $Q_1 Q_2$
+and $Q_2 Q_1$ shows, so the order of stages in a mixed pipeline matters.
 
-\Cref{sec:composition-theorem} reframes the serial result algebraically: the
-hit rate of $k$ composed one-sided stages satisfies $\eta_{\mathrm{total}} = 1 -
-\prod_{i=1}^k (1 - \eta_i)$, the Boolean-algebra restatement of the matrix
-product computed here.
+For one-sided stages of the same orientation the product simplifies. With
+$\fnrate_1 = \fnrate_2 = 0$, \eqref{eq:asym-composition} gives
+$\fnrate_{\mathrm{total}} = 0$ and $\fprate_{\mathrm{total}} = 1 - (1 -
+\fprate_1)(1 - \fprate_2)$, the form $\eta_{\mathrm{total}} = 1 -
+\prod_{i}(1 - \eta_i)$ that \Cref{sec:composition-theorem} states for chains in
+which any single stage error is fatal.

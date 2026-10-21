@@ -1,0 +1,253 @@
+% §12.4 Query Error Contracts
+%
+% New section 2026-10-21, imported from towell-bernoulli-relations Sec. 6
+% (query_contracts: thm:query_contract, thm:dependent_contract,
+% cor:shared_rate, thm:degree_two_contract, eq:calibrated_alpha, the 12-cycle
+% example, the cubic edge-cover remark) and Sec. 7 (calibration: the
+% partitioned-Bloom experiment, tab:filter_calibration). The contracts are
+% elementary consequences of monotone boundary certificates (C = s for monotone
+% functions, Nisan); no novelty is claimed for them. Notation translated: the
+% paper's alpha/beta are the book's per-source fprate/fnrate.
+% Cross-refs def:source-model, thm:rel-canonical, sec:relation-composition,
+% prop:worst-case-rate-bounds, ch:approximate-sets.
+% DEFINED: sec:query-contracts, thm:query-contract, thm:query-contract-dependent,
+% cor:query-contract-shared, thm:query-contract-cycles, eq:query-calibration,
+% tab:filter-calibration.
+
+\section{Query Error Contracts}
+\label{sec:query-contracts}
+
+Tuple rates do not determine a query's error. The lineage fixes which sources a
+query reads, and the exact truth profile fixes which of them can err in each
+direction. Since no prior over exact databases is assumed, the natural guarantee
+is a \emph{contract}\index{query contract}: a bound valid for every exact truth
+profile with the given answer. It uses the same lineage as exact probability
+evaluation for one profile, but answers a different question.
+
+Fix a nonconstant monotone Boolean function $F : \{0, 1\}^n \to \{0, 1\}$ on
+distinct sources (the lineage\index{lineage (databases)} after aliases are identified). In the one-sided
+false-positive model each source reports $Y_i^{+}(x) = x_i \lor E_i$ with
+independent $E_i \sim \mathrm{Bernoulli}(\fprate_i)$; in the separate one-sided
+false-negative model it reports $Y_i^{-}(x) = x_i \land \lnot E_i'$ with
+independent $E_i' \sim \mathrm{Bernoulli}(\fnrate_i)$. The contracts are
+\[
+  \mathcal{E}_0(F) = \max_{x : F(x) = 0} \Prob{F(Y^{+}(x)) = 1},
+  \qquad
+  \mathcal{E}_1(F) = \max_{x : F(x) = 1} \Prob{F(Y^{-}(x)) = 0}.
+\]
+Let $\mathcal{B}_0$ be the inclusion-maximal false inputs and $\mathcal{B}_1$ the
+inclusion-minimal true inputs, and let the one-sided
+sensitivities\index{sensitivity (query)} be $s_b(F) = \max_{x : F(x) = b}
+\Card{\{i : F(x \oplus e_i) \ne F(x)\}}$. For monotone functions sensitivity equals
+certificate complexity, a fact due to \textcite{nisan-1991}.
+
+\begin{theorem}[Independent-source boundary contract]
+\label{thm:query-contract}
+For the one-sided models above,
+\[
+  \mathcal{E}_0(F) = \max_{b \in \mathcal{B}_0}
+    \Bigl[1 - \prod_{i : b_i = 0} (1 - \fprate_i)\Bigr],
+  \qquad
+  \mathcal{E}_1(F) = \max_{b \in \mathcal{B}_1}
+    \Bigl[1 - \prod_{i : b_i = 1} (1 - \fnrate_i)\Bigr],
+\]
+and for homogeneous rates
+\[
+  \mathcal{E}_0(F) = 1 - (1 - \fprate)^{s_0(F)},
+  \qquad
+  \mathcal{E}_1(F) = 1 - (1 - \fnrate)^{s_1(F)}.
+\]
+\end{theorem}
+
+\begin{proof}
+Couple all truth profiles through the same error variables. If $x \le x'$ then
+$Y^{+}(x) \le Y^{+}(x')$ pointwise, so monotonicity reduces the maximum to the
+maximal false inputs. At such a $b$, setting any remaining zero to one makes $F$
+true, so the query stays false exactly when all those zeros stay zero. Every zero of
+a maximal false input is pivotal, and a pivotal zero of any false input stays
+pivotal at every maximal false extension, so $s_0$ is the largest number of zeros
+on $\mathcal{B}_0$. The false-negative statement is dual.
+\end{proof}
+
+These identities are elementary consequences of monotone boundary certificates,
+not a new inference algorithm; sensitivity-based noise bounds for Boolean
+functions are established \parencite{gopalan-et-al-2016}. In a two-sided channel
+the same expressions are upper bounds, not equalities: for $F = X_1 \land X_2$
+with $\fprate \le 1 - \fnrate$ the worst two-sided false-positive rate is
+$\fprate(1 - \fnrate)$, while the one-sided formula gives $\fprate$. This is the
+query-level counterpart of the worst-case rate bounds of
+\Cref{prop:worst-case-rate-bounds}.
+
+\begin{theorem}[Marginal-only bound]
+\label{thm:query-contract-dependent}
+Without independence, with only per-source marginal bounds $\fprate_i$, the sharp
+envelope over exact false profiles and all couplings is $\max_{b \in
+\mathcal{B}_0} \min\{1, \sum_{i : b_i = 0} \fprate_i\}$, which for homogeneous
+bounds is $\min\{1, \fprate\, s_0(F)\}$. The false-negative statement is dual.
+\end{theorem}
+
+\begin{proof}
+An error requires at least one zero of a maximal false extension to flip, so the
+union bound applies. Events of prescribed probabilities can be placed as disjoint
+intervals (or consecutive arcs of a circle, when their sum exceeds one), which
+attains the bound at a maximizing profile.
+\end{proof}
+
+Shared construction randomness\index{correlated noise}, such as a Bloom filter's occupancy, is a
+structured middle ground between the two theorems.
+
+\begin{corollary}[A shared random rate]
+\label{cor:query-contract-shared}
+Fix an exact false input. Suppose that, conditional on a construction statistic
+$C$, the distinct absent sources are independent with common false-positive rate
+$P(C)$, and true sources are always reported. Then
+\[
+  \Prob{F(Y) = 1}
+  \le \Expect{1 - (1 - P(C))^{s_0(F)}}
+  \le 1 - \bigl(1 - \Expect{P(C)}\bigr)^{s_0(F)}.
+\]
+\end{corollary}
+
+\begin{proof}
+Apply \Cref{thm:query-contract} conditionally on $C$ and average; the map $p
+\mapsto 1 - (1 - p)^{s}$ is concave for integer $s \ge 1$, so Jensen's inequality
+gives the second bound.
+\end{proof}
+
+The conditional model allows marginal dependence (two absent sources fire together
+with probability $\Expect{P^2} \ge (\Expect{P})^2$), but it is one specific
+dependence model and does not stand in for arbitrary correlation.
+
+\subsection*{A tractable class: binary witnesses}
+
+Write the lineage in normalized positive disjunctive normal form
+\[
+  F = \bigvee_j \bigwedge_{i \in S_j} X_i,
+\]
+with aliases identified, duplicates removed, and absorbed witnesses dropped. Then
+$s_1 = \max_j |S_j|$, while $s_0$ is the size of the largest inclusion-minimal
+hitting set of the witness family, not of the minimum one.
+For binary witnesses, let $G$ be the graph whose edges are the supports $S_j$:
+false inputs are independent sets, maximal false inputs are maximal independent
+sets, and $s_0(F_G) = |V(G)| - i(G)$, with $i(G)$ the independent domination
+number\index{independent domination number}. Computing $i(G)$ is hard already
+on restricted cubic graphs \parencite{liu-poon-lin-2015}, so limiting witnesses to
+size two is not enough.
+
+\begin{theorem}[Witnesses of width and source occurrence at most two]
+\label{thm:query-contract-cycles}
+If the normalized witnesses have width at most two and every source occurs in at
+most two of them, let $U_1$ be the singleton witnesses and $G_c$ the remaining path
+or cycle components, of orders $n_c$. Then
+\[
+  s_0 = |U_1| + \sum_c \bigl(n_c - \lceil n_c / 3 \rceil\bigr),
+  \qquad
+  s_1 = \max_j |S_j|,
+\]
+computable with a linear number of graph operations after normalization.
+\end{theorem}
+
+\begin{proof}
+The graph has maximum degree two, and an independent dominating vertex covers at
+most three vertices, so $i(G_c) \ge \lceil n_c / 3 \rceil$. Every third vertex,
+started suitably, attains this on a path; on a cycle, $r = \lceil n_c/3 \rceil$
+selected vertices with cyclic gaps of two or three summing to $n_c$ exist because
+$2r \le n_c \le 3r$. Components add, and every singleton witness must be hit.
+\end{proof}
+
+For a target query false-positive rate $\delta \in (0, 1)$, homogeneous
+independent one-sided sources sized as
+\begin{equation}
+\label{eq:query-calibration}
+  \fprate \le 1 - (1 - \delta)^{1/s_0}
+\end{equation}
+suffice when $s_0 > 0$\index{calibration}; under arbitrary dependence $\fprate \le \delta / s_0$
+suffices instead. The 12-cycle of binary witnesses shows why the contract, not a
+convenient test profile, is the right target. It has $s_0 = 8$ and $s_1 = 2$, so a
+per-source rate of $0.05$ permits a worst-case query false-positive rate of $1 -
+0.95^8 \approx 0.337$, attained at the false profile with true sources at
+positions $\{0, 3, 6, 9\}$ and all others false. The all-false profile, which needs
+two adjacent false positives, errs far less often, so validating a structure on
+the all-false profile alone does not validate the contract.
+
+\subsection*{A stored-filter calibration}
+
+The relations manuscript tests the contract on a concrete structure
+\parencite[Sec.~7]{towell-bernoulli-relations}. The structure is a frozen
+partitioned Bloom filter\index{Bloom filter} representing a symmetric relation: $k$
+partitions of $m$ bits, one hash per partition, queried from the serialized bit
+array alone. Canonical mode stores unordered keys (\Cref{thm:rel-canonical});
+ordered mode stores both orientations and ORs the two probes
+(\Cref{thm:rel-symmetric-closure}). Both are symmetric and FNR-zero by
+construction. Under ideal independent hashing and conditional on the hashes of the
+inserted keys, an absent key tests positive with probability $p(C) = \prod_{j=1}^{k}
+o_j / m$, where $o_j$ is the occupied count of partition $j$, which is exactly the
+shared-rate setting of \Cref{cor:query-contract-shared}. Construction retries
+salts until $p(C) \le \fprate$, an acceptance test that inspects inserted-key hashes
+only.
+
+The workload is the 12-cycle query, $128$ fixed bundles for each of three profiles
+(all sources absent; the extremal false profile above; a true profile with an
+adjacent pair) over an exact relation of $2{,}816$ member orbits, with query target
+$\delta = 0.05$. Three sizings were built $160$ times each, with independent seeds:
+canonical storage sized per tuple ($\fprate = \delta$); canonical storage sized by
+\eqref{eq:query-calibration} ($\fprate = 1 - 0.95^{1/8}$); and ordered storage with
+OR repair, sized for its $16$ directed sources ($\fprate = 1 - 0.95^{1/16}$,
+$5{,}632$ ordered keys). \Cref{tab:filter-calibration} reports the results.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Stored-filter calibration at target query false-positive rate $0.05$
+\parencite[Sec.~7]{towell-bernoulli-relations}. Bytes are serialized header plus
+payload. The middle columns are measured query false-positive rates on the
+all-false and boundary profiles; the interval is an approximate 95\% normal
+interval for the boundary profile, using the $160$ construction-level means as
+sampling units.}
+\label{tab:filter-calibration}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrc}
+\hline
+Sizing & Bytes & All-false & Boundary & 95\% interval \\
+\hline
+Canonical, per tuple & 2{,}250 & 0.02646 & 0.32915 & [0.32264, 0.33566] \\
+Canonical, per query & 3{,}752 & 0.00049 & 0.04907 & [0.04594, 0.05220] \\
+Ordered OR, per query & 8{,}482 & 0.00039 & 0.05103 & [0.04815, 0.05390] \\
+\hline
+\end{tabular}
+\end{table}
+
+\index{calibration}Sizing each source at the tuple target passes an all-false check
+against $0.05$ (measured $0.02646$) while its boundary-profile error is about
+$0.329$; calibrated sizing restores about $0.05$ in both representations. The mean
+ideal-model predictions ($0.33224$, $0.04900$, $0.04919$) fall inside the measured
+intervals, and an exact rational audit of the recorded occupancies confirms that all
+$320$ calibrated builds meet the ideal-model target. The ordered method's observed
+mean slightly exceeds $0.05$ while its interval covers the prediction: the
+experiment demonstrates compatibility with the ideal model, not a certificate that
+the concrete keyed hash (BLAKE2b) attains it. At equal ideal query targets,
+canonical storage used $55.8\%$ fewer bytes than ordered storage, mainly from
+representative deduplication and the rate cost of OR repair. The sharp contract
+itself buys little here: sizing by the conservative union bound ($\fprate = \delta /
+8$) would allocate $3{,}768$ bytes against $3{,}752$, a $0.425\%$ difference. The
+limits are equally explicit: one synthetic query family, one size and target, one
+hash implementation, and one-sided errors.
+
+\subsection*{Rates preserved, inference cost changed}
+
+Canonical symmetry preserves every tuple rate yet can change the cost of exact
+query inference. For a simple cubic graph $G$, let an exact relation $D(v, a, b,
+c)$ list each vertex's three neighbors and consider $\exists v, a, b, c : D(v, a,
+b, c) \land R(v, a) \land R(v, b) \land R(v, c)$ with every queried $R$ tuple an
+exact nonmember of rate $p$. With independent directed sources the query
+false-positive rate is $1 - (1 - p^3)^{|V|}$. Once symmetry identifies opposite
+orientations, each undirected edge is one bit used twice; each tuple still has
+rate $p$ and each witness probability $p^3$, but the query is false exactly when
+the zero edges form an edge cover, so at $p = 1/2$ its false-positive rate is $1 -
+\#\mathrm{EdgeCovers}(G)/2^{|E|}$. Counting edge covers is \#P-hard on planar
+cubic graphs \parencite{cai-lu-xia-2012}, and the refinement to simple graphs is
+stated by \textcite{amarilli-monet-2022}; the example is an application of that
+known hardness. A compact worst-case contract and a fixed-profile exact probability are
+different objectives, and dissociation bounds\index{dissociation bound}
+\parencite{gatterbauer-suciu-2014} are the established tool for the second when
+sources repeat.

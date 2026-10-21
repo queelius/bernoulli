@@ -25,10 +25,10 @@ where an approximate map into a $k$-element output is a $k \times k$ channel
 rather than a single $(\fprate, \fnrate)$ pair, and chapters~10 through~13
 develop sketches, randomized algorithms, approximate relations, and the formal
 type framework. Part~IV builds the constructive payoff:
-\Cref{ch:optimal-bernoulli-sets} constructs the Bernoulli Hash Function that
-meets the entropy floor asymptotically by abandoning the flat bit array, and
-\Cref{ch:perfect-hash-filters} builds the FPR-zero counterpart on the other
-one-sided axis. Part~V draws the boundary: \Cref{ch:not-bernoulli} catalogues
+\Cref{ch:optimal-bernoulli-sets} abandons the flat bit array for perfect
+hashing, presenting the perfect hash filter and the Bernoulli Hash Function,
+which meets the floor in space at an exponential construction cost, and \Cref{ch:perfect-hash-filters} builds the
+FPR-zero counterpart on the other one-sided axis. Part~V draws the boundary: \Cref{ch:not-bernoulli} catalogues
 the systems that are \emph{not} Bernoulli, where errors correlate across
 inputs, rates drift, or adversarial queries defeat uniform sampling, and the
 closing chapters turn the model's controlled error into a cryptographic

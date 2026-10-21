@@ -1,92 +1,122 @@
-% §13.3 The Composition Functor
+% §13.3 Structure Preservation and Its Limits
 %
-% Monograph register + the sum-exception fix. Bernoulli is a structure-preserving
-% map that commutes with the product, list, and function constructors (Kronecker);
-% the SUM is the exception (tag coupling, does not factor). Adds rem:monad (the
-% Kleisli structure salvaged from ex:ch13-6). Cross-refs thm:bernoulli-product,
-% prop:sum-nonfactor, ch:set-composition, ch:sketches-estimators,
-% ch:approximate-relations, ch:approximate-functions. DEFINED:
-% sec:composition-functor, rem:monad.
+% Lineage/correctness pass (2026-10-21). The lift sends product, list, and
+% function to Kronecker product, Kronecker power, and per-input lift UNDER the
+% independence hypotheses of the ch13 table; the sum is the exception (tag
+% coupling). rem:monad: Kleisli structure of the probability (Giry) monad, with
+% the frozen-stage caveat (rem:channel-composition). The table is bookkeeping for
+% the joint law of composite VALUES, not a composition calculus for COMPUTATIONS:
+% two-rate pairs do not propagate exactly through programs (ch3
+% ex:two-rate-counterexample, prop:latent-propagation,
+% prop:worst-case-rate-bounds); shared inputs and frozen stages break
+% independence; CountMin violates the function row's hypothesis. Section title
+% changed from "The Composition Functor"; label kept. Cross-refs
+% thm:bernoulli-product, prop:sum-nonfactor, rem:channel-composition,
+% sec:sketches-as-bernoulli, ch:set-composition, ch:approximate-relations,
+% ch:approximate-functions. DEFINED: sec:composition-functor, rem:monad.
 
-\section{The Composition Functor}
+\section{Structure Preservation and Its Limits}
 \label{sec:composition-functor}
 
 \Cref{sec:bernoulli-of-composite} gave the lift on each constructor. This section
-observes that the rules belong together as one structure-preserving map, with the
-sum as the documented exception.
+collects the rules, states what they give, and marks where they stop.
 
-\subsection*{A structure-preserving map}
+\subsection*{The rules as one map}
 
-The lift $\Bernoulli{-}$ takes a type-level operation to a channel-level one. The
-product becomes a Kronecker product (\Cref{thm:bernoulli-product}), the list a
-Kronecker power, the function a per-input Kronecker product. A map that takes
-operations to corresponding operations is a \emph{structure-preserving map}; the
-formal categorical name is \emph{functor} (\S13.5). The four cases:
+Under the independence hypotheses of the table in
+\Cref{sec:bernoulli-of-composite}, the lift $\Bernoulli{-}$ takes a type-level
+operation to a channel-level one. The product becomes a Kronecker product
+(\Cref{thm:bernoulli-product}), the list a Kronecker power, the function a
+per-input Kronecker product. A map that takes operations to corresponding
+operations is \emph{structure-preserving}; the categorical name is
+\emph{functor}, and the Kronecker product\index{Kronecker product} is the tensor of the monoidal category
+of finite stochastic matrices. In summary:
 \begin{center}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{@{}lll@{}}
 \hline
 Type level & Channel level & Reading \\
 \hline
 $T \times U$ & $\Bernoulli{T} \otimes \Bernoulli{U}$ & Kronecker product \\
-$L T$ & $L \Bernoulli{T}$ (mixture if length noisy) & per-position lift \\
+$L T$ & $L\, \Bernoulli{T}$, or a mixture over lengths & per-position lift \\
 $T \to U$ & $T \to \Bernoulli{U}$ & per-input lift \\
-$T + U$ & does \emph{not} factor & tag coupling (\Cref{prop:sum-nonfactor}) \\
+$T + U$ & does \emph{not} factor & tag coupling \\
 \hline
 \end{tabular}
 \end{center}
-The first three rows are isomorphisms: the type and the channel specify the same
-$\Bernoulli{-}$ instance up to relabeling, and $\Bernoulli{-}$ commutes with the
-product, list, and function constructors. The fourth row is the exception, the
-sum, where the tag error couples the components and no factorization recovers the
-channel. That exception is not a gap in the theory but its foundation: the
-optional type's tag error is the atomic membership rate (\S13.2).
+Within their hypotheses the first three rows are isomorphisms: the type and the
+channel specify the same $\Bernoulli{-}$ value up to relabeling. The fourth row
+is the exception, the sum, where the tag error couples the components and no
+factorization recovers the channel (\Cref{prop:sum-nonfactor}); the mixture in the
+list row arises when the length itself is noisy. That exception is where the framework's
+atom sits: the optional type's tag error\index{sum type} is the membership error of an
+approximate set (\S13.2).
 
-\begin{remark}[$\Bernoulli{-}$ as a monad]
+\begin{remark}[The probability monad]
 \label{rem:monad}
-The function row $\Bernoulli{T \to U} \cong T \to \Bernoulli{U}$ is the signature
-of a \emph{monad}. The Kleisli arrow, a noise-introducing function $T \to
-\Bernoulli{U}$, takes a pure value to a noisy one; two arrows $f : T \to
-\Bernoulli{U}$ and $g : U \to \Bernoulli{V}$ compose into $T \to \Bernoulli{V}$
-by feeding $f$'s output through $g$ and averaging the intermediate noise (the
-monad's bind); and a pure value embeds as the point distribution concentrated on
-it (the unit). These three make $\Bernoulli{-}$ a monad in the
-programming-language sense, the noisy-value counterpart of the optional and list
-monads, with the formal axioms in \textcite{wadler-1992}.
+Noise-introducing functions $f : T \to \Bernoulli{U}$ are the Kleisli arrows of
+the probability monad\index{monad!probability} of \textcite{giry-1982}. Two arrows
+$f : T \to \Bernoulli{U}$ and $g : U \to \Bernoulli{V}$ compose into $T \to
+\Bernoulli{V}$ by feeding $f$'s output through $g$ and averaging over the
+intermediate value (the bind), and a pure value embeds as the point distribution
+on it (the unit); for finite types the composite's matrix is the matrix
+product of the serial-composition remark in \Cref{sec:n-ary-kronecker}. This is the standard semantics of probabilistic
+programs \parencite{kozen-1981,ramsey-pfeffer-2002}, and \textcite{wadler-1992}
+gives the programming-language reading of monads. Kleisli composition describes
+one evaluation with fresh randomness at every stage. It does not describe a
+stored approximate function queried at several inputs, whose randomness was drawn
+once at construction: two inputs that meet at the same intermediate value share
+the stored stage's realized error (\Cref{rem:channel-composition}), a dependence
+the per-evaluation semantics does not represent.
 \end{remark}
 
-\subsection*{Why it matters}
+\subsection*{What the table gives, and what it does not}
 
-Without the table, every approximate structure needed its own composition
-derivation: chapter~6 for sets, chapter~10 for sketches, chapter~12 for
-relations. With it, composition is mechanical for any type built from the three
-factoring constructors: decompose the type and apply the matching row at each
-level. Adding a new structure becomes a matter of identifying its type, not
-redoing the algebra, a sketch estimating matrix entries is
-$\Bernoulli{T \times U \to \mathbb{R}}$, and the function and product rows
-determine its composition with no fresh derivation.
+The table states how the joint error law of a composite \emph{value} factors when
+its components' noise is independent, and how many parameters that law needs.
+That is useful bookkeeping: a structure built from the three factoring
+constructors with independent noise has a joint law fixed by its components'
+channels, and the sum marks where a tag error couples components even then.
 
-The structures already built each instantiate the table. An approximate set
-(\Cref{ch:set-composition}) is $\Bernoulli{T \to \BoolType}$, so the function row
-gives the composition rule and chapter-6's results are the function row at
-codomain $\BoolType$, read pointwise. A CountMin sketch
-(\Cref{ch:sketches-estimators}) is $\Bernoulli{T \to \mathbb{N}}$, its additivity
-the product-row Kronecker structure on the codomain. An approximate relation
-(\Cref{ch:approximate-relations}) is $\Bernoulli{T \times U \to \BoolType}$,
-combining the function row (per-input lift) and the product row (on the domain).
-The n-ary channel of \Cref{ch:approximate-functions} is the building block $X \to
-Y$ underneath them all, distinguished only by codomain and domain structure.
+It is not a composition calculus for \emph{computations} on approximate values,
+for three reasons the earlier chapters make concrete. First, an operation applied
+to noisy components produces an output whose error depends on the latent input,
+not only on the output's truth value: the AND of two noisy bits already has three
+distinct negative-case rates, so a two-rate pair does not propagate exactly
+through a program\index{counterexample!two-rate composition} (\Cref{ex:two-rate-counterexample}). Exact propagation is per
+latent assignment (\Cref{prop:latent-propagation}), and a single pair survives
+only as a prior average\index{prior-averaged rate} or a worst-case
+bound\index{composition!worst-case rate bounds}
+(\Cref{prop:worst-case-rate-bounds}). Second, programs that use a value twice,
+and stages that are stored rather than re-randomized, break the independence the
+table assumes (\Cref{rem:channel-composition}). Third, some structures do not meet
+the function row's hypothesis at all: a CountMin sketch\index{Count-Min sketch} read as $\Bernoulli{T \to
+\mathbb{N}}$ answers different items from shared counters, so its per-item errors
+are dependent and the per-input Kronecker product does not describe them
+(\Cref{sec:sketches-as-bernoulli}).
 
-\subsection*{The framework as one thing}
+With those limits stated, the earlier structures fit the vocabulary as follows.
+An approximate set (\Cref{ch:set-composition}) is $\Bernoulli{T \to \BoolType}$,
+its Axiom~1 being the function row's hypothesis, and the chapter-6 operation
+rates are per-latent-assignment calculations of the kind
+\Cref{prop:latent-propagation} makes general. An approximate relation
+(\Cref{ch:approximate-relations}) is $\Bernoulli{T \times U \to \BoolType}$, a
+predicate on a product domain, whose query errors chapter~12 bounds query by
+query rather than reading them off the table. Sketches
+(\Cref{ch:sketches-estimators}) are noisy values of aggregate types whose
+per-query marginals fit the table and whose joint laws do not. The n-ary channel
+of \Cref{ch:approximate-functions} is the building block $X \to Y$ underneath
+them all.
+
+\subsection*{One object, several readings}
 
 There is one underlying object across the book. The atom is the noisy bit
-$\Bernoulli{\BoolType}$; every other structure is a $\Bernoulli{T}$ for an
-algebraic type $T$ built from $\BoolType$ and the constructors, and the
-composition rules that organized the earlier chapters are the rows of the table.
-The title's ``algebra of approximate computation'' is the algebra of the type
-constructors, with $\Bernoulli{-}$ its action on the approximate side, factoring
-through the product, list, and function and meeting its irreducible limit at the
-sum's tag error. The remaining chapters specialize the algebra rather than extend
-it: chapter~14 builds approximate sets at the entropy floor, chapter~15 the
-perfect-hash filters, chapter~16 catalogues where the independence assumptions
-break, and chapters~17 and~18 turn the algebra to cryptographic use. Each is a
-specialized application of the table.
+$\Bernoulli{\BoolType}$, and the other structures are $\Bernoulli{T}$ values for
+algebraic types built from $\BoolType$ and the constructors. The type algebra
+organizes where independence makes their error laws factor and where it does
+not; the error of computations over them is analyzed per latent assignment, or
+bounded. The remaining chapters use this organization rather than extend it:
+chapter~14 analyzes a seed-search construction near the entropy floor,
+chapter~15 the perfect hash filters, chapter~16 catalogues where the
+independence assumptions break, and chapters~17 and~18 turn the same rates to
+cryptographic use.

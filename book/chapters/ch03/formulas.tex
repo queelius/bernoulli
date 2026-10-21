@@ -1,0 +1,250 @@
+% §3.3 Boolean Formulas Under Noise
+%
+% Added 2026-10-21 (apparatus pass). CORRECTNESS: a rate pair (eps, omega)
+% does not propagate exactly through a Boolean tree; the exact object is the
+% per-latent-assignment error. Sound two-rate summaries are worst-case bounds
+% (prop:worst-case-rate-bounds) or prior averages (rem:prior-averaged-
+% composition). Counterexample verified by exhaustive enumeration and by the
+% companion module bernoulli.formula.
+%
+% DEFINED here: \label{sec:boolean-formulas}, \label{def:latent-assignment},
+%   \label{prop:latent-propagation}, \label{rem:parity-latent},
+%   \label{ex:two-rate-counterexample}, \label{fig:latent-tree},
+%   \label{rem:prior-averaged-composition}, \label{prop:worst-case-rate-bounds}
+% Cross-refs: sec:and-under-noise, eq:and-negative-rows, eq:and-fpr-general,
+%   prop:boolean-closure, def:model-order, eq:bsc-composition,
+%   prop:factored-joint, sec:composition-theorem, sec:miller-rabin,
+%   ch:set-composition, sec:bib-notes-ch3.
+
+\section{Boolean Formulas Under Noise}
+\label{sec:boolean-formulas}
+
+The gate formulas of \Cref{sec:and-under-noise} and \Cref{sec:or-not} describe
+one gate whose inputs observe distinct latent bits. A formula\index{composition!of Boolean formulas} feeds gate outputs
+into further gates, and the natural hope, that each gate's output can be
+summarized by a pair $(\fprate, \fnrate)$ and the summary passed upward, fails.
+This section states what is exact, shows by example how the two-rate summary
+fails, and gives the two summaries that are sound.
+
+\subsection*{Exact propagation, one latent assignment at a time}
+
+\begin{definition}[Latent assignment]
+\label{def:latent-assignment}
+Let $\tilde{b}_1, \ldots, \tilde{b}_n$ observe latent bits $w_1, \ldots, w_n$
+through channels with rates $(\fprate_i, \fnrate_i)$, each bit observed once,
+the observations $o_i$ independent given $w$. The vector $w = (w_1, \ldots,
+w_n)$ is the \emph{latent assignment}\index{latent assignment}, written as a
+word over $\{0, 1\}$ with $1$ for $\top$. For a Boolean formula $f$ its
+\emph{conditional error} is $e_f(w) = \Pr[f(o) \neq f(w) \mid w]$.
+\end{definition}
+
+\begin{proposition}[Exact conditional propagation]
+\label{prop:latent-propagation}
+\index{composition!per latent assignment}
+Under \Cref{def:latent-assignment}, for every formula $f$ and every latent
+assignment $w$,
+\[
+  \Pr[f(o) = \top \mid w]
+  \;=\; \sum_{o \in \{0,1\}^n} f(o) \prod_{i=1}^{n} q_i(o_i \mid w_i),
+\]
+where $q_i(1 \mid 0) = \fprate_i$, $q_i(0 \mid 0) = 1 - \fprate_i$,
+$q_i(1 \mid 1) = 1 - \fnrate_i$, and $q_i(0 \mid 1) = \fnrate_i$. Hence
+$e_f(w)$ is a polynomial in the rates selected by $w$, of degree at most one in
+each. If $f$ is read-once (each variable occurs at most once), the same
+probabilities are computed bottom-up by the rules
+\[
+  p(\neg g) = 1 - p(g),
+  \quad
+  p(g \wedge h) = p(g)\,p(h),
+  \quad
+  p(g \vee h) = 1 - (1 - p(g))(1 - p(h)),
+\]
+with leaves $p(\tilde{b}_i) = \fprate_i$ if $w_i = 0$ and $1 - \fnrate_i$ if
+$w_i = 1$.
+\end{proposition}
+
+\begin{proof}
+Given $w$, the observations are independent with the stated marginals
+(\Cref{prop:factored-joint}), so the law of $o$ is the product measure and
+$f(o)$ is a function of $o$; summing over $o$ gives the display. Each factor
+$q_i(o_i \mid w_i)$ is affine in the one rate that $w_i$ selects, so the sum is
+multilinear in the selected rates. For a read-once formula the two operands of
+any gate are functions of disjoint sets of observations, hence independent given
+$w$, and the three rules are the probabilities of the complement, intersection,
+and union of independent events.
+\end{proof}
+
+The read-once rules are the signal-probability calculus that Parker and
+McCluskey gave for combinational networks\index{signal probability}
+\parencite{parker-mccluskey-1975}; probabilistic transfer matrices are its
+matrix form for general circuits, including reconvergent fan-out
+\parencite{krishnaswamy-et-al-2008}\index{probabilistic transfer matrix}. A
+variable that occurs more than once is still one observation feeding several
+places, so its occurrences are perfectly correlated; conditioning on the
+observed values of the repeated variables (a Shannon expansion) restores the
+read-once case at a cost of $2^r$ passes for $r$ repeated variables. The
+companion module \texttt{bernoulli.formula} implements the proposition: its
+\texttt{error\_probability} and \texttt{error\_profile} evaluate $e_f(w)$ at one
+or all latent assignments.
+
+\begin{remark}[Parity, per latent assignment]
+\label{rem:parity-latent}
+For the parity $f = b_1 \oplus \cdots \oplus b_n$ the proposition gives
+\[
+  e_f(w) \;=\; \tfrac{1}{2}\Bigl(1 - \prod_{i=1}^{n}\bigl(1 - 2 q_i(w)\bigr)\Bigr),
+  \qquad
+  q_i(w) = \begin{cases} \fprate_i & w_i = 0, \\ \fnrate_i & w_i = 1, \end{cases}
+\]
+since the parity errs exactly when an odd number of observations flip. The
+identity $\Pr[\text{odd number of flips}] = \frac{1}{2}(1 - \prod_i(1 -
+2q_i))$ for independent flips is Lemma~1 of \textcite{gallager-1962}, and in
+cryptanalysis it is Matsui's piling-up lemma
+\parencite{matsui-1993}\index{Gallager's lemma}\index{piling-up
+lemma}\index{parity!noisy}. For BSCs, $q_i(w) = \fprate_i$ at every $w$ and
+$n = 2$ recovers the serial BSC composition \eqref{eq:bsc-composition}; for
+asymmetric channels the parity error depends on how many latent bits are
+$\top$, and no single rate describes it.
+\end{remark}
+
+\subsection*{Why a rate pair does not compose}
+
+Viewed as a channel from latent assignments to the reported bit, a formula's
+output has one row per latent assignment, and its model order in the sense of
+\Cref{def:model-order}, applied to the domain $\{0,1\}^n$, is the number of
+distinct values $e_f(w)$ takes. A two-rate description is exact only when that
+number is at most one per truth class. The AND of two distinct latent bits
+already has three negative rows \eqref{eq:and-negative-rows}: composition
+raises the model order\index{model order}. Carrying a single number per gate upward therefore
+discards which latent assignment occurred, and the error compounds.
+
+\begin{example}[A two-rate summary halves the error]
+\label{ex:two-rate-counterexample}
+\index{counterexample!two-rate composition}
+Take $f = (b_0 \wedge b_1) \vee b_2$ with every channel at $\fprate = 0.02$ and
+$\fnrate = 0.10$, and the latent assignment $w = 010$ ($b_0$ false, $b_1$ true,
+$b_2$ false), at which $f(w) = \bot$. The AND observes the pair $(\bot, \top)$
+and reports $\top$ with probability $\fprate(1 - \fnrate) = 0.018$; the OR
+reports $\bot$ only if both of its inputs do, so
+\[
+  e_f(010) \;=\; 1 - (1 - 0.018)(1 - 0.02) \;=\; 1 - (0.982)(0.98) \;=\; 0.03764.
+\]
+A two-rate summary that carries the AND's all-negative rate $\fprate^2 = 0.0004$
+upward gives $1 - (1 - 0.0004)(0.98) = 0.020392$, about half the true value; it
+is the exact error at $w = 000$ only. Exhaustive enumeration of the eight
+latent assignments gives two distinct false-positive values ($0.020392$ at
+$000$; $0.03764$ at $010$ and $100$) and four distinct false-negative values
+($0.09996$ at $001$; $0.0982$ at $011$ and $101$; $0.1862$ at $110$; $0.019$ at
+$111$): six error regimes, model order six on the latent domain, for a formula
+built from three identical two-rate atoms (\Cref{fig:latent-tree}).
+\end{example}
+
+\begin{figure}[tbp]
+\centering
+\begin{tikzpicture}[
+  gate/.style={draw,rounded corners=2pt,minimum width=11mm,minimum height=6mm,font=\small},
+  leaf/.style={draw,circle,minimum size=7mm,inner sep=0pt,font=\small},
+  note/.style={font=\footnotesize,align=left},
+  level distance=14mm,
+  level 1/.style={sibling distance=34mm},
+  level 2/.style={sibling distance=18mm},
+  edge from parent/.style={draw,-}]
+  \node[gate] (or) {OR}
+    child {node[gate] (and) {AND}
+      child {node[leaf] (b0) {$b_0$}}
+      child {node[leaf] (b1) {$b_1$}}}
+    child {node[leaf] (b2) {$b_2$}};
+  \node[note,left=3mm of and] {negative rows of AND:\\
+    $w_0 w_1 = 00$: $\fprate_0 \fprate_1$\\
+    $w_0 w_1 = 10$: $(1 - \fnrate_0)\fprate_1$\\
+    $w_0 w_1 = 01$: $\fprate_0 (1 - \fnrate_1)$};
+  \node[note,right=3mm of or] {error at $w = 010$:\\
+    exact $0.03764$\\
+    reusing $\fprate_0\fprate_1$: $0.020392$};
+  \node[note,below=1mm of b0] {$(\fprate_0, \fnrate_0)$};
+  \node[note,below=1mm of b1] {$(\fprate_1, \fnrate_1)$};
+  \node[note,below=1mm of b2] {$(\fprate_2, \fnrate_2)$};
+\end{tikzpicture}
+\caption[A two-rate summary fails on $(b_0 \wedge b_1) \vee b_2$]{The formula $(b_0 \wedge b_1) \vee b_2$ of
+\Cref{ex:two-rate-counterexample}. The leaves are two-rate atoms, but the AND
+node already has three negative rows, one per negative latent pair, so no single
+false-positive rate can be passed to the OR. The exact error at each latent
+assignment follows from \Cref{prop:latent-propagation}; the numbers shown are
+for $\fprate_i = 0.02$, $\fnrate_i = 0.10$.}
+\label{fig:latent-tree}
+\end{figure}
+
+\subsection*{Two sound summaries}
+
+When a single pair is wanted anyway, two constructions are sound.
+
+\begin{remark}[Prior-averaged rates]
+\label{rem:prior-averaged-composition}
+If the latent bits are independent with prevalences $\pi_i$, the marginal rates
+$\bar{\fprate}_f = \Pr[f(o) = \top \mid f(w) = \bot]$ and $\bar{\fnrate}_f$ are
+exact averages of $e_f$ over each truth class\index{prior-averaged rate}, and
+\eqref{eq:and-fpr-general} is the two-input case with $\pi_1 = \pi_2 = \pi$.
+For a read-once formula they can be computed bottom-up: if $g$ and $h$ read
+disjoint variables, with truth probabilities $\pi_g, \pi_h$ and averaged rates
+$(\bar{\fprate}_g, \bar{\fnrate}_g)$, $(\bar{\fprate}_h, \bar{\fnrate}_h)$, then
+\[
+  \bar{\fprate}_{g \wedge h}
+  = \frac{\pi_g(1 - \pi_h)(1 - \bar{\fnrate}_g)\bar{\fprate}_h
+        + (1 - \pi_g)\pi_h \bar{\fprate}_g (1 - \bar{\fnrate}_h)
+        + (1 - \pi_g)(1 - \pi_h)\bar{\fprate}_g \bar{\fprate}_h}
+       {1 - \pi_g \pi_h},
+\]
+because $(g, \text{observed } g)$ and $(h, \text{observed } h)$ are independent
+pairs. Averages compose in this one setting and only as averages: they are the
+right numbers for a workload drawn from the prior, never the conditional rate at
+a given input, and they fail once two subformulas share a variable, since the
+operand pairs are then dependent. \texttt{bernoulli.formula.marginal\_rates}
+computes them by enumeration.
+\end{remark}
+
+\begin{proposition}[Sound worst-case rate bounds]
+\label{prop:worst-case-rate-bounds}
+\index{composition!worst-case rate bounds}
+Suppose formulas $g$ and $h$ satisfy $e_g(w) \le \bar{E}_g$ at every $w$ with
+$g(w) = \bot$ and $e_g(w) \le \bar{W}_g$ at every $w$ with $g(w) = \top$, and
+likewise for $h$. Then at every latent assignment:
+\begin{enumerate}
+  \item NOT: $\neg g$ satisfies the bounds $(\bar{W}_g, \bar{E}_g)$.
+  \item AND: the false-positive error of $g \wedge h$ is at most $\max(\bar{E}_g,
+    \bar{E}_h)$, with no independence assumption. Its false-negative error is at
+    most $\bar{W}_g + \bar{W}_h$ in general, and at most $1 - (1 - \bar{W}_g)(1 -
+    \bar{W}_h)$ when $g$ and $h$ read disjoint variables.
+  \item OR: dually, the false-negative error of $g \vee h$ is at most
+    $\max(\bar{W}_g, \bar{W}_h)$, and its false-positive error is at most
+    $\bar{E}_g + \bar{E}_h$ in general and $1 - (1 - \bar{E}_g)(1 - \bar{E}_h)$
+    for disjoint variables.
+\end{enumerate}
+Applied recursively from the leaves $(\bar{E}, \bar{W}) = (\fprate_i,
+\fnrate_i)$, these give a pair $(\bar{E}_f, \bar{W}_f)$ that bounds $e_f(w)$ in
+each truth class at every latent assignment.
+\end{proposition}
+
+\begin{proof}
+For AND with $f(w) = \bot$, at least one operand is false at $w$, say $g(w) =
+\bot$; the event that the observed conjunction is $\top$ is contained in the
+event that the observed $g$ is $\top$, so its probability is at most $e_g(w)
+\le \bar{E}_g$. For $f(w) = \top$ both operands are true, and the observed
+conjunction is $\bot$ iff at least one observed operand is $\bot$; the union
+bound gives $\bar{W}_g + \bar{W}_h$, and when the operands read disjoint
+variables they are independent given $w$, so the probability is $1 - (1 -
+e_g(w))(1 - e_h(w)) \le 1 - (1 - \bar{W}_g)(1 - \bar{W}_h)$. NOT exchanges the
+truth classes, which gives part~1, and part~3 follows from parts~1 and~2 by De
+Morgan.
+\end{proof}
+
+On \Cref{ex:two-rate-counterexample} the recursion gives $(0.02, 0.19)$ for the
+AND and $(1 - 0.98^2, \max(0.19, 0.10)) = (0.0396, 0.19)$ for the formula,
+which bounds the exact worst values $0.03764$ and $0.1862$. The exact worst pair,
+the maximum of $e_f$ over each truth class, is sharper but needs the enumeration
+of \Cref{prop:latent-propagation} (\texttt{bernoulli.formula.worst\_case\_rates});
+the recursive bound costs one pass. Neither is the exact rate at a given input,
+and the gap between the bound and the corner product is real: in the
+all-negative regime the AND's false-positive rate is $\fprate_g \fprate_h$
+(\Cref{sec:composition-theorem}), far below $\max(\bar{E}_g, \bar{E}_h)$, because
+there the latent assignment is known. That regime, and the one-sided chains in
+which a single error is fatal, are where corner products are exact; the next
+section states them as the composition theorem.

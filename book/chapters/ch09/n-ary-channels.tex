@@ -24,7 +24,7 @@ cardinality $L = |T|$.
 
 \begin{definition}[n-ary channel]
 \label{def:n-ary-channel}
-An \emph{n-ary channel} is a triple $(X, Y, Q)$ where $X$ is an input domain
+An \emph{n-ary channel}\index{channel!n-ary} is a triple $(X, Y, Q)$ where $X$ is an input domain
 partitioned into $K$ blocks $B_1, \ldots, B_K$ (inputs with the same output
 distribution share a block, one per row of $Q$), $Y$ is an output domain with
 $|Y| = L$, and $Q$ is a $K \times L$ row-stochastic matrix with $Q_{ij} \ge 0$,
@@ -40,16 +40,16 @@ function). Setting $K = L = 2$ recovers \Cref{def:bernoulli-bool}.
 
 \paragraph{Model order versus row count.}
 The integer $K$ counts the rows of $Q$, one per input block. The
-\emph{model order} of \Cref{def:model-order} is a different and generally
+\emph{model order}\index{model order!versus parameter count} of \Cref{def:model-order} is a different and generally
 smaller count: the number of blocks under the coarsest partition that merges
 inputs sharing a common \emph{equality-error rate} $\varepsilon(x) =
 \Prob{\tilde{f}(x) \neq x}$. The two coincide when every block has a distinct
 error rate, and the model order is strictly smaller when blocks share one. The
 distinction matters at the very first example. The binary \emph{symmetric}
-channel writes as a $2 \times 2$ matrix ($K = 2$ rows) but is model order
+channel\index{channel!binary symmetric} writes as a $2 \times 2$ matrix ($K = 2$ rows) but is model order
 \emph{one}: both inputs flip at the common rate $\fprate$, so they form a single
 error-rate block (the first-order Bernoulli model of \Cref{sec:model-order}).
-The binary \emph{asymmetric} channel is also $2 \times 2$ but model order two,
+The binary \emph{asymmetric} channel\index{channel!asymmetric binary} is also $2 \times 2$ but model order two,
 since its inputs carry different error rates $\fnrate \neq \fprate$. Throughout
 this chapter $K$ is the matrix row count; we name the model order only where the
 distinction is in play.
@@ -75,7 +75,7 @@ rows, $L = 2$, model order one. Dropping the symmetry recovers the asymmetric
 channel of \Cref{def:asymmetric-channel}, $Q_{\mathrm{asym}} =
 \left(\begin{smallmatrix} 1 - \fnrate & \fnrate \\ \fprate & 1 - \fprate
 \end{smallmatrix}\right)$, with two independent rates and model order two; the
-Z-channel is the one-sided specialization $\fnrate = 0$.
+Z-channel\index{channel!Z-channel} is the one-sided specialization $\fnrate = 0$.
 
 \paragraph{A 3-class classifier ($K = L = 3$).}
 A confusion matrix is an n-ary channel. A classifier over
@@ -105,21 +105,31 @@ chapter~10 builds the constructions.
 
 \paragraph{A physical instance: quantum readout.}
 The n-ary channel has a direct physical realization in quantum computing.
-Measuring $n$ qubits in the computational basis is a channel whose
-$2^n \times 2^n$ row-stochastic matrix $Q_{ij} = \Prob{\text{observed
-bitstring } j \Given \text{prepared classical state } i}$ is the
-\emph{assignment matrix} that readout-error mitigation calibrates and inverts
-\parencite{nielsen-chuang-2010}. When per-qubit readout errors are
-independent, $Q$ factors as a Kronecker product of $2 \times 2$ single-qubit
-matrices, the n-ary Kronecker factorization of \Cref{sec:n-ary-kronecker}, and
-each single-qubit matrix is asymmetric in practice (energy relaxation makes
-$|1\rangle \to |0\rangle$ misreads likelier than the reverse), the
-Z-channel-skewed asymmetric channel above. The correspondence is exact only on
-the diagonal: $Q$ presupposes a definite prepared state, which a pre-measurement
-superposition lacks, and the channel omits the interference such a state
-carries. The Bernoulli channel is in this sense the classical, decohered shadow
-of a quantum measurement; \Cref{sec:quantum-contextuality} marks where the
-shadow stops being faithful.
+Measuring $n$ qubits in the computational basis\index{quantum readout} is a
+channel whose $2^n \times 2^n$ row-stochastic matrix $A_{tb} =
+\Prob{\text{observed bitstring } b \Given \text{basis state } t}$ is the
+\emph{assignment} (or response) matrix that readout-error mitigation calibrates
+and inverts \parencite{bravyi-et-al-2021,nation-et-al-2021,maciejewski-zimboras-oszmaniec-2020}.
+When per-qubit readout errors are independent, $A$ factors as a Kronecker
+product of $2 \times 2$ single-qubit matrices, the tensor-product noise model of
+that literature and the n-ary Kronecker factorization of
+\Cref{sec:n-ary-kronecker}; each single-qubit matrix is asymmetric in practice
+(relaxation makes $|1\rangle \to |0\rangle$ misreads likelier than the
+reverse), the Z-channel-skewed asymmetric channel above
+\parencite{smith-et-al-2021}. The scope of this classical description is wider
+than classical inputs. If the detector POVM\index{detector POVM} $\{M_b\}$ is
+diagonal in the computational basis, $M_b = \sum_t A(b \mid t)\,
+|t\rangle\langle t|$, then for \emph{any} state $\rho$\index{density matrix}
+the outcome law is
+\[
+  \operatorname{Tr}(M_b \rho) \;=\; \sum_t A(b \mid t)\, \rho_{tt},
+\]
+so the channel applied to the diagonal of $\rho$ gives the exact outcome
+statistics whatever the off-diagonal coherences are. What the channel does not
+describe is the coherence itself, which matters for measurements in other bases
+and for operations applied before readout, not for the computational-basis
+outcome law. \Cref{sec:quantum-contextuality} marks where a classical channel
+description stops sufficing.
 
 \subsection*{Axiom transfer and parameter count}
 
@@ -130,8 +140,8 @@ keeps the $K$ row distributions of $Q$ conditionally independent given the
 objective function. Together they make $Q$ a sufficient summary, as
 $(\fprate, \fnrate)$ was in the Boolean case.
 
-A $K \times L$ row-stochastic matrix has $KL$ entries and $K$ row-sum
-constraints, leaving
+A $K \times L$ row-stochastic matrix\index{stochastic matrix} has $KL$
+entries and $K$ row-sum constraints, leaving
 \[
   K(L - 1)
 \]
@@ -141,7 +151,8 @@ recovering the $(\fprate, \fnrate)$ pair at $K = L = 2$. The count is an upper
 bound: symmetric structure cuts it further (the BSC's shared rate drops it from
 $2$ to $1$, the symmetric 3-class matrix above from $6$ to $1$). The contrast
 with an unconstrained joint over $K \times L$ outcomes, which carries $KL - 1$
-parameters, is the same parsimony Axioms~1 and~2 bought in chapter~4.
+parameters, is the same parsimony\index{parametric parsimony} Axioms~1 and~2
+bought in chapter~4.
 \Cref{sec:n-ary-kronecker} lifts the Kronecker theorem and
 \Cref{sec:n-ary-capacity} the capacity formula, both with the binary $2$
 replaced by $L$.

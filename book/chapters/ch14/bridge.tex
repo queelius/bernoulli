@@ -1,61 +1,59 @@
 % §14.6 Bridge
 %
-% Monograph register: a tight bridge from the BHF to its FPR-zero
-% counterpart (BPHF, chapter 15). Fix: the prior preview overclaimed a
-% free symmetric mirror (BPHF = BHF on the complement, space ceil(-log2
-% omega), "reuse with error-mode swap"); chapter 15 shows the FPR-zero
-% side is asymmetric (FPR=0 only in a witness query model, rank table
-% ceil(log2 n) bits, controlled FNR via k-perfect hashing). Cuts the two
-% chapter-recap subsections. Cross-refs
-% def:perfect-filter-line, sec:perfect-filter-line, ch:perfect-hash-filters,
-% def:bhf, thm:bhf-optimality, prop:bhf-fpr, sec:construction-time,
-% sec:bib-notes-ch14, thm:entropy-floor, prop:bloom-overhead.
-% DEFINED: sec:ch14-bridge.
+% Monograph register: close the FNR-zero arm (BHF attains the floor at
+% exponential build cost; the perfect hash filter is linear-time at an
+% additive log2(e) or more above it) and bridge to chapter 15, whose BPHF
+% is a rank-table reading of the perfect hash filter that reaches FPR = 0
+% only in a witness query model. FIX (2026-10-21): the sentence on the
+% asymmetry of cost read inverted ("a false-positive-free report is a
+% coincidence"); a false positive is the coincidence. Cross-refs
+% def:perfect-filter-line, ch:perfect-hash-filters, def:bhf,
+% thm:bhf-optimality, prop:bhf-fpr, def:phf, prop:phf-space,
+% sec:construction-time, sec:bib-notes-ch14, thm:entropy-floor,
+% prop:bloom-overhead. DEFINED: sec:ch14-bridge.
 
 \section{Bridge}
 \label{sec:ch14-bridge}
 
-The chapter answered the optimality question chapter~8 left open. The
-Bernoulli Hash Function (\Cref{def:bhf}) reaches the entropy floor of
-\Cref{thm:entropy-floor} up to integer rounding and a sublinear
-correction (\Cref{thm:bhf-optimality}), meets the FPR target under a
-standard uniformity assumption (\Cref{prop:bhf-fpr}), and pays for the
-improvement in static-set restrictions and an $O(n)$ build
-(\Cref{sec:construction-time}). The $\log_2 e \approx 1.44$ factor the
-Bloom filter spends over the floor (\Cref{prop:bloom-overhead})
-collapses to a constant additive overhead. The construction draws on a
-decades-old perfect-hash literature and the universal-hashing machinery
-the Bloom filter also uses, differing only in where the hash is applied;
-\Cref{sec:bib-notes-ch14} names the antecedents.
+The chapter answered the optimality question of chapter~8 twice. The
+Bernoulli hash function (\Cref{def:bhf}) attains the entropy floor of
+\Cref{thm:entropy-floor} to leading order, with no integer rounding
+(\Cref{thm:bhf-optimality}) and an exact false-positive rate
+(\Cref{prop:bhf-fpr}), and pays for it with a build exponential in the
+set size. The perfect hash filter (\Cref{def:phf}) builds in expected
+linear time and pays an additive addressing cost of at least $\log_2 e$
+bits per element (\Cref{prop:phf-space}), which turns the Bloom filter's
+multiplicative overhead (\Cref{prop:bloom-overhead}) into an additive
+one and wins on space at tight targets; retrieval-based filters close
+most of the remaining gap. None of these constructions originates here,
+and \Cref{sec:bib-notes-ch14} names their sources.
 
-The BHF occupies one end of the perfect-filter line of
-\Cref{def:perfect-filter-line}, the FNR-zero membership structures. The
-other end holds the FPR-zero structures, the perfect hash filters of
-chapter~15. The two share a skeleton, a perfect hash addressing a
-per-element table, and trade their error modes: the BHF accepts a small
-false-positive rate to guarantee no false negatives; the BPHF (Bernoulli
-Perfect Hash Filter) guarantees no false positives at the cost of a
-controlled false-negative rate. The symmetry of the picture is not a
-symmetry of cost. A false-positive-free report is a coincidence made
-rare by one fingerprint slot, which the BHF buys cheaply; a
-no-false-positive guarantee is a certificate enforced against every
+All of them sit on the FNR-zero arm of the perfect-filter line\index{perfect filter line}
+(\Cref{def:perfect-filter-line}): they never miss a member and
+occasionally accept a stranger. The other arm, $\fprate = 0$ with a
+controlled $\fnrate$, is the subject of chapter~15, and the two arms are
+not symmetric in cost. A false positive is a coincidence,\index{false-positive rate} a non-member's
+hash falling into the acceptance set or its fingerprint matching the one
+stored in its slot, and about $\log_2(1/\fprate)$ bits per element make
+the coincidence as rare as desired. A guarantee of no false positives is
+not a coincidence made rare but a certificate enforced against every
 non-member at once, and certifying a designated subset exactly is the
-expensive direction. Chapter~15 confronts that asymmetry rather than
-assuming it away. The applications split accordingly: the BHF where
-false negatives are unacceptable (a cache that must not miss a stored
-element, a routing layer that must not drop a known address), the BPHF
-where false positives are unacceptable (a precision-oriented index that
-must not return non-matching results, an authorization filter that must
-not admit an unauthorized identifier).
+expensive direction: over the whole universe it costs on the order of
+$\log_2(|\Universe|/n)$ bits per element, the price of a dictionary.
+Applications split along the same line. FNR-zero structures serve where
+a miss is unacceptable, a cache that must not lose a stored key or a
+routing layer that must not drop a known address; FPR-zero structures
+serve where a spurious acceptance is unacceptable, a precision-oriented
+index or an authorization filter.
 
-The BPHF reuses that skeleton, the same perfect hash and a per-slot
-table built in one pass, but its analysis is not a mechanical error-mode
-swap. The false-positive rate falls to zero only in a restricted query
-model, where non-members cannot present a valid witness (ranked search
-is the standard instance), and the per-element cost is $\lceil \log_2 n
-\rceil$ bits for a rank table rather than the BHF's $\lceil -\log_2
-\fprate \rceil$ for a fingerprint table. A controlled false-negative
-rate is then bought by relaxing the perfect hash to a $k$-perfect one,
-$\fnrate \approx 1 - m/n$ at $m$ slots, not by a fingerprint width.
-\Cref{ch:perfect-hash-filters} develops the construction and the
-ranked-search application on the FPR-zero half of the line.
+Chapter~15 reaches the FPR-zero arm by reusing the perfect hash filter's
+skeleton, a minimal perfect hash addressing a per-slot table built in
+one pass, with a rank in each slot instead of a fingerprint. It is not a
+mechanical swap of error modes. Queried over the whole universe, the rank
+table behaves exactly like a fingerprint table, with no false negatives
+and false positives at $2^{-r}$; the false-positive rate becomes zero
+only in a restricted query model in which non-members cannot present a
+valid rank (ranked search is the standard instance), and a controlled
+false-negative rate is then bought by relaxing the perfect hash to a
+$k$-perfect one. \Cref{ch:perfect-hash-filters} develops the
+construction and its application.

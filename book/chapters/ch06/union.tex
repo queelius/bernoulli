@@ -16,13 +16,14 @@
 Chapter~5 framed an approximate set as a noisy membership predicate with
 two per-block rates $(\fprate, \fnrate)$. The first compositional step asks
 what the union of two such sets is and what rates it inherits. The answer is
-the composition theorem of \Cref{thm:composition} applied to the OR gate of
-\Cref{sec:or-not}, lifted from the per-bit level to the per-set level.
+the composition theorem\index{composition theorem} of \Cref{thm:composition}
+applied to the OR gate\index{OR gate} of \Cref{sec:or-not}, lifted from the
+per-bit level to the per-set level.
 
 \begin{definition}[Union of approximate sets]
 \label{def:union-of-sets}
 For approximate sets $\ASet{A}, \ASet{B} : \Universe \to
-\Bernoulli{\BoolType}$ over a common universe, their \emph{union}
+\Bernoulli{\BoolType}$ over a common universe, their \emph{union}\index{union}
 $\ASet{A} \cup \ASet{B}$ is the approximate set whose predicate is the
 Boolean OR of the operand predicates, $(\ASet{A} \cup \ASet{B})(x) =
 \ASet{A}(x) \lor \ASet{B}(x)$, approximating the objective set $A \cup B$.
@@ -78,7 +79,18 @@ query distribution. When the operands are FNR-zero ($\fnrate_A = \fnrate_B =
 0$) every term vanishes and the union stays FNR-zero, the first closure fact
 of \Cref{sec:perfect-filter-line}.
 
-\paragraph{Two realizations on Bloom filters.}
+In the vocabulary of chapter~2, the union is a fourth-order Bernoulli
+set\index{model order}\index{composition!of sets}: its error rate is constant
+on each of the four blocks $A \setminus B$, $B \setminus A$, $A \cap B$, and
+$\Universe \setminus (A \cup B)$ of the partition the operands generate, and
+those four block rates, $\fnrate_A(1 - \fprate_B)$, $\fnrate_B(1 -
+\fprate_A)$, $\fnrate_A\fnrate_B$, and $1 - (1 - \fprate_A)(1 - \fprate_B)$,
+are exact. The pair $(\fprate_\cup, \fnrate_\cup)$ is a summary of them. Its
+first coordinate is exact because the union has a single negative block; its
+second is a workload-weighted average\index{prior-averaged rate} of three
+block rates, valid for the stated weights and for no particular element.
+
+\paragraph{Two realizations on Bloom filters.}\index{Bloom filter}
 \Cref{def:union-of-sets} is a predicate-level operation, \emph{predicate-OR}:
 keep both filters, query each, OR the outputs; its FPR is
 \eqref{eq:union-fpr}. When both operands are Bloom filters with the same
@@ -114,14 +126,37 @@ applied to the OR gate with $\eta_i = \fprate_i$, the lift to sets that
 \Cref{sec:bridge-to-sets} previewed: the same Boolean operation, the same
 algebra, with $\fprate_i$ reread from a per-bit crossover to a per-block set
 rate. The $n$-ary union is the same theorem folded, $\fprate_\cup = 1 -
-\prod_i (1 - \fprate_i)$, and since OR is associative and commutative with
-identity $\ASet{\EmptySet}$, the union is a monoidal fold over approximate
-sets.
+\prod_i (1 - \fprate_i)$: OR is associative and commutative with identity
+$\ASet{\EmptySet}$, so at the level of predicates the union is a monoidal
+fold, and its false-positive rate folds exactly. Its false-negative rate does
+not fold as a single number; it must be carried block by block.
+
+\begin{remark}[Composing a composed set]
+\label{rem:composing-composed}
+Because the union is higher order, its summary pair is not a valid operand for
+a further composition. Feeding $(\fprate_\cup, \fnrate_\cup)$ into a second
+operation as though the union were a second-order set gives wrong answers on
+particular elements, for the reason \Cref{ex:two-rate-counterexample} isolates
+for Boolean gates: the composed rate at an element depends on which block the
+element occupies, not only on its truth value. Two honest summaries remain.
+The block rates propagate exactly through any further Boolean combination of
+independently built operands\index{composition!per latent assignment}
+(\Cref{prop:latent-propagation}), and per-direction worst cases propagate
+soundly (\Cref{prop:worst-case-rate-bounds})\index{composition!worst-case rate bounds}:
+for the union, every positive block has false-negative rate at most
+$\max(\fnrate_A, \fnrate_B)$, and the false-positive rate is exact. An operand
+that occurs twice in an expression, such as $\ASet{A}$ in $(\ASet{A} \cup
+\ASet{B}) \cap (\ASet{A} \cup \ASet{C})$, is one source of error, not two:
+the block computation over the base operands stays exact, but the
+operation-by-operation formulas of this chapter, which assume independent
+operands, no longer apply.
+\end{remark}
 
 \begin{remark}[Cross-set independence]
 \label{rem:cross-set-independence}
 \Cref{prop:union-fpr-fnr} assumes the operand error events are independent
-at each point, and the conclusion is exactly as good as that assumption. Two
+at each point, and the conclusion is exactly as good as that
+assumption\index{correlated noise}. Two
 Bloom filters built on the \emph{same} hash family and bit array over the
 same stored set are not independent but identical, $\ASet{A}(x) =
 \ASet{B}(x)$ everywhere, so their predicate-OR is a single filter with FPR
@@ -135,5 +170,5 @@ why \Cref{def:union-of-sets} keeps the operands as separate objects.
 
 \Cref{sec:other-set-ops} takes up intersection, complement, and difference;
 \Cref{sec:cancellation} the regimes in which a composition leaves the
-perfect filter line; \Cref{sec:perfect-filter-line} the line as a formal
-subalgebra.
+perfect filter line; \Cref{sec:perfect-filter-line} the operations under
+which each axis of the line is closed.

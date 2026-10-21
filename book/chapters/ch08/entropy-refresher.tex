@@ -18,7 +18,7 @@ binary special case, and mutual information. We collect them and fix notation;
 
 \paragraph{Entropy.}
 For a discrete $X$ on a finite alphabet $\mathcal{X}$, the \emph{Shannon
-entropy} is
+entropy}\index{entropy} is
 \begin{equation}
 \label{eq:entropy}
   H(X) \;=\; -\sum_{x \in \mathcal{X}} \Prob{X = x}\,\log_2 \Prob{X = x},
@@ -27,11 +27,13 @@ with $0 \log_2 0 = 0$, measured in bits. Operationally $H(X)$ is the average
 number of yes/no questions an optimal binary search needs to identify a draw:
 $0$ for a constant, $\log_2|\mathcal{X}|$ for the uniform distribution. By
 Shannon's source-coding theorem it is also the tight lower bound on the
-expected length of any prefix-free code for $X$, the reading
-\Cref{sec:entropy-floor} uses.
+expected length of any prefix-free code for $X$. \Cref{sec:entropy-floor}
+uses the counting form of the same idea: singling out one of $K$ equally
+possible objects takes $\log_2 K$ bits.
 
 \paragraph{Binary entropy.}
-For $X \sim \mathrm{Bernoulli}(p)$, \eqref{eq:entropy} collapses to
+For $X \sim \mathrm{Bernoulli}(p)$, \eqref{eq:entropy} collapses to the
+binary entropy function\index{binary entropy function}
 \begin{equation}
 \label{eq:binary-entropy}
   H(p) \;=\; -p \log_2 p - (1 - p)\log_2(1 - p), \qquad p \in [0, 1],
@@ -41,14 +43,14 @@ disambiguates). Three properties recur in this chapter and chapter~14: $H$ is
 strictly concave ($H''(p) = -1/[p(1-p)\ln 2] < 0$); it peaks at $H(1/2) = 1$
 (a fair coin is the most uncertain bit); and $H(0) = H(1) = 0$. It is
 symmetric, $H(p) = H(1-p)$, with $H(0.01) \approx 0.081$, $H(0.1) \approx
-0.469$. Distinct from $H(\fprate)$ is the \emph{self-information} (surprisal)
+0.469$. Distinct from $H(\fprate)$ is the \emph{self-information}\index{self-information} (surprisal)
 $-\log_2 \fprate$ of a single event of probability $\fprate$: the floor of
 \Cref{sec:entropy-floor} is $-\log_2 \fprate$ bits per element, the cost of one
 such event, not the indicator entropy $H(\fprate) \approx -\fprate \log_2
 \fprate$ that weights it by $\fprate$.
 
 \paragraph{Mutual information and capacity.}
-For jointly distributed $X, Y$, the \emph{mutual information}
+For jointly distributed $X, Y$, the \emph{mutual information}\index{mutual information}
 \begin{equation}
 \label{eq:mutual-info}
   I(X; Y) \;=\; H(X) - H(X \mid Y) \;=\; H(Y) - H(Y \mid X)
@@ -64,14 +66,14 @@ Equivalently
 a Kullback--Leibler divergence between the joint and the product of marginals,
 hence nonnegative and zero iff $X, Y$ are independent. For a channel with fixed
 $\Prob{Y \mid X}$, $I(X; Y)$ depends on the input distribution, and the
-\emph{capacity} is the maximum,
+\emph{capacity}\index{channel capacity} is the maximum,
 \begin{equation}
 \label{eq:capacity-def}
   C \;=\; \max_{\Prob{X}} I(X; Y),
 \end{equation}
 the most information one channel use can convey. \Cref{sec:bsc-capacity}
 evaluates it for the BSC of \Cref{sec:bsc} and gets $C = 1 - H(\fprate)$;
-\Cref{sec:entropy-floor} applies the source-coding reading to approximate-set
+\Cref{sec:entropy-floor} applies the counting reading to approximate-set
 representations and gets the $-\log_2 \fprate$ floor;
 \Cref{sec:bloom-gap} measures the standard Bloom filter's $\log_2 e \approx
 1.443$ overhead above it.

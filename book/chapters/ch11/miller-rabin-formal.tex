@@ -12,7 +12,7 @@
 \label{sec:miller-rabin-formal}
 
 Chapter~3 \S3.4 (\Cref{sec:miller-rabin}) walked through the Miller-Rabin
-primality test as a $\Bernoulli{\BoolType}$ instance, stating the per-round
+primality test\index{Miller--Rabin test} as a $\Bernoulli{\BoolType}$ instance, stating the per-round
 bound $\fprate \le 1/4$ as a fact and applying it. This section closes that
 deferral, restating the walkthrough as one formal theorem with the per-round
 bound credited to Rabin and the $k$-round bound derived from the composition
@@ -60,13 +60,18 @@ n-2\} : W_n(a) = \top\}$ be the strong-liar set. Rabin's theorem
 \parencite{rabin-1980}, sharpening the conditional analysis of
 \textcite{miller-1976}, gives $|L_n| \le (n-3)/4$ via the Chinese remainder
 structure of $\mathbb{Z}/n\mathbb{Z}$. With $a$ uniform over the pool of size
-$n - 3$, $\fprate = |L_n|/(n-3) \le 1/4$.
+$n - 3$, $\fprate = |L_n|/(n-3) \le 1/4$. (A base outside $L_n$ is a
+\emph{witness}\index{witness (Miller--Rabin)} to compositeness.)
 
-\emph{The $k$-round bound.} Distinct witnesses are distinct input elements, and
-sampling with replacement makes the events $\{a_i \in L_n\}$ independent, so
-Axiom~1 (\Cref{ax:element-indep}) applies. The $k$-round test is the $k$-fold
-AND of $W_n(a_1), \ldots, W_n(a_k)$, an FNR-zero chain with $\fnrate_i = 0$ and
-$\fprate_i \le 1/4$. By the composition theorem (\Cref{thm:composition}) the
+\emph{The $k$-round bound.} The bases $a_1, \ldots, a_k$ are independent uniform
+draws, so the events $\{a_i \in L_n\}$ are independent; this is independence
+across stages\index{independence!across stages}
+(\Cref{rem:composition-independence}), supplied by the sampling, and it holds
+whether or not a base repeats. The $k$-round test is the $k$-fold AND of
+$W_n(a_1), \ldots, W_n(a_k)$, an FNR-zero chain with $\fnrate_i = 0$ and
+$\fprate_i \le 1/4$, and every round sees the same latent truth\index{latent assignment} (the fixed $n$
+is prime or composite), the regime in which the corner products of chapter~3
+are exact. By the composition theorem\index{composition theorem} (\Cref{thm:composition}) the
 false-negative rate is $\fnrate^{(k)} = 1 - \prod_i(1 - \fnrate_i) = 0$, and the
 dual all-error direction gives the false-positive rate as the product (a
 composite survives only if every round is fooled),

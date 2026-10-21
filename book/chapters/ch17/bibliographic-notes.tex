@@ -1,78 +1,56 @@
-% §17.8 Bibliographic Notes
+% §17.8 Notes and Lineage
 %
-% Monograph register: cipher-maps manuscript, trapdoor-computing series,
-% FHE (Gentry 2009), secure-computation foundations (Goldreich 1996,
-% Naor-Yung 1989). Tightened.
-% FIX: the draft's fourth paragraph referenced sec:fhe-sidebar where it
-% meant sec:trapdoor-paradigm; corrected. Terminology: retitled "The
-% oblivious-computing tradition" -> "The secure-computation tradition" and
-% reframed general "oblivious computation" -> "secure computation"; the
-% cited paper title ("oblivious function evaluation") and named terms
-% (oblivious RAM, oblivious-Turing-machine model, trapdoor function) are
-% kept as bibliographic facts / terms of art.
-% Cites towell-cipher-maps, towell-boolean-trapdoor,
-% towell-maximizing-confidentiality, gentry-2009, naor-yung-1989,
-% goldreich-1996. DEFINED: sec:bib-notes-ch17.
+% Monograph register: cipher-map properties credited to their cryptographic
+% predecessors (homophonic substitution; honey-encryption DTEs; OKVS;
+% white-box tables; point-function obfuscation; property-preserving
+% encryption), secure indexes (Goh), leakage (Curtmola et al.; Cash et al.;
+% Kamara-Moataz-Ohrimenko), adversarial filters (Naor-Yogev; Clayton et al.;
+% Filic et al.), FHE (Gentry), foundations (Goldreich); the program's own
+% manuscripts (cipher maps; trapdoor Boolean algebra note; entropy ratio).
+% Replaces the former "Bibliographic Notes"; label kept. The earlier
+% naor-yung-1989 citation (UOWHFs) was dropped: it is not the trapdoor-
+% function lineage it was cited for. DEFINED: sec:bib-notes-ch17.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch17}
 
-\paragraph{The cipher-maps manuscript.}
-The cipher-map abstraction of \Cref{sec:what-is-cipher-map} is developed
-at length in \textcite{towell-cipher-maps}, ``Cipher maps: a unified
-framework for oblivious function evaluation,'' which the present chapter
-summarizes. The manuscript treats the abstraction in its own right rather
-than as a special case of the Bernoulli framework, classifies cipher-map
-families by their channel-matrix structure, and develops the
-cryptographic-side analysis (key schedules, side-channel considerations,
-hardness assumptions) the chapter has not entered. The chapter's
-contribution beyond the manuscript is the identification of cipher-map
-rates with Bernoulli atoms and the lifting of chapter 4's Kronecker
-composition to cipher-map composition, which the manuscript treats
-algebraically without anchoring to the Bernoulli square.
+\paragraph{Lineage.}
+The properties asked of a cipher map are older than the name. Many
+encodings per plaintext to flatten frequencies is homophonic substitution
+\parencite{jendal-kuhn-massey-1989}; plausible decodings under wrong keys
+are the distribution-transforming encoders of honey encryption
+\parencite{juels-ristenpart-2014}; key-hiding map storage whose non-keys
+decode to random-looking values is the oblivious key-value store
+\parencite{garimella-et-al-2021,bienstock-et-al-2023}; computation through
+keyed lookup tables is white-box cryptography \parencite{chow-et-al-2002};
+equality-revealing hashes are point-function obfuscation
+\parencite{canetti-1997,lynn-prabhakaran-sahai-2004}; and encryption that
+keeps a chosen property testable is property-preserving encryption
+\parencite{pandey-rouselakis-2012}. The keyed Bloom filter as an encrypted
+membership structure is the secure index of \textcite{goh-2003}, and the
+plausible deniability its false positives provide is part of that design.
+Leakage beyond the result bit is the subject of the searchable-encryption
+literature \parencite{curtmola-et-al-2006,cash-et-al-2015,kamara-moataz-ohrimenko-2018};
+adaptive attacks on filters are formalized by \textcite{naor-yogev-2015},
+\textcite{clayton-patton-shrimpton-2019}, and \textcite{filic-et-al-2022}.
+FHE is due to \textcite{gentry-2009}; \textcite{goldreich-1996} is the
+foundational reference for computation under cryptographic constraints.
+The program's own treatments are the cipher-map manuscript
+\parencite{towell-cipher-maps}, a note on Boolean algebra over trapdoor
+sets \parencite{towell-boolean-trapdoor}, and the entropy-ratio manuscript
+on quantitative confidentiality \parencite{towell-maximizing-confidentiality}.
 
-\paragraph{The trapdoor-computing series.}
-The Boolean-algebra section (\Cref{sec:boolean-trapdoor}) draws on
-\textcite{towell-boolean-trapdoor}, ``Boolean algebra over trapdoor
-sets,'' which gives the full treatment of union, intersection,
-complement, and conditional operations over trapdoor representations,
-including the cancellation phenomena and the three-region composition
-rates the present chapter uses. The maximizing-confidentiality section
-(\Cref{sec:maximizing-confidentiality}) draws on
-\textcite{towell-maximizing-confidentiality}, ``Maximizing confidentiality
-in encrypted search,'' which develops the PPV-as-confidentiality
-connection and extends it to information-theoretic measures
-(observed-versus-maximum entropy ratios, compression-based estimation) the
-chapter has only gestured at in \Cref{rem:confidentiality-bits}. A third
-strand, on algebraic cipher types, generalizes the set-and-map treatment
-to algebraic data types and remains in active drafting.
+\paragraph{What this chapter adds.}
+A reading, not new cryptography: the error profile of a keyed approximate
+structure is a Bernoulli atom, so the per-query algebra of Parts I to IV
+(serial products, the three-region set rates, the chapter 7 posterior)
+applies to it unchanged. Two limits are stated that earlier drafts
+blurred: serial composition is a per-query law that fails across queries
+sharing an intermediate value, and the false-positive cover is one leakage
+channel of one structure, eroding geometrically across independently keyed
+instances.
 
-\paragraph{Fully homomorphic encryption.}
-The FHE sidebar of \Cref{sec:fhe-sidebar} stands on
-\textcite{gentry-2009}, ``Fully Homomorphic Encryption Using Ideal
-Lattices,'' the first plausibly-secure fully homomorphic scheme,
-combining a somewhat-homomorphic scheme with a bootstrapping construction
-that refreshes ciphertexts faster than homomorphic noise accumulates.
-Modern schemes (BFV, BGV, CKKS) cut the per-operation cost by orders of
-magnitude but inherit the bootstrapping idea and remain several orders
-slower than the cipher-map approach. The standard FHE references are
-surveys rather than primary sources; the reader should follow the
-literature trail from Gentry's paper.
-
-\paragraph{The secure-computation tradition.}
-The trapdoor-paradigm framing of \Cref{sec:trapdoor-paradigm} sits in a
-literature going back to early work on secure computation.
-\textcite{goldreich-1996}, ``Foundations of Cryptography: Fragments of a
-Book'' (cited in chapter 16 for the oblivious-Turing-machine model), gives
-the foundational treatment of computation under cryptographic constraints,
-including the relation between secure computation and the multiparty
-setting that cipher maps generalize. \textcite{naor-yung-1989},
-``Universal One-Way Hash Functions and their Cryptographic Applications,''
-is the older entry point to the trapdoor-function line the cipher-map
-abstraction inherits its name from. The chapter has used ``trapdoor'' in
-the colloquial sense rather than the strict cryptographic one, but the
-connection to the formal trapdoor-function literature is real, and the
-encrypted-search applications of chapter 18 activate it more explicitly.
-The secure-multiparty-computation literature is enormous; this treatment
-is necessarily brief.
+\paragraph{Left out.}
+Formal security definitions and proofs, key management, side-channel
+defenses, malicious servers, and the leakage-abuse and inference attacks
+that matter most in deployed encrypted search.

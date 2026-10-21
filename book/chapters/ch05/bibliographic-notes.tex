@@ -1,57 +1,52 @@
-% §5.6 Bibliographic Notes
+% §5.6 Notes and Lineage
 %
-% Monograph register: Bloom's paper, survey/textbook context, the
-% set-as-predicate viewpoint, the one-sided / perfect-filter lineage, and the
-% forward bridge to chapters 14-15. Citations bloomfilter, mitzenmacher-upfal,
-% broder-mitzenmacher-2004, towell-bernoulli-sets, towell-bernoulli-data-type,
-% carter-wegman-1979, towell-bernoulli-hash-function. DEFINED: sec:bib-notes-ch5.
+% Monograph register: who established each result of the chapter, what the
+% chapter adds, what it leaves out. Citations bloomfilter, broder-mitzenmacher-2004,
+% mitzenmacher-upfal, bose-et-al-2008, christensen-roginsky-jimeno-2010,
+% kirsch-mitzenmacher-2008, carter-et-al-1978, bross-1954, warner-1965,
+% hirota-1981, donnet-baynat-friedman-2006, laufer-velloso-duarte-2011,
+% fan-et-al-2000, guo-et-al-2010, towell-bernoulli-sets,
+% towell-bernoulli-data-type, deng-rafiei-2006, fan-cuckoo-2014,
+% bender-quotient-2012. DEFINED: sec:bib-notes-ch5 (label kept for
+% cross-references).
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch5}
 
-\paragraph{Bloom's original paper.}
-The construction is due to \textcite{bloomfilter}, a four-page 1970 note
-framed operationally: hyphenation dictionaries for typesetting, trading a
-small rate of mishyphenated words for not storing the dictionary. That paper
-already contains the optimal-$k$ derivation \Cref{thm:bloom-optimal-k}
-reproduces, including $k = (m/n)\ln 2$ and the per-bit rate $(1/2)^k$ at the
-optimum. What this monograph adds is the framing, the Bloom filter as one
-construction of a function $\Universe \to \Bernoulli{\BoolType}$ rather than
-a bit-array trick; the two readings agree on every numerical prediction.
+\paragraph{Lineage.}
+The Bloom filter is due to \textcite{bloomfilter}. Its approximate
+false-positive formula and the optimal $k = (m/n)\ln 2$ are standard in the
+survey and textbook literature \parencite{broder-mitzenmacher-2004,mitzenmacher-upfal};
+\textcite{bose-et-al-2008} showed that the formula neglects the dependence
+between probed bits, \textcite{christensen-roginsky-jimeno-2010} gave an exact
+expression, and \textcite{kirsch-mitzenmacher-2008} justified double hashing.
+The space question the filter answers was posed and bounded by
+\textcite{carter-et-al-1978}. The object the chapter calls an approximate set
+is older than the filter. A per-element noisy indicator with one
+false-positive and one false-negative rate is the misclassification model of
+\textcite{bross-1954} and, applied to a sensitive indicator, the
+randomized-response channel of \textcite{warner-1965};
+\textcite{hirota-1981} studied probabilistic sets as mathematical objects.
+Filters with false negatives also exist as constructions: the retouched
+\parencite{donnet-baynat-friedman-2006} and generalized
+\parencite{laufer-velloso-duarte-2011} Bloom filters are two-sided by design,
+and the counting filter of \textcite{fan-et-al-2000} acquires false negatives
+under counter overflow \parencite{guo-et-al-2010}.
 
-\paragraph{Survey and textbook context.}
-\textcite{mitzenmacher-upfal} treat hashing, Bloom filters, and the
-balls-and-bins analysis underlying both, with the same optimal-$k$ calculus
-used in \Cref{sec:bloom-from-scratch} but without the
-$\Bernoulli{\BoolType}$ framing. \textcite{broder-mitzenmacher-2004} survey
-applications across networking, distributed systems, and databases, and
-document the variants, counting, scalable, and compressed filters, that the
-present chapter mentions only in passing.
+\paragraph{What this chapter adds.}
+A presentation rather than a new structure. The Bloom filter is read as one
+realization of a function $\Universe \to \Bernoulli{\BoolType}$ and placed
+under the two axioms, so that the Kronecker factorization of chapter~4 fixes
+its joint behavior; the one-sided and two-sided vocabulary then organizes
+chapters~6, 14, and~15. The set-as-predicate reading follows
+\textcite{towell-bernoulli-sets}, and the $\Bernoulli{\BoolType}$ type follows
+\textcite{towell-bernoulli-data-type}. The chapter is explicit that a perfect
+hash with fingerprints is FNR-zero, like the Bloom filter, and that the two
+axes of the perfect filter line obey the same composition rules.
 
-\paragraph{The set-as-predicate viewpoint.}
-Reading an approximate set as a function $\Universe \to
-\Bernoulli{\BoolType}$, rather than a data structure that happens to have an
-error rate, is the contribution of \textcite{towell-bernoulli-sets}. The
-earlier literature, including \textcite{bloomfilter} and
-\textcite{broder-mitzenmacher-2004}, characterizes such a structure by a
-single false-positive probability; the Bernoulli reading instead makes the
-function the object of study, its per-query output a $\Bernoulli{\BoolType}$
-instance in the sense of \textcite{towell-bernoulli-data-type}, and the data
-structure one realization among many. The algebra of
-\Cref{sec:predicate-algebra} is the direct lift of the order-2 algebra of
-chapter~4 to the per-element setting.
-
-\paragraph{One-sided and perfect-filter lineage.}
-The dichotomy of \Cref{def:one-sided} has two ancestors. The FNR-zero shape
-is the Bloom filter's structural property, named in \textcite{bloomfilter}
-but isolated as a category only once the literature accumulated several
-constructions sharing it. The FPR-zero shape, a perfect filter on a
-designated set, has constructive roots in the universal hashing of
-\textcite{carter-wegman-1979}: without a perfect hash on $A$, a
-fingerprint table cannot guarantee $\fprate = 0$ on $x \in A$. The perfect
-hash filter of \Cref{ch:perfect-hash-filters} is the modern descendant.
-Both \Cref{ch:optimal-bernoulli-sets} and \Cref{ch:perfect-hash-filters}
-build on \textcite{towell-bernoulli-hash-function}, which derives the
-space-optimal Bernoulli hash filter for the unrestricted and FPR-zero
-regimes and proves the entropy lower bound that makes ``optimal'' precise.
+\paragraph{Left out.}
+Dynamic variants beyond the counting filter (scalable, stable
+\parencite{deng-rafiei-2006}, and deletable filters); cuckoo
+\parencite{fan-cuckoo-2014} and quotient \parencite{bender-quotient-2012}
+filters; blocked, cache-efficient layouts; finite-$m$ exact analysis beyond the
+smallest example; and adversarially chosen queries, which chapter~16 takes up.

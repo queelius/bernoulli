@@ -17,7 +17,8 @@ The operands of \Cref{sec:union-of-sets} and \Cref{sec:other-set-ops} were
 drawn from one-sided sets on the perfect filter line. Some compositions kept
 the result on the operands' axis; others did not. This section classifies the
 three behaviors: a composition can stay on the operands' axis, walk to the
-other axis, or leave the line entirely into the two-sided interior. The
+other axis, or leave the line entirely into the two-sided
+interior\index{one-sided error}\index{two-sided error}. The
 complement and the mixed-axis intersection drive the last two, and
 \Cref{sec:perfect-filter-line} rereads the classification as a closure
 question.
@@ -62,14 +63,15 @@ operand from each axis. By the corrected intersection formula
 product: with $\ASet{A} = (0.01, 0)$ and $\complement \ASet{B} = (0, 0.02)$,
 the outside-both region survives,
 \[
-  \fprate_\cap \;\approx\; \fprate_A (1 - \fnrate_{\complement B})
-              \;=\; 0.01 \times 0.98 \;=\; 0.0098,
+  \fprate_\cap \approx \fprate_A (1 - \fnrate_{\complement B})
+              = 0.01 \times 0.98 = 0.0098,
   \qquad
-  \fnrate_\cap \;=\; 1 - (1 - 0)(1 - 0.02) \;=\; 0.02.
+  \fnrate_\cap = 1 - (1 - 0)(1 - 0.02) = 0.02.
 \]
 The composition lands at $\approx (0.0098, 0.02)$, in the two-sided interior,
-not on either operand's axis. This is the same two-sidedness §6.2 found for
-the difference directly, as it must be, since the two are the same set.
+not on either operand's axis. This is the same two-sidedness
+\Cref{sec:other-set-ops} found for the difference directly, as it must be,
+since the two are the same set\index{cancellation}.
 
 \begin{proposition}[Mixed-axis intersection escapes the line]
 \label{prop:mixed-intersection-escape}
@@ -124,9 +126,10 @@ Whether a composed set sits on the line governs the three later chapters that
 take the line as their subject. \Cref{ch:classification-measures} simplifies
 for a one-sided structure (an FNR-zero set has $\NPV = 1$ and one nonzero
 rate to estimate) and exercises the full machinery for a two-sided one.
-\Cref{ch:optimal-bernoulli-sets} proves the entropy floor $-\log_2 \fprate$
-for FNR-zero sets and achieves it with the Bernoulli Hash Function; a chain
-that leaves the axis falls outside the regime the bound measures.
+\Cref{ch:information-bounds} presents the classical floor $-\log_2 \fprate$
+for FNR-zero sets and its two-sided form, and
+\Cref{ch:optimal-bernoulli-sets} constructs a structure at the floor; a chain
+that leaves the axis is priced by the two-sided form instead.
 \Cref{ch:perfect-hash-filters} builds on the FPR-zero axis, and a mixed-axis
 intersection with a Bloom filter destroys its certain $\top$. Composition
 discipline, keeping a chain on one axis, is the price of staying near the

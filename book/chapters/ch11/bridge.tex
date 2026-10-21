@@ -29,11 +29,13 @@ sharpening the chapter-7 variance interval (\Cref{sec:binomial-estimator}) from
 polynomial to exponential decay.
 
 The picture extends in two directions before Part~III closes.
-\Cref{ch:approximate-relations} lifts the analysis to $\Bernoulli{R}$ for binary
-relations, where the question is whether $x$ and $y$ stand in a relation rather
-than whether $x$ belongs to a set, the setting for joins and pair predicates; a
-Monte Carlo relation test is a $\Bernoulli{R}$ instance with a per-pair rate, and
-amplification carries over unchanged. \Cref{ch:algebra-types} closes Part~III by
-giving the type algebra under which the chapter-10 sketches, this chapter's
-randomized algorithms, and the chapter-12 relations are all instances of a few
-constructors over $\Bernoulli{T}$, composing by structure.
+\Cref{ch:approximate-relations} lifts the analysis to binary relations, where
+the question is whether $x$ and $y$ stand in a relation rather than whether $x$
+belongs to a set, the setting for joins and pair predicates; a Monte Carlo
+relation test is a $\Bernoulli{\BoolType}$ value per pair, and amplification by
+independent runs on one pair carries over, while a stored approximate relation,
+like a stored approximate set, must be rebuilt rather than re-queried to gain
+independence. \Cref{ch:algebra-types} closes Part~III by placing the chapter-10
+sketches, this chapter's randomized algorithms, and the chapter-12 relations in
+one type vocabulary over $\Bernoulli{T}$, and by recording which independence
+hypotheses make their joint error laws factor.

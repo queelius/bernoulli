@@ -6,7 +6,7 @@
 % (salvaged ex-11), preview Part V (ch16 NOT-Bernoulli, ch17-18 cipher
 % maps / encrypted search). Cuts the "what 15.6 supplies" subsection.
 % Cross-refs def:one-sided, def:perfect-filter-line, thm:entropy-floor,
-% def:bhf, thm:bhf-optimality, def:bphf, prop:bphf-space, sec:ranked-search,
+% def:bhf, thm:bhf-optimality, def:phf, prop:phf-space, def:bphf, prop:bphf-space, sec:ranked-search,
 % sec:bib-notes-ch15. DEFINED: sec:bridge-to-part5.
 
 \section{Bridge to Part V}
@@ -15,33 +15,35 @@
 The chapter assembled the constructive answer to the FPR-zero arm of the
 perfect-filter line. The BPHF of \Cref{def:bphf} reaches $\fprate = 0$ in
 the witness query model, is exact at full resolution, and trades a
-controlled $\fnrate \approx 1 - m/n$ for a smaller table through a
-$k$-perfect hash, at $\lceil \log_2 n \rceil + o(1)$ bits per element
-(\Cref{prop:bphf-space}), applying cleanly to ranked retrieval through
-the construction of \Cref{sec:ranked-search}.
+controlled $\fnrate \ge 1 - m/n$ for a smaller table through a
+$k$-perfect hash, at $\lceil \log_2 n \rceil$ bits per element plus the
+addressing cost of a minimal perfect hash (\Cref{prop:bphf-space}),
+applying cleanly to ranked retrieval through the construction of
+\Cref{sec:ranked-search}.
 
 \subsection*{Closing Part IV}
 
 Part~IV has a clean shape in retrospect. Chapters~5 and~6 named the
-perfect-filter line (\Cref{def:perfect-filter-line}, building on
+perfect-filter line (\Cref{def:perfect-filter-line}, building on\index{perfect filter line}
 \Cref{def:one-sided}); chapter~8 derived the entropy floor
-(\Cref{thm:entropy-floor}) as the bit-budget lower bound any structure on
-the line must respect; chapters~14 and~15 constructed the two operating
-points, each at one extreme error axis, each reaching its bound up to
-integer rounding and a sublinear correction. The BHF reaches the floor on
-the FNR-zero arm, dissolving the standard Bloom filter's $\log_2 e
-\approx 1.44$ overhead into a constant additive one
-(\Cref{thm:bhf-optimality}); the BPHF reaches the analogous bound on the
-FPR-zero arm, with the budget shifted from $\lceil -\log_2 \fprate
-\rceil$ to $\lceil \log_2 n \rceil$ and the controlled error from
-$\fprate$ to $\fnrate$. The two are the endpoints $(\fprate, 0)$ and
+(\Cref{thm:entropy-floor}) as the bit-budget lower bound any FNR-zero
+structure must respect; chapters~14 and~15 constructed the operating
+points at the two extreme error axes. On the FNR-zero arm the BHF meets
+the floor to leading order at an exponential build cost
+(\Cref{thm:bhf-optimality}), and the perfect hash filter replaces the
+Bloom filter's multiplicative $\log_2 e \approx 1.44$ overhead with an
+additive addressing cost of at least $\log_2 e$ bits per element
+(\Cref{prop:phf-space}), which wins at tight targets. On the FPR-zero
+arm the BPHF, in the witness model, shifts the slot width from $\lceil
+-\log_2 \fprate \rceil$ to $\lceil \log_2 n \rceil$ and the controlled
+error from $\fprate$ to $\fnrate$. The two are the endpoints $(\fprate, 0)$ and
 $(0, \fnrate)$ of the line; a structure that tolerates both errors can
-interpolate between them, trading one axis against the other, but the
-endpoints are where the bit budget is minimized for a one-sided
-guarantee. The space-accuracy duality of the chapter~6 geometry becomes
+interpolate between them, trading one axis against the other, and its
+space floor with a bounded fraction of false negatives is the
+lossy-dictionary bound of\index{space lower bound!with false negatives} \textcite[Prop.~1]{pagh-rodler-2001}. The space-accuracy duality of the chapter~6 geometry becomes
 a deployment decision once the operating points are in hand:
-false-negative-intolerant applications take the BHF, false-positive-
-intolerant ones the BPHF.
+false-negative-intolerant applications take an FNR-zero filter,
+false-positive-intolerant ones the BPHF when the witness model holds.
 
 \subsection*{Part V preview}
 
@@ -52,11 +54,10 @@ fixed-rate axioms, giving a checklist for when the framework applies
 cleanly and when it needs modification. The witness model's dependence on
 an unforgeable rank (\Cref{rem:witness-is-query-model}) is one entry in
 that catalogue and the hinge to the second thread, which is generative:
-chapters~17 and~18 develop \emph{cipher maps}, recasting the
+chapters~17 and~18 develop \emph{cipher maps}\index{cipher map}, recasting the
 perfect-hash-and-fingerprint architecture as the building block for
 encrypted search, with the perfect hash replaced by a trapdoor whose
 forward direction is public and reverse private. The FPR and FNR
 guarantees of the present part carry into the cryptographic setting on
 the same architectural template. \Cref{sec:bib-notes-ch15} attaches the
-construction to its antecedents, including the \emph{maph} C++ library
-that is its production-grade realization.
+construction to its antecedents.

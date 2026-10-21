@@ -1,51 +1,50 @@
-% §3.6 Bibliographic Notes
+% §3.7 Notes and Lineage
 %
-% Cross-reference resolution status:
-%
-% RESOLVED:
-%   \Cref{sec:and-under-noise}, \Cref{sec:composition-theorem},
-%   \Cref{sec:miller-rabin}                       -- chapter 3
-%   \Cref{sec:channel-composition}, \Cref{sec:bib-notes-ch2} -- chapter 2
-%   \Cref{sec:kronecker}, \Cref{thm:kronecker}, \Cref{sec:bib-notes-ch4} -- chapter 4
-%
-% Citations: miller-1976, rabin-1980, cormen-clrs, mitzenmacher-upfal,
-%   towell-bernoulli-sets, towell-bernoulli-data-type.
+% Cross-references: sec:and-under-noise, sec:or-not, sec:boolean-formulas,
+% prop:latent-propagation, ex:two-rate-counterexample,
+% prop:worst-case-rate-bounds, rem:parity-latent, sec:composition-theorem,
+% sec:miller-rabin, sec:bib-notes-ch2, sec:bib-notes-ch4.
+% DEFINED: sec:bib-notes-ch3.
+% Citations: parker-mccluskey-1975, krishnaswamy-et-al-2008,
+%   von-neumann-1956, pippenger-1988, evans-schulman-1999, gallager-1962,
+%   matsui-1993, miller-1976, rabin-1980, cormen-clrs, mitzenmacher-upfal,
+%   towell-bernoulli-composition, towell-bernoulli-data-type.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch3}
 
-\paragraph{Miller and Rabin.}
-The primality test of \Cref{sec:miller-rabin} has two parents.
-\textcite{miller-1976} gave the witness structure, compute $a^d \bmod n$ and
-test for a non-trivial square root of unity, and a deterministic polynomial-time
-variant conditional on the Extended Riemann Hypothesis.
-\textcite{rabin-1980} removed the hypothesis by randomizing the witness and
-proving the unconditional bound: for any composite $n$, at most a quarter of
-the witnesses are strong liars. That $1/4$ is the one fact the framework
-borrows; the chapter's reading of a single round as a $\Bernoulli{\BoolType}$
-with $\fnrate = 0$ and $\fprate \le 1/4$ restates Rabin's result in this book's
-language. Textbook treatments with the full number-theoretic argument are
-\textcite[Ch.~31]{cormen-clrs} and, for randomized algorithms broadly,
-\textcite{mitzenmacher-upfal}.
+\paragraph{Lineage.}
+Forward propagation of error probabilities through AND, OR, and NOT is old.
+The read-once rules of \Cref{prop:latent-propagation} are the
+signal-probability calculus of \textcite{parker-mccluskey-1975}, which already
+handled asymmetric inputs; probabilistic transfer matrices
+\parencite{krishnaswamy-et-al-2008} give the matrix form for whole circuits,
+including reconvergent fan-out. Reliable computation from noisy gates\index{noisy circuits} goes
+back to \textcite{von-neumann-1956}, with sharp formula-size results by
+\textcite{pippenger-1988} and \textcite{evans-schulman-1999}. The parity
+identity of \Cref{rem:parity-latent} is Lemma~1 of \textcite{gallager-1962} and
+Matsui's piling-up lemma \parencite{matsui-1993}. The composition theorem is
+the product rule for a series system. Miller-Rabin has two parents:
+\textcite{miller-1976} gave the witness structure under the Extended Riemann
+Hypothesis, and \textcite{rabin-1980} randomized the witness and proved the
+unconditional $1/4$ bound; \textcite[Ch.~31]{cormen-clrs} and
+\textcite{mitzenmacher-upfal} give textbook treatments.
 
-\paragraph{The Bernoulli papers.}
-The composition theorem of \Cref{sec:composition-theorem} is the
-Boolean-algebra form of the rate-propagation result of
-\textcite{towell-bernoulli-sets}, restated for a single $\Bernoulli{\BoolType}$
-instance rather than a set, and the AND, OR, and NOT rules of
-\Cref{sec:and-under-noise} are the Boolean base case of the algebraic-type
-treatment in \textcite{towell-bernoulli-data-type}.
+\paragraph{What this chapter adds.}
+A uniform reading of these gates as operations on two-rate atoms, and a
+correction. The quantum-readout manuscript of this program
+\parencite{towell-bernoulli-quantum-readout} asserted that the pair
+$(\fprate, \fnrate)$ is carried exactly through any Boolean tree. It is not: a gate over distinct latent bits has one rate on one side and up to three
+on the other (\Cref{prop:boolean-closure}), and
+\Cref{ex:two-rate-counterexample} shows the summary halving the true error.
+What survives is exact per-latent-assignment propagation, prior-averaged rates
+that compose only for read-once formulas, and the recursive worst-case bounds
+of \Cref{prop:worst-case-rate-bounds}. The composition paper of the program
+\parencite{towell-bernoulli-composition} handles the set-level version
+correctly, by letting composition raise the model order.
 
-\paragraph{One algebra, three lenses.}
-A single composition algebra runs through chapters 2 through 4 at three
-abstraction layers: the \emph{matrix product} $Q_2 Q_1$ for serial channels
-(\Cref{sec:channel-composition}); the \emph{Boolean-algebra} form
-$\eta_{\mathrm{total}} = 1 - \prod_i(1 - \eta_i)$ for chained one-sided gates
-(this chapter); and the \emph{Kronecker product} $Q_1 \otimes \cdots \otimes
-Q_m$ for parallel queries (\Cref{thm:kronecker}). The Boolean form differs from
-the matrix product for the BSC, where cancellation makes the two disagree, and
-coincides with it for one-sided channels. Chapters 2 and 4 situate the
-matrix-product and Kronecker layers in their own literatures
-(\Cref{sec:bib-notes-ch2}, \Cref{sec:bib-notes-ch4}); seeing all three as one
-algebra is a contribution of this text.
+\paragraph{Left out.}
+Fault-tolerant constructions, threshold results for noisy formulas, and the
+complexity of exact evaluation for formulas with many repeated variables (where
+the Shannon expansion is exponential) are not treated; the references above
+cover them. Correlated gate errors are deferred to chapter~16.

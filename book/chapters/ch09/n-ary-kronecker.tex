@@ -33,7 +33,7 @@ $Y_1, \ldots, Y_m$,
   \;=\; \prod_{i=1}^{m} Q_{j_i,\, Y_i},
 \]
 so the $K^m \times L^m$ joint channel matrix factors as the $m$-fold Kronecker
-power $Q^{(m)} = Q^{\otimes m}$.
+power\index{Kronecker factorization} $Q^{(m)} = Q^{\otimes m}$.
 \end{theorem}
 
 \begin{proof}
@@ -42,11 +42,11 @@ row of $Q$, and Axiom~2 makes the distribution of $Y_i$ given $X_i \in B_{j_i}$
 equal to row $j_i$ regardless of the other queries. The outputs are
 deterministic functions of the per-input error events, which Axiom~1 makes
 mutually independent across distinct inputs, so the joint factors as
-\[
+\begin{align*}
   \Prob{Y_1 = y_1, \ldots, Y_m = y_m \Given X_i \in B_{j_i} \text{ for each } i}
-  = \prod_{i=1}^{m} \Prob{Y_i = y_i \Given X_i \in B_{j_i}}
-  = \prod_{i=1}^{m} Q_{j_i,\, y_i},
-\]
+  &= \prod_{i=1}^{m} \Prob{Y_i = y_i \Given X_i \in B_{j_i}} \\
+  &= \prod_{i=1}^{m} Q_{j_i,\, y_i},
+\end{align*}
 which is by definition the $(j_1 \cdots j_m,\, y_1 \cdots y_m)$ entry of
 $Q^{\otimes m}$. The only binary-specific step in chapter~4 was reading each
 row as a $(\fprate, \fnrate)$ pair; here each row is a length-$L$ probability
@@ -54,7 +54,7 @@ vector and the rest is identical.
 \end{proof}
 
 Queries on \emph{different} elements that fall in the same block stay
-independent under Axiom~1; only the row of $Q$ they consult is shared.
+independent under Axiom~1\index{independence!across elements}; only the row of $Q$ they consult is shared.
 
 \begin{corollary}[Parameter count for joint n-ary queries]
 \label{cor:n-ary-parameter-count}
@@ -78,24 +78,45 @@ $K(L^m-1) = 2(2^m-1)$. The reduction sharpens at larger $L$: a 10-output
 channel queried 50 times is fixed by $K \cdot 9$ numbers rather than
 $K(10^{50}-1)$.
 
-\begin{remark}[Serial composition is matrix multiplication]
+\begin{remark}[Serial composition: one query sees the matrix product]
 \label{rem:channel-composition}
 The Kronecker power composes $m$ \emph{parallel} queries of one channel. Two
-channels in \emph{series} compose differently. If $Q_1$ is $K_1 \times L_1$
-(input blocks to an intermediate alphabet) and $Q_2$ is $L_1 \times L_2$
-(intermediate to output), the composite is the matrix product
+stages in \emph{series} compose differently. If $Q_1$ is $K_1 \times L_1$
+(input blocks to an intermediate alphabet), $Q_2$ is $L_1 \times L_2$
+(intermediate to output), and the second stage's randomness is independent of
+the first's, then a \emph{single} query passes through the pipeline with the
+matrix product as its channel,
 \[
   Q \;=\; Q_1 Q_2,
   \qquad
   Q_{ik} \;=\; \sum_{j} (Q_1)_{ij}(Q_2)_{jk},
 \]
-the probability that input block $i$ produces output $k$ after both stages.
+the probability that input block $i$ produces output $k$ after both stages\index{channel!serial composition}.
 Each row of $Q$ sums to one ($\sum_k \sum_j (Q_1)_{ij}(Q_2)_{jk} = \sum_j
-(Q_1)_{ij} \cdot 1 = 1$), so $Q$ is again an n-ary channel: a multi-stage
-approximate pipeline, a coarse classifier feeding a fine one, is itself one
-channel in the sense of \Cref{def:n-ary-channel}. Serial composition is matrix
-product, parallel querying is Kronecker product; the two are the n-ary face of
-the function-composition and product-type structure Part~III develops.
+(Q_1)_{ij} \cdot 1 = 1$), so the per-query law of a multi-stage pipeline, a
+coarse classifier feeding a fine one, is again a row-stochastic matrix.
+
+That is a statement about marginals, and it is all the product gives.
+Axiom~1 for the composite, independence of the errors at distinct inputs, does
+not follow from Axiom~1 for the stages\index{composition!of maps}. It holds when
+the second stage draws fresh randomness on every query, or when distinct queried
+inputs reach distinct intermediate values. It fails for a stored (frozen) second
+stage reached twice at the same intermediate value. Let $g$ be a stored
+approximate map whose value at each point is wrong with probability $\eta$,
+independently across points but fixed once built, and let an exact $f$ send
+$x_1 \neq x_2$ to the same $y$. Each composed output $g(f(x_i))$ is wrong with
+probability $\eta$, exactly as $Q_1 Q_2$ predicts, but the two are wrong
+\emph{together} with probability $\eta$, not the $\eta^2$ that independence
+would give\index{counterexample!shared intermediate value}: they read the same
+realized error of $g$ at $y$. The composite has the right marginals and the
+wrong joint law, so \Cref{thm:n-ary-kronecker} does not apply to it across such
+inputs, and joint quantities (two-query conjunctions, error counts, the
+binomial laws of chapter~7) must be computed from the shared structure. The
+same failure afflicts the composition-closure claim for approximate maps in the
+source manuscript \parencite{towell-bernoulli-maps}, which assumes independent
+per-input correctness for the composite. Serial composition is the matrix
+product for one query; parallel querying is the Kronecker product only under
+Axiom~1, which serial composition through a frozen stage does not preserve.
 \end{remark}
 
 \subsection*{Worked example}

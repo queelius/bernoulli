@@ -19,7 +19,7 @@ defeats the point. The server has abundant storage and computation and
 will do work on the client's behalf; what it cannot be trusted with is
 reading the data it stores.
 
-\begin{definition}[Encrypted-search problem]
+\begin{definition}[Encrypted-search problem]\index{encrypted search}
 \label{def:encrypted-search}
 A client holds a corpus of plaintext documents $\{d_1, \ldots, d_n\}$,
 each a set of keywords from a vocabulary $W$. The client wants to
@@ -54,42 +54,53 @@ through fully homomorphic encryption
 (\Cref{sec:fhe-sidebar}), which lets the server evaluate an arbitrary
 circuit on encrypted inputs but is many orders of magnitude too slow for
 the corpus scales encrypted search must address. The first abandons the
-server, the second privacy, the third performance. The fourth resolution,
-this chapter's, abandons \emph{exactness}.
+server, the second privacy, the third performance. The standard
+resolution in the literature keeps exact answers and specifies precisely
+what leaks: searchable symmetric encryption\index{searchable symmetric encryption}
+\parencite{song-wagner-perrig-2000,curtmola-et-al-2006} reveals, by
+design, which stored items match a query and whether two queries were
+equal, and later work studies how much of that leakage can be suppressed
+\parencite{kamara-moataz-ohrimenko-2018} and how much an informed attacker
+can exploit \parencite{cash-et-al-2015}. A further option, taken by the
+Bloom-filter secure indexes of \textcite{goh-2003}, relaxes
+\emph{exactness}: matches carry false positives. This chapter studies that
+relaxation through the error model.
 
 \subsection*{Encrypted search as a cipher map}
 
-The cipher map of \Cref{def:cipher-map} operates on encrypted
+The cipher map\index{cipher map} of \Cref{def:cipher-map} operates on encrypted
 representations and returns the right answer up to bounded $\fprate$ and
 $\fnrate$, and encrypted search fits it directly. The plaintext function
 is the membership test ``does document $d$ contain keyword $w$?''; the
 encrypted-domain map is a server-side test on whatever encrypted form of
 $d$ and $w$ the construction provides; the error rates are the share of
-non-members reported as matches and the share of true members missed. A
-search is a sequence of such tests, one per document, and the Kronecker
-composition law of \Cref{sec:bernoulli-error-model} aggregates the
-per-test rates into a corpus-wide result. Encrypted search is thus a
+non-members reported as matches and the share of true members missed. A search is a sequence of such tests, one per document, and when the
+per-document structures are built independently the Kronecker
+factorization (\Cref{thm:kronecker}) gives the joint law of the
+corpus-wide result. Encrypted search is thus a
 family of cipher maps parameterized by the underlying approximate-set
 structure and the encryption scheme applied to it; the two rates govern
-recovery (how faithfully the response reflects the true match set) and
-the confidentiality of \Cref{sec:maximizing-confidentiality} governs
-leakage (how much the response reveals about the plaintext). The Bernoulli
+recovery (how faithfully the response reflects the true match set) and,
+under the observation model of \Cref{sec:maximizing-confidentiality},
+the false-positive cover of each reported match. The Bernoulli
 machinery applies unchanged; only the operational reading of $\fprate,
 \fnrate$ changes.
 
 \subsection*{The leakage-recovery trade-off}
 
 A tighter system (smaller $\fprate, \fnrate$) returns a more faithful
-match set but also leaks more: its membership reports are more reliable,
-so a third party who learns a report has a higher posterior on whether
-the document truly contained the queried keyword. The positive predictive
-value of \Cref{def:ppv}, $\Pr[w \in d \mid \text{match reported}]$, read
-with the adversary in mind, is the leakage measure, and confidentiality
-is $1 - \PPV$ (\Cref{sec:maximizing-confidentiality}), the two halves of
-the trade-off being opposite faces of one formula. The trade-off is
-unavoidable: an exact system has $\PPV = 1$ and confidentiality zero, a
-system returning random matches has confidentiality $1 - \pi$ and is
-useless, and every construction picks a point between.
+match set but gives its reports less cover: its membership reports are
+more reliable, so an observer who learns that a document matched a query
+has a higher posterior that the document truly contains the keyword. The
+positive predictive value of \Cref{def:ppv}, $\Pr[w \in d \mid
+\text{match reported}]$, read with the observer in mind, is that
+posterior, and the cover is $1 - \PPV$\index{positive predictive value}
+(\Cref{sec:maximizing-confidentiality}). Within this one leakage channel
+the trade-off is unavoidable: an exact result bit has $\PPV = 1$ and no
+cover, a system returning random matches has cover $1 - \pi$ and is
+useless, and every construction picks a point between. The other channels
+(query equality, access pattern, result volume) are untouched by the
+rates and are what the searchable-encryption literature analyzes.
 \Cref{sec:bloom-based} builds two Bloom-filter constructions,
 \Cref{sec:confidentiality-measures} works out the PPV/NPV/F1 measures as
 confidentiality bounds, \Cref{sec:adversarial-estimation} addresses

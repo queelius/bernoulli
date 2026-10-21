@@ -16,10 +16,13 @@ workload, and if not, what to change.
 \subsection*{Scenario and observation}
 
 The filter (\Cref{def:bloom-filter}, \Cref{sec:bloom-from-scratch}) has
-parameters $(m, k, n) = (50000, 7, 5000)$, so $m/n = 10$, $k = 7$ put it in
-the optimal regime of \Cref{thm:bloom-optimal-k}, and \eqref{eq:bloom-fpr} at
-$kn/m = 0.7$ predicts $\fprate \approx (1 - e^{-0.7})^7 \approx 0.0082$, with
-$\fnrate = 0$ by construction. A workload of $N = 10000$ messages arrives,
+$m = 50000$ bits, $k = 7$ hashes, and $n = 5000$ items. The ratio $m/n = 10$
+with $k = 7$ puts it in the optimal regime of \Cref{thm:bloom-optimal-k}, and
+\eqref{eq:bloom-fpr} at load $kn/m = 0.7$ predicts
+\[
+  \fprate \approx (1 - e^{-0.7})^7 \approx 0.0082,
+\]
+with $\fnrate = 0$ by construction. A workload of $N = 10000$ messages arrives,
 $n_\top = 1000$ spam and $n_\bot = 9000$ not; the filter reports $\top$ on all
 spam and on $\mathrm{FP} = 92$ of the non-spam, so
 \[

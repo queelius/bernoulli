@@ -1,78 +1,57 @@
-% §16.7 Bibliographic Notes
+% §16.8 Notes and Lineage
 %
-% Monograph register: martingale concentration (Azuma, Hoeffding,
-% McDiarmid), non-iid concentration in learning theory (Devroye-Lugosi),
-% adversarial ML (Goodfellow, Carlini-Wagner), the cryptographic
-% foundations bridge to chapter 17 (Goldreich). Light compression.
-% Terminology: paradigm "oblivious computing" -> "trapdoor computing";
-% "oblivious primitives" -> "trapdoor primitives"; "oblivious RAM" and
-% "private-information-retrieval" kept as named primitives.
-% Cites azuma-1967, hoeffding-1963, mcdiarmid-1989, devroye-lugosi-2001,
-% goodfellow-2015, carlini-wagner-2017, goldreich-1996, bell-1964,
-% fine-1982, kochen-specker-1967, nielsen-chuang-2010.
-% DEFINED: sec:bib-notes-ch16.
+% Monograph register: lineage of the concentration tools (Hoeffding, Azuma,
+% McDiarmid, Devroye-Lugosi), the exact Bloom FPR (Bose et al. 2008;
+% Christensen et al. 2010), adversarial filters (Naor-Yogev 2015;
+% Clayton-Patton-Shrimpton 2019; Filic et al. 2022; Bender et al. 2018),
+% adversarial ML (Goodfellow; Carlini-Wagner), hidden variables (Bell;
+% Kochen-Specker; Fine), diagonal-POVM readout (Nielsen-Chuang; Bravyi et al.;
+% Nation et al.; Smith et al.), cryptographic foundations (Goldreich).
+% Replaces the former "Bibliographic Notes"; label kept. DEFINED:
+% sec:bib-notes-ch16.
 
-\section*{Bibliographic Notes}
-\addcontentsline{toc}{section}{Bibliographic Notes}
+\section{Notes and Lineage}
 \label{sec:bib-notes-ch16}
 
-\paragraph{Martingale concentration.}
-The Azuma-Hoeffding inequality of \Cref{prop:azuma-hoeffding} has two
-parents: \textcite{hoeffding-1963}, ``Probability Inequalities for Sums of
-Bounded Random Variables,'' gave the independent-case predecessor, and
-\textcite{azuma-1967}, ``Weighted Sums of Certain Dependent Random
-Variables,'' the bounded-difference martingale generalization, the two
-sharing the exponential-moment proof technique that fuses them into one
-inequality. The extension to non-martingale functions of dependent
-variables is \textcite{mcdiarmid-1989}, ``On the Method of Bounded
-Differences,'' the reference for \Cref{prop:mcdiarmid} and the clearest
-expository treatment of the technique.
+\paragraph{Lineage.}
+None of the mathematics in this chapter is new. The concentration tools are
+classical: \textcite{hoeffding-1963} for independent bounded summands,
+\textcite{azuma-1967} for bounded martingale differences, and
+\textcite{mcdiarmid-1989} for bounded-difference functions, with
+\textcite{devroye-lugosi-2001} cataloguing their use on empirical
+processes. That Bloom's false-positive formula is only a lower bound,
+because the $k$ probes of one query are positively dependent, was proved
+by \textcite{bose-et-al-2008}, and \textcite{christensen-roginsky-jimeno-2010}
+gave the exact count. Adversarial use of filters has its own formal
+literature: adversarial resilience \parencite{naor-yogev-2015},
+correctness games under adaptive queries
+\parencite{clayton-patton-shrimpton-2019}, their extension to privacy
+\parencite{filic-et-al-2022}, and adaptive filters that repair false
+positives \parencite{bender-et-al-2018}; adversarial examples for
+classifiers trace to \textcite{goodfellow-2015} and
+\textcite{carlini-wagner-2017}. The hidden-variable results are
+\textcite{bell-1964}, \textcite{kochen-specker-1967}, and the equivalence
+of \textcite{fine-1982}. That a diagonal POVM sees only the diagonal of
+$\rho$ is the standard calculation \parencite{nielsen-chuang-2010}, and
+the readout-error literature models computational-basis measurement with
+exactly such assignment matrices
+\parencite{bravyi-et-al-2021,nation-et-al-2021,smith-et-al-2021}.
+\textcite{goldreich-1996} is the entry point to the cryptographic
+primitives the chapter defers to.
 
-\paragraph{Non-iid concentration in learning theory.}
-The textbook reference for non-iid concentration as used in statistical
-learning theory is \textcite{devroye-lugosi-2001}, \emph{Combinatorial
-Methods in Density Estimation}, which catalogues the martingale,
-bounded-difference, and chaining techniques applied to empirical
-processes. Its worked examples (kernel density estimators, histogram
-classifiers, nearest-neighbor rules) transcribe into the Bernoulli setting
-with minor modification.
+\paragraph{What this chapter adds.}
+An organization rather than a result: each failure mode is tied to the
+assumption it violates (Axiom~2 for drift, Axiom~1 for shared randomness,
+both for adaptive queries, and the prior existence of a joint distribution
+for contextuality), and the replacement tool is named. Two statements of
+earlier drafts are corrected here: the direction in which correlation
+moves the serial-composition formula, with the Fr\'echet interval as the
+only guarantee from marginals (\Cref{rem:composition-correlation-bracket}),
+and the scope of the readout regime, which is fixed by the measurement
+rather than by the state (\Cref{sec:quantum-contextuality}).
 
-\paragraph{Adversarial machine learning.}
-The adversarial-inputs catalogue of \Cref{sec:adversarial-inputs} draws on
-the literature that grew around neural classifiers since the mid-2010s.
-The two entry points are \textcite{goodfellow-2015}, ``Explaining and
-Harnessing Adversarial Examples,'' which gave the fast-gradient-sign
-method and named the phenomenon, and \textcite{carlini-wagner-2017},
-``Towards Evaluating the Robustness of Neural Networks,'' whose
-optimization-based attack became the standard benchmark for defenses. The
-Bernoulli framework inherits the same exposure: an attacker who knows the
-hash family finds a colliding input in expected $O(1/\fprate)$ work, and
-the honest defenses are secret hash families or trapdoor primitives.
-
-\paragraph{The cryptographic foundations.}
-The primitives the chapter points to as replacements for iid analysis in
-the adversarial regime are catalogued in the trapdoor-computing and
-secure-computation literatures, the foundational treatment being
-\textcite{goldreich-1996}, ``Foundations of Cryptography.'' The 1996
-fragments (and the 2001 and 2004 volumes that grew from them) are the
-entry point for secure multiparty computation, oblivious RAM, and the
-private-information-retrieval primitives chapter~17 unpacks into the
-cipher-map framework. Readers anticipating chapters~17 and~18 should treat
-Goldreich's foundations as the prerequisite; the Bernoulli-framework
-specialization sits on top of the cryptographic infrastructure those
-volumes formalize.
-
-\paragraph{Quantum contextuality.}
-The boundary of \Cref{sec:quantum-contextuality}, the regime where no
-latent value exists, rests on three results. \textcite{bell-1964}, ``On
-the Einstein Podolsky Rosen Paradox,'' gave the inequality whose
-violation rules out local hidden variables; \textcite{fine-1982},
-``Hidden Variables, Joint Probability, and the Bell Inequalities,''
-proved the equivalence the section turns on, that a joint distribution
-over all observables exists exactly when the Bell inequalities hold; and
-\textcite{kochen-specker-1967}, ``The Problem of Hidden Variables in
-Quantum Mechanics,'' established the contextuality obstruction in
-dimension at least three. The density-matrix and decoherence facts that
-place the framework on the diagonal (readout) sector are standard;
-\textcite{nielsen-chuang-2010}, \emph{Quantum Computation and Quantum
-Information}, is the textbook reference.
+\paragraph{Left out.}
+The security games and constructions of the adversarial-filter
+literature, dependence calculi finer than the Fr\'echet interval,
+readout-error mitigation, and any quantitative treatment of contextuality
+beyond the Bell and Kochen-Specker obstructions.

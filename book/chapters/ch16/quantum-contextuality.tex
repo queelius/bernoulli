@@ -7,14 +7,17 @@
 % instance. The Bernoulli latent value is a non-contextual local hidden
 % variable; Fine's theorem makes its existence equivalent to the Bell
 % inequalities; entanglement (Bell) and dimension >= 3 (Kochen-Specker)
-% falsify it. Axiom 1 reads as locality. The framework is exact on the
-% diagonal/readout sector.
+% falsify it. Axiom 1 reads as locality. SCOPE (corrected 2026-10): the
+% classical assignment model is exact for ANY state whenever the detector
+% POVM is diagonal, Tr(M_b rho) = sum_t A(b|t) rho_tt; it is not limited to
+% diagonal density matrices. The boundary is a property of the measurement
+% (non-diagonal or incompatible measurements), not of the state.
 % Cross-refs: sec:varying-rates, sec:correlated-noise, sec:adversarial-inputs,
 % sec:where-framework-helps, ax:element-indep, ax:block-rates-indep,
 % rem:composition-correlation-bracket. Cites fine-1982, bell-1964,
 % kochen-specker-1967, nielsen-chuang-2010. DEFINED: sec:quantum-contextuality.
 
-\section{When No Latent Value Exists: Quantum Contextuality}
+\section[No Latent Value: Quantum Contextuality]{When No Latent Value Exists: Quantum Contextuality}
 \label{sec:quantum-contextuality}
 
 The failure modes catalogued so far share a feature that is easy to
@@ -28,7 +31,7 @@ mis-estimates a parameter of a process whose underlying value is never in
 question. There is one failure of a different kind, where the assumption
 beneath both axioms fails: there is no consistent latent value to
 estimate at all. Quantum mechanics is its rigorous physical instance, and
-it gives this chapter its sharpest example.
+it gives this chapter its sharpest example.\index{contextuality}
 
 \subsection*{The latent value is a hidden variable}
 
@@ -46,19 +49,20 @@ written, and it is the assumption this section examines.
 
 \subsection*{Fine's theorem: the latent value is a falsifiable claim}
 
-That the latent value exists looks like a harmless modeling convenience.
+That the latent value\index{latent assignment} exists looks like a harmless modeling convenience.
 It is not. \textcite{fine-1982} proved that, for a correlation
-experiment, the following are equivalent: a deterministic hidden-variable
+experiment of the Bell-CHSH type (two settings per side, two outcomes
+each), the following are equivalent: a deterministic hidden-variable
 model exists; a factorizable stochastic model exists; a single joint
 distribution over all of the experiment's observables exists and returns
 the measured probabilities; and the Bell inequalities hold. Translated
 into the framework's vocabulary, the chain reads
 \[
-  \text{a latent value exists}
-  \;\Longleftrightarrow\;
-  \text{a joint distribution over all answers exists}
-  \;\Longleftrightarrow\;
-  \text{the Bell inequalities hold.}
+\begin{aligned}
+  &\text{a latent value exists}\\
+  \Longleftrightarrow\;\; &\text{a joint distribution over all answers exists}\\
+  \Longleftrightarrow\;\; &\text{the Bell inequalities hold.}
+\end{aligned}
 \]
 The latent-value assumption is therefore a falsifiable physical claim,
 not a definitional choice, and it can be tested in the laboratory.
@@ -79,8 +83,7 @@ joint distribution itself, so there is nothing left for a correction term
 to correct.
 
 A second, independent obstruction appears once measurements can be
-incompatible and the state space has dimension at least three. The
-Kochen-Specker theorem \parencite{kochen-specker-1967} shows that no
+incompatible and the state space has dimension at least three. The Kochen-Specker theorem\index{Kochen--Specker theorem} \parencite{kochen-specker-1967} shows that no
 assignment of definite values to all observables can be made consistent
 across the measurement contexts in which those observables appear. The
 honest scope matters here: a single two-outcome measurement in a fixed
@@ -91,9 +94,9 @@ three (Kochen-Specker).
 \subsection*{Reading the axioms as physics}
 
 Seen through the framework, \Cref{ax:element-indep} is a locality
-assumption, and the Bell inequality is the exact quantitative bound on
-how far an entangled pair sits outside any factorized Bernoulli
-composition. The pre-axiom existence of a joint distribution is
+assumption, and the Bell inequalities are the constraints every
+factorizable latent-value model satisfies; their violation measures how
+far an entangled pair sits outside all such models.\index{Bell inequality} The pre-axiom existence of a joint distribution is
 non-contextuality. The negative space of this chapter has, in quantum
 contextuality, its most rigorous possible example. The earlier failures
 are cases where the framework estimates a real parameter badly; this is a
@@ -108,21 +111,43 @@ martingale bound, a correction term, a secret hash family. Here there is
 none within the classical framework. The correct object is a probability
 amplitude, not a probability, and amplitudes can cancel where
 probabilities can only accumulate; the interference this permits has no
-representation in a latent-value-plus-noise model. In the density-matrix
-description \parencite{nielsen-chuang-2010} the framework sees only the
-diagonal of the state in the measurement basis, and the off-diagonal
-coherences that carry interference are invisible to it.
+representation in a latent-value-plus-noise model.
 
-The boundary is therefore sharp and locatable rather than a vague
-caution. The framework is exact precisely where the state is diagonal in
-the measurement basis: an eigenstate, a classical mixture, or a decohered
-state. That is the regime of classical readout, and decoherence is the
-physical process that zeroes the off-diagonals and hands the framework a
-genuine latent value to model. The forward error calculus of that readout
-regime, in which measured qubits are reported through an asymmetric
-$(\fprate, \fnrate)$ channel and Boolean post-processing composes the rates,
-is the subject of the companion paper
-\parencite{towell-bernoulli-quantum-readout}. In this precise sense the
-Bernoulli model is the classical shadow of a quantum system: faithful on the
-diagonal, blind to the rest. \Cref{sec:where-framework-helps} takes up what
-survives at this boundary and elsewhere.
+The boundary is sharp and locatable, and it is a property of the
+\emph{measurement}, not of the state. Let a detector have POVM elements
+$\{M_b\}$ that are diagonal in the computational basis, $M_b = \sum_t
+A(b \mid t)\, \lvert t \rangle\langle t \rvert$, where $A(b \mid t)$ is the probability of
+reporting $b$ when the basis state is $t$. Then for \emph{every} density
+matrix $\rho$\index{density matrix}\index{detector POVM}
+\parencite{nielsen-chuang-2010},
+\[
+  \Pr[\text{report } b]
+  \;=\; \operatorname{Tr}(M_b \rho)
+  \;=\; \sum_t A(b \mid t)\, \rho_{tt},
+\]
+so the outcome statistics depend on $\rho$ only through its diagonal, and
+the coherences $\rho_{ts}$, $t \ne s$, never enter. The classical
+assignment model, a latent basis value $t$ drawn from the diagonal of
+$\rho$ and reported through the channel $A$, is therefore \emph{exact} for
+the outcome statistics of such a measurement, whatever the state:
+an eigenstate, a mixture, or a coherent superposition. No decoherence
+is needed for this; it is a fact about diagonal measurements. The model
+stops being sufficient only when the question leaves that setting: when
+the measurement is not diagonal in the basis that defines the latent
+value (a rotated or entangling measurement, or a coherent operation
+before readout), where coherences change the statistics, or when one asks
+for joint statistics of incompatible measurements, the contextual case of
+this section. Readout error of computational-basis measurements, in which
+measured qubits are reported through asymmetric $(\fprate, \fnrate)$
+channels\index{quantum readout}, is thus squarely inside the framework;
+the experimental literature models it with exactly such assignment
+matrices \parencite{bravyi-et-al-2021,nation-et-al-2021,smith-et-al-2021},
+and the companion manuscript \parencite{towell-bernoulli-quantum-readout}
+applies the error calculus there. Boolean post-processing of several
+readouts composes exactly per latent assignment
+(\Cref{prop:latent-propagation}), not through a single carried rate pair
+(\Cref{ex:two-rate-counterexample}). In this precise sense the Bernoulli
+model is the classical description of what diagonal measurements see:
+faithful for them, and silent about questions that require amplitudes.
+\Cref{sec:where-framework-helps} takes up what survives at this boundary
+and elsewhere.

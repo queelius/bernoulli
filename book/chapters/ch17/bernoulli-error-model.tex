@@ -1,8 +1,10 @@
 % §17.2 The Bernoulli Framework as Error Model
 %
 % Monograph register: cipher-map rates ARE Bernoulli rates; per-query
-% channel matrices; chained composition is matrix multiplication
-% (thm:cipher-composition); perfect-filter geometry carries over;
+% channel matrices; chained composition is the serial channel product
+% (thm:cipher-composition), a per-query law that fails across queries
+% sharing an intermediate value (REVISED 2026-10; it is not the Kronecker
+% theorem, which is the parallel case); perfect-filter geometry carries over;
 % two-stage encrypted-classifier worked example. Tightened. Notes the
 % trapdoor set as a Bernoulli<T> instance (salvaged ex-10 point, inline).
 % Cross-refs sec:bernoulli-bool-formal, sec:kronecker,
@@ -24,28 +26,33 @@ the framework proved earlier carry over to cipher maps unchanged.
 
 \subsection*{Cipher-map rates are Bernoulli rates}
 
-A Bernoulli predicate has per-query behavior summarized by $\fprate =
-\Prob{\tilde A(x) = 1 \Given x \notin A}$ and $\fnrate = \Prob{\tilde
-A(x) = 0 \Given x \in A}$, and \Cref{sec:bernoulli-bool-formal} showed
+A Bernoulli predicate has per-query behavior summarized by
+\[
+  \fprate = \Prob{\tilde A(x) = 1 \Given x \notin A},
+  \qquad
+  \fnrate = \Prob{\tilde A(x) = 0 \Given x \in A},
+\]
+and \Cref{sec:bernoulli-bool-formal} showed
 that the two rates with the input prevalence specify the joint
 distribution of any finite query sequence. A cipher map $\tilde f$ for a
 Boolean predicate $f$ has the same per-query behavior. The client's only
 observable is the decrypted bit $\mathsf{Dec}(\tilde f(\mathsf{Enc}(x)))
 \in \{0, 1\}$, and that bit is Bernoulli conditional on the plaintext
 class:
-\[
-  \fprate = \Prob{\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = 1 \Given f(x) = 0},
-  \quad
-  \fnrate = \Prob{\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = 0 \Given f(x) = 1},
-\]
+\begin{align*}
+  \fprate &= \Prob{\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = 1 \Given f(x) = 0},\\
+  \fnrate &= \Prob{\mathsf{Dec}(\tilde f(\mathsf{Enc}(x))) = 0 \Given f(x) = 1},
+\end{align*}
 the probability taken over $\tilde f$'s internal randomness (hash
 choice, ciphertext noise, key schedule). Encryption and decryption drop
 out because $\mathsf{Dec} \circ \mathsf{Enc}$ is the identity on
 correctly decrypted outputs, leaving a Bernoulli atom with the cipher
 map's error profile as its $(\fprate, \fnrate)$. Every theorem of
-chapters 1 through 15 that took $(\fprate, \fnrate)$ as input applies
-when the rates come from a cipher map; the framework is indifferent to
-where the error originates and tracks only how it propagates. A trapdoor
+chapters 1 through 15 that took $(\fprate, \fnrate)$ as input, together
+with the independence hypotheses it stated, applies when the rates come
+from a cipher map that satisfies those hypotheses; the framework is
+indifferent to where the error originates and tracks only how it
+propagates. A trapdoor
 set is in this sense a $\Bernoulli{T}$ over its plaintext type $T$
 (\Cref{sec:bernoulli-of-composite}), the encryption layer changing the
 representation but not the Bernoulli-square point.
@@ -53,7 +60,7 @@ representation but not the Bernoulli-square point.
 \subsection*{Per-query channel matrices}
 
 The two-rate summary is convenient but limited. A Boolean cipher map is
-fully captured by a $2 \times 2$ channel matrix
+fully captured by a $2 \times 2$ channel matrix\index{channel matrix}
 \[
   Q \;=\;
   \begin{pmatrix}
@@ -70,7 +77,8 @@ f(\mathsf{Enc}(x))) = \ell \Given f(x) = k}$. The channel-matrix
 representation captures the full per-query behavior in one object that
 composes by multiplication, and it makes contact with the
 information-theoretic machinery of chapter 8 that
-\Cref{sec:maximizing-confidentiality} needs to quantify confidentiality.
+\Cref{sec:maximizing-confidentiality} uses for one confidentiality
+measure.
 
 \subsection*{Chained composition is matrix multiplication}
 
@@ -80,41 +88,55 @@ intermediate $\mathsf{Enc}(Y)$, then $\tilde f$ computes on it and
 returns $\mathsf{Enc}(Z)$. The error compounds. If $\tilde g$ produces a
 wrong $y' \ne g(x)$, then $\tilde f$ is asked to compute $f(y')$, and
 even an errorless $\tilde f$ returns $f(y') \ne f(g(x))$: the stage-1
-error propagates through stage 2. This is the situation the chapter 4
-Kronecker theorem (\Cref{thm:kronecker}) and its n-ary generalization
-(\Cref{thm:n-ary-kronecker}) were built to analyze, and the
-factorization is matrix multiplication.
+error propagates through stage 2. This is serial channel composition
+(\Cref{def:channel-composition}, \Cref{rem:channel-composition}), whose
+law is the matrix product; the Kronecker theorem (\Cref{thm:kronecker})
+governs the different, parallel case of several queries side by side.\index{channel!serial composition}
 
 \begin{theorem}[Cipher-map composition]
 \label{thm:cipher-composition}
 Let $\tilde g$ and $\tilde f$ be cipher maps realizing $g : X \to Y$ and
 $f : Y \to Z$ with per-query channel matrices $Q_g \in [0,1]^{|X| \times
-|Y|}$ and $Q_f \in [0,1]^{|Y| \times |Z|}$. If \Cref{ax:element-indep}
-(Axiom 1) holds, so the two stages' errors are mutually independent
-given the inputs, then the composed cipher map $\tilde f \circ \tilde g$
-realizes $h = f \circ g$ with channel matrix
+|Y|}$ and $Q_f \in [0,1]^{|Y| \times |Z|}$. If the second stage's randomness is independent of the first's, so that
+for each query the stage-2 error given the intermediate value does not
+depend on how stage 1 produced it, then for each input $x$ the composed
+cipher map $\tilde f \circ \tilde g$ realizes $h = f \circ g$ with
+per-query channel matrix
 \[
   Q_h \;=\; Q_g \, Q_f,
 \]
-ordinary matrix multiplication, $Q_h \in [0,1]^{|X| \times |Z|}$.
+ordinary matrix multiplication (row-stochastic layout, first stage on
+the left), $Q_h \in [0,1]^{|X| \times |Z|}$.
 \end{theorem}
 
-The proof reuses the chapter 4 argument: $(Q_g Q_f)_{x,z}$ sums over
+The proof is the law of total probability: $(Q_g Q_f)_{x,z}$ sums over
 intermediate $y$ the probability that stage 1 produces $y$ times the
-probability that stage 2 then produces $z$, the conditional independence
-being Axiom 1 applied to the two-stage sequence. For Boolean maps the
+probability that stage 2 then produces $z$, the factorization being the
+stated independence of the two stages.
+
+The theorem is a statement about one query at a time, and it does not
+make the composed map an independent-element map across queries. If two
+inputs $x_1 \ne x_2$ have the same exact intermediate value $g(x_1) =
+g(x_2) = y$, a realized cipher map $\tilde f$ evaluated at $y$ fails or
+succeeds once, and that frozen outcome is shared by both composed
+outputs: their errors are dependent even though each marginal is the
+entry of $Q_g Q_f$ the theorem gives. This is the composition failure of
+approximate maps under a shared intermediate value
+(\Cref{rem:channel-composition}): the composed map is an
+independent-element map only when the second stage draws fresh randomness
+per query or $g$ is injective on the queried inputs, and otherwise any
+multi-query statement about it must condition on the intermediate
+collisions.\index{counterexample!shared intermediate value}\index{composition!of maps} For Boolean maps the
 theorem is a $2 \times 2$ product; the same result governs any finite
 chain by induction, the composed matrix being the product of the
 per-stage matrices. A consequence: chained cipher-map error grows
 predictably, the composed Boolean rates bounded by chapter 3's
-$1 - \prod_i (1 - \eta_i)$ on each error type. This is Property 4 of the
-cipher-map design in the trapdoor-computing literature, the framework's
-composition law and the cryptographic side's requirement being the same
-property.
+$1 - \prod_i (1 - \eta_i)$ on each error type. This per-query law is the composition property the cipher-map
+manuscript \parencite{towell-cipher-maps} asks of its constructions.
 
 \subsection*{The geometry carries over}
 
-The perfect-filter line of \Cref{def:perfect-filter-line} classifies
+The perfect-filter line\index{perfect filter line} of \Cref{def:perfect-filter-line} classifies
 approximate sets by their $(\fprate, \fnrate)$ position, and the same
 classification applies to cipher maps. A cipher map with $\fnrate = 0$ is
 \emph{safe}: it never misses a real positive, the client losing no real
@@ -143,7 +165,6 @@ Had stage 2 carried its own FPR-only error $\fprate_2 = 0.005$, the
 product would give composed $\fprate = 0.99 \cdot 0.005 + 0.01 \cdot 1
 \approx 0.015$, matching $1 - (1 - 0.01)(1 - 0.005) \approx 0.015$, with
 $\fnrate$ staying zero because both stages are one-sided. The framework's
-composition law applies to cipher maps with no modification. The next
-section unpacks the operational consequences: when $\fprate, \fnrate$ are
-also confidentiality parameters, the same matrix algebra governs how
-confidentiality accumulates across composed queries.
+per-query composition law applies to cipher maps with no modification.
+The next section turns to the operational setting, where the error rates
+are one input to a confidentiality analysis but not the whole of it.

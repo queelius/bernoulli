@@ -28,7 +28,7 @@ cheaper than the full independence the Bloom filter assumed
 
 \begin{definition}[CountMin sketch]
 \label{def:countmin}
-The \emph{CountMin sketch} of parameters $(w, d)$ is a $d \times w$ integer
+The \emph{CountMin sketch}\index{Count-Min sketch} of parameters $(w, d)$ is a $d \times w$ integer
 table $C$, initialized to zero, with $d$ hashes, and two operations:
 \textsc{Update}$(a)$ increments $C[i][h_i(a)]$ for each $i$, and
 \textsc{Query}$(a)$ returns $\hat f_a = \min_i C[i][h_i(a)]$.
@@ -54,7 +54,8 @@ Both operations run in $O(d)$ time, independent of $F$ and $|\Universe|$, in
 $d \cdot w$ counters. Each cell $C[i][h_i(a)]$ holds $f_a$ plus a non-negative
 collision mass from other items hashing to the same cell, so $C[i][h_i(a)] \ge
 f_a$ for every $i$ and $\hat f_a = \min_i C[i][h_i(a)] \ge f_a$. The estimate
-never under-shoots, the count-valued analogue of the Bloom filter's deterministic
+never under-shoots, the count-valued analogue of the Bloom
+filter's\index{Bloom filter} deterministic
 no-false-negatives property; the minimum across $d$ independent rows attenuates
 the collision noise, since the estimate exceeds the truth only when every row
 collides with a heavy item.
@@ -100,19 +101,23 @@ below even this per-row mean.
 
 \subsection*{The $\Bernoulli{T}$ type and merging}
 
-CountMin instantiates \Cref{ch:approximate-functions} with $T = \mathbb{N}$: its
-channel $Q$ (\Cref{def:n-ary-channel}) has rows indexed by the true count, and
-the deterministic $\hat f_a \ge f_a$ makes $Q$ \emph{upper triangular}, the
-count-valued analogue of the Bloom filter's one-sided membership matrix. Each
-row concentrates near the diagonal, with at most a $\delta$ fraction of mass
-more than $\epsilon F$ columns to the right. Two sketches built on disjoint
+Read through \Cref{ch:approximate-functions}, CountMin is a $\Bernoulli{T}$
+value with $T = \mathbb{N}$: its channel $Q$ (\Cref{def:n-ary-channel}) has rows
+indexed by the true count, and the deterministic $\hat f_a \ge f_a$ makes $Q$
+\emph{upper triangular}\index{one-sided error}, the count-valued analogue of the
+Bloom filter's one-sided membership matrix. Each row concentrates near the
+diagonal, with at most a $\delta$ fraction of mass more than $\epsilon F$ columns
+to the right. The row is a marginal for one queried item, conditional on the
+rest of the stream: the collision mass $X_i$ depends on the other frequencies,
+and two queried items that share a cell share its collision mass, so their
+overestimates are positively dependent. Two sketches built on disjoint
 substreams with the same parameters and hashes merge by entry-wise addition,
 $(C_1 \oplus C_2)[i][j] = C_1[i][j] + C_2[i][j]$, which is exactly the sketch of
 the concatenated stream because \textsc{Update} only increments and addition
 commutes; the same $(\epsilon, \delta)$ bound holds at the combined $F$. Sharing
-the hash family is what keeps the merge a single correct sketch rather than a
-doubling of the failure probability, an instance of the
-\Cref{thm:n-ary-kronecker} composition.
+the hash family is what makes the merge a single correct sketch rather than two
+sketches whose failure probabilities add. This is the linearity of the sketch,
+a property of the construction rather than a channel composition.
 
 \subsection*{Worked example}
 

@@ -1,53 +1,97 @@
 % §12.1 From Approximate Sets to Approximate Relations
 %
-% Monograph register: an approximate relation is an approximate set on the pair
-% universe T x U. Model-order note tightened for ch9 consistency (one row per
-% pair, collapsing to model order two). Cross-refs ch:approximate-sets,
-% sec:from-atom-to-set, def:bernoulli-bool, ch:approximate-functions,
-% sec:n-ary-channels, sec:relation-composition, sec:approximate-joins. DEFINED:
-% sec:sets-to-relations.
+% Re-synced 2026-10-21 with the corrected relations manuscript
+% (towell-bernoulli-relations, "Error contracts for approximate relations",
+% Secs. 2-3). Three things are kept apart: the exact relation (fixed, no prior),
+% construction randomness (sampled once, then frozen), and source identity
+% (which stored outcome a probe reads). The independent-tuple law is a
+% specialization of the source model, not a consequence of using a Bloom filter.
+% Cross-refs ch:approximate-sets, sec:from-atom-to-set, def:bernoulli-bool,
+% ax:element-indep, ch:approximate-functions, sec:n-ary-channels,
+% ch:perfect-hash-filters, ch:not-bernoulli, ch:classification-measures.
+% DEFINED: sec:sets-to-relations, def:approx-relation, def:source-model.
 
 \section{From Approximate Sets to Approximate Relations}
 \label{sec:sets-to-relations}
 
 A binary relation $R \subseteq T \times U$ is a set whose elements are ordered
 pairs, so the chapter-5 construction (\Cref{ch:approximate-sets}) applies with
-the universe $T \times U$ in place of $\Universe$. A relation is its membership
-predicate $\SetIndicator{R} : T \times U \to \{\top, \bot\}$
-(\Cref{sec:from-atom-to-set}), and an \emph{approximate relation} is the noisy
-analogue,
-\[
-  \tilde R : T \times U \longrightarrow \Bernoulli{\BoolType},
-\]
-whose evaluation $\tilde R(t, u)$ reports whether $(t, u) \in R$ with the two
-rates of \Cref{def:bernoulli-bool},
-\[
-  \fprate = \Prob{\tilde R(t, u) = \top \Given (t, u) \notin R},
-  \qquad
-  \fnrate = \Prob{\tilde R(t, u) = \bot \Given (t, u) \in R}.
-\]
-The block structure is two-block, the in-relation block $R$ and its complement,
-one rate per block. The universe grew; the apparatus did not.
+the universe $T \times U$ in place of $\Universe$; relations of higher arity live
+the same way on a product of attribute domains. We use finite relations with set
+semantics in the sense of \textcite{codd-1970}\index{relational algebra}: no duplicate rows, no nulls, and
+no approximate comparison of attribute values. A relation is its membership
+predicate $\SetIndicator{R}$ (\Cref{sec:from-atom-to-set}), and an
+\emph{approximate relation}\index{approximate relation} is a noisy version of
+that predicate, $\tilde R : T \times U \to \Bernoulli{\BoolType}$, with the two
+rates of \Cref{def:bernoulli-bool}.
 
-Two examples fix the picture. The \emph{friend-of} relation $F \subseteq P
-\times P$ on a population $P$ stores known friend pairs in a Bloom-style
-structure: a query $\tilde F(\text{Alice}, \text{Bob})$ reads the hashed
-positions for the pair, with $\fnrate = 0$ (a stored pair has its bits set) and a
-tunable $\fprate$, the chapter-5 Bloom analysis applied to pairs. The
-\emph{word-in-document} relation $\tilde R \subseteq W \times D$, the inverted
-index of information retrieval, holds $(w, d)$ when word $w$ appears in document
-$d$, representable as a Bloom filter per document; the chapter-5
-space-versus-accuracy trade carries over verbatim.
+What the set-level chapters could leave implicit must now be said explicitly,
+because relational operators reuse their inputs. Three things are kept apart:
+the \emph{exact relation}, which is fixed and carries no prior; the
+\emph{construction randomness}, sampled once when the structure is built; and
+the \emph{source identity} of each probe, the stored random outcome that the
+probe reads.
 
-The chapter-9 view (\Cref{ch:approximate-functions},
-\Cref{sec:n-ary-channels}) is equivalent: $\SetIndicator{R}$ is a binary
-function $T \times U \to \BoolType$ whose channel has one row per input pair,
-collapsing under Axiom~2 to model order two (in the relation or not), exactly as
-chapter~5 collapsed the per-element rates of an approximate set. Whether to read
-$\tilde R$ as an approximate set on $T \times U$ or as an approximate binary
-function is a matter of which downstream machinery is nearer; both are the same
-object. \Cref{sec:relation-composition} adds structure on the universe itself,
-the relational operators of join, projection, and selection, with rates
-propagating by the chapter-6 composition theorems lifted to pairs;
-\Cref{sec:approximate-joins} then recovers the MinHash similarity join of
-chapter~10 as one instance.
+\begin{definition}[Approximate relation]
+\label{def:approx-relation}
+Fix a finite tuple universe $\mathcal{D}$ and an exact relation $R \subseteq
+\mathcal{D}$. An approximate relation is a family of membership functions
+$\tilde R_\vartheta : \mathcal{D} \to \{\top, \bot\}$ indexed by a construction
+seed $\vartheta$. The seed is drawn once, and every later probe reads the
+resulting frozen representation. For a fixed $t \notin R$ the false-positive
+rate is $\Prob{\tilde R_\vartheta(t) = \top}$, and for a fixed $t \in R$ the
+false-negative rate is $\Prob{\tilde R_\vartheta(t) = \bot}$, both over
+$\vartheta$.
+\end{definition}
+
+These are pointwise construction probabilities\index{false-positive rate}\index{false-negative rate} with the relation and the query
+held fixed. They are not the probability that an observed positive is false
+(that is the predictive value of \Cref{ch:classification-measures}), and repeating
+one probe $N$ times supplies one outcome, not $N$ trials.
+
+\begin{definition}[Source model]
+\label{def:source-model}
+A \emph{source map}\index{source map} $\kappa : \mathcal{D} \to I$ names the stored outcome each
+tuple reads, with exact source bits $x_i$ satisfying $\SetIndicator{R}(t) =
+x_{\kappa(t)}$; tuples sharing a source (aliases) must share their exact truth
+value. Under the \emph{independent-source model} the random source bits $X_i$
+are mutually independent, with $\Prob{X_i = 1} = \fprate_i$ when $x_i = 0$ and
+$1 - \fnrate_i$ when $x_i = 1$, and $\tilde R(t) = X_{\kappa(t)}$. The
+\emph{independent-tuple model} is the special case in which $\kappa$ is injective
+and the rates are constant on each truth class\index{independence!across elements}, $(\fprate_i, \fnrate_i) =
+(\fprate, \fnrate)$, which is \Cref{ax:element-indep} on the tuple universe.
+\end{definition}
+
+Every occurrence of a source reads the same bit, and distinct relations may share
+sources. A symmetry-preserving structure that answers $R(a, b)$ and $R(b, a)$
+from one canonical key is the motivating case: the query $R(a, b) \land R(b, a)$
+then has the single source $X_{\{a, b\}}$ as its lineage, not a conjunction of
+two independent bits. The independent-tuple model is an idealized channel, not a
+consequence of storing pairs in a Bloom filter: shared bit arrays and finite hash
+families introduce dependence (\Cref{ch:not-bernoulli}). Shared \emph{storage}
+is also different from shared \emph{outcomes}. In the
+perfect-hash-plus-fingerprint construction (\Cref{ch:perfect-hash-filters}), with
+an ideal fingerprint function independent of the placement, two absent keys that
+land in the same slot still match it independently, each with probability
+$2^{-M}$; a repeated canonical key, by contrast, reads one outcome twice.
+
+Two examples fix the picture. The \emph{friend-of} relation $F \subseteq P \times
+P$ on a population $P$ stores known friend pairs in a Bloom-style structure: a
+probe $\tilde F(\text{Alice}, \text{Bob})$ reads the hashed positions for the
+pair, with $\fnrate = 0$ and a tunable $\fprate$\index{Bloom filter}, the chapter-5 analysis applied
+to pairs. Conditional on the filter's occupancy, distinct absent pairs test
+positive independently at a common rate; unconditionally they are dependent
+through that occupancy, a distinction \Cref{sec:query-contracts} turns into a
+usable bound. The \emph{word-in-document} relation $W \times D$, the inverted
+index of information retrieval, holds $(w, d)$ when word $w$ occurs in document
+$d$, representable as one Bloom filter per document.
+
+The chapter-9 view (\Cref{ch:approximate-functions}, \Cref{sec:n-ary-channels})
+is equivalent: $\SetIndicator{R}$ is a binary function $T \times U \to \BoolType$
+whose channel has one row per input pair, collapsing under Axiom~2 to model order
+two (in the relation or not), exactly as chapter~5 collapsed the per-element
+rates of an approximate set. \Cref{sec:relation-composition} adds the relational
+operators; \Cref{sec:relation-invariants} asks which structural invariants an
+approximation can keep; \Cref{sec:query-contracts} states what error guarantee a
+whole query inherits from its sources; and \Cref{sec:approximate-joins} reads the
+MinHash similarity join of chapter~10 in the same vocabulary.

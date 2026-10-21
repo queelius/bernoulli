@@ -16,4 +16,7 @@ keywords:
   - monograph
   - approximate membership
   - two-sided error
+  - Bloom filter
+  - perfect hashing
+  - probabilistic data structures
   - approximate computation
