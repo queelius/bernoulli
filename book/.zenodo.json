@@ -1,0 +1,23 @@
+{
+  "title": "Bernoulli Types: An Algebra of Approximate Computation",
+  "upload_type": "publication",
+  "description": "A research monograph synthesizing the Bernoulli framework for random approximate types (sets, maps, relations, algebraic types) with an executable Python companion.",
+  "creators": [
+    {
+      "name": "Towell, Alexander",
+      "orcid": "0000-0001-6443-9897",
+      "affiliation": "Southern Illinois University Edwardsville"
+    }
+  ],
+  "keywords": [
+    "Bernoulli set",
+    "random approximate types",
+    "probabilistic data structure",
+    "monograph",
+    "approximate computation",
+    "type theory"
+  ],
+  "license": "CC-BY-4.0",
+  "access_right": "open",
+  "publication_type": "book"
+}

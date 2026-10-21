@@ -17,12 +17,12 @@ its manifest. Edit the manifest and re-run; do not hand-edit this file.
 | The Bernoulli Model: A Probabilistic Framework for Data Structures and Types | [bernoulli_data_type](https://github.com/queelius/bernoulli_data_type) | article | CC-BY-4.0 | 10.5281/zenodo.19105398 | 10.5281/zenodo.19105399 | DOI minted algebraic_types sub-paper minted separately at concept 10.5281/zenodo.19105395 (version 10.5281/zenodo.19105396) |
 | A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes | [bernoulli-quantum-readout](https://github.com/queelius/bernoulli-quantum-readout) | article | CC-BY-4.0 | 10.5281/zenodo.20584894 | 10.5281/zenodo.20618108 | DOI minted |
 | bernoulli-types: a Python implementation of random approximate types | [bernoulli](https://github.com/queelius/bernoulli/tree/main/bernoulli-py) | software | MIT | (mint) | (mint) | metadata ready subtree split to queelius/bernoulli-types deferred |
-| Bernoulli Types: An Algebra of Approximate Computation | [bernoulli](https://github.com/queelius/bernoulli/tree/main/book) | book | all-rights-reserved | (mint) | (mint) | metadata ready all-rights-reserved (KDP-bound); Zenodo deposit + repo split deferred |
+| Bernoulli Types: An Algebra of Approximate Computation | [bernoulli](https://github.com/queelius/bernoulli/tree/main/book) | book | CC-BY-4.0 | (mint) | (mint) | metadata ready CC-BY-4.0 chosen 2026-10-21 (embedded code MIT); Zenodo deposit pending the apparatus pass |
 
 ## Licensing policy
 - Papers: CC-BY-4.0 (the two formerly GPL-3.0 papers, sets and data_type, were harmonized).
 - `bernoulli-py`: MIT.
-- Monograph: all-rights-reserved for now (Amazon KDP intent); revisit before any Zenodo deposit.
+- Monograph: CC-BY-4.0 (decided 2026-10-21); embedded code samples and the companion package are MIT.
 
 ## Minting a DOI (one-time per repo)
 1. Sign in at https://zenodo.org with GitHub and authorize it.

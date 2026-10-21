@@ -53,7 +53,8 @@ SPDX-License-Identifier: CC-BY-4.0
 
 # Each artifact: dir (relative to ROOT), repo (github slug), title, type
 # (article|book|software), license (SPDX), description, extra keywords,
-# write_license (write a CC-BY LICENSE file, overwriting any prior),
+# write_license (write a CC-BY LICENSE file, overwriting any prior; an optional
+# license_note is appended to it, e.g. for embedded code under another license),
 # zenodo (emit .zenodo.json), and optional concept_doi / version_doi / url /
 # date_released / version. bernoulli-quantum-readout is intentionally absent
 # (drafted separately); add it once it exists.
@@ -161,11 +162,15 @@ ARTIFACTS = [
     {
         "dir": "book", "repo": "bernoulli",
         "title": "Bernoulli Types: An Algebra of Approximate Computation",
-        "type": "book", "license": "all-rights-reserved", "write_license": False, "zenodo": False,
+        "type": "book", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
+        "license_note": (
+            "Source code embedded in the work (listings and examples) and the companion\n"
+            "Python package (bernoulli-py/) are licensed under the MIT License.\n"
+        ),
         "description": "A research monograph synthesizing the Bernoulli framework for random approximate types (sets, maps, relations, algebraic types) with an executable Python companion.",
         "keywords": ["monograph", "approximate computation", "type theory"],
         "repo_url_override": "https://github.com/queelius/bernoulli/tree/main/book",
-        "note": "all-rights-reserved (KDP-bound); Zenodo deposit + repo split deferred",
+        "note": "CC-BY-4.0 chosen 2026-10-21 (embedded code MIT); Zenodo deposit pending the apparatus pass",
     },
 ]
 
@@ -226,6 +231,8 @@ def write_license(a: dict) -> None:
     path = os.path.join(ROOT, a["dir"], "LICENSE")
     with open(path, "w", encoding="utf-8") as f:
         f.write(CC_BY_LICENSE.format(title=a["title"]))
+        if a.get("license_note"):
+            f.write("\n" + a["license_note"])
 
 
 def write_provenance() -> None:
@@ -252,7 +259,7 @@ its manifest. Edit the manifest and re-run; do not hand-edit this file.
 ## Licensing policy
 - Papers: CC-BY-4.0 (the two formerly GPL-3.0 papers, sets and data_type, were harmonized).
 - `bernoulli-py`: MIT.
-- Monograph: all-rights-reserved for now (Amazon KDP intent); revisit before any Zenodo deposit.
+- Monograph: CC-BY-4.0 (decided 2026-10-21); embedded code samples and the companion package are MIT.
 
 ## Minting a DOI (one-time per repo)
 1. Sign in at https://zenodo.org with GitHub and authorize it.

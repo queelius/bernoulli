@@ -52,8 +52,8 @@ The project was drafted by hand following the bookwright methodology before the 
 
 ## License
 
-Prose: CC BY-NC-SA 4.0 (see `LICENSE`).
-Code samples: MIT.
+Prose: CC BY 4.0 (see `LICENSE`).
+Code samples and the companion package: MIT.
 
 ## Author
 

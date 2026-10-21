@@ -1,11 +1,16 @@
 Bernoulli Types: An Algebra of Approximate Computation
 Copyright (c) 2026 Alexander Towell.
 
-This work is licensed under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International License.
+This work is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0).
 
-To view a copy of this license, visit:
-https://creativecommons.org/licenses/by-nc-sa/4.0/
+You are free to share (copy and redistribute) and adapt (remix, transform,
+and build upon) this material for any purpose, including commercially,
+provided you give appropriate credit, link to the license, and indicate if
+changes were made.
 
-Source code embedded in the work (listings, examples, and the companion
-Python package at ../python/) is dual-licensed under the MIT License.
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+SPDX-License-Identifier: CC-BY-4.0
+
+Source code embedded in the work (listings and examples) and the companion
+Python package (bernoulli-py/) are licensed under the MIT License.

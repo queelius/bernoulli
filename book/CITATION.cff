@@ -8,6 +8,7 @@ authors:
     orcid: "https://orcid.org/0000-0001-6443-9897"
     affiliation: "Southern Illinois University Edwardsville"
 repository-code: "https://github.com/queelius/bernoulli/tree/main/book"
+license: CC-BY-4.0
 keywords:
   - Bernoulli set
   - random approximate types
