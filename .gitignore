@@ -1,0 +1,11 @@
+# Python, test and lint caches
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+
+# Local agent and browser-automation state
+.claude/
+.playwright-mcp/
