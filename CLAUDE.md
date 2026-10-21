@@ -14,7 +14,7 @@ The repo holds these co-developed trees:
 
 | Path | Role | Remote |
 |---|---|---|
-| `papers/` | 9 academic papers (LaTeX) plus a `pdf-archive/` of superseded drafts. Each paper is its own git subtree. | One remote *per paper* (see below) |
+| `papers/` | 10 preprints (LaTeX; 11 manuscripts), being frozen as final Zenodo versions with errata in favor of the monograph (see `.research/program-strategy/`). Each paper is its own git subtree. | One remote *per paper* (see below) |
 | `book/` | Pedagogical monograph (LaTeX, book class). See `docs/superpowers/specs/2026-04-29-bernoulli-textbook-design.md`. | (subtree migration deferred) |
 | `bernoulli-py/` | The Python package: import name `bernoulli`, PyPI distribution `bernoulli-types`. The reference implementation (research artifact + PyPI library) and the book's executable companion (`notebooks/`). See `bernoulli-py/README.md` and `PHASING.md`. | (subtree migration deferred) |
 | `archived/bernoulli-cpp/` | Retired header-only C++17 reference (does not compile). Kept as a design reference and port source for the planned C core; not built or released. Still a git subtree. | `bernoulli-cpp` |
@@ -26,9 +26,23 @@ reference implementation. The unification that promoted `bernoulli-py/` (from
 the former `src/bernoulli/` and `python/` trees) and archived the C++ is
 specified in `docs/superpowers/specs/2026-06-05-bernoulli-package-unification.md`.
 
+## Status (2026-10-21)
+
+- The repository is **public** (github.com/queelius/bernoulli). Never commit
+  credentials, private venue correspondence, suggested-reviewer lists, or
+  third-party full texts; `.research/.gitignore` encodes these exclusions.
+- The program is positioned as a **synthesis**: most headline results have
+  named predecessors (Gallager 1962, Parker-McCluskey 1975, Carter et al. 1978,
+  Pagh-Rodler 2001, Dietzfelbinger-Pagh 2008, Decaf 2015, Fuhr-Rolleke 1997).
+  Check `.research/program-strategy/README.md` before calling any result new.
+- The **monograph** (`book/`, CC BY 4.0) is the canonical artifact; the papers
+  are being frozen. Venue lifecycle lives in `~/github/pubs`.
+- Two-rate (eps, omega) pairs do **not** compose exactly through Boolean trees;
+  propagate per latent assignment or use sound worst-case bounds.
+
 ## Routing: Where to Start
 
-- **"Work on paper X"** or **questions about LaTeX, notation, citations, paper structure** → read `papers/CLAUDE.md` first (188 lines, covers all 9 papers, notation systems, build commands, cross-paper topic placement, conceptual layering, the Five Core Principles, terminology). Then read that paper's own `CLAUDE.md` (7 of 9 papers have one).
+- **"Work on paper X"** or **questions about LaTeX, notation, citations, paper structure** → read `papers/CLAUDE.md` first (covers the papers, notation systems, build commands, cross-paper topic placement, conceptual layering, the Five Core Principles, terminology). Then read that paper's own `CLAUDE.md` where present.
 - **"Work on the Python package"** or **questions about `bernoulli.atom`, `BernoulliBool`, the phases, the C core** → read `bernoulli-py/README.md` and `bernoulli-py/PHASING.md`. The retired C++ reference is at `archived/bernoulli-cpp/` (design reference / port source only).
 - **"Push paper X to its standalone GitHub repo"** → see "Subtree Workflow" below.
 - **"Where does topic Y belong?"** → `papers/CLAUDE.md` has a Cross-Paper Topic Placement table; that is authoritative.
@@ -66,7 +80,7 @@ matplotlib, sympy), `[c]` (cffi, Phase 2+).
 The original header-only C++17 library is retired at `archived/bernoulli-cpp/`.
 It does not compile and is not built or released; it is kept as a design
 reference and as the port source for the planned plain-C core (algorithmic
-ideas port; the C++ bindings do not). `maph` (`~/github/repos/maph/`) is the
+ideas port; the C++ bindings do not). `lapidary` (formerly `maph`, at `~/github/bijou/lapidary/`) is the
 active C++ research sandbox.
 
 ## Papers
