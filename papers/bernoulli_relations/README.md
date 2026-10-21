@@ -1,12 +1,19 @@
 # Error contracts for approximate relations
 
+> **Frozen, 2026-10-21.** This is the final version of a preprint. It is superseded by the monograph *Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation* ([read online](https://metafunctor.com/latex/bernoulli-monograph/book.html); [research hub](https://metafunctor.com/research/bernoulli/)), developed in the [bernoulli monorepo](https://github.com/queelius/bernoulli). This repository is archived read-only; corrections and new material go into the monograph.
+
+- **Final version DOI:** [10.5281/zenodo.23531330](https://doi.org/10.5281/zenodo.23531330) (all versions: [10.5281/zenodo.20602265](https://doi.org/10.5281/zenodo.20602265))
+- **Superseded by:** ch. 12 (Approximate Relations)
+- **Errata:** [`ERRATA.md`](ERRATA.md)
+- **Build** (in this directory): `TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex && bibtex main && TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex && TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex`
+
 Alexander Richard Towell. Working draft, revised October 2026.
 
 This manuscript separates exact relation truth, frozen construction randomness,
 and shared source identity. It gives scoped operator and invariant calculations,
 monotone query error contracts, and a reproducible stored-filter calibration study.
 It is **not yet assessed as a submission-ready original research contribution**.
-See [the current assessment](../../.research/relations-revision/assessment.md).
+See [the current assessment](https://github.com/queelius/bernoulli/blob/main/.research/relations-revision/assessment.md).
 
 ## Build
 
