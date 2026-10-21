@@ -16,6 +16,7 @@ Usage: python3 docs/zenodo/generate_metadata.py
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
 
@@ -56,8 +57,10 @@ SPDX-License-Identifier: CC-BY-4.0
 # write_license (write a CC-BY LICENSE file, overwriting any prior; an optional
 # license_note is appended to it, e.g. for embedded code under another license),
 # zenodo (emit .zenodo.json), and optional concept_doi / version_doi / url /
-# date_released / version. bernoulli-quantum-readout is intentionally absent
-# (drafted separately); add it once it exists.
+# date_released / version, plus manuscript (the dir whose entry in
+# papers/freeze-manifest.json describes this artifact, when it differs from
+# dir). Frozen papers get their description prefixed from that manifest: the
+# freeze date and the superseding monograph chapters.
 ARTIFACTS = [
     {
         "dir": "papers/bernoulli_sets", "repo": "bernoulli_sets",
@@ -72,7 +75,7 @@ ARTIFACTS = [
         "dir": "papers/bernoulli_composition", "repo": "bernoulli_composition",
         "title": "Composition of Bernoulli sets",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "Closed-form error rates for complement, union, intersection, and difference of Bernoulli sets, showing the model is closed under set-theoretic composition.",
+        "description": "Error rates for complement, union, intersection, and difference of Bernoulli sets, computed per region of the true sets; marginal rate pairs do not compose exactly through nested expressions. Credits independent-event evaluation in probabilistic databases and Bloom-filter set operations.",
         "keywords": ["set composition", "error propagation", "union", "intersection"],
         "concept_doi": "10.5281/zenodo.19105387", "version_doi": "10.5281/zenodo.19105388",
         "url": "https://doi.org/10.5281/zenodo.19105387",
@@ -81,7 +84,7 @@ ARTIFACTS = [
         "dir": "papers/bernoulli_classification_measures", "repo": "bernoulli_classification_measures",
         "title": "Binary classification measures for random approximate sets",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "Distributions, expectations, and variances of binary classification measures (PPV, NPV, accuracy, F1, Youden's J) for the Bernoulli set model, via delta-method expansions validated by Monte Carlo.",
+        "description": "Distributions, expectations, and variances of binary classification measures (PPV, NPV, accuracy, F1, Youden's J) for the Bernoulli set model, via standard delta-method expansions validated by Monte Carlo; no novelty is claimed for the technique.",
         "keywords": ["binary classification", "positive predictive value", "F1-score", "delta method"],
         "concept_doi": "10.5281/zenodo.19104549", "version_doi": "10.5281/zenodo.19104550",
         "url": "https://doi.org/10.5281/zenodo.19104549", "date_released": "2026-03-18",
@@ -90,7 +93,7 @@ ARTIFACTS = [
         "dir": "papers/bernoulli_entropy", "repo": "bernoulli_entropy",
         "title": "Entropy and space complexity of random approximate sets",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with a closed-form asymptotic expansion and the -log2(epsilon) bits-per-element space bound.",
+        "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with an asymptotic expansion, and the space lower bound for approximate membership: the one-sided -log2(epsilon) bound of Carter et al. (1978) and the two-sided bound with false negatives of Pagh and Rodler (2001).",
         "keywords": ["entropy", "space complexity", "information-theoretic bound"],
         "concept_doi": "10.5281/zenodo.20602259", "version_doi": "10.5281/zenodo.20602260",
         "url": "https://doi.org/10.5281/zenodo.20602259", "date_released": "2026-06-08",
@@ -99,8 +102,8 @@ ARTIFACTS = [
         "dir": "papers/bernoulli-hash-function", "repo": "bernoulli-hash-function",
         "title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The Bernoulli hash function (BHF): hash-based constructions that optimally implement the Bernoulli set and map at the information-theoretic space bound.",
-        "keywords": ["perfect hash", "fingerprint", "space-optimal", "succinct data structure"],
+        "description": "The Bernoulli hash function (BHF): seed-search constructions of Bernoulli sets and maps whose expected salt length matches the known -log2(epsilon)+mu scale, in exponential expected time, in the lineage of RecSplit and ShockHash. This version corrects the order-statistic law and withdraws the adaptive-threshold space saving.",
+        "keywords": ["perfect hash", "fingerprint", "seed search", "succinct data structure"],
         "concept_doi": "10.5281/zenodo.20602261", "version_doi": "10.5281/zenodo.20602262",
         "url": "https://doi.org/10.5281/zenodo.20602261", "date_released": "2026-06-08",
     },
@@ -108,7 +111,7 @@ ARTIFACTS = [
         "dir": "papers/bernoulli-phf", "repo": "bernoulli-phf",
         "title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The perfect hash filter (PHF): a practical static positive Bernoulli set built by off-the-shelf minimal perfect hashing, approaching the -log2(epsilon) bits-per-element bound to within a constant log2(e), and extended to the perfect hash map; the deployable counterpart to the space-optimal Bernoulli hash function.",
+        "description": "The perfect hash filter (PHF): the minimal-perfect-hash-plus-fingerprint filter described by Dietzfelbinger and Pagh (2008), restated as a positive Bernoulli set and map, about log2(e) bits per element above the bound, with a corrected k-perfect false-negative analysis.",
         "keywords": ["perfect hash filter", "succinct data structure", "encrypted search"],
         "concept_doi": "10.5281/zenodo.20602263", "version_doi": "10.5281/zenodo.20602264",
         "url": "https://doi.org/10.5281/zenodo.20602263", "date_released": "2026-06-08",
@@ -117,17 +120,17 @@ ARTIFACTS = [
         "dir": "papers/bernoulli_maps", "repo": "bernoulli_maps",
         "title": "The Algebra of the Random Approximate Map Model",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, the composition theorem, and a space-optimal construction at -log2(epsilon)+mu bits per element.",
-        "keywords": ["approximate map", "model order", "composition theorem", "channel"],
+        "description": "The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, closed-form marginal rates under composition (element-wise independence holds only without shared intermediate values), and a seed-search construction approaching -log2(epsilon)+mu bits per element.",
+        "keywords": ["approximate map", "model order", "composition", "channel"],
         "concept_doi": "10.5281/zenodo.19105389", "version_doi": "10.5281/zenodo.19105390",
         "url": "https://doi.org/10.5281/zenodo.19105389",
     },
     {
         "dir": "papers/bernoulli_relations", "repo": "bernoulli_relations",
-        "title": "The Abstract Data Type of the Approximate Relation",
+        "title": "Error contracts for approximate relations",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
-        "keywords": ["approximate relation", "relational algebra", "join", "trapdoor database"],
+        "description": "Separates exact relation truth, construction randomness, and shared source identity; gives scoped operator and invariant-preservation formulas, one-sided query error contracts, and a stored-filter calibration study. Credits probabilistic relational algebra and probabilistic databases.",
+        "keywords": ["approximate relation", "relational algebra", "join", "query error contract"],
         "concept_doi": "10.5281/zenodo.20602265", "version_doi": "10.5281/zenodo.20618109",
         "url": "https://doi.org/10.5281/zenodo.20602265", "date_released": "2026-06-09",
     },
@@ -135,17 +138,27 @@ ARTIFACTS = [
         "dir": "papers/bernoulli_data_type", "repo": "bernoulli_data_type",
         "title": "The Bernoulli Model: A Probabilistic Framework for Data Structures and Types",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "The Bernoulli Model, a probabilistic framework for uncertainty in data types, trading space for accuracy with O(1) operations and probabilistic guarantees; the foundational overview.",
-        "keywords": ["data types", "cipher data types", "Count-Min sketch", "error propagation"],
+        "description": "An overview of the Bernoulli model of approximate data types: values observed through binary channels with false-positive and false-negative rates, trading space for accuracy. Credits probability-typed approximate computing (Decaf, Rely, Uncertain<T>).",
+        "keywords": ["data types", "cipher data types", "error propagation"],
         "concept_doi": "10.5281/zenodo.19105398", "version_doi": "10.5281/zenodo.19105399",
         "url": "https://doi.org/10.5281/zenodo.19105398",
-        "note": "algebraic_types sub-paper minted separately at concept 10.5281/zenodo.19105395 (version 10.5281/zenodo.19105396)",
+        "manuscript": "papers/bernoulli_data_type/bernoulli_model",
+    },
+    {
+        "dir": "papers/bernoulli_data_type/algebraic_types", "repo": "bernoulli_data_type",
+        "title": "Random approximate values over algebraic types",
+        "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
+        "description": "Random approximate values over algebraic data types (sums, products, functions) with per-type error rates, credited against probability-typed approximate computing (Decaf, Rely, Uncertain<T>, EnerJ, Chisel) and the Giry monad.",
+        "keywords": ["algebraic data types", "approximate computing", "probability types"],
+        "concept_doi": "10.5281/zenodo.19105395", "version_doi": "10.5281/zenodo.19105396",
+        "url": "https://doi.org/10.5281/zenodo.19105395",
+        "repo_url_override": "https://github.com/queelius/bernoulli_data_type/tree/main/algebraic_types",
     },
     {
         "dir": "papers/bernoulli-quantum-readout", "repo": "bernoulli-quantum-readout",
         "title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
         "type": "article", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
-        "description": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps.",
+        "description": "Applies known forward error-propagation tools (signal-probability analysis, probabilistic transfer matrices, Gallager's parity lemma) to Boolean post-processing of asymmetric quantum readout error, computed per latent assignment, with worked ibm_hanoi syndrome-bit numbers. A two-rate pair does not propagate through Boolean trees as a pair.",
         "keywords": ["quantum readout error", "measurement error", "asymmetric channel", "syndrome bit", "error propagation"],
         "concept_doi": "10.5281/zenodo.20584894", "version_doi": "10.5281/zenodo.20618108",
         "url": "https://doi.org/10.5281/zenodo.20584894", "date_released": "2026-06-09",
@@ -161,18 +174,53 @@ ARTIFACTS = [
     },
     {
         "dir": "book", "repo": "bernoulli",
-        "title": "Bernoulli Types: An Algebra of Approximate Computation",
+        "title": "Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation",
         "type": "book", "license": "CC-BY-4.0", "write_license": True, "zenodo": True,
         "license_note": (
             "Source code embedded in the work (listings and examples) and the companion\n"
             "Python package (bernoulli-py/) are licensed under the MIT License.\n"
         ),
         "description": "A research monograph synthesizing the Bernoulli framework for random approximate types (sets, maps, relations, algebraic types) with an executable Python companion.",
-        "keywords": ["monograph", "approximate computation", "type theory"],
+        "keywords": ["monograph", "approximate membership", "two-sided error", "approximate computation"],
         "repo_url_override": "https://github.com/queelius/bernoulli/tree/main/book",
         "note": "CC-BY-4.0 chosen 2026-10-21 (embedded code MIT); Zenodo deposit pending the apparatus pass",
     },
 ]
+
+
+FREEZE_MANIFEST = os.path.join(ROOT, "papers", "freeze-manifest.json")
+
+
+def _freeze_manifest() -> dict:
+    """papers/freeze-manifest.json, or an empty manifest if the papers are not frozen."""
+    try:
+        with open(FREEZE_MANIFEST, encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"manuscripts": []}
+
+
+def _chapters_phrase(chapters: list[int]) -> str:
+    nums = [str(c) for c in chapters]
+    if len(nums) == 1:
+        return f"Chapter {nums[0]}"
+    return "Chapters " + ", ".join(nums[:-1]) + " and " + nums[-1]
+
+
+def description(a: dict) -> str:
+    """The deposit description: frozen papers lead with the freeze and the superseding chapters."""
+    manifest = _freeze_manifest()
+    entries = {m["dir"]: m for m in manifest["manuscripts"]}
+    entry = entries.get(a.get("manuscript", a["dir"]))
+    if entry is None:
+        return a["description"]
+    frozen = datetime.date.fromisoformat(manifest["generated"]).strftime("%B %Y")
+    book = next(x for x in ARTIFACTS if x["type"] == "book")
+    chapters = _chapters_phrase([c["chapter"] for c in entry["monograph_chapters"]])
+    return (
+        f"Final version ({frozen}), with errata; superseded by the monograph "
+        f"{book['title']}, {chapters}. " + a["description"]
+    )
 
 
 def repo_url(a: dict) -> str:
@@ -211,7 +259,7 @@ def write_zenodo_json(a: dict) -> None:
     rec: dict = {
         "title": a["title"],
         "upload_type": "software" if a["type"] == "software" else "publication",
-        "description": a["description"],
+        "description": description(a),
         "creators": [AUTHOR_ZENODO],
         "keywords": BASE_KEYWORDS + a.get("keywords", []),
         "license": a["license"],

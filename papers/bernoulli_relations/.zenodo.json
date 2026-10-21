@@ -1,7 +1,7 @@
 {
-  "title": "The Abstract Data Type of the Approximate Relation",
+  "title": "Error contracts for approximate relations",
   "upload_type": "publication",
-  "description": "The approximate relation, a probabilistic relation with false and complementary-false correspondences; error propagation through join and project, an approximate-set-based implementation, and a trapdoor-database application.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 12. Separates exact relation truth, construction randomness, and shared source identity; gives scoped operator and invariant-preservation formulas, one-sided query error contracts, and a stored-filter calibration study. Credits probabilistic relational algebra and probabilistic databases.",
   "creators": [
     {
       "name": "Towell, Alexander",
@@ -16,7 +16,7 @@
     "approximate relation",
     "relational algebra",
     "join",
-    "trapdoor database"
+    "query error contract"
   ],
   "license": "CC-BY-4.0",
   "access_right": "open",

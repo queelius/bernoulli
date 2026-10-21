@@ -1,7 +1,7 @@
 {
   "title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
   "upload_type": "publication",
-  "description": "The perfect hash filter (PHF): a practical static positive Bernoulli set built by off-the-shelf minimal perfect hashing, approaching the -log2(epsilon) bits-per-element bound to within a constant log2(e), and extended to the perfect hash map; the deployable counterpart to the space-optimal Bernoulli hash function.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 15. The perfect hash filter (PHF): the minimal-perfect-hash-plus-fingerprint filter described by Dietzfelbinger and Pagh (2008), restated as a positive Bernoulli set and map, about log2(e) bits per element above the bound, with a corrected k-perfect false-negative analysis.",
   "creators": [
     {
       "name": "Towell, Alexander",

@@ -39,9 +39,10 @@ For instance, in the second-order model, the random false positive rate $\alpha$
 
 \begin{remark}[Relation to binary channels]
 \label{rem:bsc}
-At the per-element level, the Bernoulli set model is a collection of independent binary channels~\cite{shannonBSC}; equivalently, each element undergoes Warner's randomized response~\cite{warner1965}. For each $x \in U$, the indicator $\mathbf{1}_{\tilde{A}}(x)$ is the output of a binary channel with crossover probability $\fprate$ (if $x \notin A$) or $\fnrate$ (if $x \in A$).
+At the per-element level, the Bernoulli set model is a collection of independent binary channels~\cite{shannonBSC}; equivalently, each element undergoes Warner's randomized response~\cite{warner1965}; it is also the misclassification model of Bross~\cite{bross1954misclassification}. For each $x \in U$, the indicator $\mathbf{1}_{\tilde{A}}(x)$ is the output of a binary channel with crossover probability $\fprate$ (if $x \notin A$) or $\fnrate$ (if $x \in A$).
 When $\fprate = \fnrate$ (the first-order model), this reduces to a binary \emph{symmetric} channel (BSC); in general, the channel is asymmetric.
-The novelty of the present framework is not the per-element channel model, which is classical, but the axiomatic \emph{set-level} model: the derivation of error-count distributions, higher-order compositions via channel matrix products, and the abstract data type formulation that any conforming implementation inherits automatically.
+Neither the per-element channel model nor its set-level consequences are new: the error-count distributions are immediate consequences of independence, and the composition of approximate identities is the classical cascade of binary channels.
+The contribution of this paper is expository, a single axiomatic statement of these facts that the companion papers reuse.
 The compositional algebra of set operations (error rates for union, intersection, complement) is developed in the companion paper~\cite{bernoulliComposition}.
 \end{remark}
 
@@ -58,7 +59,8 @@ For a single membership test ($k = 2$), an $n$-th order model therefore has $n$ 
 When $m$ \emph{independent} membership tests are considered jointly, the observed output lies in an alphabet of size $2^m$, and a general $n$-th order channel would require $n(2^m - 1)$ parameters.
 \Cref{asm:element_indep} forces the joint transition matrix to factor as a Kronecker product of per-test $2 \times 2$ channels, so each partition block contributes one parameter per test rather than $2^m - 1$.
 For example, the union of two second-order Bernoulli sets induces a fourth-order model on $4$ observed symbols~\cite{bernoulliComposition}; a general fourth-order channel would have $4 \times 3 = 12$ free parameters, but the Kronecker factorization reduces this to $4$ (one response rate per block per set).
-This is not merely a mathematical convenience: it reflects the physical independence of membership queries in practical implementations such as Bloom filters and perfect hash filters, in which the query outcomes for distinct elements are determined by independent hash evaluations.
+This factorization requires the $m$ tests to be mutually independent, as when the $m$ structures are built independently (independent hash functions or salts).
+It is an assumption about the implementation, not an automatic property of practical filters (see the remark ``\nameref{rem:implementations}'' below).
 \end{remark}
 
 There are two natural \emph{statistics} of the Bernoulli set model, the random false positive and true positive rates conditioned on $R = A$.
@@ -126,8 +128,17 @@ f(\tilde{X} | \alpha, \beta)
 f(\alpha | R) f(\beta | R).
 \end{equation}
 
-Every statistical property of the second-order random approximate set model is entailed by \cref{def:sample_fprate,def:sample_tprate}.
-Furthermore, these assumptions generally hold in practice, e.g., the Bloom filter~\cite{bf} and Perfect hash filter~\cite{phf} are two separate implementations of the random positive approximate set in which these assumptions hold.
+Every statistical property of the second-order random approximate set model is entailed by \cref{def:sample_fprate,def:sample_tprate} together with \cref{asm:element_indep}.
+
+\begin{remark}[Which implementations satisfy the axioms]
+\label{rem:implementations}
+\Cref{asm:element_indep} holds for real data structures only in a qualified form.
+For a perfect hash filter~\cite{phf} with ideal fingerprints that are independent of the construction, the false-positive events of distinct non-members are independent with a constant probability, so the axiom holds for negatives.
+For a Bloom filter~\cite{bf}, it holds only \emph{conditionally} on the realized bit array: given the array, distinct non-members are false positives independently, with probability equal to the realized fill fraction raised to the number of hash functions.
+That realized rate is itself random, so unconditionally the false-positive indicators of distinct non-members are positively correlated.
+In the smallest case (two cells, one hash function, two inserted keys, independent uniform hashes), a fixed absent key is a false positive with probability $3/4$, whereas two absent keys are both false positives with probability $5/8 > (3/4)^2 = 9/16$.
+The binomial results of \cref{sec:characteristics} therefore apply to a Bloom filter conditionally on its realized false positive rate; unconditionally, its false positive count is a mixture of binomial distributions with a larger variance.
+\end{remark}
 
 \subsection{Abstract data type}
 \label{sec:adt}
@@ -154,7 +165,7 @@ As a result, to satisfy the identity and complementation axioms required by Bool
 	Alternatively, these axioms may be satisfied by making the empty set and the universal set \emph{degenerate} cases, i.e., $\Prob{\ASet{\EmptySet} = \EmptySet} = 1$ and $\Prob{\ASet{U} = \Set{U}} = 1$.
 \end{remark}
 
-Furthermore, we may replace any of the operators in the Boolean algebra with \emph{random approximations} that model the noisy or rate-distorted channel previously described, i.e., these operators may themselves be constructors for random approximate sets, e.g., $\Set{A} \, \AT{\SetUnion}[\fprate][\tprate] \, \Set{B} \sim \AT{(\SetUnion[\Set{A}][\Set{B}])}[\tprate][\fprate]$ where $\AT{\SetUnion}[\fprate][\tprate]$ maps negatives to positives with probability $\fprate$ and maps positives to negatives with probability $\tprate$.
+Furthermore, we may replace any of the operators in the Boolean algebra with \emph{random approximations} that model the noisy or rate-distorted channel previously described, i.e., these operators may themselves be constructors for random approximate sets, e.g., $\Set{A} \, \AT{\SetUnion}[\fprate][\tprate] \, \Set{B} \sim \AT{(\SetUnion[\Set{A}][\Set{B}])}[\fprate][\tprate]$ where $\AT{\SetUnion}[\fprate][\tprate]$ maps negatives to positives with probability $\fprate$ and maps positives to negatives with probability $\fnrate = 1 - \tprate$.
 
 A natural mapping is provided by the \emph{identity} function $\Fun{id} \colon \PS{\Set{X}} \to \PS{\Set{X}}$, which is defined as
 \begin{equation}
@@ -260,7 +271,10 @@ channel's stationary distribution.}
 In an \emph{algebra of sets} $(\PS{\Set{U}}, \SetIntersection, \SetUnion, \SetComplement, \Set{U}, \EmptySet)$, we may compose sets to form new sets.
 When these sets model \emph{random approximate sets}, then their compositions model \emph{higher-order} random approximate sets, e.g.,
 $\SetUnion[\ASet{A}[\fprate_1][\tprate_1]][\ASet{B}[\fprate_2][\tprate_2]]$
-models a higher-order random approximate set which does not obey the second-order model; rather, it partitions the negative set such that each partition may have a different false positive rate and similarly for the positive set.
+models a higher-order random approximate set which does not obey the second-order model.
+If the two approximate sets are constructed independently, the negatives of $\SetUnion[\Set{A}][\Set{B}]$ (elements in neither set) share the false positive rate $1-(1-\fprate_1)(1-\fprate_2)$, but its positives split into three latent classes (in $\Set{A}$ only, in $\Set{B}$ only, in both) with true positive rates $1-(1-\tprate_1)(1-\fprate_2)$, $1-(1-\fprate_1)(1-\tprate_2)$, and $1-(1-\tprate_1)(1-\tprate_2)$.
+For intersection, the negatives split in the same way.
+In general, the error rate of a composed set expression at an element depends on that element's full latent membership pattern, so a single pair of rates does not propagate through an arbitrary set expression; composition raises the model order.
 
 This contrasts with $\AT{\left(\SetUnion[\Set{A}][\Set{B}]\right)}[\fprate][\tprate]$, in which the false positive rate for the negative elements is uniformly distributed and likewise for the positive elements.
 We call these random approximate sets \emph{second-order} approximations.

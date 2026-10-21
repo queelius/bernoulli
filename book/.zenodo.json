@@ -1,5 +1,5 @@
 {
-  "title": "Bernoulli Types: An Algebra of Approximate Computation",
+  "title": "Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation",
   "upload_type": "publication",
   "description": "A research monograph synthesizing the Bernoulli framework for random approximate types (sets, maps, relations, algebraic types) with an executable Python companion.",
   "creators": [
@@ -14,8 +14,9 @@
     "random approximate types",
     "probabilistic data structure",
     "monograph",
-    "approximate computation",
-    "type theory"
+    "approximate membership",
+    "two-sided error",
+    "approximate computation"
   ],
   "license": "CC-BY-4.0",
   "access_right": "open",

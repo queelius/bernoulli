@@ -19,8 +19,12 @@ fingerprint equality. This minimal-perfect-hash-plus-fingerprint structure is
 the well-known static approximate-membership-query construction: it is the
 mechanism behind the Bloomier filter~\cite{bloomier}, and close relatives appear
 in xor~\cite{graf2020}, ribbon~\cite{dillinger2021}, and cuckoo~\cite{fan2014}
-filters. The base structure is therefore not new. Our contribution is its
-treatment within the Bernoulli framework: realizing it as a Bernoulli set ADT,
+filters. The base structure is therefore not new: Dietzfelbinger and
+Pagh~\cite[Sec.~1]{dietzfelbinger2008} describe exactly this pairing of a
+minimal perfect hash with $\lceil\log_2(1/\varepsilon)\rceil$-bit fingerprints,
+including its overhead of about $\log_2 e$ bits per element, and remark that
+the origin of the idea is unknown to them. What this paper adds is a
+restatement within the Bernoulli framework: realizing it as a Bernoulli set ADT,
 extending it to a two-rate structure, lifting it to a key-value map, and tying
 its measured space to the framework's space-accuracy bound. \Cref{sec:related}
 situates the \gls{gls-phf} against this prior work in detail.
@@ -28,14 +32,17 @@ situates the \gls{gls-phf} against this prior work in detail.
 The space-optimal construction of the Bernoulli set and map is not the
 \gls{gls-phf} but the \emph{Bernoulli hash function}~\cite{shs}, which reaches
 the information-theoretic floor of $-\log_2 \varepsilon + \mu$~bits per element
-exactly, for sets ($\mu = 0$) and maps alike, by searching for a salt under
-which an acceptance predicate holds. The \gls{gls-phf} is instead the
+up to lower-order terms, for sets ($\mu = 0$) and maps alike, by searching for
+a salt under which an acceptance predicate holds; this is single-seed search,
+whose expected construction work grows exponentially in the number of
+keys~\cite{lehmann2025seeds}. The \gls{gls-phf} is instead the
 \emph{practical} construction. It pays a constant $\log_2 e \approx 1.44$~bits
 per element above that floor (\cref{cor:mPHF_size}) and in return is built by
 off-the-shelf minimal perfect hashing, which is fast and widely deployed, and
-admits a cheap tunable false negative rate via $k$-perfect hashing
-(\cref{sec:k_perfect}), where the optimal construction's salt search would have
-to enumerate combinatorially many subsets to admit any false negatives.
+admits a false negative rate that is cheap to construct via $k$-perfect
+hashing (\cref{sec:k_perfect}). That variant buys construction speed, not
+space: dropping members outright, as in the lossy dictionaries of Pagh and
+Rodler~\cite{pagh2001lossy}, uses fewer bits per retained member.
 
 We do retain a succinctness claim, but only the relative one. The
 \gls{gls-phf}'s expected space approaches the information-theoretic lower bound
@@ -62,14 +69,13 @@ of the two.
     the Bernoulli hash function~\cite{shs} uses. The structure thereby inherits
     the family's error model, composition theory, and space bounds automatically
     (\cref{sec:phf,sec:pmf}).
-    \item We give a \emph{$k$-perfect} extension that admits a tunable false
-    negative rate $\omega$ cheaply, turning the structure into a genuine two-rate
-    (second-order) Bernoulli set and a binary asymmetric channel
-    (\cref{sec:k_perfect}). This is where the practical construction earns its
-    keep: the space-optimal salt-search construction~\cite{shs} admits a false
-    negative rate only by enumerating combinatorially many subsets of the key
-    set, whereas relaxing the perfect hash to $k$-perfect buys the same tunable
-    rate by a change of hash family.
+    \item We analyze a \emph{$k$-perfect} variant (using standard $k$-perfect
+    hashing~\cite{chd}) that admits a nonzero false negative rate $\omega$,
+    giving a two-rate structure whose marginal channel is binary asymmetric
+    (\cref{sec:k_perfect}). Its false negatives are dependent within shared
+    slots, so it does not satisfy element-wise independence among members, and
+    it is cheaper to construct but not smaller than a lossy
+    dictionary~\cite{pagh2001lossy} at the same $\omega$.
     \item We develop the \gls{gls-pmf} for general values, deriving its space
     lower bound and a matching maximum-entropy coder, and apply it to fuzzy set
     queries for rank-ordered retrieval (\cref{sec:pmf,sec:apps}).
@@ -85,8 +91,9 @@ The Bernoulli set model~\cite{bsets} is characterized by two axioms:
 \emph{element-wise independence} (membership outcomes for distinct elements are
 independent) and \emph{conditional independence of rates} (the false positive
 rate is independent of the objective set, given its cardinality). The
-construction of the \gls{gls-phf} satisfies both axioms under standard
-cryptographic hash assumptions.
+construction of the positive \gls{gls-phf} satisfies both axioms under
+standard cryptographic hash assumptions; the $k$-perfect variant does not
+satisfy element-wise independence among members (\cref{sec:k_perfect}).
 
 \paragraph{Relation to the Bernoulli framework.}
 The \gls{gls-phf} is best read as one concrete realization of the framework's
@@ -115,13 +122,13 @@ a full second-order channel. The \gls{gls-phf} and the Bernoulli hash
 function~\cite{shs} are, in particular, two \emph{distinct} constructions of the
 same Bernoulli set and map ADT, related by a space-versus-construction tradeoff,
 not one as an instance of the other. The Bernoulli hash function reaches the
-$-\log_2 \fprate + \mu$ floor exactly, for sets ($\mu = 0$) and maps alike, but
-builds by salt search, which needs combinatorial subset enumeration once a
-nonzero false negative rate is required. The \gls{gls-phf} instead pays a
+$-\log_2 \fprate + \mu$ floor up to lower-order terms, for sets ($\mu = 0$) and maps alike, but
+builds by single-seed search, whose expected work is exponential in the
+number of keys~\cite{lehmann2025seeds}. The \gls{gls-phf} instead pays a
 constant $\log_2 e$ above the floor and builds by perfect hashing plus a per-slot
 fingerprint, a different mechanism entirely (there is no salt and no acceptance
-predicate over hash outputs), gaining off-the-shelf construction and a cheap
-$k$-perfect false negative rate. The two are complementary: one owns the
+predicate over hash outputs), gaining off-the-shelf construction and a
+$k$-perfect false negative rate that is cheap to construct. The two are complementary: one owns the
 absolute optimum, the other owns deployability.
 
 The paper is organized as follows.

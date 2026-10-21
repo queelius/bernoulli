@@ -3,11 +3,11 @@
 \begin{document}
 \section{$k$-perfect hashing and false negatives}
 \label{sec:k_perfect}
-As noted in \cref{sec:phf}, replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function} generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible. A $k$-perfect hash function maps the objective set $\Set{S}$ into the $N$ slots so that at most $k$ members share any single slot. The slot array $\matrx{V}$ stores exactly one $M$-bit fingerprint per slot (\cref{alg:k_PHF}), so when a slot receives more than one member, only one fingerprint can be retained; the rest are overwritten and become unrecoverable. Querying an overwritten member returns \False, a \emph{false negative}.
+As noted in \cref{sec:phf}, replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function} generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible. A $k$-perfect hash function maps the objective set $\Set{S}$ into the $N$ slots so that at most $k$ members share any single slot. The slot array $\matrx{V}$ stores exactly one $M$-bit fingerprint per slot (\cref{alg:k_PHF}), so when a slot receives more than one member, only one fingerprint can be retained; the rest are overwritten. Querying an overwritten member returns \False, a \emph{false negative}, unless its own fingerprint happens to equal the retained one, which happens with probability $2^{-M}$.
 
-The advantage of $k$-perfect hashing is that it trades accuracy (introducing a non-zero false negative rate $\fnrate$, which we denote $\omega$) for reduced construction time and space in the perfect hash function itself: relaxing the injectivity requirement from a $1$-perfect hash (no collisions) to a $k$-perfect hash (up to $k$ collisions per slot) admits a far larger family of acceptable seeds, so a usable seed is found after far fewer trials.
+The advantage of $k$-perfect hashing is that it trades accuracy (introducing a non-zero false negative rate $\fnrate$, which we denote $\omega$) for reduced construction time and space in the perfect hash function itself: relaxing the injectivity requirement from a $1$-perfect hash (no collisions) to a $k$-perfect hash (up to $k$ collisions per slot) admits a far larger family of acceptable seeds, so a usable seed is found after far fewer trials. $k$-perfect hash functions are standard; hash, displace, and compress~\cite{chd} constructs them directly. Rejecting some members in exchange for space is the lossy dictionary of Pagh and Rodler~\cite{pagh2001lossy}; \cref{rem:kperfect_space} compares the two.
 
-In the Bernoulli set model~\cite{bsets}, the positive Bernoulli set has a single degree of freedom (the false positive rate~$\varepsilon$). Introducing false negatives via $k$-perfect hashing yields a general second-order Bernoulli set with two degrees of freedom, the rate pair $(\fprate, \omega)$. In the language of model order (\cref{sec:phf}, and \cite{bsets,bmaps}), the positive \gls{gls-phf} is first order (one rate, one nontrivial partition block, the negatives); the $k$-perfect \gls{gls-phf} is second order, partitioning the universe into negatives (carrying $\fprate$) and positives (carrying $\omega$). From the entropy map viewpoint~\cite{emaps}, this is precisely a binary asymmetric channel whose confusion matrix is parameterized by both rates,
+In the Bernoulli set model~\cite{bsets}, the positive Bernoulli set has a single degree of freedom (the false positive rate~$\varepsilon$). Introducing false negatives via $k$-perfect hashing yields a structure with two marginal rates, the pair $(\fprate, \omega)$, though its false negatives are not element-wise independent (see the end of \cref{sec:k_omega}). In the language of model order (\cref{sec:phf}, and \cite{bsets,bmaps}), the positive \gls{gls-phf} is first order (one rate, one nontrivial partition block, the negatives); the $k$-perfect \gls{gls-phf} is second order, partitioning the universe into negatives (carrying $\fprate$) and positives (carrying $\omega$). From the entropy map viewpoint~\cite{emaps}, this is precisely a binary asymmetric channel whose confusion matrix is parameterized by both rates,
 \begin{equation}
 \label{eq:k_channel}
     \begin{pmatrix}
@@ -51,7 +51,7 @@ The false negative rate $\omega$ is the probability that a member chosen uniform
 
 \begin{theorem}[False negative rate of the $k$-perfect \gls{gls-phf}]
 \label{thm:k_omega}
-Under \cref{asm:uniform_slots,def:loss}, the false negative rate of a $k$-perfect \gls{gls-phf} over $m$ members in $N$ slots is
+Under \cref{asm:uniform_slots,def:loss}, \emph{ignoring the rejection of overfull seeds} (exact when $k \ge m$, so that no seed is rejected), the probability $\omega$ that a member of a $k$-perfect \gls{gls-phf} over $m$ members in $N$ slots is displaced is
 \begin{equation}
 \label{eq:k_omega_exact}
     \omega
@@ -92,7 +92,27 @@ Substituting into \cref{eq:omega_cond} gives the closed form \cref{eq:k_omega_ex
 As $r \to 0$ (slots far outnumber members) the asymptotic rate is $\omega = 1 - (1-e^{-r})/r \to 0$; expanding, $\omega \approx r/2$ for small $r$, matching the intuition that the dominant loss is a single pairwise collision, which displaces one of the two members. As $r \to 1$ (the minimal case, $N = m$) the asymptotic rate is $\omega \to 1 - (1 - e^{-1}) = e^{-1} \approx 0.368$: even with as many slots as members, roughly a third of members are lost to collisions, which is the price the single-fingerprint minimal construction pays for a nonzero false negative rate. Choosing $r$ small drives $\omega$ down at the cost of more slots; this is the accuracy-for-space trade that \cref{sec:phf} quantifies for $\fprate$, now applied to $\omega$.
 \end{remark}
 
-With both rates in hand, the $k$-perfect \gls{gls-phf} is a genuine second-order Bernoulli set: a non-member is accepted with probability $\fprate = 2^{-M}$ (the fingerprint argument of \cref{thm:fp_rate} is unchanged for retained slots) and a member is rejected with probability $\omega$ given by \cref{thm:k_omega}. Its error counts are the two independent binomials of the second-order model, $\FP \sim \bindist(\Card{\NEG}, \fprate)$ and $\FN \sim \bindist(m, \omega)$, and its joint confusion matrix is the channel \cref{eq:k_channel}, exactly as the framework~\cite{bsets,emaps} prescribes.
+\begin{remark}[Conditioning on acceptance and fingerprint rescue (corrected October 2026)]
+\label{rem:k_omega_conditioned}
+The proof of \cref{thm:k_omega} uses the unconditional binomial occupancy law, whereas \cref{asm:uniform_slots} rejects every seed with a slot of occupancy above $k$. The exact displacement probability under rejection follows from the same survivor count: each occupied slot retains exactly one member, and acceptance is symmetric in the members, so
+\begin{equation}
+\label{eq:k_omega_conditioned}
+    \omega_k = 1 - \frac{\Expect{\RV{O} \Given \max_i L_i \le k}}{m}\,.
+\end{equation}
+This equals \cref{eq:k_omega_exact} when $k \ge m$ and is approximated by it when the acceptance probability $p(k)$ of \cref{eq:k_accept} is close to $1$. It can differ sharply otherwise: for $m = N = 2$ and $k = 1$ every accepted placement is injective, so $\omega_1 = 0$, while \cref{eq:k_omega_exact} gives $1/4$. Second, a displaced member is still accepted when its fingerprint equals the retained one. With independent ideal fingerprints and placement independent of the fingerprint oracle, this happens with probability $2^{-M}$, so the membership false negative rate is
+\begin{equation}
+\label{eq:k_fnr_rescue}
+    \fnrate = \bigl(1 - 2^{-M}\bigr)\,\omega_k\,.
+\end{equation}
+For $m = N = 2$, $k = 2$ and one-bit fingerprints ($M = 1$), the displacement probability is $1/4$ but the false negative rate is $1/8$. Both examples, and \cref{eq:k_omega_conditioned,eq:k_fnr_rescue}, were checked by exact enumeration for all $m, N \le 4$. For the fingerprint widths of interest the factor $1 - 2^{-M}$ is negligible, and elsewhere in this section $\omega$ denotes the displacement probability.
+\end{remark}
+
+\begin{remark}[Space compared with a lossy subset (added October 2026)]
+\label{rem:kperfect_space}
+The $k$-perfect design is cheap to construct but not space-efficient. At load factor $r$ it stores $M/r$ fingerprint bits per member, and asymptotically a fraction $(1-e^{-r})/r$ of the members survive, so it spends $M/(1 - e^{-r})$ fingerprint bits per retained member. Storing a lossy subset~\cite{pagh2001lossy}, that is, a minimal \gls{gls-phf} over a $(1-\omega)$ fraction of the members chosen in advance, spends about $M + \log_2 e$ bits per retained member at the same false negative rate. At $r = 1$ ($\omega \approx e^{-1}$) and $M = 16$ these are about $25.3$ and $17.4$ bits per retained member.
+\end{remark}
+
+With both rates in hand, the $k$-perfect \gls{gls-phf} has the marginal channel \cref{eq:k_channel}: a non-member is accepted with probability $\fprate = 2^{-M}$ (the fingerprint argument of \cref{thm:fp_rate} is unchanged for retained slots) and a member is rejected with probability $(1-2^{-M})\,\omega_k$ (\cref{rem:k_omega_conditioned}). It is \emph{not} an element-wise independent second-order Bernoulli set. The false positive count is still $\FP \sim \bindist(\Card{\NEG}, \fprate)$, but the false negative count has mean $m(1-2^{-M})\omega_k$ and is not binomial, because losses within a shared slot are dependent: a slot holding $L$ members displaces exactly $L - 1$ of them. For example, with $m = N = 2$, $k = 2$ and wide fingerprints, the count is $0$ or $1$ with probability $1/2$ each, whereas $\bindist(2, 1/4)$ would give $(9/16, 6/16, 1/16)$. Results of the framework~\cite{bsets,emaps} that rely on element-wise independence among members therefore do not apply to the false negatives of this variant.
 
 \subsection{Construction cost}
 \label{sec:k_construction}
@@ -120,7 +140,7 @@ the probability that the maximum slot occupancy is at most $k$, where $(L_0,\ldo
     }
     \KwOut
     {
-        A $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$, false negative rate $\omega$ given by \cref{thm:k_omega}, and load factor $r$.
+        A $k$-perfect hash filter that approximates $S$ with a false positive rate $\fprate$, false negative rate $(1-2^{-M})\,\omega_k$ (\cref{thm:k_omega,rem:k_omega_conditioned}), and load factor $r$.
     }
     \func{\MakeKPerfectHashSet{$S, \fprate, r, k$}}
     {
@@ -151,7 +171,7 @@ the probability that the maximum slot occupancy is at most $k$, where $(L_0,\ldo
     }
     \KwOut
     {
-        \True if $x \in S$ and $x$ was not displaced by a collision during construction. Otherwise, for $x \notin S$, \True with probability $\fprate$ and \False with probability $1 - \fprate$; for a displaced member, \False (a false negative, occurring with rate $\omega$ over the members).
+        \True if $x \in S$ and $x$ was not displaced by a collision during construction. Otherwise, for $x \notin S$, \True with probability $\fprate$ and \False with probability $1 - \fprate$; for a displaced member, \False unless its fingerprint equals the retained one (a false negative, occurring with rate $(1-2^{-M})\,\omega_k$ over the members).
     }
     \func{\Contains{$S^+, x$}}
     {

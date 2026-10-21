@@ -5,14 +5,15 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have shown that Bernoulli sets are closed under all four set-theoretic operations: complement, union, intersection, and set difference.
-Each operation yields a (possibly higher-order) Bernoulli set whose error rates are closed-form functions of the operand rates and set cardinalities.
-The resulting collection of Bernoulli sets forms commutative monoids under union and intersection, with the empty set and universal set serving as identity elements.
+Under cross-set independence, complement, union, intersection, and set difference of Bernoulli sets yield (possibly higher-order) Bernoulli sets whose per-region error probabilities are closed-form functions of the operand rates, and whose marginal rates are cardinality-weighted averages of them.
+These are the standard independent-OR and independent-AND rules~\cite{broderMitzenmacher2004,parker1975,dalvi2007}, collected here in one notation.
+At the level of realized sets, union and intersection form commutative monoids with the empty set and universal set as identities.
 Relational predicates---subset and equality---admit exact probability formulas that factorize element-wise.
 An interval arithmetic extension propagates uncertain rate parameters through set operations, yielding guaranteed bounds when parameters are only approximately known.
 
 \paragraph{Practical implications.}
-A practitioner building a system on Bloom filters need not re-derive the error analysis for each new combination of filters: the composition theorems of \cref{sec:set_theory} apply immediately, yielding closed-form error rates and confidence intervals for any set-theoretic expression.
+For a system built on independently constructed Bloom filters, the formulas of \cref{sec:set_theory} give the error rates of any set-theoretic expression, provided they are applied region by region: the per-element probability of each intermediate result must be tracked by the membership pattern of the element in all operands (see the remark on nested expressions in \cref{sec:set_ops_summary}).
+Reusing the marginal (FPR, FNR) pair of an intermediate result in a further operation is not valid in general, and confidence intervals for marginal rates must account for the Poisson-binomial error count.
 
 \paragraph{Open problems.}
 The partition weights $w_1, w_2, w_3$ in the set-operation formulas require knowledge of the objective set cardinalities, which are typically unknown (\cref{rem:unknown_partitions}).

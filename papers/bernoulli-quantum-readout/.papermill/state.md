@@ -236,3 +236,7 @@ A standalone GitHub remote (`queelius/bernoulli-quantum-readout`, per
 `CITATION.cff`) is referenced but **not yet wired** as a monorepo subtree (no
 `bernoulli-quantum-readout` remote on `origin` yet). Adding it follows the
 subtree workflow in `~/github/bernoulli/CLAUDE.md` when ready to publish.
+
+## Freeze (2026-10-21)
+
+Final ("frozen") version prepared for one last Zenodo deposit (concept 10.5281/zenodo.20584894; supersedes v5 10.5281/zenodo.20618108). Not minted, committed, or pushed. QST submission was rejected; the paper is retired from venue attempts and superseded by monograph ch19 (with ch3, ch9 readout paragraph, ch16 contextuality section). Corrections (8, see `ERRATA.md`): withdrew the false claim that (eps, omega) propagates through any Boolean tree (counterexample (b0 AND b1) OR b2 at 010: 0.03764 vs 0.020392) in favor of per-latent-assignment propagation; faithfulness rescoped to diagonal detector POVMs for any state; credited Gallager 1962 Lemma 1, Matsui 1993, Parker-McCluskey 1975, PTMs (Krishnaswamy et al. 2008), Smith et al. 2021, Hamilton et al. 2020; positioning rewritten to claim no novelty for the methods. Status box in `status_errata.tex`. Build clean: 20 pp, 0 errors, 0 undefined refs/cites. The earlier "ready" review verdicts above are superseded. `venues/` not updated.

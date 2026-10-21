@@ -1,7 +1,7 @@
 {
   "title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
   "upload_type": "publication",
-  "description": "The Bernoulli hash function (BHF): hash-based constructions that optimally implement the Bernoulli set and map at the information-theoretic space bound.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 14. The Bernoulli hash function (BHF): seed-search constructions of Bernoulli sets and maps whose expected salt length matches the known -log2(epsilon)+mu scale, in exponential expected time, in the lineage of RecSplit and ShockHash. This version corrects the order-statistic law and withdraws the adaptive-threshold space saving.",
   "creators": [
     {
       "name": "Towell, Alexander",
@@ -15,7 +15,7 @@
     "probabilistic data structure",
     "perfect hash",
     "fingerprint",
-    "space-optimal",
+    "seed search",
     "succinct data structure"
   ],
   "license": "CC-BY-4.0",

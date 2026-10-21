@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Collection of related research papers by Alexander Towell on **random approximate sets** (Bernoulli sets): a probabilistic framework for modeling sets with quantifiable false positive/negative error rates. Applications include Bloom filters, perfect hash filters, encrypted search, and approximate relational algebra.
 
+**Frozen 2026-10-21.** Every manuscript here is a final preprint version, superseded by the monograph in `../book/` (*Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation*). Each carries a "Status and errata (October 2026)" box after its abstract and an `ERRATA.md`; the fleet summary is `FREEZE.md` and the machine-readable record is `freeze-manifest.json`. Do not revise the papers further; put new material in the monograph.
+
 ## Where to Start
 
 - **"Work on paper X"**: read this file for cross-paper context (notation, topic placement, layering), then read that paper's own `CLAUDE.md` if it has one (7 of 9 do; see the table below). The per-paper file is more specific about section order, current draft state, and section-by-section purpose.
@@ -25,7 +27,7 @@ Collection of related research papers by Alexander Towell on **random approximat
 | `bernoulli-hash-function/` | The Bernoulli Hash Function: Optimal Bernoulli Sets and Maps | Standalone (~95% complete) | `alex.sty` (unified) | `make` | yes |
 | `bernoulli-phf/` | The Perfect Hash Filter | Standalone (salvaged 2026-06; core theory complete, 37 pp) | Modular `sty/` packages | `pdflatex` manual (shell-escape); LaTeX is in `paper/` subdir; repo is paper-only | yes |
 | `bernoulli_maps/` | The algebra of the random approximate map model | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
-| `bernoulli_relations/` | The abstract data type of the approximate relation | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
+| `bernoulli_relations/` | Error contracts for approximate relations | Standalone (early) | Modular `.sty` packages | `pdflatex` manual | yes |
 | `bernoulli_data_type/` | Random approximate values over algebraic types | Standalone (early) | Modular `.sty` packages | two sub-papers, build each separately | yes |
 
 **Structural deviations from the standard layout** (assume the standard pattern and you will look in the wrong place):
@@ -69,12 +71,13 @@ cd bernoulli-phf/paper && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
   && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
   && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
 
-# bernoulli_data_type/algebraic_types (modular sty + minted [needs -shell-escape])
+# bernoulli_data_type/algebraic_types (modular sty + minted [needs -shell-escape] + bibtex)
 cd bernoulli_data_type/algebraic_types && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
+  && bibtex main && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex \
   && TEXINPUTS=".:./sty:" pdflatex -shell-escape main.tex
 
-# bernoulli_data_type/bernoulli_model (inline macros, subfiles; no sty/ subdir, no TEXINPUTS)
-cd bernoulli_data_type/bernoulli_model && pdflatex main.tex && pdflatex main.tex
+# bernoulli_data_type/bernoulli_model (inline macros, subfiles; no sty/ subdir, no TEXINPUTS; bibtex)
+cd bernoulli_data_type/bernoulli_model && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
 ```
 
 **Build gotchas** (verified 2026-05-31): every modular-sty paper needs `TEXINPUTS=".:./sty:"` (none build with bare `pdflatex`); `bernoulli_maps` had `minted`/`multicol` removed so it no longer needs `-shell-escape`; `bernoulli_relations` now ships a `references.bib` and comments out four never-written sections (intro, rel_algebra, test, unused/optimality) so it compiles. Per-paper build status and page counts live in each `<paper>/.papermill/state.md`.

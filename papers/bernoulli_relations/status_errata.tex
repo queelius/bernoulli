@@ -1,0 +1,54 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~12 (\emph{Approximate Relations}) of the monograph
+\emph{Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval,
+and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+The previous Zenodo version (v5) was titled \emph{The abstract data type of
+the approximate relation}; this version is retitled to match its narrower scope.
+
+\textbf{Corrections in this version} (relative to v5).
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item Projection: the claim that projection preserves element-wise independence
+is withdrawn; projected tuples whose fibers share a source are correlated
+(\cref{thm:project_sources}), and profiles must record true-member count as well as fan-in.
+\item Join: dependence through a shared input is stated with its exact conditions
+rather than as a universal understatement of joint error.
+\item Transitivity: the claim that its preservation probability vanishes
+(``fastest'') is replaced by a sufficient bound for fixed interior rates; the
+empty relation with zero false-positive rate is a counterexample to unconditional vanishing.
+\item The ``closure dichotomy'' is withdrawn; the retained results concern specific
+orbit and simultaneous-addition constructions. The symmetric diagonal (one trial,
+not two) and the use of actual rather than maximal orbit size are corrected.
+\item The single-valuedness preservation probability is replaced by the exact
+defined/undefined-row formula; deletion repair semantics are specified.
+\item The $\log_2 m$-bit surcharge is restated as conditional rate accounting,
+not a space lower bound or a price for recall.
+\item Partial functions: the definition is repaired (single-valued realizations,
+wrong-value errors separated from domain errors) and the unsupported
+map-composition closure claim is removed.
+\item The encrypted-search section no longer claims that error rates characterize
+security. New in this version: query error contracts (\cref{sec:query_contracts})
+and a stored-filter calibration study (\cref{sec:calibration}).
+\end{itemize}
+
+\textbf{Predecessors credited.} Probabilistic relational algebra
+(Fuhr and R{\"o}lleke~\cite{fuhr1997pra}), tuple-independent query evaluation,
+lineage, and provenance \cite{dalvi2007efficient,benjelloun2008uldb,green2007provenance,suciu2011},
+dissociation bounds \cite{gatterbauer2014bounds}, monotone certificate and
+sensitivity theory \cite{blanc2022counterfactuals}, and Bloom-filter semijoins
+\cite{mullin1990semijoins}. The operator formulas and the one-sided contracts are
+elementary consequences of these; no novelty is claimed for them.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

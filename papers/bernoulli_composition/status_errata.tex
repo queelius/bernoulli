@@ -1,0 +1,36 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~6 (\emph{Composition of Sets}), with the Boolean
+groundwork in Chapter~3 (\emph{Boolean Algebra Under Noise}), of the monograph
+\emph{Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval,
+and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item Abstract, introduction, conclusion: a composed set's marginal (FPR, FNR) pair is not valid input for further composition; ``any set-theoretic expression'' now requires region-by-region application.
+\item \Cref{sec:set_ops_summary}: new remark on nested expressions. Counterexample: in $(\tilde{A}_1 \cap \tilde{A}_2) \cup \tilde{A}_3$ at $\fprate = 0.02$, $\fnrate = 0.10$, two negatives have error $0.03764$ and $0.020392$.
+\item \Cref{sec:set_theory}: cross-set independence is an added assumption (fails for reused operands, shared seeds); the monoidal fold of marginal pairs is exact only for the uniform rate.
+\item \Cref{sec:set_theory}: a marginal rate averaging regions has a Poisson-binomial count. \Cref{sec:intervals}: bounds assume known partition weights.
+\item \Cref{sec:relational}: the corollary for $\fprate = 0$ was mislabeled ``positive''; corrected, and the $\fnrate = 0$ case added.
+\end{itemize}
+
+\textbf{Predecessors credited.} The per-element channel is randomized
+response~\cite{warner1965randomized}. The union and intersection rules are the
+independent-OR and independent-AND rules of Bloom filter
+analysis~\cite{bloom1970,broderMitzenmacher2004,papapetrou2010}, of signal
+probability in combinational logic~\cite{parker1975,krishnaswamy2008ptm}, and of
+probabilistic databases~\cite{dalvi2007}. No novelty is claimed for them.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

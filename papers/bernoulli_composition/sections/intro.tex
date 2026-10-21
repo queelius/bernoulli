@@ -12,9 +12,13 @@ Practical systems rarely use a single approximate set in isolation.
 Encrypted search indexes, database query planners, and distributed systems routinely compose approximate sets through union, intersection, complement, and difference.
 Without a compositional algebra, each new combination requires a bespoke error analysis.
 
-\paragraph{Contribution.}
-We show that Bernoulli sets are \emph{closed} under set-theoretic composition: every operation on Bernoulli sets yields a (possibly higher-order) Bernoulli set whose error rates are closed-form functions of the operand rates and set cardinalities.
-Specifically, we derive:
+\paragraph{Scope and prior work.}
+Every set operation on independently constructed Bernoulli sets yields a (possibly higher-order) Bernoulli set: the per-element error probability is a closed-form function of the operand rates and of which operands contain the element.
+The marginal false positive and false negative rates of the result are weighted averages of these per-region probabilities, with weights given by set cardinalities.
+A marginal pair does not determine the per-element rates, so it cannot be fed into a further operation as if the result were a two-rate Bernoulli set; nested expressions must carry the per-region rates (see the remark on nested expressions in \cref{sec:set_ops_summary}).
+The per-element formulas are the independent-OR and independent-AND rules familiar from Bloom filter unions and intersections~\cite{bloom1970,broderMitzenmacher2004,papapetrou2010}, from signal-probability propagation in combinational logic~\cite{parker1975,krishnaswamy2008ptm}, and from independent-or and independent-and in probabilistic databases~\cite{dalvi2007}.
+We claim no novelty for them; this paper collects them in one notation.
+Specifically, we give:
 \begin{enumerate}[nosep]
     \item closed-form error rates for complement, union, intersection, and set difference, together with the monoidal structure they induce,
     \item exact formulas for the relational predicates (subset and equality probabilities) on Bernoulli sets, and

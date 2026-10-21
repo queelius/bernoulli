@@ -95,16 +95,17 @@ $\fprate^2 + \tnrate^2$.
 
 
 \begin{corollary}
-	Given $X \subseteq Y$, $\tilde{X}[+][\tprate_1] \subseteq \tilde{Y}[+][\tprate_2]$ with probability
+	Given $X \subseteq Y$, if $\tilde{X}$ and $\tilde{Y}$ have no false positives ($\fprate_1 = \fprate_2 = 0$, that is, negative Bernoulli sets in the convention of \cref{sec:set_theory}), then $\tilde{X} \subseteq \tilde{Y}$ with probability
 	\begin{equation}
 	\left(1 - \tprate_1\fnrate_2\right)^{|X|}.
 	\end{equation}
 \end{corollary}
 \begin{proof}
-For positive approximate sets, $\fprate_1 = \fprate_2 = 0$, so the
+With $\fprate_1 = \fprate_2 = 0$, the
 second and third factors of the subset theorem reduce to $1$ (each equals $1^n$).
 Only the first factor remains.
 Since $\fnrate_2 = 1 - \tprate_2$, this gives $(1 - \tprate_1 \fnrate_2)^{|X|}$.
+Dually, for positive Bernoulli sets ($\fnrate_1 = \fnrate_2 = 0$) only the third factor remains, giving $(1 - \fprate_1 \tnrate_2)^{|U| - |Y|}$.
 \end{proof}
 
 

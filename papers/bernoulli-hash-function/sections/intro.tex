@@ -35,17 +35,43 @@ We make three contributions:
     ($h(x \cat b) = h_0$, yielding $\fprate \in \{2^{-k}\}$) to a threshold
     test ($h(x \cat b) \bmod N \leq t$, yielding
     $\fprate \in \{j/N : j = 1,\ldots,N\}$).
-    The threshold test provides finer FPR granularity and, crucially,
-    eliminates the $\binom{m}{p}$ subset enumeration when $\fnrate > 0$.
-    We further introduce an \emph{adaptive} variant that sets $t$ to the
-    $p$-th order statistic of the hash residues, eliminating the salt search
-    entirely for sets (success probability 1) at the cost of a random FPR.
+    The threshold test provides finer FPR granularity, and when
+    $\fnrate > 0$ a candidate salt is checked by counting accepted keys
+    rather than by the naive $\binom{m}{p}$ subset enumeration (a
+    hash-and-count implementation of the equality test is also linear per
+    salt, so this is not an asymptotic speedup).
+    We further analyze an \emph{adaptive} variant that sets $t$ to the
+    $p$-th order statistic of the hash residues.
+    It needs no salt search for sets, but it changes the accuracy contract:
+    its recall is about $p/m$ while its mean FPR is about $p/(m+1)$
+    (\cref{sec:adaptive_contract}).
 
-    \item \textbf{Information-theoretic optimality.}
-    We prove that the BHF achieves the information-theoretic lower bound on
-    space complexity while maximizing the entropy of its binary representation,
-    under both predicate forms and for both sets and maps.
+    \item \textbf{Space analysis.}
+    We show that the expected salt length of the fixed predicates matches the
+    information-theoretic scale $-\log_2 \fprate + \mu$ bits per element to
+    leading order, for both sets and maps, and that the salt is uniform given
+    its length.
+    The scale itself is classical~\cite{carter1978,pagh2001lossy};
+    efficient constructions that reach it are due to Pagh, Pagh, and
+    Rao~\cite{pagh2005} and Dietzfelbinger and Pagh~\cite{dietzfelbinger2008retrieval},
+    and seed search at this scale is the mechanism analyzed in minimal
+    perfect hashing~\cite{esposito2020recsplit,lehmann2024shockhash,lehmann2025seeds}.
+    The BHF reaches it by exhaustive search in exponential expected time.
 \end{enumerate}
+
+\subsection*{Relation to prior work}
+
+No novelty is claimed for the space results.
+A single seed that satisfies independent per-key constraints, with storage
+near the information-theoretic scale and exponential construction work, is
+the baseline mechanism analyzed by Lehmann, Sanders, Walzer, and
+Ziegler~\cite[Sec.~1.1]{lehmann2025seeds}; the zero-false-negative BHF is that
+mechanism with per-key success probability $\fprate$ (times the
+value-matching probability for maps).
+Decoding a stored value and accepting when it falls in a valid range already
+appears in the Bloomier filter~\cite{chazelle2004bloomier}, and the general
+reduction from retrieval to approximate membership is due to Dietzfelbinger
+and Pagh~\cite{dietzfelbinger2008retrieval}.
 
 \subsection*{Relation to companion papers}
 

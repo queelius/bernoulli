@@ -1,0 +1,534 @@
+{
+  "generated": "2026-10-21",
+  "monograph": {
+    "title": "Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation",
+    "html": "https://metafunctor.com/latex/bernoulli-monograph/book.html",
+    "hub": "https://metafunctor.com/research/bernoulli/"
+  },
+  "license": "CC-BY-4.0",
+  "manuscripts": [
+    {
+      "id": "sets",
+      "dir": "papers/bernoulli_sets",
+      "main_tex": "papers/bernoulli_sets/main.tex",
+      "pdf": "papers/bernoulli_sets/main.pdf",
+      "concept_doi": "10.5281/zenodo.19105381",
+      "latest_version_doi": "10.5281/zenodo.19105382",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19105382,
+      "zenodo_title": "Bernoulli sets: a model for random approximate sets",
+      "title": "Bernoulli sets: a model for random approximate sets",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 6,
+      "citations_added": [
+        "bross1954misclassification",
+        "hirota1981probabilistic",
+        "donnet2006retouched",
+        "laufer2011generalized"
+      ],
+      "errata": "papers/bernoulli_sets/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 2,
+          "title": "Binary Channels and Model Order"
+        },
+        {
+          "chapter": 4,
+          "title": "Two Axioms and Kronecker Factorization"
+        },
+        {
+          "chapter": 5,
+          "title": "Approximate Sets and Predicates"
+        },
+        {
+          "chapter": 7,
+          "title": "Classification Measures"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 20,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "composition",
+      "dir": "papers/bernoulli_composition",
+      "main_tex": "papers/bernoulli_composition/main.tex",
+      "pdf": "papers/bernoulli_composition/main.pdf",
+      "concept_doi": "10.5281/zenodo.19105387",
+      "latest_version_doi": "10.5281/zenodo.19105388",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19105388,
+      "zenodo_title": "Composition of Bernoulli sets",
+      "title": "Composition of Bernoulli sets",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 7,
+      "citations_added": [
+        "warner1965randomized",
+        "bloom1970",
+        "broderMitzenmacher2004",
+        "papapetrou2010",
+        "parker1975",
+        "krishnaswamy2008ptm",
+        "dalvi2007"
+      ],
+      "errata": "papers/bernoulli_composition/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 6,
+          "title": "Composition of Sets"
+        }
+      ],
+      "monograph_chapters_secondary": [
+        {
+          "chapter": 3,
+          "title": "Boolean Algebra Under Noise"
+        }
+      ],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 16,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "classification",
+      "dir": "papers/bernoulli_classification_measures",
+      "main_tex": "papers/bernoulli_classification_measures/main.tex",
+      "pdf": "papers/bernoulli_classification_measures/main.pdf",
+      "concept_doi": "10.5281/zenodo.19104549",
+      "latest_version_doi": "10.5281/zenodo.19104550",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19104550,
+      "zenodo_title": "Binary classification measures for random approximate sets",
+      "title": "Binary classification measures for random approximate sets",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 5,
+      "citations_added": [
+        "warner1965randomized",
+        "bross1954misclassification",
+        "goutte2005probabilistic",
+        "altman1994predictive",
+        "bose2008fpr"
+      ],
+      "errata": "papers/bernoulli_classification_measures/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 7,
+          "title": "Classification Measures"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 15,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "entropy",
+      "dir": "papers/bernoulli_entropy",
+      "main_tex": "papers/bernoulli_entropy/main.tex",
+      "pdf": "papers/bernoulli_entropy/main.pdf",
+      "concept_doi": "10.5281/zenodo.20602259",
+      "latest_version_doi": "10.5281/zenodo.20602260",
+      "latest_version_label": null,
+      "latest_version_record_id": 20602260,
+      "zenodo_title": "Entropy and space complexity of random approximate sets",
+      "title": "Entropy and space complexity of random approximate sets",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 8,
+      "citations_added": [
+        "paghRodlerLossy",
+        "paghPaghRao",
+        "dietzfelbingerPagh",
+        "yaoMinimax",
+        "broderMitzenmacher",
+        "silvermanBinary",
+        "lehmannSeeds"
+      ],
+      "errata": "papers/bernoulli_entropy/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 8,
+          "title": "Information-Theoretic Bounds"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 8,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "bhf",
+      "dir": "papers/bernoulli-hash-function",
+      "main_tex": "papers/bernoulli-hash-function/main.tex",
+      "pdf": "papers/bernoulli-hash-function/main.pdf",
+      "concept_doi": "10.5281/zenodo.20602261",
+      "latest_version_doi": "10.5281/zenodo.20602262",
+      "latest_version_label": null,
+      "latest_version_record_id": 20602262,
+      "zenodo_title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
+      "title": "The Bernoulli Hash Function: Optimal Bernoulli Sets and Bernoulli Maps",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 13,
+      "citations_added": [
+        "pagh2001lossy",
+        "dietzfelbinger2008retrieval",
+        "esposito2020recsplit",
+        "lehmann2024shockhash",
+        "lehmann2025seeds",
+        "chazelle2004bloomier"
+      ],
+      "errata": "papers/bernoulli-hash-function/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 14,
+          "title": "Optimal Bernoulli Sets (BHF)"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "make",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 30,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "phf",
+      "dir": "papers/bernoulli-phf",
+      "main_tex": "papers/bernoulli-phf/paper/main.tex",
+      "pdf": "papers/bernoulli-phf/paper/main.pdf",
+      "concept_doi": "10.5281/zenodo.20602263",
+      "latest_version_doi": "10.5281/zenodo.20602264",
+      "latest_version_label": null,
+      "latest_version_record_id": 20602264,
+      "zenodo_title": "The Perfect Hash Filter: An Efficient Implementation of the Positive Bernoulli Set and Bernoulli Map",
+      "title": "The Perfect Hash Filter: An efficient implementation of the positive Bernoulli set and Bernoulli map abstract data types",
+      "title_changed": true,
+      "title_edited_in_freeze": false,
+      "title_note": "Manuscript title already differed from the deposited title before the freeze (deposit omits 'abstract data types').",
+      "corrections_count": 8,
+      "citations_added": [
+        "pagh2001lossy",
+        "lehmann2025seeds"
+      ],
+      "errata": "papers/bernoulli-phf/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 15,
+          "title": "Perfect Hash Filters (BPHF)"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "cd paper && TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex && makeglossaries main && bibtex main && TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex && TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 37,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "maps",
+      "dir": "papers/bernoulli_maps",
+      "main_tex": "papers/bernoulli_maps/main.tex",
+      "pdf": "papers/bernoulli_maps/main.pdf",
+      "concept_doi": "10.5281/zenodo.19105389",
+      "latest_version_doi": "10.5281/zenodo.19105390",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19105390,
+      "zenodo_title": "The algebra of the random approximate map model",
+      "title": "The algebra of the random approximate map model",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 8,
+      "citations_added": [
+        "silverman1955",
+        "carbin2013rely",
+        "carter1978",
+        "esposito2020recsplit",
+        "lehmann2025seeds",
+        "bhf",
+        "bernoulliComposition",
+        "dietzfelbinger2008 (existing; DOI added)",
+        "chazelle2004 (existing; URL added)"
+      ],
+      "errata": "papers/bernoulli_maps/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 9,
+          "title": "Approximate Functions and n-ary Channels"
+        }
+      ],
+      "monograph_chapters_secondary": [
+        {
+          "chapter": 14,
+          "title": "Optimal Bernoulli Sets (BHF)"
+        },
+        {
+          "chapter": 17,
+          "title": "Cipher Maps and Trapdoor Computing"
+        }
+      ],
+      "build": {
+        "command": "TEXINPUTS=\".:./sty:\" pdflatex main.tex && bibtex main && TEXINPUTS=\".:./sty:\" pdflatex main.tex && TEXINPUTS=\".:./sty:\" pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 26,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "relations",
+      "dir": "papers/bernoulli_relations",
+      "main_tex": "papers/bernoulli_relations/main.tex",
+      "pdf": "papers/bernoulli_relations/main.pdf",
+      "concept_doi": "10.5281/zenodo.20602265",
+      "latest_version_doi": "10.5281/zenodo.20618109",
+      "latest_version_label": "v5",
+      "latest_version_record_id": 20618109,
+      "zenodo_title": "The Abstract Data Type of the Approximate Relation",
+      "title": "Error contracts for approximate relations",
+      "title_changed": true,
+      "title_edited_in_freeze": false,
+      "title_note": "Retitled in the October 2026 revision (commit 30aa1e2), before the freeze.",
+      "corrections_count": 8,
+      "citations_added": [
+        "fuhr1997pra",
+        "dalvi2007efficient",
+        "benjelloun2008uldb",
+        "mullin1990semijoins",
+        "suciu2011 (existing entry, DOI added)"
+      ],
+      "errata": "papers/bernoulli_relations/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 12,
+          "title": "Approximate Relations"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex && bibtex main && TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex && TEXINPUTS='.:./sty:' pdflatex -shell-escape main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 28,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "data-type-model",
+      "dir": "papers/bernoulli_data_type/bernoulli_model",
+      "main_tex": "papers/bernoulli_data_type/bernoulli_model/main.tex",
+      "pdf": "papers/bernoulli_data_type/bernoulli_model/main.pdf",
+      "concept_doi": "10.5281/zenodo.19105398",
+      "latest_version_doi": "10.5281/zenodo.19105399",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19105399,
+      "zenodo_title": "The Bernoulli model: a probabilistic framework for data structures and types",
+      "title": "The Bernoulli Model: A Probabilistic Framework for Data Structures and Types",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 7,
+      "citations_added": [
+        "boston2015decaf",
+        "carbin2013rely",
+        "bornholt2014uncertain",
+        "sampson2011enerj",
+        "misailovic2014chisel",
+        "giry1982categorical",
+        "ramsey2002stochastic",
+        "parker1975probabilistic",
+        "krishnaswamy2008ptm",
+        "esposito2020recsplit",
+        "lehmann2025seeds"
+      ],
+      "errata": "papers/bernoulli_data_type/bernoulli_model/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 1,
+          "title": "The Noisy Bit"
+        },
+        {
+          "chapter": 2,
+          "title": "Binary Channels and Model Order"
+        },
+        {
+          "chapter": 3,
+          "title": "Boolean Algebra Under Noise"
+        },
+        {
+          "chapter": 4,
+          "title": "Two Axioms and Kronecker Factorization"
+        },
+        {
+          "chapter": 13,
+          "title": "The Algebra of Approximate Types"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 24,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "data-type-algebraic",
+      "dir": "papers/bernoulli_data_type/algebraic_types",
+      "main_tex": "papers/bernoulli_data_type/algebraic_types/main.tex",
+      "pdf": "papers/bernoulli_data_type/algebraic_types/main.pdf",
+      "concept_doi": "10.5281/zenodo.19105395",
+      "latest_version_doi": "10.5281/zenodo.19105396",
+      "latest_version_label": "1.0.0",
+      "latest_version_record_id": 19105396,
+      "zenodo_title": "Random approximate values over algebraic types",
+      "title": "Random approximate values over algebraic types",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 8,
+      "citations_added": [
+        "boston2015decaf",
+        "carbin2013rely",
+        "bornholt2014uncertain",
+        "sampson2011enerj",
+        "misailovic2014chisel",
+        "giry1982categorical",
+        "ramsey2002stochastic",
+        "parker1975probabilistic",
+        "krishnaswamy2008ptm"
+      ],
+      "errata": "papers/bernoulli_data_type/algebraic_types/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 13,
+          "title": "The Algebra of Approximate Types"
+        }
+      ],
+      "monograph_chapters_secondary": [],
+      "build": {
+        "command": "TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex && bibtex main && TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex && TEXINPUTS=\".:./sty:\" pdflatex -shell-escape main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 20,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    },
+    {
+      "id": "quantum-readout",
+      "dir": "papers/bernoulli-quantum-readout",
+      "main_tex": "papers/bernoulli-quantum-readout/main.tex",
+      "pdf": "papers/bernoulli-quantum-readout/main.pdf",
+      "concept_doi": "10.5281/zenodo.20584894",
+      "latest_version_doi": "10.5281/zenodo.20618108",
+      "latest_version_label": "v5",
+      "latest_version_record_id": 20618108,
+      "zenodo_title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
+      "title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
+      "title_changed": false,
+      "title_edited_in_freeze": false,
+      "title_note": null,
+      "corrections_count": 8,
+      "citations_added": [
+        "gallager1962ldpc",
+        "matsui1993linear",
+        "parker1975probabilistic",
+        "krishnaswamy2008ptm",
+        "smith2021bitflip",
+        "hamilton2020scalable",
+        "tuziemski2023crosstalk"
+      ],
+      "errata": "papers/bernoulli-quantum-readout/ERRATA.md",
+      "monograph_chapters": [
+        {
+          "chapter": 19,
+          "title": "The Operator Representation"
+        }
+      ],
+      "monograph_chapters_secondary": [
+        {
+          "chapter": 3,
+          "title": "Boolean Algebra Under Noise"
+        },
+        {
+          "chapter": 9,
+          "title": "Approximate Functions and n-ary Channels"
+        },
+        {
+          "chapter": 16,
+          "title": "Approximate but Not Bernoulli"
+        }
+      ],
+      "build": {
+        "command": "pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex",
+        "log_found": true,
+        "errors": 0,
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "pages": 20,
+        "status_box_on_page_1_or_2": true,
+        "clean": true
+      }
+    }
+  ]
+}

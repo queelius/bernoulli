@@ -40,6 +40,11 @@ are not claimed as new general theory. The study tests whether combining
 them gives a useful specification for approximate relational representations.
 
 \paragraph{Position relative to probabilistic databases.}
+A probabilistic relational algebra whose tuples carry event expressions,
+evaluated under independence of basic events, goes back to Fuhr and
+R{\"o}lleke~\cite{fuhr1997pra}; tuple-independent query evaluation and
+databases with uncertainty and lineage followed
+\cite{dalvi2007efficient,benjelloun2008uldb}.
 Boolean lineage and provenance semirings already record how tuples contribute
 to an answer~\cite{green2007provenance}. Weighted evaluation, tractability
 boundaries, materialized views, and correlated lineage are well developed
@@ -70,7 +75,9 @@ sensitivity are established~\cite{gopalan2016smooth}. The exact one-sided
 extremal formulas below follow directly from maximal false and minimal true
 inputs. A targeted literature search did not locate the identical
 query-calibration formulation, but this does not establish originality.
-Bloom filters supply the implemented membership mechanism~\cite{bf}.
+Bloom filters supply the implemented membership mechanism~\cite{bf}, and
+their use to approximate a relation in query processing goes back at least
+to Bloom-filter semijoins in distributed databases~\cite{mullin1990semijoins}.
 Adaptivity is a separate concern~\cite{bender2017adaptivity}: our guarantees
 do not allow a query to be selected from observed errors and then treated as
 an independent fixed probe.

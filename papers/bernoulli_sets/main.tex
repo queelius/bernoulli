@@ -69,12 +69,15 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We introduce the \emph{Bernoulli set model}, a probabilistic framework for \emph{random approximate sets}---sets that approximate an objective set with independent, element-wise errors parameterized by false positive and false negative rates.
-From two axioms---element-wise independence and conditional independence of block error rates---we derive the binomial distributions of error counts (false positives, false negatives, true positives, true negatives), their asymptotic normal limits, and confidence intervals for the realized error rates.
-The model supports higher-order compositions: the $k$-fold composition of approximate identity functions yields a Bernoulli set whose rates are given by the product of binary channel transition matrices.
-The framework is formulated as an abstract data type: any implementation satisfying the Bernoulli axioms---including Bloom filters, perfect hash filters, and their compositions---inherits the full theory automatically.
+This paper presents the \emph{Bernoulli set model}, an axiomatic treatment of \emph{random approximate sets}: random sets that approximate an objective set with independent, element-wise errors parameterized by false positive and false negative rates.
+At the level of a single element, the model is an asymmetric binary channel, equivalently Warner's randomized response applied to a membership indicator.
+From two axioms (element-wise independence and conditional independence of block error rates) we derive the standard consequences: the binomial distributions of error counts (false positives, false negatives, true positives, true negatives), their asymptotic normal limits, and probability intervals for the realized error rates.
+The $k$-fold composition of approximate identity functions is a cascade of binary channels whose rates are given by the product of channel transition matrices; general set-theoretic compositions are higher-order models whose rates depend on each element's latent membership pattern.
+The framework is formulated as an abstract data type: any implementation satisfying the Bernoulli axioms inherits these results.
 Companion papers develop the compositional set-theoretic algebra, classification measures, and entropy of the model.
 \end{abstract}
+
+\input{status_errata}
 
 \microtypesetup{protrusion=false}
 \tableofcontents

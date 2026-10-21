@@ -7,11 +7,16 @@
 
 If approximate maps are the morphisms of a category of approximate
 computations, then composition must be well-defined and its error
-behaviour must be predictable~\cite{cover2006}.  This section establishes that the
-composition of two independent approximate maps is itself an approximate
-map, derives closed-form expressions for the false positive and false
-negative rates of the composition, and examines the passage from
+behaviour must be predictable~\cite{cover2006}.  This section derives
+closed-form expressions for the marginal false positive and false
+negative rates of the composition of two independent approximate maps,
+shows that element-wise independence survives composition only when
+intermediate values are not shared, and examines the passage from
 first-order to higher-order models that composition induces.
+These rules are serial composition of channels, a product of stochastic
+matrices~\cite{silverman1955,cover2006}, specialized to the Maybe type;
+the same product of per-stage reliabilities appears in program-level
+reliability analysis~\cite{carbin2013rely}.
 
 \subsection{Composition setup}
 \label{sec:comp-setup}
@@ -71,12 +76,15 @@ is the random function defined, for each $x \in \Set{X}$, by
 \end{equation}
 \end{definition}
 
-\begin{lemma}[Closure under composition]
+\begin{lemma}[Closure under composition, marginal form]
 \label{prop:closure}
 Under \cref{asm:composability}, the composition
 $\APFun{g}[\fprate_2][\fnrate_2] \circ
  \APFun{f}[\fprate_1][\fnrate_1]$
-is an approximate map of $\Fun{g} \circ \Fun{f}$.
+is a random approximation of $\Fun{g} \circ \Fun{f}$ that is correct
+at each input with positive probability.  Whether it also satisfies
+\cref{asm:independence} depends on shared intermediate values
+(\cref{lem:shared-intermediate}).
 \end{lemma}
 \begin{proof}
 Let $x \in \Dod(\Fun{g} \circ \Fun{f}) = \Dod(\Fun{f})$.
@@ -98,6 +106,43 @@ Hence $\Prob{(\APFun{g}[\fprate_2][\fnrate_2] \circ
 \APFun{f}[\fprate_1][\fnrate_1])(x) = \Nothing}
 \geq 1 - \fprate_1 > 0$.
 \end{proof}
+
+\begin{lemma}[Shared intermediate values break independence]
+\label{lem:shared-intermediate}
+Suppose $\APFun{g}$ is a stored structure, so that it returns the same
+realized output each time it is queried at the same $y$.  If
+$x_1 \neq x_2$ are positives with $\Fun{f}(x_1) = \Fun{f}(x_2) = y$, then
+\begin{equation*}
+\Prob{\text{both composed outputs correct}} = (1-\fnrate_1)^2(1-\fnrate_2)\,,
+\end{equation*}
+so the two correctness indicators have covariance
+$(1-\fnrate_1)^2\fnrate_2(1-\fnrate_2)$, which is positive whenever
+$\fnrate_1 < 1$ and $0 < \fnrate_2 < 1$, and the composition violates
+\cref{asm:independence}.
+If instead the intermediate values at the queried inputs are distinct with
+probability one, or $\APFun{g}$ draws fresh randomness at every query, the
+composition satisfies \cref{asm:independence}.
+\end{lemma}
+\begin{proof}
+The outputs of $\APFun{f}$ at $x_1$ and $x_2$ are independent and each is
+correct with probability $1-\fnrate_1$; both composed outputs are correct
+exactly when both are correct and the single realized outcome of $\APFun{g}$
+at $y$ is correct, which has probability $1-\fnrate_2$ and is independent of
+$\APFun{f}$.  Subtracting $[(1-\fnrate_1)(1-\fnrate_2)]^2$ gives the
+covariance.  For the converse, condition on the outputs of $\APFun{f}$: when
+the intermediate values are distinct, \cref{asm:independence} for
+$\APFun{g}$ (or fresh randomness) makes the outcomes of $\APFun{g}$ at those
+values independent, so each composed indicator is a function of its own pair
+of independent outcomes.
+\end{proof}
+
+\begin{remark}
+The same dependence arises when false-positive values of distinct negatives
+coincide with each other or with a true intermediate value.  The rate
+formulas below are marginal and hold in every case; joint statements about
+several composed outputs, such as binomial error counts, need the condition
+of \cref{lem:shared-intermediate}.
+\end{remark}
 
 % -------------------------------------------------------------------
 \subsection{Error propagation}
@@ -403,8 +448,9 @@ $\Set{Y}$, then for any given $x \notin \Dod(\Fun{f})$, the value of
 $\rho$ is the same.  In this case, the negative set is still
 identically distributed \emph{marginally} (after integrating over the
 random false positive value), and the composition admits a
-first-order description with the aggregate rate given by
-\cref{eq:comp-fpr}.  The second-order structure is exposed only when
+first-order description of its marginal rates, with the aggregate rate
+given by \cref{eq:comp-fpr}; the joint law is subject to
+\cref{lem:shared-intermediate}.  The second-order structure is exposed only when
 the false positive distribution of $\APFun{f}$ depends on $x$.
 \end{remark}
 
@@ -432,6 +478,12 @@ $\SetIndicator{\Set{A} \cap \Set{B}}(x) =
 Under independence,
 $\tprate_{\Set{A} \cap \Set{B}} = \tprate_{\Set{A}} \cdot
 \tprate_{\Set{B}}$.
+The false positive rate is not a single number: a negative
+$x \in \Set{A} \setminus \Set{B}$ is reported with probability
+$(1-\fnrate_{\Set{A}})\fprate_{\Set{B}}$, a negative
+$x \in \Set{B} \setminus \Set{A}$ with probability
+$\fprate_{\Set{A}}(1-\fnrate_{\Set{B}})$, and a negative outside both
+with probability $\fprate_{\Set{A}}\fprate_{\Set{B}}$.
 
 \item \emph{Union.}
 By De Morgan's law,
@@ -439,11 +491,15 @@ $\Set{A} \cup \Set{B} =
 \SetComplement[\SetComplement[\Set{A}] \cap
 \SetComplement[\Set{B}]]$,
 so the union error rates follow from the complement and intersection
-formulas.
+formulas block by block; dually, the union's false negative rate depends
+on whether a positive lies in one of the sets or in both.
 \end{enumerate}
 
+Set operations therefore raise the model order: the output carries one
+rate per latent block, and a single (false positive, false negative) pair
+does not propagate through a set formula.
 These results are developed systematically in the companion paper on
-composition of Bernoulli sets.  The key observation is that
+composition of Bernoulli sets~\cite{bernoulliComposition}.  The key observation is that
 \cref{thm:comp-fnr} generalizes the intersection formula: the
 true-positive-rate product rule for set intersection is the special
 case where both maps are indicator functions and the composition is

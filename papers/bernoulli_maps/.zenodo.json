@@ -1,7 +1,7 @@
 {
   "title": "The Algebra of the Random Approximate Map Model",
   "upload_type": "publication",
-  "description": "The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, the composition theorem, and a space-optimal construction at -log2(epsilon)+mu bits per element.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 9. The Bernoulli map, a probabilistic function generalizing Bernoulli sets to arbitrary codomains, with model order, closed-form marginal rates under composition (element-wise independence holds only without shared intermediate values), and a seed-search construction approaching -log2(epsilon)+mu bits per element.",
   "creators": [
     {
       "name": "Towell, Alexander",
@@ -15,7 +15,7 @@
     "probabilistic data structure",
     "approximate map",
     "model order",
-    "composition theorem",
+    "composition",
     "channel"
   ],
   "license": "CC-BY-4.0",

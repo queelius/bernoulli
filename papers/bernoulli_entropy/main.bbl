@@ -1,9 +1,14 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{bf}
 Burton~H. Bloom.
 \newblock Space/time trade-offs in hash coding with allowable errors.
 \newblock {\em Communications of the ACM}, 13(7):422--426, 1970.
+
+\bibitem{broderMitzenmacher}
+Andrei Broder and Michael Mitzenmacher.
+\newblock Network applications of {Bloom} filters: A survey.
+\newblock {\em Internet Mathematics}, 1(4):485--509, 2004.
 
 \bibitem{carterExact}
 J.~Lawrence Carter, Robert~W. Floyd, John Gill, George Markowsky, and Mark~N.
@@ -17,30 +22,75 @@ Thomas~M. Cover and Joy~A. Thomas.
 \newblock {\em Elements of Information Theory}.
 \newblock Wiley-Interscience, 2 edition, 2006.
 
+\bibitem{dietzfelbingerPagh}
+Martin Dietzfelbinger and Rasmus Pagh.
+\newblock Succinct data structures for retrieval and approximate membership
+  (extended abstract).
+\newblock In {\em Automata, Languages and Programming (ICALP 2008)}, Lecture
+  Notes in Computer Science, pages 385--396. Springer, 2008.
+
+\bibitem{lehmannSeeds}
+Hans-Peter Lehmann, Peter Sanders, Stefan Walzer, and Jonatan Ziegler.
+\newblock Combined search and encoding for seeds, with an application to
+  minimal perfect hashing.
+\newblock In {\em 33rd Annual European Symposium on Algorithms (ESA 2025)},
+  volume 351 of {\em Leibniz International Proceedings in Informatics
+  (LIPIcs)}, pages 109:1--109:18. Schloss Dagstuhl, 2025.
+
+\bibitem{paghPaghRao}
+Anna Pagh, Rasmus Pagh, and S.~Srinivasa Rao.
+\newblock An optimal {Bloom} filter replacement.
+\newblock In {\em Proceedings of the 16th Annual ACM-SIAM Symposium on Discrete
+  Algorithms (SODA)}, 2005.
+\newblock No Crossref DOI. \url{https://www.rasmuspagh.net/papers/bloom.pdf}.
+
+\bibitem{paghRodlerLossy}
+Rasmus Pagh and Flemming~Friche Rodler.
+\newblock Lossy dictionaries.
+\newblock In {\em Algorithms -- ESA 2001}, Lecture Notes in Computer Science,
+  pages 300--311. Springer, 2001.
+
 \bibitem{shannonBSC}
 Claude~E. Shannon.
 \newblock A mathematical theory of communication.
 \newblock {\em The Bell System Technical Journal}, 27(3):379--423, 1948.
 
-\bibitem{phf}
-Alexander Towell.
-\newblock The perfect hash filter: an efficient, immutable implementation of
-  the positive random approximate set abstract data type.
-\newblock Working paper. Available from the author upon request.
+\bibitem{silvermanBinary}
+R.~A. Silverman.
+\newblock On binary channels and their cascades.
+\newblock {\em IRE Transactions on Information Theory}, 1(3):19--27, 1955.
 
 \bibitem{shs}
 Alexander Towell.
-\newblock The singular hash set.
-\newblock Working paper. Available from the author upon request.
+\newblock The {Bernoulli} hash function: Optimal {Bernoulli} sets and
+  {Bernoulli} maps.
+\newblock Zenodo preprint, 2026.
+\newblock Earlier working title: The singular hash set.
+  \url{https://doi.org/10.5281/zenodo.20602261}.
 
 \bibitem{bernoulliSets}
 Alexander Towell.
 \newblock Bernoulli sets: a model for random approximate sets.
-\newblock Companion paper, 2026.
+\newblock Zenodo preprint, 2026.
+\newblock Companion paper. \url{https://doi.org/10.5281/zenodo.19105381}.
 
 \bibitem{bernoulliComposition}
 Alexander Towell.
 \newblock Composition of {Bernoulli} sets.
-\newblock Companion paper, 2026.
+\newblock Zenodo preprint, 2026.
+\newblock Companion paper. \url{https://doi.org/10.5281/zenodo.19105387}.
+
+\bibitem{phf}
+Alexander Towell.
+\newblock The perfect hash filter: An efficient implementation of the positive
+  {Bernoulli} set and {Bernoulli} map.
+\newblock Zenodo preprint, 2026.
+\newblock \url{https://doi.org/10.5281/zenodo.20602263}.
+
+\bibitem{yaoMinimax}
+Andrew Chi-Chih Yao.
+\newblock Probabilistic computations: Toward a unified measure of complexity.
+\newblock In {\em 18th Annual Symposium on Foundations of Computer Science
+  (FOCS)}, pages 222--227. IEEE, 1977.
 
 \end{thebibliography}

@@ -26,18 +26,21 @@ $-\log_2 \fprate$ bits per element are required.
 The Bloom filter~\cite{bf} achieves $\ln 2 \approx 69\%$ of this optimal
 density.
 
-\paragraph{Open problems.}
+\paragraph{The two-sided case.}
 The information-theoretic space bound of \cref{pst:approx_l_b} assumes a
-positive approximate set ($\tprate = 1$); the general case $0 < \tprate < 1$
-remains open, as noted in \cref{rem:general_lower_bound}.
-When false negatives occur, the pigeonhole argument fails because valid input
-sets are no longer constrained to be subsets of the positive response set.
-Establishing a tight lower bound for the general case is the most pressing open
-question.
+positive approximate set ($\tprate = 1$).
+The general case $0 < \tprate < 1$ is not open, contrary to an earlier version
+of this preprint: Pagh and Rodler~\cite{paghRodlerLossy} give a lower bound of
+$-\tprate \log_2 \fprate - \mathcal{O}(1)$ bits per element in the
+large-universe limit for structures with at most a $1 - \tprate$ fraction of
+false negatives (\cref{rem:general_lower_bound}).
 
+\paragraph{Further directions.}
 The mutual information $I(\tilde{A}; A)$ between a Bernoulli set and its
-objective set, and the channel capacity of the element-wise binary channel
-viewed at the set level, remain unexplored.
+objective set is not treated here.
+Under element-wise independence and an independent prior on membership,
+it reduces to a sum of per-element quantities of a
+binary asymmetric channel, whose capacity is classical~\cite{silvermanBinary}.
 
 Extending the entropy analysis to compositions of Bernoulli sets---where error
 rates are themselves functions of operand rates---would connect the present

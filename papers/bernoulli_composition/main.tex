@@ -68,10 +68,15 @@
 \maketitle
 \begin{abstract}
 Bernoulli sets---random approximate sets with independent, element-wise errors parameterized by false positive and false negative rates---are closed under set-theoretic composition.
-We derive closed-form error rates for complement, union, intersection, and set difference, showing that every such operation on Bernoulli sets yields a (possibly higher-order) Bernoulli set whose error rates are computable functions of the operand rates and set cardinalities.
-The resulting structure is monoidal under union and intersection, supports exact computation of relational predicates (subset and equality probabilities), and admits an interval arithmetic extension that propagates uncertain rate parameters through set operations with guaranteed bounds.
+We record closed-form error rates for complement, union, intersection, and set difference of independently constructed Bernoulli sets.
+Each operation yields a (possibly higher-order) Bernoulli set: the per-element error probability depends on which operands contain the element, so the single false positive and false negative rate pair reported for the result is a cardinality-weighted marginal.
+That pair is not sufficient input for further composition; nested expressions must carry the per-region rates.
+The formulas are elementary consequences of independence and coincide with the independent-OR and independent-AND rules used for Bloom filters, combinational logic, and probabilistic databases; no novelty is claimed for them.
+We also give subset and equality probabilities and an interval arithmetic treatment of uncertain rate parameters.
 These results build on the Bernoulli set model introduced in a companion paper~\cite{bernoulliSets}, which establishes the axioms, error-count distributions, and asymptotic limits assumed here.
 \end{abstract}
+
+\input{status_errata}
 
 \microtypesetup{protrusion=false}
 \tableofcontents

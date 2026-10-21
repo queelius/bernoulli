@@ -20,6 +20,10 @@ elements are independent.
 The Bernoulli sets $\tilde{A}_1$ and $\tilde{A}_2$ are constructed using independent randomness: for all $x \in U$, the error indicators $\mathbf{1}_{\tilde{A}_1}(x) \neq \mathbf{1}_{A_1}(x)$ and $\mathbf{1}_{\tilde{A}_2}(x) \neq \mathbf{1}_{A_2}(x)$ are independent.
 \end{assumption}
 
+This assumption is added to the axioms of~\cite{bernoulliSets}; it is not implied by them.
+It fails when an operand is reused (for $\tilde{A} \cup \tilde{A}$ the false positive rate is $\fprate$, not $1-(1-\fprate)^2$) and when filters share hash functions and seeds.
+Under it, the per-element formulas below are the independent-OR and independent-AND rules used for Bloom filter unions and intersections~\cite{bloom1970,broderMitzenmacher2004}, for signal probabilities in combinational logic~\cite{parker1975,krishnaswamy2008ptm}, and for independent-or and independent-and in probabilistic databases~\cite{dalvi2007}.
+
 \subsection{Complement}
 \label{sec:complement}
 The complement operation exchanges the roles of positives and negatives.
@@ -457,7 +461,7 @@ The partition weights $w_1, w_2, w_3$ require knowledge of the objective set car
 Three approaches handle this:
 (a) if only upper bounds on $|A_i|$ are available, \cref{sec:intervals} provides interval-valued rates;
 (b) worst-case bounds are obtained by optimizing the weights over the feasible region $w_1 + w_2 + w_3 = 1$, $w_i \geq 0$;
-(c) the cardinalities may be estimated from the approximate sets themselves, e.g., $|\tilde{A}_1 \cap \tilde{A}_2|$ is a biased estimator of $|A_1 \cap A_2|$ with computable bias from the error rates.
+(c) the cardinalities may be estimated from the approximate sets themselves, e.g., $|\tilde{A}_1 \cap \tilde{A}_2|$ is a biased estimator of $|A_1 \cap A_2|$ with computable bias from the error rates; cardinality estimation from Bloom filters is treated in~\cite{papapetrou2010}.
 \end{remark}
 
 \begin{remark}[Model order of composed sets]
@@ -466,6 +470,17 @@ The union and intersection formulas partition the relevant elements into regions
 For instance, the union FNR assigns probability $\fnrate_1(1-\fprate_2)$ to elements in $A_1 \setminus A_2$ but $\fnrate_1 \fnrate_2$ to elements in $A_1 \cap A_2$.
 The result is therefore a higher-order Bernoulli set (\cref{def:model_order}) whose order equals the number of distinct partition blocks.
 The weighted-average rates in \cref{tab:set_ops} give the \emph{marginal} error rates over all positives (or negatives), collapsing the partition structure into a single summary statistic.
+\end{remark}
+
+\begin{remark}[Nested expressions]
+\label{rem:nested}
+A marginal pair does not describe the composed set well enough to compose it again.
+In a nested expression the per-element rates of each intermediate result must be carried by region (by the membership pattern of the element in all operands), and the formulas of this section are applied region by region.
+Reusing the marginal pair of an intermediate result as if it were a second-order Bernoulli set is wrong in general.
+For example, let every operand have $\fprate = 0.02$ and $\fnrate = 0.10$ and consider $(\tilde{A}_1 \cap \tilde{A}_2) \cup \tilde{A}_3$.
+An element in $A_2$ only is reported with probability $1-(1-0.02 \cdot 0.90)(1-0.02) = 0.03764$, while an element in none of the three sets is reported with probability $1-(1-0.02^2)(1-0.02) = 0.020392$.
+No single false positive rate for $\tilde{A}_1 \cap \tilde{A}_2$ reproduces both values.
+The uniform cases are the exception: in an expression built from unions alone, every negative has false positive probability $1-\prod_i(1-\fprate_i)$, and in one built from intersections alone, every positive has false negative probability $1-\prod_i(1-\fnrate_i)$, so these two rates compose without region bookkeeping.
 \end{remark}
 
 \begin{remark}[Parametric parsimony of composed sets]
@@ -633,7 +648,8 @@ production.
 \subsection{Asymptotic behavior of composed error rates}
 
 The error-rate formulas above determine the \emph{expected} rates for composed approximate sets.
-Since these composed rates inherit the Bernoulli structure from their operands, the asymptotic normal approximation of~\cite{bernoulliSets} applies.
+Within a region whose elements share one per-element error probability, the error count is binomial and the asymptotic normal approximation of~\cite{bernoulliSets} applies.
+A marginal rate that averages several regions (for example the union false negative rate) has a Poisson-binomial count instead; its variance is the sum of the per-region binomial variances, which is at most the binomial variance at the marginal rate.
 
 For example, the true negative rate of the union $\tilde{A}_1 \cup \tilde{A}_2$ has the asymptotic distribution
 \begin{equation}
@@ -667,4 +683,7 @@ intersection respectively.
 This is useful in practice: the $n$-ary union
 $\bigcup_{i=1}^{n} \ASet{A}_i$ is precisely the monoidal fold, requiring only an
 associative operation and an identity element.
+The fold is exact for the realized sets and for the per-region rates.
+Folding the marginal pairs of \cref{tab:set_ops} is exact only for the uniform rate (the false positive rate of a union fold, or the false negative rate of an intersection fold); the other marginal must be recomputed from the regions (see the remark on nested expressions above).
+The operands must be distinct and independently constructed (\cref{asm:cross_set_indep}).
 \end{remark}

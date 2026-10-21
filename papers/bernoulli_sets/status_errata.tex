@@ -1,0 +1,46 @@
+% Status and errata box (October 2026 freeze). Input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\footnotesize
+\setlength{\parskip}{3pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapters~2, 4, 5, and~7 (\emph{Binary Channels and Model
+Order}; \emph{Two Axioms and Kronecker Factorization}; \emph{Approximate Sets
+and Predicates}; \emph{Classification Measures}) of the monograph
+\emph{Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval,
+and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+\item Abstract, \cref{sec:higher_order_model,sec:conclusion}: set-theoretic
+  compositions are higher-order models; removed the claim that they inherit the two-rate theory.
+\item \Cref{sec:higher_order_model}: fixed the approximate union operator (rate
+  arguments swapped; positives are lost with probability $\fnrate$, not $\tprate$).
+\item \Cref{sec:bernoulli_model}: a Bloom filter meets \cref{asm:element_indep} only
+  conditionally on its bit array (two-cell example: $5/8$ versus $9/16$).
+\item \Cref{sec:asymtotic}: withdrew the maximum-entropy and worst-case-interval
+  claims; correlated errors widen the intervals.
+\item \Cref{sec:asymtotic}: the intervals are probability intervals for the
+  realized rates, not confidence intervals for unknown parameters.
+\item Abstract, \cref{sec:bernoulli_model,sec:conclusion}, introduction: removed novelty claims.
+\end{itemize}
+
+\textbf{Predecessors credited.} Per element, the model is an asymmetric binary
+channel~\cite{shannonBSC}, Bross's misclassification
+model~\cite{bross1954misclassification}, and Warner's randomized
+response~\cite{warner1965}. Probabilistic sets are due to
+Hirota~\cite{hirota1981probabilistic}; two-sided-error filters include
+retouched~\cite{donnet2006retouched} and generalized~\cite{laufer2011generalized}
+Bloom filters; Bloom-filter set operations appear in~\cite{broderMitzenmacher}.
+Binomial counts, normal limits, and channel cascades are textbook
+material~\cite{feller2,coverThomas}; no novelty is claimed.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

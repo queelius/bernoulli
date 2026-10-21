@@ -1,12 +1,13 @@
 \babel@toc {english}{}\relax 
-\contentsline {section}{\numberline {1}Introduction}{1}{section.2}%
-\contentsline {paragraph}{Motivation.}{1}{section*.3}%
-\contentsline {paragraph}{Contribution.}{2}{section*.4}%
+\contentsline {section}{\numberline {1}Introduction}{2}{section.2}%
+\contentsline {paragraph}{Motivation.}{2}{section*.3}%
+\contentsline {paragraph}{Content.}{2}{section*.4}%
 \contentsline {paragraph}{Related work.}{2}{section*.6}%
 \contentsline {paragraph}{Organization.}{2}{section*.7}%
-\contentsline {section}{\numberline {2}Preliminaries}{2}{section.8}%
-\contentsline {section}{\numberline {3}Entropy of approximate sets}{2}{section.12}%
-\contentsline {subsection}{\numberline {3.1}Positives and negatives}{3}{subsection.20}%
+\contentsline {section}{\numberline {2}Preliminaries}{3}{section.8}%
+\contentsline {section}{\numberline {3}Entropy of approximate sets}{3}{section.12}%
+\contentsline {subsection}{\numberline {3.1}Positives and negatives}{4}{subsection.20}%
 \contentsline {section}{\numberline {4}Space complexity}{4}{section.25}%
-\contentsline {section}{\numberline {5}Conclusion}{5}{section.35}%
-\contentsline {paragraph}{Open problems.}{6}{section*.37}%
+\contentsline {section}{\numberline {5}Conclusion}{6}{section.35}%
+\contentsline {paragraph}{The two-sided case.}{7}{section*.37}%
+\contentsline {paragraph}{Further directions.}{7}{section*.38}%

@@ -1,0 +1,63 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It was submitted to \emph{Quantum Science and Technology}, was rejected, and is
+retired from venue submission. It is superseded by Chapter~19 (\emph{The
+Operator Representation}) of the monograph \emph{Bernoulli Types: Two-Sided
+Error in Approximate Membership, Retrieval, and Computation} (A.~Towell, 2026),
+together with Chapter~3 (\emph{Boolean Algebra Under Noise}), the
+quantum-readout paragraph of Chapter~9, and the quantum-contextuality section
+of Chapter~16,
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item Withdrawn: the claim (abstract, \cref{sec:intro}, the tensor proposition of
+  \cref{sec:calculus}, \cref{sec:conclusion}) that the pair $(\eps,\omega)$ propagates through an entire
+  Boolean tree and that any Boolean function's rate depends only on the closed
+  forms. Replaced by per-latent-assignment propagation
+  (\cref{prop:tensor}) and a counterexample (\cref{rem:no-pair}):
+  $(b_0\wedge b_1)\vee b_2$ at latent word $010$, $\eps=0.02$, $\omega=0.10$,
+  has error $0.03764$, not the $0.020392$ obtained by reusing the pair.
+\item Faithfulness scope (\cref{sec:intro,sec:channel,sec:scope}): the classical assignment model holds
+  for any state when the detector's effects are diagonal
+  (\cref{eq:povm}), replacing ``precisely when the density matrix is
+  diagonal''.
+\item The parity identity is credited to Gallager's Lemma~1 and Matsui's
+  piling-up lemma \citep{gallager1962ldpc,matsui1993linear}; it was previously
+  attributed to prior art in \cref{sec:worked-asym} without a source.
+\item Withdrawn: the claim that no reusable forward calculus existed. Forward
+  error propagation through Boolean networks is credited to
+  \citet{parker1975probabilistic} and \citet{krishnaswamy2008ptm}.
+\item Asymmetric tensored response matrices are credited to
+  \citet{smith2021bitflip}; the claim that applied tooling loses the
+  asymmetry is narrowed.
+\item \Cref{sec:worked-crosstalk}: the pairwise crosstalk truncation is compared with the
+  cumulant reconstruction of \citet{hamilton2020scalable}, which does better
+  (chain model, $\lambda=0.01$: exact $0.0623$, this paper $0.0735$,
+  cumulant baseline $0.0643$).
+\item The chain composition rule is scoped to the probability that some stage
+  errs, an upper bound on final-output error when errors can cancel.
+\item Abstract, contribution paragraph, related work, ``Originality,
+  precisely'', and conclusion rewritten to claim no novelty for the methods.
+\end{itemize}
+
+\textbf{Predecessors credited.} Gallager (1962) and Matsui (1993) for the
+parity identity; Parker and McCluskey (1975) and probabilistic transfer
+matrices (Krishnaswamy et al., 2008) for forward Boolean error propagation;
+Smith et al.\ (2021) and Bravyi et al.\ (2021) for asymmetric tensored response
+matrices; Hamilton et al.\ (2020) for cumulant-based crosstalk reconstruction.
+What remains is these known tools applied to readout-derived bits and worked
+\texttt{ibm\_hanoi} numbers. A dated list of changes is in
+\texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

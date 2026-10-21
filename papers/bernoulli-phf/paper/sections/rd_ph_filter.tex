@@ -71,7 +71,7 @@ The \emph{minimal} perfect hash filter is given by the following definition.
 \begin{definition}
 The \emph{minimal} perfect hash filter is a perfect hash filter with a load factor $1$, i.e., every element $x$ in the set being approximated is \emph{perfectly hashed}.
 \end{definition}
-Replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function}, where disjoint subsets of up to $k$ elements may collide, generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible.\footnote{We may also simply approximate a subset of a set $\Set{S}$ to support non-zero false negative rates, but \emph{$k$-perfect hashing} generates a more efficient solution.}
+Replacing the \emph{perfect hash function} with a \emph{$k$-perfect hash function}, where disjoint subsets of up to $k$ elements may collide, generalizes the \gls{gls-phf} into a Bernoulli set where both \emph{false positives} and \emph{false negatives} are possible.\footnote{We may also simply approximate a subset of a set $\Set{S}$ to support non-zero false negative rates, the lossy-dictionary idea of Pagh and Rodler~\cite{pagh2001lossy}. That approach is the more space-efficient one at a given false negative rate; \emph{$k$-perfect hashing} is cheaper to construct but stores more fingerprint bits per retained member (\cref{rem:kperfect_space}).}
 
 
 
@@ -223,7 +223,7 @@ The information-theoretic lower-bound of a data structure that implements the po
 \begin{equation}
     -\log_2 \fprate \; \si{bits \per element}\,,
 \end{equation}
-where $\fprate$ is the false positive rate. More generally, a Bernoulli set with false negative rate $\fnrate$ admits an encoding of expected length $-(1 - \fnrate)\log_2 \fprate$ bits per element, which the \gls{gls-phf} attains in the positive case $\fnrate = 0$.
+where $\fprate$ is the false positive rate. More generally, when up to a fraction $\fnrate$ of the members may be rejected, Pagh and Rodler~\cite[Prop.~1]{pagh2001lossy} show that about $-(1 - \fnrate)\log_2 \fprate$ bits per element are necessary, up to lower-order terms, and storing only a $(1-\fnrate)$ fraction of the members achieves this scale. The \gls{gls-phf} approaches the positive case $\fnrate = 0$ as $\fprate \to 0$.
 \end{theorem}
 
 The \emph{expected} bit length of the \emph{minimal} \gls{gls-phf} has a lower-bound given by the following theorem.
@@ -437,10 +437,10 @@ If the bit matrix of fingerprints $\matrx{V}$ has $m$ rows and $M$ columns, then
 
 \begin{theorem}
 \label{thm:max_entropy_coder}
-The random bit string that codes the \gls{gls-phf} is a \emph{maximum entropy} coder for the \emph{positive Bernoulli set} abstract data type: conditioned on the cardinality $m$ and the false positive rate $\fprate$, every bit of the code is an independent fair coin.
+The fingerprint matrix of the minimal \gls{gls-phf} is a \emph{maximum entropy} code: conditioned on the cardinality $m$ and the false positive rate $\fprate$, each of its bits is an independent fair coin. The perfect-hash seed is not uniform; its entropy and expected length agree only up to an additive $O(1)$ bits per structure, so the full code is maximum entropy to leading order.
 \end{theorem}
 \begin{proof}
-A binary string has maximum entropy when its bits are independent and each is $\berdist(1/2)$. The \gls{gls-phf} code is the pair $\Tuple{\matrx{V}, n}$ of the fingerprint matrix and the perfect-hash seed. Each entry of $\matrx{V}$ is $\trunc(\ro(x), M)$ for a distinct member $x$; by \cref{asm:ro} the random oracle $\ro$ is uniform on $\BitSet^M$ and independent across distinct inputs, so the $m M$ fingerprint bits are i.i.d.\ $\berdist(1/2)$. The seed $n$ is the index of the first injective placement among i.i.d.\ uniform draws, so its bits are likewise uniform. Hence, given $m$ and $\fprate$, no further structure is imposed beyond the Bernoulli axioms, and the code attains the maximum conditional entropy. This is the discrete analogue of the entropy-map optimality of \cref{thm:approx_l_b}: the code carries no information about \emph{which} elements are members, only the minimum needed to realize the prescribed rate.
+A binary string has maximum entropy when its bits are independent and each is $\berdist(1/2)$. The \gls{gls-phf} code is the pair $\Tuple{\matrx{V}, n}$ of the fingerprint matrix and the perfect-hash seed. Each entry of $\matrx{V}$ is $\trunc(\ro(x), M)$ for a distinct member $x$; by \cref{asm:ro} the random oracle $\ro$ is uniform on $\BitSet^M$ and independent across distinct inputs, so the $m M$ fingerprint bits are i.i.d.\ $\berdist(1/2)$. (For load factor $r < 1$ the $N - m$ unused rows are fixed, so the statement is for the minimal case $r = 1$.) The seed $n$ is the index of the first injective placement among i.i.d.\ draws, a geometric random variable with success probability $p = P(m,N)$; its binary representation is not a string of fair coins. Its entropy is $\log_2(1/p) + O(1)$ bits and its expected length is $\log_2(1/p) + O(1)$ bits, so the seed is maximum entropy only to leading order. Hence, given $m$ and $\fprate$, the code attains the maximum conditional entropy up to an additive $O(1)$ bits. This is the discrete analogue of the entropy-map optimality of \cref{thm:approx_l_b}: the code carries no information about \emph{which} elements are members, only the minimum needed to realize the prescribed rate.
 \end{proof}
 
 Prior to any membership test, the only information the code carries about $\Set{S}$ is its cardinality, through the distribution of the bit length $\RV{N}$, which concentrates around

@@ -1,7 +1,7 @@
 {
   "title": "Composition of Bernoulli sets",
   "upload_type": "publication",
-  "description": "Closed-form error rates for complement, union, intersection, and difference of Bernoulli sets, showing the model is closed under set-theoretic composition.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 6. Error rates for complement, union, intersection, and difference of Bernoulli sets, computed per region of the true sets; marginal rate pairs do not compose exactly through nested expressions. Credits independent-event evaluation in probabilistic databases and Bloom-filter set operations.",
   "creators": [
     {
       "name": "Towell, Alexander",

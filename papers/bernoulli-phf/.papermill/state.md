@@ -137,3 +137,17 @@ Current result: **37 pages, 0 undefined refs/citations, 0 bibtex warnings.**
   numeric worked example added, bibliography self-cites dated/URL'd, metadata
   synced. Build clean at **37 pages, 0 undefined refs/cites, 0 bibtex warnings**.
   Remaining: Phase D (maph experiments) and final polish.
+
+## Freeze (2026-10-21)
+
+Final preprint version. The paper is frozen and superseded by Chapter 15 of
+the monograph (*Bernoulli Types: Two-Sided Error in Approximate Membership,
+Retrieval, and Computation*). A "Status and errata (October 2026)" box follows
+the abstract (`paper/status_errata.tex`); the dated list of 8 corrections is in
+`ERRATA.md`. Main changes: the construction is credited to Dietzfelbinger and
+Pagh (2008, Sec. 1); the k-perfect false negative analysis is corrected for
+seed rejection, fingerprint rescue, and within-slot dependence; the
+salt-search "subset enumeration" comparison and the k-perfect space-efficiency
+claim are withdrawn; the maximum-entropy statements are scoped. Build: 0
+errors, 0 undefined references or citations, 37 pages. Phase D (experiments)
+will not be done in this paper; further work goes to the monograph.

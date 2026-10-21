@@ -1,0 +1,49 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{6pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.95\linewidth}\footnotesize
+\setlength{\parskip}{3pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~8 (\emph{Information-Theoretic Bounds}) of the
+monograph \emph{Bernoulli Types: Two-Sided Error in Approximate Membership,
+Retrieval, and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}\setlength{\topsep}{1pt}
+\item Abstract, Secs.~\ref{sec:intro_ent}, \ref{sec:space_comp},
+  \ref{sec:conclusion_ent}: the two-sided bound ($0<\tprate<1$) is no longer
+  called open; it is Pagh and Rodler~\cite[Prop.~1]{paghRodlerLossy}.
+\item Prop.~\ref{pst:approx_l_b}, proof: the last step is now
+  $B \geq -\p\log_2\fprate - o(1)$ as $n\to\infty$, not an exact inequality.
+\item Prop.~\ref{pst:approx_l_b}, proof: the randomized case is sketched as
+  the standard averaging argument of Yao~\cite{yaoMinimax}, not asserted.
+\item Sec.~\ref{sec:space_comp}: $\mathcal{O}(u)$ bits for a dense set is an
+  upper bound, not a requirement.
+\item Sec.~\ref{sec:space_comp}: the perfect hash filter is credited to
+  Dietzfelbinger and Pagh~\cite[Sec.~1]{dietzfelbingerPagh}, matching
+  constructions to~\cite{paghPaghRao,dietzfelbingerPagh}, seed search
+  to~\cite{lehmannSeeds}.
+\item Sec.~\ref{sec:intro_ent}: both results are presented as exposition, not
+  as contributions.
+\item Sec.~\ref{sec:conclusion_ent}: mutual information and capacity are no
+  longer called unexplored; binary channel capacity is
+  classical~\cite{silvermanBinary}.
+\item Bibliography: companion working papers now cite their Zenodo DOIs.
+\end{itemize}
+
+\textbf{Predecessors credited.} One-sided bound: Carter et
+al.~\cite{carterExact}. Two-sided bound: Pagh and Rodler~\cite{paghRodlerLossy}.
+Matching constructions: Pagh, Pagh, and Rao~\cite{paghPaghRao}; Dietzfelbinger
+and Pagh~\cite{dietzfelbingerPagh}. Bloom filter cost:~\cite{bf,broderMitzenmacher}.
+The joint entropy of the error counts follows from element independence and the
+binomial entropy expansion~\cite{coverThomas}. No novelty is claimed for these
+results. Dated changes: \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

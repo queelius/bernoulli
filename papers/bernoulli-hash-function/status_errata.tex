@@ -1,0 +1,61 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~14 (\emph{Optimal Bernoulli Sets (BHF)}) of the
+monograph \emph{Bernoulli Types: Two-Sided Error in Approximate Membership,
+Retrieval, and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item \Cref{thm:fpr_distribution} and \cref{sec:adaptive_pmf_derivation}:
+  the threshold law printed as exact for i.i.d.\ residues was the
+  without-replacement law ($N=m=2$, $p=1$ gave $(1,0)$; the truth is
+  $(3/4,1/4)$). Replaced by the binomial-tail law; the beta-binomial claim is
+  withdrawn.
+\item \Cref{sec:adaptive_contract} (new): the adaptive threshold has recall
+  about $p/m$ and mean FPR at least $p/(m+1)$, and its non-member tests are
+  correlated (covariance $\operatorname{Var}((T+1)/N)$).
+\item \Cref{sec:price_certainty}: the ``price of FPR certainty'' theorem
+  compared unequal recall requirements and is withdrawn; at equal recall and
+  FPR cap the adaptive rule is binomial-tail fixed-threshold search.
+\item \Cref{rem:lb_not_violated}: withdrawn the claim that a random per-build
+  FPR escapes the membership lower bound.
+\item \Cref{thm:space}: the closed form for $\operatorname{E}[\log_2 Q]$ was
+  false ($2$ at $s=1/2$; true value $0.7326$); replaced by explicit bounds.
+\item \Cref{rem:info_interp}: sign error in the geometric entropy fixed
+  ($2$ bits at $s=1/2$, not $0$).
+\item \Cref{sec:fn_effect}: success probability with false negatives is a
+  binomial tail; the matching lower bound holds to leading order only.
+\item \Cref{thm:fnr_search}: the exponential gap is against naive subset
+  enumeration only; hash-and-count is also linear per salt.
+\item \Cref{thm:max_entropy}: the fixed threshold is a public parameter, not
+  uniform; uniformity of the salt given its length is a symmetry fact.
+\item \Cref{alg:make_shf_adaptive}: the adaptive map now stores its salt
+  (it was not decodable); the value-matching count is Poisson-binomial.
+\item Abstract, introduction, and discussion: optimality and novelty claims
+  removed; prior work credited.
+\end{itemize}
+
+\textbf{Predecessors credited.} The $-\log_2\fprate$ bound is due to Carter
+et al.~\cite{carter1978}, and with false negatives to Pagh and
+Rodler~\cite{pagh2001lossy}. Efficient constructions at this scale are due to
+Pagh, Pagh, and Rao~\cite{pagh2005} and Dietzfelbinger and
+Pagh~\cite{dietzfelbinger2008retrieval}; range-based acceptance appears in the
+Bloomier filter~\cite{chazelle2004bloomier}. Seed search at the
+information-theoretic scale is the mechanism of RecSplit and
+ShockHash~\cite{esposito2020recsplit,lehmann2024shockhash}, and the
+zero-false-negative BHF is the single-seed baseline analyzed by Lehmann et
+al.~\cite{lehmann2025seeds}. No novelty is claimed for the space results.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

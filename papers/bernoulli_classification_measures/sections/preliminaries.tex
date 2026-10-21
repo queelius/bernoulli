@@ -23,7 +23,7 @@ Furthermore, within each partition block $B_i$, the error indicators $\{\mathbf{
 By \cref{asm:element_indep}, for any single element $x \notin A$,
 $\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \fprate$, and for $x \in A$,
 $\Prob{\mathbf{1}_{\tilde{A}}(x) = 1} = \tprate$.
-The expected sample rates satisfy $\Expect{\alpha} = \fprate$ and $\Expect{\beta} = \tprate$.
+The expected sample rates satisfy $\Expect{\alpha} = \fprate$ and $\Expect{\beta} = \fnrate$, where $\alpha$ and $\beta$ are the realized false positive and false negative rates.
 \end{proposition}
 \begin{proof}
 See~\cite{bernoulliSets}.

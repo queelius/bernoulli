@@ -77,3 +77,13 @@ Companion to `bernoulli_sets/` (the primary paper, which supplies the axioms and
 distributions assumed here). One of the core 4-paper family: bernoulli_sets,
 bernoulli_composition, bernoulli_classification_measures, bernoulli_entropy. Reference C++
 implementation: `bernoulli-cpp/` (`bernoulli_set_expressions.hpp`).
+
+### Freeze (2026-10-21)
+Final preprint version prepared; paper is frozen and superseded by monograph
+Chapter 6 (with Chapter 3). Added a "Status and errata (October 2026)" box after
+the abstract, scoped the marginal-pair composition claims (new remark on nested
+expressions with the (A1 ∩ A2) ∪ A3 counterexample), fixed the mislabeled
+subset corollary, and credited Warner 1965, Bloom 1970, Broder-Mitzenmacher
+2004, Papapetrou et al. 2010, Parker-McCluskey 1975, Krishnaswamy et al. 2008,
+and Dalvi-Suciu 2007. Build: 16 pages, 0 errors, 0 undefined refs/cites. See
+`ERRATA.md`. Not committed; Zenodo re-deposit pending.

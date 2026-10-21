@@ -9,28 +9,32 @@ Bloom filters~\cite{bf}, perfect hash filters~\cite{phf}, and related probabilis
 However, practical systems rarely use a single approximate set in isolation.
 Encrypted search indexes, database query planners, and distributed systems routinely compose approximate sets through union, intersection, complement, and difference, and the resulting error behavior has traditionally been analyzed on a case-by-case basis.
 
-\paragraph{The gap.}
-The existing literature lacks a \emph{foundational probabilistic model} for approximate sets: a framework that axiomatizes the error structure, derives the distributions of error counts from first principles, and provides an abstract data type that any implementation can model.
-Without such a foundation, each data structure is analyzed in isolation, higher-order compositions (approximate sets of approximate sets) remain uncharacterized, and no unified theory connects the per-element error model to the set-level distributional behaviour.
+\paragraph{Scope and prior work.}
+The per-element error model used here is classical.
+A membership indicator observed through independent false positive and false negative errors is an asymmetric binary channel~\cite{shannonBSC}, the misclassification model for $2 \times 2$ tables~\cite{bross1954misclassification}, and Warner's randomized response~\cite{warner1965} applied to the indicator of the objective set.
+Probabilistic sets, described by per-element membership probabilities, were introduced by Hirota~\cite{hirota1981probabilistic}, and filters with both false positives and false negatives include retouched Bloom filters~\cite{donnet2006retouched} and generalized Bloom filters~\cite{laufer2011generalized}.
+This paper claims neither a new model nor new theorems; it collects these ideas into one axiomatic presentation on which the companion papers build.
 
-\paragraph{Contribution.}
-We introduce the \emph{Bernoulli set model}, a probabilistic framework for \emph{random approximate sets} built on two axioms: element-wise independence of errors and conditional independence of block error rates.
-From these axioms we derive:
+\paragraph{Contents.}
+We state the \emph{Bernoulli set model} for \emph{random approximate sets} as two axioms: element-wise independence of errors and conditional independence of block error rates.
+From these axioms we derive the following standard consequences:
 \begin{enumerate}[nosep]
     \item the binomial distributions of error counts (false positives, false negatives, true positives, true negatives) and their asymptotic normal limits,
-    \item the higher-order composition theorem: the $k$-fold composition of approximate identity functions yields a Bernoulli set whose rates are given by the product of binary channel transition matrices, and
-    \item confidence intervals for the realized false positive and true positive rates.
+    \item the $k$-fold composition of approximate identity functions, which is a cascade of binary channels whose rates are given by the product of channel transition matrices~\cite{coverThomas}, and
+    \item probability intervals for the realized false positive and true positive rates.
 \end{enumerate}
-The framework is formulated as an abstract data type: any implementation whose membership queries satisfy the Bernoulli axioms---including Bloom filters, perfect hash filters, and their compositions---inherits the full theory automatically.
+The framework is formulated as an abstract data type: any implementation whose membership queries satisfy the Bernoulli axioms inherits these results.
+Two qualifications apply.
+A Bloom filter satisfies the independence axiom only conditionally on its realized bit array (remark ``\nameref{rem:implementations}'' in \cref{sec:bernoulli_model}), and set-theoretic compositions of Bernoulli sets are higher-order models rather than second-order Bernoulli sets (\cref{sec:higher_order_model}).
 
 \paragraph{Related work.}
 The original Bloom filter~\cite{bf} introduced approximate set membership with one-sided error.
 Subsequent work has produced a rich family of probabilistic data structures---including cuckoo filters~\cite{cuckooFilter}, quotient filters~\cite{quotientFilter}, xor filters~\cite{xorFilter}, and ribbon filters~\cite{ribbonFilter}---surveyed by Broder and Mitzenmacher~\cite{broderMitzenmacher}, with improved space efficiency or additional functionality.
 Bose et al.~\cite{boseBloom} give tight bounds on the Bloom filter false positive rate, Kirsch and Mitzenmacher~\cite{kirschMitzenmacher} show that two hash functions suffice, and Carter and Wegman~\cite{carterWegman} provide the universal hash families underlying many implementations.
 Related probabilistic summaries such as the count-min sketch~\cite{countMinSketch} trade exact answers for space efficiency in the streaming setting.
-However, analyses typically treat each structure in isolation, deriving error rates for a single filter rather than for compositions of filters.
-General probabilistic methods for randomized algorithms~\cite{mitzenmacherUpfal} provide the analytical toolkit (concentration inequalities, entropy bounds) but do not address the compositional structure of approximate sets.
-Our framework complements these lines of work by providing an algebraic layer that sits above any particular implementation; the interval arithmetic extension for uncertain rate parameters is developed in~\cite{bernoulliComposition}.
+Set operations on Bloom filters (bitwise OR for union, bitwise AND for intersection) are also described in that survey~\cite{broderMitzenmacher}.
+General probabilistic methods for randomized algorithms~\cite{mitzenmacherUpfal} provide the analytical toolkit (concentration inequalities, entropy bounds) used throughout.
+The present framework is an organizing layer over these tools rather than a replacement for them; the interval arithmetic extension for uncertain rate parameters is developed in~\cite{bernoulliComposition}.
 
 \paragraph{Companion papers.}
 The set-theoretic composition of Bernoulli sets---closed-form error rates for complement, union, intersection, and set difference, monoidal structure, relational predicates, and interval arithmetic---is developed in a companion paper~\cite{bernoulliComposition}.

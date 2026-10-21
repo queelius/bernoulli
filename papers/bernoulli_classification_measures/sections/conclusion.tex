@@ -9,7 +9,7 @@ We have derived the probability distributions, closed-form expected values, and 
 In each case the measure is a random variable whose distribution follows from the binomial error counts established by the element-wise independence axiom (\cref{asm:element_indep}).
 The expected PPV and $\fone$-score were obtained via second-order delta method expansions (\cref{thm:approx_expected_precision,thm:f1_approx}), and their accuracy was validated by Monte Carlo simulation (\cref{fig:ppv_theory_vs_sim,fig:f1_theory_vs_sim}).
 
-These results apply to any data structure satisfying the Bernoulli axioms, including Bloom filters~\cite{bf} and perfect hash filters~\cite{phf}.
+These results apply exactly to any data structure satisfying the Bernoulli axioms. Bloom filters~\cite{bf} and perfect hash filters~\cite{phf} satisfy them only approximately: errors at distinct elements share the random state of one build, so the realized rates vary from build to build and the classical Bloom filter rate is itself an approximation~\cite{bose2008fpr}.
 In particular, the sensitivity of PPV to prevalence (\cref{fig:ppv_vs_fprate}) has practical implications for system design: a data structure with a nominally small false positive rate may still produce unreliable positive predictions when the base rate of positives is low.
 Designers should therefore evaluate their systems not only by FPR and FNR but also by the predictive values that the intended query workload will induce.
 

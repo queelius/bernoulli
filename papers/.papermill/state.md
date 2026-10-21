@@ -196,3 +196,14 @@ bernoulli_sets (core model, axioms, distributions, composition, ADT)
 2. `bernoulli_sets_higher_order/` merged into `bernoulli_sets/` (archive.zip preserves originals)
 3. `bernoulli_sets/` split into 4 papers (2026): composition → `bernoulli_composition/`, classification → `bernoulli_classification_measures/`, entropy → `bernoulli_entropy/`
 4. `random_approximate_sets/` retired (2026-02) then deleted (2026-03). Modular sty/ packages copied into each dependent paper as local copies.
+
+## Freeze (2026-10-21)
+
+All eleven manuscripts (ten papers; bernoulli_data_type has two) are frozen as
+final preprint versions, superseded by the monograph *Bernoulli Types: Two-Sided
+Error in Approximate Membership, Retrieval, and Computation*. Each has a status
+and errata box after its abstract, minimal corrections and prior-art citations
+from the October 2026 audit, and an `ERRATA.md`. All eleven build clean (0
+errors, 0 undefined references or citations). Fleet table: `papers/FREEZE.md`;
+machine-readable record: `papers/freeze-manifest.json`. Zenodo re-deposits,
+commits, and subtree pushes are pending. Phase for every paper: frozen.

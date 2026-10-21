@@ -202,8 +202,10 @@ By \cref{eq:approxfpr,eq:approxtpr},
 	\mathrm{TNR}_n \xrightarrow{d} \normdist\!\left(1-\fprate, \fprate(1-\fprate) / n\right) \text{ and } \beta_p \xrightarrow{d} \normdist\!\left(1-\tprate, \tprate(1-\tprate) / p\right).
 \end{equation}
 
-The Bernoulli set model is the \emph{maximum entropy} distribution over $\{0,1\}^u$ subject to the constraint that each element has a fixed marginal error probability: the binomial distribution maximizes entropy over $\{0,\ldots,n\}$ for a given mean~\cite{coverThomas}.
-As a consequence, any $\gamma$-confidence intervals derived from this model are the widest possible for the indicated $\gamma$ and therefore represent a worst-case uncertainty.
+Under \cref{asm:element_indep}, the joint law of the membership indicators is the maximum-entropy law on $\{0,1\}^u$ among laws with the given per-element marginals, because independence maximizes joint entropy for fixed marginals~\cite{coverThomas}.
+This does not make the intervals below worst case: maximum entropy is not maximum variance.
+Positively correlated errors, such as the shared random rate of a Bloom filter (remark ``\nameref{rem:implementations}'' in \cref{sec:bernoulli_model}), give a false positive count whose variance exceeds $n\fprate(1-\fprate)$, and hence wider intervals.
+For example, with $n = 2$ and $\fprate = 1/2$, perfectly correlated errors give $\Var{\FP_2} = 1$, whereas independent errors give $1/2$.
 
 If we generate an approximate set, the uncertain false positive and true positive rates realize certain values, i.e., $\alpha_n = \fprateob$ and $\TPR_p = \tprateob$.
 If the sample space is countably infinite, the distribution is degenerate, e.g., $\alpha_n = \fprate$ with probability $1$.
@@ -211,9 +213,10 @@ However, for finite sample spaces, the outcomes are uncertain.
 If these outcomes can be \emph{observed}, e.g., it is not too costly to compute, the exact values $\fprateob$ and $\tprateob$ may be recorded.
 If these outcomes cannot be observed, e.g., it is too costly to compute or the information to compute $\fprateob$ or $\tprateob$ is not available, we may use the probabilistic model to inform us about the distribution of false positive rates.
 
-\emph{Confidence intervals} that contain the true false positive rate $\fprateob$ and the true true positive rate $\tprateob$ are given by the following theorem.
+When the expected rates $\fprate$ and $\tprate$ are known, intervals that contain the realized rates $\fprateob$ and $\tprateob$ with asymptotic probability $\gamma$ are given by the following theorem.
+These are probability (prediction) intervals for the realized rates, the textbook normal approximation, not confidence intervals for unknown parameters; estimating an unknown $\fprate$ from observed counts uses the standard binomial confidence intervals.
 \begin{theorem}
-    Given a random approximate set parameterized by $\fprate$ and $\tprate$, asymptotic $\gamma \cdot 100\%$ confidence intervals for the false positive rate and true positive rate are respectively
+    Given a random approximate set parameterized by $\fprate$ and $\tprate$, asymptotic $\gamma \cdot 100\%$ probability intervals for the realized false positive rate and true positive rate are respectively
     \begin{equation}
     \label{eq:conf_fpr}
     \fprate \pm \sqrt{\frac{\fprate(1-\fprate)}{n}} \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right)
@@ -228,7 +231,7 @@ If these outcomes cannot be observed, e.g., it is too costly to compute or the i
 \begin{proof}
 By \cref{thm:approxfpr}, $\alpha_n$ is asymptotically normal with mean $\fprate$ and variance $\sigma^2 = \fprate(1-\fprate)/n$.
 Standardizing, $Z = (\alpha_n - \fprate)/\sigma \xrightarrow{d} \normdist(0,1)$.
-A $\gamma$-level confidence interval requires
+A $\gamma$-level probability interval requires
 $\Prob{-z_\gamma \leq Z \leq z_\gamma} = \gamma$,
 where $z_\gamma = \Phi^{-1}\!\left(\frac{1+\gamma}{2}\right)$.
 Substituting and solving for $\alpha_n$ yields

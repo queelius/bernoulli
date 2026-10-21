@@ -122,7 +122,8 @@ When $\fnrate = 0$, both reduce to $\mathcal{O}(m)$ per candidate.
         ($\fnrate = 1 - p/m$).
     }
     \KwOut{
-        A Bernoulli map $\ASet{M}$ coded as a tuple $(N, t)$.
+        A Bernoulli set coded as $(N, t)$, or a Bernoulli map coded as
+        $(N, t, b)$.
     }
     \func{\MakeBHFAdaptive{$\Set{M}$, $N$, $p$}}{
         \tcp{For sets ($\mu = 0$): any salt works; pick $b = \epsilon$}
@@ -153,7 +154,8 @@ When $\fnrate = 0$, both reduce to $\mathcal{O}(m)$ per candidate.
                         $i \in \Set{V}$\;
                     Sort the residues $\{r_i : i \in \Set{V}\}$\;
                     $t \gets$ the $p$-th smallest residue\;
-                    \Return $(N, t)$\;
+                    \Return $(N, t, b)$
+                    \tcp*{$b$ is needed by \Find}
                 }
             }
         }
@@ -167,9 +169,13 @@ search is required.
 The salt can be fixed to the empty string $\epsilon$, and the entire
 construction reduces to hashing, sorting, and reading off the $p$-th order
 statistic.
-The output $(N, t)$ does not include a salt, since it is not needed.
+For sets the output $(N, t)$ does not include a salt, since it is not needed.
 For maps, the search loop finds a salt with enough value-matching keys, then
-the adaptive threshold is set on the matching subset.
+the adaptive threshold is set on the matching subset; the salt $b$ must be
+stored, since \Find recomputes $\hash(1 \cat x \cat b)$.
+(Earlier versions returned $(N, t)$ for maps as well, which is not decodable.)
+Keys outside $\Set{V}$ with residues at or below $t$ are also accepted, with
+wrong values.
 \end{remark}
 
 \subsection{Set construction as a special case}

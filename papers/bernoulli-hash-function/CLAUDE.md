@@ -6,6 +6,14 @@
 **Author:** Alexander Towell
 **Repo:** `queelius/bernoulli-hash-function`
 
+## Status (2026-10-21): frozen
+
+Final preprint version, superseded by monograph Chapter 14. See `ERRATA.md`
+and `status_errata.tex`. The key-results list below is the pre-freeze framing:
+the adaptive threshold changes recall (it is not a space saving), the exact
+order-statistic law is the binomial tail, and the space results are the known
+seed-search scale (no novelty claimed).
+
 ## What This Paper Is About
 
 The Bernoulli Hash Function (BHF) is a hash-based construction that implements **Bernoulli sets** (approximate sets with FPR/FNR) and **Bernoulli maps** (approximate key-value maps). The set is the special case where value bit-length μ=0.

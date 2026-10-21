@@ -1,0 +1,39 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~15 (\emph{Perfect Hash Filters}) of the monograph
+\emph{Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval,
+and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item Abstract, introduction, related work: the construction is credited to Dietzfelbinger and Pagh (2008, Sec.~1); novelty claims are withdrawn.
+\item Introduction, related work: removed the claim that salt search needs combinatorial subset enumeration to admit false negatives; salt search is single-seed search with exponential expected work.
+\item Sec.~5: the false negative formula ignored the rejection of overfull seeds; the exact conditioned law is added ($m=N=2$, $k=1$: true rate $0$, formula $1/4$).
+\item Sec.~5: a displaced member whose fingerprint matches the retained one is still accepted; the false negative rate is $(1-2^{-M})\,\omega$ ($1/8$, not $1/4$, for $m=N=2$, $k=2$, $M=1$).
+\item Sec.~5: the false negative count is not binomial (losses in a shared slot are dependent), so the $k$-perfect variant is not an element-wise independent Bernoulli set.
+\item Sec.~3 footnote and Sec.~5: reversed the claim that $k$-perfect hashing is the more space-efficient way to admit false negatives; a lossy subset uses fewer bits per retained member.
+\item Sec.~3 and Sec.~6: the perfect-hash seed is a geometric index, not a string of fair coins; the maximum-entropy statements now hold to leading order only.
+\item Sec.~3: the space bound with false negatives is credited to Pagh and Rodler (2001, Prop.~1).
+\end{itemize}
+
+\textbf{Predecessors credited.} Minimal perfect hash plus fingerprints:
+Dietzfelbinger and Pagh~\cite{dietzfelbinger2008}; static maps: Bloomier
+filters~\cite{bloomier}; $k$-perfect hashing: Belazzougui, Botelho, and
+Dietzfelbinger~\cite{chd}; false negatives traded for space: Pagh and
+Rodler~\cite{pagh2001lossy}; the space bound: Carter et al.~\cite{carter1978};
+seed search: Lehmann et al.~\cite{lehmann2025seeds}. The analyses here are
+standard and no novelty is claimed for them.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

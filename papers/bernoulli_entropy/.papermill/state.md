@@ -73,3 +73,12 @@ Companion to `bernoulli_sets/`; one of the core 4-paper family. The space bound 
 is the target achieved by the Bernoulli Hash Function (`bernoulli-hash-function/`). Reference
 implementation: `bernoulli-cpp/entropy_bloom_filter.hpp`. NOTE: short paper (6 pp), so the
 reviewer should weigh completeness/sufficiency of the space-complexity argument carefully.
+
+### Freeze (2026-10-21)
+Final preprint version, superseded by monograph Chapter 8 ("Information-Theoretic
+Bounds"). Added a "Status and errata (October 2026)" box (`status_errata.tex`,
+input after the abstract) and `ERRATA.md`. Main fix: the two-sided space bound is
+no longer called open (Pagh and Rodler 2001, Prop. 1); the lower bound is stated
+as asymptotic (minus o(1)); the randomized extension is credited to Yao 1977.
+Build clean (0 errors, 0 undefined refs/cites), 8 pages. No further revisions planned;
+the June 2026 "minor-revision" verdict above is superseded.

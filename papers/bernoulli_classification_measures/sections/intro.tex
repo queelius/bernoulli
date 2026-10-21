@@ -7,20 +7,23 @@
 
 Binary classification measures---precision, recall, accuracy, F-score---are fundamental to evaluating information retrieval systems and probabilistic data structures.
 When a data structure approximates a set, returning membership queries that may err, the standard measures become random variables whose distributions depend on the error model.
-This paper derives those distributions within the Bernoulli set model~\cite{bernoulliSets}, a compositionally closed probabilistic framework for random approximate sets with independent, element-wise errors parameterized by false positive and false negative rates.
+This paper derives those distributions within the Bernoulli set model~\cite{bernoulliSets}, a probabilistic framework for random approximate sets with independent, element-wise errors parameterized by false positive and false negative rates.
 
 \paragraph{Motivation.}
 In many applications the question is not ``what is the false positive rate?'' but rather ``given a positive test result, what is the probability it is correct?''
 This is the positive predictive value (precision), and its answer depends critically on the prevalence (base rate) of positives.
-A Bloom filter~\cite{bf} with a $1\%$ false positive rate achieves near-perfect precision when queried against a large positive set, but its precision collapses when positives are rare---a phenomenon well known in medical testing but underappreciated in the data structures literature.
+A Bloom filter~\cite{bf} with a $1\%$ false positive rate achieves near-perfect precision when queried against a large positive set, but its precision collapses when positives are rare. This is the classical dependence of predictive values on prevalence in diagnostic testing~\cite{altman1994predictive}; we restate it for approximate data structures.
 
-\paragraph{Contribution.}
-We derive exact distributions, closed-form approximations, and variances for PPV, NPV, accuracy, the $\fone$-score, and Youden's $J$ within the Bernoulli set model~\cite{bernoulliSets}.
+\paragraph{Scope.}
+We collect exact distributions, closed-form approximations, and variances for PPV, NPV, accuracy, the $\fone$-score, and Youden's $J$ within the Bernoulli set model~\cite{bernoulliSets}.
+The approximations are standard delta-method expansions~\cite{casellaBerger} applied to independent binomial counts, and no novelty is claimed for them.
 The expected PPV and $\fone$-score are obtained via second-order delta method expansions (\cref{thm:approx_expected_precision,thm:f1_approx}), and their accuracy is validated by Monte Carlo simulation (\cref{fig:ppv_theory_vs_sim,fig:f1_theory_vs_sim}).
 We show that all measures are functions of four parameters: the false positive rate $\fprate$, the true positive rate $\tprate$, the number of positives $\p$, and the number of negatives $\n$.
 
 \paragraph{Related work.}
 Fawcett~\cite{fawcettROC} provides an introduction to ROC analysis; Powers~\cite{powersEval} gives a systematic comparison of evaluation measures.
+Goutte and Gaussier~\cite{goutte2005probabilistic} give a probabilistic treatment of precision, recall, and the F-score, with distributions inferred from observed counts; here the rates and the numbers of positives and negatives are known and the measures are sampling distributions.
+The per-element error channel is that of randomized response~\cite{warner1965randomized}, and the effect of a known misclassification channel on $2 \times 2$ tables goes back to Bross~\cite{bross1954misclassification}.
 The underlying Bernoulli set model and its compositional algebra are developed in a companion paper~\cite{bernoulliSets}; here we focus exclusively on the classification measures that the model induces.
 
 \paragraph{Organization.}

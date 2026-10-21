@@ -145,8 +145,8 @@ related_papers:
   rel: companion
   label: Sibling extension paper (maps); relations generalize maps to multi-attribute
 verification:
-  date: '2026-10-13'
-  pdf_pages: 27
+  date: '2026-10-21'
+  pdf_pages: 28
   latex_warnings: 0
   overfull_boxes: 0
   research_tests_passed: 540
@@ -242,3 +242,11 @@ multi-attribute Bernoulli relations. The thesis YAML block is left empty for
 ### Related Work and Software
 Extension paper building on `bernoulli_sets/`. Reference implementation:
 `bernoulli-cpp/bernoulli_relation.hpp`.
+
+### Freeze (2026-10-21)
+Final preprint version; superseded by monograph Chapter 12 (Approximate Relations).
+Status and errata box (`status_errata.tex`) inserted after the abstract. `ERRATA.md`
+lists the October-revision corrections relative to Zenodo v5 (10.5281/zenodo.20618109)
+and the title change. Added Crossref-verified citations `fuhr1997pra`,
+`dalvi2007efficient`, `benjelloun2008uldb`, `mullin1990semijoins`. Build clean
+(0 errors, 0 undefined references or citations), 28 pages. Not yet deposited.

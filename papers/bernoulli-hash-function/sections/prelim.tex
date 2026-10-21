@@ -66,14 +66,21 @@ A Bernoulli set with $\fprate = 0$ is a \emph{negative} Bernoulli set,
 denoted $\NASet{S}$.
 \end{definition}
 
-\begin{theorem}[Space lower bound for sets {\cite{carter1978}}]
+\begin{theorem}[Space lower bound for sets {\cite{carter1978,pagh2001lossy}}]
 \label{post:set_lb}
-The optimal space complexity for a Bernoulli set over a countably infinite
-universe is
+Up to lower-order terms, the optimal space complexity for a Bernoulli set over
+a countably infinite universe is
 \begin{equation}
     -(1 - \fnrate) \log_2 \fprate \;\; \si{bits \per element}\,.
 \end{equation}
 \end{theorem}
+
+For $\fnrate = 0$ this is the bound of Carter et al.~\cite{carter1978}.
+The case $\fnrate > 0$ is the lower bound for lossy dictionaries of Pagh and
+Rodler~\cite[Prop.~1]{pagh2001lossy}: storing a set of $n$ keys with at most
+$\gamma n$ false negatives and false positive rate $\fprate$ needs
+$(1-\gamma)\, n \log_2(1/\fprate) - \mathcal{O}(n)$ bits over a large universe,
+so the bound holds up to an additive $\mathcal{O}(1)$ bits per element.
 
 \subsection{Bernoulli maps}
 \label{sec:prelim_bmap}
@@ -96,18 +103,21 @@ $\fprate$ and false negative rate $\fnrate$ satisfies:
 \end{enumerate}
 \end{definition}
 
-\begin{theorem}[Space lower bound for maps {\cite{carter1978}}]
+\begin{theorem}[Space lower bound for maps]
 \label{post:map_lb}
-The optimal space complexity for a Bernoulli map over a countably infinite key
-universe, with mean value encoding length $\mu$ bits, is
+Up to lower-order terms, the optimal space complexity for a Bernoulli map over
+a countably infinite key universe, with mean value encoding length $\mu$ bits,
+is
 \begin{equation}
     -(1 - \fnrate) \log_2 \fprate + (1-\fnrate)\mu \;\; \si{bits \per element}\,.
 \end{equation}
 \end{theorem}
 
 \begin{remark}
+The map bound adds to \cref{post:set_lb} the $\mu$ bits of value information
+per retained key that any retrieval structure must store.
 Setting $\mu = 0$ in \cref{post:map_lb} recovers the set lower bound
 (\cref{post:set_lb}).
-This duality---the set as a degenerate map---is the organizing principle of
+This duality, the set as a degenerate map, is the organizing principle of
 this paper.
 \end{remark}

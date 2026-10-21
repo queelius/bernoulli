@@ -86,3 +86,12 @@ the singular hash map construction. The thesis YAML block is left empty for
 Extension paper building on `bernoulli_sets/`. Reference implementation:
 `bernoulli-cpp/bernoulli_map.hpp` (the most general type in the library). Connects to
 trapdoor computing: Bernoulli maps ARE cipher maps at the mathematical level.
+
+### Freeze (2026-10-21)
+Final preprint version prepared for re-deposit on Zenodo (concept 10.5281/zenodo.19105389). Status and errata box
+added after the abstract (`status_errata.tex`); corrections listed in `ERRATA.md`: Section 6.5 success probability
+replaced (the review's critical C1), Section 7 space theorem restated with a two-sided bound, composition closure
+scoped to marginal rates with new Lemma 5.2 (shared intermediates break independence), set-operation rates per
+latent block, Kronecker baseline fixed, novelty claims removed, predecessors credited (Bloomier, retrieval,
+channel cascades, Rely, Carter et al., seed search). Build clean, 26 pages. Superseded by monograph Chapter 9
+(with Chapters 14 and 17). No further revisions planned.

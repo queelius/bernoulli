@@ -73,11 +73,14 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We derive the probability distributions, expected values, and variances of standard binary classification measures---positive predictive value (precision), negative predictive value, accuracy, the $\fone$-score, and Youden's $J$ statistic---for the Bernoulli set model, a compositionally closed framework for random approximate sets with independent, element-wise errors.
-The expected PPV and $\fone$-score are obtained via second-order delta method expansions whose accuracy we validate by Monte Carlo simulation.
-All measures depend critically on the \emph{prevalence} (base rate): even a small false positive rate can drive precision to zero when the base rate is low.
-The results apply to any data structure satisfying the Bernoulli axioms, including Bloom filters and perfect hash filters.
+We derive the probability distributions, expected values, and variances of standard binary classification measures (positive predictive value or precision, negative predictive value, accuracy, the $\fone$-score, and Youden's $J$ statistic) for the Bernoulli set model of random approximate sets with independent, element-wise errors.
+The expected PPV and $\fone$-score are obtained via standard second-order delta method expansions whose accuracy we validate by Monte Carlo simulation.
+All measures depend critically on the \emph{prevalence} (base rate): even a small false positive rate can drive precision to zero when the base rate is low, the classical predictive-value relation of diagnostic testing.
+These are known statistical results restated for the model; no novelty is claimed.
+The results apply exactly to any data structure satisfying the Bernoulli axioms, and approximately to Bloom filters and perfect hash filters, whose errors share a random build.
 \end{abstract}
+
+\input{status_errata}
 
 \microtypesetup{protrusion=false}
 \tableofcontents

@@ -1,0 +1,36 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~7 (\emph{Classification Measures}) of the monograph
+\emph{Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval,
+and Computation} (A.~Towell, 2026),
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(project hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item Abstract, \cref{sec:intro}: the model is no longer called ``compositionally closed''; a two-rate pair does not propagate through arbitrary set expressions (see the companion composition paper).
+\item Abstract, \cref{sec:conclusion_cm}: Bloom filters and perfect hash filters satisfy the axioms only approximately (errors share one random build); ``including Bloom filters'' is qualified.
+\item \Cref{sec:prelim}: $\Expect{\beta}$ corrected from $\tprate$ to $\fnrate$ ($\beta$ is the realized false negative rate, consistent with $\mathrm{TPR}_p = 1 - \beta_p$).
+\item \Cref{sec:interval_measures}: the interval PPV bounds hold for the ratio of expected counts, not for $\Expect{\PPV}$ itself.
+\item \Cref{sec:intro}: novelty claims removed; the prevalence effect is the classical predictive-value relation.
+\end{itemize}
+
+\textbf{Predecessors credited.} The per-element channel is randomized
+response~\cite{warner1965randomized}; misclassification in $2 \times 2$ tables is
+treated by Bross~\cite{bross1954misclassification}; the dependence of predictive
+values on prevalence is classical in diagnostic testing~\cite{altman1994predictive};
+probabilistic precision, recall, and F-score are due to Goutte and
+Gaussier~\cite{goutte2005probabilistic}; the expansions are the standard delta
+method~\cite{casellaBerger}. No novelty is claimed.
+A dated list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

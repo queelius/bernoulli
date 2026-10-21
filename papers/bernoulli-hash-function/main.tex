@@ -49,25 +49,30 @@
 \maketitle
 
 \begin{abstract}
-We introduce the \emph{Bernoulli Hash Function} (BHF), a family of hash-based
-constructions that optimally implement the Bernoulli set and Bernoulli map
-abstract data types.
+We describe the \emph{Bernoulli Hash Function} (BHF), a family of seed-search
+constructions for the Bernoulli set and Bernoulli map abstract data types.
 The BHF is parameterized by an \emph{acceptance predicate} over hash outputs:
 the classical equality test $h(x \cat b) = h_0$ is a special case of a
-generalized threshold test $h(x \cat b) \bmod N \leq t$, which provides
-finer false positive rate granularity and eliminates the combinatorial subset
-enumeration required when the false negative rate $\fnrate > 0$.
-We also introduce an \emph{adaptive threshold} variant that determines the
-threshold from the data itself, eliminating the salt search entirely for sets
-and achieving vanishing per-element space---at the cost of a random false
-positive rate.
-We prove that the BHF achieves the information-theoretic lower bound on space
-complexity while maximizing entropy, for both sets (value length $\mu = 0$)
-and maps (arbitrary $\mu$), under both predicate forms.
-The construction is unified: the Bernoulli set is the special case of the
-Bernoulli map with zero-length values, so a single framework and a single
-space-optimality proof covers both.
+threshold test $h(x \cat b) \bmod N \leq t$, which gives a finer lattice of
+false positive rates and lets a candidate salt be checked by counting when
+the false negative rate $\fnrate > 0$.
+We also analyze an \emph{adaptive threshold} variant that reads the threshold
+off the data.
+It needs no salt search for sets, but it changes the accuracy contract: in the
+continuous limit its mean recall is $p/m$ and its mean false positive rate is
+$p/(m+1)$, so it barely discriminates members from non-members, and under a
+fixed recall and false positive cap it reduces to fixed-threshold search.
+For the fixed predicates, the expected salt length is
+$-\log_2 \fprate + \mu$ bits per element plus lower-order terms, for both sets
+(value length $\mu = 0$) and maps.
+This is the standard information-theoretic scale; that seed search reaches it
+is known from work on retrieval and minimal perfect hashing, and the
+construction takes exponential expected time.
+The Bernoulli set is the special case of the Bernoulli map with zero-length
+values, so one analysis covers both.
 \end{abstract}
+
+\input{status_errata}
 
 \microtypesetup{protrusion=false}
 \tableofcontents

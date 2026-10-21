@@ -163,3 +163,7 @@ pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
 - [ ] Decide whether remaining `data/` CSVs and `code/` simulations belong here or in companion papers
 - [ ] Select target venue (see `/papermill:venue`); 18pp changes venue candidates vs. former 43pp
 - [ ] Decide whether to integrate `adt.tex` content or keep it excluded
+
+## Freeze (2026-10-21)
+
+Final preprint version prepared for a Zenodo re-deposit (concept 10.5281/zenodo.19105381). A "Status and errata (October 2026)" box follows the abstract (`status_errata.tex`); the paper is superseded by monograph Chapters 2, 4, 5, and 7. Six corrections (two-rate composition claim, union operator typo, Bloom-filter independence, maximum-entropy claim, probability versus confidence intervals, novelty claims) and four Crossref-verified citations (Bross 1954, Hirota 1981, Donnet et al. 2006, Laufer et al. 2011) are listed in `ERRATA.md`. Build: 0 errors, 0 undefined references or citations, 20 pages. The "Next Steps" above are retired: no further revision is planned.

@@ -113,7 +113,7 @@ The joint confusion matrix $M$ over the function space $\Set{Y}^{\Set{X}}$ facto
 M = \bigotimes_{x \in \Set{X}} M_x,
 \end{equation}
 where each $M_x$ is the $|\Set{Y}| \times |\Set{Y}|$ per-input channel matrix at input $x$.
-Since inputs within the same partition block share identical channel matrices, the number of free parameters is $n \cdot (|\Set{Y}| - 1)$, compared to $N(|\Set{Y}|^{|\Set{X}|} - 1)$ for a general $N$-th order channel on $\Set{Y}^{\Set{X}}$.
+Since inputs within the same partition block share identical channel matrices, the number of free parameters is $n \cdot (|\Set{Y}| - 1)$, compared to $|\Set{Y}|^{|\Set{X}|} - 1$ for an arbitrary distribution over $\Set{Y}^{\Set{X}}$ given the latent function (one row of an unconstrained channel on the function space, whose full matrix has $|\Set{Y}|^{|\Set{X}|}(|\Set{Y}|^{|\Set{X}|} - 1)$ free entries).
 In the maximum-order case $n = |\Set{X}|$ (each input in its own block), this becomes $|\Set{X}| \cdot (|\Set{Y}| - 1)$.
 \end{theorem}
 \begin{proof}

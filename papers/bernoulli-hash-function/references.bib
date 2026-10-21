@@ -1,49 +1,56 @@
-%% Companion papers
-@article{bernoulli_sets,
-    title={Bernoulli sets: a model for sets with random errors},
+%% Companion papers (Zenodo concept DOIs; updated in the October 2026 freeze)
+@misc{bernoulli_sets,
+    title={Bernoulli sets: a model for random approximate sets},
     author={Alexander Towell},
-    year={2024},
-    note={Companion paper}
+    year={2026},
+    howpublished={Zenodo preprint},
+    doi={10.5281/zenodo.19105381}
 }
 
-@article{bernoulli_maps,
+@misc{bernoulli_maps,
     title={The algebra of the random approximate map model},
     author={Alexander Towell},
-    year={2024},
-    note={Companion paper}
+    year={2026},
+    howpublished={Zenodo preprint},
+    doi={10.5281/zenodo.19105389}
 }
 
-@article{bernoulli_data_type,
+@misc{bernoulli_data_type,
     title={Random approximate values over algebraic types},
     author={Alexander Towell},
-    year={2024},
-    note={Companion paper}
+    year={2026},
+    howpublished={Zenodo preprint},
+    doi={10.5281/zenodo.19105395}
 }
 
 %% Prior implementations
-@article{phf,
+@misc{phf,
     title={The Perfect Hash Filter: an implementation of the approximate set},
     author={Alexander Towell},
-    year={2018}
+    year={2018},
+    note={Unpublished manuscript}
 }
 
-@article{pmf,
+@misc{pmf,
     title={The Perfect Map Filter: an implementation of the approximate map abstract data type},
     author={Alexander Towell},
-    year={2018}
+    year={2018},
+    note={Unpublished manuscript}
 }
 
-@article{oph,
+@misc{oph,
     title={Cryptographic perfect hash function},
     author={Alexander Towell},
-    year={2017}
+    year={2017},
+    note={Unpublished manuscript}
 }
 
 %% Encrypted search
-@article{es,
+@misc{es,
     title={Encrypted Search: an information-theoretic approach to confidentiality},
     author={Alexander Towell},
-    year={2018}
+    year={2018},
+    note={Unpublished manuscript}
 }
 
 %% External references
@@ -124,4 +131,70 @@
     booktitle={Proceedings of the 2021 International Conference on Management of Data (SIGMOD)},
     pages={2443--2456},
     year={2021}
+}
+
+%% Added in the October 2026 freeze (DOIs checked against Crossref,
+%% or DataCite where noted, on 2026-10-21).
+@inproceedings{pagh2001lossy,
+  author    = {Pagh, Rasmus and Rodler, Flemming Friche},
+  title     = {{Lossy Dictionaries}},
+  booktitle = {Algorithms -- ESA 2001},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {300--311},
+  publisher = {Springer Berlin Heidelberg},
+  year      = {2001},
+  doi       = {10.1007/3-540-44676-1_25},
+}
+
+@inproceedings{dietzfelbinger2008retrieval,
+  author    = {Dietzfelbinger, Martin and Pagh, Rasmus},
+  title     = {{Succinct Data Structures for Retrieval and Approximate Membership (Extended Abstract)}},
+  booktitle = {Automata, Languages and Programming (ICALP 2008)},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {385--396},
+  publisher = {Springer Berlin Heidelberg},
+  year      = {2008},
+  doi       = {10.1007/978-3-540-70575-8_32},
+}
+
+@inproceedings{esposito2020recsplit,
+  author    = {Esposito, Emmanuel and Graf, Thomas Mueller and Vigna, Sebastiano},
+  title     = {{RecSplit: Minimal Perfect Hashing via Recursive Splitting}},
+  booktitle = {Proceedings of the Twenty-Second Workshop on Algorithm Engineering and Experiments (ALENEX)},
+  pages     = {175--185},
+  publisher = {Society for Industrial and Applied Mathematics},
+  year      = {2020},
+  doi       = {10.1137/1.9781611976007.14},
+}
+
+@inproceedings{lehmann2024shockhash,
+  author    = {Lehmann, Hans-Peter and Sanders, Peter and Walzer, Stefan},
+  title     = {{ShockHash: Towards Optimal-Space Minimal Perfect Hashing Beyond Brute-Force}},
+  booktitle = {Proceedings of the Symposium on Algorithm Engineering and Experiments (ALENEX)},
+  pages     = {194--206},
+  publisher = {Society for Industrial and Applied Mathematics},
+  year      = {2024},
+  doi       = {10.1137/1.9781611977929.15},
+}
+
+% DOI registered with DataCite (not Crossref); metadata checked via api.datacite.org.
+@inproceedings{lehmann2025seeds,
+  author    = {Lehmann, Hans-Peter and Sanders, Peter and Walzer, Stefan and Ziegler, Jonatan},
+  title     = {{Combined Search and Encoding for Seeds, with an Application to Minimal Perfect Hashing}},
+  booktitle = {33rd Annual European Symposium on Algorithms (ESA 2025)},
+  series    = {Leibniz International Proceedings in Informatics (LIPIcs)},
+  volume    = {351},
+  pages     = {109:1--109:18},
+  publisher = {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  year      = {2025},
+  doi       = {10.4230/LIPIcs.ESA.2025.109},
+}
+
+% No Crossref DOI (SODA 2004 proceedings); checked against the author-hosted PDF.
+@inproceedings{chazelle2004bloomier,
+  author    = {Chazelle, Bernard and Kilian, Joe and Rubinfeld, Ronitt and Tal, Ayellet},
+  title     = {{The Bloomier Filter: An Efficient Data Structure for Static Support Lookup Tables}},
+  booktitle = {Proceedings of the Fifteenth Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)},
+  year      = {2004},
+  url       = {https://www.cs.princeton.edu/~chazelle/pubs/soda04.pdf},
 }

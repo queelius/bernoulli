@@ -122,9 +122,11 @@ For example, with $N = 100$, one can achieve $\fprate = 0.01, 0.02, \ldots, 1.00
 
 When the false negative rate $\fnrate > 0$, only $p = (1-\fnrate)m$ of the
 $m$ elements need to be accepted.
-Under the equality predicate, the algorithm must enumerate all $\binom{m}{p}$
-subsets of size $p$ and check whether each subset collides.
-Under the threshold predicate, the search is dramatically simpler.
+Under the equality predicate, the naive algorithm (\cref{alg:make_shf_eq})
+enumerates all $\binom{m}{p}$ subsets of size $p$ and checks whether each
+subset collides.
+Under the threshold predicate, the acceptance set is fixed in advance, so a
+candidate salt is checked by counting.
 
 \begin{theorem}[Search complexity for $\fnrate > 0$]
 \label{thm:fnr_search}
@@ -132,9 +134,10 @@ Under the threshold predicate, testing whether a candidate salt $b$ admits at
 least $p$ of $m$ elements requires $\mathcal{O}(m)$ hash evaluations: simply
 count how many elements satisfy $\hash(x \cat b) \bmod N \leq t$.
 
-Under the equality predicate, the same test requires
+Under the equality predicate, the naive subset-enumeration test of
+\cref{alg:make_shf_eq} requires
 $\mathcal{O}\!\left(\binom{m}{p} \cdot m\right)$ hash evaluations in the worst
-case, since each candidate $h_0$ (determined by each $p$-subset) must be
+case, since each candidate $h_0$ (determined by each $p$-subset) is
 checked against all elements.
 \end{theorem}
 \begin{proof}
@@ -157,8 +160,12 @@ subset-enumeration algorithm (\cref{alg:make_shf_eq}).
 A hash-and-count approach---hashing all $m$ elements, grouping by hash value,
 and checking if any group has $\geq p$ members---achieves $\mathcal{O}(m)$
 per candidate salt, matching the threshold predicate.
-However, the equality predicate must still search over possible $h_0$ values
-implicitly, so the constant factor is larger.
+The threshold predicate therefore gives no asymptotic speedup over a
+hash-and-count equality test; the exponential gap in \cref{thm:fnr_search} is
+relative to the naive enumeration only.
+Under uniform hashing, the success probability of a fixed acceptance set
+depends only on its cardinality, so the practical differences are the finer
+FPR lattice and the simpler bookkeeping.
 \end{remark}
 
 \subsection{Adaptive threshold}
@@ -198,6 +205,9 @@ Unlike the fixed-threshold predicate, the adaptive threshold produces a
 The parameter $p$ controls the expected FPR: choosing
 $p = \lfloor \epsilon^{*}(m+1) \rfloor$ targets a desired mean FPR of
 $\epsilon^{*}$.
+The same parameter also sets the recall: only about $p$ of the $m$ keys are
+accepted, so targeting a small mean FPR $\epsilon^{*}$ accepts only about an
+$\epsilon^{*}$ fraction of the members (\cref{sec:adaptive_contract}).
 \end{remark}
 
 \subsubsection{Success probability}
@@ -232,16 +242,19 @@ success probability per trial is
     \;=\; \Prob{\Card{\Set{V}} \geq p}\,,
 \end{equation}
 where $\Set{V} = \{i : \hash(1 \cat x_i \cat b) \bmod 2^{\BL(v_i)} =
-\Encode(v_i)\}$ is the set of value-matching keys and
-$\Card{\Set{V}} \sim \bindist(m, 2^{-\mu})$ under the random oracle
-assumption.
+\Encode(v_i)\}$ is the set of value-matching keys.
+Under the random oracle assumption, $\Card{\Set{V}}$ is a sum of independent
+Bernoulli$(2^{-\BL(v_i)})$ indicators (a Poisson-binomial count), which is
+$\bindist(m, 2^{-\mu})$ when all values have the same encoding length $\mu$.
 \end{theorem}
 \begin{proof}
 The value-matching constraint is independent of the residue ordering.
 For each key $x_i$, the value hash matches with probability $2^{-\BL(v_i)}$.
 Under the random oracle assumption, these are independent Bernoulli trials, so
-$\Card{\Set{V}} \sim \bindist(m, 2^{-\mu})$ (exactly when all values have the
-same encoding length; approximately otherwise).
+$\Card{\Set{V}}$ is Poisson-binomial with these success probabilities, and
+binomial when the lengths are equal.
+(With unequal lengths, $2^{-\mu}$ is not the mean of the $2^{-\BL(v_i)}$, so
+$\bindist(m, 2^{-\mu})$ is not a valid substitute.)
 The adaptive threshold can be set on any $p$ of the value-matching keys, so the
 salt succeeds if and only if $\Card{\Set{V}} \geq p$.
 \end{proof}
@@ -263,19 +276,24 @@ i.i.d.\ discrete uniform random variables.
 
 \begin{theorem}[Exact FPR distribution]
 \label{thm:fpr_distribution}
-For sets ($\mu = 0$), the threshold $T = \OS{p}{m}$ has the probability mass
+For sets ($\mu = 0$), the threshold $T = \OS{p}{m}$ has the distribution
 function
 \begin{equation}
-\label{eq:os_pmf}
-    \Prob{T = j}
-    \;=\; \frac{\binom{j}{p-1}\binom{N-1-j}{m-p}}{\binom{N-1}{m-1}}
-    \cdot \frac{m}{N}\,,
-    \quad j = p-1, p, \ldots, N-1-(m-p)\,,
+\label{eq:os_cdf}
+    \Prob{T \leq j}
+    \;=\; \sum_{a=p}^{m} \binom{m}{a}
+    \left(\frac{j+1}{N}\right)^{a}\left(1 - \frac{j+1}{N}\right)^{m-a},
+    \quad j = 0, 1, \ldots, N-1\,,
 \end{equation}
-which is the PMF of the $p$-th order statistic from $m$ i.i.d.\
-$\operatorname{Uniform}\{0,\ldots,N-1\}$ draws.
-Equivalently, $T + 1$ follows a
-$\operatorname{BetaBinomial}(N, p, m - p + 1)$ distribution shifted by $p$.
+and probability mass function
+\begin{equation}
+\label{eq:os_pmf}
+    \Prob{T = j} \;=\; \Prob{T \leq j} - \Prob{T \leq j-1}\,,
+\end{equation}
+with $\Prob{T \leq -1} = 0$.
+Equivalently, $\Prob{T \leq j} = I_{(j+1)/N}(p,\, m - p + 1)$, where $I_x$ is
+the regularized incomplete Beta function, so $T + 1$ has the same law as
+$\lceil N U \rceil$ with $U \sim \betadist(p, m - p + 1)$.
 
 In the continuous limit ($N \to \infty$ with $\fprate = (T+1)/N$), the FPR
 converges in distribution:
@@ -285,11 +303,15 @@ converges in distribution:
 \end{equation}
 \end{theorem}
 \begin{proof}
-See \cref{sec:adaptive_pmf_derivation} for the exact discrete derivation.
-The continuous limit follows from the classical result that the $p$-th order
-statistic of $m$ i.i.d.\ $\operatorname{Uniform}(0,1)$ random variables has
-a $\betadist(p, m - p + 1)$
-distribution~\cite{order_statistics}.
+$T \leq j$ if and only if at least $p$ of the $m$ independent residues are at
+most $j$, and each residue is at most $j$ with probability $(j+1)/N$; this
+gives \cref{eq:os_cdf}.
+The incomplete Beta form is the standard identity
+$\Prob{\bindist(m, x) \geq p} = I_x(p, m-p+1)$~\cite{order_statistics}, and
+$\Prob{\lceil N U \rceil \leq j+1} = \Prob{U \leq (j+1)/N}$ gives the
+coupling with $U$, from which the continuous limit follows.
+See \cref{sec:adaptive_pmf_derivation} for details and for the relation to
+the distinct-residue formula printed in earlier versions of this paper.
 \end{proof}
 
 \begin{theorem}[Moments of the adaptive FPR]
@@ -308,24 +330,61 @@ To target a desired mean FPR of $\epsilon^{*}$, choose
 \end{equation}
 The variance $\Var{\fprate} = \mathcal{O}(1/m)$ vanishes as $m \to \infty$,
 so the FPR concentrates around $\epsilon^{*}$.
+For finite $N$, the coupling of \cref{thm:fpr_distribution} gives
+$p/(m+1) \leq \Expect{\fprate} \leq p/(m+1) + 1/N$.
 \end{theorem}
 \begin{proof}
 These are the moments of the $\betadist(p, m - p + 1)$ distribution:
 $\Expect{X} = \alpha / (\alpha + \beta)$ and
 $\Var{X} = \alpha\beta / ((\alpha + \beta)^2(\alpha + \beta + 1))$
 with $\alpha = p$ and $\beta = m - p + 1$.
+The finite-$N$ bound follows from $NU \leq \lceil NU \rceil < NU + 1$.
 \end{proof}
+
+\subsubsection{Recall, dependence, and the accuracy contract}
+\label{sec:adaptive_contract}
+
+The adaptive threshold accepts at least $p$ of the $m$ keys, and in the
+continuous limit exactly $p$ of them, so its recall is $p/m$ (at least $p/m$
+with ties at finite $N$).
+Its mean FPR is at least $p/(m+1)$ by \cref{thm:adaptive_moments}.
+Hence, in the continuous limit,
+\begin{equation}
+\label{eq:adaptive_discrimination}
+    \text{mean recall} - \text{mean FPR}
+    \;=\; \frac{p}{m} - \frac{p}{m+1}
+    \;=\; \frac{p}{m(m+1)} \;\leq\; \frac{1}{m+1}\,,
+\end{equation}
+so the adaptive rule barely discriminates members from non-members.
+At zero false negatives ($p = m$), the mean FPR is $m/(m+1)$.
+Exact finite values: for $N = m = 100$, the rank $p = 1$ gives mean recall
+$0.0158$ and mean FPR $0.0157$, and $p = 100$ gives recall $1$ and mean FPR
+$0.9943$; for $N = m = 2$, $p = 1$, the mean recall is $3/4$ and the mean FPR
+is $5/8$.
+A data-independent coin that accepts each query with probability equal to the
+mean FPR has recall equal to that FPR, which is nearly the same contract.
+
+The adaptive construction is also not a Bernoulli set in the sense of
+\cref{def:bernoulli_set}.
+Conditional on $T$, distinct non-members are accepted independently with
+probability $(T+1)/N$, but unconditionally each fixed non-member is accepted
+with probability $\Expect{(T+1)/N}$, and two distinct non-members have
+covariance $\Var{(T+1)/N} > 0$ (equal to $3/64$ for $N = m = 2$, $p = 1$).
+It is a mixture of Bernoulli sets over the random rate.
 
 \begin{remark}
 For maps ($\mu > 0$), the FPR distribution is a mixture: conditioned on the
 number of value-matching keys $\Card{\Set{V}} = v \geq p$, the threshold is the
 $p$-th order statistic of $v$ residues.
-The unconditional FPR is
+In the continuous limit,
 \begin{equation}
     \fprate \mid \Card{\Set{V}} = v \;\sim\; \betadist(p, v - p + 1)\,,
 \end{equation}
-and the marginal FPR averages over $\Card{\Set{V}} \sim \bindist(m, 2^{-\mu})$
-restricted to $\Card{\Set{V}} \geq p$.
+and the marginal FPR averages over the (Poisson-binomial) law of
+$\Card{\Set{V}}$ restricted to $\Card{\Set{V}} \geq p$.
+Keys outside $\Set{V}$ whose residues fall at or below $t$ are also accepted,
+and their value lookups return wrong values; this error is not counted by the
+threshold rule.
 \end{remark}
 
 \subsubsection{Search complexity}
@@ -356,7 +415,9 @@ The geometric search terminates after an expected $1/p_{\mathrm{ad}}$ trials.
 
 \begin{table}[ht]
 \centering
-\caption{Comparison of the three acceptance predicates for the BHF.}
+\caption{Comparison of the three acceptance predicates for the BHF.
+    The adaptive column does not meet the same accuracy contract as the
+    other two: its recall is about $p/m$ (\cref{sec:adaptive_contract}).}
 \label{tab:predicate_comparison}
 \begin{tabular}{lccc}
 \hline
@@ -367,7 +428,8 @@ FPR values ($\mu=0$) & $\{2^{-k}\}$ & $\{j/N\}$ & $\betadist(p,m\!-\!p\!+\!1)$ \
 Success prob.\ (sets) & $\fprate^{m-1}$ & $\fprate^{m}$ & $1$ \\
 Salt search & geometric & geometric & none (sets) \\
 Construction & $\mathcal{O}(m/p)$ trials & $\mathcal{O}(m/p)$ trials & $\mathcal{O}(m \log m)$ \\
-Stored params & $(h_k, b)$ & $(N, t, b)$ & $(N, t)$ \\
+Recall ($\mu=0$) & $\geq 1 - \fnrate$ & $\geq 1 - \fnrate$ & $\approx p/m$ \\
+Stored params & $(h_k, b)$ & $(N, t, b)$ & $(N, t)$; $(N,t,b)$ maps \\
 Bits/element & $-\!\log_2\!\fprate + \mu$ & $-\!\log_2\!\fprate + \mu$ & $\mathcal{O}(\log N / m)$ \\
 Max entropy? & yes & yes & no (see \cref{sec:adaptive_entropy}) \\
 \hline

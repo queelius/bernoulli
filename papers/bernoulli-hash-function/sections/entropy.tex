@@ -1,29 +1,34 @@
 \section{Entropy and information}
 \label{sec:entropy}
 
-The BHF is not only space-optimal but also achieves \emph{maximum entropy} in
-its binary representation.
-This is a desirable property for applications requiring confidentiality
-(e.g., encrypted search), as it minimizes the information leaked by the encoding.
+Given its length, the BHF salt is uniformly distributed, so the encoding
+carries no information beyond its length and the public parameters.
+This is a symmetry property of randomized search order; it is neither a
+compression bound beyond the space analysis of \cref{sec:space} nor a
+privacy theorem.
 
 \subsection{Maximum entropy coding}
 
-\begin{theorem}[Maximum entropy]
+\begin{theorem}[Maximum entropy given the length]
 \label{thm:max_entropy}
-The BHF encoding is a maximum entropy coder for the Bernoulli set (and map)
-abstract data type.
+Conditioned on its bit length, the random part of the BHF encoding is
+uniformly distributed; in this sense the BHF is a maximum entropy code for
+its length.
 \end{theorem}
 \begin{proof}
 The BHF encoding consists of:
 \begin{enumerate}
-    \item The hash value $h_k$ (or the threshold $t$): uniformly distributed
-    over its domain by the random oracle assumption.
+    \item For the equality predicate, the hash target $h_k$: uniformly
+    distributed over $\{0,\ldots,2^k-1\}$ by the random oracle assumption.
+    For the fixed-threshold predicate, $(N, t)$ is a public parameter chosen
+    in advance; it is not random and carries no information about the set.
+    (An earlier version claimed that $t$ is uniformly distributed.)
     \item The salt $b$: conditioned on having length $n$, the particular
-    $b \in \cisbn{n}$ that is found is uniformly distributed (the search
-    order is randomized within each length level).
+    $b \in \cisbn{n}$ that is found is uniformly distributed, by symmetry,
+    because the search order is randomized within each length level.
 \end{enumerate}
-Both components are \emph{incompressible}---their entropy equals their bit
-length.
+The random components are \emph{incompressible} given their lengths: their
+entropy equals their bit length.
 The only information in the representation is the \emph{length} of $b$,
 which depends on the cardinality $m$ and the rates $\fprate$, $\mu$.
 \end{proof}
@@ -119,7 +124,7 @@ of the threshold $T = \OS{p}{m}$ is
 \begin{equation}
 \label{eq:adaptive_entropy}
     \Entropy{T}
-    \;=\; -\sum_{j=p-1}^{N-1-(m-p)} \Prob{T = j}\,\log_2 \Prob{T = j}\,,
+    \;=\; -\sum_{j=0}^{N-1} \Prob{T = j}\,\log_2 \Prob{T = j}\,,
 \end{equation}
 where $\Prob{T = j}$ is given by \cref{eq:os_pmf}.
 In the continuous limit ($N \to \infty$), the entropy of
@@ -156,10 +161,9 @@ Given the same keys and $N$, the threshold is fully determined, so the
 encoding carries less entropy than an exhaustive-search encoding of the same
 size.
 
-However, conditioned on a particular threshold value $t$, the resulting
-fixed-threshold BHF \emph{is} maximum entropy in the sense of
-\cref{thm:max_entropy}: the adversary learns $(N, t)$ but nothing about
-which elements produced the threshold.
-The entropy loss relative to the fixed-threshold BHF is precisely
-$\Entropy{T}$---the information revealed by the data-dependent choice of $t$.
+The threshold $t$ is a data-dependent statistic of the keys, and $\Entropy{T}$
+measures how much the stored threshold varies across key sets.
+The adaptive structure also answers a weaker membership question than the
+fixed-threshold BHF (\cref{sec:adaptive_contract}), so the two encodings are
+not comparable at the same accuracy.
 \end{remark}

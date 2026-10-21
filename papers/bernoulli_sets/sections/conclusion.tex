@@ -5,9 +5,11 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-A central finding of this work is that two axioms suffice for the full distributional theory of random approximate sets: element-wise independence and conditional independence of block error rates together imply binomial error counts, normal limits, and confidence intervals, with no additional assumptions required.
-The Kronecker factorization of the joint confusion matrix captures this parametric parsimony; the entire probabilistic structure follows from the false positive and false negative rates alone.
-By formulating the model as an abstract data type, we ensure that any conforming implementation (Bloom filters, perfect hash filters, or their compositions) inherits every result automatically, decoupling the theory from any particular construction.
+Two axioms, element-wise independence and conditional independence of block error rates, yield the distributional results collected here: binomial error counts, normal limits, and probability intervals for the realized rates.
+These are standard consequences of independence, stated once so that the companion papers can cite them.
+For a single second-order Bernoulli set, the Kronecker factorization of the joint confusion matrix means that the probabilistic structure is determined by the false positive and false negative rates.
+For composed set expressions it is not, because the rates depend on each element's latent membership pattern (\cref{sec:higher_order_model}).
+Formulating the model as an abstract data type means that any implementation satisfying the axioms inherits these results; the remark ``\nameref{rem:implementations}'' in \cref{sec:bernoulli_model} describes the conditional sense in which a Bloom filter does so.
 
 \paragraph{Practical implications.}
 The abstract data type formulation means that the results of this paper apply automatically to any implementation whose membership queries satisfy element-wise independence.
@@ -23,10 +25,11 @@ The probability distributions of binary classification measures---positive predi
 The joint entropy of error counts and the information-theoretic space complexity lower bound for approximate sets are developed in~\cite{bernoulliEntropy}.
 
 \paragraph{Historical context.}
-At the per-element level, the Bernoulli set model reduces to a collection of independent binary channels~\cite{shannonBSC} (symmetric when $\fprate = \fnrate$, asymmetric otherwise), and the randomized-response mechanism of Warner~\cite{warner1965} provides a social-science interpretation.
-The contribution of the present work is the probabilistic \emph{model}---the axioms, distributions, and composition theorem---that sits above these per-element channels and provides a foundation for the compositional algebra developed in~\cite{bernoulliComposition}.
+At the per-element level, the Bernoulli set model reduces to a collection of independent binary channels~\cite{shannonBSC} (symmetric when $\fprate = \fnrate$, asymmetric otherwise), to the misclassification model of Bross~\cite{bross1954misclassification}, and to the randomized-response mechanism of Warner~\cite{warner1965} applied to a membership indicator.
+Probabilistic sets~\cite{hirota1981probabilistic} and filters with two-sided error~\cite{donnet2006retouched,laufer2011generalized} also predate this work.
+The present paper is an axiomatic restatement of these ideas; the distributions and the composition rule it derives are standard, and it serves as the reference point for the compositional algebra developed in~\cite{bernoulliComposition}.
 
 \paragraph{Further extensions.}
 The algebraic structure developed here extends to richer mathematical objects.
-The algebra of approximate maps (functions $X \to Y$ with Bernoulli errors) is treated in a companion paper~\cite{bernoulliMaps}, which derives composition rules for approximate Boolean functions and function spaces, and shows that the entropy map is the information-theoretically optimal construction.
+The algebra of approximate maps (functions $X \to Y$ with Bernoulli errors) is treated in a companion paper~\cite{bernoulliMaps}, which studies the composition of approximate functions and a space-efficient construction; see that paper's October 2026 errata for the scope of its composition results.
 A type-theoretic generalization, treating approximate Booleans, maps, and relations as instances of a single algebraic framework over sum, product, and function types, is developed in companion work on approximate algebraic data types.

@@ -57,7 +57,7 @@ where $p$ and $n$ are the number of positives and negatives respectively and $\P
 
 The simple error-rate formulas---union FPR, intersection FNR, and complement---are monotonically increasing in each input rate.
 The weighted formulas (union FNR, intersection FPR, and set difference rates) have \emph{mixed monotonicity}: they increase in same-type rates ($\fnrate$ in $\fnrate$, $\fprate$ in $\fprate$) and decrease in cross-type rates ($\fnrate$ in $\fprate$, $\fprate$ in $\fnrate$).
-Replacing point-valued rates with intervals and evaluating at the appropriate endpoints for each variable yields guaranteed bounds on the output rates.
+Replacing point-valued rates with intervals and evaluating at the appropriate endpoints for each variable yields guaranteed bounds on the output rates, for known partition weights; when the weights are also uncertain, each weighted rate is linear in the weights and its extremes lie at vertices of the weight simplex.
 
 \begin{theorem}[Complement]
 \label{thm:uncertain_rates_comp_set}

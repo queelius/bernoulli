@@ -92,3 +92,21 @@
 ## Last Updated
 
 2026-05-29 (multi-agent review; prior entry: 2026-02-26 papermill init)
+
+## Freeze (2026-10-21)
+
+Frozen as the final preprint version, superseded by monograph Chapter 14
+("Optimal Bernoulli Sets (BHF)"). A "Status and errata (October 2026)" box
+(`status_errata.tex`) follows the abstract; `ERRATA.md` lists 13 corrections.
+Main fixes: the exact threshold law is now the i.i.d. binomial tail (the
+printed without-replacement PMF failed at N=m=2); the adaptive threshold's
+recall (about p/m) and non-member correlation are stated, and the "price of
+FPR certainty" theorem is withdrawn in favor of a same-contract reduction to
+binomial-tail search; the E[log2 Q] closed form and the geometric entropy sign
+are fixed; the false-negative lower bound is credited to Pagh-Rodler 2001;
+seed-search lineage (RecSplit, ShockHash, Lehmann et al. ESA 2025),
+Dietzfelbinger-Pagh 2008, and the Bloomier filter are credited, and
+optimality/novelty claims are removed. Build: `make`, 0 errors, 0 undefined
+references or citations, 30 pages. The June "minor revision / ~95% complete"
+ratings above measured draft maturity, not correctness or novelty. No further
+revisions are planned.

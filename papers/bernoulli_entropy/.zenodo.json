@@ -1,7 +1,7 @@
 {
   "title": "Entropy and space complexity of random approximate sets",
   "upload_type": "publication",
-  "description": "The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with a closed-form asymptotic expansion and the -log2(epsilon) bits-per-element space bound.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 8. The joint entropy of false-positive and false-negative counts in the Bernoulli set model, with an asymptotic expansion, and the space lower bound for approximate membership: the one-sided -log2(epsilon) bound of Carter et al. (1978) and the two-sided bound with false negatives of Pagh and Rodler (2001).",
   "creators": [
     {
       "name": "Towell, Alexander",

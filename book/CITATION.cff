@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
-title: "Bernoulli Types: An Algebra of Approximate Computation"
+title: "Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation"
 type: book
 authors:
   - family-names: Towell
@@ -14,5 +14,6 @@ keywords:
   - random approximate types
   - probabilistic data structure
   - monograph
+  - approximate membership
+  - two-sided error
   - approximate computation
-  - type theory

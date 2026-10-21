@@ -1,7 +1,7 @@
 {
   "title": "A Forward (epsilon, omega) Calculus for Quantum Readout Error and the Classical Post-Processing of Measurement Outcomes",
   "upload_type": "publication",
-  "description": "A reusable, forward, asymmetric calculus that propagates a false-positive/false-negative rate pair through Boolean combinations and Kronecker composition of measured qubits, unifying a quantum readout-error model with the Bernoulli theory of approximate sets and maps.",
+  "description": "Final version (October 2026), with errata; superseded by the monograph Bernoulli Types: Two-Sided Error in Approximate Membership, Retrieval, and Computation, Chapter 19. Applies known forward error-propagation tools (signal-probability analysis, probabilistic transfer matrices, Gallager's parity lemma) to Boolean post-processing of asymmetric quantum readout error, computed per latent assignment, with worked ibm_hanoi syndrome-bit numbers. A two-rate pair does not propagate through Boolean trees as a pair.",
   "creators": [
     {
       "name": "Towell, Alexander",

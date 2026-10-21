@@ -12,8 +12,8 @@ It is thus the information-theoretic \emph{limit} of the model, in the same sens
 Concretely, the entropy map has three defining properties:
 \begin{enumerate}
 \item It is a perfect model of the \emph{first-order} random approximate map.
-\item The bit-length of its in-place encoding is a random variable $\RV{L}$ whose expectation obtains the theoretical lower bound of $-\log_2 \fprate + \mu$ bits per element, where $\mu$ is the average value bit-length.
-\item The in-place encoding has maximum conditional entropy given the error rates, so no additional structure beyond the Bernoulli axioms is imposed.
+\item The bit-length of its in-place encoding is a random variable $\RV{L}$ whose expectation approaches $-\log_2 \fprate + \mu$ bits per element, where $\mu$ is the average value bit-length.
+\item The in-place encoding is intended to have maximum conditional entropy given the error rates, so that no structure beyond the Bernoulli axioms is imposed (this property is asserted, not proved, here).
 \end{enumerate}
 
 \subsection{Framework}
@@ -146,24 +146,70 @@ The set of rationals in $[0,1]$ is denoted by $\FancySet{P}$ and the set of powe
 	\FancySet{R} \coloneqq \SetBuilder{2^{-k} \in \RatSet}{k \in \IntSet_{\geq 0}} \subset \FancySet{P}\,.
 \end{equation}
 
-The probability of success given a rate-distortion $\fnrate$ on positives and $\fprate$ on negatives is given by
+We use the hash-and-check mechanism of \cref{sec:shm}.
+Let $\Fun{f}$ have $m$ keys with values $v_1,\ldots,v_m$, let $\fprate = 2^{-k}$,
+and let $\fnrate \in [0,1)$ be a target false negative rate.
+Designate in advance a set $\PlainSet{S}$ of
+$r \coloneqq \lceil (1-\fnrate) m \rceil$ keys to be stored; the remaining
+$m - r$ keys are not constrained.
+A trial (one candidate bit string) succeeds when all $r$ stored keys hash to a
+common $k$-bit target and the value hash of each stored key begins with the
+codeword of its value.
+Under a random oracle these events are independent, and a trial succeeds with
+probability
 \begin{equation}
-	p(\fprate,\fnrate) = \binom{m}{(1-\fnrate)m} \fprate^{m(1-\fnrate)} (1-\fprate)^{m \fnrate}\,.
+\label{eq:prob-success}
+	p(\fprate,\fnrate) = \fprate^{\,r-1}\, 2^{-\sum_{j \in \PlainSet{S}} \BL(v_j)}
+	= \frac{\fprate^{\,r-1}}{2^{\,r \mu_{\PlainSet{S}}}}\,,
 \end{equation}
+where $\mu_{\PlainSet{S}}$ is the mean codeword length over the stored keys.
+At $\fnrate = 0$ this is \cref{thm:shm-success}.
+A key outside $\PlainSet{S}$ is accepted with probability $\fprate$ and then
+returns its correct value only by chance, so the realized false negative rate
+is at most $\fnrate$.
 
-Each trial is geometrically distributed, $\RV{T} \sim \geodist(p(\fprate,\fnrate))$.
-
-The expected number of trials is $\Expect{\RV{T}} = \frac{1}{p(\fprate,\fnrate)}$.
-The expected code size is $\Expect{\log_2 \RV{T}}$, which is non-linear and problematic but may be approximated with
+The number of trials is geometric, $\RV{T} \sim \geodist(p(\fprate,\fnrate))$,
+with $\Expect{\RV{T}} = 1/p(\fprate,\fnrate)$.
+The stored bit string has length about $\log_2 \RV{T}$, and
 \begin{equation}
-	-\Fun{H}_b(\fnrate) - \fnrate \log_2 (1-\fprate) - (1-\fnrate) \log_2 \fprate
+	\log_2 \frac{1}{p} - \frac{1}{\ln 2}
+	\;\leq\; \Expect{\log_2 \RV{T}}
+	\;\leq\; \log_2 \frac{1}{p}\,,
 \end{equation}
-bits per element where $\Fun{H}_b(p) \coloneqq (1-p)\log_2(1-p) + p \log_2 p$ is the binary entropy function.
+by Jensen's inequality above and, below, by $\Prob{\RV{T} \leq a} \leq a p$,
+which gives $\Expect{(\log_2(1/p) - \log_2 \RV{T})_+} \leq 1/\ln 2$.
+Per element of the original map the expected code size is therefore
+\begin{equation}
+	-\frac{r-1}{m} \log_2 \fprate + \frac{r}{m}\,\mu_{\PlainSet{S}} + O(1/m)
+	\;\longrightarrow\;
+	-(1-\fnrate) \log_2 \fprate + (1-\fnrate)\,\mu_{\PlainSet{S}}
+\end{equation}
+bits as $m \to \infty$.
 
-This result is not the result of computing $\Expect{\log_2 \RV{T}}$, nor the expectation of its Taylor approximation.
-It is simply $\log_2 \Expect{\RV{T}}$.
+If we let $\fnrate \coloneqq 0$ and $\mu = 0$, the above simplifies to
+$-\log_2 \fprate$, which is the lower bound for \emph{first-order} random
+positive approximate sets over countably infinite universes with a false
+positive rate $\fprate$~\cite{carter1978}.
 
-If we let $\fnrate \coloneqq 0$, the above simplifies to $-\log_2 \fprate$, which is the lower-bound for \emph{first-order} random positive approximate sets over countably infinite universes with a false positive rate $\fprate$.
+\begin{remark}[Correction to earlier versions]
+Earlier versions stated
+$p(\fprate,\fnrate) = \binom{m}{(1-\fnrate)m} \fprate^{m(1-\fnrate)}
+(1-\fprate)^{m \fnrate}$, with the per-element approximation
+$-\Fun{H}_b(\fnrate) - \fnrate \log_2 (1-\fprate) - (1-\fnrate) \log_2 \fprate$,
+where $\Fun{H}_b(p) \coloneqq (1-p)\log_2(1-p) + p \log_2 p$.
+That formula contradicts \cref{thm:shm-success}: at $\fnrate = 0$ it gives
+$\fprate^m$ rather than $\fprate^{m-1}$, it has no value term, and it requires
+the unstored keys to be rejected.
+It describes a different scheme, with the target fixed in advance and any $r$
+of the $m$ keys allowed to be the stored ones.
+For that scheme (with $\mu = 0$) the success event is that \emph{at least} $r$
+keys hit the target, with probability $\Prob{\bindist(m,\fprate) \geq r}$, and
+for $1 - \fnrate > \fprate$ its per-element exponent is the relative entropy
+$(1-\fnrate)\log_2\frac{1-\fnrate}{\fprate} + \fnrate\log_2\frac{\fnrate}{1-\fprate}
+= \Fun{H}_b(\fnrate) - \fnrate \log_2 (1-\fprate) - (1-\fnrate) \log_2 \fprate$.
+The printed approximation thus also had the binary-entropy term with the
+wrong sign.
+\end{remark}
 
 \subsection{Trapdoor entropy maps}
 \label{sec:trapdoor}

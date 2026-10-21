@@ -40,23 +40,23 @@ bound.
 The Perfect Map Filter~\cite{pmf} extends this to maps.
 
 \paragraph{Bernoulli Hash Function (equality/threshold).}
-The BHF achieves the exact lower bound ($-\log_2 \fprate + \mu$ bits per
-element) and maximizes entropy.
+The BHF matches the lower bound ($-\log_2 \fprate + \mu$ bits per element) to
+leading order in expectation, and its salt is uniform given its length.
 However, the construction time is exponential in $m$ (expected
-$\mathcal{O}(1/p)$ trials), making it a theoretical result that establishes
-the achievability of the bound.
+$\mathcal{O}(1/p)$ trials), so it is an illustration of a known bound, not a
+practical structure; the bound was already known to be achievable with
+efficient construction~\cite{pagh2005,dietzfelbinger2008retrieval}.
 
 \paragraph{Bernoulli Hash Function (adaptive threshold).}
-The adaptive variant (\cref{sec:adaptive}) trades a fixed FPR for a random one
-($\fprate \sim \betadist(p, m - p + 1)$) and in return eliminates the salt
-search entirely for sets.
-The per-element space cost is $\mathcal{O}(\log N / m) \to 0$, far below the
-information-theoretic lower bound for fixed-FPR structures.
-This does not violate the lower bound because the FPR is a random variable,
-not a fixed parameter (\cref{rem:lb_not_violated}).
-For applications that can tolerate FPR variability (e.g., when the FPR
-concentrates sufficiently around a target), the adaptive threshold provides
-a polynomial-time, near-zero-space construction.
+The adaptive variant (\cref{sec:adaptive}) has a random FPR
+($\fprate \approx \betadist(p, m - p + 1)$) and needs no salt search for sets,
+but its recall is about $p/m$ while its mean FPR is at least $p/(m+1)$
+(\cref{sec:adaptive_contract}).
+Its $\mathcal{O}(\log N / m)$ per-element cost reflects this weaker contract,
+not the randomness of the FPR (\cref{rem:lb_not_violated}).
+At a fixed recall and FPR cap it reduces to fixed-threshold search
+(\cref{thm:price_certainty}).
+It is not a useful membership structure.
 
 \paragraph{Cuckoo filter~\cite{cuckoo_filter}.}
 The cuckoo filter stores fingerprints in a cuckoo hash table, achieving
@@ -75,29 +75,42 @@ The ribbon filter uses a banded linear system to achieve approximately
 $\log_2(1/\fprate) + 1.5$ bits per element with $\mathcal{O}(n)$ construction
 time, approaching the lower bound with a small additive overhead.
 
-\paragraph{Optimal construction~\cite{pagh2005}.}
-Pagh, Pagh, and Rao showed that the space lower bound of $-\log_2 \fprate$
-bits per element is achievable with polynomial construction
-time~\cite{carter1978}, using a two-level hashing scheme.
-The BHF achieves the same bound via a simpler (but exponential-time)
-exhaustive search, while the adaptive variant trades a fixed FPR for
-polynomial construction.
+\paragraph{Optimal construction and seed search.}
+The space lower bound of $-\log_2 \fprate$ bits per element is due to Carter
+et al.~\cite{carter1978} (with false negatives, Pagh and
+Rodler~\cite{pagh2001lossy}).
+Pagh, Pagh, and Rao~\cite{pagh2005} showed it is achievable up to lower-order
+terms with efficient construction, and Dietzfelbinger and
+Pagh~\cite{dietzfelbinger2008retrieval} gave succinct retrieval structures and
+the general reduction from retrieval to approximate membership, which covers
+maps.
+The Bloomier filter~\cite{chazelle2004bloomier} already stores static
+functions and accepts a query when the decoded value lies in a valid range.
+Brute-force seed search near the information-theoretic scale is the
+mechanism of minimal perfect hash functions such as
+RecSplit~\cite{esposito2020recsplit} and ShockHash~\cite{lehmann2024shockhash};
+Lehmann, Sanders, Walzer, and Ziegler~\cite{lehmann2025seeds} analyze one
+seed that satisfies independent per-key constraints, which is the
+zero-false-negative BHF, and improve on it by encoding sequences of seeds
+jointly.
+The BHF reaches the same bound by a simpler but exponential-time exhaustive
+search.
 
 \subsection{Practical considerations}
 
 While the BHF construction is exponential-time and thus impractical for large
 sets, it serves several purposes:
 \begin{enumerate}
-    \item It proves that the information-theoretic lower bound is
-    \emph{achievable}, not merely a lower bound.
+    \item It gives a short, self-contained illustration that the
+    information-theoretic lower bound is achievable in expectation (a fact
+    already established by the constructions above).
     \item It provides a benchmark against which practical data structures
     (Bloom filters, PHFs) can be compared.
     \item For very small sets ($m \leq 10$), the construction is feasible and
     may be useful in specialized applications such as encrypted search indices.
-    \item The adaptive threshold variant is practical for \emph{any} set size:
-    the construction is $\mathcal{O}(m \log m)$ and the space cost vanishes as
-    $m$ grows.
-    The tradeoff is a random FPR with variance $\mathcal{O}(1/m)$.
+    \item The adaptive threshold variant runs in $\mathcal{O}(m \log m)$ time
+    for any set size, but because its recall is about $p/m$ at mean FPR about
+    $p/(m+1)$ it does not provide a useful membership test.
 \end{enumerate}
 
 \subsection{Encrypted search application}

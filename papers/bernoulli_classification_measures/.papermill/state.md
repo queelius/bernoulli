@@ -91,3 +91,12 @@ This paper is part of a 4-paper family:
 1. Matthews correlation coefficient (MCC) under Bernoulli model: more complex ratio of binomials
 2. Correlated error models (relaxing element-wise independence)
 3. Prevalence interaction with higher-order composition algebra
+
+## Freeze (2026-10-21)
+Final preprint version prepared; paper is frozen and superseded by monograph
+Chapter 7. Added a "Status and errata (October 2026)" box after the abstract;
+removed "compositionally closed"; qualified Bloom/PHF applicability; fixed
+E[beta] = omega in Prop 2.1; scoped the interval PPV bounds; removed novelty
+claims and credited Warner 1965, Bross 1954, Altman-Bland 1994, Goutte-Gaussier
+2005, and Bose et al. 2008. Build: 15 pages, 0 errors, 0 undefined refs/cites.
+See `ERRATA.md`. Not committed; Zenodo re-deposit pending.

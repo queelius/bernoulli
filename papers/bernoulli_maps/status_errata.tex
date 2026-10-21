@@ -1,0 +1,44 @@
+% Status and errata box (October 2026 freeze). \input right after \end{abstract}.
+\begingroup
+\setlength{\fboxsep}{7pt}%
+\begin{center}
+\fbox{\begin{minipage}{0.93\linewidth}\small
+\setlength{\parskip}{4pt}%
+\setlength{\parindent}{0pt}%
+\textbf{Status and errata (October 2026).}
+This is the final version of this preprint; no further revisions are planned.
+It is superseded by Chapter~9 (\emph{Approximate Functions and n-ary
+Channels}) of the monograph \emph{Bernoulli Types: Two-Sided Error in
+Approximate Membership, Retrieval, and Computation} (A.~Towell, 2026), with the
+construction in Chapter~14 and the trapdoor material in Chapter~17:
+\url{https://metafunctor.com/latex/bernoulli-monograph/book.html}
+(hub: \url{https://metafunctor.com/research/bernoulli/}).
+Please cite the monograph in preference to this preprint.
+
+\textbf{Corrections in this version.}
+\begin{itemize}\setlength{\itemsep}{1pt}\setlength{\parskip}{0pt}
+\item \S6.5: the binomial success probability contradicted \S7; it is replaced
+  by the hash-and-check value $\fprate^{r-1}2^{-r\mu_S}$, and a sign error in the
+  old space estimate is fixed.
+\item \S7: the space theorem is restated with a two-sided $O(1/m)$ bound; its
+  ``uniform'' and ``degenerate'' code-length bounds were wrong; proof notation
+  repaired.
+\item \S5: closure holds for marginal rates only; shared intermediate values
+  break element-wise independence (new \Cref{lem:shared-intermediate}).
+\item \S5.3.2: set operations give one rate per latent block, not a single
+  (false positive, false negative) pair.
+\item \S4: the parameter-count baseline in \Cref{thm:kronecker} is corrected.
+\item Abstract, \S1, \S7, \S8: the singular hash map is described as a seed
+  search with exponential expected construction time; novelty claims removed.
+\end{itemize}
+
+\textbf{Predecessors credited.} Bloomier filters~\cite{chazelle2004} and
+retrieval structures~\cite{dietzfelbinger2008} (approximate maps); channel
+cascades~\cite{silverman1955,cover2006} and Rely~\cite{carbin2013rely}
+(composition); Carter et al.~\cite{carter1978} (the $-\log_2\fprate$ floor);
+seed search~\cite{esposito2020recsplit,lehmann2025seeds}, as analyzed in the
+companion paper~\cite{bhf}. No novelty is claimed for these results. A dated
+list of changes is in \texttt{ERRATA.md} in the source repository.
+\end{minipage}}
+\end{center}
+\endgroup

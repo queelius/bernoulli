@@ -67,12 +67,14 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We derive the joint entropy of the false positive and false negative error counts in the Bernoulli set model---a compositionally closed framework for random approximate sets with independent, element-wise errors.
+We derive the joint entropy of the false positive and false negative error counts in the Bernoulli set model, a model of random approximate sets with independent, element-wise errors.
 The joint entropy decomposes additively via element independence and admits a closed-form asymptotic expansion based on the binomial entropy approximation.
 We then establish the information-theoretic space lower bound for positive approximate sets over countably infinite universes, restating and proving the classical result of Carter, Floyd, Gill, Markowsky, and Wegman in the notation of the Bernoulli framework.
 The Bloom filter achieves $\ln 2 \approx 69\%$ of the optimal density.
-The general case---approximate sets with both false positives and false negatives ($0 < \tprate < 1$)---remains an open problem.
+For approximate sets with both false positives and false negatives ($0 < \tprate < 1$), the corresponding bound of about $\tprate \log_2(1/\fprate)$ bits per element is due to Pagh and Rodler (2001); an earlier version of this preprint wrongly called this case open.
 \end{abstract}
+
+\input{status_errata}
 
 \microtypesetup{protrusion=false}
 \tableofcontents
